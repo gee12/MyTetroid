@@ -8,6 +8,7 @@
 
     <LinearLayout
         android:id="@+id/node_view_header"
+        android:orientation="horizontal"
         android:layout_marginLeft="0px"
         android:layout_marginRight="50px"
         android:background="#ccffcc"
@@ -24,14 +25,24 @@
         <TextView
             android:id="@+id/node_view_name"
             android:gravity="left|center_vertical"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/offset_default"
+            android:layout_marginRight="@dimen/offset_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_default"
+            android:textColor="@color/colorNodeName" />
+        <TextView
+            android:id="@+id/node_view_records_count"
+            android:gravity="left|center_vertical"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/offset_default"
             android:layout_marginRight="@dimen/offset_default"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/font_default"
-            android:textColor="@android:color/black" />
-            <!--android:layout_toRightOf="@+id/node_view_icon"-->
-            <!--android:layout_toLeftOf="@+id/node_view_arrow"-->
+            android:textColor="@android:color/holo_blue_dark" />
+            <!--android:background="@android:color/holo_red_light"-->
     </LinearLayout>
 
     <ImageView

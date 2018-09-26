@@ -6,14 +6,16 @@ import java.util.List;
 public class TetroidNode {
     private int id;
     private String name = "";
-    private List<TetroidNode> subNodes;
     private int level;
+    private List<TetroidNode> subNodes;
+    private List<TetroidRecord> records;
 
     public TetroidNode(int id, String name, int level) {
         this.id = id;
         this.name = name;
         this.level = level;
         this.subNodes = new ArrayList<>();
+        this.records = new ArrayList<>();
     }
 
     public int getId() {
@@ -36,6 +38,13 @@ public class TetroidNode {
         return subNodes;
     }
 
+    public List<TetroidRecord> getRecords() {
+        return records;
+    }
+
+    public int getRecordsCount() {
+        return records.size();
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -44,6 +53,12 @@ public class TetroidNode {
     public void addSubNode(TetroidNode subNode)
     {
         subNodes.add(subNode);
+    }
+
+    public void addRecord(TetroidRecord record)
+    {
+        record.setNode(this);
+        records.add(record);
     }
 
     public boolean isHaveSubNodes() {

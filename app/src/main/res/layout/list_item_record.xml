@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/activatedBackgroundIndicator"
+    android:descendantFocusability="blocksDescendants">
+
+    <TextView
+        android:id="@+id/record_view_line_num"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:layout_margin="5px"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/record_view_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="left|center_vertical"
+        android:textSize="14px"
+        android:layout_weight="1"/>
+
+    <ImageView
+        android:id="@+id/record_view_attached"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:gravity="top"
+        android:padding="2dp"
+        android:layout_weight="0"
+        android:background="@android:drawable/ic_menu_view"/>
+
+</LinearLayout>
