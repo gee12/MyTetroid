@@ -6,6 +6,7 @@ buildscript {
         google()
         jcenter()
         maven { url 'http://dev.open-rnd.net:30844/content/groups/public/' }
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'

@@ -7,8 +7,22 @@ public class DataManager {
     private static List<TetroidNode> rootNodesCollection;
     private static List<TetroidRecord> recordsCollection;
 
+    static String html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n" +
+            "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /><style type=\"text/css\">p, li { white-space: pre-wrap; }</style>\n" +
+            "</head><body style=\" font-family:'DejaVu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">2016г</p>\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Это функция в Android, которая позволяет пользоваться приложениями без их скачивания и установки. Отдельные модули приложения, необходимые пользователю, просто подгружаются из Google Play.</p>\n" +
+            "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Пример:</p>\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Ты при помощи телефона или планшета с Android ищешь в интернете какой-то товар и жмешь на ссылку в поисковой выдаче. И вместо сайта магазина твое устройство загрузит некую минимальную версию приложения (размером ~1Мб), в которой будет только информация об этом товаре и кнопка Купить.</p>\n" +
+            "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Во-первых, ты можешь немедленно совершить покупку, используя уже имеющиеся в телефоне данные кредитной карты. Во-вторых, с твоего разрешения приложение может получить доступ к датчикам телефона и сохраненной в нем информации. В-третьих, у приложения может быть более отзывчивый интерфейс, чем у сайта.</p>\n" +
+            "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n" +
+            "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Технически это реализовано следующим образом: разработчик строит свою программу так, чтобы у нее была легко отделимая часть, которую можно загружать отдельно. Создавать новую ветку кода при этом не обязательно, главное — в нужном месте вызвать программные интерфейсы Instant Apps. Приложение отправляется в Google Play, и остальное — это уже магия Google. Когда поисковик решит, что вместо сайта можно показать приложение, он запросит его из Google Play и покажет пользователю.</p>\n" +
+            "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>";
+
     public static void init() {
-        TetroidRecord firstRec = new TetroidRecord(1, "First record");
+        TetroidRecord firstRec = new TetroidRecord(1, "First record", html);
         TetroidRecord secondRec = new TetroidRecord(2, "Second record");
         TetroidRecord thirdRec = new TetroidRecord(3, "Third record");
         TetroidRecord fourthRec = new TetroidRecord(4, "Fourth record");

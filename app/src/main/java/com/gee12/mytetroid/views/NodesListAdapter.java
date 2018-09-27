@@ -1,6 +1,9 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,7 @@ import android.widget.TextView;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidNode;
 
+import java.io.File;
 import java.util.List;
 
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -19,7 +23,7 @@ import pl.openrnd.multilevellistview.MultiLevelListAdapter;
 
 public class NodesListAdapter extends MultiLevelListAdapter {
 
-    public interface OnNodeNameClickListener {
+    public interface OnNodeHeaderClickListener {
         /**
          * Вызывается при клике на имени ветки
          *
@@ -41,12 +45,12 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
     private Context context;
     private static LayoutInflater inflater = null;
-    private OnNodeNameClickListener onNodeNameClickListener;
+    private OnNodeHeaderClickListener onNodeHeaderClickListener;
 
-    public NodesListAdapter(Context context, OnNodeNameClickListener onNodeNameClickListener) {
+    public NodesListAdapter(Context context, OnNodeHeaderClickListener onNodeHeaderClickListener) {
         super();
         this.context = context;
-        this.onNodeNameClickListener = onNodeNameClickListener;
+        this.onNodeHeaderClickListener = onNodeHeaderClickListener;
         this.inflater = LayoutInflater.from(context);
     }
 
@@ -78,7 +82,17 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
         final TetroidNode node = (TetroidNode) object;
         // иконка
-//        viewHolder.iconView.setImageResource(node.getIcon());
+//        if (node.getIconUri() != null) {
+//            viewHolder.iconView.setVisibility(View.VISIBLE);
+//            viewHolder.iconView.setImageURI(node.getIconUri());
+//        }
+        if (node.getIcon() != null) {
+            viewHolder.iconView.setVisibility(View.VISIBLE);
+            viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            viewHolder.iconView.setImageDrawable(node.getIcon());
+        } else {
+            viewHolder.iconView.setVisibility(View.GONE);
+        }
         // имя
         viewHolder.nameView.setText(node.getName());
         // количество записей в ветке
@@ -96,7 +110,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         viewHolder.headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onNodeNameClickListener.onClick(node);
+                onNodeHeaderClickListener.onClick(node);
             }
         });
         // стрелка раскрытия/закрытия ветки
