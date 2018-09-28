@@ -50,7 +50,7 @@ public class RecordsListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return dataSet.get(position).getId();
+        return dataSet.get(position).getId().hashCode();
     }
 
     @Override

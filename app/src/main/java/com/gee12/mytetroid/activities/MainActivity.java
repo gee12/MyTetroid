@@ -68,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         // загружаем данные
-        DataManager.init();
+        String dataFolderPath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
+        DataManager.init(dataFolderPath);
 
         // список веток
         nodesListView = (MultiLevelListView) findViewById(R.id.nodes_list_view);

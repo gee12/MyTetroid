@@ -11,15 +11,15 @@
         android:id="@+id/node_view_header"
         android:orientation="horizontal"
         android:layout_marginLeft="0px"
-        android:layout_marginRight="50px"
+        android:layout_marginRight="56px"
         android:layout_centerVertical="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <!--android:background="#ccffcc"-->
         <ImageView
             android:id="@+id/node_view_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center_vertical"
             android:visibility="gone"
             android:src="@drawable/ic_test"/>
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="@dimen/font_default"
-            android:textColor="@android:color/holo_blue_dark" />
+            android:textColor="@color/colorPrimary" />
             <!--android:background="@android:color/holo_red_light"-->
     </LinearLayout>
 
@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="10px"
+        android:layout_marginRight="16dp"
         android:src="@drawable/arrow_down"
         tools:ignore="DuplicateIds" />
 

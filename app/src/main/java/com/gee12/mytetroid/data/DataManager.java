@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,47 +22,57 @@ public class DataManager {
             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Технически это реализовано следующим образом: разработчик строит свою программу так, чтобы у нее была легко отделимая часть, которую можно загружать отдельно. Создавать новую ветку кода при этом не обязательно, главное — в нужном месте вызвать программные интерфейсы Instant Apps. Приложение отправляется в Google Play, и остальное — это уже магия Google. Когда поисковик решит, что вместо сайта можно показать приложение, он запросит его из Google Play и покажет пользователю.</p>\n" +
             "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>";
 
-    public static void init() {
-        TetroidRecord firstRec = new TetroidRecord(1, "First record", html);
-        TetroidRecord secondRec = new TetroidRecord(2, "Second record");
-        TetroidRecord thirdRec = new TetroidRecord(3, "Third record");
-        TetroidRecord fourthRec = new TetroidRecord(4, "Fourth record");
-        TetroidRecord fifthRec = new TetroidRecord(5, "Sixth record");
-        TetroidRecord sixthRec = new TetroidRecord(6, "Sixth record");
-        TetroidRecord seventhRec = new TetroidRecord(7, "Seventh record");
-        TetroidRecord eighthRec = new TetroidRecord(8, "Eighth record");
-        TetroidRecord ninethRec = new TetroidRecord(9, "Ninth record");
+    public static void init(String dataFolderPath) {
 
-        TetroidNode first = new TetroidNode(1,"First",0);
+        try {
+            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
+            rootNodesCollection = new XMLManager().parse(fis);
+        } catch (Exception ex) {
+            rootNodesCollection = initFake();
+        }
+    }
+
+    public static List<TetroidNode> initFake() {
+        TetroidRecord firstRec = new TetroidRecord("1", "First record", html);
+        TetroidRecord secondRec = new TetroidRecord("2", "Second record");
+        TetroidRecord thirdRec = new TetroidRecord("3", "Third record");
+        TetroidRecord fourthRec = new TetroidRecord("4", "Fourth record");
+        TetroidRecord fifthRec = new TetroidRecord("5", "Sixth record");
+        TetroidRecord sixthRec = new TetroidRecord("6", "Sixth record");
+        TetroidRecord seventhRec = new TetroidRecord("7", "Seventh record");
+        TetroidRecord eighthRec = new TetroidRecord("8", "Eighth record");
+        TetroidRecord ninethRec = new TetroidRecord("9", "Ninth record");
+
+        TetroidNode first = new TetroidNode("1","First",0);
         first.addRecord(firstRec);
         first.addRecord(secondRec);
         first.addRecord(thirdRec);
         first.addRecord(fourthRec);
         first.addRecord(fifthRec);
-        TetroidNode second = new TetroidNode(2,"Second",1);
+        TetroidNode second = new TetroidNode("2","Second",1);
         second.addRecord(sixthRec);
         second.addRecord(seventhRec);
-        TetroidNode third = new TetroidNode(3,"Third",1);
-        TetroidNode fourth = new TetroidNode(4,"Fourth",1);
-        TetroidNode fifth  = new TetroidNode(5,"Fifth",2);
-        TetroidNode sixth = new TetroidNode(6,"Sixth",2);
+        TetroidNode third = new TetroidNode("3","Third",1);
+        TetroidNode fourth = new TetroidNode("4","Fourth",1);
+        TetroidNode fifth  = new TetroidNode("5","Fifth",2);
+        TetroidNode sixth = new TetroidNode("6","Sixth",2);
         sixth.addRecord(eighthRec);
-        TetroidNode seventh = new TetroidNode(7,"Seventh",3);
-        TetroidNode eighth = new TetroidNode(8,"Eighth",0);
-        TetroidNode nineth = new TetroidNode(9,"Ninth",0);
+        TetroidNode seventh = new TetroidNode("7","Seventh",3);
+        TetroidNode eighth = new TetroidNode("8","Eighth",0);
+        TetroidNode nineth = new TetroidNode("9","Ninth",0);
         nineth.addRecord(ninethRec);
 
-        rootNodesCollection = new ArrayList<>();
+        List<TetroidNode> nodes = new ArrayList<>();
         first.addSubNode(second);
         first.addSubNode(third);
             third.addSubNode(fifth);
             third.addSubNode(sixth);
                 sixth.addSubNode(seventh);
-        rootNodesCollection.add(first);
+        nodes.add(first);
         eighth.addSubNode(fourth);
-        rootNodesCollection.add(eighth);
-        rootNodesCollection.add(nineth);
-
+        nodes.add(eighth);
+        nodes.add(nineth);
+        return nodes;
     }
 
     public static List<TetroidNode> getRootNodes() {

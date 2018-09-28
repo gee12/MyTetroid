@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class TetroidRecord {
-    private int id;
+    private String id;
     private TetroidNode node;
     private String name;
     private String author;
@@ -20,7 +20,7 @@ public class TetroidRecord {
     private String dirName;
     private String fileName;
 
-    public TetroidRecord(int id,String name) {
+    public TetroidRecord(String id, String name) {
         this.id = id;
         this.name = name;
 //        this.htmlContent = htmlContent;
@@ -28,7 +28,7 @@ public class TetroidRecord {
         this.created = Calendar.getInstance().getTime();
     }
 
-    public TetroidRecord(int id,String name, String htmlContent) {
+    public TetroidRecord(String id,String name, String htmlContent) {
         this.id = id;
         this.name = name;
 //        this.htmlContent = htmlContent;
@@ -36,19 +36,17 @@ public class TetroidRecord {
         this.created = Calendar.getInstance().getTime();
     }
 
-    public TetroidRecord(int id, TetroidNode node, String name, String author, String url, String htmlContent, Date created, String dirName, String fileName) {
+    public TetroidRecord(String id, String name, String author, String url, Date created, String dirName, String fileName) {
         this.id = id;
-        this.node = node;
         this.name = name;
         this.author = author;
         this.url = url;
-//        this.htmlContent = htmlContent;
         this.created = created;
         this.dirName = dirName;
         this.fileName = fileName;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 

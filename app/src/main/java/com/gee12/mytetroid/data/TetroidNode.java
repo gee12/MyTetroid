@@ -11,14 +11,24 @@ import java.util.List;
 import java.util.Random;
 
 public class TetroidNode {
-    private int id;
+    private String id;
     private String name = "";
     private int level;
     private List<TetroidNode> subNodes;
     private List<TetroidRecord> records;
     private Drawable icon;
+    private boolean isCrypted;
 
-    public TetroidNode(int id, String name, int level) {
+    public TetroidNode(String id, String name, String iconFullName, boolean crypt, List<TetroidNode> subNodes, List<TetroidRecord> records) {
+        this.id = id;
+        this.name = name;
+        setIcon(iconFullName);
+        this.isCrypted = crypt;
+        this.subNodes = subNodes;
+        this.records = records;
+    }
+
+    public TetroidNode(String id, String name, int level) {
         this.id = id;
         this.name = name;
         this.level = level;
@@ -29,7 +39,7 @@ public class TetroidNode {
             setIcon(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
