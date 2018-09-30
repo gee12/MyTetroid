@@ -21,8 +21,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="center_vertical"
-            android:visibility="gone"
-            android:src="@drawable/ic_test"/>
+            android:visibility="gone"/>
         <!--<com.caverock.androidsvg.SVGImageView-->
             <!--android:id="@+id/node_view_icon"-->
             <!--android:layout_width="20dp"-->
