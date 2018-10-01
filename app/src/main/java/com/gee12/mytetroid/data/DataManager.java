@@ -22,14 +22,15 @@ public class DataManager {
             "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Технически это реализовано следующим образом: разработчик строит свою программу так, чтобы у нее была легко отделимая часть, которую можно загружать отдельно. Создавать новую ветку кода при этом не обязательно, главное — в нужном месте вызвать программные интерфейсы Instant Apps. Приложение отправляется в Google Play, и остальное — это уже магия Google. Когда поисковик решит, что вместо сайта можно показать приложение, он запросит его из Google Play и покажет пользователю.</p>\n" +
             "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>";
 
-    public static void init(String dataFolderPath) {
-
+    public static boolean init(String dataFolderPath) {
         try {
             FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
             rootNodesCollection = new XMLManager().parse(fis);
         } catch (Exception ex) {
             rootNodesCollection = initFake();
+            return false;
         }
+        return true;
     }
 
     public static List<TetroidNode> initFake() {

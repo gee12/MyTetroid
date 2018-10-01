@@ -1,8 +1,15 @@
 package com.gee12.mytetroid.activities;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContentResolverCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.Spanned;
 import android.view.ContextMenu;
@@ -19,18 +26,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.gee12.mytetroid.EmptyUtils;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.UriUtil;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URLDecoder;
+
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
+import static android.provider.DocumentsContract.Document.MIME_TYPE_DIR;
+
 public class MainActivity extends AppCompatActivity {
+
+    public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
+
+    public static final int FILE_BROWSE = 1;
+    public static final int GET_CONTENT = 2;
+    public static final int OPEN_DOC = 3;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int RECORDS_LIST_VIEW_NUM = 0;
@@ -68,27 +90,154 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         // загружаем данные
-        String dataFolderPath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
-        DataManager.init(dataFolderPath);
+        SettingsManager.init(this);
+        String storagePath = SettingsManager.getStoragePath();
+//        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
+        if (storagePath != null) {
+            initListViews(storagePath);
+        } else {
+//            if (StorageAF.useStorageFramework(FileSelectActivity.this)) {
+            if (false) {
+                Intent intent = new Intent(StorageSelectActivity.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+//                intent.setType("text/*");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                startActivityForResult(intent, OPEN_DOC);
+            }
+            else {
+                Intent intent;
+                intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+//                intent.setType("text/*");
+
+                try {
+                    startActivityForResult(intent, GET_CONTENT);
+                } catch (ActivityNotFoundException e) {
+//                    lookForOpenIntentsFilePicker();
+                } catch (SecurityException e) {
+//                    lookForOpenIntentsFilePicker();
+                }
+            }
+        }
 
         // список веток
         nodesListView = (MultiLevelListView) findViewById(R.id.nodes_list_view);
-        NodesListAdapter listAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
-        nodesListView.setAdapter(listAdapter);
         nodesListView.setOnItemClickListener(onNodeClickListener);
-        listAdapter.setDataItems(DataManager.getRootNodes());
-
         // список записей
         recordsListView = (ListView)findViewById(R.id.records_list_view);
-        TextView emptyTextView = (TextView)findViewById(R.id.text_view_empty);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
+        TextView emptyTextView = (TextView)findViewById(R.id.text_view_empty);
         recordsListView.setEmptyView(emptyTextView);
         registerForContextMenu(recordsListView);
-        this.listAdapter = new RecordsListAdapter(this);
 
         viewSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
         recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
     }
+
+    private void initListViews(String dataFolderPath) {
+        if (!DataManager.init(dataFolderPath)) {
+            return;
+        }
+        // список веток
+        NodesListAdapter listAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
+        nodesListView.setAdapter(listAdapter);
+        listAdapter.setDataItems(DataManager.getRootNodes());
+
+        // список записей
+        this.listAdapter = new RecordsListAdapter(this);
+    }
+
+
+//    private void lookForOpenIntentsFilePicker() {
+//
+////        if (Interaction.isIntentAvailable(FileSelectActivity.this, Intents.OPEN_INTENTS_FILE_BROWSE)) {
+//        if (true) {
+//            Intent i = new Intent(Intents.OPEN_INTENTS_FILE_BROWSE);
+//            i.setData(Uri.parse("file://" + Util.getEditText(FileSelectActivity.this, R.id.file_filename)));
+//            try {
+//                startActivityForResult(i, FILE_BROWSE);
+//            } catch (ActivityNotFoundException e) {
+////                showBrowserDialog();
+//            }
+//
+//        } else {
+////            showBrowserDialog();
+//        }
+//    }
+
+//    private void showBrowserDialog() {
+//        BrowserDialog diag = new BrowserDialog(FileSelectActivity.this);
+//        diag.show();
+//    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+//        fillData();
+
+        String fileName = null;
+        if (requestCode == FILE_BROWSE && resultCode == RESULT_OK) {
+            fileName = data.getDataString();
+            if (fileName != null) {
+                if (fileName.startsWith("file://")) {
+                    fileName = fileName.substring(7);
+                }
+
+                fileName = URLDecoder.decode(fileName);
+            }
+
+        }
+        else if ((requestCode == GET_CONTENT || requestCode == OPEN_DOC) && resultCode == RESULT_OK) {
+            if (data != null) {
+                Uri uri = data.getData();
+                if (uri != null) {
+//                    if (StorageAF.useStorageFramework(this)) {
+                    if (false) {
+                        try {
+                            // try to persist read and write permissions
+                            ContentResolver resolver = getContentResolver();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                                resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            }
+                        } catch (Exception e) {
+                            // nop
+                        }
+                    }
+                    if (requestCode == GET_CONTENT) {
+                        uri = UriUtil.translate(this, uri);
+                    }
+                    fileName = uri.toString();
+                }
+            }
+        }
+
+
+        if (fileName != null) {
+//            File file = new File(fileName);
+//            String path = file.getParent();
+
+            Uri uri = UriUtil.parseDefaultFile(fileName);
+            String scheme = uri.getScheme();
+
+            if (!EmptyUtils.isNullOrEmpty(scheme) && scheme.equalsIgnoreCase("file")) {
+                File dbFile = new File(uri.getPath());
+                if (!dbFile.exists()) {
+//                    throw new FileNotFoundException();
+                    return;
+                }
+                String path = dbFile.getParent();
+                initListViews(path);
+            }
+
+        }
+    }
+
+
 
     /**
      * Отображение ветки => список записей
