@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.activities;
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContentResolverCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.Spanned;
 import android.view.ContextMenu;
@@ -36,15 +34,15 @@ import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
+import net.rdrei.android.dirchooser.DirectoryChooserActivity;
+import net.rdrei.android.dirchooser.DirectoryChooserConfig;
+
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.net.URLDecoder;
 
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
-
-import static android.provider.DocumentsContract.Document.MIME_TYPE_DIR;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -96,30 +94,8 @@ public class MainActivity extends AppCompatActivity {
         if (storagePath != null) {
             initListViews(storagePath);
         } else {
-//            if (StorageAF.useStorageFramework(FileSelectActivity.this)) {
-            if (false) {
-                Intent intent = new Intent(StorageSelectActivity.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-//                intent.setType("text/*");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-                startActivityForResult(intent, OPEN_DOC);
-            }
-            else {
-                Intent intent;
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-//                intent.setType("text/*");
-
-                try {
-                    startActivityForResult(intent, GET_CONTENT);
-                } catch (ActivityNotFoundException e) {
-//                    lookForOpenIntentsFilePicker();
-                } catch (SecurityException e) {
-//                    lookForOpenIntentsFilePicker();
-                }
-            }
+//            showShooser1();
+            showShooser2();
         }
 
         // список веток
@@ -149,6 +125,49 @@ public class MainActivity extends AppCompatActivity {
         this.listAdapter = new RecordsListAdapter(this);
     }
 
+    void showShooser1() {
+        //            if (StorageAF.useStorageFramework(FileSelectActivity.this)) {
+        if (false) {
+            Intent intent = new Intent(StorageChooserActivity.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+//                intent.setType("text/*");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+            startActivityForResult(intent, OPEN_DOC);
+        }
+        else {
+            Intent intent;
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("*/*");
+//                intent.setType("text/*");
+
+            try {
+                startActivityForResult(intent, GET_CONTENT);
+            } catch (ActivityNotFoundException e) {
+//                    lookForOpenIntentsFilePicker();
+            } catch (SecurityException e) {
+//                    lookForOpenIntentsFilePicker();
+            }
+        }
+    }
+
+    static final int REQUEST_DIRECTORY = 222;
+
+    void showShooser2() {
+        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+
+        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                .newDirectoryName("DirChooserSample")
+                .allowReadOnlyDirectory(true)
+                .allowNewDirectoryNameModification(true)
+                .build();
+
+        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+
+        // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
+        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
+    }
 
 //    private void lookForOpenIntentsFilePicker() {
 //
@@ -215,25 +234,34 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
+        else if (requestCode == REQUEST_DIRECTORY) {
+            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+                fileName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+            } else {
+                // Nothing selected
+            }
+        }
 
         if (fileName != null) {
+            // выбор файла mytetra.xml
 //            File file = new File(fileName);
 //            String path = file.getParent();
 
-            Uri uri = UriUtil.parseDefaultFile(fileName);
-            String scheme = uri.getScheme();
-
-            if (!EmptyUtils.isNullOrEmpty(scheme) && scheme.equalsIgnoreCase("file")) {
-                File dbFile = new File(uri.getPath());
-                if (!dbFile.exists()) {
-//                    throw new FileNotFoundException();
-                    return;
-                }
-                String path = dbFile.getParent();
-                initListViews(path);
-            }
-
+            // 1
+//            Uri uri = UriUtil.parseDefaultFile(fileName);
+//            String scheme = uri.getScheme();
+//
+//            if (!EmptyUtils.isNullOrEmpty(scheme) && scheme.equalsIgnoreCase("file")) {
+//                File dbFile = new File(uri.getPath());
+//                if (!dbFile.exists()) {
+////                    throw new FileNotFoundException();
+//                    return;
+//                }
+//                String path = dbFile.getParent();
+//                initListViews(path);
+//            }
+            // 2
+            initListViews(fileName);
         }
     }
 

@@ -8,7 +8,7 @@ import com.gee12.mytetroid.R;
 
 import java.lang.reflect.Field;
 
-public class StorageSelectActivity extends AppCompatActivity {
+public class StorageChooserActivity extends AppCompatActivity {
 
     public static String ACTION_OPEN_DOCUMENT;
 
