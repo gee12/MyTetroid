@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.activities;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -34,12 +35,13 @@ import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
-import net.rdrei.android.dirchooser.DirectoryChooserActivity;
-import net.rdrei.android.dirchooser.DirectoryChooserConfig;
+//import net.rdrei.android.dirchooser.DirectoryChooserActivity;
+//import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import java.io.File;
 import java.net.URLDecoder;
 
+import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
@@ -94,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
         if (storagePath != null) {
             initListViews(storagePath);
         } else {
-//            showShooser1();
-            showShooser2();
+            showChooser2();
         }
 
         // список веток
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         this.listAdapter = new RecordsListAdapter(this);
     }
 
-    void showShooser1() {
+    void showChooser1() {
         //            if (StorageAF.useStorageFramework(FileSelectActivity.this)) {
         if (false) {
             Intent intent = new Intent(StorageChooserActivity.ACTION_OPEN_DOCUMENT);
@@ -152,21 +153,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    static final int REQUEST_DIRECTORY = 222;
+//    static final int REQUEST_DIRECTORY = 222;
+//    void showShooser2() {
+//        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+//
+//        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+//                .newDirectoryName("DirChooserSample")
+//                .allowReadOnlyDirectory(true)
+//                .allowNewDirectoryNameModification(true)
+//                .build();
+//
+//        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+////        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_NEW_DIR_NAME, "Snapprefs");
+//
+//        // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
+//        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
+//    }
 
-    void showShooser2() {
-        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
-
-        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-                .newDirectoryName("DirChooserSample")
-                .allowReadOnlyDirectory(true)
-                .allowNewDirectoryNameModification(true)
-                .build();
-
-        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-
-        // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
-        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
+    static final int FOLDERPICKER_CODE = 333;
+    void showChooser2() {
+        Intent intent = new Intent(this, FolderPicker.class);
+        startActivityForResult(intent, FOLDERPICKER_CODE);
     }
 
 //    private void lookForOpenIntentsFilePicker() {
@@ -233,13 +240,15 @@ public class MainActivity extends AppCompatActivity {
                     fileName = uri.toString();
                 }
             }
-        }
-        else if (requestCode == REQUEST_DIRECTORY) {
-            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
-                fileName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
-            } else {
-                // Nothing selected
-            }
+//        } else if (requestCode == REQUEST_DIRECTORY) {
+//            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+//                fileName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+//            } else {
+//                // Nothing selected
+//            }
+        } else if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
+
+            fileName = data.getExtras().getString("data");
         }
 
         if (fileName != null) {
