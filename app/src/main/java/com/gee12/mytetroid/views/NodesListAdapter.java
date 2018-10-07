@@ -1,9 +1,6 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +12,6 @@ import android.widget.TextView;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidNode;
 
-import java.io.File;
 import java.util.List;
 
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -56,7 +52,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
     @Override
     protected boolean isExpandable(Object object) {
-        return ((TetroidNode)object).isHaveSubNodes();
+        return ((TetroidNode)object).isExpandable();
     }
 
     @Override
@@ -86,17 +82,22 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 //            viewHolder.iconView.setVisibility(View.VISIBLE);
 //            viewHolder.iconView.setImageURI(node.getIconUri());
 //        }
-        if (node.getIcon() != null) {
+        if (node.getIcon() != null || !node.isDecrypted()) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
             viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            viewHolder.iconView.setImageDrawable(node.getIcon());
+            if (!node.isDecrypted()) {
+                viewHolder.iconView.setImageResource(R.drawable.ic_crypted_node);
+            }
+            else {
+                viewHolder.iconView.setImageDrawable(node.getIcon());
+            }
         } else {
             viewHolder.iconView.setVisibility(View.GONE);
         }
         // имя
-        viewHolder.nameView.setText(node.getName());
+        viewHolder.nameView.setText(node.getCryptedName());
         // количество записей в ветке
-        if (node.getRecordsCount() > 0) {
+        if (node.getRecordsCount() > 0 && node.isDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorNodeName));

@@ -12,20 +12,26 @@ import java.util.Random;
 
 public class TetroidNode {
     private String id;
-    private String name = "";
+    private String name;
     private int level;
     private List<TetroidNode> subNodes;
     private List<TetroidRecord> records;
     private Drawable icon;
+    private String iconName;
     private boolean isCrypted;
 
-    public TetroidNode(String id, String name, String iconFullName, boolean crypt, List<TetroidNode> subNodes, List<TetroidRecord> records) {
+    private boolean isDecrypted;
+
+    public TetroidNode(boolean crypt, String id, String name, String iconName,
+                       List<TetroidNode> subNodes, List<TetroidRecord> records, int level) {
         this.id = id;
         this.name = name;
-        setIcon(iconFullName);
+//        setIcon(iconFullName);
+        this.iconName = iconName;
         this.isCrypted = crypt;
         this.subNodes = subNodes;
         this.records = records;
+        this.level = level;
     }
 
     public TetroidNode(String id, String name, int level) {
@@ -35,8 +41,8 @@ public class TetroidNode {
         this.subNodes = new ArrayList<>();
         this.records = new ArrayList<>();
         //
-        if (new Random().nextInt(10) % 2 == 0)
-            setIcon(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
+//        if (new Random().nextInt(10) % 2 == 0)
+//            setIcon(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
     }
 
     public String getId() {
@@ -58,16 +64,29 @@ public class TetroidNode {
 //        }
 //    }
 
-    public void setIcon(String fullFileName) {
+    public void loadIcon(String fullFileName) {
+        if (fullFileName == null)
+            return;
         try {
+//            this.icon = Utils.loadSVGFromFile(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
             this.icon = Utils.loadSVGFromFile(fullFileName);
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void loadIconFromStorage(String iconsStoragePath) {
+        if (Utils.isNullOrEmpty(iconName))
+            return;
+         loadIcon(iconsStoragePath + iconName);
+    }
+
     public String getName() {
         return name;
+    }
+
+    public String getCryptedName() {
+        return (!isCrypted || isDecrypted) ? name : "Зашифровано";
     }
 
     public int getLevel() {
@@ -86,6 +105,14 @@ public class TetroidNode {
         return records.size();
     }
 
+    public boolean isCrypted() {
+        return isCrypted;
+    }
+
+    public boolean isDecrypted() {
+        return (!isCrypted || isDecrypted);
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -101,7 +128,7 @@ public class TetroidNode {
         records.add(record);
     }
 
-    public boolean isHaveSubNodes() {
-        return !subNodes.isEmpty();
+    public boolean isExpandable() {
+        return !subNodes.isEmpty() && isDecrypted();
     }
 }

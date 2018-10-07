@@ -1,12 +1,15 @@
 package com.gee12.mytetroid.data;
 
+import org.xml.sax.XMLFilter;
+
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataManager {
+public class DataManager extends XMLManager {
     private static List<TetroidNode> rootNodesCollection;
     private static List<TetroidRecord> recordsCollection;
+    private static String storagePath;
 
     static String html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n" +
             "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" /><style type=\"text/css\">p, li { white-space: pre-wrap; }</style>\n" +
@@ -23,14 +26,21 @@ public class DataManager {
             "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>";
 
     public static boolean init(String dataFolderPath) {
+        storagePath = dataFolderPath;
         try {
-            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
-            rootNodesCollection = new XMLManager().parse(fis);
+            FileInputStream fis = new FileInputStream(storagePath + "/mytetra.xml");
+//            rootNodesCollection = new XMLManager().parse(fis);
+            rootNodesCollection = new DataManager().parse(fis);
         } catch (Exception ex) {
             rootNodesCollection = initFake();
             return false;
         }
         return true;
+    }
+
+    public void loadIcon(TetroidNode node) {
+        if (node.isDecrypted())
+            node.loadIconFromStorage(storagePath + "/icons");
     }
 
     public static List<TetroidNode> initFake() {

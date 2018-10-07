@@ -6,6 +6,7 @@ import com.gee12.mytetroid.Utils;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class TetroidRecord {
     private String id;
@@ -16,9 +17,13 @@ public class TetroidRecord {
 //    private String htmlContent;
     private Spanned content;    // потом не хранить и читать из файла
     private Date created;
+    private boolean isCrypted;
 
     private String dirName;
     private String fileName;
+    List<TetroidFile> files;
+
+    boolean isDecrypted;
 
     public TetroidRecord(String id, String name) {
         this.id = id;
@@ -36,7 +41,9 @@ public class TetroidRecord {
         this.created = Calendar.getInstance().getTime();
     }
 
-    public TetroidRecord(String id, String name, String author, String url, Date created, String dirName, String fileName) {
+    public TetroidRecord(boolean crypt, String id, String name, String author, String url,
+                         Date created, String dirName, String fileName, List<TetroidFile> files) {
+        this.isCrypted = crypt;
         this.id = id;
         this.name = name;
         this.author = author;
@@ -44,6 +51,7 @@ public class TetroidRecord {
         this.created = created;
         this.dirName = dirName;
         this.fileName = fileName;
+        this.files = files;
     }
 
     public String getId() {
@@ -90,7 +98,20 @@ public class TetroidRecord {
         return 0;
     }
 
+    public boolean isCrypted() {
+        return isCrypted;
+    }
+
+    public List<TetroidFile> getFiles() {
+        return files;
+    }
+
+    public boolean isDecrypted() {
+        return isDecrypted;
+    }
+
     public void setNode(TetroidNode node) {
         this.node = node;
     }
+
 }

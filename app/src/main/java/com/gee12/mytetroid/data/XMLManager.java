@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.net.Uri;
 import android.util.Xml;
 
 import com.gee12.mytetroid.Utils;
@@ -15,14 +14,13 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Пока не реализовано:
- * - зашифрованные ветки
- * - чтение файлов
+ *
  */
-public class XMLManager {
+public abstract class XMLManager implements OnNodeIconLoader {
 
     private static final String ns = null;
 
+//    private String storagePath;
     private Version formatVersion;
 
     /**
@@ -33,6 +31,7 @@ public class XMLManager {
      * @throws IOException
      */
     public List<TetroidNode> parse(InputStream in) throws XmlPullParserException, IOException {
+//        storagePath = in.toString();
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -48,6 +47,7 @@ public class XMLManager {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "root");
         while (parser.next() != XmlPullParser.END_TAG) {
+//        while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
@@ -70,6 +70,8 @@ public class XMLManager {
             version = Integer.parseInt(parser.getAttributeValue(ns, "version"));
             subversion = Integer.parseInt(parser.getAttributeValue(ns, "subversion"));
         }
+        // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
+        parser.nextTag();
         parser.require(XmlPullParser.END_TAG, ns, "format");
         return new Version(version, subversion);
     }
@@ -83,7 +85,7 @@ public class XMLManager {
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                nodes.add(readNode(parser));
+                nodes.add(readNode(parser, 0));
             } else {
                 skip(parser);
             }
@@ -91,18 +93,21 @@ public class XMLManager {
         return nodes;
     }
 
-    private TetroidNode readNode(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private TetroidNode readNode(XmlPullParser parser, int level) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
-        String icon = null; // например: "/Gnome/color_gnome_2_computer.svg"
+        String iconPath = null; // например: "/Gnome/color_gnome_2_computer.svg"
         parser.require(XmlPullParser.START_TAG, ns, "node");
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
-            icon = parser.getAttributeValue(ns, "icon");
+            iconPath = parser.getAttributeValue(ns, "icon");
+//            String iconRelPath = parser.getAttributeValue(ns, "icon");
+//            if (iconRelPath != null)
+//                iconPath = storagePath + "/icons/" + iconRelPath;
         }
         List<TetroidNode> subNodes = new ArrayList<>();
         List<TetroidRecord> records = new ArrayList<>();
@@ -116,12 +121,14 @@ public class XMLManager {
                 records = readRecords(parser);
             } else if (tagName.equals("node")) {
                 // вложенная ветка
-                subNodes.add(readNode(parser));
+                subNodes.add(readNode(parser, level+1));
             } else {
                 skip(parser);
             }
         }
-        return new TetroidNode(id, name, icon, crypt, subNodes, records);
+        TetroidNode node = new TetroidNode(crypt, id, name, iconPath, subNodes, records, level);
+        loadIcon(node);
+        return node;
     }
 
     private List<TetroidRecord> readRecords(XmlPullParser parser) throws XmlPullParserException, IOException {
@@ -132,7 +139,6 @@ public class XMLManager {
                 continue;
             }
             String tagName = parser.getName();
-            tagName = parser.getName();
             if (tagName.equals("record")) {
                 records.add(readRecord(parser));
             } else {
@@ -143,6 +149,7 @@ public class XMLManager {
     }
 
     private TetroidRecord readRecord(XmlPullParser parser) throws XmlPullParserException, IOException {
+        boolean crypt = false;
         String id = null;
         String name = null;
         String author = null;
@@ -153,31 +160,67 @@ public class XMLManager {
         parser.require(XmlPullParser.START_TAG, ns, "record");
         String tagName = parser.getName();
         if (tagName.equals("record")) {
+            crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             author = parser.getAttributeValue(ns, "author");
             url = parser.getAttributeValue(ns, "url");
             // строка вида "yyyyMMddHHmmss" (например, "20180901211132")
-            created = Utils.toDate(parser.getAttributeValue(ns, "created"), "yyyyMMddHHmmss");
-            dirName = parser.getAttributeValue(ns, "dirName");
-            fileName = parser.getAttributeValue(ns, "fileName");
+            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), "yyyyMMddHHmmss");
+            dirName = parser.getAttributeValue(ns, "dir");
+            fileName = parser.getAttributeValue(ns, "file");
         }
+//        parser.nextTag();
+//        parser.require(XmlPullParser.END_TAG, ns, "record");
         // файлы
-//        List<TetroidRecord> records = new ArrayList<>();
-//        while (parser.next() != XmlPullParser.END_TAG) {
-//            if (parser.getEventType() != XmlPullParser.START_TAG) {
-//                continue;
-//            }
-//            tagName = parser.getName();
-//            if (tagName.equals("recordtable")) {
-//                records = readRecords(parser);
-//            } else if (tagName.equals("node")) {
-//                subNodes.add(readNode(parser));
-//            } else {
-//                skip(parser);
-//            }
-//        }
-        return new TetroidRecord(id, name, author, url, created, dirName, fileName);
+        List<TetroidFile> files = new ArrayList<>();
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            tagName = parser.getName();
+            if (tagName.equals("files")) {
+                files = readFiles(parser);
+            } else {
+                skip(parser);
+            }
+        }
+        parser.require(XmlPullParser.END_TAG, ns, "record");
+        return new TetroidRecord(crypt, id, name, author, url, created, dirName, fileName, files);
+    }
+
+    private List<TetroidFile> readFiles(XmlPullParser parser) throws XmlPullParserException, IOException {
+        List<TetroidFile> files = new ArrayList<>();
+        parser.require(XmlPullParser.START_TAG, ns, "files");
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+            String tagName = parser.getName();
+            if (tagName.equals("file")) {
+                files.add(readFile(parser));
+            } else {
+                skip(parser);
+            }
+        }
+        return files;
+    }
+
+    private TetroidFile readFile(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String id = null;
+        String fileName = null;
+        String type = null;
+        parser.require(XmlPullParser.START_TAG, ns, "file");
+        String tagName = parser.getName();
+        if (tagName.equals("file")) {
+            id = parser.getAttributeValue(ns, "id");
+            fileName = parser.getAttributeValue(ns, "fileName");
+            type = parser.getAttributeValue(ns, "type");
+        }
+        // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
+        parser.nextTag();
+        parser.require(XmlPullParser.END_TAG, ns, "file");
+        return new TetroidFile(id, fileName, type);
     }
 
     /**

@@ -6,6 +6,7 @@ import android.text.Html;
 import android.text.Spanned;
 
 import com.larvalabs.svgandroid.SVG;
+import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
 
 import java.io.File;
@@ -19,7 +20,7 @@ import java.util.Locale;
 
 public class Utils {
 
-    public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException {
+    public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException, SVGParseException, NullPointerException {
         File file = new File(fullFileName);
         FileInputStream fileInputStream = new FileInputStream(file);
         SVG svg = SVGParser.getSVGFromInputStream(fileInputStream);
@@ -48,5 +49,9 @@ public class Utils {
             e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    public static boolean isNullOrEmpty(String s) {
+        return s == null || s.equals("");
     }
 }

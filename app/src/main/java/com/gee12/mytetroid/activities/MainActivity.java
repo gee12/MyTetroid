@@ -25,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import com.gee12.mytetroid.EmptyUtils;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.UriUtil;
@@ -38,7 +37,6 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
-import java.io.File;
 import java.net.URLDecoder;
 
 import lib.folderpicker.FolderPicker;
@@ -89,16 +87,6 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.openDrawer(GravityCompat.START);
         toggle.syncState();
 
-        // загружаем данные
-        SettingsManager.init(this);
-        String storagePath = SettingsManager.getStoragePath();
-//        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
-        if (storagePath != null) {
-            initListViews(storagePath);
-        } else {
-            showChooser2();
-        }
-
         // список веток
         nodesListView = (MultiLevelListView) findViewById(R.id.nodes_list_view);
         nodesListView.setOnItemClickListener(onNodeClickListener);
@@ -111,12 +99,35 @@ public class MainActivity extends AppCompatActivity {
 
         viewSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
         recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
+
+        // загружаем данные
+        SettingsManager.init(this);
+        initStorageFromSettings();
     }
 
-    private void initListViews(String dataFolderPath) {
-        if (!DataManager.init(dataFolderPath)) {
-            return;
+    private void initStorageFromSettings() {
+        String storagePath = SettingsManager.getStoragePath();
+//        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
+        if (storagePath != null) {
+            // показываем диалог подтверждения
+            // ...
+
+            initStorage(storagePath);
+        } else {
+            showChooser3();
         }
+    }
+
+    private void initStorage(String storagePath) {
+        if (DataManager.init(storagePath)) {
+            SettingsManager.setStoragePath(storagePath);
+            initListViews();
+        } else {
+
+        }
+    }
+
+    private void initListViews() {
         // список веток
         NodesListAdapter listAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
         nodesListView.setAdapter(listAdapter);
@@ -154,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 //    static final int REQUEST_DIRECTORY = 222;
-//    void showShooser2() {
+//    void showChooser2() {
 //        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
 //
 //        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
@@ -171,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     static final int FOLDERPICKER_CODE = 333;
-    void showChooser2() {
+    void showChooser3() {
         Intent intent = new Intent(this, FolderPicker.class);
         startActivityForResult(intent, FOLDERPICKER_CODE);
     }
@@ -270,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
 //                initListViews(path);
 //            }
             // 2
-            initListViews(fileName);
+            initStorage(fileName);
         }
     }
 
@@ -282,6 +293,10 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showNode(TetroidNode node)
     {
+        if (!node.isDecrypted()) {
+            Toast.makeText(this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+            return;
+        }
         this.currentNode = node;
         Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).show();
         if (viewSwitcher.getDisplayedChild() == RECORD_DETAILS_VIEW_NUM)
@@ -339,6 +354,10 @@ public class MainActivity extends AppCompatActivity {
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
             // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
             // на заголовке и на стрелке раскрытия/закрытия ветки
+            if (!((TetroidNode)item).isDecrypted()) {
+                Toast.makeText(MainActivity.this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
     };
 
