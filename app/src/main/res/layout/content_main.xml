@@ -47,13 +47,19 @@
                     <!--android:layout_height="match_parent"-->
                     <!--android:layout_width="match_parent"-->
                     <!--android:layout_centerVertical="true" />-->
-                <TextView
+                <!--<TextView
                     android:id="@+id/text_view_record_content"
-                        android:textIsSelectable="true"
+                    android:textIsSelectable="true"
                     android:textSize="@dimen/font_default"
                     android:layout_margin="5dp"
                     android:layout_height="wrap_content"
-                    android:layout_width="match_parent" />
+                    android:layout_width="match_parent" />-->
+                <WebView
+                    android:id="@+id/web_view_record_content"
+                    android:textIsSelectable="true"
+                    android:layout_margin="2dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
             </ScrollView>
         </RelativeLayout>
 

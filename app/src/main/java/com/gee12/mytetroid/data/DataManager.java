@@ -89,4 +89,8 @@ public class DataManager extends XMLManager {
     public static List<TetroidNode> getRootNodes() {
         return rootNodesCollection;
     }
+
+    public static String getStoragePath() {
+        return storagePath;
+    }
 }

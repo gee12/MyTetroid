@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -62,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
     private MultiLevelListView nodesListView;
     private TetroidNode currentNode;
     private ViewSwitcher viewSwitcher;
-    private TextView recordContentTextView;
+//    private TextView recordContentTextView;
+    private WebView recordContentWebView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
         registerForContextMenu(recordsListView);
 
         viewSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
-        recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
+//        recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
+        recordContentWebView = (WebView)findViewById(R.id.web_view_record_content);
 
         // загружаем данные
         SettingsManager.init(this);
@@ -306,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         this.listAdapter.reset(node.getRecords());
         recordsListView.setAdapter(listAdapter);
         setTitle(node.getName());
-        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -314,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
      * @param position Индекс записи в списке записей ветки
      */
     private void showRecord(int position) {
-        TetroidRecord record = (TetroidRecord)currentNode.getRecords().get(position);
+        TetroidRecord record = currentNode.getRecords().get(position);
         showRecord(record);
     }
 
@@ -323,11 +326,13 @@ public class MainActivity extends AppCompatActivity {
      * @param record Запись
      */
     private void showRecord(TetroidRecord record) {
-        Spanned recordContent = record.getContent();
-        recordContentTextView.setText(recordContent);
+        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath());
+//        Spanned recordContent = record.getContent();
+//        recordContentTextView.setText(recordContent);
+        recordContentWebView.loadUrl(recordContentUrl);
         viewSwitcher.showNext();
         setTitle(record.getName());
-        Toast.makeText(this, "Открытие " + record.getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Открытие " + record.getName(), Toast.LENGTH_SHORT).show();
     }
 
     /**
