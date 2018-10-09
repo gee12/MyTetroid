@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorNodeName">#000</color>
     <color name="colorNodeNameWithoutRecords">#777</color>
+    <!--<color name="colorRecordWithAttach">#AEA</color>-->
 </resources>

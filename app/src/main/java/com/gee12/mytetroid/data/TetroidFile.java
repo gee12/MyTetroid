@@ -22,4 +22,8 @@ public class TetroidFile {
     public String getType() {
         return type;
     }
+
+    public String getFileSize() {
+        return "100Кб";
+    }
 }

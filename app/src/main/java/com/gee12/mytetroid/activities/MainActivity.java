@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.text.Spanned;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -30,8 +29,10 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.UriUtil;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
@@ -54,17 +55,23 @@ public class MainActivity extends AppCompatActivity {
     public static final int OPEN_DOC = 3;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
-    public static final int RECORDS_LIST_VIEW_NUM = 0;
-    public static final int RECORD_DETAILS_VIEW_NUM = 1;
+    public static final int SHOW_FILES_MENU_ITEM_ID = 2;
+    public static final int VIEW_RECORDS_LIST = 0;
+    public static final int VIEW_RECORD_TEXT = 1;
+    public static final int VIEW_RECORD_FILES = 2;
 
     private DrawerLayout drawerLayout;
-    private RecordsListAdapter listAdapter;
-    private ListView recordsListView;
     private MultiLevelListView nodesListView;
+    private RecordsListAdapter recordsListAdapter;
+    private ListView recordsListView;
+    private FilesListAdapter filesListAdapter;
+    private ListView filesListView;
     private TetroidNode currentNode;
+    private TetroidRecord currentRecord;
     private ViewSwitcher viewSwitcher;
 //    private TextView recordContentTextView;
     private WebView recordContentWebView;
+    private int lastDisplayedViewId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +105,11 @@ public class MainActivity extends AppCompatActivity {
         TextView emptyTextView = (TextView)findViewById(R.id.text_view_empty);
         recordsListView.setEmptyView(emptyTextView);
         registerForContextMenu(recordsListView);
+        // список файлов
+        filesListView = (ListView)findViewById(R.id.files_list_view);
+        filesListView.setOnItemClickListener(onFileClicklistener);
+        emptyTextView = (TextView)findViewById(R.id.files_text_view_empty);
+        filesListView.setEmptyView(emptyTextView);
 
         viewSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
 //        recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
@@ -137,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         listAdapter.setDataItems(DataManager.getRootNodes());
 
         // список записей
-        this.listAdapter = new RecordsListAdapter(this);
+        this.recordsListAdapter = new RecordsListAdapter(this);
     }
 
     void showChooser1() {
@@ -301,13 +313,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         this.currentNode = node;
-        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).show();
-        if (viewSwitcher.getDisplayedChild() == RECORD_DETAILS_VIEW_NUM)
-            viewSwitcher.showPrevious();
+//        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).show();
+//        if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_TEXT)
+//            viewSwitcher.showPrevious();
+        showView(VIEW_RECORDS_LIST);
         drawerLayout.closeDrawers();
 
-        this.listAdapter.reset(node.getRecords());
-        recordsListView.setAdapter(listAdapter);
+        this.recordsListAdapter.reset(node.getRecords());
+        recordsListView.setAdapter(recordsListAdapter);
         setTitle(node.getName());
 //        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).show();
     }
@@ -326,13 +339,52 @@ public class MainActivity extends AppCompatActivity {
      * @param record Запись
      */
     private void showRecord(TetroidRecord record) {
+        this.currentRecord = record;
         String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath());
 //        Spanned recordContent = record.getContent();
 //        recordContentTextView.setText(recordContent);
         recordContentWebView.loadUrl(recordContentUrl);
-        viewSwitcher.showNext();
+//        viewSwitcher.showNext();
+        showView(VIEW_RECORD_TEXT);
         setTitle(record.getName());
 //        Toast.makeText(this, "Открытие " + record.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Отображение списка прикрепленных файлов
+     * @param position Индекс записи в списке записей ветки
+     */
+    private void showFilesList(int position) {
+        TetroidRecord record = currentNode.getRecords().get(position);
+        showFilesList(record);
+    }
+
+    /**
+     * Отображение списка прикрепленных файлов
+     * @param record Запись
+     */
+    private void showFilesList(TetroidRecord record) {
+        showView(VIEW_RECORD_FILES);
+        this.filesListAdapter.reset(record.getFiles());
+        filesListView.setAdapter(filesListAdapter);
+        setTitle(record.getName());
+    }
+
+    /**
+     * Открытие прикрепленного файла
+     * @param position Индекс файла в списке прикрепленных файлов записи
+     */
+    private void openFile(int position) {
+        TetroidFile file = currentRecord.getFiles().get(position);
+        openFile(file);
+    }
+
+    /**
+     * Открытие прикрепленного файла
+     * @param file Файл
+     */
+    private void openFile(TetroidFile file) {
+        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -377,6 +429,25 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
+     * Обработчик клика на файле
+     */
+    private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            openFile(position);
+        }
+    };
+
+    /**
+     *
+     * @param viewId
+     */
+    void showView(int viewId) {
+        lastDisplayedViewId = viewSwitcher.getDisplayedChild();
+        viewSwitcher.setDisplayedChild(viewId);
+    }
+
+    /**
      * Обработчик нажатия кнопки Назад
      */
     @Override
@@ -384,8 +455,15 @@ public class MainActivity extends AppCompatActivity {
 //        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (viewSwitcher.getDisplayedChild() == RECORD_DETAILS_VIEW_NUM) {
-            viewSwitcher.showPrevious();
+        } else if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_TEXT) {
+//            viewSwitcher.showPrevious();
+            showView(VIEW_RECORDS_LIST);
+        } else if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_FILES) {
+            // смотрим какая страница была перед этим
+            if (lastDisplayedViewId == VIEW_RECORD_TEXT)
+                showView(VIEW_RECORD_TEXT);
+            else
+                showView(VIEW_RECORD_FILES);
         } else {
             super.onBackPressed();
         }
@@ -433,7 +511,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, "Открыть");
+        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, "Открыть запись");
+        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, "Список файлов");
     }
 
     /**
@@ -443,10 +522,13 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case OPEN_RECORD_MENU_ITEM_ID:
-                AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
                 showRecord(info.position);
+                return true;
+            case SHOW_FILES_MENU_ITEM_ID:
+                showFilesList(info.position);
                 return true;
             default:
                 return super.onContextItemSelected(item);

@@ -1,12 +1,12 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
@@ -22,7 +22,7 @@ public class RecordsListAdapter extends BaseAdapter {
     private class RecordViewHolder {
         TextView lineNumView;
         TextView nameView;
-        ImageView attachedFilesView;
+        ImageView attachedView;
     }
 
     private static LayoutInflater inflater = null;
@@ -61,7 +61,7 @@ public class RecordsListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_item_record, null);
             viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.record_view_line_num);
             viewHolder.nameView = (TextView) convertView.findViewById(R.id.record_view_name);
-            viewHolder.attachedFilesView = (ImageView) convertView.findViewById(R.id.record_view_attached);
+            viewHolder.attachedView = (ImageView) convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (RecordViewHolder) convertView.getTag();
@@ -73,10 +73,18 @@ public class RecordsListAdapter extends BaseAdapter {
         // название записи
         viewHolder.nameView.setText(record.getName());
         // есть ли прикрепленные файлы
-        if (record.getAttachedFilesCount() > 0)
-            viewHolder.attachedFilesView.setVisibility(View.VISIBLE);
-        else
-            viewHolder.attachedFilesView.setVisibility(View.GONE);
+        if (record.getAttachedFilesCount() > 0) {
+            // если установлено в настройках, меняем фон
+            if (true) {
+//            convertView.setBackgroundResource(R.color.colorRecordWithAttach);
+                convertView.setBackgroundColor(Color.CYAN);
+            }
+            viewHolder.attachedView.setVisibility(View.VISIBLE);
+        }
+        else {
+            convertView.setBackgroundColor(Color.TRANSPARENT);
+            viewHolder.attachedView.setVisibility(View.GONE);
+        }
 
         return convertView;
     }

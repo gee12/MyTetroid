@@ -30,6 +30,6 @@
         android:gravity="top"
         android:padding="2dp"
         android:layout_weight="0"
-        android:background="@android:drawable/ic_menu_view"/>
+        android:background="@drawable/ic_attachment"/>
 
 </LinearLayout>
