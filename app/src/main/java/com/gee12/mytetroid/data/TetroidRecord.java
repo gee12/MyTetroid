@@ -5,11 +5,17 @@ import android.text.Spanned;
 import com.gee12.mytetroid.Utils;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 public class TetroidRecord {
+
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+
     private String id;
     private TetroidNode node;
     private String name;
@@ -22,7 +28,7 @@ public class TetroidRecord {
 
     private String dirName;
     private String fileName;
-    List<TetroidFile> files;
+    List<TetroidFile> files = new ArrayList<>();
 
     boolean isDecrypted;
 
@@ -88,6 +94,11 @@ public class TetroidRecord {
         return created;
     }
 
+    public String getCreatedString() {
+//        return SimpleDateFormat.getDateTimeInstance().format(created);
+        return simpleDateFormat.format(created);
+    }
+
     public String getDirName() {
         return dirName;
     }
@@ -96,16 +107,16 @@ public class TetroidRecord {
         return fileName;
     }
 
+    public List<TetroidFile> getAttachedFiles() {
+        return files;
+    }
+
     public int getAttachedFilesCount() {
-        return 0;
+        return files.size();
     }
 
     public boolean isCrypted() {
         return isCrypted;
-    }
-
-    public List<TetroidFile> getFiles() {
-        return files;
     }
 
     public boolean isDecrypted() {

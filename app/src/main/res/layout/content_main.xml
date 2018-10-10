@@ -9,8 +9,9 @@
     tools:context=".activities.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/view_switcher"
+    <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/view_flipper"
+        android:autoStart="false"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
@@ -59,7 +60,8 @@
                     android:textIsSelectable="true"
                     android:layout_margin="2dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"/>
             </ScrollView>
         </RelativeLayout>
 
@@ -80,7 +82,7 @@
                 android:text="@string/files_empty_list" />
         </RelativeLayout>
 
-    </ViewSwitcher>
+    </ViewFlipper>
 </android.support.constraint.ConstraintLayout>
 
 <!--<android.support.constraint.ConstraintLayout -->

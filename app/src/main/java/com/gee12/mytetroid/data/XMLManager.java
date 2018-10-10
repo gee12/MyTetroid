@@ -21,7 +21,8 @@ public abstract class XMLManager implements OnNodeIconLoader {
     private static final String ns = null;
 
 //    private String storagePath;
-    private Version formatVersion;
+    protected Version formatVersion;
+    protected boolean isExistCryptedNodes;
 
     /**
      *
@@ -102,12 +103,12 @@ public abstract class XMLManager implements OnNodeIconLoader {
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
+            // наличие зашифрованных веток
+            if (crypt && !isExistCryptedNodes)
+                isExistCryptedNodes = true;
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             iconPath = parser.getAttributeValue(ns, "icon");
-//            String iconRelPath = parser.getAttributeValue(ns, "icon");
-//            if (iconRelPath != null)
-//                iconPath = storagePath + "/icons/" + iconRelPath;
         }
         List<TetroidNode> subNodes = new ArrayList<>();
         List<TetroidRecord> records = new ArrayList<>();

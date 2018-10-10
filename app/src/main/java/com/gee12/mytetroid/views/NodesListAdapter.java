@@ -23,7 +23,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         /**
          * Вызывается при клике на имени ветки
          *
-         * @param node Объект ветки.
+         * @param node Объект ветки
          */
         void onClick(TetroidNode node);
     }
@@ -100,11 +100,11 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         if (node.getRecordsCount() > 0 && node.isDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorNodeName));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
         }
         else {
             viewHolder.recordsCountView.setVisibility(View.GONE);
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorNodeNameWithoutRecords));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
         ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);

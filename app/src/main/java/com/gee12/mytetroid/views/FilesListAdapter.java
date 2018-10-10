@@ -58,7 +58,7 @@ public class FilesListAdapter extends BaseAdapter {
         FileViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new FileViewHolder();
-            convertView = inflater.inflate(R.layout.list_item_record, null);
+            convertView = inflater.inflate(R.layout.list_item_file, null);
             viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.file_view_line_num);
             viewHolder.iconView = (ImageView) convertView.findViewById(R.id.file_view_icon);
             viewHolder.nameView = (TextView) convertView.findViewById(R.id.file_view_name);
@@ -76,7 +76,7 @@ public class FilesListAdapter extends BaseAdapter {
         // название файла
         viewHolder.nameView.setText(file.getFileName());
         // размер файла
-        viewHolder.nameView.setText(file.getFileSize());
+        viewHolder.sizeView.setText(file.getFileSize());
 
         return convertView;
     }

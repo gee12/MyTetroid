@@ -18,12 +18,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.DownloadListener;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
+import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView filesListView;
     private TetroidNode currentNode;
     private TetroidRecord currentRecord;
-    private ViewSwitcher viewSwitcher;
+    private ViewFlipper viewFlipper;
 //    private TextView recordContentTextView;
     private WebView recordContentWebView;
     private int lastDisplayedViewId = 0;
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         emptyTextView = (TextView)findViewById(R.id.files_text_view_empty);
         filesListView.setEmptyView(emptyTextView);
 
-        viewSwitcher = (ViewSwitcher) findViewById(R.id.view_switcher);
+        viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
 //        recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
         recordContentWebView = (WebView)findViewById(R.id.web_view_record_content);
 
@@ -136,8 +138,37 @@ public class MainActivity extends AppCompatActivity {
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
             SettingsManager.setStoragePath(storagePath);
+
+            if (DataManager.isExistsCryptedNodes()) {
+
+                // пароль сохранен локально
+                boolean isPassSaved = false; // ?
+
+                if (isPassSaved) {
+                    DataManager.decrypt();
+                } else {
+                    if (SettingsManager.isAskPasswordOnStart()) {
+                        // выводим окно с запросом пароля
+                        askPassword(null);
+                        return;
+                    }
+                }
+            }
+
             initListViews();
         } else {
+            Toast.makeText(this, "Ошибка инициализации хранилища", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void askPassword(TetroidNode node) {
+        Toast.makeText(this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+
+        if (node != null) {
+            // попытка открытия ветки
+
+        } else {
+            // попытка прочтения всей базы
 
         }
     }
@@ -147,9 +178,10 @@ public class MainActivity extends AppCompatActivity {
         NodesListAdapter listAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
         nodesListView.setAdapter(listAdapter);
         listAdapter.setDataItems(DataManager.getRootNodes());
-
         // список записей
-        this.recordsListAdapter = new RecordsListAdapter(this);
+        this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
+        // список файлов
+        this.filesListAdapter = new FilesListAdapter(this);
     }
 
     void showChooser1() {
@@ -309,19 +341,19 @@ public class MainActivity extends AppCompatActivity {
     private void showNode(TetroidNode node)
     {
         if (!node.isDecrypted()) {
-            Toast.makeText(this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+            askPassword(node);
             return;
         }
         this.currentNode = node;
 //        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).show();
-//        if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_TEXT)
-//            viewSwitcher.showPrevious();
+//        if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT)
+//            viewFlipper.showPrevious();
         showView(VIEW_RECORDS_LIST);
         drawerLayout.closeDrawers();
 
         this.recordsListAdapter.reset(node.getRecords());
         recordsListView.setAdapter(recordsListAdapter);
-        setTitle(node.getName());
+//        setTitle(node.getName());
 //        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).show();
     }
 
@@ -341,13 +373,14 @@ public class MainActivity extends AppCompatActivity {
     private void showRecord(TetroidRecord record) {
         this.currentRecord = record;
         String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath());
-//        Spanned recordContent = record.getContent();
-//        recordContentTextView.setText(recordContent);
+        recordContentWebView.setVisibility(View.INVISIBLE);
         recordContentWebView.loadUrl(recordContentUrl);
-//        viewSwitcher.showNext();
-        showView(VIEW_RECORD_TEXT);
-        setTitle(record.getName());
-//        Toast.makeText(this, "Открытие " + record.getName(), Toast.LENGTH_SHORT).show();
+        recordContentWebView.setWebViewClient(new WebViewClient() {
+            public void onPageFinished(WebView view, String url) {
+                showView(VIEW_RECORD_TEXT);
+                recordContentWebView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**
@@ -364,10 +397,11 @@ public class MainActivity extends AppCompatActivity {
      * @param record Запись
      */
     private void showFilesList(TetroidRecord record) {
+        this.currentRecord = record;
         showView(VIEW_RECORD_FILES);
-        this.filesListAdapter.reset(record.getFiles());
+        this.filesListAdapter.reset(record.getAttachedFiles());
         filesListView.setAdapter(filesListAdapter);
-        setTitle(record.getName());
+//        setTitle(record.getName());
     }
 
     /**
@@ -375,7 +409,7 @@ public class MainActivity extends AppCompatActivity {
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openFile(int position) {
-        TetroidFile file = currentRecord.getFiles().get(position);
+        TetroidFile file = currentRecord.getAttachedFiles().get(position);
         openFile(file);
     }
 
@@ -394,6 +428,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(TetroidNode node) {
             showNode(node);
+        }
+    };
+
+    /**
+     * Обработчик клика на заголовке ветки с подветками
+     */
+    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
+        @Override
+        public void onClick(TetroidRecord record) {
+            showFilesList(record);
         }
     };
 
@@ -443,8 +487,13 @@ public class MainActivity extends AppCompatActivity {
      * @param viewId
      */
     void showView(int viewId) {
-        lastDisplayedViewId = viewSwitcher.getDisplayedChild();
-        viewSwitcher.setDisplayedChild(viewId);
+        lastDisplayedViewId = viewFlipper.getDisplayedChild();
+        viewFlipper.setDisplayedChild(viewId);
+        if (viewId == VIEW_RECORDS_LIST) {
+            setTitle(currentNode.getName());
+        } else if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
+            setTitle(currentRecord.getName());
+        }
     }
 
     /**
@@ -452,18 +501,16 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_TEXT) {
-//            viewSwitcher.showPrevious();
+        } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
             showView(VIEW_RECORDS_LIST);
-        } else if (viewSwitcher.getDisplayedChild() == VIEW_RECORD_FILES) {
+        } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_FILES) {
             // смотрим какая страница была перед этим
             if (lastDisplayedViewId == VIEW_RECORD_TEXT)
                 showView(VIEW_RECORD_TEXT);
             else
-                showView(VIEW_RECORD_FILES);
+                showView(VIEW_RECORDS_LIST);
         } else {
             super.onBackPressed();
         }

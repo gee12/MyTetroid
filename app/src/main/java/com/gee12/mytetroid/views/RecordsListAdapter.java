@@ -10,11 +10,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.util.List;
 
 public class RecordsListAdapter extends BaseAdapter {
+
+    public interface OnRecordAttachmentClickListener {
+        /**
+         * Вызывается при клике на иконке прикрепленных файлов к записи
+         *
+         * @param record Объект записи
+         */
+        void onClick(TetroidRecord record);
+    }
 
     /**
      *
@@ -22,15 +32,18 @@ public class RecordsListAdapter extends BaseAdapter {
     private class RecordViewHolder {
         TextView lineNumView;
         TextView nameView;
+        TextView infoView;
         ImageView attachedView;
     }
 
     private static LayoutInflater inflater = null;
     private List<TetroidRecord> dataSet;
+    private OnRecordAttachmentClickListener onRecordAttachmentClickListener;
 
-    public RecordsListAdapter(Context context) {//}, List<TetroidRecord> dataSet) {
-        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        this.dataSet = dataSet;
+    public RecordsListAdapter(Context context, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
+        super();
+        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.onRecordAttachmentClickListener = onRecordAttachmentClickListener;
     }
 
     public void reset(List<TetroidRecord> dataSet) {
@@ -61,6 +74,7 @@ public class RecordsListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_item_record, null);
             viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.record_view_line_num);
             viewHolder.nameView = (TextView) convertView.findViewById(R.id.record_view_name);
+            viewHolder.infoView = (TextView) convertView.findViewById(R.id.record_view_info);
             viewHolder.attachedView = (ImageView) convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
@@ -72,14 +86,22 @@ public class RecordsListAdapter extends BaseAdapter {
         viewHolder.lineNumView.setText(String.valueOf(position));
         // название записи
         viewHolder.nameView.setText(record.getName());
+        // другая информация о записи
+        if (record.getCreated() != null)
+            viewHolder.infoView.setText(record.getCreatedString());
         // есть ли прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон
-            if (true) {
-//            convertView.setBackgroundResource(R.color.colorRecordWithAttach);
-                convertView.setBackgroundColor(Color.CYAN);
+            if (SettingsManager.isHighlightAttached()) {
+                convertView.setBackgroundResource(R.color.colorHighlight);
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
+            viewHolder.attachedView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onRecordAttachmentClickListener.onClick(record);
+                }
+            });
         }
         else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
