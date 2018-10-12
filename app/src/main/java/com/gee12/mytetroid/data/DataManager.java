@@ -1,9 +1,6 @@
 package com.gee12.mytetroid.data;
 
-import org.xml.sax.XMLFilter;
-
 import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DataManager extends XMLManager {
@@ -40,13 +37,13 @@ public class DataManager extends XMLManager {
         return true;
     }
 
-    public static boolean decrypt() {
+    public static boolean decryptAll() {
         // достаем сохраненный пароль
         String passHash = "";
-        return decrypt(passHash);
+        return decryptAll(passHash);
     }
 
-    public static boolean decrypt(String passHash) {
+    public static boolean decryptAll(String passHash) {
         // читаем соль из database.ini
         // берем пароль
         return true;

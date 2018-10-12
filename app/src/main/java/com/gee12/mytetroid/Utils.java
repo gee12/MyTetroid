@@ -12,6 +12,8 @@ import com.larvalabs.svgandroid.SVGParser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,5 +55,16 @@ public class Utils {
 
     public static boolean isNullOrEmpty(String s) {
         return s == null || s.equals("");
+    }
+
+    /**
+     * Преобразование в MD5
+     * @param data
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    public static byte[] getMD5(byte[] data) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        return md.digest(data);
     }
 }

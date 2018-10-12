@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.DownloadListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -145,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean isPassSaved = false; // ?
 
                 if (isPassSaved) {
-                    DataManager.decrypt();
+                    DataManager.decryptAll();
                 } else {
                     if (SettingsManager.isAskPasswordOnStart()) {
                         // выводим окно с запросом пароля
