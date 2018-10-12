@@ -28,7 +28,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
     implementation 'pl.openrnd.android:multi-level-listview:1.0.1' // MultiLevelListView
-    implementation files('libs/svg-android.jar') // для динамической загрузки SVG
+   // implementation files('libs/svg-android.jar') // для динамической загрузки SVG
 //    implementation 'com.caverock:androidsvg-aar:1.3'
 //    compile 'net.rdrei.android.dirchooser:library:3.2@aar'
     implementation 'lib.kashif:folderpicker:2.4'

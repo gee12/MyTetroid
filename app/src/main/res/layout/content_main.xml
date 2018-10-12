@@ -40,27 +40,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/scrollView" >
-
-                <!--<TextView-->
-                    <!--android:id="@+id/text_view_record_date"-->
-                    <!--android:textSize="@dimen/font_default"-->
-                    <!--android:layout_margin="5dp"-->
-                    <!--android:layout_height="match_parent"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_centerVertical="true" />-->
-                <!--<TextView
-                    android:id="@+id/text_view_record_content"
-                    android:textIsSelectable="true"
-                    android:textSize="@dimen/font_default"
-                    android:layout_margin="5dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent" />-->
                 <WebView
                     android:id="@+id/web_view_record_content"
                     android:textIsSelectable="true"
                     android:layout_margin="2dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:background="@android:color/transparent"/>
             </ScrollView>
         </RelativeLayout>
@@ -84,35 +69,3 @@
 
     </ViewFlipper>
 </android.support.constraint.ConstraintLayout>
-
-<!--<android.support.constraint.ConstraintLayout -->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
-    <!--tools:context=".activities.MainActivity"-->
-    <!--tools:showIn="@layout/app_bar_main">-->
-
-    <!--<ListView-->
-        <!--android:id="@+id/records_list_view"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
-
-    <!--&lt;!&ndash;<TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;android:id="@android:id/empty"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:htmlContent="@string/empty_list" />&ndash;&gt;-->
-
-    <!--&lt;!&ndash;<TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:htmlContent="MyTetroid!"&ndash;&gt;-->
-        <!--&lt;!&ndash;app:layout_constraintBottom_toBottomOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;app:layout_constraintLeft_toLeftOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;app:layout_constraintRight_toRightOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;-->
-
-<!--</android.support.constraint.ConstraintLayout>-->
