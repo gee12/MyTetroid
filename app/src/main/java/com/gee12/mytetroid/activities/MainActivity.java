@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -371,10 +372,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showRecord(TetroidRecord record) {
         this.currentRecord = record;
-        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath());
+        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
         recordContentWebView.setVisibility(View.INVISIBLE);
         recordContentWebView.loadUrl(recordContentUrl);
         recordContentWebView.setWebViewClient(new WebViewClient() {
+            /*@Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return super.shouldOverrideUrlLoading(view, request);
+            }*/
+            @Override
             public void onPageFinished(WebView view, String url) {
                 showView(VIEW_RECORD_TEXT);
                 recordContentWebView.setVisibility(View.VISIBLE);

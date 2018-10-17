@@ -137,7 +137,7 @@ public class RC5 {
      * @param p Позиция
      * @return
      */
-    private static long BytesToUInt64(byte[] b, int p)
+    private static long bytesToUInt64(byte[] b, int p)
     {
         long r = 0;
         for (int i = p + 7; i > p; i--)
@@ -155,7 +155,7 @@ public class RC5 {
      * @param b Массив байтов
      * @param p Позиция
      */
-    private static void UInt64ToBytes(long a, byte[] b, int p)
+    private static void uint64ToBytes(long a, byte[] b, int p)
     {
         for (int i = 0; i < 7; i++)
         {
@@ -170,10 +170,10 @@ public class RC5 {
      * @param inBuf Входной буфер для шифруемых данных (64 бита)
      * @param outBuf Выходной буфер (64 бита)
      */
-    public void Cipher(byte[] inBuf, byte[] outBuf)
+    public void cipher(byte[] inBuf, byte[] outBuf)
     {
-        long a = BytesToUInt64(inBuf, 0);
-        long b = BytesToUInt64(inBuf, 8);
+        long a = bytesToUInt64(inBuf, 0);
+        long b = bytesToUInt64(inBuf, 8);
 
         a = a + S[0];
         b = b + S[1];
@@ -184,8 +184,8 @@ public class RC5 {
             b = ROL((b ^ a), (int)a) + S[2 * i + 1];
         }
 
-        UInt64ToBytes(a, outBuf, 0);
-        UInt64ToBytes(b, outBuf, 8);
+        uint64ToBytes(a, outBuf, 0);
+        uint64ToBytes(b, outBuf, 8);
     }
 
     /**
@@ -193,10 +193,10 @@ public class RC5 {
      * @param inBuf Входной буфер для шифруемых данных (64 бита)
      * @param outBuf Выходной буфер (64 бита)
      */
-    public void Decipher(byte[] inBuf, byte[] outBuf)
+    public void decipher(byte[] inBuf, byte[] outBuf)
     {
-        long a = BytesToUInt64(inBuf, 0);
-        long b = BytesToUInt64(inBuf, 8);
+        long a = bytesToUInt64(inBuf, 0);
+        long b = bytesToUInt64(inBuf, 8);
 
         for (int i = R; i > 0; i--)
         {
@@ -207,7 +207,7 @@ public class RC5 {
         b = b - S[1];
         a = a - S[0];
 
-        UInt64ToBytes(a, outBuf, 0);
-        UInt64ToBytes(b, outBuf, 8);
+        uint64ToBytes(a, outBuf, 0);
+        uint64ToBytes(b, outBuf, 8);
     }
 }

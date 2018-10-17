@@ -85,9 +85,13 @@ public class TetroidRecord {
 //        return htmlContent;
 //    }
 
-    public String getRecordTextUrl(String storagePath) {
-        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
-        return "file:///" + file.getAbsolutePath();
+    public String getRecordTextUrl(String storagePath, String tempPath) {
+        String path = (isCrypted && isDecrypted)
+                ? tempPath+dirName+"/"+fileName
+                : storagePath+"/base/"+dirName+"/"+fileName;
+//        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
+//        return "file:///" + file.getAbsolutePath();
+        return "file:///" + path;
     }
 
     public Date getCreated() {
@@ -120,7 +124,35 @@ public class TetroidRecord {
     }
 
     public boolean isDecrypted() {
-        return isDecrypted;
+        return (!isCrypted || isDecrypted);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public void setDirName(String dirName) {
+        this.dirName = dirName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setDecrypted(boolean decrypted) {
+        isDecrypted = decrypted;
     }
 
     public void setNode(TetroidNode node) {

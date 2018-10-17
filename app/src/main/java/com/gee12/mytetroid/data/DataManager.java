@@ -1,12 +1,27 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.crypt.CryptManager;
+
 import java.io.FileInputStream;
 import java.util.List;
 
 public class DataManager extends XMLManager {
+    /**
+     *
+     */
     private List<TetroidNode> rootNodesCollection;
+    /**
+     *
+     */
     private String storagePath;
+    /**
+     * ИСПРАВИТЬ !
+     */
+    private String tempPath = "/tmp/";
 
+    /**
+     *
+     */
     private static DataManager instance;
 
     /*static String html = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n" +
@@ -39,14 +54,8 @@ public class DataManager extends XMLManager {
 
     public static boolean decryptAll() {
         // достаем сохраненный пароль
-        String passHash = "";
-        return decryptAll(passHash);
-    }
-
-    public static boolean decryptAll(String passHash) {
-        // читаем соль из database.ini
-        // берем пароль
-        return true;
+        String pass = "iHMy5~sv62";
+        return CryptManager.decryptAll(pass, instance.rootNodesCollection);
     }
 
     public void loadIcon(TetroidNode node) {
@@ -103,6 +112,10 @@ public class DataManager extends XMLManager {
 
     public static String getStoragePath() {
         return instance.storagePath;
+    }
+
+    public static String getTempPath() {
+        return instance.tempPath;
     }
 
     public static boolean isExistsCryptedNodes() {

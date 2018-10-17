@@ -85,6 +85,10 @@ public class TetroidNode {
         return name;
     }
 
+    public String getIconName() {
+        return iconName;
+    }
+
     public String getCryptedName() {
         return (!isCrypted || isDecrypted) ? name : "Зашифровано";
     }
@@ -95,6 +99,10 @@ public class TetroidNode {
 
     public List<TetroidNode> getSubNodes() {
         return subNodes;
+    }
+
+    public int getSubNodesCount() {
+        return subNodes.size();
     }
 
     public List<TetroidRecord> getRecords() {
@@ -115,6 +123,14 @@ public class TetroidNode {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setIconName(String iconName) {
+        this.iconName = iconName;
+    }
+
+    public void setDecrypted(boolean decrypted) {
+        isDecrypted = decrypted;
     }
 
     public void addSubNode(TetroidNode subNode)

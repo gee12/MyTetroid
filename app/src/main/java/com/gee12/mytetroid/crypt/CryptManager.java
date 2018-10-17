@@ -1,11 +1,12 @@
 package com.gee12.mytetroid.crypt;
 
-import android.database.CharArrayBuffer;
-
 import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.data.TetroidNode;
+import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.List;
 
 public class CryptManager {
 
@@ -20,11 +21,74 @@ public class CryptManager {
         rc5 = new RC5(key.getBytes());
     }
 
+    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
+        // читаем соль из database.ini ?
+
+        setCryptKeyToMemory(pass);
+
+        return decryptNodes(nodes);
+    }
+
+    public static boolean decryptNodes(List<TetroidNode> nodes) {
+        for (TetroidNode node : nodes) {
+            if (node.isCrypted())
+                decrypt(node);
+            // расшифровывать записи сразу или при выделении?
+            if (node.getRecordsCount() > 0)
+                decryptRecords(node.getRecords());
+            // расшифровываем подветки
+            if (node.getSubNodesCount() > 0)
+                decryptNodes(node.getSubNodes());
+        }
+
+        return true;
+    }
+
+    /**
+     * Расшифровка ветки
+     * @param node
+     * @return
+     */
+    public static boolean decrypt(TetroidNode node) {
+        node.setName(CryptManager.decrypt(node.getName()));
+        node.setIconName(CryptManager.decrypt(node.getIconName()));
+        node.setDecrypted(true);
+        return true;
+    }
+
+    /**
+     * Расшифровка списка записей
+     * @param records
+     * @return
+     */
+    public static boolean decryptRecords(List<TetroidRecord> records) {
+        for (TetroidRecord record : records) {
+            if (record.isCrypted())
+                decrypt(record);
+        }
+
+        return true;
+    }
+
+    /**
+     * Расшифровка записи
+     * Расшифровать сразу и записи, или при выделении ветки?
+     * @param record
+     * @return
+     */
+    public static boolean decrypt(TetroidRecord record) {
+        record.setName(CryptManager.decrypt(record.getName()));
+        record.setAuthor(CryptManager.decrypt(record.getAuthor()));
+        record.setUrl(CryptManager.decrypt(record.getUrl()));
+        record.setDecrypted(true);
+        return true;
+    }
+
 
     /**
      * Установка пароля в виде ключа шифрования
      */
-    static void setCryptKeyToMemory(String password)
+    public static void setCryptKeyToMemory(String password)
     {
         try {
             // добавляем соль
@@ -59,8 +123,16 @@ public class CryptManager {
      * @param key
      * @param line Исходня строка
      */
-    public static String Encrypt(byte[] key, String line) {
+    public static String encrypt(byte[] key, String line) {
         return null;
+    }
+
+    /**
+     * Расшифровка строки base64
+     * @param line Строка в base64
+     */
+    public static String decrypt(String line) {
+    /*    return decryptNodes(cryptKey, line);
     }
 
     /**
@@ -68,9 +140,9 @@ public class CryptManager {
      * @param key
      * @param line Строка в base64
      */
-    public static String Decrypt(byte[] key, String line) {
+    /*public static String decryptNodes(byte[] key, String line) {*/
         byte[] res = new byte[line.length()];
-        rc5.Decipher(line.getBytes(), res);
+        rc5.decipher(line.getBytes(), res);
         return new String(res);
     }
 
