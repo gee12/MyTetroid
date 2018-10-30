@@ -82,10 +82,10 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 //            viewHolder.iconView.setVisibility(View.VISIBLE);
 //            viewHolder.iconView.setImageURI(node.getIconUri());
 //        }
-        if (node.getIcon() != null || !node.isDecrypted()) {
+        if (node.getIcon() != null || !node.isNonCryptedOrDecrypted()) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
             viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            if (!node.isDecrypted()) {
+            if (!node.isNonCryptedOrDecrypted()) {
                 viewHolder.iconView.setImageResource(R.drawable.ic_crypted_node);
             }
             else {
@@ -97,7 +97,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // имя
         viewHolder.nameView.setText(node.getCryptedName());
         // количество записей в ветке
-        if (node.getRecordsCount() > 0 && node.isDecrypted()) {
+        if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));

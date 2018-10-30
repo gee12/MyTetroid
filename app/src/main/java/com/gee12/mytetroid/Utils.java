@@ -67,4 +67,8 @@ public class Utils {
         MessageDigest md = MessageDigest.getInstance("MD5");
         return md.digest(data);
     }
+
+//    public static byte[] fromBase64(String base64String) {
+//
+//    }
 }

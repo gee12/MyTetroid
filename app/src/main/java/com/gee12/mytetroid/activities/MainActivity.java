@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -30,6 +29,7 @@ import android.widget.ViewFlipper;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.UriUtil;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
@@ -142,9 +142,16 @@ public class MainActivity extends AppCompatActivity {
             if (DataManager.isExistsCryptedNodes()) {
 
                 // пароль сохранен локально
-                boolean isPassSaved = false; // ?
+                // ...
+                boolean isPassSaved = true; // ?
 
                 if (isPassSaved) {
+                    // достаем пароль из файла
+                    //..
+                    String pass = "iHMy5~sv62";
+
+                    CryptManager.init(pass);
+
                     DataManager.decryptAll();
                 } else {
                     if (SettingsManager.isAskPasswordOnStart()) {
@@ -161,15 +168,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Вызывается при:
+     * 1) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
+     * 2) запуске приложения, если выделение было сохранено на зашифрованной ветке
+     * 3) при выделении зашифрованной ветки
+     * @param node Ветка для расшифровки или null, если нужно расшифровать всю коллекцию
+     */
     private void askPassword(TetroidNode node) {
         Toast.makeText(this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+        // =>
+//        askPasswordReturn(node);
+    }
+
+    private void askPasswordReturn(String pass, TetroidNode node) {
+        // получаем пароль
+        CryptManager.init(pass);
 
         if (node != null) {
             // попытка открытия ветки
-
+            CryptManager.decryptNode(node);
         } else {
             // попытка прочтения всей базы
-
+            DataManager.decryptAll();
         }
     }
 
@@ -340,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showNode(TetroidNode node)
     {
-        if (!node.isDecrypted()) {
+        if (!node.isNonCryptedOrDecrypted()) {
             askPassword(node);
             return;
         }
@@ -372,20 +393,23 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showRecord(TetroidRecord record) {
         this.currentRecord = record;
-        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
-        recordContentWebView.setVisibility(View.INVISIBLE);
-        recordContentWebView.loadUrl(recordContentUrl);
-        recordContentWebView.setWebViewClient(new WebViewClient() {
-            /*@Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return super.shouldOverrideUrlLoading(view, request);
-            }*/
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                showView(VIEW_RECORD_TEXT);
-                recordContentWebView.setVisibility(View.VISIBLE);
-            }
-        });
+//        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
+        String recordContentUrl = DataManager.getRecordTextUrl(record);
+        if (recordContentUrl != null) {
+            recordContentWebView.setVisibility(View.INVISIBLE);
+            recordContentWebView.loadUrl(recordContentUrl);
+            recordContentWebView.setWebViewClient(new WebViewClient() {
+                /*@Override
+                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                    return super.shouldOverrideUrlLoading(view, request);
+                }*/
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    showView(VIEW_RECORD_TEXT);
+                    recordContentWebView.setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 
     /**
@@ -460,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
             // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
             // на заголовке и на стрелке раскрытия/закрытия ветки
-            if (!((TetroidNode)item).isDecrypted()) {
+            if (!((TetroidNode)item).isNonCryptedOrDecrypted()) {
                 Toast.makeText(MainActivity.this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
                 return;
             }

@@ -30,7 +30,7 @@ public class TetroidRecord {
     private String fileName;
     List<TetroidFile> files = new ArrayList<>();
 
-    boolean isDecrypted;
+    private boolean isDecrypted;
 
     public TetroidRecord(String id, String name) {
         this.id = id;
@@ -85,14 +85,21 @@ public class TetroidRecord {
 //        return htmlContent;
 //    }
 
-    public String getRecordTextUrl(String storagePath, String tempPath) {
-        String path = (isCrypted && isDecrypted)
+    /**
+     * Получение пути к файлу с содержимым записи.
+     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
+     * @param storagePath
+     * @param tempPath
+     * @return
+     */
+    /*public String getRecordTextUrl(String storagePath, String tempPath) {
+        String path = (isCrypted && isNonCryptedOrDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
                 : storagePath+"/base/"+dirName+"/"+fileName;
 //        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
 //        return "file:///" + file.getAbsolutePath();
         return "file:///" + path;
-    }
+    }*/
 
     public Date getCreated() {
         return created;
@@ -123,8 +130,16 @@ public class TetroidRecord {
         return isCrypted;
     }
 
-    public boolean isDecrypted() {
+    /**
+     * Получение признака, что запись не зашифрована.
+     * @return True, если не зашифровано, или уже расшифровано.
+     */
+    public boolean isNonCryptedOrDecrypted() {
         return (!isCrypted || isDecrypted);
+    }
+
+    public boolean isDecrypted() {
+        return isDecrypted;
     }
 
     public void setName(String name) {

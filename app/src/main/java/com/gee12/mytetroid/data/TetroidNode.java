@@ -1,14 +1,11 @@
 package com.gee12.mytetroid.data;
 
 import android.graphics.drawable.Drawable;
-import android.os.Environment;
 
 import com.gee12.mytetroid.Utils;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class TetroidNode {
     private String id;
@@ -117,7 +114,11 @@ public class TetroidNode {
         return isCrypted;
     }
 
-    public boolean isDecrypted() {
+    /**
+     * Получение признака, что запись не зашифрована.
+     * @return True, если не зашифровано, или уже расшифровано.
+     */
+    public boolean isNonCryptedOrDecrypted() {
         return (!isCrypted || isDecrypted);
     }
 
@@ -145,6 +146,6 @@ public class TetroidNode {
     }
 
     public boolean isExpandable() {
-        return !subNodes.isEmpty() && isDecrypted();
+        return !subNodes.isEmpty() && isNonCryptedOrDecrypted();
     }
 }

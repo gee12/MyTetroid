@@ -45,6 +45,8 @@ public class DataManager extends XMLManager {
             FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
 //            rootNodesCollection = new XMLManager().parse(fis);
             instance.rootNodesCollection = instance.parse(fis);
+//            if (isExistsCryptedNodes())
+//                CryptManager.init();
         } catch (Exception ex) {
 //            rootNodesCollection = initFake();
             return false;
@@ -54,12 +56,35 @@ public class DataManager extends XMLManager {
 
     public static boolean decryptAll() {
         // достаем сохраненный пароль
-        String pass = "iHMy5~sv62";
-        return CryptManager.decryptAll(pass, instance.rootNodesCollection);
+//        String pass = "iHMy5~sv62";
+//        return CryptManager.decryptAll(pass, instance.rootNodesCollection);
+        return CryptManager.decryptAll(instance.rootNodesCollection);
+    }
+
+    /**
+     * Получение пути к файлу с содержимым записи.
+     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
+     * @return
+     */
+    public static String getRecordTextUrl(TetroidRecord record) {
+        String path = null;
+        if (record.isCrypted()) {
+            if (record.isDecrypted()) {
+                path = instance.tempPath+"/"+record.getDirName()+"/"+record.getName();
+            }
+        } else {
+            path = instance.storagePath+"/base/"+record.getDirName()+"/"+record.getName();
+        }
+        /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
+                ? tempPath+dirName+"/"+fileName
+                : storagePath+"/base/"+dirName+"/"+fileName;*/
+//        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
+//        return "file:///" + file.getAbsolutePath();
+        return (path != null) ? "file:///" + path : null;
     }
 
     public void loadIcon(TetroidNode node) {
-        if (node.isDecrypted())
+        if (node.isNonCryptedOrDecrypted())
             node.loadIconFromStorage(storagePath + "/icons");
     }
 

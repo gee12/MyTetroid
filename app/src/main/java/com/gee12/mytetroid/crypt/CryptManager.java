@@ -17,14 +17,17 @@ public class CryptManager {
     private static RC5 rc5;
     private static byte[] cryptKey;
 
-    public static void init(String key) {
-        rc5 = new RC5(key.getBytes());
+    public static void init(String pass) {
+        setCryptKeyToMemory(pass);
+//        rc5 = new RC5(key.getBytes());
+        rc5 = new RC5(cryptKey);
     }
 
-    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
+//    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
+    public static boolean decryptAll(List<TetroidNode> nodes) {
         // читаем соль из database.ini ?
 
-        setCryptKeyToMemory(pass);
+//        setCryptKeyToMemory(pass);
 
         return decryptNodes(nodes);
     }
@@ -32,15 +35,21 @@ public class CryptManager {
     public static boolean decryptNodes(List<TetroidNode> nodes) {
         for (TetroidNode node : nodes) {
             if (node.isCrypted())
-                decrypt(node);
-            // расшифровывать записи сразу или при выделении?
-            if (node.getRecordsCount() > 0)
-                decryptRecords(node.getRecords());
-            // расшифровываем подветки
-            if (node.getSubNodesCount() > 0)
-                decryptNodes(node.getSubNodes());
+                decryptNode(node);
         }
 
+        return true;
+    }
+
+    public static boolean decryptNode(TetroidNode node) {
+        // расшифровываем поля
+        decryptNodeFields(node);
+        // расшифровывать записи сразу или при выделении?
+        if (node.getRecordsCount() > 0)
+            decryptRecordsFields(node.getRecords());
+        // расшифровываем подветки
+        if (node.getSubNodesCount() > 0)
+            decryptNodes(node.getSubNodes());
         return true;
     }
 
@@ -49,7 +58,7 @@ public class CryptManager {
      * @param node
      * @return
      */
-    public static boolean decrypt(TetroidNode node) {
+    public static boolean decryptNodeFields(TetroidNode node) {
         node.setName(CryptManager.decrypt(node.getName()));
         node.setIconName(CryptManager.decrypt(node.getIconName()));
         node.setDecrypted(true);
@@ -61,10 +70,10 @@ public class CryptManager {
      * @param records
      * @return
      */
-    public static boolean decryptRecords(List<TetroidRecord> records) {
+    public static boolean decryptRecordsFields(List<TetroidRecord> records) {
         for (TetroidRecord record : records) {
             if (record.isCrypted())
-                decrypt(record);
+                decryptRecordFields(record);
         }
 
         return true;
@@ -76,7 +85,7 @@ public class CryptManager {
      * @param record
      * @return
      */
-    public static boolean decrypt(TetroidRecord record) {
+    public static boolean decryptRecordFields(TetroidRecord record) {
         record.setName(CryptManager.decrypt(record.getName()));
         record.setAuthor(CryptManager.decrypt(record.getAuthor()));
         record.setUrl(CryptManager.decrypt(record.getUrl()));
@@ -84,6 +93,12 @@ public class CryptManager {
         return true;
     }
 
+    public static boolean decryptRecordContent(TetroidRecord record) {
+        // читаем содержимое файла
+
+        // расшифровуем
+        return false;
+    }
 
     /**
      * Установка пароля в виде ключа шифрования
@@ -141,6 +156,9 @@ public class CryptManager {
      * @param line Строка в base64
      */
     /*public static String decryptNodes(byte[] key, String line) {*/
+        if (line.length() == 0) {
+            return null;
+        }
         byte[] res = new byte[line.length()];
         rc5.decipher(line.getBytes(), res);
         return new String(res);
