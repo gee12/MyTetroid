@@ -109,7 +109,7 @@ public class CryptManager {
             // добавляем соль
             byte[] middleHash = calculateMiddleHash(password);
             // преобразуем к MD5 виду
-            byte[] key = Utils.getMD5(middleHash);
+            byte[] key = Utils.toMD5(middleHash);
             // записываем в память
             setCryptKey(key);
         } catch (Exception e) {
@@ -143,7 +143,7 @@ public class CryptManager {
     }
 
     /**
-     * Расшифровка строки base64
+     * Расшифровка строки в base64
      * @param line Строка в base64
      */
     public static String decrypt(String line) {
@@ -160,7 +160,12 @@ public class CryptManager {
             return null;
         }
         byte[] res = new byte[line.length()];
-        rc5.decipher(line.getBytes(), res);
+
+        // преобразование из Base64
+        byte[] bytes = Base64.decode(line);
+
+
+        rc5.decipher(bytes, res);
         return new String(res);
     }
 

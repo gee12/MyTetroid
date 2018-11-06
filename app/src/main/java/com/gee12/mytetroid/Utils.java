@@ -9,9 +9,13 @@ import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -19,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
+import org.apache.commons.codec.binary.*;
 public class Utils {
 
     public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException, SVGParseException, NullPointerException {
@@ -63,12 +67,9 @@ public class Utils {
      * @return
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] getMD5(byte[] data) throws NoSuchAlgorithmException {
+    public static byte[] toMD5(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         return md.digest(data);
     }
 
-//    public static byte[] fromBase64(String base64String) {
-//
-//    }
 }
