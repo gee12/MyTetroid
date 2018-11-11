@@ -70,10 +70,10 @@ public class DataManager extends XMLManager {
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                path = instance.tempPath+"/"+record.getDirName()+"/"+record.getName();
+                path = instance.tempPath+"/"+record.getDirName()+"/"+record.getFileName();
             }
         } else {
-            path = instance.storagePath+"/base/"+record.getDirName()+"/"+record.getName();
+            path = instance.storagePath+"/base/"+record.getDirName()+"/"+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName

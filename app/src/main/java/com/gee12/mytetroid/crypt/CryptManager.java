@@ -4,6 +4,7 @@ import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -118,18 +119,16 @@ public class CryptManager {
     }
 
     /**
-     * Добавление соли к паролю
+     * Получение хеша PBKDF2 от пароля и соли
+     * @param password Пароль (строки в Java уже в UTF-8)
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
      */
     static byte[] calculateMiddleHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
         byte[] salt = "^1*My2$Tetra3%_4[5]".getBytes();
-        // Хеш PBKDF2 от пароля и соли
-//        Pbkdf2Qt hashAlgorythm;
-//        byte[] middleHash=hashAlgorythm.Pbkdf2(password.toUtf8(),
-//                salt,
-//                CRYPT_CHECK_ROUNDS,
-//                CRYPT_CHECK_HASH_LEN);
-        return PBKDF2.getEncryptedPassword(password, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
+        return PBKDF2.encrypt(password, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
     }
 
 
@@ -159,14 +158,20 @@ public class CryptManager {
         if (line.length() == 0) {
             return null;
         }
-        byte[] res = new byte[line.length()];
-
-        // преобразование из Base64
-        byte[] bytes = Base64.decode(line);
-
-
-        rc5.decipher(bytes, res);
-        return new String(res);
+        // преобразование из base64
+        byte[] bytes = Base64.decode(line.toCharArray());
+        if (bytes == null)
+            return null;
+//        byte[] res = new byte[bytes.length];
+//        rc5.decipherString(bytes, res);
+//        return new String(res);
+        String res = null;
+        try {
+            res = RC5.decrypt(bytes, new String (cryptKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
     }
 
     static void setCryptKey(byte[] key) {

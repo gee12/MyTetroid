@@ -1,5 +1,16 @@
 package com.gee12.mytetroid.crypt;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.security.Security;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.RC5ParameterSpec;
+
 /**
  * Исходный код на C# был взят отсюда:
  * https://ru.wikibooks.org/wiki/%D0%A0%D0%B5%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8_%D0%B0%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC%D0%BE%D0%B2/RC5
@@ -210,4 +221,81 @@ public class RC5 {
         uint64ToBytes(a, outBuf, 0);
         uint64ToBytes(b, outBuf, 8);
     }
+
+    /**
+     * ХЕРНЯ ..!!
+     * Операция расшифрования строки
+     * @param inBuf Входной буфер строки
+     * @param outBuf Выходной буфер
+     */
+    public void decipherString(byte[] inBuf, byte[] outBuf)
+    {
+        for (int i = 0; i < inBuf.length; i+=8) {
+            byte[] eightBytesBits = new byte[64];
+            for (int j = 0; j < 8; j++) {
+                setByteBits(inBuf, i + j, eightBytesBits, j*8);
+            }
+            byte[] eightDecipheredBytesBits = new byte[64];
+            decipher(eightBytesBits, eightDecipheredBytesBits);
+            for (int j = 0; j < 8; j++) {
+                setByteFromBits(eightDecipheredBytesBits, j*8, outBuf, i+j);
+            }
+        }
+    }
+
+    public static void setByteBits(byte[] srcBytes, int srcPos, byte[] destBitsBytes, int destFrom) {
+        for (int i = 0; i < 8; i++) {
+            destBitsBytes[destFrom + i] = (byte)((srcBytes[srcPos] >> (7 - i)) & 1);
+        }
+    }
+
+    public static void setByteFromBits(byte[] srcBitsBytes, int srcFrom, byte[] destBytes, int destPos) {
+        for (int i = 0; i < 8; i++) {
+            destBytes[destPos] |= (byte)(srcBitsBytes[srcFrom + i] << (7 - i));
+        }
+    }
+
+    /*private static String algorithm = "RC5";
+    public static String decrypt(byte[] toDecrypt, String key) throws Exception {
+        // create a binary key from the argument key (seed)
+        SecureRandom sr = new SecureRandom(key.getBytes());
+        KeyGenerator kg = KeyGenerator.getInstance(algorithm);
+        kg.init(sr);
+        SecretKey sk = kg.generateKey();
+
+        // do the decryption with that key
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.DECRYPT_MODE, sk);
+        byte[] decrypted = cipher.doFinal(toDecrypt);
+
+        return new String(decrypted);
+    }*/
+
+
+    /*private int roundNumer;
+    private int wordSize;
+
+    private SecretKey key;
+    private RC5ParameterSpec RC5params;
+    private Cipher rc5;
+
+    public void RC5moje(int roundNumer, int wordSize) {
+        this.roundNumer = roundNumer;
+        this.wordSize = wordSize;
+
+        Security.addProvider(new FlexiCoreProvider());
+        this.RC5params = new RC5ParameterSpec(roundNumer, wordSize);
+        try {
+            this.rc5 = Cipher.getInstance("RC5", "FlexiCore");
+        } catch (NoSuchAlgorithmException ex) {
+//            Logger.getLogger(RC5moje.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchProviderException ex) {
+//            Logger.getLogger(RC5moje.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchPaddingException ex) {
+//            Logger.getLogger(RC5moje.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        RC5KeyGenerator rC5KeyGenerator = new RC5KeyGenerator();
+        this.key = rC5KeyGenerator.generateKey();
+
+    }*/
 }
