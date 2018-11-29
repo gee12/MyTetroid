@@ -15,13 +15,16 @@ public class CryptManager {
     public static final int  CRYPT_CHECK_HASH_LEN = 160;
 
 
-    private static RC5 rc5;
+//    private static RC5 rc5;
+    private static RC5Simple rc5;
     private static byte[] cryptKey;
 
     public static void init(String pass) {
         setCryptKeyToMemory(pass);
 //        rc5 = new RC5(key.getBytes());
-        rc5 = new RC5(cryptKey);
+//        rc5 = new RC5(cryptKey);
+        rc5 = new RC5Simple();
+        rc5.setKey(cryptKey);
     }
 
 //    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
@@ -167,7 +170,9 @@ public class CryptManager {
 //        return new String(res);
         String res = null;
         try {
-            res = RC5.decrypt(bytes, new String (cryptKey));
+//            res = RC5.decrypt(bytes, new String (cryptKey));
+            byte[] out = rc5.decrypt(bytes);
+            res = new String(out);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.crypt;
 
 import java.util.Arrays;
-import java.util.Random;
 
 public class RC5Simple {
 
@@ -113,9 +112,9 @@ public class RC5Simple {
     // Setup secret key
 // Parameters:
 // key - secret input key[RC5_B]
-    private void RC5_Setup(byte[] key)
+    private void setup(byte[] key)
     {
-//        RC5_LOG(( "RC5_Setup, set key to: " ));
+//        RC5_LOG(( "setup, set key to: " ));
 //        for(int i=0; i<RC5_B; i++)
 //            RC5_LOG(( "%.2X", key[i] ));
 //        RC5_LOG(( "\n" ));
@@ -128,15 +127,16 @@ public class RC5Simple {
         for(i = RC5_B-1, l[RC5_C-1] = 0; i !=- 1; i--)
             l[i/u] = (l[i/u]<<8)+key[i];
 
-//        RC5_LOG(( "RC5_Setup, l[]: " ));
+//        RC5_LOG(( "setup, l[]: " ));
 //        for(i=0; i<RC5_C; i++)
 //            RC5_LOG(( "%.2X", l[i] ));
 //        RC5_LOG(( "\n" ));
 
+        rc5_s = new long[RC5_T];
         for(rc5_s[0]=rc5_p,i=1; i < RC5_T; i++)
             rc5_s[i] = rc5_s[i-1]+rc5_q;
 
-//        RC5_LOG(( "RC5_Setup, rc5_s[]: " ));
+//        RC5_LOG(( "setup, rc5_s[]: " ));
 //        for(i=0; i<RC5_T; i++)
 //            RC5_LOG(( "%.2X", rc5_s[i] ));
 //        RC5_LOG(( "\n" ));
@@ -149,7 +149,7 @@ public class RC5Simple {
             b = l[j] = ROTL(l[j]+(a+b),(a+b));
         }
 
-//        RC5_LOG(( "RC5_Setup, mix rc5_s[]: " ));
+//        RC5_LOG(( "setup, mix rc5_s[]: " ));
 //        for(int i=0; i<RC5_T; i++)
 //            RC5_LOG(( "%.2X", rc5_s[i] ));
 //        RC5_LOG(( "\n" ));
@@ -157,7 +157,7 @@ public class RC5Simple {
 
 
     // Set secret key
-    private void RC5_SetKey(byte[] key)
+    public void setKey(byte[] key)
     {
         if(key.length != RC5_B)
         {
@@ -305,7 +305,7 @@ public String RC5_Encrypt(String in)
 
 
  // Set secret key for encrypt
- RC5_Setup(rc5_key);
+ setup(rc5_key);
 
 
  // Encode by blocks
@@ -398,7 +398,7 @@ public String RC5_Encrypt(String in)
 
     // Decrypt data in vector
 //void RC5Simple::RC5_Decrypt(vector<unsigned char> &in, vector<unsigned char> &out)
-    public String decrypt(byte[] in) {
+    public byte[] decrypt(byte[] in) {
         //        RC5_LOG(("\nDecrypt\n"));
 
 //        RC5_LOG(("\nInput data size: %d\n", in.size()));
@@ -484,7 +484,7 @@ public String RC5_Encrypt(String in)
 
 
         // Set secret key for decrypt
-        RC5_Setup(rc5_key);
+        setup(rc5_key);
 
 
         // Cleaning output vector
@@ -587,11 +587,15 @@ public String RC5_Encrypt(String in)
 
         // Remove from output a blocks with technical data (random blocks, size, etc...)
 //        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
-        out = Arrays.copyOfRange(out, 0, removeBlocksFromOutput * RC5_BLOCK_LEN);
 
         // Remove from output a last byte with random byte for aligning
-        if (out.size() > data_size)
-            out.erase(out.begin() + data_size, out.end());
+//        if (out.size() > data_size)
+//            out.erase(out.begin() + data_size, out.end());
+
+        int to = (out.length > data_size) ? data_size : out.length;
+        out = Arrays.copyOfRange(out,  removeBlocksFromOutput * RC5_BLOCK_LEN, to);
+
+        return out;
     }
 
 
@@ -605,7 +609,6 @@ void RC5Simple::RC5_EncryptFile(unsigned char *in_name, unsigned char *out_name)
 }
 
 
-// Отвлекли: что это за пакет? Кухня, Бюджетный вариант?
 // Отвлекли: позвонил дедушка
 void RC5Simple::RC5_EncryptFile(const char *in_name, const char *out_name)
 {
@@ -718,11 +721,11 @@ inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
 
 
 // Random generator, from - to inclusive
-    private int rand(int from, int to)
+    /*private int rand(int from, int to)
     {
         int len=to-from+1;
         return (new Random().nextInt()%len)+from;
-    }
+    }*/
 
     // Rotation operators. x must be unsigned, to get logical right shift
     public static long ROTL(long x, long y) {
