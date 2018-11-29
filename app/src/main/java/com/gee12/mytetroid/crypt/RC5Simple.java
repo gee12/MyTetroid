@@ -494,9 +494,9 @@ public String RC5_Encrypt(String in)
 
 
         // Decode by blocks from started data block
-//        unsigned int data_size = 0;
+//        unsigned int dataSize = 0;
 //        unsigned int block = firstDataBlock;
-        int data_size = 0;
+        long dataSize = 0;
         int block = firstDataBlock;
         while ((RC5_BLOCK_LEN * (block + 1)) <= inSize) {
 //            unsigned int shift = block * RC5_BLOCK_LEN;
@@ -544,17 +544,16 @@ public String RC5_Encrypt(String in)
             for (int i = 0; i < RC5_BLOCK_LEN; i++)
                 ct_part[i] ^= iv[i];
 
-            // Отвлекли: попугаи наверно голодные, кто бы их кормил, надо покормить
             if (block == blockWithDataSize) {
-                data_size = RC5_GetIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
+                dataSize = RC5_GetIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
 
-//                RC5_LOG(("Decrypt data size: %d\n", data_size));
+//                RC5_LOG(("Decrypt data size: %d\n", dataSize));
 
                 // Uncorrect decrypt data size
-//                if ((unsigned int)data_size > (unsigned int)inSize)
-                if (data_size > inSize)
+//                if ((unsigned int)dataSize > (unsigned int)inSize)
+                if (dataSize > inSize)
                 {
-                    // RC5_LOG(( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d\n", data_size,  in.size() ));
+                    // RC5_LOG(( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d\n", dataSize,  in.size() ));
                     errorCode = RC5_ERROR_CODE_7;
                     return null;
                 }
@@ -589,10 +588,10 @@ public String RC5_Encrypt(String in)
 //        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
 
         // Remove from output a last byte with random byte for aligning
-//        if (out.size() > data_size)
-//            out.erase(out.begin() + data_size, out.end());
+//        if (out.size() > dataSize)
+//            out.erase(out.begin() + dataSize, out.end());
 
-        int to = (out.length > data_size) ? data_size : out.length;
+        int to = (out.length > dataSize) ? (int)dataSize : out.length;
         out = Arrays.copyOfRange(out,  removeBlocksFromOutput * RC5_BLOCK_LEN, to);
 
         return out;
@@ -745,7 +744,7 @@ inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
         return (b0 + (b1 << 8) + (b2 << 16) + (b3 << 24));
     }
 
-    public static int RC5_GetIntFromByte(byte b0, byte b1, byte b2, byte b3) {
+    public static long RC5_GetIntFromByte(byte b0, byte b1, byte b2, byte b3) {
         return b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
     }
 
