@@ -18,7 +18,7 @@ public class CryptManager {
 
 //    private static RC5 rc5;
     private static RC5Simple rc5;
-    private static byte[] cryptKey;
+    private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
     public static void init(String pass) {
@@ -115,9 +115,10 @@ public class CryptManager {
             // добавляем соль
             byte[] middleHash = calculateMiddleHash(password);
             // преобразуем к MD5 виду
-            byte[] key = Utils.toMD5(middleHash);
+            byte[] keySigned = Utils.toMD5(middleHash);
+            int[] keyUnsigned = Utils.toUnsigned(keySigned);
             // записываем в память
-            setCryptKey(key);
+            setCryptKey(keyUnsigned);
         } catch (Exception e) {
 
         }
@@ -139,7 +140,9 @@ public class CryptManager {
 //                int o = 0;
 //            }
 //        }
-        return PBKDF2.encrypt(password, salt1, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
+        byte[] signedBytes = PBKDF2.encrypt(password, salt1, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
+//        return Utils.toUnsigned(signedBytes);
+        return signedBytes;
     }
 
 
@@ -174,13 +177,14 @@ public class CryptManager {
 //        toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
 
         char[] b1 = line.toCharArray();
-        byte[] b2 = line.getBytes(CHARSET_ISO_8859_1);
-        for (int i = 0; i < b2.length; i++) {
-           if (b2[i] != b1[i]) {
-               int o = 0;
-           }
-        }
-        byte[] bytes = Base64.decode(b2);
+//        byte[] b2 = line.getBytes(CHARSET_ISO_8859_1);
+//        for (int i = 0; i < b2.length; i++) {
+//           if (b2[i] != b1[i]) {
+//               int o = 0;
+//           }
+//        }
+//        byte[] bytes = Base64.decode(b2);
+        byte[] bytes = Base64.decode(line);
         if (bytes == null)
             return null;
 //        byte[] res = new byte[bytes.length];
@@ -198,7 +202,7 @@ public class CryptManager {
         return res;
     }
 
-    static void setCryptKey(byte[] key) {
+    static void setCryptKey(int[] key) {
         cryptKey = key;
     }
 }

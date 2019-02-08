@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.crypt;
 
+import com.gee12.mytetroid.Utils;
+
 import java.util.Arrays;
 
 public class RC5Simple {
@@ -42,7 +44,7 @@ public class RC5Simple {
     private long rc5_p;         // Magic constants one
     private long rc5_q;         // Magic constants two
 
-    private byte[] rc5_key;
+    private int[] rc5_key;
     private byte rc5_formatVersion;
     private boolean rc5_isSetFormatVersionForce;
 
@@ -52,13 +54,13 @@ public class RC5Simple {
     public RC5Simple(/*boolean enableRandomInit*/)
     {
         // Set magic constants
-        rc5_p = 0xb7e15163;
-        rc5_q = 0x9e3779b9;
+        rc5_p = 0xb7e15163L;
+        rc5_q = 0x9e3779b9L;
 
         // Cleaning user key
 //        for(int i=0; i<RC5_B; i++)
 //            rc5_key[i]=0;
-        rc5_key = new byte[RC5_B];
+        rc5_key = new int[RC5_B];
 
         rc5_formatVersion = RC5_FORMAT_VERSION_CURRENT;
         rc5_isSetFormatVersionForce = false;
@@ -112,7 +114,7 @@ public class RC5Simple {
     // Setup secret key
 // Parameters:
 // key - secret input key[RC5_B]
-    private void setup(byte[] key)
+    private void setup(int[] key)
     {
 //        RC5_LOG(( "setup, set key to: " ));
 //        for(int i=0; i<RC5_B; i++)
@@ -122,10 +124,11 @@ public class RC5Simple {
 
         int i, j, k, u = RC5_W/8;
         long[] l = new long[RC5_C];
+        l[2] = 5597844;
 
         // Initialize l[], then rc5_s[], then mix key into rc5_s[]
         for(i = RC5_B-1, l[RC5_C-1] = 0; i !=- 1; i--)
-            l[i/u] = (l[i/u]<<8)+key[i];
+            l[i/u] = (Utils.toUnsignedInt(l[i/u]<<8))+key[i];
 
 //        RC5_LOG(( "setup, l[]: " ));
 //        for(i=0; i<RC5_C; i++)
@@ -134,7 +137,7 @@ public class RC5Simple {
 
         rc5_s = new long[RC5_T];
         for(rc5_s[0]=rc5_p,i=1; i < RC5_T; i++)
-            rc5_s[i] = rc5_s[i-1]+rc5_q;
+            rc5_s[i] = Utils.toUnsignedInt(rc5_s[i-1]+rc5_q);
 
 //        RC5_LOG(( "setup, rc5_s[]: " ));
 //        for(i=0; i<RC5_T; i++)
@@ -157,10 +160,9 @@ public class RC5Simple {
 
 
     // Set secret key
-    public void setKey(byte[] key)
+    public void setKey(int[] key)
     {
-        if(key.length != RC5_B)
-        {
+        if(key.length != RC5_B) {
             errorCode = RC5_ERROR_CODE_1;
             return;
         }
@@ -398,7 +400,8 @@ public String RC5_Encrypt(String in)
 
     // Decrypt data in vector
 //void RC5Simple::RC5_Decrypt(vector<unsigned char> &in, vector<unsigned char> &out)
-    public byte[] decrypt(byte[] in) {
+    public byte[] decrypt(byte[] inSigned) {
+        int[] in = Utils.toUnsigned(inSigned);
         //        RC5_LOG(("\nDecrypt\n"));
 
 //        RC5_LOG(("\nInput data size: %d\n", in.size()));
@@ -434,7 +437,7 @@ public String RC5_Encrypt(String in)
             else {
                 // Get format version
 //                unsigned char readFormatVersion = in[RC5_BLOCK_LEN - 1];
-                byte readFormatVersion = in[RC5_BLOCK_LEN - 1];
+                int readFormatVersion = in[RC5_BLOCK_LEN - 1];
 
                 // If format version correct
                 if (readFormatVersion >= RC5_FORMAT_VERSION_2 && readFormatVersion <= RC5_FORMAT_VERSION_CURRENT)
@@ -478,7 +481,7 @@ public String RC5_Encrypt(String in)
 
         // Get IV
 //        unsigned char iv[ RC5_BLOCK_LEN];
-        byte[] iv = new byte[ RC5_BLOCK_LEN];
+        int[] iv = new int[ RC5_BLOCK_LEN];
         for (int i = 0; i < RC5_BLOCK_LEN; i++)
             iv[i] = in[i + ivShift];
 
@@ -490,7 +493,7 @@ public String RC5_Encrypt(String in)
         // Cleaning output vector
 //        out.clear();
 //        out.resize(in.size(), 0);
-        byte[] out = new byte[inSize];
+        int[] out = new int[inSize];
 
 
         // Decode by blocks from started data block
@@ -533,7 +536,7 @@ public String RC5_Encrypt(String in)
 
             // Convert block words to plain array
 //            unsigned char ct_part[ RC5_BLOCK_LEN];
-            byte[] ct_part = new byte[ RC5_BLOCK_LEN];
+            int[] ct_part = new int[ RC5_BLOCK_LEN];
 
             for (int i = 0; i < RC5_WORD_LEN; i++) {
                 ct_part[i] = getByteFromWord(ct[0], i);
@@ -594,7 +597,8 @@ public String RC5_Encrypt(String in)
         int to = (out.length > dataSize) ? (int)dataSize : out.length;
         out = Arrays.copyOfRange(out,  removeBlocksFromOutput * RC5_BLOCK_LEN, to);
 
-        return out;
+        byte[] outBytes = Utils.toBytes(out);
+        return outBytes;
     }
 
 
@@ -728,24 +732,38 @@ inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
 
     // Rotation operators. x must be unsigned, to get logical right shift
     public static long ROTL(long x, long y) {
-        return (((x) << (y & (RC5_W - 1))) | ((x) >> (RC5_W - (y & (RC5_W - 1)))));
+        x = Utils.toUnsignedInt(x);
+        long res = (((x) << (y & (RC5_W - 1))) | ((x) >> (RC5_W - (y & (RC5_W - 1)))));
+        return Utils.toUnsignedInt(res);
     }
 
     public static long ROTR(long x, long y) {
-        return (((x) >> (y & (RC5_W - 1))) | ((x) << (RC5_W - (y & (RC5_W - 1)))));
+        x = Utils.toUnsignedInt(x);
+        long res = (((x) >> (y & (RC5_W - 1))) | ((x) << (RC5_W - (y & (RC5_W - 1)))));
+        return Utils.toUnsignedInt(res);
     }
 
     //    #define getByteFromWord(w, n) ((unsigned char)((w) >> ((n)*8) & 0xff))
-    public static byte getByteFromWord(long w, int n) {
-        return ((byte) (w >> (n * 8) & 0xff));
+//    public static byte getByteFromWord(long w, int n) {
+//        return ((byte) (w >> (n * 8) & 0xff));
+//    }
+    public static int getByteFromWord(long w, int n) {
+        return ((int) (w >> (n * 8) & 0xffL));
     }
     //  #define getWordFromByte(b0, b1, b2, b3) ((RC5_TWORD)(b0 + (b1 << 8) + (b2 << 16)+ (b3 << 24)))
     public static long getWordFromByte(byte b0, byte b1, byte b2, byte b3) {
         return (b0 + (b1 << 8) + (b2 << 16) + (b3 << 24));
     }
+    public static long getWordFromByte(int i0, int i1, int i2, int i3) {
+        return Utils.toUnsignedInt(i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
+    }
+
 
     public static long RC5_GetIntFromByte(byte b0, byte b1, byte b2, byte b3) {
         return b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
+    }
+    public static long RC5_GetIntFromByte(int i0, int i1, int i2, int i3) {
+        return Utils.toUnsignedInt(i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
 }

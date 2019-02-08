@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-//import org.apache.commons.codec.binary.*;
+
 public class Utils {
 
     public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException, SVGParseException, NullPointerException {
@@ -70,6 +70,39 @@ public class Utils {
     public static byte[] toMD5(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         return md.digest(data);
+    }
+
+//    public static byte[] toMD5Int(int[] data) throws NoSuchAlgorithmException {
+//        MessageDigest md = MessageDigest.getInstance("MD5");
+//        return md.digest(data);
+//    }
+
+    public static int toUnsigned(byte b) {
+        return 0x000000FF & (int)b;
+    }
+
+    public static int[] toUnsigned(byte[] ba) {
+        if (ba == null)
+            return null;
+        int[] res = new int[ba.length];
+        for (int i = 0; i < ba.length; i ++) {
+            res[i] = toUnsigned(ba[i]);
+        }
+        return res;
+    }
+
+    public static long toUnsignedInt(long i) {
+        return 0x00000000FFFFFFFFL & i;
+    }
+
+    public static byte[] toBytes(int[] ia) {
+        if (ia == null)
+            return null;
+        byte[] res = new byte[ia.length];
+        for (int i = 0; i < ia.length; i ++) {
+            res[i] = (byte)(ia[i]);
+        }
+        return res;
     }
 
 }
