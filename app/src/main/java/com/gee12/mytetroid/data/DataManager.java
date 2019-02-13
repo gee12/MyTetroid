@@ -70,7 +70,10 @@ public class DataManager extends XMLManager {
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                path = instance.tempPath+"/"+record.getDirName()+"/"+record.getFileName();
+                // расшифровываем файл и ложим в tempPath
+                String temp = instance.tempPath+"/"+record.getDirName()+"/"+record.getFileName();
+
+                path = temp;
             }
         } else {
             path = instance.storagePath+"/base/"+record.getDirName()+"/"+record.getFileName();

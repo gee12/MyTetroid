@@ -176,7 +176,7 @@ public class CryptManager {
 //        line.toLatin1()
 //        toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
 
-        char[] b1 = line.toCharArray();
+//        char[] b1 = line.toCharArray();
 //        byte[] b2 = line.getBytes(CHARSET_ISO_8859_1);
 //        for (int i = 0; i < b2.length; i++) {
 //           if (b2[i] != b1[i]) {

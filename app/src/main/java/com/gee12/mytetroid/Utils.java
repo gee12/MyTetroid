@@ -1,6 +1,5 @@
 package com.gee12.mytetroid;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spanned;
@@ -9,20 +8,14 @@ import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class Utils {
 
@@ -71,11 +64,6 @@ public class Utils {
         MessageDigest md = MessageDigest.getInstance("MD5");
         return md.digest(data);
     }
-
-//    public static byte[] toMD5Int(int[] data) throws NoSuchAlgorithmException {
-//        MessageDigest md = MessageDigest.getInstance("MD5");
-//        return md.digest(data);
-//    }
 
     public static int toUnsigned(byte b) {
         return 0x000000FF & (int)b;
