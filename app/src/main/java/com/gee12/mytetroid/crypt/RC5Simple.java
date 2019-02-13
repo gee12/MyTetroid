@@ -73,9 +73,9 @@ public class RC5Simple {
     }
 
     // Encrypt data block
-// Parameters:
-// pt - input data
-// ct - encrypt data
+    // Parameters:
+    // pt - input data
+    // ct - encrypt data
     private void RC5_EncryptBlock(long[] pt, long[] ct)
     {
         long a = pt[0] + rc5_s[0];
@@ -92,9 +92,9 @@ public class RC5Simple {
     }
 
     // Decrypt data block
-// Parameters:
-// pt - input data
-// ct - decrypt data
+    // Parameters:
+    // pt - input data
+    // ct - decrypt data
     private void RC5_DecryptBlock(long[] ct, long[] pt)
     {
         long b = ct[1];
@@ -112,37 +112,22 @@ public class RC5Simple {
 
 
     // Setup secret key
-// Parameters:
-// key - secret input key[RC5_B]
+    // Parameters:
+    // key - secret input key[RC5_B]
     private void setup(int[] key)
     {
-//        RC5_LOG(( "setup, set key to: " ));
-//        for(int i=0; i<RC5_B; i++)
-//            RC5_LOG(( "%.2X", key[i] ));
-//        RC5_LOG(( "\n" ));
-
-
         int i, j, k, u = RC5_W/8;
         long[] l = new long[RC5_C];
-        l[2] = 5597844;
+        // !!!!
+//        l[2] = 5597844;
 
         // Initialize l[], then rc5_s[], then mix key into rc5_s[]
         for(i = RC5_B-1, l[RC5_C-1] = 0; i !=- 1; i--)
             l[i/u] = (Utils.toUnsignedInt(l[i/u]<<8))+key[i];
 
-//        RC5_LOG(( "setup, l[]: " ));
-//        for(i=0; i<RC5_C; i++)
-//            RC5_LOG(( "%.2X", l[i] ));
-//        RC5_LOG(( "\n" ));
-
         rc5_s = new long[RC5_T];
         for(rc5_s[0]=rc5_p,i=1; i < RC5_T; i++)
             rc5_s[i] = Utils.toUnsignedInt(rc5_s[i-1]+rc5_q);
-
-//        RC5_LOG(( "setup, rc5_s[]: " ));
-//        for(i=0; i<RC5_T; i++)
-//            RC5_LOG(( "%.2X", rc5_s[i] ));
-//        RC5_LOG(( "\n" ));
 
         long a, b;
         // 3*t > 3*c
@@ -151,11 +136,6 @@ public class RC5Simple {
             a = rc5_s[i] = ROTL(rc5_s[i]+(a+b),3);
             b = l[j] = ROTL(l[j]+(a+b),(a+b));
         }
-
-//        RC5_LOG(( "setup, mix rc5_s[]: " ));
-//        for(int i=0; i<RC5_T; i++)
-//            RC5_LOG(( "%.2X", rc5_s[i] ));
-//        RC5_LOG(( "\n" ));
     }
 
 
@@ -534,7 +514,7 @@ public String RC5_Encrypt(String in)
             // Un XOR block with IV vector
             // ---------------------------
 
-            // Convert block words to plain array
+            // Convert block words size plain array
 //            unsigned char ct_part[ RC5_BLOCK_LEN];
             int[] ct_part = new int[ RC5_BLOCK_LEN];
 
@@ -575,7 +555,7 @@ public String RC5_Encrypt(String in)
 
             // Save decrypt data
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-//                RC5_LOG(("Put decrypt data to vector out[%d] = %.2X\n", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
+//                RC5_LOG(("Put decrypt data size vector out[%d] = %.2X\n", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
                 out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
             }
 
@@ -594,8 +574,9 @@ public String RC5_Encrypt(String in)
 //        if (out.size() > dataSize)
 //            out.erase(out.begin() + dataSize, out.end());
 
-        int to = (out.length > dataSize) ? (int)dataSize : out.length;
-        out = Arrays.copyOfRange(out,  removeBlocksFromOutput * RC5_BLOCK_LEN, to);
+        int size = (out.length > dataSize) ? (int)dataSize : out.length;
+        int from = removeBlocksFromOutput * RC5_BLOCK_LEN;
+        out = Arrays.copyOfRange(out, from , from  + size);
 
         byte[] outBytes = Utils.toBytes(out);
         return outBytes;
