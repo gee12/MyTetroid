@@ -92,8 +92,10 @@ public class RecordsListAdapter extends BaseAdapter {
         // есть ли прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон
-            if (SettingsManager.isHighlightAttached()) {
-                convertView.setBackgroundResource(R.color.colorHighlight);
+            if (SettingsManager.isHighlightRecordWithAttach()) {
+
+                // ???
+                convertView.setBackgroundColor(SettingsManager.highlightAttachColor());
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
             viewHolder.attachedView.setOnClickListener(new View.OnClickListener() {

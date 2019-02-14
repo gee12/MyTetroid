@@ -31,17 +31,22 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="pref_key_category_ther" android:title="@string/pref_key_category_other">
+    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
 
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="@string/pref_key_is_select_last_node"
-            android:title="@string/pref_is_select_last_node" />
+            android:key="@string/pref_key_is_keep_selected_node"
+            android:title="@string/pref_is_keep_selected_node" />
 
-        <ListPreference
-            android:title="asf"
-            android:key="ad"
-            />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_is_highlight_attach"
+            android:title="@string/pref_is_highlight_attach" />
+
+        <Preference
+            android:dependency="@string/pref_is_highlight_attach"
+            android:key="@string/pref_key_highlight_attach_color"
+            android:title="@string/pref_highlight_attach_color"/>
 
     </PreferenceCategory>
 

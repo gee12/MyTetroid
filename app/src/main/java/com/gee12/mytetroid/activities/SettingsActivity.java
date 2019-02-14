@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -12,7 +13,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.pref_all);
+        addPreferencesFromResource(R.xml.prefs);
     }
 
     /**
@@ -24,23 +25,33 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_is_save_last_date))) {
-            // обнуляем последнюю дату, если сняли галочку
-            if (!SettingsManager.isSaveLastDate()) {
-                SettingsManager.setLastDate(0);
-            }
+        if (key.equals(getString(R.string.pref_key_storage_path))) {
+            // меняем расположение хранилища
+
+        } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+            // сохраняем/удаляем хэш пароля
+
+        } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
+            // меняем список полей для отображения
+
+        } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
+            // включаем/выключаем выделение записей с файлами
+
+        } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
+            // меняем цвет выделения записей с файлами
+
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SettingsManager.getPrefs().registerOnSharedPreferenceChangeListener(this);
+        SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        SettingsManager.getPrefs().unregisterOnSharedPreferenceChangeListener(this);
+        SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
 }
