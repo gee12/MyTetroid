@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <header
+        android:fragment="com.pubdevelop.activity.SettingsActivityForAPI11$PrefsFragment"
+        android:title="@string/settings_header_for_report" >
+        <extra android:name="pref-resource" android:value="pref_report" />
+    </header>
+
+    <header
+        android:fragment="com.pubdevelop.activity.SettingsActivityForAPI11$PrefsFragment"
+        android:title="@string/settings_header_other" >
+        <extra android:name="pref-resource" android:value="pref_other" />
+    </header>
+
+</preference-headers>
