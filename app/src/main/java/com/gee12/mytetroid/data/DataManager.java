@@ -1,8 +1,10 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
 import java.io.FileInputStream;
+import java.net.URI;
 import java.util.List;
 
 public class DataManager extends XMLManager {
@@ -89,6 +91,22 @@ public class DataManager extends XMLManager {
     public void loadIcon(TetroidNode node) {
         if (node.isNonCryptedOrDecrypted())
             node.loadIconFromStorage(storagePath + "/icons");
+    }
+
+    public static String getRecordTextDecrypted(TetroidRecord record) {
+        String pathURI = "file:///"+instance.storagePath+"/base/"+record.getDirName()+"/"+record.getFileName();
+//        String text = Utils.readAllFile(URI.create(pathURI));
+        String res = null;
+        if (record.isCrypted()) {
+            if (record.isDecrypted()) {
+                byte[] text = Utils.readFile(URI.create(pathURI));
+                // расшифровываем файл
+                res = CryptManager.decrypt(text);
+            }
+        } else {
+            res = Utils.readTextFile(URI.create(pathURI));
+        }
+        return res;
     }
 
    /* public static List<TetroidNode> initFake() {

@@ -36,8 +36,8 @@ public class RC5Simple {
      public static final int RC5_ERROR_CODE_3 = 3;      // Input file is empty
      public static final int RC5_ERROR_CODE_4 = 4;      // Can't create output file
      public static final int RC5_ERROR_CODE_5 = 5;      // Can't encrypt null data
-     public static final int RC5_ERROR_CODE_6 = 6;      // Can't decrypt null data
-     public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decrypt data
+     public static final int RC5_ERROR_CODE_6 = 6;      // Can't decryptBase64 null data
+     public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decryptBase64 data
 
 
     private long[] rc5_s;  // Expanded key table
@@ -94,7 +94,7 @@ public class RC5Simple {
     // Decrypt data block
     // Parameters:
     // pt - input data
-    // ct - decrypt data
+    // ct - decryptBase64 data
     private void RC5_DecryptBlock(long[] ct, long[] pt)
     {
         long b = ct[1];
@@ -387,7 +387,7 @@ public String RC5_Encrypt(String in)
 //        RC5_LOG(("\nInput data size: %d\n", in.size()));
 
         // Отвлекли: иди покушай
-        // No decrypt null data
+        // No decryptBase64 null data
         int inSize = in.length;
         if (inSize == 0) {
             errorCode = RC5_ERROR_CODE_6;
@@ -466,7 +466,7 @@ public String RC5_Encrypt(String in)
             iv[i] = in[i + ivShift];
 
 
-        // Set secret key for decrypt
+        // Set secret key for decryptBase64
         setup(rc5_key);
 
 
@@ -532,7 +532,7 @@ public String RC5_Encrypt(String in)
 
 //                RC5_LOG(("Decrypt data size: %d\n", dataSize));
 
-                // Uncorrect decrypt data size
+                // Uncorrect decryptBase64 data size
 //                if ((unsigned int)dataSize > (unsigned int)inSize)
                 if (dataSize > inSize)
                 {
@@ -553,9 +553,9 @@ public String RC5_Encrypt(String in)
                 iv[i] = in[shift + i];
 
 
-            // Save decrypt data
+            // Save decryptBase64 data
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-//                RC5_LOG(("Put decrypt data size vector out[%d] = %.2X\n", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
+//                RC5_LOG(("Put decryptBase64 data size vector out[%d] = %.2X\n", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
                 out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
             }
 

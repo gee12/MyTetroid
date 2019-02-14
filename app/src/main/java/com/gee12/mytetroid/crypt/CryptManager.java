@@ -5,7 +5,6 @@ import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
@@ -65,8 +64,8 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptNodeFields(TetroidNode node) {
-        node.setName(CryptManager.decrypt(node.getName()));
-        node.setIconName(CryptManager.decrypt(node.getIconName()));
+        node.setName(CryptManager.decryptBase64(node.getName()));
+        node.setIconName(CryptManager.decryptBase64(node.getIconName()));
         node.setDecrypted(true);
         return true;
     }
@@ -92,9 +91,9 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
-        record.setName(CryptManager.decrypt(record.getName()));
-        record.setAuthor(CryptManager.decrypt(record.getAuthor()));
-        record.setUrl(CryptManager.decrypt(record.getUrl()));
+        record.setName(CryptManager.decryptBase64(record.getName()));
+        record.setAuthor(CryptManager.decryptBase64(record.getAuthor()));
+        record.setUrl(CryptManager.decryptBase64(record.getUrl()));
         record.setDecrypted(true);
         return true;
     }
@@ -159,16 +158,7 @@ public class CryptManager {
      * Расшифровка строки в base64
      * @param line Строка в base64
      */
-    public static String decrypt(String line) {
-    /*    return decryptNodes(cryptKey, line);
-    }
-
-    /**
-     * Расшифровка строки base64
-     * @param key
-     * @param line Строка в base64
-     */
-    /*public static String decryptNodes(byte[] key, String line) {*/
+    public static String decryptBase64(String line) {
         if (line.length() == 0) {
             return null;
         }
@@ -184,15 +174,41 @@ public class CryptManager {
 //           }
 //        }
 //        byte[] bytes = Base64.decode(b2);
-        byte[] bytes = Base64.decode(line);
-        if (bytes == null)
+        byte[] bytes = Base64.decode(line.toCharArray());
+        /*if (bytes == null)
             return null;
 //        byte[] res = new byte[bytes.length];
 //        rc5.decipherString(bytes, res);
 //        return new String(res);
         String res = null;
         try {
-//            res = RC5.decrypt(bytes, new String (cryptKey));
+//            res = RC5.decryptBase64(bytes, new String (cryptKey));
+            byte[] out = rc5.decrypt(bytes);
+            if (out != null)
+                res = new String(out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;*/
+        return decrypt(bytes);
+    }
+
+    /**
+     * Расшифровка строки в base64
+     * @param line Строка в base64
+     */
+    public static String decrypt(String line) {
+        if (line.length() == 0) {
+            return null;
+        }
+        return decrypt(line.getBytes());
+    }
+
+    public static String decrypt(byte[] bytes) {
+        if (bytes == null)
+            return null;
+        String res = null;
+        try {
             byte[] out = rc5.decrypt(bytes);
             if (out != null)
                 res = new String(out);
@@ -201,6 +217,7 @@ public class CryptManager {
         }
         return res;
     }
+
 
     static void setCryptKey(int[] key) {
         cryptKey = key;

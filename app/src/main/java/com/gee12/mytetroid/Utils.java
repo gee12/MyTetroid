@@ -8,9 +8,14 @@ import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -93,4 +98,36 @@ public class Utils {
         return res;
     }
 
+    public static String readTextFile(URI fileUrl) {
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File(fileUrl)));
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+                sb.append('\n');
+            }
+            br.close();
+        }
+        catch (IOException e) {
+            return null;
+        }
+        return sb.toString();
+    }
+
+    public static byte[] readFile(URI fileUrl) {
+        File file = new File(fileUrl);
+        byte[] data = new byte[(int) file.length()];
+        DataInputStream dis;
+        try {
+            dis = new DataInputStream(new FileInputStream(file));
+            dis.readFully(data);
+            dis.close();
+        } catch (IOException e) {
+            return null;
+        }
+        return data;
+    }
 }

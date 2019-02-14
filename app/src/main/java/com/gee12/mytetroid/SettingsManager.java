@@ -2,19 +2,23 @@ package com.gee12.mytetroid;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class SettingsManager {
     public static final String APP_PREFERENCES = "MyTetroidSettings";
-    public static final String APP_PREFERENCES_STORAGE_PATH = "StoragePath";
-    public static final String APP_PREFERENCES_EXIST_STORAGE_QUESTION = "ExistStorageQuestion";
-    public static final String APP_PREFERENCES_ASK_PASSWORD_ON_START = "AskPasswordOnStart";
-    public static final String APP_PREFERENCES_HIGHLIGHT_ATTACHED = "HighlightAttached";
-    public static final String APP_PREFERENCES_KEEP_SELECTED_NODE = "KeepSelectedNode";
+//    public static final String APP_PREFERENCES_STORAGE_PATH = "StoragePath";
+//    public static final String APP_PREFERENCES_EXIST_STORAGE_QUESTION = "ExistStorageQuestion";
+//    public static final String APP_PREFERENCES_ASK_PASSWORD_ON_START = "AskPasswordOnStart";
+//    public static final String APP_PREFERENCES_HIGHLIGHT_ATTACHED = "HighlightAttached";
+//    public static final String APP_PREFERENCES_KEEP_SELECTED_NODE = "KeepSelectedNode";
 
     private static SharedPreferences settings;
+    private static Context context;
 
-    public static void init(Context context) {
-        settings = context.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+    public static void init(Context ctx) {
+        context = ctx;
+        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
     }
 
     /**
@@ -22,52 +26,51 @@ public class SettingsManager {
      * @return
      */
     public static String getStoragePath() {
-        if(settings.contains(APP_PREFERENCES_STORAGE_PATH)) {
-            return settings.getString(APP_PREFERENCES_STORAGE_PATH, null);
+        if(settings.contains(context.getString(R.string.pref_key_storage_path))) {
+            return settings.getString(context.getString(R.string.pref_key_storage_path), null);
         }
         return null;
     }
 
     public static void setStoragePath(String value) {
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString(APP_PREFERENCES_STORAGE_PATH, value);
+        editor.putString(context.getString(R.string.pref_key_storage_path), value);
         editor.apply();
     }
 
     /**
-     * Задавать вопрос о загрузке хранилища по сохраненному пути при старте?
+     * Загружать хранилище, используемое при прошлом запуске
      * По-умолчанию - да
      * @return
      */
-    public static boolean isShowExistStorageQuestion() {
-        if(settings.contains(APP_PREFERENCES_EXIST_STORAGE_QUESTION)) {
-            return settings.getBoolean(APP_PREFERENCES_EXIST_STORAGE_QUESTION, true);
+    public static boolean isLoadLastStoragePath() {
+        if(settings.contains(context.getString(R.string.pref_key_is_load_last_storage_path))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_load_last_storage_path), true);
         }
         return true;
     }
 
-    public static void setIsShowExistStorageQuestion(boolean value) {
+    public static void setIsLoadLastStoragePath(boolean value) {
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(APP_PREFERENCES_EXIST_STORAGE_QUESTION, value);
+        editor.putBoolean(context.getString(R.string.pref_key_is_load_last_storage_path), value);
         editor.apply();
     }
 
     /**
-     * Запрашивать пароль от зашифрованных веток при старте?
-     * (если нет, то только при выборе зашифрованной ветки)
-     * По-умолчанию - нет
+     * Сохранять хэш пароля локально?
+     * По-умолчанию - да
      * @return
      */
-    public static boolean isAskPasswordOnStart() {
-        if(settings.contains(APP_PREFERENCES_ASK_PASSWORD_ON_START)) {
-            return settings.getBoolean(APP_PREFERENCES_ASK_PASSWORD_ON_START, false);
+    public static boolean isSavePasswordHashLocal() {
+        if(settings.contains(context.getString(R.string.pref_key_is_save_pass_hash_local))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_save_pass_hash_local), true);
         }
         return false;
     }
 
-    public static void setIsAskPasswordOnStart(boolean value) {
+    public static void setIsSavePasswordHashLocal(boolean value) {
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(APP_PREFERENCES_ASK_PASSWORD_ON_START, value);
+        editor.putBoolean(context.getString(R.string.pref_key_is_save_pass_hash_local), value);
         editor.apply();
     }
 
@@ -76,18 +79,18 @@ public class SettingsManager {
      * По-умолчанию - да
      * @return
      */
-    public static boolean isHighlightAttached() {
-        if(settings.contains(APP_PREFERENCES_HIGHLIGHT_ATTACHED)) {
-            return settings.getBoolean(APP_PREFERENCES_HIGHLIGHT_ATTACHED, true);
-        }
-        return true;
-    }
-
-    public static void setIsHighlightAttached(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(APP_PREFERENCES_HIGHLIGHT_ATTACHED, value);
-        editor.apply();
-    }
+//    public static boolean isHighlightAttached() {
+//        if(settings.contains(APP_PREFERENCES_HIGHLIGHT_ATTACHED)) {
+//            return settings.getBoolean(APP_PREFERENCES_HIGHLIGHT_ATTACHED, true);
+//        }
+//        return true;
+//    }
+//
+//    public static void setIsHighlightAttached(boolean value) {
+//        SharedPreferences.Editor editor = settings.edit();
+//        editor.putBoolean(APP_PREFERENCES_HIGHLIGHT_ATTACHED, value);
+//        editor.apply();
+//    }
 
     /**
      * Устанавливать текущей выбранную при предыдущем запуске ветку
@@ -95,15 +98,15 @@ public class SettingsManager {
      * @return
      */
     public static boolean isKeepSelectedNode() {
-        if(settings.contains(APP_PREFERENCES_KEEP_SELECTED_NODE)) {
-            return settings.getBoolean(APP_PREFERENCES_KEEP_SELECTED_NODE, true);
+        if(settings.contains(context.getString(R.string.pref_key_is_select_last_node))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_select_last_node), true);
         }
         return true;
     }
 
     public static void setIsKeepSelectedNode(boolean value) {
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(APP_PREFERENCES_KEEP_SELECTED_NODE, value);
+        editor.putBoolean(context.getString(R.string.pref_key_is_select_last_node), value);
         editor.apply();
     }
 

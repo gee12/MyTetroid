@@ -256,7 +256,7 @@ public class RC5 {
     }
 
     /*private static String algorithm = "RC5";
-    public static String decrypt(byte[] toDecrypt, String key) throws Exception {
+    public static String decryptBase64(byte[] toDecrypt, String key) throws Exception {
         // create a binary key from the argument key (seed)
         SecureRandom sr = new SecureRandom(key.getBytes());
         KeyGenerator kg = KeyGenerator.getInstance(algorithm);

@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
                     DataManager.decryptAll();
                 } else {
-                    if (SettingsManager.isAskPasswordOnStart()) {
+                    if (!SettingsManager.isSavePasswordHashLocal()) {
                         // выводим окно с запросом пароля
                         askPassword(null);
                         return;
@@ -397,7 +397,8 @@ public class MainActivity extends AppCompatActivity {
         String recordContentUrl = DataManager.getRecordTextUrl(record);
         if (recordContentUrl != null) {
             recordContentWebView.setVisibility(View.INVISIBLE);
-            recordContentWebView.loadUrl(recordContentUrl);
+            recordContentWebView.loadData(DataManager.getRecordTextDecrypted(record), "text/html; charset=UTF-8", null);
+//            recordContentWebView.loadUrl(recordContentUrl);
             recordContentWebView.setWebViewClient(new WebViewClient() {
                 /*@Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
