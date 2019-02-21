@@ -126,10 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private void initStorageFromSettings() {
         String storagePath = SettingsManager.getStoragePath();
 //        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
-        if (storagePath != null) {
-            // показываем диалог подтверждения
-            // ...
-
+        if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
             initStorage(storagePath);
         } else {
             showChooser3();
@@ -570,8 +567,6 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             showActivity(this, SettingsActivity.class);
             return true;
@@ -590,8 +585,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, "Открыть запись");
-        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, "Список файлов");
+        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, "Открыть");
+        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, "Файлы");
     }
 
     /**

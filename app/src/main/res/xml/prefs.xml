@@ -4,29 +4,31 @@
     <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_srorage">
 
         <EditTextPreference
+            android:key="@string/pref_key_storage_path"
             android:dialogTitle="@string/pref_storage_path"
             android:title="@string/pref_storage_path"
-            android:inputType="textUri"
-            android:key="@string/pref_key_storage_path" />
+            android:summary="@string/pref_storage_path_summ"
+            android:inputType="textUri" />
 
         <CheckBoxPreference
+            android:key="@string/pref_key_is_load_last_storage_path"
             android:title="@string/pref_is_load_last_storage_path"
-            android:summary="Тест"
-            android:defaultValue="true"
-            android:key="@string/pref_key_is_load_last_storage_path" />
+            android:summary="@string/pref_is_load_last_storage_path_summ"
+            android:defaultValue="true" />
 
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
 
         <CheckBoxPreference
-            android:defaultValue="true"
             android:key="@string/pref_key_is_save_pass_hash_local"
-            android:title="@string/pref_is_save_pass_hash_local" />
+            android:title="@string/pref_is_save_pass_hash_local"
+            android:summary="@string/pref_is_save_pass_hash_local_summ"
+            android:defaultValue="true" />
 
         <ListPreference
-            android:title="asf"
-            android:key="ad"
+            android:key="@string/pref_key_when_aks_password"
+            android:title="@string/pref_when_aks_password"
             />
 
     </PreferenceCategory>
@@ -34,19 +36,21 @@
     <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
 
         <CheckBoxPreference
-            android:defaultValue="true"
             android:key="@string/pref_key_is_keep_selected_node"
-            android:title="@string/pref_is_keep_selected_node" />
+            android:title="@string/pref_is_keep_selected_node"
+            android:summary="@string/pref_is_keep_selected_node_summ"
+            android:defaultValue="true" />
 
         <CheckBoxPreference
-            android:defaultValue="true"
             android:key="@string/pref_key_is_highlight_attach"
-            android:title="@string/pref_is_highlight_attach" />
+            android:title="@string/pref_is_highlight_attach"
+            android:summary="@string/pref_is_highlight_attach_summ"
+            android:defaultValue="true" />
 
-        <Preference
-            android:dependency="@string/pref_is_highlight_attach"
-            android:key="@string/pref_key_highlight_attach_color"
-            android:title="@string/pref_highlight_attach_color"/>
+        <!--<Preference-->
+            <!--android:dependency="@string/pref_is_highlight_attach"-->
+            <!--android:key="@string/pref_key_highlight_attach_color"-->
+            <!--android:title="@string/pref_highlight_attach_color"/>-->
 
     </PreferenceCategory>
 
