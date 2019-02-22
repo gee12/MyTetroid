@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="when_ask_password_entries">
+        <item>@string/pref_when_ask_password_on_select</item>
+        <item>@string/pref_when_aks_password_on_start</item>
+    </string-array>
+    <!--<integer-array name="when_aks_password_entry_values">-->
+        <!--<item>1</item>-->
+        <!--<item>2</item>-->
+    <!--</integer-array>-->
+</resources>

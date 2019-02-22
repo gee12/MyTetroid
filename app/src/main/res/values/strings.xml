@@ -8,11 +8,11 @@
     <string name="action_settings">Настройки</string>
     <string name="empty_list">Записей нет</string>
     <string name="files_empty_list">Прикрепленных файлов нет</string>
+    <string name="pref_category_srorage">Хранилище</string>
     <string name="pref_storage_path">Путь к хранилищу</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и /base</string>
     <string name="pref_is_load_last_storage_path">Загружать предыдущее</string>
     <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз</string>
-    <string name="pref_category_srorage">Хранилище</string>
     <string name="pref_category_crypt">Шифрование</string>
     <string name="pref_is_save_pass_hash_local">Сохранять пароль</string>
     <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально</string>
@@ -26,10 +26,12 @@
     <string name="pref_record_fields_cols">Отображаемые поля записей в списке</string>
     <string name="pref_key_record_fields_cols">pref_key_record_fields_cols</string>
     <string name="pref_key_is_highlight_attach">pref_key_highlight_attach</string>
-    <string name="pref_is_highlight_attach">Выделять записи с файлами</string>
-    <string name="pref_is_highlight_attach_summ">Выделять записи в списке с прикрепленными файлами</string>
+    <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
+    <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
     <string name="pref_key_highlight_attach_color">pref_highlight_attach_color</string>
     <string name="pref_highlight_attach_color">Цвет выделения</string>
-    <string name="pref_when_aks_password">Спрашивать пароль</string>
-    <string name="pref_key_when_aks_password">pref_key_when_aks_password</string>
+    <string name="pref_when_ask_password">Спрашивать пароль</string>
+    <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
+    <string name="pref_when_ask_password_on_select">при выборе зашифрованной ветки</string>
+    <string name="pref_when_aks_password_on_start">при старте приложения</string>
 </resources>

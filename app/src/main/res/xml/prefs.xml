@@ -27,8 +27,11 @@
             android:defaultValue="true" />
 
         <ListPreference
-            android:key="@string/pref_key_when_aks_password"
-            android:title="@string/pref_when_aks_password"
+            android:key="@string/pref_key_when_ask_password"
+            android:title="@string/pref_when_ask_password"
+            android:entries="@array/when_ask_password_entries"
+            android:entryValues="@array/when_ask_password_entries"
+            android:defaultValue="@string/pref_when_ask_password_on_select"
             />
 
     </PreferenceCategory>

@@ -139,23 +139,29 @@ public class MainActivity extends AppCompatActivity {
 
             if (DataManager.isExistsCryptedNodes()) {
 
-                // пароль сохранен локально
-                // ...
-                boolean isPassSaved = true; // ?
+                if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_select))) {
 
-                if (isPassSaved) {
-                    // достаем пароль из файла
-                    //..
-                    String pass = "iHMy5~sv62";
-
-                    CryptManager.init(pass);
-
-                    DataManager.decryptAll();
                 } else {
-                    if (!SettingsManager.isSavePasswordHashLocal()) {
-                        // выводим окно с запросом пароля
-                        askPassword(null);
-                        return;
+                    // спра
+
+                    // пароль сохранен локально
+                    // ...
+                    boolean isPassSaved = true; // ?
+
+                    if (isPassSaved) {
+                        // достаем пароль из файла
+                        //..
+                        String pass = "iHMy5~sv62";
+
+                        CryptManager.init(pass);
+
+                        DataManager.decryptAll();
+                    } else {
+                        if (!SettingsManager.isSavePasswordHashLocal()) {
+                            // выводим окно с запросом пароля
+                            askPassword(null);
+                            return;
+                        }
                     }
                 }
             }
@@ -165,6 +171,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Ошибка инициализации хранилища", Toast.LENGTH_SHORT).show();
         }
     }
+
+//    private String askOrLoadPassword() {
+//
+//    }
 
     /**
      * Вызывается при:
@@ -179,18 +189,18 @@ public class MainActivity extends AppCompatActivity {
 //        askPasswordReturn(node);
     }
 
-    private void askPasswordReturn(String pass, TetroidNode node) {
-        // получаем пароль
-        CryptManager.init(pass);
-
-        if (node != null) {
-            // попытка открытия ветки
-            CryptManager.decryptNode(node);
-        } else {
-            // попытка прочтения всей базы
-            DataManager.decryptAll();
-        }
-    }
+//    private void askPasswordReturn(String pass, TetroidNode node) {
+//        // получаем пароль
+//        CryptManager.init(pass);
+//
+//        if (node != null) {
+//            // попытка открытия ветки
+//            CryptManager.decryptNode(node);
+//        } else {
+//            // попытка прочтения всей базы
+//            DataManager.decryptAll();
+//        }
+//    }
 
     private void initListViews() {
         // список веток

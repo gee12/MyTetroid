@@ -66,11 +66,18 @@ public class SettingsManager {
         return def;
     }
 
-//    public static void setIsSavePasswordHashLocal(boolean value) {
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(context.getString(R.string.pref_key_is_save_pass_hash_local), value);
-//        editor.apply();
-//    }
+    /**
+     * Когда спрашивать пароль?
+     * По-умолчанию - при выборе зашифрованной ветки
+     * @return
+     */
+    public static String getWhenAskPass() {
+        String def = context.getString(R.string.pref_when_ask_password_on_select);
+        if(settings.contains(context.getString(R.string.pref_key_when_ask_password))) {
+            return settings.getString(context.getString(R.string.pref_key_when_ask_password), def);
+        }
+        return def;
+    }
 
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы?
@@ -84,12 +91,6 @@ public class SettingsManager {
         }
         return def;
     }
-//
-//    public static void setIsHighlightAttached(boolean value) {
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(APP_PREFERENCES_HIGHLIGHT_ATTACHED, value);
-//        editor.apply();
-//    }
 
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы?
@@ -115,12 +116,6 @@ public class SettingsManager {
         }
         return def;
     }
-
-//    public static void setIsKeepSelectedNode(boolean value) {
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(context.getString(R.string.pref_key_is_keep_selected_node), value);
-//        editor.apply();
-//    }
 
     public static SharedPreferences getSettings() {
         return settings;
