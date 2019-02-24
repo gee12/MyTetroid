@@ -152,6 +152,39 @@ public class DataManager extends XMLManager {
         return nodes;
     }*/
 
+    public static TetroidNode getNode(String id) {
+//        for (TetroidNode node : instance.rootNodesCollection) {
+//            if (getNodeInHierarchy(node, id) != null)
+//                return node;
+//        }
+        return getNodeInHierarchy(instance.rootNodesCollection, id);
+    }
+
+    public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
+        for (TetroidNode node : nodes) {
+//            if (getNodeInHierarchy(node, id) != null)
+//                return node;
+            if (id.equals(node.getId()))
+                return node;
+            else if (node.isExpandable())
+                return getNodeInHierarchy(node.getSubNodes(), id);
+        }
+        return null;
+    }
+
+    /*private static TetroidNode getNodeInHierarchy(TetroidNode node, String id) {
+        if (id.equals(node.getId()))
+            return node;
+        else if (node.isExpandable()) {
+            return getNodeInHierarchy(node.getSubNodes(), id);
+//            for (TetroidNode subNode : node.getSubNodes()) {
+//                if (getNodeInHierarchy(subNode, id) != null)
+//                    return subNode;
+//            }
+        }
+        return null;
+    }*/
+
     public static List<TetroidNode> getRootNodes() {
         return instance.rootNodesCollection;
     }

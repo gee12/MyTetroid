@@ -67,6 +67,24 @@ public class SettingsManager {
     }
 
     /**
+     * Хэш пароля
+     * @return
+     */
+    public static String getPassHash() {
+        String def = null;
+        if(settings.contains(context.getString(R.string.pref_key_pass_hash))) {
+            return settings.getString(context.getString(R.string.pref_key_pass_hash), def);
+        }
+        return def;
+    }
+
+    public static void setPassHash(String pass) {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(context.getString(R.string.pref_key_pass_hash), pass);
+        editor.apply();
+    }
+
+    /**
      * Когда спрашивать пароль?
      * По-умолчанию - при выборе зашифрованной ветки
      * @return
@@ -104,6 +122,7 @@ public class SettingsManager {
         }
         return def;
     }
+
     /**
      * Устанавливать текущей выбранную при предыдущем запуске ветку
      * По-умолчанию - да
@@ -113,6 +132,18 @@ public class SettingsManager {
         boolean def = true;
         if(settings.contains(context.getString(R.string.pref_key_is_keep_selected_node))) {
             return settings.getBoolean(context.getString(R.string.pref_key_is_keep_selected_node), def);
+        }
+        return def;
+    }
+
+    /**
+     * Id выбранной при предыдущем запуске ветки
+     * @return
+     */
+    public static String getSelectedNodeId() {
+        String def = null;
+        if(settings.contains(context.getString(R.string.pref_key_selected_node_id))) {
+            return settings.getString(context.getString(R.string.pref_key_selected_node_id), def);
         }
         return def;
     }

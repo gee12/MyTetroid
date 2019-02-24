@@ -116,7 +116,7 @@ public class TetroidNode {
 
     /**
      * Получение признака, что запись не зашифрована.
-     * @return True, если не зашифровано, или уже расшифровано.
+     * @return True, если не зашифровано (crypt=0), или уже расшифровано.
      */
     public boolean isNonCryptedOrDecrypted() {
         return (!isCrypted || isDecrypted);

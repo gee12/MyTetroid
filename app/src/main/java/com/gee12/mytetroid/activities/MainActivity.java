@@ -37,6 +37,7 @@ import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
+import com.gee12.mytetroid.views.PassInputDialog;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
@@ -135,46 +136,46 @@ public class MainActivity extends AppCompatActivity {
 
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
-            SettingsManager.setStoragePath(storagePath);
-
+            if (SettingsManager.isLoadLastStoragePath())
+                SettingsManager.setStoragePath(storagePath);
+            // проверка зашифрованы ли данные
             if (DataManager.isExistsCryptedNodes()) {
 
-                if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_select))) {
-
-                } else {
-                    // спра
-
-                    // пароль сохранен локально
-                    // ...
-                    boolean isPassSaved = true; // ?
-
-                    if (isPassSaved) {
-                        // достаем пароль из файла
-                        //..
-                        String pass = "iHMy5~sv62";
-
-                        CryptManager.init(pass);
-
-                        DataManager.decryptAll();
-                    } else {
-                        if (!SettingsManager.isSavePasswordHashLocal()) {
-                            // выводим окно с запросом пароля
-                            askPassword(null);
-                            return;
+                if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
+                    // спрашивать пароль при старте
+                    decryptStorage(null);
+                } /*else {
+                    // спрашивать пароль при выборе зашифрованной ветки
+                    String nodeId = SettingsManager.getSelectedNodeId();
+                    if (nodeId != null) {
+                        TetroidNode node = DataManager.getNode(nodeId);
+                        // если нашли, отображаем
+                        if (node != null) {
+                            if (node.isNonCryptedOrDecrypted()) {
+                                decryptStorage(node);
+                            }
+//                            showNode(node);
                         }
                     }
-                }
+                }*/
             }
 
             initListViews();
+
+            // нужно ли выделять ветку, выбранную в прошлый раз
+            // (обязательно после initListViews)
+            String nodeId = SettingsManager.getSelectedNodeId();
+            if (nodeId != null) {
+                TetroidNode node = DataManager.getNode(nodeId);
+                // если нашли, отображаем
+                if (node != null) {
+                    showNode(node);
+                }
+            }
         } else {
             Toast.makeText(this, "Ошибка инициализации хранилища", Toast.LENGTH_SHORT).show();
         }
     }
-
-//    private String askOrLoadPassword() {
-//
-//    }
 
     /**
      * Вызывается при:
@@ -182,11 +183,46 @@ public class MainActivity extends AppCompatActivity {
      * 2) запуске приложения, если выделение было сохранено на зашифрованной ветке
      * 3) при выделении зашифрованной ветки
      * @param node Ветка для расшифровки или null, если нужно расшифровать всю коллекцию
+     * @param node Если ветка передана, значит нужно вызвать showNode() при удачной расшифровке
      */
-    private void askPassword(TetroidNode node) {
-        Toast.makeText(this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
-        // =>
-//        askPasswordReturn(node);
+    private void decryptStorage(TetroidNode node) {
+        // пароль сохранен локально?
+        if (SettingsManager.isSavePasswordHashLocal()) {
+            // достаем хэш пароля
+//            String pass = "iHMy5~sv62";
+            String pass = SettingsManager.getPassHash();
+            // проверяем
+            if (CryptManager.check(pass)) {
+                decryptStorage(pass, node);
+            } else {
+                Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            // выводим окно с запросом пароля в асинхронном режиме
+            PassInputDialog.showPassDialog(this, node, new PassInputDialog.IPassInputResult() {
+                @Override
+                public void applyPass(String pass, TetroidNode node) {
+                    // подтверждение введенного пароля
+                    if (CryptManager.check(pass)) {
+
+                        String passHash = CryptManager.getPassHash(pass);
+                        // сохраняем хэш пароля
+                        SettingsManager.setPassHash(passHash);
+
+                        decryptStorage(pass, node);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Введен неверный пароль", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+    }
+
+    private void decryptStorage(String pass, TetroidNode node) {
+        CryptManager.init(pass);
+        DataManager.decryptAll();
+        // выбираем ветку
+        showNode(node);
     }
 
 //    private void askPasswordReturn(String pass, TetroidNode node) {
@@ -282,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
 
 //    private void showBrowserDialog() {
 //        BrowserDialog diag = new BrowserDialog(FileSelectActivity.this);
-//        diag.show();
+//        diag.showPassDialog();
 //    }
 
 
@@ -369,12 +405,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showNode(TetroidNode node)
     {
+        // проверка нужно ли расшифровать ветку перед отображением
         if (!node.isNonCryptedOrDecrypted()) {
-            askPassword(node);
+            decryptStorage(node);
+            // выходим, т.к. возможен запрос пароля в асинхронном режиме
             return;
         }
         this.currentNode = node;
-//        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).showPassDialog();
 //        if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT)
 //            viewFlipper.showPrevious();
         showView(VIEW_RECORDS_LIST);
@@ -383,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
         this.recordsListAdapter.reset(node.getRecords());
         recordsListView.setAdapter(recordsListAdapter);
 //        setTitle(node.getName());
-//        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).showPassDialog();
     }
 
     /**
@@ -623,5 +661,4 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(context, cls);
         context.startActivity(intent);
     }
-
 }

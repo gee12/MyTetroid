@@ -28,6 +28,15 @@ public class CryptManager {
         rc5.setKey(cryptKey);
     }
 
+    /***
+     * Сверяем пароль с проверочным хэшем в database.ini
+     * @param passHash Хэш пароля
+     * @return
+     */
+    public static boolean check(String passHash) {
+        return true;
+    }
+
 //    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
     public static boolean decryptAll(List<TetroidNode> nodes) {
         // читаем соль из database.ini ?
@@ -103,6 +112,15 @@ public class CryptManager {
 
         // расшифровуем
         return false;
+    }
+
+    /**
+     * Получить хэш пароля для сохранения в файле
+     * @param pass
+     * @return
+     */
+    public static String getPassHash(String pass) {
+        throw new UnknownError();
     }
 
     /**

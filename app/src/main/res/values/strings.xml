@@ -33,5 +33,10 @@
     <string name="pref_when_ask_password">Спрашивать пароль</string>
     <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">при выборе зашифрованной ветки</string>
-    <string name="pref_when_aks_password_on_start">при старте приложения</string>
+    <string name="pref_when_ask_password_on_start">при старте приложения</string>
+    <string name="pref_key_pass_hash">pref_key_pass_hash</string>
+    <string name="pref_key_selected_node_id">pref_key_selected_node_id</string>
+    <string name="title_pass_input">Введите пароль</string>
+    <string name="answer_ok">Ок</string>
+    <string name="answer_cancel">Отмена</string>
 </resources>

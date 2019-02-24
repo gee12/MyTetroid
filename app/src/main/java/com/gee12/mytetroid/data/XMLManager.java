@@ -22,7 +22,7 @@ public abstract class XMLManager implements OnNodeIconLoader {
 
 //    private String storagePath;
     protected Version formatVersion;
-    protected boolean isExistCryptedNodes;
+    protected boolean isExistCryptedNodes;  // вообще, можно читать crypt_mode=1
 
     /**
      *
