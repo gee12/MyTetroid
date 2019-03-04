@@ -12,7 +12,7 @@ import com.gee12.mytetroid.data.TetroidNode;
 public class PassInputDialog {
 
     public interface IPassInputResult {
-        public abstract void applyPass(String pass, TetroidNode node);
+        void applyPass(String pass, TetroidNode node);
     }
 
     public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult applyPass) {

@@ -18,7 +18,7 @@
     <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально</string>
     <string name="pref_key_storage_path">pref_key_storage_path</string>
     <string name="pref_key_is_save_pass_hash_local">pref_key_is_save_pass_hash_local</string>
-    <string name="pref_key_is_load_last_storage_path">pref_key_is_show_storage_selection</string>
+    <string name="pref_key_is_load_last_storage_path">pref_key_is_load_last_storage_path</string>
     <string name="pref_key_category_other">Остальное</string>
     <string name="pref_is_keep_selected_node">Выбирать прошлую ветку</string>
     <string name="pref_is_keep_selected_node_summ">Устанавливать текущей ветку, выбранную в прошлый раз</string>
@@ -31,9 +31,10 @@
     <string name="pref_key_highlight_attach_color">pref_highlight_attach_color</string>
     <string name="pref_highlight_attach_color">Цвет выделения</string>
     <string name="pref_when_ask_password">Спрашивать пароль</string>
+    <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
     <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
-    <string name="pref_when_ask_password_on_select">при выборе зашифрованной ветки</string>
-    <string name="pref_when_ask_password_on_start">при старте приложения</string>
+    <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
+    <string name="pref_when_ask_password_on_start">При старте приложения</string>
     <string name="pref_key_pass_hash">pref_key_pass_hash</string>
     <string name="pref_key_selected_node_id">pref_key_selected_node_id</string>
     <string name="title_pass_input">Введите пароль</string>

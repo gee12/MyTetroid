@@ -121,10 +121,10 @@ public class MainActivity extends AppCompatActivity {
 
         // загружаем данные
         SettingsManager.init(this);
-        initStorageFromSettings();
+        startInitStorage();
     }
 
-    private void initStorageFromSettings() {
+    private void startInitStorage() {
         String storagePath = SettingsManager.getStoragePath();
 //        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
