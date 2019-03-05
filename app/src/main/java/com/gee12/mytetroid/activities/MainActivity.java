@@ -187,13 +187,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void decryptStorage(TetroidNode node) {
         // пароль сохранен локально?
-        if (SettingsManager.isSavePasswordHashLocal()) {
+        if (SettingsManager.isSaveMiddlePassHashLocal()) {
             // достаем хэш пароля
-//            String pass = "iHMy5~sv62";
-            String pass = SettingsManager.getPassHash();
+//            String middlePassHash = "iHMy5~sv62";
+            String middlePassHash = SettingsManager.getMiddlePassHash();
             // проверяем
-            if (CryptManager.check(pass)) {
-                decryptStorage(pass, node);
+            if (DataManager.checkMiddlePassHash(middlePassHash)) {
+                decryptStorage(middlePassHash, node);
             } else {
                 Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
             }
@@ -203,11 +203,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void applyPass(String pass, TetroidNode node) {
                     // подтверждение введенного пароля
-                    if (CryptManager.check(pass)) {
+                    if (DataManager.checkPass(pass)) {
 
                         String passHash = CryptManager.getPassHash(pass);
                         // сохраняем хэш пароля
-                        SettingsManager.setPassHash(passHash);
+                        SettingsManager.setMiddle_PassHash(passHash);
 
                         decryptStorage(pass, node);
                     } else {
@@ -218,11 +218,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void decryptStorage(String pass, TetroidNode node) {
-        CryptManager.init(pass);
+    private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode node) {
+        if (isMiddleHash)
+            CryptManager.initMiddleHash(pass);
+        else CryptManager.init(pass);
         DataManager.decryptAll();
         // выбираем ветку
-        showNode(node);
+        if (node != null)
+            showNode(node);
     }
 
 //    private void askPasswordReturn(String pass, TetroidNode node) {

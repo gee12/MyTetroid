@@ -87,7 +87,7 @@ public class TetroidNode {
     }
 
     public String getCryptedName() {
-        return (!isCrypted || isDecrypted) ? name : "Зашифровано";
+        return (!isCrypted || isDecrypted) ? name : "Закрыто";
     }
 
     public int getLevel() {

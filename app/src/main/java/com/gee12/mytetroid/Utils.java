@@ -61,7 +61,7 @@ public class Utils {
 
     /**
      * Преобразование в MD5
-     * @param data
+     * @param data Массив байт данных (можно signed, не имеет значение)
      * @return
      * @throws NoSuchAlgorithmException
      */

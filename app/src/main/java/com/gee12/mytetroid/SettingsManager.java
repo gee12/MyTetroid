@@ -58,7 +58,7 @@ public class SettingsManager {
      * По-умолчанию - да
      * @return
      */
-    public static boolean isSavePasswordHashLocal() {
+    public static boolean isSaveMiddlePassHashLocal() {
         boolean def = true;
         if(settings.contains(context.getString(R.string.pref_key_is_save_pass_hash_local))) {
             return settings.getBoolean(context.getString(R.string.pref_key_is_save_pass_hash_local), def);
@@ -70,7 +70,7 @@ public class SettingsManager {
      * Хэш пароля
      * @return
      */
-    public static String getPassHash() {
+    public static String getMiddlePassHash() {
         String def = null;
         if(settings.contains(context.getString(R.string.pref_key_pass_hash))) {
             return settings.getString(context.getString(R.string.pref_key_pass_hash), def);
@@ -78,7 +78,7 @@ public class SettingsManager {
         return def;
     }
 
-    public static void setPassHash(String pass) {
+    public static void setMiddlePassHash(String pass) {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(context.getString(R.string.pref_key_pass_hash), pass);
         editor.apply();

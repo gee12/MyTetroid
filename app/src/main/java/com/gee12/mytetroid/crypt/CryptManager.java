@@ -28,12 +28,18 @@ public class CryptManager {
         rc5.setKey(cryptKey);
     }
 
+    public static void initMiddleHash(String passHash) {
+        setCryptKeyToMemoryFromMiddleHash(passHash);
+        rc5 = new RC5Simple();
+        rc5.setKey(cryptKey);
+    }
+
     /***
      * Сверяем пароль с проверочным хэшем в database.ini
      * @param passHash Хэш пароля
      * @return
      */
-    public static boolean check(String passHash) {
+    public static boolean checkPass(String passHash, String soul, String data) {
         return true;
     }
 
@@ -126,13 +132,25 @@ public class CryptManager {
     /**
      * Установка пароля в виде ключа шифрования
      */
-    public static void setCryptKeyToMemory(String password)
+    public static void setCryptKeyToMemory(String pass)
     {
         try {
             // добавляем соль
-            byte[] middleHash = calculateMiddleHash(password);
+            byte[] middleHash = calculateMiddleHash(pass);
             // преобразуем к MD5 виду
             byte[] keySigned = Utils.toMD5(middleHash);
+            int[] keyUnsigned = Utils.toUnsigned(keySigned);
+            // записываем в память
+            setCryptKey(keyUnsigned);
+        } catch (Exception e) {
+
+        }
+    }
+    public static void setCryptKeyToMemoryFromMiddleHash(String passHash)
+    {
+        try {
+            byte[] passHashSigned = Base64.decode(passHash.toCharArray());
+            byte[] keySigned = Utils.toMD5(passHashSigned);
             int[] keyUnsigned = Utils.toUnsigned(keySigned);
             // записываем в память
             setCryptKey(keyUnsigned);
@@ -143,22 +161,21 @@ public class CryptManager {
 
     /**
      * Получение хеша PBKDF2 от пароля и соли
-     * @param password Пароль (строки в Java уже в UTF-8)
+     * @param pass Пароль (строки в Java уже в UTF-8)
      * @return
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    static byte[] calculateMiddleHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException
+    static byte[] calculateMiddleHash(String pass) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
-        byte[] salt1 = "^1*My2$Tetra3%_4[5]".getBytes();
+        byte[] salt = "^1*My2$Tetra3%_4[5]".getBytes();
 //        byte[] salt2 = "^1*My2$Tetra3%_4[5]".getBytes(CHARSET_ISO_8859_1);
-//        for (int i = 0; i < salt1.length; i++) {
-//            if (salt1[i] != salt2[i]) {
+//        for (int i = 0; i < salt.length; i++) {
+//            if (salt[i] != salt2[i]) {
 //                int o = 0;
 //            }
 //        }
-        byte[] signedBytes = PBKDF2.encrypt(password, salt1, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
-//        return Utils.toUnsigned(signedBytes);
+        byte[] signedBytes = PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
         return signedBytes;
     }
 
