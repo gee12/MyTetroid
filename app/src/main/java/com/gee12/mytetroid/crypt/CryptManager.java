@@ -7,13 +7,14 @@ import com.gee12.mytetroid.data.TetroidRecord;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.List;
 
 public class CryptManager {
 
-    public static final int CRYPT_CHECK_ROUNDS = 1000;
-    public static final int  CRYPT_CHECK_HASH_LEN = 160;
-
+    private static final int CRYPT_CHECK_ROUNDS = 1000;
+    private static final int  CRYPT_CHECK_HASH_LEN = 160;
+    private static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
 
 //    private static RC5 rc5;
     private static RC5Simple rc5;
@@ -21,29 +22,60 @@ public class CryptManager {
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
     public static void init(String pass) {
-        setCryptKeyToMemory(pass);
+//        setCryptKeyToMemory(pass);
+        // ?
+        int[] key = passToKey(pass, "^1*My2$Tetra3%_4[5]");
+//        // записываем в память
+        setCryptKey(key);
 //        rc5 = new RC5(key.getBytes());
 //        rc5 = new RC5(cryptKey);
         rc5 = new RC5Simple();
-        rc5.setKey(cryptKey);
+//        rc5.setKey(key);
     }
 
     public static void initMiddleHash(String passHash) {
-        setCryptKeyToMemoryFromMiddleHash(passHash);
+//        setCryptKeyToMemoryFromMiddleHash(passHash);
+        int[] key = middlePassHashToKey(passHash);
+//        // записываем в память
+        setCryptKey(key);
         rc5 = new RC5Simple();
-        rc5.setKey(cryptKey);
+//        rc5.setKey(key);
     }
 
     /***
      * Сверяем пароль с проверочным хэшем в database.ini
-     * @param passHash Хэш пароля
+     * @param pass Введенный пароль в виде строки
+     * @param salt Сохраненная соль в Base64
+     * @param checkHash Сохраненный хэш пароля в Base64
      * @return
      */
-    public static boolean checkPass(String passHash, String soul, String data) {
-        return true;
+    public static boolean checkPass(String pass, String salt, String checkHash) {
+        byte[] saltSigned = Base64.decode(salt.toCharArray());
+        byte[] checkHashSigned = Base64.decode(checkHash.toCharArray());
+        // получим хэш пароля и соли
+        byte[] passHash = null;
+        try {
+            passHash = calculatePBKDF2Hash(pass, saltSigned);
+        } catch (Exception e) {
+            addLog(e);
+        }
+        return (Arrays.equals(checkHashSigned, passHash));
     }
 
-//    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
+    /**
+     * Сравнение сохраненного пароля с проверочными данными
+     * @param passHash
+     * @param checkData
+     * @return
+     */
+    public static boolean checkMiddlePassHash(String passHash, String checkData) {
+        int[] key = middlePassHashToKey(passHash);
+        String line = decrypt(key, checkData);
+        // сравнение проверочных данных
+        return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
+    }
+
+    //    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
     public static boolean decryptAll(List<TetroidNode> nodes) {
         // читаем соль из database.ini ?
 
@@ -79,8 +111,8 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptNodeFields(TetroidNode node) {
-        node.setName(CryptManager.decryptBase64(node.getName()));
-        node.setIconName(CryptManager.decryptBase64(node.getIconName()));
+        node.setName(CryptManager.decryptBase64(cryptKey, node.getName()));
+        node.setIconName(CryptManager.decryptBase64(cryptKey, node.getIconName()));
         node.setDecrypted(true);
         return true;
     }
@@ -106,9 +138,9 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
-        record.setName(CryptManager.decryptBase64(record.getName()));
-        record.setAuthor(CryptManager.decryptBase64(record.getAuthor()));
-        record.setUrl(CryptManager.decryptBase64(record.getUrl()));
+        record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
+        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
+        record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
         record.setDecrypted(true);
         return true;
     }
@@ -132,31 +164,45 @@ public class CryptManager {
     /**
      * Установка пароля в виде ключа шифрования
      */
-    public static void setCryptKeyToMemory(String pass)
-    {
+//    public static void setCryptKeyToMemory(String pass)
+//    {
+//        int[] key = passToKey(pass);
+//        // записываем в память
+//        setCryptKey(key);
+//    }
+//
+//    private static void setCryptKeyToMemoryFromMiddleHash(String passHash)
+//    {
+//        int[] key = middlePassHashToKey(passHash);
+//        // записываем в память
+//        setCryptKey(key);
+//    }
+
+    private static int[] passToKey(String pass, String salt) {
+        int[] res = null;
         try {
             // добавляем соль
-            byte[] middleHash = calculateMiddleHash(pass);
+            byte[] passHashSigned = calculatePBKDF2Hash(pass, salt.getBytes());
             // преобразуем к MD5 виду
-            byte[] keySigned = Utils.toMD5(middleHash);
-            int[] keyUnsigned = Utils.toUnsigned(keySigned);
-            // записываем в память
-            setCryptKey(keyUnsigned);
+            byte[] keySigned = Utils.toMD5(passHashSigned);
+            res = Utils.toUnsigned(keySigned);
         } catch (Exception e) {
-
+            addLog(e);
         }
+        return res;
     }
-    public static void setCryptKeyToMemoryFromMiddleHash(String passHash)
-    {
+
+    private static int[] middlePassHashToKey(String passHash) {
+        int[] res = null;
         try {
             byte[] passHashSigned = Base64.decode(passHash.toCharArray());
+            // преобразуем к MD5 виду
             byte[] keySigned = Utils.toMD5(passHashSigned);
-            int[] keyUnsigned = Utils.toUnsigned(keySigned);
-            // записываем в память
-            setCryptKey(keyUnsigned);
+            res = Utils.toUnsigned(keySigned);
         } catch (Exception e) {
-
+            addLog(e);
         }
+        return res;
     }
 
     /**
@@ -166,15 +212,10 @@ public class CryptManager {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    static byte[] calculateMiddleHash(String pass) throws NoSuchAlgorithmException, InvalidKeySpecException
+    private static byte[] calculatePBKDF2Hash(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
-        byte[] salt = "^1*My2$Tetra3%_4[5]".getBytes();
-//        byte[] salt2 = "^1*My2$Tetra3%_4[5]".getBytes(CHARSET_ISO_8859_1);
-//        for (int i = 0; i < salt.length; i++) {
-//            if (salt[i] != salt2[i]) {
-//                int o = 0;
-//            }
-//        }
+//        byte[] saltBytes = salt.getBytes();
+        // хеш PBKDF2 от пароля и соли
         byte[] signedBytes = PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
         return signedBytes;
     }
@@ -185,7 +226,7 @@ public class CryptManager {
      * @param key
      * @param line Исходня строка
      */
-    public static String encrypt(byte[] key, String line) {
+    public static String encrypt(int[] key, String line) {
         return null;
     }
 
@@ -193,7 +234,7 @@ public class CryptManager {
      * Расшифровка строки в base64
      * @param line Строка в base64
      */
-    public static String decryptBase64(String line) {
+    public static String decryptBase64(int[] key, String line) {
         if (line.length() == 0) {
             return null;
         }
@@ -225,25 +266,28 @@ public class CryptManager {
             e.printStackTrace();
         }
         return res;*/
-        return decrypt(bytes);
+        return decrypt(key, bytes);
     }
 
     /**
      * Расшифровка строки в base64
      * @param line Строка в base64
      */
-    public static String decrypt(String line) {
+    public static String decrypt(int[] key, String line) {
         if (line.length() == 0) {
             return null;
         }
-        return decrypt(line.getBytes());
+        return decrypt(key, line.getBytes());
     }
 
-    public static String decrypt(byte[] bytes) {
+    public static String decrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         String res = null;
+        //
+        rc5.setKey(key);
         try {
+            //
             byte[] out = rc5.decrypt(bytes);
             if (out != null)
                 res = new String(out);
@@ -256,5 +300,9 @@ public class CryptManager {
 
     static void setCryptKey(int[] key) {
         cryptKey = key;
+    }
+
+    private static void addLog(Exception e) {
+        e.printStackTrace();
     }
 }

@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             String middlePassHash = SettingsManager.getMiddlePassHash();
             // проверяем
             if (DataManager.checkMiddlePassHash(middlePassHash)) {
-                decryptStorage(middlePassHash, node);
+                decryptStorage(middlePassHash, true, node);
             } else {
                 Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
             }
@@ -207,9 +207,9 @@ public class MainActivity extends AppCompatActivity {
 
                         String passHash = CryptManager.getPassHash(pass);
                         // сохраняем хэш пароля
-                        SettingsManager.setMiddle_PassHash(passHash);
+                        SettingsManager.setMiddlePassHash(passHash);
 
-                        decryptStorage(pass, node);
+                        decryptStorage(pass, false, node);
                     } else {
                         Toast.makeText(MainActivity.this, "Введен неверный пароль", Toast.LENGTH_LONG).show();
                     }
