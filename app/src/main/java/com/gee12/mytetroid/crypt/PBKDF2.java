@@ -13,7 +13,7 @@ public class PBKDF2 {
     public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";     // Supported API Levels 10+
 
     public static byte[] encrypt(String password, byte[] salt, int iterations, int derivedKeyLength) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, derivedKeyLength*8);
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, derivedKeyLength * 8);
         SecretKeyFactory f = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
         return f.generateSecret(spec).getEncoded();
     }

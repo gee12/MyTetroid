@@ -13,6 +13,11 @@ public class INIProperties {
         configuration = new Properties();
     }
 
+    /**
+     * Загрузка параметров из файла
+     * @param fileName
+     * @return
+     */
     public boolean load(String fileName) {
         boolean retval = false;
 
@@ -26,7 +31,12 @@ public class INIProperties {
         return retval;
     }
 
-    public boolean store(String fileName) {
+    /**
+     * Сохранение параметров в файл
+     * @param fileName
+     * @return
+     */
+    public boolean save(String fileName) {
         boolean retval = false;
 
         try {
@@ -39,11 +49,33 @@ public class INIProperties {
         return retval;
     }
 
+    /**
+     * Установка значения по ключу
+     * @param key
+     * @param value
+     */
     public void set(String key, String value) {
         configuration.setProperty(key, value);
     }
 
+    /**
+     * Получение значения по ключу
+     * @param key
+     * @return
+     */
     public String get(String key) {
         return configuration.getProperty(key);
+    }
+
+    /**
+     * Получение значения по ключу без двойных кавычек вначале и вконце
+     * @param key
+     * @return
+     */
+    public String getWithoutQuotes(String key) {
+        String res = configuration.getProperty(key);
+        if (res != null && !res.isEmpty())
+            res = res.replaceAll("^\"|\"$", "");
+        return res;
     }
 }

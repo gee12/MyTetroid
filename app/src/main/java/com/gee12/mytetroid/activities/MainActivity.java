@@ -136,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
+            // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath())
                 SettingsManager.setStoragePath(storagePath);
             // проверка зашифрованы ли данные
@@ -186,11 +187,13 @@ public class MainActivity extends AppCompatActivity {
      * @param node Если ветка передана, значит нужно вызвать showNode() при удачной расшифровке
      */
     private void decryptStorage(TetroidNode node) {
+        String middlePassHash = null;
         // пароль сохранен локально?
-        if (SettingsManager.isSaveMiddlePassHashLocal()) {
+        if (SettingsManager.isSaveMiddlePassHashLocal()
+                && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
             // достаем хэш пароля
 //            String middlePassHash = "iHMy5~sv62";
-            String middlePassHash = SettingsManager.getMiddlePassHash();
+//            String middlePassHash = SettingsManager.getMiddlePassHash();
             // проверяем
             if (DataManager.checkMiddlePassHash(middlePassHash)) {
                 decryptStorage(middlePassHash, true, node);
@@ -205,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                     // подтверждение введенного пароля
                     if (DataManager.checkPass(pass)) {
 
-                        String passHash = CryptManager.getPassHash(pass);
+                        String passHash = CryptManager.passToHash(pass);
                         // сохраняем хэш пароля
                         SettingsManager.setMiddlePassHash(passHash);
 
@@ -220,8 +223,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode node) {
         if (isMiddleHash)
-            CryptManager.initMiddleHash(pass);
-        else CryptManager.init(pass);
+            CryptManager.initFromMiddleHash(pass);
+        else
+            CryptManager.initFromPass(pass);
         DataManager.decryptAll();
         // выбираем ветку
         if (node != null)

@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import android.os.Handler;
 import android.util.Xml;
 
 import com.gee12.mytetroid.Utils;
@@ -23,6 +24,8 @@ public abstract class XMLManager implements OnNodeIconLoader {
 //    private String storagePath;
     protected Version formatVersion;
     protected boolean isExistCryptedNodes;  // вообще, можно читать crypt_mode=1
+
+    protected IDecryptHandler decryptCallback;
 
     /**
      *
@@ -129,6 +132,12 @@ public abstract class XMLManager implements OnNodeIconLoader {
         }
         TetroidNode node = new TetroidNode(crypt, id, name, iconPath, subNodes, records, level);
         loadIcon(node);
+
+        // расшифровка
+        if (crypt && decryptCallback != null) {
+            decryptCallback.decryptNode(node);
+        }
+
         return node;
     }
 

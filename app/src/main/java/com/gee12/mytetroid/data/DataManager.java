@@ -7,7 +7,8 @@ import java.io.FileInputStream;
 import java.net.URI;
 import java.util.List;
 
-public class DataManager extends XMLManager {
+public class DataManager extends XMLManager implements IDecryptHandler {
+
     /**
      *
      */
@@ -21,6 +22,8 @@ public class DataManager extends XMLManager {
      */
     private String tempPath = "/tmp/";
 
+    private static INIProperties databaseINI;
+
     /**
      *
      */
@@ -29,19 +32,25 @@ public class DataManager extends XMLManager {
     /**
      *
      * @param dataFolderPath
+     * @param isDecrypt Расшифровывать ли ветки
      * @return
      */
-    public static boolean init(String dataFolderPath) {
+    public static boolean init(String dataFolderPath, boolean isDecrypt) {
         instance = new DataManager();
         instance.storagePath = dataFolderPath;
+        databaseINI = new INIProperties();
+        boolean xmlParsed = false;
         try {
             FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
-//            rootNodesCollection = new XMLManager().parse(fis);
-            instance.rootNodesCollection = instance.parse(fis);
-//            if (isExistsCryptedNodes())
-//                CryptManager.init();
+            IDecryptHandler decryptHandler = (isDecrypt) ? DataManager.this : null;
+            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+            xmlParsed = true;
+            databaseINI.load(dataFolderPath + "/database.ini");
         } catch (Exception ex) {
-//            rootNodesCollection = initFake();
+            if (xmlParsed)
+                // ошибка загрузки ini
+//            else
+                // ошибка загрузки xml
             return false;
         }
         return true;
@@ -54,18 +63,21 @@ public class DataManager extends XMLManager {
         return CryptManager.decryptAll(instance.rootNodesCollection);
     }
 
-    public static boolean checkPass(String pass) {
 
-        return CryptManager.checkPass(pass, soul, checkhash);
+    @Override
+    public void decryptNode(TetroidNode node) {
+        CryptManager.decryptNode(node);
+    }
+
+    public static boolean checkPass(String pass) {
+        String salt = databaseINI.getWithoutQuotes("crypt_check_salt");
+        String checkhash = databaseINI.getWithoutQuotes("crypt_check_hash");
+        return CryptManager.checkPass(pass, salt, checkhash);
     }
 
     public static boolean checkMiddlePassHash(String passHash) {
-
+        String checkdata = databaseINI.get("middle_hash_check_data");
         return CryptManager.checkMiddlePassHash(passHash, checkdata);
-    }
-
-    private static String readParamFromDatabaseINI(String paramName) {
-        
     }
 
     /**
@@ -106,7 +118,7 @@ public class DataManager extends XMLManager {
             if (record.isDecrypted()) {
                 byte[] text = Utils.readFile(URI.create(pathURI));
                 // расшифровываем файл
-                res = CryptManager.decrypt(text);
+                res = CryptManager.decryptText(text);
             }
         } else {
             res = Utils.readTextFile(URI.create(pathURI));

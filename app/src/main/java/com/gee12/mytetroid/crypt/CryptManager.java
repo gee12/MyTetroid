@@ -17,36 +17,36 @@ public class CryptManager {
     private static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
 
 //    private static RC5 rc5;
-    private static RC5Simple rc5;
+    private static RC5Simple rc5 = new RC5Simple();
     private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
-    public static void init(String pass) {
+    public static void initFromPass(String pass) {
 //        setCryptKeyToMemory(pass);
         // ?
-        int[] key = passToKey(pass, "^1*My2$Tetra3%_4[5]");
+        int[] key = passToKey(pass);
 //        // записываем в память
         setCryptKey(key);
 //        rc5 = new RC5(key.getBytes());
 //        rc5 = new RC5(cryptKey);
-        rc5 = new RC5Simple();
+//        rc5 = new RC5Simple();
 //        rc5.setKey(key);
     }
 
-    public static void initMiddleHash(String passHash) {
+    public static void initFromMiddleHash(String passHash) {
 //        setCryptKeyToMemoryFromMiddleHash(passHash);
         int[] key = middlePassHashToKey(passHash);
 //        // записываем в память
         setCryptKey(key);
-        rc5 = new RC5Simple();
+//        rc5 = new RC5Simple();
 //        rc5.setKey(key);
     }
 
     /***
-     * Сверяем пароль с проверочным хэшем в database.ini
+     * Сверяем пароль с проверочным хешем в database.ini
      * @param pass Введенный пароль в виде строки
      * @param salt Сохраненная соль в Base64
-     * @param checkHash Сохраненный хэш пароля в Base64
+     * @param checkHash Сохраненный хеш пароля в Base64
      * @return
      */
     public static boolean checkPass(String pass, String salt, String checkHash) {
@@ -65,12 +65,13 @@ public class CryptManager {
     /**
      * Сравнение сохраненного пароля с проверочными данными
      * @param passHash
-     * @param checkData
+     * @param checkData Сохраненный хеш данных в Base64
      * @return
      */
     public static boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
-        String line = decrypt(key, checkData);
+        byte[] checDataSigned = Base64.decode(checkData.toCharArray());
+        String line = decrypt(key, checDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }
@@ -145,20 +146,30 @@ public class CryptManager {
         return true;
     }
 
-    public static boolean decryptRecordContent(TetroidRecord record) {
-        // читаем содержимое файла
-
-        // расшифровуем
-        return false;
+    /**
+     * Расшифровка текста
+     * @param text
+     * @return
+     */
+    public static String decryptText(byte[] text) {
+        return decrypt(cryptKey, text);
     }
 
     /**
-     * Получить хэш пароля для сохранения в файле
+     * Создание хэша пароля для сохранения в файле
      * @param pass
      * @return
      */
-    public static String getPassHash(String pass) {
-        throw new UnknownError();
+    public static String passToHash(String pass) {
+        String res=  null;
+        try {
+            byte[] passHashSigned = calculateMiddleHash(pass);
+//            byte[] passHash = Utils.toUnsigned(passHashSigned);
+            res = Base64.encodeToString(passHashSigned, false);
+        } catch (Exception e) {
+            addLog(e);
+        }
+        return res;
     }
 
     /**
@@ -178,11 +189,11 @@ public class CryptManager {
 //        setCryptKey(key);
 //    }
 
-    private static int[] passToKey(String pass, String salt) {
+    private static int[] passToKey(String pass) {
         int[] res = null;
         try {
             // добавляем соль
-            byte[] passHashSigned = calculatePBKDF2Hash(pass, salt.getBytes());
+            byte[] passHashSigned = calculateMiddleHash(pass);
             // преобразуем к MD5 виду
             byte[] keySigned = Utils.toMD5(passHashSigned);
             res = Utils.toUnsigned(keySigned);
@@ -205,6 +216,12 @@ public class CryptManager {
         return res;
     }
 
+    private static byte[] calculateMiddleHash(String pass) throws NoSuchAlgorithmException, InvalidKeySpecException
+    {
+        byte[] saltBytes = "^1*My2$Tetra3%_4[5]".getBytes();
+        return calculatePBKDF2Hash(pass, saltBytes);
+    }
+
     /**
      * Получение хеша PBKDF2 от пароля и соли
      * @param pass Пароль (строки в Java уже в UTF-8)
@@ -214,7 +231,6 @@ public class CryptManager {
      */
     private static byte[] calculatePBKDF2Hash(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
-//        byte[] saltBytes = salt.getBytes();
         // хеш PBKDF2 от пароля и соли
         byte[] signedBytes = PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
         return signedBytes;
