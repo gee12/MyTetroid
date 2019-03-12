@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyTetroid</string>
+    <string name="action_settings">Настройки</string>
+    <string name="empty_list">Записей нет</string>
+    <string name="files_empty_list">Прикрепленных файлов нет</string>
+    <string name="pref_category_srorage">Хранилище</string>
+    <string name="pref_storage_path">Путь к хранилищу</string>
+    <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и /base</string>
+    <string name="pref_is_load_last_storage_path">Загружать предыдущее</string>
+    <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз</string>
+    <string name="pref_category_crypt">Шифрование</string>
+    <string name="pref_is_save_pass_hash_local">Сохранять пароль</string>
+    <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально</string>
+    <string name="pref_key_category_other">Остальное</string>
+    <string name="pref_is_keep_selected_node">Выбирать прошлую ветку</string>
+    <string name="pref_is_keep_selected_node_summ">Устанавливать текущей ветку, выбранную в прошлый раз</string>
+    <string name="pref_record_fields_cols">Отображаемые поля записей в списке</string>
+    <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
+    <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
+    <string name="pref_highlight_attach_color">Цвет выделения</string>
+    <string name="pref_when_ask_password">Спрашивать пароль</string>
+    <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
+    <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
+    <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
+    <string name="pref_when_ask_password_on_start">При старте приложения</string>
+    <string name="title_pass_input">Введите пароль</string>
+    <string name="answer_ok">Ок</string>
+    <string name="answer_cancel">Отмена</string>
+    <string name="nav_header_title">MyTetroid</string>
+    <string name="nav_header_subtitle">gee12.space</string>
+</resources>
