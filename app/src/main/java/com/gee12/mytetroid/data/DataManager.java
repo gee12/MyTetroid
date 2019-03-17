@@ -32,22 +32,21 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      *
      * @param dataFolderPath
-     * @param isDecrypt Расшифровывать ли ветки
      * @return
      */
-    public static boolean init(String dataFolderPath, boolean isDecrypt) {
+    public static boolean init(String dataFolderPath) {
         instance = new DataManager();
         instance.storagePath = dataFolderPath;
         databaseINI = new INIProperties();
-        boolean xmlParsed = false;
+//        boolean xmlParsed = false;
         try {
-            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
-            IDecryptHandler decryptHandler = (isDecrypt) ? DataManager.this : null;
-            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
-            xmlParsed = true;
+//            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
+//            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
+//            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+//            xmlParsed = true;
             databaseINI.load(dataFolderPath + "/database.ini");
         } catch (Exception ex) {
-            if (xmlParsed)
+//            if (xmlParsed)
                 // ошибка загрузки ini
 //            else
                 // ошибка загрузки xml
@@ -56,17 +55,35 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
-    public static boolean decryptAll() {
-        // достаем сохраненный пароль
-//        String pass = "iHMy5~sv62";
-//        return CryptManager.decryptAll(pass, instance.rootNodesCollection);
-        return CryptManager.decryptAll(instance.rootNodesCollection);
+    /**
+     *
+     * @param isDecrypt Расшифровывать ли ветки
+     * @return
+     */
+    public static boolean readStorage(boolean isDecrypt) {
+        try {
+            FileInputStream fis = new FileInputStream(instance.storagePath + "/mytetra.xml");
+            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
+            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+        } catch (Exception ex) {
+            // ошибка загрузки xml
+            return false;
+        }
+        return true;
     }
 
+    public static boolean decryptAll() {
+        // достаем сохраненный пароль
+        return CryptManager.decryptAll(instance.rootNodesCollection, true, instance);
+    }
 
+    /**
+     * From IDecryptHandler
+     * @param node
+     */
     @Override
     public void decryptNode(TetroidNode node) {
-        CryptManager.decryptNode(node);
+        CryptManager.decryptNode(node, false, this);
     }
 
     public static boolean checkPass(String pass) {
@@ -105,6 +122,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return (path != null) ? "file:///" + path : null;
     }
 
+    @Override
     public void loadIcon(TetroidNode node) {
         if (node.isNonCryptedOrDecrypted())
             node.loadIconFromStorage(storagePath + "/icons");
@@ -163,6 +181,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesCollection;
     }
 
+    public static boolean isNodesExist() {
+        return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
+    }
+
     public static String getStoragePath() {
         return instance.storagePath;
     }
@@ -173,5 +195,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean isExistsCryptedNodes() {
         return instance.isExistCryptedNodes;
+    }
+
+    public static boolean isCrypted() {
+        return (Integer.parseInt(databaseINI.get("crypt_mode")) == 1);
     }
 }

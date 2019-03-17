@@ -82,14 +82,16 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 //            viewHolder.iconView.setVisibility(View.VISIBLE);
 //            viewHolder.iconView.setImageURI(node.getIconUri());
 //        }
-        if (node.getIcon() != null || !node.isNonCryptedOrDecrypted()) {
+        if (node.getIcon() != null || node.isCrypted()) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
             viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
             if (!node.isNonCryptedOrDecrypted()) {
                 viewHolder.iconView.setImageResource(R.drawable.ic_crypted_node);
             }
-            else {
+            else if (node.getIcon() != null) {
                 viewHolder.iconView.setImageDrawable(node.getIcon());
+            } else {
+                viewHolder.iconView.setImageResource(R.drawable.ic_decrypted_node);
             }
         } else {
             viewHolder.iconView.setVisibility(View.GONE);

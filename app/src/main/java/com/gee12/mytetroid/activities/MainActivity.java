@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.ContextMenu;
 import android.view.View;
@@ -66,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
+    private NodesListAdapter nodesListAdapter;
     private RecordsListAdapter recordsListAdapter;
     private ListView recordsListView;
     private FilesListAdapter filesListAdapter;
@@ -84,14 +83,14 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
         // панель
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -139,12 +138,27 @@ public class MainActivity extends AppCompatActivity {
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath())
                 SettingsManager.setStoragePath(storagePath);
+
+            // нужно ли выделять ветку, выбранную в прошлый раз
+            // (обязательно после initListViews)
+            TetroidNode nodeToSelect = null;
+            String nodeId = SettingsManager.getSelectedNodeId();
+            if (nodeId != null) {
+                nodeToSelect = DataManager.getNode(nodeId);
+                // если нашли, отображаем
+//                if (nodeToSelect != null) {
+//                    showNode(nodeToSelect);
+//                }
+            }
+
             // проверка зашифрованы ли данные
-            if (DataManager.isExistsCryptedNodes()) {
+//            if (DataManager.isExistsCryptedNodes()) {
+            if (DataManager.isCrypted()) {
 
                 if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
                     // спрашивать пароль при старте
-                    decryptStorage(null);
+                    decryptStorage(nodeToSelect);
+                    return;
                 } /*else {
                     // спрашивать пароль при выборе зашифрованной ветки
                     String nodeId = SettingsManager.getSelectedNodeId();
@@ -161,18 +175,8 @@ public class MainActivity extends AppCompatActivity {
                 }*/
             }
 
-            initListViews();
+            initStorage(nodeToSelect, false);
 
-            // нужно ли выделять ветку, выбранную в прошлый раз
-            // (обязательно после initListViews)
-            String nodeId = SettingsManager.getSelectedNodeId();
-            if (nodeId != null) {
-                TetroidNode node = DataManager.getNode(nodeId);
-                // если нашли, отображаем
-                if (node != null) {
-                    showNode(node);
-                }
-            }
         } else {
             Toast.makeText(this, "Ошибка инициализации хранилища", Toast.LENGTH_SHORT).show();
         }
@@ -183,17 +187,13 @@ public class MainActivity extends AppCompatActivity {
      * 1) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
      * 2) запуске приложения, если выделение было сохранено на зашифрованной ветке
      * 3) при выделении зашифрованной ветки
-     * @param node Ветка для расшифровки или null, если нужно расшифровать всю коллекцию
-     * @param node Если ветка передана, значит нужно вызвать showNode() при удачной расшифровке
+     * @param node Ветка для выбора при удачной расшифровке
      */
     private void decryptStorage(TetroidNode node) {
         String middlePassHash = null;
         // пароль сохранен локально?
         if (SettingsManager.isSaveMiddlePassHashLocal()
                 && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
-            // достаем хэш пароля
-//            String middlePassHash = "iHMy5~sv62";
-//            String middlePassHash = SettingsManager.getMiddlePassHash();
             // проверяем
             if (DataManager.checkMiddlePassHash(middlePassHash)) {
                 decryptStorage(middlePassHash, true, node);
@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
                 public void applyPass(String pass, TetroidNode node) {
                     // подтверждение введенного пароля
                     if (DataManager.checkPass(pass)) {
-
                         String passHash = CryptManager.passToHash(pass);
                         // сохраняем хэш пароля
                         SettingsManager.setMiddlePassHash(passHash);
@@ -221,14 +220,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode node) {
+    private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
         if (isMiddleHash)
             CryptManager.initFromMiddleHash(pass);
         else
             CryptManager.initFromPass(pass);
-        DataManager.decryptAll();
+        initStorage(nodeToSelect, true);
+    }
+
+    private void initStorage(TetroidNode node, boolean isDecrypt) {
+        if (isDecrypt && DataManager.isNodesExist()) {
+            // расшифровываем зашифрованные ветки уже загруженного дерева
+            DataManager.decryptAll();
+//            nodesListView.invalidate();
+            nodesListAdapter.notifyDataSetChanged();
+        } else {
+            // парсим дерево веток и расшифровываем зашифрованные
+            DataManager.readStorage(isDecrypt);
+            // инициализация контролов
+            initListViews();
+        }
         // выбираем ветку
         if (node != null)
+//            if (isDecrypt)
+//                node = находим ветку в новом списке расшифрованных веток
             showNode(node);
     }
 
@@ -247,9 +262,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void initListViews() {
         // список веток
-        NodesListAdapter listAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
-        nodesListView.setAdapter(listAdapter);
-        listAdapter.setDataItems(DataManager.getRootNodes());
+        this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
+        nodesListView.setAdapter(nodesListAdapter);
+        nodesListAdapter.setDataItems(DataManager.getRootNodes());
         // список записей
         this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
         // список файлов

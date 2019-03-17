@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.os.Handler;
 import android.util.Xml;
 
 import com.gee12.mytetroid.Utils;
@@ -17,11 +16,10 @@ import java.util.List;
 /**
  *
  */
-public abstract class XMLManager implements OnNodeIconLoader {
+public abstract class XMLManager implements INodeIconLoader {
 
     private static final String ns = null;
 
-//    private String storagePath;
     protected Version formatVersion;
     protected boolean isExistCryptedNodes;  // вообще, можно читать crypt_mode=1
 
@@ -34,8 +32,8 @@ public abstract class XMLManager implements OnNodeIconLoader {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public List<TetroidNode> parse(InputStream in) throws XmlPullParserException, IOException {
-//        storagePath = in.toString();
+    public List<TetroidNode> parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
+        this.decryptCallback = decryptHandler;
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -131,12 +129,13 @@ public abstract class XMLManager implements OnNodeIconLoader {
             }
         }
         TetroidNode node = new TetroidNode(crypt, id, name, iconPath, subNodes, records, level);
-        loadIcon(node);
 
         // расшифровка
         if (crypt && decryptCallback != null) {
             decryptCallback.decryptNode(node);
         }
+        // загрузка иконки из файла (после расшифровки имени иконки)
+        loadIcon(node);
 
         return node;
     }

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.crypt;
 
 import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 
@@ -76,33 +77,32 @@ public class CryptManager {
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }
 
-    //    public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
-    public static boolean decryptAll(List<TetroidNode> nodes) {
-        // читаем соль из database.ini ?
-
-//        setCryptKeyToMemory(pass);
-
-        return decryptNodes(nodes);
+//        public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
+    public static boolean decryptAll(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
+        return decryptNodes(nodes, isDecryptSubNodes, iconLoader);
     }
 
-    public static boolean decryptNodes(List<TetroidNode> nodes) {
+    public static boolean decryptNodes(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
         for (TetroidNode node : nodes) {
             if (node.isCrypted())
-                decryptNode(node);
+                decryptNode(node, isDecryptSubNodes, iconLoader);
         }
 
         return true;
     }
 
-    public static boolean decryptNode(TetroidNode node) {
+    public static boolean decryptNode(TetroidNode node, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
         // расшифровываем поля
         decryptNodeFields(node);
+        // загружаем иконку
+        if (iconLoader != null)
+            iconLoader.loadIcon(node);
         // расшифровывать записи сразу или при выделении?
         if (node.getRecordsCount() > 0)
             decryptRecordsFields(node.getRecords());
         // расшифровываем подветки
-        if (node.getSubNodesCount() > 0)
-            decryptNodes(node.getSubNodes());
+        if (isDecryptSubNodes && node.getSubNodesCount() > 0)
+            decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader);
         return true;
     }
 
