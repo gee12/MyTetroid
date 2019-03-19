@@ -21,7 +21,7 @@ public abstract class XMLManager implements INodeIconLoader {
     private static final String ns = null;
 
     protected Version formatVersion;
-    protected boolean isExistCryptedNodes;  // вообще, можно читать crypt_mode=1
+    protected boolean isExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
     protected IDecryptHandler decryptCallback;
 

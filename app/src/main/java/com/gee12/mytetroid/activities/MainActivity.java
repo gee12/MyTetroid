@@ -72,7 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private TetroidNode currentNode;
     private TetroidRecord currentRecord;
     private ViewFlipper viewFlipper;
-//    private TextView recordContentTextView;
     private WebView recordContentWebView;
     private int lastDisplayedViewId = 0;
 
@@ -544,17 +543,25 @@ public class MainActivity extends AppCompatActivity {
      */
     private OnItemClickListener onNodeClickListener = new OnItemClickListener() {
 
+        /**
+         * Клик на конечной ветке
+         */
         @Override
         public void onItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
             showNode((TetroidNode)item);
         }
 
+        /**
+         * Клик на родительской ветке
+         */
         @Override
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
             // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
             // на заголовке и на стрелке раскрытия/закрытия ветки
             if (!((TetroidNode)item).isNonCryptedOrDecrypted()) {
-                Toast.makeText(MainActivity.this, "Нужно ввести пароль", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Тут нужно ввести пароль", Toast.LENGTH_SHORT).show();
+
+                // как остановить дальнейшее выполнение, чтобы не стабатывал Expander?
                 return;
             }
         }

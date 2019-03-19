@@ -146,6 +146,6 @@ public class TetroidNode {
     }
 
     public boolean isExpandable() {
-        return !subNodes.isEmpty() && isNonCryptedOrDecrypted();
+        return !subNodes.isEmpty() /*&& isNonCryptedOrDecrypted()*/;
     }
 }

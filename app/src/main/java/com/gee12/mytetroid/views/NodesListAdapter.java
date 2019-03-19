@@ -117,7 +117,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             }
         });
         // стрелка раскрытия/закрытия ветки
-        if (itemInfo.isExpandable()) {
+        if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
                     R.drawable.arrow_up : R.drawable.arrow_down);

@@ -12,7 +12,8 @@ public class SettingsManager {
 
     public static void init(Context ctx) {
         context = ctx;
-        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+//        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        settings = PreferenceManager.getDefaultSharedPreferences(ctx);
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
     }
 
