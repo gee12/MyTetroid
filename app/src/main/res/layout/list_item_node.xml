@@ -24,12 +24,12 @@
             android:layout_gravity="center_vertical"
             android:visibility="gone"/>
         <!--<com.caverock.androidsvg.SVGImageView-->
-            <!--android:id="@+id/node_view_icon"-->
-            <!--android:layout_width="20dp"-->
-            <!--android:layout_height="20dp"-->
-            <!--android:layout_gravity="center_vertical"-->
-            <!--android:visibility="gone"-->
-            <!--/>-->
+        <!--android:id="@+id/node_view_icon"-->
+        <!--android:layout_width="20dp"-->
+        <!--android:layout_height="20dp"-->
+        <!--android:layout_gravity="center_vertical"-->
+        <!--android:visibility="gone"-->
+        <!--/>-->
 
         <TextView
             android:id="@+id/node_view_name"
@@ -38,6 +38,7 @@
             android:layout_marginRight="@dimen/offset_default"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxWidth="200dp"
             android:textColor="@color/colorBaseText"
             android:textSize="@dimen/font_default" />
         <TextView
@@ -45,17 +46,79 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/offset_default"
             android:layout_marginRight="@dimen/offset_default"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorBlueDark"
             android:textSize="@dimen/font_small" />
     </LinearLayout>
+
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/node_view_header"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_marginLeft="0px"-->
+        <!--android:layout_marginRight="56px"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+        <!--<ImageView-->
+            <!--android:id="@+id/node_view_icon"-->
+            <!--android:layout_width="24dp"-->
+            <!--android:layout_height="24dp"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:visibility="gone"/>-->
+        <!--&lt;!&ndash;<com.caverock.androidsvg.SVGImageView&ndash;&gt;-->
+        <!--&lt;!&ndash;android:id="@+id/node_view_icon"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_width="20dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_height="20dp"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_gravity="center_vertical"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:visibility="gone"&ndash;&gt;-->
+        <!--&lt;!&ndash;/>&ndash;&gt;-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/node_view_name"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:layout_marginLeft="@dimen/offset_default"-->
+            <!--android:layout_marginRight="@dimen/offset_default"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@color/colorBaseText"-->
+            <!--android:background="@android:color/holo_blue_bright"-->
+            <!--android:ellipsize="none"-->
+            <!--android:maxLines="100"-->
+            <!--android:scrollHorizontally="false"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_toEndOf="@id/node_view_icon"-->
+            <!--android:layout_toStartOf="@id/node_view_records_count"-->
+            <!--android:textSize="@dimen/font_default"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:layout_toLeftOf="@id/node_view_records_count"-->
+            <!--android:layout_toRightOf="@id/node_view_icon" />-->
+        <!--&lt;!&ndash;android:layout_alignParentRight="true"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_alignParentEnd="true"&ndash;&gt;-->
+        <!--<TextView-->
+            <!--android:id="@+id/node_view_records_count"-->
+            <!--android:layout_gravity="center_vertical"-->
+            <!--android:layout_marginLeft="@dimen/offset_default"-->
+            <!--android:layout_marginRight="@dimen/offset_default"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorAccent"-->
+            <!--android:textColor="@color/colorBlueDark"-->
+            <!--android:textSize="@dimen/font_small" />-->
+    <!--</RelativeLayout>-->
+
 
     <ImageView
         android:id="@+id/node_view_arrow"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"

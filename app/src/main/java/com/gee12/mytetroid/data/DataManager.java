@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
@@ -8,6 +9,13 @@ import java.net.URI;
 import java.util.List;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
+
+//    public static final Exception EmptyMiddleHashCheckDataFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
+    public static class EmptyMiddleHashCheckDataFieldException extends Exception {
+        public EmptyMiddleHashCheckDataFieldException() {
+            super();
+        }
+    }
 
     /**
      *
@@ -39,12 +47,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         instance.storagePath = dataFolderPath;
         databaseINI = new INIProperties();
 //        boolean xmlParsed = false;
+        boolean res = false;
         try {
 //            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
 //            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
 //            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
 //            xmlParsed = true;
-            databaseINI.load(dataFolderPath + "/database.ini");
+            res = databaseINI.load(dataFolderPath + "/database.ini");
         } catch (Exception ex) {
 //            if (xmlParsed)
                 // ошибка загрузки ini
@@ -52,7 +61,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 // ошибка загрузки xml
             return false;
         }
-        return true;
+        return res;
     }
 
     /**
@@ -92,8 +101,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return CryptManager.checkPass(pass, salt, checkhash);
     }
 
-    public static boolean checkMiddlePassHash(String passHash) {
+    public static boolean checkMiddlePassHash(String passHash) throws EmptyMiddleHashCheckDataFieldException {
         String checkdata = databaseINI.get("middle_hash_check_data");
+        if (checkdata == null || checkdata.isEmpty()) {
+            throw new EmptyMiddleHashCheckDataFieldException();
+        }
         return CryptManager.checkMiddlePassHash(passHash, checkdata);
     }
 

@@ -66,11 +66,11 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         if (convertView == null) {
             viewHolder = new NodeViewHolder();
             convertView = inflater.inflate(R.layout.list_item_node, null);
-            viewHolder.iconView = (ImageView) convertView.findViewById(R.id.node_view_icon);
-            viewHolder.nameView = (TextView) convertView.findViewById(R.id.node_view_name);
-            viewHolder.recordsCountView = (TextView) convertView.findViewById(R.id.node_view_records_count);
-            viewHolder.arrowView = (ImageView) convertView.findViewById(R.id.node_view_arrow);
-            viewHolder.headerView = (LinearLayout) convertView.findViewById(R.id.node_view_header);
+            viewHolder.iconView = convertView.findViewById(R.id.node_view_icon);
+            viewHolder.nameView = convertView.findViewById(R.id.node_view_name);
+            viewHolder.recordsCountView = convertView.findViewById(R.id.node_view_records_count);
+            viewHolder.arrowView = convertView.findViewById(R.id.node_view_arrow);
+            viewHolder.headerView = convertView.findViewById(R.id.node_view_header);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (NodeViewHolder) convertView.getTag();
@@ -99,13 +99,13 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // имя
         viewHolder.nameView.setText(node.getCryptedName());
         // количество записей в ветке
+            viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
-            viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
         }
         else {
-            viewHolder.recordsCountView.setVisibility(View.GONE);
+//            viewHolder.recordsCountView.setVisibility(View.GONE);
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)

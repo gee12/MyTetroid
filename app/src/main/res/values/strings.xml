@@ -40,4 +40,6 @@
     <string name="pref_category_srorage">Storage</string>
     <string name="pref_storage_path">Storage path</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and /base</string>
+    <string name="missing_permissions_for_folder">Not enough permissions to access the file storage</string>
+    <string name="empty_middle_hash_check_data_field">Field middle_hash_check_data is empty</string>
 </resources>

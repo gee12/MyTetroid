@@ -1,14 +1,20 @@
 package com.gee12.mytetroid.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -41,6 +47,7 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
+import java.io.File;
 import java.net.URLDecoder;
 
 import lib.folderpicker.FolderPicker;
@@ -48,9 +55,12 @@ import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
+    public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
 
     public static final int FILE_BROWSE = 1;
     public static final int GET_CONTENT = 2;
@@ -125,11 +135,59 @@ public class MainActivity extends AppCompatActivity {
     private void startInitStorage() {
         String storagePath = SettingsManager.getStoragePath();
 //        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
+
+        File[] externalStorageFiles = ContextCompat.getExternalFilesDirs(this,null);
+        for(File file : externalStorageFiles) {
+            String root = getRootOfExternalStorage(file);
+            Log.d("myTag", "root = " + root);
+        }
+
+        //
+        File f = getExternalFilesDir(null);
+
+        f = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
+
+        // check SDK version
+        //...
+        if (/*SDK >= 23 &&*/ !checkPermission()) {
+            return;
+        }
+
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
             initStorage(storagePath);
         } else {
             showChooser3();
         }
+    }
+
+    private boolean checkPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            // Should we show an explanation?
+            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else*/ {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                        REQUEST_CODE_PERMISSION_REQUEST);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private String getRootOfExternalStorage(File file) {
+        String path = file.getAbsolutePath();
+        return path.replaceAll("/Android/data/" + getPackageName() + "/files", "");
     }
 
     private void initStorage(String storagePath) {
@@ -194,10 +252,19 @@ public class MainActivity extends AppCompatActivity {
         if (SettingsManager.isSaveMiddlePassHashLocal()
                 && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
             // проверяем
-            if (DataManager.checkMiddlePassHash(middlePassHash)) {
-                decryptStorage(middlePassHash, true, node);
-            } else {
-                Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
+            try {
+                if (DataManager.checkMiddlePassHash(middlePassHash)) {
+                    decryptStorage(middlePassHash, true, node);
+                } else {
+                    Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
+                }
+            } catch (DataManager.EmptyMiddleHashCheckDataFieldException e) {
+                Toast.makeText(this, getString(R.string.empty_middle_hash_check_data_field), Toast.LENGTH_LONG).show();
+
+                // спрашиваем
+                // ...
+                decryptStorageWithoutPassCheck(node);
+                
             }
         } else {
             // выводим окно с запросом пароля в асинхронном режиме
@@ -217,6 +284,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void decryptStorageWithoutPassCheck(TetroidNode node) {
+        decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
     }
 
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
@@ -418,7 +489,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    startInitStorage();
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, R.string.missing_permissions_for_folder, Toast.LENGTH_SHORT).show();
+                }
+            }
 
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
 
     /**
      * Отображение ветки => список записей

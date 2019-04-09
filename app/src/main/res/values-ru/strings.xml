@@ -29,4 +29,6 @@
     <string name="answer_cancel">Отмена</string>
     <string name="nav_header_title">MyTetroid</string>
     <string name="nav_header_subtitle">gee12.space</string>
+    <string name="missing_permissions_for_folder">Недостаточно прав для доступа к файловому хранилищу</string>
+    <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)</string>
 </resources>

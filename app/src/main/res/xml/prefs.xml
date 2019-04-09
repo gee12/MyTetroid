@@ -31,6 +31,7 @@
             android:title="@string/pref_when_ask_password"
             android:entries="@array/when_ask_password_entries"
             android:entryValues="@array/when_ask_password_entries"
+            android:summary="@string/pref_when_ask_password_summ"
             android:defaultValue="@string/pref_when_ask_password_on_select"
             />
 
