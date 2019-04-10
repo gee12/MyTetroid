@@ -29,8 +29,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             // меняем расположение хранилища
 
         } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            // сохраняем/удаляем хэш пароля
-
+            // удаляем хэш пароля, если сняли галку
+            SettingsManager.setMiddlePassHash(null);
         } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
             // меняем список полей для отображения
 

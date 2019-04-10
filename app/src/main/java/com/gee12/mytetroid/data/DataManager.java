@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
@@ -10,10 +9,18 @@ import java.util.List;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
-//    public static final Exception EmptyMiddleHashCheckDataFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
-    public static class EmptyMiddleHashCheckDataFieldException extends Exception {
-        public EmptyMiddleHashCheckDataFieldException() {
+//    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
+    public static class EmptyFieldException extends Exception {
+
+        private String fieldName;
+
+        public EmptyFieldException(String fieldName) {
             super();
+            this.fieldName = fieldName;
+        }
+
+        public String getFieldName() {
+            return fieldName;
         }
     }
 
@@ -95,16 +102,25 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         CryptManager.decryptNode(node, false, this);
     }
 
-    public static boolean checkPass(String pass) {
+    public static boolean checkPass(String pass) throws EmptyFieldException {
+        // нужно тоже обработать варианты, когда эти поля пустые (!)
+        // ...
         String salt = databaseINI.getWithoutQuotes("crypt_check_salt");
+        if (Utils.isNullOrEmpty(salt)) {
+            throw new EmptyFieldException("crypt_check_salt");
+        }
         String checkhash = databaseINI.getWithoutQuotes("crypt_check_hash");
+        if (Utils.isNullOrEmpty(checkhash)) {
+            throw new EmptyFieldException("crypt_check_hash");
+        }
+        // ...
         return CryptManager.checkPass(pass, salt, checkhash);
     }
 
-    public static boolean checkMiddlePassHash(String passHash) throws EmptyMiddleHashCheckDataFieldException {
+    public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
         String checkdata = databaseINI.get("middle_hash_check_data");
-        if (checkdata == null || checkdata.isEmpty()) {
-            throw new EmptyMiddleHashCheckDataFieldException();
+        if (Utils.isNullOrEmpty(checkdata)) {
+            throw new EmptyFieldException("middle_hash_check_data");
         }
         return CryptManager.checkMiddlePassHash(passHash, checkdata);
     }

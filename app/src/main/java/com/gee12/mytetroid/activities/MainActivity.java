@@ -41,7 +41,7 @@ import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
-import com.gee12.mytetroid.views.PassInputDialog;
+import com.gee12.mytetroid.views.ActivityDialogs;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
@@ -256,39 +256,53 @@ public class MainActivity extends AppCompatActivity {
                 if (DataManager.checkMiddlePassHash(middlePassHash)) {
                     decryptStorage(middlePassHash, true, node);
                 } else {
-                    Toast.makeText(this, "Неверный сохраненный пароль", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.wrong_saved_pass, Toast.LENGTH_LONG).show();
                 }
-            } catch (DataManager.EmptyMiddleHashCheckDataFieldException e) {
-                Toast.makeText(this, getString(R.string.empty_middle_hash_check_data_field), Toast.LENGTH_LONG).show();
-
-                // спрашиваем
-                // ...
-                decryptStorageWithoutPassCheck(node);
-                
+            } catch (DataManager.EmptyFieldException e) {
+                // if middle_hash_check_data field is empty, so asking "decrypt anyway?"
+//                Toast.makeText(this, getString(R.string.empty_middle_hash_check_data_field), Toast.LENGTH_LONG).show();
+               ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
+                   @Override
+                   public void onApply(TetroidNode node) {
+                       decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
+                   }
+               });
             }
         } else {
             // выводим окно с запросом пароля в асинхронном режиме
-            PassInputDialog.showPassDialog(this, node, new PassInputDialog.IPassInputResult() {
+            ActivityDialogs.showPassDialog(this, node, new ActivityDialogs.IPassInputResult() {
                 @Override
-                public void applyPass(String pass, TetroidNode node) {
+                public void applyPass(final String pass, TetroidNode node) {
                     // подтверждение введенного пароля
-                    if (DataManager.checkPass(pass)) {
-                        String passHash = CryptManager.passToHash(pass);
-                        // сохраняем хэш пароля
-                        SettingsManager.setMiddlePassHash(passHash);
+                    try {
+                        if (DataManager.checkPass(pass)) {
+                            String passHash = CryptManager.passToHash(pass);
+                            // сохраняем хэш пароля
+                            SettingsManager.setMiddlePassHash(passHash);
 
-                        decryptStorage(pass, false, node);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Введен неверный пароль", Toast.LENGTH_LONG).show();
+                            decryptStorage(pass, false, node);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Введен неверный пароль", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (DataManager.EmptyFieldException e) {
+//                        e.printStackTrace();
+                        ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
+                            @Override
+                            public void onApply(TetroidNode node) {
+                                decryptStorage(pass, false, node);
+                                // пароль не сохраняем
+                                // а спрашиваем нормально ли расшифровались данные, и потом сохраняем
+                                // ...
+                            }
+                        });
                     }
                 }
             });
         }
     }
 
-    private void decryptStorageWithoutPassCheck(TetroidNode node) {
-        decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
-    }
+//    private void decryptStorageWithoutPassCheck(TetroidNode node) {
+//    }
 
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
         if (isMiddleHash)

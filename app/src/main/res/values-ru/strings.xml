@@ -30,5 +30,8 @@
     <string name="nav_header_title">MyTetroid</string>
     <string name="nav_header_subtitle">gee12.space</string>
     <string name="missing_permissions_for_folder">Недостаточно прав для доступа к файловому хранилищу</string>
-    <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)</string>
+    <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
+    <string name="answer_yes">Да</string>
+    <string name="answer_no">Нет</string>
+    <string name="wrong_saved_pass">Неверный сохраненный пароль</string>
 </resources>
