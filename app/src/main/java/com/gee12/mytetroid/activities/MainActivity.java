@@ -10,11 +10,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.View;
 import android.support.v4.view.GravityCompat;
@@ -55,8 +53,6 @@ import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
-import static android.os.Environment.DIRECTORY_DOWNLOADS;
-
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
@@ -89,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -101,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
         // панель
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -109,23 +105,23 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         // список веток
-        nodesListView = (MultiLevelListView) findViewById(R.id.nodes_list_view);
+        nodesListView = findViewById(R.id.nodes_list_view);
         nodesListView.setOnItemClickListener(onNodeClickListener);
         // список записей
-        recordsListView = (ListView)findViewById(R.id.records_list_view);
+        recordsListView = findViewById(R.id.records_list_view);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
-        TextView emptyTextView = (TextView)findViewById(R.id.text_view_empty);
+        TextView emptyTextView = findViewById(R.id.text_view_empty);
         recordsListView.setEmptyView(emptyTextView);
         registerForContextMenu(recordsListView);
         // список файлов
-        filesListView = (ListView)findViewById(R.id.files_list_view);
+        filesListView = findViewById(R.id.files_list_view);
         filesListView.setOnItemClickListener(onFileClicklistener);
-        emptyTextView = (TextView)findViewById(R.id.files_text_view_empty);
+        emptyTextView = findViewById(R.id.files_text_view_empty);
         filesListView.setEmptyView(emptyTextView);
 
-        viewFlipper = (ViewFlipper) findViewById(R.id.view_flipper);
-//        recordContentTextView = (TextView) findViewById(R.id.text_view_record_content);
-        recordContentWebView = (WebView)findViewById(R.id.web_view_record_content);
+        viewFlipper = findViewById(R.id.view_flipper);
+//        recordContentTextView = findViewById(R.id.text_view_record_content);
+        recordContentWebView = findViewById(R.id.web_view_record_content);
 
         // загружаем данные
         SettingsManager.init(this);
@@ -136,20 +132,20 @@ public class MainActivity extends AppCompatActivity {
         String storagePath = SettingsManager.getStoragePath();
 //        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
 
-        File[] externalStorageFiles = ContextCompat.getExternalFilesDirs(this,null);
-        for(File file : externalStorageFiles) {
-            String root = getRootOfExternalStorage(file);
-            Log.d("myTag", "root = " + root);
-        }
+//        File[] externalStorageFiles = ContextCompat.getExternalFilesDirs(this,null);
+//        for(File file : externalStorageFiles) {
+//            String root = getRootOfExternalStorage(file);
+//            Log.d("myTag", "root = " + root);
+//        }
 
         //
-        File f = getExternalFilesDir(null);
+//        File f = getExternalFilesDir(null);
 
-        f = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
+//        f = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
 
         // check SDK version
         //...
-        if (/*SDK >= 23 &&*/ !checkPermission()) {
+        if (/*SDK >= 23 &&*/ !checkReadExtStoragePermission()) {
             return;
         }
 
@@ -160,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkPermission() {
+    private boolean checkReadExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -175,20 +171,16 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,
                         new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
                         REQUEST_CODE_PERMISSION_REQUEST);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
             }
             return false;
         }
         return true;
     }
 
-    private String getRootOfExternalStorage(File file) {
-        String path = file.getAbsolutePath();
-        return path.replaceAll("/Android/data/" + getPackageName() + "/files", "");
-    }
+//    private String getRootOfExternalStorage(File file) {
+//        String path = file.getAbsolutePath();
+//        return path.replaceAll("/Android/data/" + getPackageName() + "/files", "");
+//    }
 
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
@@ -510,18 +502,11 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
                     startInitStorage();
                 } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(this, R.string.missing_permissions_for_folder, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT).show();
                 }
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 
