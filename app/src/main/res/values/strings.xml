@@ -45,5 +45,4 @@
     <string name="answer_yes">Yes</string>
     <string name="answer_no">No</string>
     <string name="wrong_saved_pass">Wrong saved pass</string>
-    <!--<string name="missing_read_ext_storage_permissions">Missing permissions for external storage</string>-->
 </resources>

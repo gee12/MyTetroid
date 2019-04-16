@@ -34,5 +34,4 @@
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>
     <string name="wrong_saved_pass">Неверный сохраненный пароль</string>
-    <!--<string name="missing_read_ext_storage_permissions">Недостаточно прав на чтение с внешней карты памяти</string>-->
 </resources>
