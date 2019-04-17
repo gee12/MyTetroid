@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
+
     <include
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
@@ -19,12 +20,16 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main">
+
         <pl.openrnd.multilevellistview.MultiLevelListView
             android:id="@+id/nodes_list_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginTop="126dp"
+            android:layout_marginTop="87dp"
+            android:layout_marginBottom="8dp"
             app:alwaysExtended="false"
             app:nestType="multiple" />
+
     </android.support.design.widget.NavigationView>
+
 </android.support.v4.widget.DrawerLayout>
