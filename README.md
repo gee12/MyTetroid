@@ -1,6 +1,6 @@
 # MyTetroid
 
-MyTetroid — Android-клиент для просмотра хранилища данных настольной версии программы MyTetra.
+MyTetroid — Android-клиент для просмотра хранилища данных настольной версии программы [MyTetra](https://github.com/xintrea/mytetra_dev).
 
 MyTetra — это полнофункциональный кроссплатформенный менеджер заметок (PIM-manager).
 
