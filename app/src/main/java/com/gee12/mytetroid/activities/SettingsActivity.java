@@ -31,15 +31,16 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             // удаляем хэш пароля, если сняли галку
             SettingsManager.setMiddlePassHash(null);
-        } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
-            // меняем список полей для отображения
+//        } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
+//            // меняем список полей для отображения
 
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
+            SettingsManager.IsHighlightAttachCache = SettingsManager.isHighlightRecordWithAttach();
 
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
-
+            SettingsManager.HighlightAttachColorCache = SettingsManager.getHighlightAttachColor();
         }
     }
 

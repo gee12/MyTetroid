@@ -21,7 +21,6 @@ public class FilesListAdapter extends BaseAdapter {
      */
     private class FileViewHolder {
         TextView lineNumView;
-        ImageView iconView;
         TextView nameView;
         TextView sizeView;
     }
@@ -60,7 +59,6 @@ public class FilesListAdapter extends BaseAdapter {
             viewHolder = new FileViewHolder();
             convertView = inflater.inflate(R.layout.list_item_file, null);
             viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.file_view_line_num);
-            viewHolder.iconView = (ImageView) convertView.findViewById(R.id.file_view_icon);
             viewHolder.nameView = (TextView) convertView.findViewById(R.id.file_view_name);
             viewHolder.sizeView = (TextView) convertView.findViewById(R.id.file_view_size);
             convertView.setTag(viewHolder);
@@ -70,9 +68,7 @@ public class FilesListAdapter extends BaseAdapter {
 
         final TetroidFile file = dataSet.get(position);
         // номер строки
-        viewHolder.lineNumView.setText(String.valueOf(position));
-        // иконка выводится сама по себе
-
+        viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла
         viewHolder.nameView.setText(file.getFileName());
         // размер файла

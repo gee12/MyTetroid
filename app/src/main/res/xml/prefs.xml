@@ -52,21 +52,11 @@
             android:summary="@string/pref_is_highlight_attach_summ"
             android:defaultValue="true" />
 
-        <!--<Preference-->
-            <!--android:dependency="@string/pref_is_highlight_attach"-->
-            <!--android:key="@string/pref_key_highlight_attach_color"-->
-            <!--android:title="@string/pref_highlight_attach_color"/>-->
-        <com.skydoves.colorpickerpreference.ColorPickerPreference
+        <yuku.ambilwarna.widget.AmbilWarnaPreference
+            android:dependency="@string/pref_key_is_highlight_attach"
             android:key="@string/pref_key_highlight_attach_color"
-            android:dependency="@string/pref_is_highlight_attach"
             android:title="@string/pref_highlight_attach_color"
-            app:preference_dialog_title="@string/pref_highlight_attach_color_dialog"
-        app:preference_dialog_positive="@string/answer_ok"
-        app:preference_dialog_negative="@string/answer_cancel"
-        app:preference_palette="@drawable/palette"
-        app:preference_selector="@drawable/wheel"
-        app:default_color="@color/colorPrimary"/>
-        <!--android:summary="changes attach color"-->
+            android:defaultValue="0xffA0FFA0" />
 
     </PreferenceCategory>
 
