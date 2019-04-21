@@ -72,10 +72,10 @@ public class RecordsListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new RecordViewHolder();
             convertView = inflater.inflate(R.layout.list_item_record, null);
-            viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.record_view_line_num);
-            viewHolder.nameView = (TextView) convertView.findViewById(R.id.record_view_name);
-            viewHolder.infoView = (TextView) convertView.findViewById(R.id.record_view_info);
-            viewHolder.attachedView = (ImageView) convertView.findViewById(R.id.record_view_attached);
+            viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
+            viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
+            viewHolder.infoView = convertView.findViewById(R.id.record_view_info);
+            viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (RecordViewHolder) convertView.getTag();

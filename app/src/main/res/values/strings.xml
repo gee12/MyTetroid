@@ -26,6 +26,7 @@
     <string name="pref_is_highlight_attach_summ">Enable highlight entries with attached files</string>
     <string name="pref_key_highlight_attach_color">pref_highlight_attach_color</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
+    <string name="pref_highlight_attach_color_dialog">Select color</string>
     <string name="pref_when_ask_password">Ask for a password</string>
     <string name="pref_when_ask_password_summ">When to ask for a password?</string>
     <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>

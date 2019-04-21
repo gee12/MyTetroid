@@ -597,16 +597,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private void openFile(int position) {
         TetroidFile file = currentRecord.getAttachedFiles().get(position);
-        openFile(file);
+        DataManager.openFile(this, currentRecord, file);
     }
 
     /**
      * Открытие прикрепленного файла
      * @param file Файл
      */
-    private void openFile(TetroidFile file) {
-        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
-    }
+//    private void openFile(TetroidFile file) {
+//        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
+//        DataManager.openFile(this, file);
+//    }
 
     /**
      * Обработчик клика на заголовке ветки с подветками
@@ -619,7 +620,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
-     * Обработчик клика на заголовке ветки с подветками
+     * Обработчик клика на иконке прикрепленных файлов записи
      */
     RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
         @Override
@@ -668,7 +669,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
-     * Обработчик клика на файле
+     * Обработчик клика на прикрепленном файле
      */
     private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
         @Override
@@ -718,7 +719,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -730,9 +730,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             showActivity(this, SettingsActivity.class);

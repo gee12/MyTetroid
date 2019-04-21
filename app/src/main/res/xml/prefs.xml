@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:key="pref_key_screen">
+    android:key="pref_key_screen"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_srorage">
 
@@ -55,6 +56,17 @@
             <!--android:dependency="@string/pref_is_highlight_attach"-->
             <!--android:key="@string/pref_key_highlight_attach_color"-->
             <!--android:title="@string/pref_highlight_attach_color"/>-->
+        <com.skydoves.colorpickerpreference.ColorPickerPreference
+            android:key="@string/pref_key_highlight_attach_color"
+            android:dependency="@string/pref_is_highlight_attach"
+            android:title="@string/pref_highlight_attach_color"
+            app:preference_dialog_title="@string/pref_highlight_attach_color_dialog"
+        app:preference_dialog_positive="@string/answer_ok"
+        app:preference_dialog_negative="@string/answer_cancel"
+        app:preference_palette="@drawable/palette"
+        app:preference_selector="@drawable/wheel"
+        app:default_color="@color/colorPrimary"/>
+        <!--android:summary="changes attach color"-->
 
     </PreferenceCategory>
 

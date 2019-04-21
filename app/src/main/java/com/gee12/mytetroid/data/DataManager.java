@@ -1,8 +1,17 @@
 package com.gee12.mytetroid.data;
 
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
+
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.util.List;
@@ -157,7 +166,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static String getRecordTextDecrypted(TetroidRecord record) {
-        String pathURI = "file:///"+instance.storagePath+"/base/"+record.getDirName()+"/"+record.getFileName();
+        String pathURI = getStoragePathBaseUri() + record.getDirName() + "/" + record.getFileName();
 //        String text = Utils.readAllFile(URI.create(pathURI));
         String res = null;
         if (record.isCrypted()) {
@@ -170,6 +179,16 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             res = Utils.readTextFile(URI.create(pathURI));
         }
         return res;
+    }
+
+    @NonNull
+    private static String getStoragePathBaseUri() {
+        return "file://" + instance.storagePath + "/base/";
+    }
+
+    @NonNull
+    private static String getStoragePathBase() {
+        return instance.storagePath + "/base/";
     }
 
     public static TetroidNode getNode(String id) {
@@ -204,6 +223,31 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         return null;
     }*/
+
+    public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
+        String fileDisplayName = file.getFileName();
+        String ext = Utils.getExtWithComma(fileDisplayName);
+        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+        File f = new File(fullFileName);
+        if(f.exists()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
+            intent.setDataAndType(Uri.fromFile(f), mimeType);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            try {
+                context.startActivity(intent);
+            }
+            catch(ActivityNotFoundException e) {
+                Toast.makeText(context, "Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } else {
+            Toast.makeText(context, "Файл отсутствует: " + fileDisplayName, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 
     public static List<TetroidNode> getRootNodes() {
         return instance.rootNodesCollection;

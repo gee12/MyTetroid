@@ -130,4 +130,8 @@ public class Utils {
         }
         return data;
     }
+
+    public static String getExtWithComma(String fileFullName) {
+        return fileFullName.substring(fileFullName.lastIndexOf("."));
+    }
 }
