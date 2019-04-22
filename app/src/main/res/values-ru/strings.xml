@@ -34,4 +34,10 @@
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>
     <string name="wrong_saved_pass">Неверный сохраненный пароль</string>
+    <string name="record_tags_label">Метки:</string>
+    <string name="record_author_label">Автор:</string>
+    <string name="record_uri_label">Url:</string>
+    <string name="record_date_label">Дата:</string>
+    <string name="pref_date_format_string">Формат даты</string>
+    <string name="pref_date_format_string_summ">Формат для отображения даты/времени создания записи</string>
 </resources>

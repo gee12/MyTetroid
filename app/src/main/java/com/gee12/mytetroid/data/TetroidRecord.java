@@ -1,11 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.text.Spanned;
-
-import com.gee12.mytetroid.Utils;
-
-import java.io.File;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,15 +8,12 @@ import java.util.List;
 
 public class TetroidRecord {
 
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
     private String id;
     private TetroidNode node;
     private String name;
+    private String tags;
     private String author;
     private String url;
-//    private String htmlContent;
-//    private Spanned content;    // потом не хранить и читать из файла
     private Date created;
     private boolean isCrypted;
 
@@ -48,11 +39,12 @@ public class TetroidRecord {
         this.created = Calendar.getInstance().getTime();
     }
 
-    public TetroidRecord(boolean crypt, String id, String name, String author, String url,
+    public TetroidRecord(boolean crypt, String id, String name, String tags, String author, String url,
                          Date created, String dirName, String fileName, List<TetroidFile> files) {
         this.isCrypted = crypt;
         this.id = id;
         this.name = name;
+        this.tags = tags;
         this.author = author;
         this.url = url;
         this.created = created;
@@ -71,6 +63,10 @@ public class TetroidRecord {
 
     public String getName() {
         return name;
+    }
+
+    public String getTags() {
+        return tags;
     }
 
     public String getAuthor() {
@@ -105,9 +101,9 @@ public class TetroidRecord {
         return created;
     }
 
-    public String getCreatedString() {
-//        return SimpleDateFormat.getDateTimeInstance().format(created);
-        return simpleDateFormat.format(created);
+    public String getCreatedString(String format) {
+        return new SimpleDateFormat(format).format(created);
+//        return dateFormat.format(created);
     }
 
     public String getDirName() {
@@ -174,4 +170,7 @@ public class TetroidRecord {
         this.node = node;
     }
 
+//    public void setDateFormat(String format) {
+//        this.dateFormat = new SimpleDateFormat(format);
+//    }
 }

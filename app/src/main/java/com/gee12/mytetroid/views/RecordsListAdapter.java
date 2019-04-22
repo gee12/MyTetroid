@@ -91,7 +91,7 @@ public class RecordsListAdapter extends BaseAdapter {
         viewHolder.nameView.setText(record.getName());
         // другая информация о записи
         if (record.getCreated() != null)
-            viewHolder.infoView.setText(record.getCreatedString());
+            viewHolder.infoView.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
         // есть ли прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон

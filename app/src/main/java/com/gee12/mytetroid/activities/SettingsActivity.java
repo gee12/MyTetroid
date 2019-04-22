@@ -3,10 +3,11 @@ package com.gee12.mytetroid.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+
+import java.text.SimpleDateFormat;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -41,6 +42,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
             SettingsManager.HighlightAttachColorCache = SettingsManager.getHighlightAttachColor();
+        } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
+            // меняем формат даты
+            SettingsManager.DateFormatStringCache =SettingsManager.getDateFormatString();
         }
     }
 

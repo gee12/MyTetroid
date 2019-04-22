@@ -161,6 +161,7 @@ public abstract class XMLManager implements INodeIconLoader {
         boolean crypt = false;
         String id = null;
         String name = null;
+        String tags = null;
         String author = null;
         String url = null;
         Date created = null;
@@ -172,6 +173,7 @@ public abstract class XMLManager implements INodeIconLoader {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
+            tags = parser.getAttributeValue(ns, "tags");
             author = parser.getAttributeValue(ns, "author");
             url = parser.getAttributeValue(ns, "url");
             // строка вида "yyyyMMddHHmmss" (например, "20180901211132")
@@ -195,7 +197,7 @@ public abstract class XMLManager implements INodeIconLoader {
             }
         }
         parser.require(XmlPullParser.END_TAG, ns, "record");
-        return new TetroidRecord(crypt, id, name, author, url, created, dirName, fileName, files);
+        return new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, files);
     }
 
     private List<TetroidFile> readFiles(XmlPullParser parser) throws XmlPullParserException, IOException {

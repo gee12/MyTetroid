@@ -2,7 +2,9 @@
 <resources>
     <color name="colorBaseText">#444</color>
     <color name="colorLightText">#999</color>
+    <color name="colorMoreLightText">#EEE</color>
     <color name="colorBlue">#3F51B5</color>
+    <color name="colorLightLabelText">#a4a4e4</color>
     <color name="colorBlueDark">#303F9F</color>
     <color name="colorAccent">#009990</color>
     <color name="colorHighlight">#A0FFA0</color>

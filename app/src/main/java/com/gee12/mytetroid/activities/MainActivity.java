@@ -24,9 +24,11 @@ import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.R;
@@ -45,6 +47,8 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
+import net.cachapa.expandablelayout.ExpandableLayout;
+
 import java.net.URLDecoder;
 
 import lib.folderpicker.FolderPicker;
@@ -52,7 +56,7 @@ import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
 
     public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -78,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
     private TetroidRecord currentRecord;
     private ViewFlipper viewFlipper;
     private WebView recordContentWebView;
+    ToggleButton tbRecordFieldsExpander;
+    ExpandableLayout expRecordFieldsLayout;
+    TextView tvRecordTags;
+    TextView tvRecordAuthor;
+    TextView tvRecordUrl;
+    TextView tvRecordDate;
     private int lastDisplayedViewId = 0;
 
     @Override
@@ -122,9 +132,22 @@ public class MainActivity extends AppCompatActivity {
 //        recordContentTextView = findViewById(R.id.text_view_record_content);
         recordContentWebView = findViewById(R.id.web_view_record_content);
 
+        tvRecordTags = findViewById(R.id.text_view_record_tags);
+        tvRecordAuthor = findViewById(R.id.text_view_record_author);
+        tvRecordUrl = findViewById(R.id.text_view_record_url);
+        tvRecordDate = findViewById(R.id.text_view_record_date);
+        expRecordFieldsLayout = findViewById(R.id.layout_expander);
+        tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
+        tbRecordFieldsExpander.setOnCheckedChangeListener(this);
+
         // загружаем данные
         SettingsManager.init(this);
         startInitStorage();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton view, boolean isChecked) {
+        expRecordFieldsLayout.toggle();
     }
 
     private void startInitStorage() {
@@ -547,7 +570,7 @@ public class MainActivity extends AppCompatActivity {
      * Отображение записи
      * @param record Запись
      */
-    private void showRecord(TetroidRecord record) {
+    private void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
 //        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
         String recordContentUrl = DataManager.getRecordTextUrl(record);
@@ -563,6 +586,10 @@ public class MainActivity extends AppCompatActivity {
                 }*/
                 @Override
                 public void onPageFinished(WebView view, String url) {
+                    tvRecordTags.setText(record.getTags());
+                    tvRecordAuthor.setText(record.getAuthor());
+                    tvRecordUrl.setText(record.getUrl());
+                    tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
                     showView(VIEW_RECORD_TEXT);
                 }
             });

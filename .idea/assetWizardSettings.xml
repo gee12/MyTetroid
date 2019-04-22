@@ -35,7 +35,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/file/ic_attachment_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_up_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -57,8 +57,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_attachment2" />
-                                      <entry key="themeColor" value="009000" />
+                                      <entry key="outputName" value="ic_arrow_drop_up" />
+                                      <entry key="theme" value="CUSTOM" />
+                                      <entry key="themeColor" value="555555" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -110,7 +111,7 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="76b778" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/Desktop/mytetroid_logo1.png" />
+                                      <entry key="foregroundImage" value="C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -149,7 +150,7 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="$USER_HOME$/Desktop/mytetroid_logo1.png" />
+                                      <entry key="imageAsset" value="C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -211,7 +212,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/file/ic_attachment_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_down_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -224,9 +225,9 @@
                             <entry key="color" value="555555" />
                             <entry key="height" value="36" />
                             <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_attachment2" />
+                            <entry key="outputName" value="ic_arrow_drop_down" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="$USER_HOME$/D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
+                            <entry key="sourceFile" value="C:\Users\Ivan\D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
                             <entry key="width" value="36" />
                           </map>
                         </option>

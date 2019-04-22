@@ -15,6 +15,7 @@ public class SettingsManager {
     public static boolean IsHighlightAttachCache;
     @ColorInt
     public static int HighlightAttachColorCache;
+    public static String DateFormatStringCache;
 
     public static void init(Context ctx) {
         context = ctx;
@@ -23,6 +24,7 @@ public class SettingsManager {
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
         HighlightAttachColorCache = getHighlightAttachColor();
         IsHighlightAttachCache = isHighlightRecordWithAttach();
+        DateFormatStringCache = getDateFormatString();
     }
 
     /**
@@ -153,6 +155,18 @@ public class SettingsManager {
         String def = null;
         if(settings.contains(context.getString(R.string.pref_key_selected_node_id))) {
             return settings.getString(context.getString(R.string.pref_key_selected_node_id), def);
+        }
+        return def;
+    }
+
+    /**
+     * Формат даты создания записи
+     * @return
+     */
+    public static String getDateFormatString() {
+        String def = context.getString(R.string.def_date_format_string);
+        if(settings.contains(context.getString(R.string.pref_key_date_format_string))) {
+            return settings.getString(context.getString(R.string.pref_key_date_format_string), def);
         }
         return def;
     }
