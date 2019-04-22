@@ -10,15 +10,15 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBarDrawerToggle;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import android.view.ContextMenu;
 import android.view.View;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.WebView;
@@ -45,7 +45,6 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
-import java.io.File;
 import java.net.URLDecoder;
 
 import lib.folderpicker.FolderPicker;
@@ -597,16 +596,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private void openFile(int position) {
         TetroidFile file = currentRecord.getAttachedFiles().get(position);
-        openFile(file);
+        DataManager.openFile(this, currentRecord, file);
     }
 
     /**
      * Открытие прикрепленного файла
      * @param file Файл
      */
-    private void openFile(TetroidFile file) {
-        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
-    }
+//    private void openFile(TetroidFile file) {
+//        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
+//        DataManager.openFile(this, file);
+//    }
 
     /**
      * Обработчик клика на заголовке ветки с подветками
@@ -619,7 +619,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
-     * Обработчик клика на заголовке ветки с подветками
+     * Обработчик клика на иконке прикрепленных файлов записи
      */
     RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
         @Override
@@ -668,7 +668,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     /**
-     * Обработчик клика на файле
+     * Обработчик клика на прикрепленном файле
      */
     private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
         @Override
@@ -718,7 +718,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
@@ -730,9 +729,6 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             showActivity(this, SettingsActivity.class);

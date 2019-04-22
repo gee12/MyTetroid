@@ -18,7 +18,7 @@
     <string name="pref_record_fields_cols">Отображаемые поля записей в списке</string>
     <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
-    <string name="pref_highlight_attach_color">Цвет выделения</string>
+    <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Спрашивать пароль</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
     <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>

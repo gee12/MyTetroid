@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
@@ -72,10 +73,10 @@ public class RecordsListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new RecordViewHolder();
             convertView = inflater.inflate(R.layout.list_item_record, null);
-            viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.record_view_line_num);
-            viewHolder.nameView = (TextView) convertView.findViewById(R.id.record_view_name);
-            viewHolder.infoView = (TextView) convertView.findViewById(R.id.record_view_info);
-            viewHolder.attachedView = (ImageView) convertView.findViewById(R.id.record_view_attached);
+            viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
+            viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
+            viewHolder.infoView = convertView.findViewById(R.id.record_view_info);
+            viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (RecordViewHolder) convertView.getTag();
@@ -83,7 +84,7 @@ public class RecordsListAdapter extends BaseAdapter {
 
         final TetroidRecord record = dataSet.get(position);
         // номер строки
-        viewHolder.lineNumView.setText(String.valueOf(position));
+        viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название записи
         viewHolder.nameView.setText(record.getName());
         // другая информация о записи
@@ -92,10 +93,8 @@ public class RecordsListAdapter extends BaseAdapter {
         // есть ли прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон
-            if (SettingsManager.isHighlightRecordWithAttach()) {
-
-                // ???
-                convertView.setBackgroundColor(SettingsManager.highlightAttachColor());
+            if (SettingsManager.IsHighlightAttachCache) {
+                convertView.setBackgroundColor(SettingsManager.HighlightAttachColorCache);
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
             viewHolder.attachedView.setOnClickListener(new View.OnClickListener() {
@@ -104,10 +103,13 @@ public class RecordsListAdapter extends BaseAdapter {
                     onRecordAttachmentClickListener.onClick(record);
                 }
             });
+            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,36,0);
         }
         else {
-            convertView.setBackgroundColor(Color.TRANSPARENT);
-            viewHolder.attachedView.setVisibility(View.GONE);
+            // нет смысла менять пока записи только на чтение
+//            convertView.setBackgroundColor(Color.TRANSPARENT);
+//            viewHolder.attachedView.setVisibility(View.GONE);
+//            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,0,0);
         }
 
         return convertView;

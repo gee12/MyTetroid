@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:key="pref_key_screen">
+    android:key="pref_key_screen"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_srorage">
 
@@ -51,10 +52,11 @@
             android:summary="@string/pref_is_highlight_attach_summ"
             android:defaultValue="true" />
 
-        <!--<Preference-->
-            <!--android:dependency="@string/pref_is_highlight_attach"-->
-            <!--android:key="@string/pref_key_highlight_attach_color"-->
-            <!--android:title="@string/pref_highlight_attach_color"/>-->
+        <yuku.ambilwarna.widget.AmbilWarnaPreference
+            android:dependency="@string/pref_key_is_highlight_attach"
+            android:key="@string/pref_key_highlight_attach_color"
+            android:title="@string/pref_highlight_attach_color"
+            android:defaultValue="0xffA0FFA0" />
 
     </PreferenceCategory>
 

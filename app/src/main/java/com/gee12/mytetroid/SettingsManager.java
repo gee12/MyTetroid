@@ -4,17 +4,25 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.annotation.ColorInt;
+
 public class SettingsManager {
     public static final String APP_PREFERENCES = "MyTetroidSettings";
 
     private static SharedPreferences settings;
     private static Context context;
 
+    public static boolean IsHighlightAttachCache;
+    @ColorInt
+    public static int HighlightAttachColorCache;
+
     public static void init(Context ctx) {
         context = ctx;
 //        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         settings = PreferenceManager.getDefaultSharedPreferences(ctx);
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
+        HighlightAttachColorCache = getHighlightAttachColor();
+        IsHighlightAttachCache = isHighlightRecordWithAttach();
     }
 
     /**
@@ -112,11 +120,11 @@ public class SettingsManager {
     }
 
     /**
-     * Выделять записи в списке, у которых есть прикрепленные файлы?
-     * По-умолчанию - да
+     * Цвет записей в списке с прикрепленными файлами
+     * По-умолчанию - светло зеленый
      * @return
      */
-    public static int highlightAttachColor() {
+    public static int getHighlightAttachColor() {
         int def = R.color.colorHighlight;
         if(settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
             return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
