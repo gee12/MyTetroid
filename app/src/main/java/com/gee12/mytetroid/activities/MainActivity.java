@@ -552,8 +552,9 @@ public class MainActivity extends AppCompatActivity {
 //        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
         String recordContentUrl = DataManager.getRecordTextUrl(record);
         if (recordContentUrl != null) {
-            recordContentWebView.setVisibility(View.INVISIBLE);
-            recordContentWebView.loadData(DataManager.getRecordTextDecrypted(record), "text/html; charset=UTF-8", null);
+//            recordContentWebView.loadData(DataManager.getRecordTextDecrypted(record), "text/html; charset=UTF-8", null);
+            recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+                    DataManager.getRecordTextDecrypted(record), "text/html", "UTF-8", null);
 //            recordContentWebView.loadUrl(recordContentUrl);
             recordContentWebView.setWebViewClient(new WebViewClient() {
                 /*@Override
@@ -563,7 +564,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onPageFinished(WebView view, String url) {
                     showView(VIEW_RECORD_TEXT);
-                    recordContentWebView.setVisibility(View.VISIBLE);
                 }
             });
         }

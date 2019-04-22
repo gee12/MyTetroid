@@ -181,6 +181,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return res;
     }
 
+    public static String getRecordDirUri(TetroidRecord record) {
+        return getStoragePathBaseUri() + record.getDirName() + "/";
+    }
+
     @NonNull
     private static String getStoragePathBaseUri() {
         return "file://" + instance.storagePath + "/base/";

@@ -53,7 +53,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="false"
         android:src="@drawable/ic_attachment"
-        android:layout_width="41dp"
+        android:layout_width="@dimen/record_attached_image_width"
         android:layout_height="36dp"
         android:visibility="gone" />
 

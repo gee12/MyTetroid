@@ -16,4 +16,5 @@
 
     <dimen name="level_beam_line_width">6dp</dimen>
     <dimen name="level_beam_line_offset">2dp</dimen>
+    <dimen name="record_attached_image_width">41dp</dimen>
 </resources>

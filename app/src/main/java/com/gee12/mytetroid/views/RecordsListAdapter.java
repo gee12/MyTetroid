@@ -40,10 +40,12 @@ public class RecordsListAdapter extends BaseAdapter {
     private static LayoutInflater inflater = null;
     private List<TetroidRecord> dataSet;
     private OnRecordAttachmentClickListener onRecordAttachmentClickListener;
+    private Context context;
 
-    public RecordsListAdapter(Context context, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
+    public RecordsListAdapter(Context ctx, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
         super();
-        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = ctx;
+        this.inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.onRecordAttachmentClickListener = onRecordAttachmentClickListener;
     }
 
@@ -103,7 +105,10 @@ public class RecordsListAdapter extends BaseAdapter {
                     onRecordAttachmentClickListener.onClick(record);
                 }
             });
-            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,36,0);
+            // API>=17..
+//            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMarginEnd(context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width));
+            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,
+                    context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width),0);
         }
         else {
             // нет смысла менять пока записи только на чтение

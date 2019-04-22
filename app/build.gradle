@@ -9,7 +9,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.gee12.mytetroid"
-        minSdkVersion 15
+        minSdkVersion 14
         targetSdkVersion 28
         versionCode 4
         versionName "1.3"
