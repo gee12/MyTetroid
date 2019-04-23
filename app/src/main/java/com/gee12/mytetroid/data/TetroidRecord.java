@@ -142,6 +142,10 @@ public class TetroidRecord {
         this.name = name;
     }
 
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public void setAuthor(String author) {
         this.author = author;
     }

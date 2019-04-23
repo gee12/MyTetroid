@@ -21,7 +21,6 @@
     <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Спрашивать пароль</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
-    <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
     <string name="pref_when_ask_password_on_start">При старте приложения</string>
     <string name="title_pass_input">Введите пароль</string>
@@ -40,4 +39,5 @@
     <string name="record_date_label">Дата:</string>
     <string name="pref_date_format_string">Формат даты</string>
     <string name="pref_date_format_string_summ">Формат для отображения даты/времени создания записи</string>
+    <string name="folder_chooser_title">Каталог хранилища</string>
 </resources>

@@ -13,6 +13,8 @@ import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+
+import android.os.Environment;
 import android.view.ContextMenu;
 import android.view.View;
 import androidx.core.view.GravityCompat;
@@ -413,10 +415,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 //        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
 //    }
 
-    static final int FOLDERPICKER_CODE = 333;
     void showChooser3() {
         Intent intent = new Intent(this, FolderPicker.class);
-        startActivityForResult(intent, FOLDERPICKER_CODE);
+        intent.putExtra("title", getString(R.string.folder_chooser_title));
+        intent.putExtra("location", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath());
+        startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
     }
 
 //    private void lookForOpenIntentsFilePicker() {
@@ -448,18 +451,18 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
 //        fillData();
 
-        String fileName = null;
-        if (requestCode == FILE_BROWSE && resultCode == RESULT_OK) {
-            fileName = data.getDataString();
-            if (fileName != null) {
-                if (fileName.startsWith("file://")) {
-                    fileName = fileName.substring(7);
+        String folderFullName = null;
+        /*if (requestCode == FILE_BROWSE && resultCode == RESULT_OK) {
+            folderFullName = data.getDataString();
+            if (folderFullName != null) {
+                if (folderFullName.startsWith("file://")) {
+                    folderFullName = folderFullName.substring(7);
                 }
 
-                fileName = URLDecoder.decode(fileName);
+                folderFullName = URLDecoder.decode(folderFullName);
             }
-
-        }
+*/
+        /*}
         else if ((requestCode == GET_CONTENT || requestCode == OPEN_DOC) && resultCode == RESULT_OK) {
             if (data != null) {
                 Uri uri = data.getData();
@@ -480,27 +483,26 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     if (requestCode == GET_CONTENT) {
                         uri = UriUtil.translate(this, uri);
                     }
-                    fileName = uri.toString();
+                    folderFullName = uri.toString();
                 }
-            }
+            }*/
 //        } else if (requestCode == REQUEST_DIRECTORY) {
 //            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
-//                fileName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
+//                folderFullName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
 //            } else {
 //                // Nothing selected
 //            }
-        } else if (requestCode == FOLDERPICKER_CODE && resultCode == Activity.RESULT_OK) {
-
-            fileName = data.getExtras().getString("data");
+        /*} else*/ if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == Activity.RESULT_OK) {
+            folderFullName = data.getStringExtra("data");
         }
 
-        if (fileName != null) {
+        if (folderFullName != null) {
             // выбор файла mytetra.xml
-//            File file = new File(fileName);
+//            File file = new File(folderFullName);
 //            String path = file.getParent();
 
             // 1
-//            Uri uri = UriUtil.parseDefaultFile(fileName);
+//            Uri uri = UriUtil.parseDefaultFile(folderFullName);
 //            String scheme = uri.getScheme();
 //
 //            if (!EmptyUtils.isNullOrEmpty(scheme) && scheme.equalsIgnoreCase("file")) {
@@ -513,7 +515,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 //                initListViews(path);
 //            }
             // 2
-            initStorage(fileName);
+            initStorage(folderFullName);
         }
     }
 

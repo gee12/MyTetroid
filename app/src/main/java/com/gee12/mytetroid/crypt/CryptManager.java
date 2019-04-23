@@ -128,7 +128,6 @@ public class CryptManager {
             if (record.isCrypted())
                 decryptRecordFields(record);
         }
-
         return true;
     }
 
@@ -140,6 +139,7 @@ public class CryptManager {
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
         record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
+        record.setTags(CryptManager.decryptBase64(cryptKey, record.getTags()));
         record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
         record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
         record.setDecrypted(true);

@@ -54,4 +54,5 @@
     <string name="pref_date_format_string">Date format string</string>
     <string name="pref_date_format_string_summ">Format string for created date/time display</string>
     <string name="def_date_format_string">dd.MM.yyyy HH:mm:ss</string>
+    <string name="folder_chooser_title">Storage folder</string>
 </resources>
