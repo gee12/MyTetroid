@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
+import com.gee12.mytetroid.AboutActivity;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.UriUtil;
@@ -761,6 +762,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             showActivity(this, SettingsActivity.class);
+            return true;
+        } else if (id == R.id.action_about) {
+            showActivity(this, AboutActivity.class);
             return true;
         }
 

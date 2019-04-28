@@ -109,7 +109,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
-        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
+//        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
         viewHolder.headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -121,8 +121,14 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
                     R.drawable.ic_arrow_up : R.drawable.ic_arrow_down);
+                    ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams())
+                            .setMargins(20 * node.getLevel(),0,62,0);
+
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);
+            ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams())
+                    .setMargins(20 * node.getLevel(),0,0,0);
+
         }
 
         return convertView;

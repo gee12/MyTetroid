@@ -20,7 +20,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         android:background="#f6f6fc"
-        app:headerLayout="@layout/nav_header_main">
+        app:headerLayout="@layout/layout_header">
 
         <pl.openrnd.multilevellistview.MultiLevelListView
             android:id="@+id/nodes_list_view"

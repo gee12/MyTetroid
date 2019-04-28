@@ -9,14 +9,12 @@
 
     <LinearLayout
         android:id="@+id/node_view_header"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:layout_marginLeft="0px"
-        android:layout_marginRight="56px"
-        android:layout_centerVertical="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_centerVertical="true">
         <ImageView
             android:id="@+id/node_view_icon"
             android:layout_width="24dp"
@@ -31,7 +29,7 @@
             android:layout_marginRight="@dimen/offset_default"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:maxWidth="200dp"
+            android:maxWidth="188dp"
             android:textColor="@color/colorBaseText"
             android:textSize="@dimen/font_default" />
 
@@ -50,14 +48,15 @@
     <ImageView
         android:id="@+id/node_view_arrow"
         android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="16dp"
+        android:layout_width="42dp"
+        android:layout_height="24dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
         android:src="@drawable/ic_arrow_down"
         tools:ignore="DuplicateIds" />
+    <!--android:paddingTop="4dp"-->
+    <!--android:paddingBottom="5dp"-->
 
 </RelativeLayout>

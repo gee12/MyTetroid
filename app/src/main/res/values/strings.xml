@@ -2,8 +2,9 @@
     <string name="app_name">MyTetroid</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">MyTetroid</string>
-    <string name="nav_header_subtitle">gee12.space</string>
+    <string name="main_header_title">MyTetroid</string>
+    <string name="site_url">gee12.space</string>
+    <string name="project_url"><![CDATA[Project page <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="empty_list">Records is missing</string>
@@ -55,4 +56,9 @@
     <string name="pref_date_format_string_summ">Format string for created date/time display</string>
     <string name="def_date_format_string">dd.MM.yyyy HH:mm:ss</string>
     <string name="folder_chooser_title">Storage folder</string>
+    <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
+    <string name="license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
+    <string name="rate_app">Rate app</string>
+    <string name="version_label">Version</string>
+    <string name="about_app">About app</string>
 </resources>

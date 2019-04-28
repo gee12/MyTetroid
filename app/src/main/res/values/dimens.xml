@@ -7,6 +7,7 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="font_default">18sp</dimen>
+    <dimen name="font_big">22sp</dimen>
     <dimen name="font_small">14sp</dimen>
     <dimen name="offset_default">3dp</dimen>
     <dimen name="padding_default">12dp</dimen>
