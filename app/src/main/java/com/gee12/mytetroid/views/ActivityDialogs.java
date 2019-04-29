@@ -13,13 +13,14 @@ public class ActivityDialogs {
 
     public interface IPassInputResult {
         void applyPass(String pass, TetroidNode node);
+        void cancelPass();
     }
 
     public interface IPositiveDialogResult {
         void onApply(TetroidNode node);
     }
 
-    public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult applyPass) {
+    public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString(R.string.title_pass_input));
 
@@ -30,13 +31,14 @@ public class ActivityDialogs {
         builder.setPositiveButton(R.string.answer_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                applyPass.applyPass(input.getText().toString(), node);
+                passResult.applyPass(input.getText().toString(), node);
             }
         });
         builder.setNegativeButton(R.string.answer_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                passResult.cancelPass();
             }
         });
 

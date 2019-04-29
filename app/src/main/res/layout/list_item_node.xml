@@ -14,6 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
+        android:background="@color/colorHighlight"
         android:layout_centerVertical="true">
         <ImageView
             android:id="@+id/node_view_icon"
@@ -42,6 +43,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/colorBlueDark"
             android:textSize="@dimen/font_small" />
+        <!--android:minWidth="20dp"-->
+        <!--android:minEms="3"-->
+        <!--android:maxLines="1"-->
 
     </LinearLayout>
 
@@ -50,13 +54,11 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_width="42dp"
+        android:layout_width="40dp"
         android:layout_height="24dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
         android:src="@drawable/ic_arrow_down"
+        android:scaleType="center"
+        android:background="@color/colorBlue"
         tools:ignore="DuplicateIds" />
-    <!--android:paddingTop="4dp"-->
-    <!--android:paddingBottom="5dp"-->
 
 </RelativeLayout>

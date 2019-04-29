@@ -122,7 +122,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
                     R.drawable.ic_arrow_up : R.drawable.ic_arrow_down);
                     ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams())
-                            .setMargins(20 * node.getLevel(),0,62,0);
+                            .setMargins(20 * node.getLevel(),0,60,0);
 
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);

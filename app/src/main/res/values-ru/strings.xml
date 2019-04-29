@@ -46,4 +46,5 @@
     <string name="version_label">Версия</string>
     <string name="about_app">О приложении</string>
     <string name="project_url"><![CDATA[Страница проекта <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
+    <string name="password_is_incorrect">Введен неверный пароль</string>
 </resources>

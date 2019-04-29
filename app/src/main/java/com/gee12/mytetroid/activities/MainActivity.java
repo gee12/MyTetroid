@@ -3,12 +3,9 @@ package com.gee12.mytetroid.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -36,7 +33,6 @@ import android.widget.ViewFlipper;
 import com.gee12.mytetroid.AboutActivity;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.UriUtil;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
@@ -51,8 +47,6 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
-
-import java.net.URLDecoder;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -92,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvRecordUrl;
     TextView tvRecordDate;
     private int lastDisplayedViewId = 0;
+    private boolean isAlreadyCanceledPass = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -286,40 +281,51 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                });
             }
         } else {
-            // выводим окно с запросом пароля в асинхронном режиме
-            ActivityDialogs.showPassDialog(this, node, new ActivityDialogs.IPassInputResult() {
-                @Override
-                public void applyPass(final String pass, TetroidNode node) {
-                    // подтверждение введенного пароля
-                    try {
-                        if (DataManager.checkPass(pass)) {
-                            String passHash = CryptManager.passToHash(pass);
-                            // сохраняем хэш пароля
-                            SettingsManager.setMiddlePassHash(passHash);
-
-                            decryptStorage(pass, false, node);
-                        } else {
-                            Toast.makeText(MainActivity.this, "Введен неверный пароль", Toast.LENGTH_LONG).show();
-                        }
-                    } catch (DataManager.EmptyFieldException e) {
-//                        e.printStackTrace();
-                        ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
-                            @Override
-                            public void onApply(TetroidNode node) {
-                                decryptStorage(pass, false, node);
-                                // пароль не сохраняем
-                                // а спрашиваем нормально ли расшифровались данные, и потом сохраняем
-                                // ...
-                            }
-                        });
-                    }
-                }
-            });
+            showPassDialog(node);
         }
     }
 
-//    private void decryptStorageWithoutPassCheck(TetroidNode node) {
-//    }
+    void showPassDialog(final TetroidNode node) {
+        // выводим окно с запросом пароля в асинхронном режиме
+        ActivityDialogs.showPassDialog(this, node, new ActivityDialogs.IPassInputResult() {
+            @Override
+            public void applyPass(final String pass, TetroidNode node) {
+                // подтверждение введенного пароля
+                try {
+                    if (DataManager.checkPass(pass)) {
+                        String passHash = CryptManager.passToHash(pass);
+                        // сохраняем хэш пароля
+                        SettingsManager.setMiddlePassHash(passHash);
+
+                        decryptStorage(pass, false, node);
+                    } else {
+                        Toast.makeText(MainActivity.this, R.string.password_is_incorrect, Toast.LENGTH_LONG).show();
+                        showPassDialog(node);
+                    }
+                } catch (DataManager.EmptyFieldException e) {
+//                        e.printStackTrace();
+                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
+                        @Override
+                        public void onApply(TetroidNode node) {
+                            decryptStorage(pass, false, node);
+                            // пароль не сохраняем
+                            // а спрашиваем нормально ли расшифровались данные, и потом сохраняем
+                            // ...
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void cancelPass() {
+                // загружаем хранилище как есть (только в первый раз, затем перезагружать не нужно)
+                if (!isAlreadyCanceledPass) {
+                    isAlreadyCanceledPass = true;
+                    initStorage(node, false);
+                }
+            }
+        });
+    }
 
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
         if (isMiddleHash)
@@ -678,9 +684,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
             // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
             // на заголовке и на стрелке раскрытия/закрытия ветки
-            if (!((TetroidNode)item).isNonCryptedOrDecrypted()) {
-                Toast.makeText(MainActivity.this, "Тут нужно ввести пароль", Toast.LENGTH_SHORT).show();
-
+            TetroidNode node = (TetroidNode) item;
+            if (!node.isNonCryptedOrDecrypted()) {
+                decryptStorage(node);
                 // как остановить дальнейшее выполнение, чтобы не стабатывал Expander?
                 return;
             }
