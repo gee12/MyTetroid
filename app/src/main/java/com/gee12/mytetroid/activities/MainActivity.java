@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -48,6 +49,8 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.io.File;
+
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
+    public static final int OPEN_RECORD_FOLDER_MENU_ITEM_ID = 3;
     public static final int VIEW_RECORDS_LIST = 0;
     public static final int VIEW_RECORD_TEXT = 1;
     public static final int VIEW_RECORD_FILES = 2;
@@ -339,7 +343,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
             DataManager.decryptAll();
-//            nodesListView.invalidate();
             nodesListAdapter.notifyDataSetChanged();
         } else {
             // парсим дерево веток и расшифровываем зашифрованные
@@ -347,25 +350,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             // инициализация контролов
             initListViews();
         }
-        // выбираем ветку
+        // выбираем ветку в новом списке расшифрованных веток
         if (node != null)
-//            if (isDecrypt)
-//                node = находим ветку в новом списке расшифрованных веток
             showNode(node);
     }
-
-//    private void askPasswordReturn(String pass, TetroidNode node) {
-//        // получаем пароль
-//        CryptManager.init(pass);
-//
-//        if (node != null) {
-//            // попытка открытия ветки
-//            CryptManager.decryptNode(node);
-//        } else {
-//            // попытка прочтения всей базы
-//            DataManager.decryptAll();
-//        }
-//    }
 
     private void initListViews() {
         // список веток
@@ -621,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void showFilesList(TetroidRecord record) {
         this.currentRecord = record;
         showView(VIEW_RECORD_FILES);
-        this.filesListAdapter.reset(record.getAttachedFiles());
+        this.filesListAdapter.reset(record);
         filesListView.setAdapter(filesListAdapter);
 //        setTitle(record.getName());
     }
@@ -635,14 +623,21 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         DataManager.openFile(this, currentRecord, file);
     }
 
-    /**
-     * Открытие прикрепленного файла
-     * @param file Файл
-     */
-//    private void openFile(TetroidFile file) {
-//        Toast.makeText(this, "Открытие файла " + file.getFileName(), Toast.LENGTH_SHORT).show();
-//        DataManager.openFile(this, file);
-//    }
+    private void openRecordFolder(int position) {
+        TetroidRecord record = currentNode.getRecords().get(position);
+        openFolder(DataManager.getRecordDirUri(record));
+    }
+
+    public void openFolder(String pathUri){
+        Uri uri = Uri.parse(pathUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "resource/folder");
+        if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "", Toast.LENGTH_LONG).show();
+        }
+    }
 
     /**
      * Обработчик клика на заголовке ветки с подветками
@@ -787,8 +782,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, "Открыть");
-        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, "Файлы");
+        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, R.string.show_record_content);
+        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, R.string.show_attached_files);
+        menu.add(Menu.NONE, OPEN_RECORD_FOLDER_MENU_ITEM_ID, Menu.NONE, R.string.open_record_folder);
     }
 
     /**
@@ -805,6 +801,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 return true;
             case SHOW_FILES_MENU_ITEM_ID:
                 showFilesList(info.position);
+                return true;
+            case OPEN_RECORD_FOLDER_MENU_ITEM_ID:
+                openRecordFolder(info.position);
                 return true;
             default:
                 return super.onContextItemSelected(item);

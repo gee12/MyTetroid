@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 
@@ -27,13 +28,17 @@ public class FilesListAdapter extends BaseAdapter {
 
     private static LayoutInflater inflater = null;
     private List<TetroidFile> dataSet;
+    private TetroidRecord record;
+    private Context context;
 
     public FilesListAdapter(Context context) {
-        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
+        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void reset(List<TetroidFile> dataSet) {
-        this.dataSet = dataSet;
+    public void reset(TetroidRecord record) {
+        this.dataSet = record.getAttachedFiles();
+        this.record = record;
         notifyDataSetChanged();
     }
 
@@ -58,9 +63,9 @@ public class FilesListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new FileViewHolder();
             convertView = inflater.inflate(R.layout.list_item_file, null);
-            viewHolder.lineNumView = (TextView) convertView.findViewById(R.id.file_view_line_num);
-            viewHolder.nameView = (TextView) convertView.findViewById(R.id.file_view_name);
-            viewHolder.sizeView = (TextView) convertView.findViewById(R.id.file_view_size);
+            viewHolder.lineNumView = convertView.findViewById(R.id.file_view_line_num);
+            viewHolder.nameView = convertView.findViewById(R.id.file_view_name);
+            viewHolder.sizeView = convertView.findViewById(R.id.file_view_size);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (FileViewHolder) convertView.getTag();
@@ -72,7 +77,7 @@ public class FilesListAdapter extends BaseAdapter {
         // название файла
         viewHolder.nameView.setText(file.getFileName());
         // размер файла
-        viewHolder.sizeView.setText(file.getFileSize());
+        viewHolder.sizeView.setText(DataManager.getFileSize(context, record, file));
 
         return convertView;
     }

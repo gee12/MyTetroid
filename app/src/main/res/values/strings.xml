@@ -62,4 +62,10 @@
     <string name="version_label">Version</string>
     <string name="about_app">About app</string>
     <string name="password_is_incorrect">Password is incorrect</string>
+    <string name="m_bytes">Mb</string>
+    <string name="k_bytes">Kb</string>
+    <string name="show_record_content">Open record</string>
+    <string name="show_attached_files">Show files</string>
+    <string name="open_record_folder">Open folder</string>
+    <string name="open_record_folder_dialog">Open record folder</string>
 </resources>

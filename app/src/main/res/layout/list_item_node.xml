@@ -14,7 +14,6 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
-        android:background="@color/colorHighlight"
         android:layout_centerVertical="true">
         <ImageView
             android:id="@+id/node_view_icon"
@@ -58,7 +57,7 @@
         android:layout_height="24dp"
         android:src="@drawable/ic_arrow_down"
         android:scaleType="center"
-        android:background="@color/colorBlue"
+        android:background="@color/colorMoreLightText"
         tools:ignore="DuplicateIds" />
 
 </RelativeLayout>

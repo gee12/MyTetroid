@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
@@ -144,12 +145,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в tempPath
-                String temp = instance.tempPath+"/"+record.getDirName()+"/"+record.getFileName();
+                String temp = instance.tempPath+"/"+record.getDirName()+File.separator+record.getFileName();
 
                 path = temp;
             }
         } else {
-            path = instance.storagePath+"/base/"+record.getDirName()+"/"+record.getFileName();
+            path = instance.storagePath+"/base/"+record.getDirName()+File.separator+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -166,7 +167,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static String getRecordTextDecrypted(TetroidRecord record) {
-        String pathURI = getStoragePathBaseUri() + record.getDirName() + "/" + record.getFileName();
+        String pathURI = getStoragePathBaseUri() + record.getDirName() + File.separator + record.getFileName();
 //        String text = Utils.readAllFile(URI.create(pathURI));
         String res = null;
         if (record.isCrypted()) {
@@ -182,7 +183,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static String getRecordDirUri(TetroidRecord record) {
-        return getStoragePathBaseUri() + record.getDirName() + "/";
+        return getStoragePathBaseUri() + record.getDirName() + File.separator;
     }
 
     @NonNull
@@ -251,6 +252,18 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             return false;
         }
         return true;
+    }
+
+    public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
+        String ext = Utils.getExtWithComma(file.getFileName());
+        String fullFileName = String.format("%s%s/%s%s1", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+
+        long size = new File(fullFileName).length() / 1024;
+        if (size >= 1024) {
+            return (size / 1024) + context.getString(R.string.m_bytes);
+        } else {
+            return size + context.getString(R.string.k_bytes);
+        }
     }
 
     public static List<TetroidNode> getRootNodes() {

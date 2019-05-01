@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidNode;
 
@@ -20,6 +21,7 @@ import pl.openrnd.multilevellistview.MultiLevelListAdapter;
 public class NodesListAdapter extends MultiLevelListAdapter {
 
     public interface OnNodeHeaderClickListener {
+
         /**
          * Вызывается при клике на имени ветки
          *
@@ -78,10 +80,6 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
         final TetroidNode node = (TetroidNode) object;
         // иконка
-//        if (node.getIconUri() != null) {
-//            viewHolder.iconView.setVisibility(View.VISIBLE);
-//            viewHolder.iconView.setImageURI(node.getIconUri());
-//        }
         if (node.getIcon() != null || node.isCrypted()) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
             viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
