@@ -619,6 +619,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openFile(int position) {
+        if (currentRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
+            Toast.makeText(this, R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG).show();
+            return;
+        }
         TetroidFile file = currentRecord.getAttachedFiles().get(position);
         DataManager.openFile(this, currentRecord, file);
     }
@@ -635,7 +639,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
             startActivity(intent);
         } else {
-            Toast.makeText(this, "", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Отсутствует файл менеджер", Toast.LENGTH_LONG).show();
         }
     }
 

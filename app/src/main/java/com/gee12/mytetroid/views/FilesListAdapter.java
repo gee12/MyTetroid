@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
@@ -75,7 +74,7 @@ public class FilesListAdapter extends BaseAdapter {
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла
-        viewHolder.nameView.setText(file.getFileName());
+        viewHolder.nameView.setText(file.getName());
         // размер файла
         viewHolder.sizeView.setText(DataManager.getFileSize(context, record, file));
 

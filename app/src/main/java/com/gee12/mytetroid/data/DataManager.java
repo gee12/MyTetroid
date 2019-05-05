@@ -9,11 +9,13 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
@@ -230,21 +232,46 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }*/
 
     public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
-        String fileDisplayName = file.getFileName();
+        String fileDisplayName = file.getName();
         String ext = Utils.getExtWithComma(fileDisplayName);
-        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
-        File f = new File(fullFileName);
-        if(f.exists()) {
+        String fileIdName = file.getId() + ext;
+        String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
+        File srcFile = new File(fullFileName);
+        //
+        if (srcFile.exists()) {
+            // если запись зашифрована
+            if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
+
+
+                // !!
+                // создаем временный файл в кэше
+//                File tempFile = createTempCacheFile(context, fileIdName);
+                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
+
+
+                // расшифровываем во временный файл
+                try {
+                    if (tempFile.createNewFile() && CryptManager.decryptFile(srcFile, tempFile)) {
+                        srcFile = tempFile;
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                } catch (IOException ex) {
+                    Toast.makeText(context, context.getString(R.string.file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            }
+
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
-            intent.setDataAndType(Uri.fromFile(f), mimeType);
+            intent.setDataAndType(Uri.fromFile(srcFile), mimeType);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             try {
                 context.startActivity(intent);
             }
             catch(ActivityNotFoundException e) {
-                Toast.makeText(context, "Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_LONG).show();
                 return false;
             }
         } else {
@@ -254,9 +281,23 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
+    /*
+    * Создание файла в частном хранилище приложения во внутренней памяти устройства в кэше
+    * Файл позже может удалиться системой при очистке
+     */
+    public static File createTempCacheFile(Context context, String fileName) {
+        File file = null;
+        try {
+            file = File.createTempFile(fileName, null, context.getCacheDir());
+        } catch (IOException e) {
+            Toast.makeText(context, "Не удалось создать временный файл в частном хранилище приложения во внутренней памяти устройства", Toast.LENGTH_LONG).show();
+        }
+        return file;
+    }
+
     public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
-        String ext = Utils.getExtWithComma(file.getFileName());
-        String fullFileName = String.format("%s%s/%s%s1", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+        String ext = Utils.getExtWithComma(file.getName());
+        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
         long size = new File(fullFileName).length() / 1024;
         if (size >= 1024) {

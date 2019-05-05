@@ -2,9 +2,17 @@ package com.gee12.mytetroid.crypt;
 
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.INodeIconLoader;
+import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -23,24 +31,15 @@ public class CryptManager {
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
     public static void initFromPass(String pass) {
-//        setCryptKeyToMemory(pass);
-        // ?
         int[] key = passToKey(pass);
-//        // записываем в память
+        // записываем в память
         setCryptKey(key);
-//        rc5 = new RC5(key.getBytes());
-//        rc5 = new RC5(cryptKey);
-//        rc5 = new RC5Simple();
-//        rc5.setKey(key);
     }
 
     public static void initFromMiddleHash(String passHash) {
-//        setCryptKeyToMemoryFromMiddleHash(passHash);
         int[] key = middlePassHashToKey(passHash);
-//        // записываем в память
+        // записываем в память
         setCryptKey(key);
-//        rc5 = new RC5Simple();
-//        rc5.setKey(key);
     }
 
     /***
@@ -72,7 +71,7 @@ public class CryptManager {
     public static boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
         byte[] checDataSigned = Base64.decode(checkData.toCharArray());
-        String line = decrypt(key, checDataSigned);
+        String line = decryptToString(key, checDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }
@@ -98,6 +97,7 @@ public class CryptManager {
         if (iconLoader != null)
             iconLoader.loadIcon(node);
         // расшифровывать записи сразу или при выделении?
+        // сделал сразу
         if (node.getRecordsCount() > 0)
             decryptRecordsFields(node.getRecords());
         // расшифровываем подветки
@@ -125,8 +125,13 @@ public class CryptManager {
      */
     public static boolean decryptRecordsFields(List<TetroidRecord> records) {
         for (TetroidRecord record : records) {
-            if (record.isCrypted())
+            if (record.isCrypted()) {
                 decryptRecordFields(record);
+                if (record.getAttachedFilesCount() > 0)
+                    for (TetroidFile file : record.getAttachedFiles()) {
+                        decryptFileName(file);
+                    }
+            }
         }
         return true;
     }
@@ -147,12 +152,57 @@ public class CryptManager {
     }
 
     /**
+     * Расшифровка имени файла
+     * @param file
+     * @return
+     */
+    public static boolean decryptFileName(TetroidFile file) {
+        file.setName(CryptManager.decryptBase64(cryptKey, file.getName()));
+        return true;
+    }
+
+    /**
      * Расшифровка текста
      * @param text
      * @return
      */
     public static String decryptText(byte[] text) {
-        return decrypt(cryptKey, text);
+        return decryptToString(cryptKey, text);
+    }
+
+    /**
+     * Расшифровка массива байт
+     * @param bytes
+     * @return
+     */
+    public static byte[] decryptBytes(byte[] bytes) {
+        return decrypt(cryptKey, bytes);
+    }
+
+    /**
+     * Расшифровка файла
+     *
+     * Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком
+     *
+     * @param srcFile
+     * @param destFile
+     * @return
+     */
+    public static boolean decryptFile(File srcFile, File destFile) throws IOException {
+        int size = (int) srcFile.length();
+        byte[] bytes = new byte[size];
+
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
+        int readed = bis.read(bytes, 0, bytes.length);
+        bis.close();
+
+        if (readed > 0) {
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
+            bos.write(decryptBytes(bytes));
+            bos.flush();
+            bos.close();
+        }
+        return true;
     }
 
     /**
@@ -231,9 +281,7 @@ public class CryptManager {
      */
     private static byte[] calculatePBKDF2Hash(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
     {
-        // хеш PBKDF2 от пароля и соли
-        byte[] signedBytes = PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
-        return signedBytes;
+        return PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
     }
 
 
@@ -254,61 +302,27 @@ public class CryptManager {
         if (line.length() == 0) {
             return null;
         }
-        // преобразование из base64
-//        line.toLatin1()
-//        toLatin1() returns a Latin-1 (ISO 8859-1) encoded 8-bit string.
-
-//        char[] b1 = line.toCharArray();
-//        byte[] b2 = line.getBytes(CHARSET_ISO_8859_1);
-//        for (int i = 0; i < b2.length; i++) {
-//           if (b2[i] != b1[i]) {
-//               int o = 0;
-//           }
-//        }
-//        byte[] bytes = Base64.decode(b2);
         byte[] bytes = Base64.decode(line.toCharArray());
-        /*if (bytes == null)
-            return null;
-//        byte[] res = new byte[bytes.length];
-//        rc5.decipherString(bytes, res);
-//        return new String(res);
-        String res = null;
-        try {
-//            res = RC5.decryptBase64(bytes, new String (cryptKey));
-            byte[] out = rc5.decrypt(bytes);
-            if (out != null)
-                res = new String(out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return res;*/
-        return decrypt(key, bytes);
+        return decryptToString(key, bytes);
     }
 
-    /**
-     * Расшифровка строки в base64
-     * @param line Строка в base64
-     */
-    public static String decrypt(int[] key, String line) {
-        if (line.length() == 0) {
-            return null;
-        }
-        return decrypt(key, line.getBytes());
+    public static String decryptToString(int[] key, byte[] bytes) {
+        byte[] out = decrypt(key, bytes);
+        if (out != null)
+            return new String(out);
+        return null;
     }
 
-    public static String decrypt(int[] key, byte[] bytes) {
+    public static byte[] decrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
-        String res = null;
+        byte[] res = null;
         //
         rc5.setKey(key);
         try {
-            //
-            byte[] out = rc5.decrypt(bytes);
-            if (out != null)
-                res = new String(out);
+            res = rc5.decrypt(bytes);
         } catch (Exception e) {
-            e.printStackTrace();
+            addLog(e);
         }
         return res;
     }

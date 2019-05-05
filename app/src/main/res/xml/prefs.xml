@@ -34,6 +34,18 @@
             android:defaultValue="@string/pref_when_ask_password_on_select"
             />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_decrypt_in_temp"
+            android:title="@string/decrypt_files_to_temp_dir"
+            android:summary="@string/decrypt_files_to_temp_dir_sum"
+            android:defaultValue="false" />
+
+        <Preference
+            android:dependency="@string/pref_key_is_decrypt_in_temp"
+            android:key="@string/pref_key_temp_path"
+            android:title="@string/temp_path"
+            android:summary="@string/temp_path_summ" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">

@@ -2,12 +2,12 @@ package com.gee12.mytetroid.data;
 
 public class TetroidFile {
     private String id;
-    private String fileName;
+    private String name;
     private String type;
 
-    public TetroidFile(String id, String fileName, String type) {
+    public TetroidFile(String id, String name, String type) {
         this.id = id;
-        this.fileName = fileName;
+        this.name = name;
         this.type = type;
     }
 
@@ -15,11 +15,15 @@ public class TetroidFile {
         return id;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
     public String getType() {
         return type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

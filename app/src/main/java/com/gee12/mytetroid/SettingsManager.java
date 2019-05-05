@@ -109,6 +109,37 @@ public class SettingsManager {
     }
 
     /**
+     * Расшифровывать прикрепленные файлы во временный каталог при предпросмотре?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isDecryptFilesInTemp() {
+        boolean def = false;
+        if(settings.contains(context.getString(R.string.pref_key_is_decrypt_in_temp))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_decrypt_in_temp), def);
+        }
+        return def;
+    }
+
+    /**
+     * Путь к временному каталогу
+     * @return
+     */
+    public static String getTempPath() {
+        String def = null;
+        if(settings.contains(context.getString(R.string.pref_key_temp_path))) {
+            return settings.getString(context.getString(R.string.pref_key_temp_path), def);
+        }
+        return def;
+    }
+
+    public static void setTempPath(String value) {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(context.getString(R.string.pref_key_temp_path), value);
+        editor.apply();
+    }
+
+    /**
      * Выделять записи в списке, у которых есть прикрепленные файлы?
      * По-умолчанию - да
      * @return

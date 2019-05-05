@@ -53,4 +53,11 @@
     <string name="show_attached_files">Показать файлы</string>
     <string name="open_record_folder">Открыть каталог</string>
     <string name="open_record_folder_dialog">Открыть каталог записи</string>
+    <string name="temp_path">Временной каталог</string>
+    <string name="temp_path_summ">Путь к временному каталогу</string>
+    <string name="viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
+    <string name="could_not_decrypt_file">Не удалось расшифровать файл</string>
+    <string name="file_decryption_error">Ошибка расшифровки файла:</string>
+    <string name="decrypt_files_to_temp_dir">Расшифровывать файлы в каталог</string>
+    <string name="decrypt_files_to_temp_dir_sum">Расшифровывать прикрепленные файлы во временный каталог при предпросмотре</string>
 </resources>

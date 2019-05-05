@@ -68,4 +68,13 @@
     <string name="show_attached_files">Show files</string>
     <string name="open_record_folder">Open folder</string>
     <string name="open_record_folder_dialog">Open record folder</string>
+    <string name="pref_key_is_decrypt_in_temp">pref_key_is_decrypt_in_temp</string>
+    <string name="temp_path">Temporary catalog</string>
+    <string name="temp_path_summ">Temporary catalog path</string>
+    <string name="pref_key_temp_path">pref_key_temp_path</string>
+    <string name="viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
+    <string name="could_not_decrypt_file">Could not decrypt file</string>
+    <string name="file_decryption_error">File decryption error: </string>
+    <string name="decrypt_files_to_temp_dir">Decrypt files to directory</string>
+    <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>
 </resources>
