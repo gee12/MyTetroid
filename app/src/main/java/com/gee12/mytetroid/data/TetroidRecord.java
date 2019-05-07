@@ -88,7 +88,7 @@ public class TetroidRecord {
      * @param tempPath
      * @return
      */
-    /*public String getRecordTextUrl(String storagePath, String tempPath) {
+    /*public String getRecordTextUri(String storagePath, String tempPath) {
         String path = (isCrypted && isNonCryptedOrDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
                 : storagePath+"/base/"+dirName+"/"+fileName;

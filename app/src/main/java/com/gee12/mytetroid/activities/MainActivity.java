@@ -32,6 +32,7 @@ import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.AboutActivity;
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
@@ -48,8 +49,6 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
-
-import java.io.File;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -142,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
+        LogManager.init(this);
         // загружаем данные
         SettingsManager.init(this);
         startInitStorage();
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 //    }
 
     private void initStorage(String storagePath) {
-        if (DataManager.init(storagePath)) {
+        if (DataManager.init(storagePath, SettingsManager.getTempPath())) {
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath())
                 SettingsManager.setStoragePath(storagePath);
@@ -569,9 +569,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      */
     private void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
-//        String recordContentUrl = record.getRecordTextUrl(DataManager.getStoragePath(), DataManager.getTempPath());
-        String recordContentUrl = DataManager.getRecordTextUrl(record);
-        if (recordContentUrl != null) {
+//        String recordContentUrl = record.getRecordTextUri(DataManager.getStoragePath(), DataManager.getTempPath());
+//        String recordContentUrl = DataManager.getRecordTextUri(record);
+//        if (recordContentUrl != null) {
 //            recordContentWebView.loadData(DataManager.getRecordTextDecrypted(record), "text/html; charset=UTF-8", null);
             recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                     DataManager.getRecordTextDecrypted(record), "text/html", "UTF-8", null);
@@ -590,7 +590,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     showView(VIEW_RECORD_TEXT);
                 }
             });
-        }
+//        }
     }
 
     /**

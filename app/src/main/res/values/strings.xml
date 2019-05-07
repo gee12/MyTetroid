@@ -74,6 +74,7 @@
     <string name="pref_key_temp_path">pref_key_temp_path</string>
     <string name="viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
     <string name="could_not_decrypt_file">Could not decrypt file</string>
+    <string name="could_not_create_temp_dir">Could not create temp directory </string>
     <string name="file_decryption_error">File decryption error: </string>
     <string name="decrypt_files_to_temp_dir">Decrypt files to directory</string>
     <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>

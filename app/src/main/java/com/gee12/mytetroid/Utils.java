@@ -1,5 +1,6 @@
 package com.gee12.mytetroid;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spanned;
@@ -133,5 +134,10 @@ public class Utils {
 
     public static String getExtWithComma(String fileFullName) {
         return fileFullName.substring(fileFullName.lastIndexOf("."));
+    }
+
+    public static String getExtFilesDir(Context context) {
+        File file = context.getExternalFilesDir(null);
+        return (file != null) ? file.getAbsolutePath() : null;
     }
 }

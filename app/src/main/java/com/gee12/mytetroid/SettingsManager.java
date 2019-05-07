@@ -22,6 +22,10 @@ public class SettingsManager {
 //        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
         settings = PreferenceManager.getDefaultSharedPreferences(ctx);
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
+        // стартовые значения, которые нельзя установить в xml
+        if (getTempPath() == null) {
+            setTempPath(Utils.getExtFilesDir(context));
+        }
         HighlightAttachColorCache = getHighlightAttachColor();
         IsHighlightAttachCache = isHighlightRecordWithAttach();
         DateFormatStringCache = getDateFormatString();

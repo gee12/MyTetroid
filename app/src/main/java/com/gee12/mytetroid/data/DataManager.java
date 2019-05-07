@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import androidx.annotation.NonNull;
+
+import android.os.Environment;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
@@ -36,6 +39,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
     }
 
+    public static final String BASE_FOLDER = "base/";
+    public static final String ICONS_FOLDER = "icons/";
+    public static final String MYTETRA_XML_FILE = "mytetra.xml";
+    public static final String DATABASE_INI_FILE = "database.ini";
+
     /**
      *
      */
@@ -44,10 +52,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      *
      */
     private String storagePath;
-    /**
-     * ИСПРАВИТЬ !
-     */
-    private String tempPath = "/tmp/";
+    private String tempPath;
 
     private static INIProperties databaseINI;
 
@@ -58,21 +63,22 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     /**
      *
-     * @param dataFolderPath
+     * @param storagePath
      * @return
      */
-    public static boolean init(String dataFolderPath) {
+    public static boolean init(String storagePath, String tempPath) {
         instance = new DataManager();
-        instance.storagePath = dataFolderPath;
+        instance.storagePath = storagePath;
+        instance.tempPath = tempPath;
         databaseINI = new INIProperties();
 //        boolean xmlParsed = false;
         boolean res = false;
         try {
-//            FileInputStream fis = new FileInputStream(dataFolderPath + "/mytetra.xml");
+//            FileInputStream fis = new FileInputStream(storagePath + "/mytetra.xml");
 //            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
 //            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
 //            xmlParsed = true;
-            res = databaseINI.load(dataFolderPath + "/database.ini");
+            res = databaseINI.load(storagePath + File.separator + DATABASE_INI_FILE);
         } catch (Exception ex) {
 //            if (xmlParsed)
                 // ошибка загрузки ini
@@ -90,7 +96,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean readStorage(boolean isDecrypt) {
         try {
-            FileInputStream fis = new FileInputStream(instance.storagePath + "/mytetra.xml");
+            FileInputStream fis = new FileInputStream(
+                    instance.storagePath + File.separator + MYTETRA_XML_FILE);
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
             instance.rootNodesCollection = instance.parse(fis, decryptHandler);
         } catch (Exception ex) {
@@ -142,17 +149,15 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
      * @return
      */
-    public static String getRecordTextUrl(TetroidRecord record) {
+    public static String getRecordTextUri(TetroidRecord record) {
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                // расшифровываем файл и ложим в tempPath
-                String temp = instance.tempPath+"/"+record.getDirName()+File.separator+record.getFileName();
-
-                path = temp;
+                // расшифровываем файл и ложим в temp
+                path = getTempPath()+"/"+record.getDirName()+File.separator+record.getFileName();
             }
         } else {
-            path = instance.storagePath+"/base/"+record.getDirName()+File.separator+record.getFileName();
+            path = getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()+File.separator+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -165,37 +170,39 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     @Override
     public void loadIcon(TetroidNode node) {
         if (node.isNonCryptedOrDecrypted())
-            node.loadIconFromStorage(storagePath + "/icons");
+            node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER);
     }
 
     public static String getRecordTextDecrypted(TetroidRecord record) {
-        String pathURI = getStoragePathBaseUri() + record.getDirName() + File.separator + record.getFileName();
-//        String text = Utils.readAllFile(URI.create(pathURI));
+        String pathUri = getStoragePathBaseUri() + File.separator
+                + record.getDirName() + File.separator + record.getFileName();
+//        String text = Utils.readAllFile(URI.create(pathUri));
         String res = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                byte[] text = Utils.readFile(URI.create(pathURI));
+                byte[] text = Utils.readFile(URI.create(pathUri));
                 // расшифровываем файл
                 res = CryptManager.decryptText(text);
             }
         } else {
-            res = Utils.readTextFile(URI.create(pathURI));
+            res = Utils.readTextFile(URI.create(pathUri));
         }
         return res;
     }
 
     public static String getRecordDirUri(TetroidRecord record) {
-        return getStoragePathBaseUri() + record.getDirName() + File.separator;
+        return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;
     }
 
     @NonNull
-    private static String getStoragePathBaseUri() {
-        return "file://" + instance.storagePath + "/base/";
+    private static Uri getStoragePathBaseUri() {
+//        return "file://" + instance.storagePath + "/base/";
+        return Uri.fromFile(new File(getStoragePathBase()));
     }
 
     @NonNull
     private static String getStoragePathBase() {
-        return instance.storagePath + "/base/";
+        return instance.storagePath + File.separator + BASE_FOLDER;
     }
 
     public static TetroidNode getNode(String id) {
@@ -241,17 +248,22 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         if (srcFile.exists()) {
             // если запись зашифрована
             if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
-
-
-                // !!
-                // создаем временный файл в кэше
+                // создаем временный файл
 //                File tempFile = createTempCacheFile(context, fileIdName);
-                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
-
+//                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
+//                File tempFile = createTempExtStorageFile(context, fileIdName);
+                String tempFolderPath = getTempPath() + File.separator + record.getDirName();
+                File tempFolder = new File(tempFolderPath);
+                if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+                    Toast.makeText(context,
+                            context.getString(R.string.could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG).show();
+                }
+                File tempFile = new File(tempFolder, fileIdName);
+//                File tempFile = new File(getTempPath()+File.separator, fileIdName);
 
                 // расшифровываем во временный файл
                 try {
-                    if (tempFile.createNewFile() && CryptManager.decryptFile(srcFile, tempFile)) {
+                    if ((tempFile.exists() || tempFile.createNewFile()) && CryptManager.decryptFile(srcFile, tempFile)) {
                         srcFile = tempFile;
                     } else {
                         Toast.makeText(context, context.getString(R.string.could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG).show();
@@ -281,19 +293,23 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
+//    public static File createTempExtStorageFile(Context context, String fileName) {
+//        return new File(context.getExternalFilesDir(null), fileName);
+//    }
+
     /*
     * Создание файла в частном хранилище приложения во внутренней памяти устройства в кэше
     * Файл позже может удалиться системой при очистке
      */
-    public static File createTempCacheFile(Context context, String fileName) {
-        File file = null;
-        try {
-            file = File.createTempFile(fileName, null, context.getCacheDir());
-        } catch (IOException e) {
-            Toast.makeText(context, "Не удалось создать временный файл в частном хранилище приложения во внутренней памяти устройства", Toast.LENGTH_LONG).show();
-        }
-        return file;
-    }
+//    public static File createTempIntCacheFile(Context context, String fileName) {
+//        File file = null;
+//        try {
+//            file = File.createTempFile(fileName, null, context.getCacheDir());
+//        } catch (IOException e) {
+//            Toast.makeText(context, "Не удалось создать временный файл в частном хранилище приложения во внутренней памяти устройства", Toast.LENGTH_LONG).show();
+//        }
+//        return file;
+//    }
 
     public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
         String ext = Utils.getExtWithComma(file.getName());

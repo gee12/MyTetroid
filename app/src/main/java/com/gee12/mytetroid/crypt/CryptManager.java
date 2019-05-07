@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.crypt;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.TetroidFile;
@@ -333,6 +334,6 @@ public class CryptManager {
     }
 
     private static void addLog(Exception e) {
-        e.printStackTrace();
+        LogManager.addLog(e);
     }
 }
