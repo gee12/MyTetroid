@@ -78,4 +78,5 @@
     <string name="file_decryption_error">File decryption error: </string>
     <string name="decrypt_files_to_temp_dir">Decrypt files to directory</string>
     <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>
+    <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
 </resources>

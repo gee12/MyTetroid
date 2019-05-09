@@ -1,19 +1,19 @@
 package com.gee12.mytetroid.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
-import android.os.Environment;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.View;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -31,7 +31,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
-import com.gee12.mytetroid.AboutActivity;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -59,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
 
     public static final int FILE_BROWSE = 1;
     public static final int GET_CONTENT = 2;
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvRecordUrl;
     TextView tvRecordDate;
     private int lastDisplayedViewId = 0;
-    private boolean isAlreadyCanceledPass = false;
+    private boolean isAlreadyTryDecrypt = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         filesListView.setEmptyView(emptyTextView);
 
         viewFlipper = findViewById(R.id.view_flipper);
-//        recordContentTextView = findViewById(R.id.text_view_record_content);
         recordContentWebView = findViewById(R.id.web_view_record_content);
 
         tvRecordTags = findViewById(R.id.text_view_record_tags);
@@ -153,33 +152,23 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     private void startInitStorage() {
+        isAlreadyTryDecrypt = false;
         String storagePath = SettingsManager.getStoragePath();
-//        String storagePath = "net://Иван Бондарь-687:@gdrive/MyTetraData";
 
-//        File[] externalStorageFiles = ContextCompat.getExternalFilesDirs(this,null);
-//        for(File file : externalStorageFiles) {
-//            String root = getRootOfExternalStorage(file);
-//            Log.d("myTag", "root = " + root);
-//        }
-
-        //
-//        File f = getExternalFilesDir(null);
-
-//        f = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
-
-        // check SDK version
-        //...
-        if (/*SDK >= 23 &&*/ !checkReadExtStoragePermission()) {
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            if (!checkReadExtStoragePermission()) {
+                return;
+            }
         }
 
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
             initStorage(storagePath);
         } else {
-            showChooser3();
+            showFolderChooser();
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private boolean checkReadExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -201,13 +190,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         return true;
     }
 
-//    private String getRootOfExternalStorage(File file) {
-//        String path = file.getAbsolutePath();
-//        return path.replaceAll("/Android/data/" + getPackageName() + "/files", "");
-//    }
-
     private void initStorage(String storagePath) {
-        if (DataManager.init(storagePath, SettingsManager.getTempPath())) {
+        if (DataManager.init(storagePath)) {
+            drawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath())
                 SettingsManager.setStoragePath(storagePath);
@@ -232,20 +217,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     // спрашивать пароль при старте
                     decryptStorage(nodeToSelect);
                     return;
-                } /*else {
-                    // спрашивать пароль при выборе зашифрованной ветки
-                    String nodeId = SettingsManager.getSelectedNodeId();
-                    if (nodeId != null) {
-                        TetroidNode node = DataManager.getNode(nodeId);
-                        // если нашли, отображаем
-                        if (node != null) {
-                            if (node.isNonCryptedOrDecrypted()) {
-                                decryptStorage(node);
-                            }
-//                            showNode(node);
-                        }
-                    }
-                }*/
+                }
             }
 
             initStorage(nodeToSelect, false);
@@ -273,11 +245,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     decryptStorage(middlePassHash, true, node);
                 } else {
                     Toast.makeText(this, R.string.wrong_saved_pass, Toast.LENGTH_LONG).show();
+                    if (!isAlreadyTryDecrypt) {
+                        isAlreadyTryDecrypt = true;
+                        initStorage(node, false);
+                    }
                 }
             } catch (DataManager.EmptyFieldException e) {
                 // if middle_hash_check_data field is empty, so asking "decrypt anyway?"
-//                Toast.makeText(this, getString(R.string.empty_middle_hash_check_data_field), Toast.LENGTH_LONG).show();
-               ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
+               ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                    @Override
                    public void onApply(TetroidNode node) {
                        decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
@@ -308,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     }
                 } catch (DataManager.EmptyFieldException e) {
 //                        e.printStackTrace();
-                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPositiveDialogResult() {
+                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
                             decryptStorage(pass, false, node);
@@ -323,8 +298,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void cancelPass() {
                 // загружаем хранилище как есть (только в первый раз, затем перезагружать не нужно)
-                if (!isAlreadyCanceledPass) {
-                    isAlreadyCanceledPass = true;
+                if (!isAlreadyTryDecrypt) {
+                    isAlreadyTryDecrypt = true;
                     initStorage(node, false);
                 }
             }
@@ -362,155 +337,32 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         nodesListAdapter.setDataItems(DataManager.getRootNodes());
         // список записей
         this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
+        recordsListView.setAdapter(recordsListAdapter);
         // список файлов
         this.filesListAdapter = new FilesListAdapter(this);
+        filesListView.setAdapter(filesListAdapter);
     }
 
-    void showChooser1() {
-        //            if (StorageAF.useStorageFramework(FileSelectActivity.this)) {
-        if (false) {
-            Intent intent = new Intent(StorageChooserActivity.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-//                intent.setType("text/*");
-            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-            startActivityForResult(intent, OPEN_DOC);
-        }
-        else {
-            Intent intent;
-            intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("*/*");
-//                intent.setType("text/*");
-
-            try {
-                startActivityForResult(intent, GET_CONTENT);
-            } catch (ActivityNotFoundException e) {
-//                    lookForOpenIntentsFilePicker();
-            } catch (SecurityException e) {
-//                    lookForOpenIntentsFilePicker();
-            }
-        }
-    }
-
-//    static final int REQUEST_DIRECTORY = 222;
-//    void showChooser2() {
-//        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
-//
-//        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-//                .newDirectoryName("DirChooserSample")
-//                .allowReadOnlyDirectory(true)
-//                .allowNewDirectoryNameModification(true)
-//                .build();
-//
-//        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-////        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_NEW_DIR_NAME, "Snapprefs");
-//
-//        // REQUEST_DIRECTORY is a constant integer to identify the request, e.g. 0
-//        startActivityForResult(chooserIntent, REQUEST_DIRECTORY);
-//    }
-
-    void showChooser3() {
+    void showFolderChooser() {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra("title", getString(R.string.folder_chooser_title));
-        intent.putExtra("location", Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath());
+        intent.putExtra("location", SettingsManager.getStoragePath());
         startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
     }
-
-//    private void lookForOpenIntentsFilePicker() {
-//
-////        if (Interaction.isIntentAvailable(FileSelectActivity.this, Intents.OPEN_INTENTS_FILE_BROWSE)) {
-//        if (true) {
-//            Intent i = new Intent(Intents.OPEN_INTENTS_FILE_BROWSE);
-//            i.setData(Uri.parse("file://" + Util.getEditText(FileSelectActivity.this, R.id.file_filename)));
-//            try {
-//                startActivityForResult(i, FILE_BROWSE);
-//            } catch (ActivityNotFoundException e) {
-////                showBrowserDialog();
-//            }
-//
-//        } else {
-////            showBrowserDialog();
-//        }
-//    }
-
-//    private void showBrowserDialog() {
-//        BrowserDialog diag = new BrowserDialog(FileSelectActivity.this);
-//        diag.showPassDialog();
-//    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        fillData();
-
-        String folderFullName = null;
-        /*if (requestCode == FILE_BROWSE && resultCode == RESULT_OK) {
-            folderFullName = data.getDataString();
-            if (folderFullName != null) {
-                if (folderFullName.startsWith("file://")) {
-                    folderFullName = folderFullName.substring(7);
-                }
-
-                folderFullName = URLDecoder.decode(folderFullName);
+        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+            if (SettingsManager.IsStoragePathChanged) {
+                ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
+                    @Override
+                    public void onApply() {
+                        startInitStorage();
+                    }
+                });
             }
-*/
-        /*}
-        else if ((requestCode == GET_CONTENT || requestCode == OPEN_DOC) && resultCode == RESULT_OK) {
-            if (data != null) {
-                Uri uri = data.getData();
-                if (uri != null) {
-//                    if (StorageAF.useStorageFramework(this)) {
-                    if (false) {
-                        try {
-                            // try to persist read and write permissions
-                            ContentResolver resolver = getContentResolver();
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                                resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                                resolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            }
-                        } catch (Exception e) {
-                            // nop
-                        }
-                    }
-                    if (requestCode == GET_CONTENT) {
-                        uri = UriUtil.translate(this, uri);
-                    }
-                    folderFullName = uri.toString();
-                }
-            }*/
-//        } else if (requestCode == REQUEST_DIRECTORY) {
-//            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
-//                folderFullName = (data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR));
-//            } else {
-//                // Nothing selected
-//            }
-        /*} else*/ if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == Activity.RESULT_OK) {
-            folderFullName = data.getStringExtra("data");
-        }
-
-        if (folderFullName != null) {
-            // выбор файла mytetra.xml
-//            File file = new File(folderFullName);
-//            String path = file.getParent();
-
-            // 1
-//            Uri uri = UriUtil.parseDefaultFile(folderFullName);
-//            String scheme = uri.getScheme();
-//
-//            if (!EmptyUtils.isNullOrEmpty(scheme) && scheme.equalsIgnoreCase("file")) {
-//                File dbFile = new File(uri.getPath());
-//                if (!dbFile.exists()) {
-////                    throw new FileNotFoundException();
-//                    return;
-//                }
-//                String path = dbFile.getParent();
-//                initListViews(path);
-//            }
-            // 2
-            initStorage(folderFullName);
         }
     }
 
@@ -720,9 +572,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         lastDisplayedViewId = viewFlipper.getDisplayedChild();
         viewFlipper.setDisplayedChild(viewId);
         if (viewId == VIEW_RECORDS_LIST) {
-            setTitle(currentNode.getName());
+            setTitle((currentNode != null) ? currentNode.getName() : "");
         } else if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
-            setTitle(currentRecord.getName());
+            setTitle((currentRecord != null) ? currentRecord.getName() : "");
         }
     }
 
@@ -766,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            showActivity(this, SettingsActivity.class);
+            showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
             return true;
         } else if (id == R.id.action_about) {
             showActivity(this, AboutActivity.class);
@@ -817,5 +669,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static void showActivity(Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
         context.startActivity(intent);
+    }
+
+    public void showActivityForResult(Class<?> cls, int requestCode) {
+        Intent intent = new Intent(this, cls);
+        startActivityForResult(intent, requestCode);
     }
 }

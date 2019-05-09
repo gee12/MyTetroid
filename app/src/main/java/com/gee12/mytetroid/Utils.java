@@ -2,6 +2,7 @@ package com.gee12.mytetroid;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.text.Html;
 import android.text.Spanned;
 
@@ -136,8 +137,12 @@ public class Utils {
         return fileFullName.substring(fileFullName.lastIndexOf("."));
     }
 
-    public static String getExtFilesDir(Context context) {
+    public static String getAppExtFilesDir(Context context) {
         File file = context.getExternalFilesDir(null);
         return (file != null) ? file.getAbsolutePath() : null;
+    }
+
+    public static String getExtPublicDocumentsDir() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
     }
 }

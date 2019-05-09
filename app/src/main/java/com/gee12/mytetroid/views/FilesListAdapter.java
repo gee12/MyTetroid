@@ -12,6 +12,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FilesListAdapter extends BaseAdapter {
@@ -33,6 +34,7 @@ public class FilesListAdapter extends BaseAdapter {
     public FilesListAdapter(Context context) {
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.dataSet = new ArrayList<>();
     }
 
     public void reset(TetroidRecord record) {

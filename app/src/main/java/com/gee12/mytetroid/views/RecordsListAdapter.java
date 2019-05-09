@@ -14,6 +14,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.TetroidRecord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecordsListAdapter extends BaseAdapter {
@@ -47,6 +48,7 @@ public class RecordsListAdapter extends BaseAdapter {
         this.context = ctx;
         this.inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.onRecordAttachmentClickListener = onRecordAttachmentClickListener;
+        this.dataSet = new ArrayList<>();
     }
 
     public void reset(List<TetroidRecord> dataSet) {

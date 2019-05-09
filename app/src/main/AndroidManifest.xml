@@ -39,7 +39,7 @@
             <!-- android:screenOrientation="landscape" -->
             <!-- android:configChanges="orientation|keyboardHidden|screenSize" -->
         </activity>
-        <activity android:name=".AboutActivity"
+        <activity android:name=".activities.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

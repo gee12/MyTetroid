@@ -61,4 +61,5 @@
     <string name="file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="decrypt_files_to_temp_dir">Расшифровывать файлы в каталог</string>
     <string name="decrypt_files_to_temp_dir_sum">Расшифровывать прикрепленные файлы во временный каталог при предпросмотре</string>
+    <string name="storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
 </resources>

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 
-import android.os.Environment;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -52,7 +51,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      *
      */
     private String storagePath;
-    private String tempPath;
 
     private static INIProperties databaseINI;
 
@@ -66,10 +64,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param storagePath
      * @return
      */
-    public static boolean init(String storagePath, String tempPath) {
+    public static boolean init(String storagePath) {
         instance = new DataManager();
         instance.storagePath = storagePath;
-        instance.tempPath = tempPath;
         databaseINI = new INIProperties();
 //        boolean xmlParsed = false;
         boolean res = false;
@@ -154,10 +151,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = getTempPath()+"/"+record.getDirName()+File.separator+record.getFileName();
+                path = SettingsManager.getTempPath()+"/"+record.getDirName()+File.separator+record.getFileName();
             }
         } else {
-            path = getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()+File.separator+record.getFileName();
+            path = SettingsManager.getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()+File.separator+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -252,7 +249,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
-                String tempFolderPath = getTempPath() + File.separator + record.getDirName();
+                String tempFolderPath = SettingsManager.getTempPath() + File.separator + record.getDirName();
                 File tempFolder = new File(tempFolderPath);
                 if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                     Toast.makeText(context,
@@ -331,13 +328,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
     }
 
-    public static String getStoragePath() {
-        return instance.storagePath;
-    }
-
-    public static String getTempPath() {
-        return instance.tempPath;
-    }
+//    public static String getStoragePath() {
+//        return instance.storagePath;
+//    }
 
     public static boolean isExistsCryptedNodes() {
         return instance.isExistCryptedNodes;
