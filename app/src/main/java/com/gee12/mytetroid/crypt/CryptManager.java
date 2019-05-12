@@ -177,7 +177,8 @@ public class CryptManager {
      * @return
      */
     public static byte[] decryptBytes(byte[] bytes) {
-        return decrypt(cryptKey, bytes);
+//        return decrypt(cryptKey, bytes);
+        return null;
     }
 
     /**
@@ -307,17 +308,44 @@ public class CryptManager {
         return decryptToString(key, bytes);
     }
 
-    public static String decryptToString(int[] key, byte[] bytes) {
-        byte[] out = decrypt(key, bytes);
-        if (out != null)
-            return new String(out);
-        return null;
-    }
+//    public static String decryptToString(int[] key, byte[] bytes) {
+//        byte[] out = decrypt(key, bytes);
+//        if (out != null)
+//            // java.lang.OutOfMemoryError..
+//            return new String(out);
+//    }
 
     public static byte[] decrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] res = null;
+        //
+        rc5.setKey(key);
+        try {
+            res = new byte[3];
+            new String(res);
+        } catch (Exception e) {
+            addLog(e);
+        }
+        return res;
+    }
+//    public static byte[] decrypt(int[] key, byte[] bytes) {
+//        if (bytes == null)
+//            return null;
+//        byte[] res = null;
+//        //
+//        rc5.setKey(key);
+//        try {
+//            res = rc5.decrypt(bytes);
+//        } catch (Exception e) {
+//            addLog(e);
+//        }
+//        return res;
+//    }
+    public static String decryptToString(int[] key, byte[] bytes) {
+        if (bytes == null)
+            return null;
+        String res = null;
         //
         rc5.setKey(key);
         try {
@@ -327,7 +355,6 @@ public class CryptManager {
         }
         return res;
     }
-
 
     static void setCryptKey(int[] key) {
         cryptKey = key;

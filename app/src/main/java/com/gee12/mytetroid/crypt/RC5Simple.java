@@ -1,8 +1,11 @@
 package com.gee12.mytetroid.crypt;
 
+import com.gee12.mytetroid.BuildConfig;
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 
-import java.util.Arrays;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class RC5Simple {
 
@@ -58,18 +61,12 @@ public class RC5Simple {
         rc5_q = 0x9e3779b9L;
 
         // Cleaning user key
-//        for(int i=0; i<RC5_B; i++)
-//            rc5_key[i]=0;
         rc5_key = new int[RC5_B];
 
         rc5_formatVersion = RC5_FORMAT_VERSION_CURRENT;
         rc5_isSetFormatVersionForce = false;
 
         errorCode = 0;
-
-        // Init random generator
-//        if(enableRandomInit)
-//            srand( time(NULL) );
     }
 
     // Encrypt data block
@@ -118,8 +115,6 @@ public class RC5Simple {
     {
         int i, j, k, u = RC5_W/8;
         long[] l = new long[RC5_C];
-        // !!!!
-//        l[2] = 5597844;
 
         // Initialize l[], then rc5_s[], then mix key into rc5_s[]
         for(i = RC5_B-1, l[RC5_C-1] = 0; i !=- 1; i--)
@@ -152,241 +147,14 @@ public class RC5Simple {
     }
 
 
-/*
-// Encrypt data in vector
-//void RC5Simple::RC5_Encrypt(vector<unsigned char> &in, vector<unsigned char> &out)
-public String RC5_Encrypt(String in)
-{
-    String out = "";
- // Clear output vector
-// out.clear();
-
- // Отвлекли: помой ребенка, потри его мочалкой а то он сам не может
- // Отвлекли: смотри какое платье на кукле
- // No crypt null data
-    int length = in.length();
-    if(length == 0)
-  {
-   errorCode = RC5_ERROR_CODE_5;
-   return null;
-  }
-
-
- // Save input data size
-// unsigned int clean_data_size=in.size();
-// RC5_LOG(( "Input data size: %d\n", clean_data_size ));
-
-
- // IV block
-// unsigned char iv[RC5_BLOCK_LEN];
- String iv[RC5_BLOCK_LEN];
- for(int i=0; i<RC5_BLOCK_LEN; i++)
-//  iv[i]=(unsigned char)rand(0, 0xFF);
-  iv[i] = (unsigned char)rand(0, 0xFF);
-
-
- // Block with data size
- unsigned char data_size[RC5_BLOCK_LEN];
-
- for(int i=0; i<RC5_BLOCK_LEN; i++)
-  {
-   data_size[i]=RC5_GetByteFromInt( clean_data_size, i );
-   RC5_LOG(( "Data size byte %d: %.2X\n", i, data_size[i] ));
-  }
-
-
- // Insert data size to begin data
- in.insert( in.begin(), RC5_BLOCK_LEN, 0);
- for(int i=0; i<RC5_BLOCK_LEN; i++)
-  in[i]=data_size[i];
-
-
- // Add firsted random data
- unsigned int firsRandomDataBlocks=0;
- if(rc5_formatVersion==RC5_FORMAT_VERSION_2)
-  firsRandomDataBlocks=1; // At start at format version 2, in begin data add one block with random data
-
- if(rc5_formatVersion==RC5_FORMAT_VERSION_3)
-  firsRandomDataBlocks=2; // At start at format version 3, in begin data add two blocks with random data (full width is 128 bit)
-
- if(firsRandomDataBlocks>0)
-  for(unsigned int n=1; n<=firsRandomDataBlocks; n++)
-   {
-    in.insert( in.begin(), RC5_BLOCK_LEN, 0);
-    for(int i=0; i<RC5_BLOCK_LEN; i++)
-     in[i]=(unsigned char)rand(0, 0xFF);
-   }
-
-
- // Align end of data to block size
- int last_unalign_len=clean_data_size%RC5_BLOCK_LEN;
- RC5_LOG(( "Last unalign len: %d\n", last_unalign_len ));
-
- if(last_unalign_len>0)
-  {
-   // Add random data to end for align to block size
-   for(int i=0; i<(RC5_BLOCK_LEN-last_unalign_len); i++)
-    {
-     RC5_LOG(( "Add byte: %d\n", i ));
-     in.push_back( (unsigned char)rand(0, 0xFF) );
-    }
-  }
-
-// #if RC5_ENABLE_DEBUG_PRINT==1
-//  RC5_LOG(( "Data size after crypt setup: %d\n", in.size() ));
-//  RC5_LOG(( "Plain byte after crypt setup: " ));
-//  for(int i=0; i<in.size(); i++)
-//   RC5_LOG(( "%.2X ", in[i] ));
-//  RC5_LOG(( "\n" ));
-// #endif
-
-
- // ------
- // Encode
- // ------
-
- // Create and fill cell in output vector
-
- unsigned int notCryptDataSize=0;
-
- // In format version 1 save only IV as open data in block 0
- if(rc5_formatVersion==RC5_FORMAT_VERSION_1)
-  {
-   out.resize(in.size()+RC5_BLOCK_LEN, 0);
-
-   // Save start IV to block 0 in output data
-   for(int i=0; i<RC5_BLOCK_LEN; i++)
-    out[i]=iv[i];
-
-   notCryptDataSize=RC5_BLOCK_LEN;
-  }
-
- // Отвлекли: иди поешь
- // In format version 2 or higth save format header (block 0) and IV (block 1)
- if(rc5_formatVersion>=RC5_FORMAT_VERSION_2)
-  {
-   out.resize(in.size()+RC5_BLOCK_LEN*2, 0);
-
-   // Signature bytes in header
-   const char *signature=RC5_SIMPLE_SIGNATURE;
-   for(int i=0; i<(RC5_BLOCK_LEN-1); i++)
-    out[i]=signature[i];
-
-   // Format version byte in header
-   if(rc5_isSetFormatVersionForce)
-    out[RC5_BLOCK_LEN-1]=rc5_formatVersion;
-   else
-    out[RC5_BLOCK_LEN-1]=RC5_FORMAT_VERSION_CURRENT;
-
-   // Save start IV to second block in output data
-   for(int i=0; i<RC5_BLOCK_LEN; i++)
-    out[i+RC5_BLOCK_LEN]=iv[i];
-
-   notCryptDataSize=RC5_BLOCK_LEN*2;
-  }
-
-
- // Set secret key for encrypt
- setup(rc5_key);
-
-
- // Encode by blocks
- unsigned int block=0;
- while( (RC5_BLOCK_LEN*(block+1))<=in.size() )
-  {
-   unsigned int shift=block*RC5_BLOCK_LEN;
-
-   // Temp input buffer for dont modify input data
-   unsigned char temp_in[RC5_BLOCK_LEN];
-
-   // XOR block with current IV
-   for(int i=0; i<RC5_BLOCK_LEN; i++)
-    temp_in[i]=in[shift+i] ^ iv[i];
-
-   RC5_TWORD temp_word_1;
-   RC5_TWORD temp_word_2;
-   RC5_TWORD pt[RC5_WORDS_IN_BLOCK];
-   RC5_TWORD ct[RC5_WORDS_IN_BLOCK];
-
-   RC5_LOG(( "Block num %d, shift %d\n", block, shift ));
-
-   temp_word_1=getWordFromByte(temp_in[0], temp_in[1], temp_in[2], temp_in[3]);
-
-   temp_word_2=getWordFromByte(temp_in[RC5_WORD_LEN+0], temp_in[RC5_WORD_LEN+1], temp_in[RC5_WORD_LEN+2], temp_in[RC5_WORD_LEN+3]);
-
-   pt[0]=temp_word_1;
-   pt[1]=temp_word_2;
-
-
-   // Encode
-   RC5_EncryptBlock(pt, ct);
-
-
-   #if RC5_ENABLE_DEBUG_PRINT==1
-    RC5_LOG(( "Pt %.8X, %.8X\n", pt[0], pt[1] ));
-    RC5_LOG(( "Ct %.8X, %.8X\n", ct[0], ct[1] ));
-   #endif
-
-   // Отвлекли: надо покушать, кончай питаться йогуртами
-   // Save crypt data
-   for(int i=0; i<RC5_WORD_LEN; i++)
-    {
-     // Save crypt data with shift to RC5_BLOCK_LEN
-     // btw. in first block putted IV
-     out[notCryptDataSize+shift+i]=getByteFromWord(ct[0], i);
-     out[notCryptDataSize+shift+RC5_WORD_LEN+i]=getByteFromWord(ct[1], i);
-    }
-
-
-   // Generate next IV for Cipher Block Chaining (CBC)
-   for(int i=0; i<RC5_BLOCK_LEN; i++)
-    iv[i]=out[notCryptDataSize+shift+i];
-
-
-   block++;
-  }
-
-
- // Cleaning IV
- for(int i=0; i<RC5_BLOCK_LEN; i++)
-  iv[i]=0;
-
-
- // -----------------------------------
- // Return input vector to firsted data
- // -----------------------------------
-
- // Отвлекли: сходи в магазин Магнит, у нас есть нечего
- // Отвлекли: почитай ребенку
- // Remove size block (for all formats)
- in.erase(in.begin(), in.begin()+RC5_BLOCK_LEN);
-
- // Отвлекли: давай поиграем в Shatter
- // Remove random data blocks
- if(firsRandomDataBlocks>0)
-  for(unsigned int n=1; n<=firsRandomDataBlocks; n++)
-   in.erase(in.begin(), in.begin()+RC5_BLOCK_LEN);
-
- // Отвлекли: звонок, проверь ребенку зрение
- // Отвлекли: напечатай таблицу проверки зрения
- // Отвлекли: проверь зрение у ребенка и у себя
- // Remove from input vector last random byte for aligning
- if(in.size()>clean_data_size)
-  in.erase(in.begin()+clean_data_size, in.end());
-
-}
-     */
-
-
     // Decrypt data in vector
-//void RC5Simple::RC5_Decrypt(vector<unsigned char> &in, vector<unsigned char> &out)
-    public byte[] decrypt(byte[] inSigned) {
+//    public byte[] decrypt(byte[] inSigned) {
+    public String decrypt(byte[] inSigned) {
         int[] in = Utils.toUnsigned(inSigned);
         //        RC5_LOG(("\nDecrypt\n"));
 
-//        RC5_LOG(("\nInput data size: %d\n", in.size()));
+        addDebugLog(String.format("Input data size: %d", in.length));
 
-        // Отвлекли: иди покушай
         // No decryptBase64 null data
         int inSize = in.length;
         if (inSize == 0) {
@@ -396,7 +164,6 @@ public String RC5_Encrypt(String in)
 
 
         // Detect format version
-//        unsigned int formatVersion = 0;
         int formatVersion = 0;
         if (rc5_isSetFormatVersionForce)
             formatVersion = rc5_formatVersion; // If format set force, format not autodetected
@@ -416,7 +183,6 @@ public String RC5_Encrypt(String in)
                 formatVersion = RC5_FORMAT_VERSION_1; // In first version can't signature
             else {
                 // Get format version
-//                unsigned char readFormatVersion = in[RC5_BLOCK_LEN - 1];
                 int readFormatVersion = in[RC5_BLOCK_LEN - 1];
 
                 // If format version correct
@@ -427,11 +193,6 @@ public String RC5_Encrypt(String in)
             }
         }
 
-
-//        unsigned int ivShift = 0;
-//        unsigned int firstDataBlock = 0;
-//        unsigned int removeBlocksFromOutput = 0;
-//        unsigned int blockWithDataSize = 0;
         int ivShift = 0;
         int firstDataBlock = 0;
         int removeBlocksFromOutput = 0;
@@ -460,7 +221,6 @@ public String RC5_Encrypt(String in)
 
 
         // Get IV
-//        unsigned char iv[ RC5_BLOCK_LEN];
         int[] iv = new int[ RC5_BLOCK_LEN];
         for (int i = 0; i < RC5_BLOCK_LEN; i++)
             iv[i] = in[i + ivShift];
@@ -469,42 +229,32 @@ public String RC5_Encrypt(String in)
         // Set secret key for decryptBase64
         setup(rc5_key);
 
-
         // Cleaning output vector
 //        out.clear();
 //        out.resize(in.size(), 0);
-        int[] out = new int[inSize];
-
+//        int[] out = new int[inSize];
+        byte[] out = new byte[inSize];
 
         // Decode by blocks from started data block
-//        unsigned int dataSize = 0;
-//        unsigned int block = firstDataBlock;
         long dataSize = 0;
         int block = firstDataBlock;
         while ((RC5_BLOCK_LEN * (block + 1)) <= inSize) {
-//            unsigned int shift = block * RC5_BLOCK_LEN;
             int shift = block * RC5_BLOCK_LEN;
 
-//            RC5_TWORD temp_word_1;
-//            RC5_TWORD temp_word_2;
-//            RC5_TWORD pt[ RC5_WORDS_IN_BLOCK];
-//            RC5_TWORD ct[ RC5_WORDS_IN_BLOCK];
             long temp_word_1;
             long temp_word_2;
             long[] pt = new long[RC5_WORDS_IN_BLOCK];
             long[] ct = new long[RC5_WORDS_IN_BLOCK];
 
-//            RC5_LOG(("Block num %d, shift %d\n", block, shift));
+            addDebugLog(String.format("Block num %d, shift %d", block, shift));
 
             temp_word_1 = getWordFromByte(in[shift], in[shift + 1], in[shift + 2], in[shift + 3]);
-
             temp_word_2 = getWordFromByte(in[shift + RC5_WORD_LEN], in[shift + RC5_WORD_LEN + 1], in[shift + RC5_WORD_LEN + 2], in[shift + RC5_WORD_LEN + 3]);
 
             pt[0] = temp_word_1;
             pt[1] = temp_word_2;
 
-//            RC5_LOG(("Block data. Word 1: %.2X, Word 2: %.2X\n", temp_word_1, temp_word_2));
-
+            addDebugLog(String.format("Block data. Word 1: %X, Word 2: %X", temp_word_1, temp_word_2));
 
             // Decode
             RC5_DecryptBlock(pt, ct);
@@ -515,7 +265,6 @@ public String RC5_Encrypt(String in)
             // ---------------------------
 
             // Convert block words size plain array
-//            unsigned char ct_part[ RC5_BLOCK_LEN];
             int[] ct_part = new int[ RC5_BLOCK_LEN];
 
             for (int i = 0; i < RC5_WORD_LEN; i++) {
@@ -530,23 +279,16 @@ public String RC5_Encrypt(String in)
             if (block == blockWithDataSize) {
                 dataSize = RC5_GetIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
 
-//                RC5_LOG(("Decrypt data size: %d\n", dataSize));
+                addDebugLog(String.format("Decrypt data size: %d", dataSize));
 
                 // Uncorrect decryptBase64 data size
-//                if ((unsigned int)dataSize > (unsigned int)inSize)
                 if (dataSize > inSize)
                 {
-                    // RC5_LOG(( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d\n", dataSize,  in.size() ));
+                    addDebugLog(String.format( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
                     errorCode = RC5_ERROR_CODE_7;
                     return null;
                 }
             }
-
-//   #if RC5_ENABLE_DEBUG_PRINT == 1
-//            RC5_LOG(("Pt %.8X, %.8X\n", pt[0], pt[1]));
-//            RC5_LOG(("Ct %.8X, %.8X\n", ct[0], ct[1]));
-//   #endif
-
 
             // Generate next IV for Cipher Block Chaining (CBC)
             for (int i = 0; i < RC5_BLOCK_LEN; i++)
@@ -555,8 +297,9 @@ public String RC5_Encrypt(String in)
 
             // Save decryptBase64 data
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-//                RC5_LOG(("Put decryptBase64 data size vector out[%d] = %.2X\n", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
-                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
+                addDebugLog(String.format("Put decryptBase64 data size vector out[%d] = %X", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
+//                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
+                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = (byte)ct_part[i];
             }
 
             block++;
@@ -575,153 +318,50 @@ public String RC5_Encrypt(String in)
 //            out.erase(out.begin() + dataSize, out.end());
 
         int size = (out.length > dataSize) ? (int)dataSize : out.length;
+//        int size = (out.length() > dataSize) ? (int)dataSize : out.length();
         int from = removeBlocksFromOutput * RC5_BLOCK_LEN;
-        out = Arrays.copyOfRange(out, from , from  + size);
-
-        byte[] outBytes = Utils.toBytes(out);
-        return outBytes;
+//        out = Arrays.copyOfRange(out, from , from  + size);
+//        byte[] outBytes = Utils.toBytes(out);
+        return new String(out, from, size);
     }
 
 
-
-
     /*
-
-void RC5Simple::RC5_EncryptFile(unsigned char *in_name, unsigned char *out_name)
-{
- RC5_EncDecFile(in_name, out_name, RC5_MODE_ENCODE);
-}
-
-
-// Отвлекли: позвонил дедушка
-void RC5Simple::RC5_EncryptFile(const char *in_name, const char *out_name)
-{
- // Отвлекли: виниловая наклейка как мечь, смотри
- RC5_EncDecFile((unsigned char *)in_name, (unsigned char *)out_name, RC5_MODE_ENCODE);
-}
-
-
-void RC5Simple::RC5_DecryptFile(unsigned char *in_name, unsigned char *out_name)
-{
- RC5_EncDecFile(in_name, out_name, RC5_MODE_DECODE);
-}
-
-
-void RC5Simple::RC5_DecryptFile(const char *in_name, const char *out_name)
-{
- RC5_EncDecFile((unsigned char *)in_name, (unsigned char *)out_name, RC5_MODE_DECODE);
-}
-
-
-void RC5Simple::RC5_EncDecFile(unsigned char *in_name, unsigned char *out_name, int mode)
-{
- FILE *in_file;
- FILE *out_file;
-
- if((in_file=fopen( (const char*)in_name, "rb") )==NULL)
-  {
-   errorCode=RC5_ERROR_CODE_2;
-   return;
-  }
-
- // Get size of input file
- fseek(in_file, 0, SEEK_END);
- unsigned int in_file_length=ftell(in_file);
- RC5_LOG(( "Input file name: %s, size: %d\n", in_name, in_file_length));
-
- if(in_file_length==0)
-  {
-   fclose(in_file);
-   errorCode=RC5_ERROR_CODE_3;
-   return;
-  }
-
- // Return to begin file
- fseek(in_file, 0, SEEK_SET);
-
- // Create data vectors
- vector<unsigned char> in(in_file_length);
- vector<unsigned char> out;
-
- // Fill input data vector
- unsigned int byte=0;
- while(byte<in_file_length)
-  in[byte++]=fgetc(in_file);
-
- fclose(in_file);
-
- if(mode==RC5_MODE_ENCODE)
-  RC5_Encrypt(in, out); // Encrypt data vector
- else
-  RC5_Decrypt(in, out); // Decrypt data vector
-
- // Create output file
- if((out_file=fopen( (const char*)out_name, "wb") )==NULL)
-  {
-   errorCode=RC5_ERROR_CODE_4;
-   return;
-  }
-
- // Fill output file
- for(unsigned int i=0; i<out.size(); i++)
-  {
-   RC5_LOG(( "File byte %d : %.2X \n", i, out[i] ));
-   fputc(out[i], out_file);
-  }
-
- fclose(out_file);
-
-}
-     */
-
-
-
-
-    /*
-
-inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
-{
- unsigned char b=0;
-
- switch (n) {
-   case 0:
-       b=(w & 0x000000FF);
-       break;
-   case 1:
-       b=(w & 0x0000FF00) >> 8;
-       break;
-   case 2:
-       b=(w & 0x00FF0000) >> 16;
-       break;
-   case 3:
-       b=(w & 0xFF000000) >> 24;
- }
-
- // RC5_LOG(( "GetByteFromWord(%.8X, %d)=%.2X\n", w, n, b ));
-
- return b;
-}
-*/
-
-
-// Random generator, from - to inclusive
-    /*private int rand(int from, int to)
+    inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
     {
-        int len=to-from+1;
-        return (new Random().nextInt()%len)+from;
+     unsigned char b=0;
+
+     switch (n) {
+       case 0:
+           b=(w & 0x000000FF);
+           break;
+       case 1:
+           b=(w & 0x0000FF00) >> 8;
+           break;
+       case 2:
+           b=(w & 0x00FF0000) >> 16;
+           break;
+       case 3:
+           b=(w & 0xFF000000) >> 24;
+     }
+
+     // RC5_LOG(( "GetByteFromWord(%.8X, %d)=%.2X\n", w, n, b ));
+
+     return b;
     }*/
+
 
     // Rotation operators. x must be unsigned, to get logical right shift
     public static long ROTL(long x, long y) {
-        x = Utils.toUnsignedInt(x);
+        x = 0x00000000FFFFFFFFL & x;
         long res = (((x) << (y & (RC5_W - 1))) | ((x) >> (RC5_W - (y & (RC5_W - 1)))));
-        return Utils.toUnsignedInt(res);
+        return 0x00000000FFFFFFFFL & res;
     }
 
     public static long ROTR(long x, long y) {
-        x = Utils.toUnsignedInt(x);
+        x = 0x00000000FFFFFFFFL & x;
         long res = (((x) >> (y & (RC5_W - 1))) | ((x) << (RC5_W - (y & (RC5_W - 1)))));
-        return Utils.toUnsignedInt(res);
+        return 0x00000000FFFFFFFFL & res;
     }
 
     //    #define getByteFromWord(w, n) ((unsigned char)((w) >> ((n)*8) & 0xff))
@@ -736,7 +376,7 @@ inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
         return (b0 + (b1 << 8) + (b2 << 16) + (b3 << 24));
     }
     public static long getWordFromByte(int i0, int i1, int i2, int i3) {
-        return Utils.toUnsignedInt(i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
+        return 0x00000000FFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
 
@@ -744,7 +384,16 @@ inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
         return b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
     }
     public static long RC5_GetIntFromByte(int i0, int i1, int i2, int i3) {
-        return Utils.toUnsignedInt(i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
+        return 0x00000000FFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
+    private static void addLog(Exception e) {
+        LogManager.addLog(e);
+    }
+
+    private static void addDebugLog(String s) {
+        if (BuildConfig.DEBUG) {
+            LogManager.addLog(s);
+        }
+    }
 }

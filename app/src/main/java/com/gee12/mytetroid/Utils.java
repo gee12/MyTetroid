@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class Utils {
 
@@ -96,6 +97,16 @@ public class Utils {
         byte[] res = new byte[ia.length];
         for (int i = 0; i < ia.length; i ++) {
             res[i] = (byte)(ia[i]);
+        }
+        return res;
+    }
+
+    public static byte[] toBytes(List<Integer> ia) {
+        if (ia == null)
+            return null;
+        byte[] res = new byte[ia.size()];
+        for (int i = 0; i < ia.size(); i ++) {
+            res[i] = ia.get(i).byteValue();
         }
         return res;
     }
