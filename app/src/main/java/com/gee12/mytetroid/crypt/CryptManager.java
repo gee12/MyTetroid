@@ -11,7 +11,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -72,7 +71,7 @@ public class CryptManager {
     public static boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
         byte[] checDataSigned = Base64.decode(checkData.toCharArray());
-        String line = decryptToString(key, checDataSigned);
+        String line = decryptString(key, checDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }
@@ -168,7 +167,7 @@ public class CryptManager {
      * @return
      */
     public static String decryptText(byte[] text) {
-        return decryptToString(cryptKey, text);
+        return decryptString(cryptKey, text);
     }
 
     /**
@@ -177,8 +176,7 @@ public class CryptManager {
      * @return
      */
     public static byte[] decryptBytes(byte[] bytes) {
-//        return decrypt(cryptKey, bytes);
-        return null;
+        return decryptArray(cryptKey, bytes);
     }
 
     /**
@@ -305,51 +303,36 @@ public class CryptManager {
             return null;
         }
         byte[] bytes = Base64.decode(line.toCharArray());
-        return decryptToString(key, bytes);
+        return decryptString(key, bytes);
     }
 
-//    public static String decryptToString(int[] key, byte[] bytes) {
+//    public static String decryptString(int[] key, byte[] bytes) {
 //        byte[] out = decrypt(key, bytes);
 //        if (out != null)
 //            // java.lang.OutOfMemoryError..
 //            return new String(out);
 //    }
 
-    public static byte[] decrypt(int[] key, byte[] bytes) {
+    public static byte[] decryptArray(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] res = null;
-        //
         rc5.setKey(key);
         try {
-            res = new byte[3];
-            new String(res);
+            res = rc5.decryptArray(bytes);
         } catch (Exception e) {
             addLog(e);
         }
         return res;
     }
-//    public static byte[] decrypt(int[] key, byte[] bytes) {
-//        if (bytes == null)
-//            return null;
-//        byte[] res = null;
-//        //
-//        rc5.setKey(key);
-//        try {
-//            res = rc5.decrypt(bytes);
-//        } catch (Exception e) {
-//            addLog(e);
-//        }
-//        return res;
-//    }
-    public static String decryptToString(int[] key, byte[] bytes) {
+
+    public static String decryptString(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         String res = null;
-        //
         rc5.setKey(key);
         try {
-            res = rc5.decrypt(bytes);
+            res = rc5.decryptString(bytes);
         } catch (Exception e) {
             addLog(e);
         }

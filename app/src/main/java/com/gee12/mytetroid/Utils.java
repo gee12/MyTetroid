@@ -101,15 +101,15 @@ public class Utils {
         return res;
     }
 
-    public static byte[] toBytes(List<Integer> ia) {
-        if (ia == null)
-            return null;
-        byte[] res = new byte[ia.size()];
-        for (int i = 0; i < ia.size(); i ++) {
-            res[i] = ia.get(i).byteValue();
-        }
-        return res;
-    }
+//    public static byte[] toBytes(List<Integer> ia) {
+//        if (ia == null)
+//            return null;
+//        byte[] res = new byte[ia.size()];
+//        for (int i = 0; i < ia.size(); i ++) {
+//            res[i] = ia.get(i).byteValue();
+//        }
+//        return res;
+//    }
 
     public static String readTextFile(URI fileUrl) {
         StringBuilder sb = new StringBuilder();

@@ -4,10 +4,30 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 public class RC5Simple {
+
+    private class DecryptOutHelper {
+        byte[] out;
+        int dataSize;
+        int removeBlocksFromOutput;
+
+        public DecryptOutHelper(byte[] out, int dataSize, int removeBlocksFromOutput) {
+            this.out = out;
+            this.dataSize = dataSize;
+            this.removeBlocksFromOutput = removeBlocksFromOutput;
+        }
+
+        int getShift() {
+            return removeBlocksFromOutput * RC5_BLOCK_LEN;
+        }
+
+        int getSize() {
+            return (out.length > dataSize) ? (int)dataSize : out.length;
+        }
+    }
+
 
 //    public static final String RC5_SIMPLE_VERSION = "RC5Simple Ver. 1.31 / 11.12.2013";
 
@@ -31,8 +51,8 @@ public class RC5Simple {
     public static final int RC5_BLOCK_LEN = (RC5_W*RC5_WORDS_IN_BLOCK/8);   // block size in bytes
     public static final int RC5_WORD_LEN = (RC5_W/8);                       // word size in bytes
 
-     public static final int RC5_MODE_ENCODE = 0;
-     public static final int RC5_MODE_DECODE = 1;
+//     public static final int RC5_MODE_ENCODE = 0;
+//     public static final int RC5_MODE_DECODE = 1;
 
      public static final int RC5_ERROR_CODE_1 = 1;      // Bad RC5 key length
      public static final int RC5_ERROR_CODE_2 = 2;      // Can't read input file
@@ -43,19 +63,16 @@ public class RC5Simple {
      public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decryptBase64 data
 
 
-    private long[] rc5_s;  // Expanded key table
+    private long[] rc5_s;       // Expanded key table
     private long rc5_p;         // Magic constants one
     private long rc5_q;         // Magic constants two
 
     private int[] rc5_key;
     private byte rc5_formatVersion;
     private boolean rc5_isSetFormatVersionForce;
-
     private int errorCode;
 
-
-    public RC5Simple(/*boolean enableRandomInit*/)
-    {
+    public RC5Simple() {
         // Set magic constants
         rc5_p = 0xb7e15163L;
         rc5_q = 0x9e3779b9L;
@@ -69,50 +86,10 @@ public class RC5Simple {
         errorCode = 0;
     }
 
-    // Encrypt data block
-    // Parameters:
-    // pt - input data
-    // ct - encrypt data
-    private void RC5_EncryptBlock(long[] pt, long[] ct)
-    {
-        long a = pt[0] + rc5_s[0];
-        long b = pt[1] + rc5_s[1];
-
-        for(int i = 1; i <= RC5_R; i++)
-        {
-            a = ROTL(a^b, b) + rc5_s[2*i];
-            b = ROTL(b^a, a) + rc5_s[2*i+1];
-        }
-
-        ct[0] = a;
-        ct[1] = b;
-    }
-
-    // Decrypt data block
-    // Parameters:
-    // pt - input data
-    // ct - decryptBase64 data
-    private void RC5_DecryptBlock(long[] ct, long[] pt)
-    {
-        long b = ct[1];
-        long a = ct[0];
-
-        for(int i = RC5_R; i > 0; i--)
-        {
-            b = ROTR(b - rc5_s[2*i+1], a)^a;
-            a = ROTR(a - rc5_s[2*i], b)^b;
-        }
-
-        pt[1] = b - rc5_s[1];
-        pt[0] = a - rc5_s[0];
-    }
-
-
     // Setup secret key
     // Parameters:
     // key - secret input key[RC5_B]
-    private void setup(int[] key)
-    {
+    private void setup(int[] key) {
         int i, j, k, u = RC5_W/8;
         long[] l = new long[RC5_C];
 
@@ -135,8 +112,7 @@ public class RC5Simple {
 
 
     // Set secret key
-    public void setKey(int[] key)
-    {
+    public void setKey(int[] key) {
         if(key.length != RC5_B) {
             errorCode = RC5_ERROR_CODE_1;
             return;
@@ -146,10 +122,79 @@ public class RC5Simple {
             rc5_key[i]=key[i];
     }
 
+    // Encrypt data block
+    // Parameters:
+    // pt - input data
+    // ct - encrypt data
+    private void encryptBlock(long[] pt, long[] ct) {
+        long a = pt[0] + rc5_s[0];
+        long b = pt[1] + rc5_s[1];
 
-    // Decrypt data in vector
-//    public byte[] decrypt(byte[] inSigned) {
-    public String decrypt(byte[] inSigned) {
+        for(int i = 1; i <= RC5_R; i++)
+        {
+            a = ROTL(a^b, b) + rc5_s[2*i];
+            b = ROTL(b^a, a) + rc5_s[2*i+1];
+        }
+
+        ct[0] = a;
+        ct[1] = b;
+    }
+
+    // Decrypt data block
+    // Parameters:
+    // pt - input data
+    // ct - decryptBase64 data
+    private void decryptBlock(long[] ct, long[] pt) {
+        long b = ct[1];
+        long a = ct[0];
+
+        for(int i = RC5_R; i > 0; i--)
+        {
+            b = ROTR(b - rc5_s[2*i+1], a)^a;
+            a = ROTR(a - rc5_s[2*i], b)^b;
+        }
+
+        pt[1] = b - rc5_s[1];
+        pt[0] = a - rc5_s[0];
+    }
+
+    /**
+     * Decrypt string
+     * @param inSigned
+     * @return
+     */
+    public String decryptString(byte[] inSigned) {
+        DecryptOutHelper outHelper = decrypt(inSigned);
+        // Remove from output a blocks with technical data (random blocks, size, etc...)
+//        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
+
+        // Remove from output a last byte with random byte for aligning
+//        if (out.size() > dataSize)
+//            out.erase(out.begin() + dataSize, out.end());
+
+//        int size = (out.length > dataSize) ? (int)dataSize : out.length;
+//        int size = Math.min(outHelper.out.length, outHelper.dataSize);
+//        int size = (out.length() > dataSize) ? (int)dataSize : out.length();
+//        int from = outHelper.removeBlocksFromOutput * RC5_BLOCK_LEN;
+//        out = Arrays.copyOfRange(out, from , from  + size);
+//        byte[] outBytes = Utils.toBytes(out);
+        return new String(outHelper.out, outHelper.getShift(), outHelper.getSize());
+    }
+
+    /**
+     * Decrypt byte array
+     * @param inSigned
+     * @return
+     */
+    public byte[] decryptArray(byte[] inSigned) {
+        DecryptOutHelper outHelper = decrypt(inSigned);
+        int from = outHelper.getShift();
+        byte[] res = Arrays.copyOfRange(outHelper.out, from , from  + outHelper.getSize());
+//        return Utils.toBytes(out);
+        return res;
+    }
+
+    private DecryptOutHelper decrypt(byte[] inSigned) {
         int[] in = Utils.toUnsigned(inSigned);
         //        RC5_LOG(("\nDecrypt\n"));
 
@@ -162,20 +207,15 @@ public class RC5Simple {
             return null;
         }
 
-
         // Detect format version
         int formatVersion = 0;
         if (rc5_isSetFormatVersionForce)
             formatVersion = rc5_formatVersion; // If format set force, format not autodetected
         else {
-            // Signature bytes
-//            const char *signature = RC5_SIMPLE_SIGNATURE;
-            String signature = RC5_SIMPLE_SIGNATURE;
-
             // Detect signature
             boolean isSignatureCorrect = true;
             for (int i = 0; i < (RC5_BLOCK_LEN - 1); i++)
-                if (in[i] != signature.charAt(i))
+                if (in[i] != RC5_SIMPLE_SIGNATURE.charAt(i))
                     isSignatureCorrect = false;
 
             // If not detect signature
@@ -198,40 +238,36 @@ public class RC5Simple {
         int removeBlocksFromOutput = 0;
         int blockWithDataSize = 0;
 
-        if (formatVersion == RC5_FORMAT_VERSION_1) {
-            ivShift = 0;
-            firstDataBlock = 1; // Start decode from block with index 1 (from block 0 read IV)
-            removeBlocksFromOutput = 1;
-            blockWithDataSize = 1;
+        switch (formatVersion) {
+            case RC5_FORMAT_VERSION_1:
+                ivShift = 0;
+                firstDataBlock = 1; // Start decode from block with index 1 (from block 0 read IV)
+                removeBlocksFromOutput = 1;
+                blockWithDataSize = 1;
+                break;
+            case RC5_FORMAT_VERSION_2:
+                ivShift = RC5_BLOCK_LEN;
+                firstDataBlock = 2; // Start decode from block with index 2 (0 - signature and version, 1 - IV)
+                removeBlocksFromOutput = 2; // Random data block and size data block
+                blockWithDataSize = 3;
+                break;
+            case RC5_FORMAT_VERSION_3:
+                ivShift = RC5_BLOCK_LEN;
+                firstDataBlock = 2; // Start decode from block with index 2 (0 - signature and version, 1 - IV)
+                removeBlocksFromOutput = 3; // Two random data block and size data block
+                blockWithDataSize = 4;
+                break;
         }
-
-        if (formatVersion == RC5_FORMAT_VERSION_2) {
-            ivShift = RC5_BLOCK_LEN;
-            firstDataBlock = 2; // Start decode from block with index 2 (0 - signature and version, 1 - IV)
-            removeBlocksFromOutput = 2; // Random data block and size data block
-            blockWithDataSize = 3;
-        }
-
-        if (formatVersion == RC5_FORMAT_VERSION_3) {
-            ivShift = RC5_BLOCK_LEN;
-            firstDataBlock = 2; // Start decode from block with index 2 (0 - signature and version, 1 - IV)
-            removeBlocksFromOutput = 3; // Two random data block and size data block
-            blockWithDataSize = 4;
-        }
-
 
         // Get IV
         int[] iv = new int[ RC5_BLOCK_LEN];
         for (int i = 0; i < RC5_BLOCK_LEN; i++)
             iv[i] = in[i + ivShift];
 
-
         // Set secret key for decryptBase64
         setup(rc5_key);
 
         // Cleaning output vector
-//        out.clear();
-//        out.resize(in.size(), 0);
 //        int[] out = new int[inSize];
         byte[] out = new byte[inSize];
 
@@ -241,24 +277,19 @@ public class RC5Simple {
         while ((RC5_BLOCK_LEN * (block + 1)) <= inSize) {
             int shift = block * RC5_BLOCK_LEN;
 
-            long temp_word_1;
-            long temp_word_2;
             long[] pt = new long[RC5_WORDS_IN_BLOCK];
             long[] ct = new long[RC5_WORDS_IN_BLOCK];
 
             addDebugLog(String.format("Block num %d, shift %d", block, shift));
 
-            temp_word_1 = getWordFromByte(in[shift], in[shift + 1], in[shift + 2], in[shift + 3]);
-            temp_word_2 = getWordFromByte(in[shift + RC5_WORD_LEN], in[shift + RC5_WORD_LEN + 1], in[shift + RC5_WORD_LEN + 2], in[shift + RC5_WORD_LEN + 3]);
+            pt[0] = getWordFromByte(in[shift], in[shift + 1], in[shift + 2], in[shift + 3]);
+            pt[1] = getWordFromByte(in[shift + RC5_WORD_LEN], in[shift + RC5_WORD_LEN + 1],
+                    in[shift + RC5_WORD_LEN + 2], in[shift + RC5_WORD_LEN + 3]);
 
-            pt[0] = temp_word_1;
-            pt[1] = temp_word_2;
-
-            addDebugLog(String.format("Block data. Word 1: %X, Word 2: %X", temp_word_1, temp_word_2));
+            addDebugLog(String.format("Block data. Word 1: %X, Word 2: %X", pt[0], pt[1]));
 
             // Decode
-            RC5_DecryptBlock(pt, ct);
-
+            decryptBlock(pt, ct);
 
             // ---------------------------
             // Un XOR block with IV vector
@@ -277,7 +308,7 @@ public class RC5Simple {
                 ct_part[i] ^= iv[i];
 
             if (block == blockWithDataSize) {
-                dataSize = RC5_GetIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
+                dataSize = getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
 
                 addDebugLog(String.format("Decrypt data size: %d", dataSize));
 
@@ -305,24 +336,11 @@ public class RC5Simple {
             block++;
         }
 
-
         // Cleaning IV
         for (int i = 0; i < RC5_BLOCK_LEN; i++)
             iv[i] = 0;
 
-        // Remove from output a blocks with technical data (random blocks, size, etc...)
-//        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
-
-        // Remove from output a last byte with random byte for aligning
-//        if (out.size() > dataSize)
-//            out.erase(out.begin() + dataSize, out.end());
-
-        int size = (out.length > dataSize) ? (int)dataSize : out.length;
-//        int size = (out.length() > dataSize) ? (int)dataSize : out.length();
-        int from = removeBlocksFromOutput * RC5_BLOCK_LEN;
-//        out = Arrays.copyOfRange(out, from , from  + size);
-//        byte[] outBytes = Utils.toBytes(out);
-        return new String(out, from, size);
+        return new DecryptOutHelper(out, (int)dataSize, removeBlocksFromOutput);
     }
 
 
@@ -353,21 +371,22 @@ public class RC5Simple {
 
     // Rotation operators. x must be unsigned, to get logical right shift
     public static long ROTL(long x, long y) {
-        x = 0x00000000FFFFFFFFL & x;
+        x = 0xFFFFFFFFL & x;
         long res = (((x) << (y & (RC5_W - 1))) | ((x) >> (RC5_W - (y & (RC5_W - 1)))));
-        return 0x00000000FFFFFFFFL & res;
+        return 0xFFFFFFFFL & res;
     }
 
     public static long ROTR(long x, long y) {
-        x = 0x00000000FFFFFFFFL & x;
+        x = 0xFFFFFFFFL & x;
         long res = (((x) >> (y & (RC5_W - 1))) | ((x) << (RC5_W - (y & (RC5_W - 1)))));
-        return 0x00000000FFFFFFFFL & res;
+        return 0xFFFFFFFFL & res;
     }
 
-    //    #define getByteFromWord(w, n) ((unsigned char)((w) >> ((n)*8) & 0xff))
+//    #define getByteFromWord(w, n) ((unsigned char)((w) >> ((n)*8) & 0xff))
 //    public static byte getByteFromWord(long w, int n) {
 //        return ((byte) (w >> (n * 8) & 0xff));
 //    }
+
     public static int getByteFromWord(long w, int n) {
         return ((int) (w >> (n * 8) & 0xffL));
     }
@@ -376,15 +395,15 @@ public class RC5Simple {
         return (b0 + (b1 << 8) + (b2 << 16) + (b3 << 24));
     }
     public static long getWordFromByte(int i0, int i1, int i2, int i3) {
-        return 0x00000000FFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
+        return 0xFFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
 
-    public static long RC5_GetIntFromByte(byte b0, byte b1, byte b2, byte b3) {
+    public static long getIntFromByte(byte b0, byte b1, byte b2, byte b3) {
         return b0 + (b1 << 8) + (b2 << 16) + (b3 << 24);
     }
-    public static long RC5_GetIntFromByte(int i0, int i1, int i2, int i3) {
-        return 0x00000000FFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
+    public static long getIntFromByte(int i0, int i1, int i2, int i3) {
+        return 0xFFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
     private static void addLog(Exception e) {
