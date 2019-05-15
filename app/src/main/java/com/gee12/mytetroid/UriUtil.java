@@ -27,9 +27,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 /**
  * Created by bpellin on 3/5/16.

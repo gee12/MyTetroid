@@ -45,7 +45,7 @@
     <string name="rate_app">Оценить приложение</string>
     <string name="version_label">Версия</string>
     <string name="about_app">О приложении</string>
-    <string name="project_url"><![CDATA[Страница проекта <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
+    <string name="project_url"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="password_is_incorrect">Введен неверный пароль</string>
     <string name="m_bytes">Мб</string>
     <string name="k_bytes">Кб</string>
@@ -62,4 +62,9 @@
     <string name="decrypt_files_to_temp_dir">Расшифровывать файлы в каталог</string>
     <string name="decrypt_files_to_temp_dir_sum">Расшифровывать прикрепленные файлы во временный каталог при предпросмотре</string>
     <string name="storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
+    <string name="pref_key_category_display">Отображение</string>
+    <string name="write_log">Записывать логи</string>
+    <string name="is_write_log">Логировать события в файл</string>
+    <string name="log_path">Каталог логов</string>
+    <string name="log_path_summ">Путь к каталогу для записи лог-файла</string>
 </resources>

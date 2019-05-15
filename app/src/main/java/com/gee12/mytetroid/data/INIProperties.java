@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.LogManager;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -25,7 +27,7 @@ public class INIProperties {
             configuration.load(new FileInputStream(fileName));
             retval = true;
         } catch (IOException e) {
-            System.out.println("Configuration error: " + e.getMessage());
+            LogManager.addLog("Configuration error: ", e);
         }
 
         return retval;
@@ -43,7 +45,7 @@ public class INIProperties {
             configuration.store(new FileOutputStream(fileName), null);
             retval = true;
         } catch (IOException e) {
-            System.out.println("Configuration error: " + e.getMessage());
+            LogManager.addLog("Configuration error: ", e);
         }
 
         return retval;

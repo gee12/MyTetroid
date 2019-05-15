@@ -25,7 +25,6 @@ public class CryptManager {
     private static final int  CRYPT_CHECK_HASH_LEN = 160;
     private static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
 
-//    private static RC5 rc5;
     private static RC5Simple rc5 = new RC5Simple();
     private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
@@ -340,7 +339,7 @@ public class CryptManager {
     }
 
     static void setCryptKey(int[] key) {
-        cryptKey = key;
+        CryptManager.cryptKey = key;
     }
 
     private static void addLog(Exception e) {

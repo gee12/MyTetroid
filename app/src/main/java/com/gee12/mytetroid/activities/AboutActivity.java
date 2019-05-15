@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 
 public class AboutActivity extends AppCompatActivity {
@@ -48,7 +49,7 @@ public class AboutActivity extends AppCompatActivity {
             PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
             return pInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            LogManager.addLog(e);
         }
         return null;
     }
@@ -64,6 +65,7 @@ public class AboutActivity extends AppCompatActivity {
         try {
             startActivity(goToMarket);
         } catch (ActivityNotFoundException e) {
+            LogManager.addLog(e);
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
         }

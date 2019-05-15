@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
@@ -17,6 +18,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
     public static final int REQUEST_CODE_OPEN_STORAGE_PATH = 1;
     public static final int REQUEST_CODE_OPEN_TEMP_PATH = 2;
+    public static final int REQUEST_CODE_OPEN_LOG_PATH = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,17 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 return true;
             }
         });
+
+        Preference logFolderPicker = findPreference(getString(R.string.pref_key_log_path));
+        logFolderPicker.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                openFolderPicker(getString(R.string.log_path),
+                        SettingsManager.getLogPath(),
+                        REQUEST_CODE_OPEN_LOG_PATH);
+                return true;
+            }
+        });
     }
 
     private void openFolderPicker(String title, String location, int requestCode) {
@@ -57,18 +70,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) return;
+        String folderFullName = data.getStringExtra("data");
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH) {
-            String folderFullName = data.getStringExtra("data");
             SettingsManager.setStoragePath(folderFullName);
-//            SharedPreferences.Editor editor = SettingsManager.getSettings().edit();
-//            editor.putString(getString(R.string.pref_key_storage_path), folderFullName);
-//            editor.apply();
         } else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
-            String folderFullName = data.getStringExtra("data");
             SettingsManager.setTempPath(folderFullName);
-//            SharedPreferences.Editor editor = SettingsManager.getSettings().edit();
-//            editor.putString(getString(R.string.pref_key_temp_path), folderFullName);
-//            editor.apply();
+        } else if (requestCode == REQUEST_CODE_OPEN_LOG_PATH) {
+            SettingsManager.setLogPath(folderFullName);
+            LogManager.setLogPath(folderFullName);
         }
     }
 
@@ -104,7 +113,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             SettingsManager.HighlightAttachColorCache = SettingsManager.getHighlightAttachColor();
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
-            SettingsManager.DateFormatStringCache =SettingsManager.getDateFormatString();
+            SettingsManager.DateFormatStringCache = SettingsManager.getDateFormatString();
+        } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
+            // меняем флаг
+            LogManager.setIsWriteToFile(SettingsManager.isWriteLog());
         }
     }
 

@@ -65,9 +65,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static boolean init(String storagePath) {
-        instance = new DataManager();
-        instance.storagePath = storagePath;
-        databaseINI = new INIProperties();
+        DataManager.instance = new DataManager();
+        DataManager.instance.storagePath = storagePath;
+        DataManager.databaseINI = new INIProperties();
 //        boolean xmlParsed = false;
         boolean res = false;
         try {
@@ -81,6 +81,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 // ошибка загрузки ini
 //            else
                 // ошибка загрузки xml
+            LogManager.addLog(ex);
             return false;
         }
         return res;
@@ -96,9 +97,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             FileInputStream fis = new FileInputStream(
                     instance.storagePath + File.separator + MYTETRA_XML_FILE);
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+            DataManager.instance.rootNodesCollection = instance.parse(fis, decryptHandler);
         } catch (Exception ex) {
             // ошибка загрузки xml
+            LogManager.addLog(ex);
             return false;
         }
         return true;
@@ -252,8 +254,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 String tempFolderPath = SettingsManager.getTempPath() + File.separator + record.getDirName();
                 File tempFolder = new File(tempFolderPath);
                 if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                    Toast.makeText(context,
-                            context.getString(R.string.could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG).show();
+                    LogManager.addLog(context.getString(R.string.could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
                 }
                 File tempFile = new File(tempFolder, fileIdName);
 //                File tempFile = new File(getTempPath()+File.separator, fileIdName);
@@ -263,11 +264,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                     if ((tempFile.exists() || tempFile.createNewFile()) && CryptManager.decryptFile(srcFile, tempFile)) {
                         srcFile = tempFile;
                     } else {
-                        Toast.makeText(context, context.getString(R.string.could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG).show();
+                        LogManager.addLog(context.getString(R.string.could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
                         return false;
                     }
                 } catch (IOException ex) {
-                    Toast.makeText(context, context.getString(R.string.file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    LogManager.addLog(context.getString(R.string.file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG);
                     return false;
                 }
             }
@@ -280,11 +281,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 context.startActivity(intent);
             }
             catch(ActivityNotFoundException e) {
-                Toast.makeText(context, "Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_LONG).show();
+                LogManager.addLog("Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            Toast.makeText(context, "Файл отсутствует: " + fileDisplayName, Toast.LENGTH_SHORT).show();
+            LogManager.addLog("Файл отсутствует: " + fileDisplayName, Toast.LENGTH_SHORT);
             return false;
         }
         return true;

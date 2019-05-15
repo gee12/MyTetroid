@@ -7,12 +7,10 @@ import android.preference.PreferenceManager;
 import androidx.annotation.ColorInt;
 
 public class SettingsManager {
-    public static final String APP_PREFERENCES = "MyTetroidSettings";
 
     private static SharedPreferences settings;
     private static Context context;
 
-//    public static String LastStoragePath;
     public static boolean IsStoragePathChanged;
     public static boolean IsHighlightAttachCache;
     @ColorInt
@@ -20,9 +18,8 @@ public class SettingsManager {
     public static String DateFormatStringCache;
 
     public static void init(Context ctx) {
-        context = ctx;
-//        settings = ctx.getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        settings = PreferenceManager.getDefaultSharedPreferences(ctx);
+        SettingsManager.context = ctx;
+        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(ctx);
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
         if (getStoragePath() == null) {
@@ -31,10 +28,13 @@ public class SettingsManager {
         if (getTempPath() == null) {
             setTempPath(Utils.getAppExtFilesDir(context));
         }
+        if (getLogPath() == null) {
+            setLogPath(Utils.getAppExtFilesDir(context));
+        }
 //        LastStoragePath = getStoragePath();
-        HighlightAttachColorCache = getHighlightAttachColor();
-        IsHighlightAttachCache = isHighlightRecordWithAttach();
-        DateFormatStringCache = getDateFormatString();
+        SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
+        SettingsManager.IsHighlightAttachCache = isHighlightRecordWithAttach();
+        SettingsManager.DateFormatStringCache = getDateFormatString();
     }
 
     /**
@@ -214,6 +214,37 @@ public class SettingsManager {
             return settings.getString(context.getString(R.string.pref_key_date_format_string), def);
         }
         return def;
+    }
+
+    /**
+     * Писать логи в файл
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isWriteLog() {
+        boolean def = false;
+        if(settings.contains(context.getString(R.string.pref_key_is_write_log))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_write_log), def);
+        }
+        return def;
+    }
+
+    /**
+     * Путь к каталогу с лог-файлом
+     * @return
+     */
+    public static String getLogPath() {
+        String def = null;
+        if(settings.contains(context.getString(R.string.pref_key_log_path))) {
+            return settings.getString(context.getString(R.string.pref_key_log_path), def);
+        }
+        return def;
+    }
+
+    public static void setLogPath(String value) {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(context.getString(R.string.pref_key_log_path), value);
+        editor.apply();
     }
 
     public static SharedPreferences getSettings() {

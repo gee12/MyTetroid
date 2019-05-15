@@ -48,14 +48,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
-
-        <CheckBoxPreference
-            android:visibility="gone"
-            android:key="@string/pref_key_is_keep_selected_node"
-            android:title="@string/pref_is_keep_selected_node"
-            android:summary="@string/pref_is_keep_selected_node_summ"
-            android:defaultValue="true" />
+    <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_key_category_display">
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_highlight_attach"
@@ -76,6 +69,29 @@
             android:summary="@string/pref_date_format_string_summ"
             android:inputType="text"
             android:defaultValue="@string/def_date_format_string" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
+
+        <CheckBoxPreference
+            android:visibility="gone"
+            android:key="@string/pref_key_is_keep_selected_node"
+            android:title="@string/pref_is_keep_selected_node"
+            android:summary="@string/pref_is_keep_selected_node_summ"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_write_log"
+            android:title="@string/write_log"
+            android:summary="@string/is_write_log"
+            android:defaultValue="false" />
+
+        <Preference
+            android:dependency="@string/pref_key_is_write_log"
+            android:key="@string/pref_key_log_path"
+            android:title="@string/log_path"
+            android:summary="@string/log_path_summ" />
 
     </PreferenceCategory>
 

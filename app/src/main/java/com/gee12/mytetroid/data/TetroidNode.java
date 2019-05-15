@@ -2,6 +2,7 @@ package com.gee12.mytetroid.data;
 
 import android.graphics.drawable.Drawable;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 
 import java.util.ArrayList;
@@ -68,7 +69,7 @@ public class TetroidNode {
 //            this.icon = Utils.loadSVGFromFile(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
             this.icon = Utils.loadSVGFromFile(fullFileName);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogManager.addLog(e);
         }
     }
 

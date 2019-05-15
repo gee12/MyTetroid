@@ -18,15 +18,33 @@ public class LogManager {
 
     private static Context context;
     private static  String fullFileName;
+    private static boolean isWriteToFile;
 
-    public static void init(Context ctx, String path) {
-        context = ctx;
-        fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
+    public static void init(Context ctx, String path, boolean isWriteToFile) {
+        LogManager.context = ctx;
+        setLogPath(path);
+        LogManager.isWriteToFile = isWriteToFile;
+    }
+
+    public static void setLogPath(String path) {
+        LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
+    }
+
+    public static void setIsWriteToFile(boolean isWriteToFile) {
+        LogManager.isWriteToFile = isWriteToFile;
     }
 
     public static void addLog(String s) {
         Log.i(LOG_TAG, s);
-        writeToFile(s);
+        if (isWriteToFile)
+            writeToFile(s);
+    }
+
+    public static void addLog(int sId) {
+        String mes = context.getString(sId);
+        Log.i(LOG_TAG, mes);
+        if (isWriteToFile)
+            writeToFile(mes);
     }
 
     public static void addLog(String s, int duration) {
@@ -34,10 +52,24 @@ public class LogManager {
         showToast(s, duration);
     }
 
+    public static void addLog(int sId, int duration) {
+        String mes = context.getString(sId);
+        addLog(mes);
+        showToast(mes, duration);
+    }
+
     public static void addLog(Exception ex) {
-        String s = ex.getMessage();
-        Log.e(LOG_TAG, s);
-        writeToFile(s);
+        String mes = ex.getMessage();
+        Log.e(LOG_TAG, mes);
+        if (isWriteToFile)
+            writeToFile(mes);
+    }
+
+    public static void addLog(String s, Exception ex) {
+        String mes = s + ex.getMessage();
+        Log.e(LOG_TAG, mes);
+        if (isWriteToFile)
+            writeToFile(mes);
     }
 
     public static void addLog(Exception ex, int duration) {
@@ -45,8 +77,19 @@ public class LogManager {
         showToast(ex.getMessage(), duration);
     }
 
+    public static void addLog(String s, Exception ex, int duration) {
+        addLog(s, ex);
+        showToast(s + ex.getMessage(), duration);
+    }
+
     public static void showToast(String s, int duration) {
         Toast.makeText(context, s, duration).show();
+    }
+
+    private static void addLogWithoutFile(Exception ex, int duration) {
+        String mes = ex.getMessage();
+        Log.e(LOG_TAG, mes);
+        showToast(mes, duration);
     }
 
     private static String createMessage(String s) {
@@ -54,14 +97,14 @@ public class LogManager {
                 Calendar.getInstance().getTime()), s);
     }
 
-    public static void writeToFile(String s) {
+    private static void writeToFile(String s) {
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
                 logFile.createNewFile();
             }
             catch (IOException e) {
-                e.printStackTrace();
+                addLogWithoutFile(e, Toast.LENGTH_LONG);
             }
         }
         try {
@@ -70,7 +113,7 @@ public class LogManager {
             buf.newLine();
             buf.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            addLogWithoutFile(e, Toast.LENGTH_LONG);
         }
     }
 }

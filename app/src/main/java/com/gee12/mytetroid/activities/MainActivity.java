@@ -140,9 +140,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
-        LogManager.init(this);
-        // загружаем данные
+        // инициализация
         SettingsManager.init(this);
+        LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         startInitStorage();
     }
 
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             initStorage(nodeToSelect, false);
 
         } else {
-            Toast.makeText(this, "Ошибка инициализации хранилища", Toast.LENGTH_SHORT).show();
+            LogManager.addLog("Ошибка инициализации хранилища", Toast.LENGTH_SHORT);
         }
     }
 
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 if (DataManager.checkMiddlePassHash(middlePassHash)) {
                     decryptStorage(middlePassHash, true, node);
                 } else {
-                    Toast.makeText(this, R.string.wrong_saved_pass, Toast.LENGTH_LONG).show();
+                    LogManager.addLog(R.string.wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!isAlreadyTryDecrypt) {
                         isAlreadyTryDecrypt = true;
                         initStorage(node, false);
@@ -278,11 +278,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                         decryptStorage(pass, false, node);
                     } else {
-                        Toast.makeText(MainActivity.this, R.string.password_is_incorrect, Toast.LENGTH_LONG).show();
+                        LogManager.addLog(R.string.password_is_incorrect, Toast.LENGTH_LONG);
                         showPassDialog(node);
                     }
                 } catch (DataManager.EmptyFieldException e) {
-//                        e.printStackTrace();
+
+                    LogManager.addLog(e);
+
                     ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
@@ -375,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startInitStorage();
                 } else {
-                    Toast.makeText(this, R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT).show();
+                    LogManager.addLog(R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }
             }
         }
@@ -472,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      */
     private void openFile(int position) {
         if (currentRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
-            Toast.makeText(this, R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG).show();
+            LogManager.addLog(R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG);
             return;
         }
         TetroidFile file = currentRecord.getAttachedFiles().get(position);
@@ -491,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
             startActivity(intent);
         } else {
-            Toast.makeText(this, "Отсутствует файл менеджер", Toast.LENGTH_LONG).show();
+            LogManager.addLog("Отсутствует файл менеджер", Toast.LENGTH_LONG);
         }
     }
 
