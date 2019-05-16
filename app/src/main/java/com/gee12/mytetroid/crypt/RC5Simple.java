@@ -198,7 +198,7 @@ public class RC5Simple {
         int[] in = Utils.toUnsigned(inSigned);
         //        RC5_LOG(("\nDecrypt\n"));
 
-        addDebugLog(String.format("Input data size: %d", in.length));
+//        addDebugLog(String.format("Input data size: %d", in.length));
 
         // No decryptBase64 null data
         int inSize = in.length;
@@ -280,13 +280,13 @@ public class RC5Simple {
             long[] pt = new long[RC5_WORDS_IN_BLOCK];
             long[] ct = new long[RC5_WORDS_IN_BLOCK];
 
-            addDebugLog(String.format("Block num %d, shift %d", block, shift));
+//            addDebugLog(String.format("Block num %d, shift %d", block, shift));
 
             pt[0] = getWordFromByte(in[shift], in[shift + 1], in[shift + 2], in[shift + 3]);
             pt[1] = getWordFromByte(in[shift + RC5_WORD_LEN], in[shift + RC5_WORD_LEN + 1],
                     in[shift + RC5_WORD_LEN + 2], in[shift + RC5_WORD_LEN + 3]);
 
-            addDebugLog(String.format("Block data. Word 1: %X, Word 2: %X", pt[0], pt[1]));
+//            addDebugLog(String.format("Block data. Word 1: %X, Word 2: %X", pt[0], pt[1]));
 
             // Decode
             decryptBlock(pt, ct);
@@ -310,12 +310,12 @@ public class RC5Simple {
             if (block == blockWithDataSize) {
                 dataSize = getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
 
-                addDebugLog(String.format("Decrypt data size: %d", dataSize));
+//                addDebugLog(String.format("Decrypt data size: %d", dataSize));
 
                 // Uncorrect decryptBase64 data size
                 if (dataSize > inSize)
                 {
-                    addDebugLog(String.format( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
+                    addErrorLog(String.format( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
                     errorCode = RC5_ERROR_CODE_7;
                     return null;
                 }
@@ -328,7 +328,7 @@ public class RC5Simple {
 
             // Save decryptBase64 data
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-                addDebugLog(String.format("Put decryptBase64 data size vector out[%d] = %X", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
+//                addDebugLog(String.format("Put decryptBase64 data size vector out[%d] = %X", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
 //                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
                 out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = (byte)ct_part[i];
             }
@@ -406,13 +406,15 @@ public class RC5Simple {
         return 0xFFFFFFFFL & (i0 + (i1 << 8) + (i2 << 16) + (i3 << 24));
     }
 
-    private static void addLog(Exception e) {
+    private static void addErrorLog(Exception e) {
         LogManager.addLog(e);
     }
 
+    private static void addErrorLog(String s) {
+        LogManager.addLog(s, LogManager.Types.ERROR);
+    }
+
     private static void addDebugLog(String s) {
-        if (BuildConfig.DEBUG) {
-            LogManager.addLog(s);
-        }
+        LogManager.addLog(s, LogManager.Types.DEBUG);
     }
 }

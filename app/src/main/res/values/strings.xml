@@ -86,4 +86,8 @@
     <string name="is_write_log">Log events to file</string>
     <string name="log_path">Logs catalog</string>
     <string name="log_path_summ">Path to catalog with log file</string>
+    <string name="storage_init_error">Storage initialization error</string>
+    <string name="errors_during_decryption">Errors occurred during decryption.</string>
+    <string name="details_in_logs">Details in the logs</string>
+    <string name="for_more_info_enable_log">For more information, enable logging</string>
 </resources>

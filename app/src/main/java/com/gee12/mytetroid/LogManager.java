@@ -14,7 +14,15 @@ import java.util.Date;
 
 public class LogManager {
 
-    public static final String LOG_TAG = "MYTETROID";
+    public enum Types {
+        INFO,
+        DEBUG,
+        WARNING,
+        ERROR
+    }
+
+    private static final String LOG_TAG = "MYTETROID";
+    private static final int CALLER_STACK_INDEX = 5;
 
     private static Context context;
     private static  String fullFileName;
@@ -34,52 +42,72 @@ public class LogManager {
         LogManager.isWriteToFile = isWriteToFile;
     }
 
-    public static void addLog(String s) {
-        Log.i(LOG_TAG, s);
+    public static void addLog(String s, Types type, boolean isWriteToFile, int duration) {
+        if (type == Types.DEBUG && !BuildConfig.DEBUG)
+            return;
+        String typeTag;
+        switch(type) {
+            case INFO:
+                typeTag = "INFO: ";
+                Log.i(LOG_TAG, s);
+                break;
+            case WARNING:
+                typeTag = "WARN: ";
+                Log.w(LOG_TAG, s);
+                break;
+            case ERROR:
+                typeTag = "ERROR: ";
+                Log.e(LOG_TAG, s);
+                break;
+            default:
+                typeTag = "DEBUG: ";
+                Log.d(LOG_TAG, s);
+                break;
+        }
         if (isWriteToFile)
-            writeToFile(s);
+            writeToFile(typeTag + s);
+        if (duration > 0)
+            showToast(s, duration);
+    }
+
+    public static void addLog(String s, Types type, int duration) {
+        addLog(s, type, isWriteToFile, duration);
+    }
+
+    public static void addLog(String s, Types type) {
+        addLog(s, type, isWriteToFile, -1);
+    }
+
+    public static void addLog(String s) {
+        addLog(s, Types.INFO);
     }
 
     public static void addLog(int sId) {
-        String mes = context.getString(sId);
-        Log.i(LOG_TAG, mes);
-        if (isWriteToFile)
-            writeToFile(mes);
+        addLog(context.getString(sId), Types.INFO);
     }
 
     public static void addLog(String s, int duration) {
-        addLog(s);
-        showToast(s, duration);
+        addLog(s, Types.INFO, duration);
     }
 
     public static void addLog(int sId, int duration) {
-        String mes = context.getString(sId);
-        addLog(mes);
-        showToast(mes, duration);
+        addLog(context.getString(sId), duration);
     }
 
     public static void addLog(Exception ex) {
-        String mes = ex.getMessage();
-        Log.e(LOG_TAG, mes);
-        if (isWriteToFile)
-            writeToFile(mes);
+        addLog(getExceptionInfo(ex), Types.ERROR);
     }
 
     public static void addLog(String s, Exception ex) {
-        String mes = s + ex.getMessage();
-        Log.e(LOG_TAG, mes);
-        if (isWriteToFile)
-            writeToFile(mes);
+        addLog(s + getExceptionInfo(ex), Types.ERROR);
     }
 
     public static void addLog(Exception ex, int duration) {
-        addLog(ex);
-        showToast(ex.getMessage(), duration);
+        addLog(getExceptionInfo(ex), Types.ERROR, duration);
     }
 
     public static void addLog(String s, Exception ex, int duration) {
-        addLog(s, ex);
-        showToast(s + ex.getMessage(), duration);
+        addLog(s + getExceptionInfo(ex), Types.ERROR, duration);
     }
 
     public static void showToast(String s, int duration) {
@@ -87,14 +115,28 @@ public class LogManager {
     }
 
     private static void addLogWithoutFile(Exception ex, int duration) {
-        String mes = ex.getMessage();
-        Log.e(LOG_TAG, mes);
-        showToast(mes, duration);
+        addLog(getExceptionInfo(ex), Types.ERROR, false, duration);
     }
 
     private static String createMessage(String s) {
         return String.format("%s - %s", DateFormat.format("yyyy.MM.dd hh:mm:ss",
                 Calendar.getInstance().getTime()), s);
+    }
+
+    /**
+     *
+     * @param ex
+     * @return
+     */
+    public static String getExceptionInfo(Exception ex) {
+        StackTraceElement caller = Thread.currentThread().getStackTrace()[CALLER_STACK_INDEX];
+
+        String fullClassName = caller.getClassName();
+        String className = fullClassName.substring(fullClassName.lastIndexOf('.') + 1);
+        String methodName = caller.getMethodName();
+        int lineNumber = caller.getLineNumber();
+
+        return String.format("%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
     }
 
     private static void writeToFile(String s) {

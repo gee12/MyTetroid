@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             initStorage(nodeToSelect, false);
 
         } else {
-            LogManager.addLog("Ошибка инициализации хранилища", Toast.LENGTH_SHORT);
+            LogManager.addLog(R.string.storage_init_error, Toast.LENGTH_SHORT);
         }
     }
 
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      * @param node Ветка для выбора при удачной расшифровке
      */
     private void decryptStorage(TetroidNode node) {
-        String middlePassHash = null;
+        String middlePassHash;
         // пароль сохранен локально?
         if (SettingsManager.isSaveMiddlePassHashLocal()
                 && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
@@ -319,7 +319,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void initStorage(TetroidNode node, boolean isDecrypt) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
-            DataManager.decryptAll();
+            if (!DataManager.decryptAll()) {
+                LogManager.addLog(getString(R.string.errors_during_decryption)
+                    + (SettingsManager.isWriteLog()
+                                ? getString(R.string.details_in_logs)
+                                : getString(R.string.for_more_info_enable_log)),
+                        Toast.LENGTH_LONG);
+            }
             nodesListAdapter.notifyDataSetChanged();
         } else {
             // парсим дерево веток и расшифровываем зашифрованные

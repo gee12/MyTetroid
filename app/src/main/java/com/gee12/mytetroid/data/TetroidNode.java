@@ -76,7 +76,7 @@ public class TetroidNode {
     public void loadIconFromStorage(String iconsStoragePath) {
         if (Utils.isNullOrEmpty(iconName))
             return;
-         loadIcon(iconsStoragePath + iconName);
+        loadIcon(iconsStoragePath + iconName);
     }
 
     public String getName() {

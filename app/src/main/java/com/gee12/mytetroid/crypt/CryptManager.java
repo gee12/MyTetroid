@@ -75,34 +75,34 @@ public class CryptManager {
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }
 
-//        public static boolean decryptAll(String pass, List<TetroidNode> nodes) {
     public static boolean decryptAll(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
         return decryptNodes(nodes, isDecryptSubNodes, iconLoader);
     }
 
     public static boolean decryptNodes(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
+        boolean res = true;
         for (TetroidNode node : nodes) {
             if (node.isCrypted())
-                decryptNode(node, isDecryptSubNodes, iconLoader);
+                res = res & decryptNode(node, isDecryptSubNodes, iconLoader);
         }
-
-        return true;
+        return res;
     }
 
     public static boolean decryptNode(TetroidNode node, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
+        boolean res;
         // расшифровываем поля
-        decryptNodeFields(node);
+        res = decryptNodeFields(node);
         // загружаем иконку
         if (iconLoader != null)
             iconLoader.loadIcon(node);
-        // расшифровывать записи сразу или при выделении?
-        // сделал сразу
+        // расшифровывать список записей сразу или при выделении?
+        // пока сразу
         if (node.getRecordsCount() > 0)
-            decryptRecordsFields(node.getRecords());
+            res = res & decryptRecordsFields(node.getRecords());
         // расшифровываем подветки
         if (isDecryptSubNodes && node.getSubNodesCount() > 0)
-            decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader);
-        return true;
+            res = res & decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader);
+        return res;
     }
 
     /**
@@ -111,10 +111,22 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptNodeFields(TetroidNode node) {
-        node.setName(CryptManager.decryptBase64(cryptKey, node.getName()));
-        node.setIconName(CryptManager.decryptBase64(cryptKey, node.getIconName()));
-        node.setDecrypted(true);
-        return true;
+        boolean res;
+        // name
+        String temp = CryptManager.decryptBase64(cryptKey, node.getName());
+        res = (temp != null);
+        if (res) {
+            node.setName(temp);
+        }
+        // icon
+        temp = CryptManager.decryptBase64(cryptKey, node.getIconName());
+        res = res & (temp != null);
+        if (temp != null) {
+            node.setIconName(temp);
+        }
+        // decryption result
+        node.setDecrypted(res);
+        return res;
     }
 
     /**
@@ -123,16 +135,17 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptRecordsFields(List<TetroidRecord> records) {
+        boolean res = true;
         for (TetroidRecord record : records) {
             if (record.isCrypted()) {
-                decryptRecordFields(record);
+                res = res & decryptRecordFields(record);
                 if (record.getAttachedFilesCount() > 0)
                     for (TetroidFile file : record.getAttachedFiles()) {
-                        decryptFileName(file);
+                        res = res & decryptFileName(file);
                     }
             }
         }
-        return true;
+        return res;
     }
 
     /**
@@ -142,12 +155,33 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
-        record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
-        record.setTags(CryptManager.decryptBase64(cryptKey, record.getTags()));
-        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
-        record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
-        record.setDecrypted(true);
-        return true;
+        boolean res;
+//        record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
+        String temp = CryptManager.decryptBase64(cryptKey, record.getName());
+        res = (temp != null);
+        if (res) {
+            record.setName(temp);
+        }
+//        record.setTags(CryptManager.decryptBase64(cryptKey, record.getTags()));
+        temp = CryptManager.decryptBase64(cryptKey, record.getTags());
+        res = res & (temp != null);
+        if (temp != null) {
+            record.setTags(temp);
+        }
+//        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
+        temp = CryptManager.decryptBase64(cryptKey, record.getAuthor());
+        res = res & (temp != null);
+        if (temp != null) {
+            record.setAuthor(temp);
+        }
+//        record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
+        temp = CryptManager.decryptBase64(cryptKey, record.getUrl());
+        res = res & (temp != null);
+        if (temp != null) {
+            record.setUrl(temp);
+        }
+        record.setDecrypted(res);
+        return res;
     }
 
     /**
@@ -156,8 +190,13 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptFileName(TetroidFile file) {
-        file.setName(CryptManager.decryptBase64(cryptKey, file.getName()));
-        return true;
+//        file.setName(CryptManager.decryptBase64(cryptKey, file.getName()));
+        String temp = CryptManager.decryptBase64(cryptKey, file.getName());
+        boolean res = (temp != null);
+        if (res) {
+            file.setName(temp);
+        }
+        return res;
     }
 
     /**
@@ -299,7 +338,7 @@ public class CryptManager {
      */
     public static String decryptBase64(int[] key, String line) {
         if (line.length() == 0) {
-            return null;
+            return "";
         }
         byte[] bytes = Base64.decode(line.toCharArray());
         return decryptString(key, bytes);
