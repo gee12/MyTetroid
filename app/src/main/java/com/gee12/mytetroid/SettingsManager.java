@@ -11,7 +11,7 @@ public class SettingsManager {
     private static SharedPreferences settings;
     private static Context context;
 
-    public static boolean IsStoragePathChanged;
+    public static boolean isAskReloadStorage;
     public static boolean IsHighlightAttachCache;
     @ColorInt
     public static int HighlightAttachColorCache;
@@ -22,9 +22,9 @@ public class SettingsManager {
         SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(ctx);
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
-        if (getStoragePath() == null) {
-            setStoragePath(Utils.getExtPublicDocumentsDir());
-        }
+//        if (getStoragePath() == null) {
+//            setStoragePath(Utils.getExtPublicDocumentsDir());
+//        }
         if (getTempPath() == null) {
             setTempPath(Utils.getAppExtFilesDir(context));
         }
@@ -50,8 +50,9 @@ public class SettingsManager {
     }
 
     public static void setStoragePath(String value) {
-        if (Utils.isNullOrEmpty(value) || !value.equals(getStoragePath())) {
-            IsStoragePathChanged = true;
+        String oldPath = getStoragePath();
+        if (Utils.isNullOrEmpty(oldPath) || !value.equals(oldPath)) {
+//            isAskReloadStorage = true;
             SettingsManager.setMiddlePassHash(null);
         }
         SharedPreferences.Editor editor = settings.edit();

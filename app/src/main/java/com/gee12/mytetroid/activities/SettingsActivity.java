@@ -29,9 +29,13 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         storageFolderPicker.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                SettingsManager.IsStoragePathChanged = false;
+                String path = SettingsManager.getStoragePath();
+                if (Utils.isNullOrEmpty(path)) {
+                    path = Utils.getExtPublicDocumentsDir();
+                }
+                SettingsManager.isAskReloadStorage = false;
                 openFolderPicker(getString(R.string.folder_chooser_title),
-                        SettingsManager.getStoragePath(),
+                        path,
                         REQUEST_CODE_OPEN_STORAGE_PATH);
                 return true;
             }
@@ -72,6 +76,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         if (resultCode != Activity.RESULT_OK) return;
         String folderFullName = data.getStringExtra("data");
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH) {
+            if (!folderFullName.equals(SettingsManager.getStoragePath())) {
+                SettingsManager.isAskReloadStorage = true;
+            }
             SettingsManager.setStoragePath(folderFullName);
         } else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
             SettingsManager.setTempPath(folderFullName);

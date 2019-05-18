@@ -49,6 +49,8 @@ import com.gee12.mytetroid.views.RecordsListAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.io.File;
+
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
@@ -143,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // инициализация
         SettingsManager.init(this);
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
+        LogManager.addLog(R.string.app_start);
         startInitStorage();
     }
 
@@ -192,10 +195,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
+            LogManager.addLog(getString(R.string.storage_settings_inited) + storagePath);
             drawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
-            if (SettingsManager.isLoadLastStoragePath())
+            if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
+            }
 
             // нужно ли выделять ветку, выбранную в прошлый раз
             // (обязательно после initListViews)
@@ -265,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     void showPassDialog(final TetroidNode node) {
+        LogManager.addLog(R.string.show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
         ActivityDialogs.showPassDialog(this, node, new ActivityDialogs.IPassInputResult() {
             @Override
@@ -319,7 +325,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void initStorage(TetroidNode node, boolean isDecrypt) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
-            if (!DataManager.decryptAll()) {
+            if (DataManager.decryptAll()) {
+                LogManager.addLog(R.string.storage_decrypted);
+            } else {
                 LogManager.addLog(getString(R.string.errors_during_decryption)
                     + (SettingsManager.isWriteLog()
                                 ? getString(R.string.details_in_logs)
@@ -329,7 +337,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             nodesListAdapter.notifyDataSetChanged();
         } else {
             // парсим дерево веток и расшифровываем зашифрованные
-            DataManager.readStorage(isDecrypt);
+            if (DataManager.readStorage(isDecrypt)) {
+                LogManager.addLog(R.string.storage_loaded);
+            }
             // инициализация контролов
             initListViews();
         }
@@ -363,14 +373,21 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
-            if (SettingsManager.IsStoragePathChanged) {
+            if (SettingsManager.isAskReloadStorage) {
+                SettingsManager.isAskReloadStorage = false;
                 ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
                     @Override
                     public void onApply() {
                         startInitStorage();
                     }
+                    @Override
+                    public void onCancel() {
+                    }
                 });
             }
+        } else if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+            String folderFullName = data.getStringExtra("data");
+            initStorage(folderFullName);
         }
     }
 
@@ -429,28 +446,29 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      */
     private void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
-//        String recordContentUrl = record.getRecordTextUri(DataManager.getStoragePath(), DataManager.getTempPath());
-//        String recordContentUrl = DataManager.getRecordTextUri(record);
-//        if (recordContentUrl != null) {
-//            recordContentWebView.loadData(DataManager.getRecordTextDecrypted(record), "text/html; charset=UTF-8", null);
-            recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                    DataManager.getRecordTextDecrypted(record), "text/html", "UTF-8", null);
+        LogManager.addLog("Чтение записи: " + record.getDirName());
+        String text = DataManager.getRecordTextDecrypted(record);
+        if (text == null) {
+            LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
+            return;
+        }
+        recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+                text, "text/html", "UTF-8", null);
 //            recordContentWebView.loadUrl(recordContentUrl);
-            recordContentWebView.setWebViewClient(new WebViewClient() {
-                /*@Override
-                public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                    return super.shouldOverrideUrlLoading(view, request);
-                }*/
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    tvRecordTags.setText(record.getTags());
-                    tvRecordAuthor.setText(record.getAuthor());
-                    tvRecordUrl.setText(record.getUrl());
-                    tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
-                    showView(VIEW_RECORD_TEXT);
-                }
-            });
-//        }
+        recordContentWebView.setWebViewClient(new WebViewClient() {
+            /*@Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return super.shouldOverrideUrlLoading(view, request);
+            }*/
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                tvRecordTags.setText(record.getTags());
+                tvRecordAuthor.setText(record.getAuthor());
+                tvRecordUrl.setText(record.getUrl());
+                tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
+                showView(VIEW_RECORD_TEXT);
+            }
+        });
     }
 
     /**

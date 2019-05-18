@@ -68,19 +68,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
-//        boolean xmlParsed = false;
-        boolean res = false;
+        boolean res;
         try {
-//            FileInputStream fis = new FileInputStream(storagePath + "/mytetra.xml");
-//            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-//            instance.rootNodesCollection = instance.parse(fis, decryptHandler);
-//            xmlParsed = true;
             res = databaseINI.load(storagePath + File.separator + DATABASE_INI_FILE);
         } catch (Exception ex) {
-//            if (xmlParsed)
-                // ошибка загрузки ini
-//            else
-                // ошибка загрузки xml
             LogManager.addLog(ex);
             return false;
         }
@@ -179,12 +170,24 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String res = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                byte[] text = Utils.readFile(URI.create(pathUri));
+                byte[] text = new byte[0];
+                try {
+                    text = Utils.readFile(URI.create(pathUri));
+                } catch (IOException ex) {
+                    LogManager.addLog("Ошибка чтения файла записи: ", ex);
+                }
                 // расшифровываем файл
                 res = CryptManager.decryptText(text);
+                if (res == null) {
+                    LogManager.addLog("Ошибка расшифровки файла записи: " + pathUri, LogManager.Types.ERROR);
+                }
             }
         } else {
-            res = Utils.readTextFile(URI.create(pathUri));
+            try {
+                res = Utils.readTextFile(URI.create(pathUri));
+            } catch (IOException ex) {
+                LogManager.addLog("Ошибка чтения файла записи: ", ex);
+            }
         }
         return res;
     }
@@ -244,6 +247,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
         File srcFile = new File(fullFileName);
         //
+        LogManager.addLog("Открытие файла: " + fullFileName);
         if (srcFile.exists()) {
             // если запись зашифрована
             if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {

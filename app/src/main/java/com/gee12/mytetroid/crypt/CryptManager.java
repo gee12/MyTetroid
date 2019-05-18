@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.crypt;
 
+import android.widget.Toast;
+
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.INodeIconLoader;
@@ -214,7 +216,7 @@ public class CryptManager {
      * @return
      */
     public static byte[] decryptBytes(byte[] bytes) {
-        return decryptArray(cryptKey, bytes);
+        return decrypt(cryptKey, bytes);
     }
 
     /**
@@ -231,14 +233,21 @@ public class CryptManager {
         byte[] bytes = new byte[size];
 
         BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
-        int readed = bis.read(bytes, 0, bytes.length);
+        int readed = bis.read(bytes, 0, size);
         bis.close();
 
         if (readed > 0) {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
-            bos.write(decryptBytes(bytes));
+            byte[] data = decryptBytes(bytes);
+            if (data == null) {
+                bos.close();
+                return false;
+            }
+            bos.write(data);
             bos.flush();
             bos.close();
+        } else {
+            addLog("File is empty");
         }
         return true;
     }
@@ -344,44 +353,49 @@ public class CryptManager {
         return decryptString(key, bytes);
     }
 
-//    public static String decryptString(int[] key, byte[] bytes) {
-//        byte[] out = decrypt(key, bytes);
-//        if (out != null)
-//            // java.lang.OutOfMemoryError..
-//            return new String(out);
-//    }
+    public static String decryptString(int[] key, byte[] bytes) {
+        byte[] out = decrypt(key, bytes);
+        if (out != null)
+            // java.lang.OutOfMemoryError..
+            return new String(out);
+        return null;
+    }
 
-    public static byte[] decryptArray(int[] key, byte[] bytes) {
+    public static byte[] decrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] res = null;
         rc5.setKey(key);
         try {
-            res = rc5.decryptArray(bytes);
+            res = rc5.decrypt(bytes);
         } catch (Exception e) {
             addLog(e);
         }
         return res;
     }
 
-    public static String decryptString(int[] key, byte[] bytes) {
-        if (bytes == null)
-            return null;
-        String res = null;
-        rc5.setKey(key);
-        try {
-            res = rc5.decryptString(bytes);
-        } catch (Exception e) {
-            addLog(e);
-        }
-        return res;
-    }
+//    public static String decryptString(int[] key, byte[] bytes) {
+//        if (bytes == null)
+//            return null;
+//        String res = null;
+//        rc5.setKey(key);
+//        try {
+//            res = rc5.decryptString(bytes);
+//        } catch (Exception e) {
+//            addLog(e);
+//        }
+//        return res;
+//    }
 
     static void setCryptKey(int[] key) {
         CryptManager.cryptKey = key;
     }
 
+    private static void addLog(String s) {
+        LogManager.addLog(s, Toast.LENGTH_LONG);
+    }
+
     private static void addLog(Exception e) {
-        LogManager.addLog(e);
+        LogManager.addLog(e, Toast.LENGTH_LONG);
     }
 }

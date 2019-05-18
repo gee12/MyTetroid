@@ -1,32 +1,58 @@
 package com.gee12.mytetroid.crypt;
 
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 
 import java.util.Arrays;
 
+/**
+ * Реализация на Java класса RC5Simple, написанного Сергеем Степановым (xintrea) на C++.
+ * Источник:
+ * https://github.com/xintrea/mytetra_dev/blob/experimental/app/src/libraries/crypt/RC5Simple.cpp
+ *
+ * Требуется оптимизация:
+ * - в Java нет беззнаковых типов, поэтому операции сложения/вычитания с переменными типа boolean
+ * без операции расширения типа (в int, например) выполняются неверно. Выход:
+ *     1) делать расширение типа в операциях "на лету" (при чем оно и так делается неявно в int
+ *     при выполнении операций сложения/вычитания с типами boolean, short, char)
+ *     2) заранее преобразовывать поступающий массив байт из boolean в int и все операции
+ *     проводить в int (это долго при большом массиве данных)
+ * Сейчас используется вариант 2, что, по идее, не оптимально.
+ * - полученный в результате расшифровки массив нужно обрезать вначале и в конце,
+ * чтобы оставить только данные. В Java это можно сделать с помощью Arrays.copyOfRange,
+ * но при больших массивах (~20Мб) приложение может упасть из-за OutOfMemoryError. Выход:
+ *     1) по ходу расшифровки (поблочно) результат записывать в файл. Но (!) это вариант
+ *     подходит для расшифровки прикрепленных файлов, но не подходит для расшифровки записей.
+ *     Т.к. временный файл неуместно сохранять в каталог записи, а если сохранять отдельно, то
+ *     отпадут относительные html-ссылки (к сожалению, метода WebView.setBaseUrl() нету..).
+ *     Удалять временный файл после просмотра записи - вариант ненадежный.
+ *     2) выводить результат в String, обрезая его сразу при формировании строки
+ *     (у String есть специальный конструктор для этого). Но тут тоже падает из-за
+ *     OutOfMemoryError, но, хотя бы, избавляемся от центрального промежуточного этапа в цепочке
+ *     Расшифровка=>Byte[]=>String
+ *
+ */
 public class RC5Simple {
 
-    private class DecryptOutHelper {
-        byte[] out;
-        int dataSize;
-        int removeBlocksFromOutput;
-
-        public DecryptOutHelper(byte[] out, int dataSize, int removeBlocksFromOutput) {
-            this.out = out;
-            this.dataSize = dataSize;
-            this.removeBlocksFromOutput = removeBlocksFromOutput;
-        }
-
-        int getShift() {
-            return removeBlocksFromOutput * RC5_BLOCK_LEN;
-        }
-
-        int getSize() {
-            return (out.length > dataSize) ? (int)dataSize : out.length;
-        }
-    }
+//    private class DecryptOutHelper {
+//        byte[] out;
+//        int dataSize;
+//        int removeBlocksFromOutput;
+//
+//        public DecryptOutHelper(byte[] out, int dataSize, int removeBlocksFromOutput) {
+//            this.out = out;
+//            this.dataSize = dataSize;
+//            this.removeBlocksFromOutput = removeBlocksFromOutput;
+//        }
+//
+//        int getShift() {
+//            return removeBlocksFromOutput * RC5_BLOCK_LEN;
+//        }
+//
+//        int getSize() {
+//            return (out.length > dataSize) ? dataSize : out.length;
+//        }
+//    }
 
 
 //    public static final String RC5_SIMPLE_VERSION = "RC5Simple Ver. 1.31 / 11.12.2013";
@@ -122,24 +148,6 @@ public class RC5Simple {
             rc5_key[i]=key[i];
     }
 
-    // Encrypt data block
-    // Parameters:
-    // pt - input data
-    // ct - encrypt data
-    private void encryptBlock(long[] pt, long[] ct) {
-        long a = pt[0] + rc5_s[0];
-        long b = pt[1] + rc5_s[1];
-
-        for(int i = 1; i <= RC5_R; i++)
-        {
-            a = ROTL(a^b, b) + rc5_s[2*i];
-            b = ROTL(b^a, a) + rc5_s[2*i+1];
-        }
-
-        ct[0] = a;
-        ct[1] = b;
-    }
-
     // Decrypt data block
     // Parameters:
     // pt - input data
@@ -158,43 +166,7 @@ public class RC5Simple {
         pt[0] = a - rc5_s[0];
     }
 
-    /**
-     * Decrypt string
-     * @param inSigned
-     * @return
-     */
-    public String decryptString(byte[] inSigned) {
-        DecryptOutHelper outHelper = decrypt(inSigned);
-        // Remove from output a blocks with technical data (random blocks, size, etc...)
-//        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
-
-        // Remove from output a last byte with random byte for aligning
-//        if (out.size() > dataSize)
-//            out.erase(out.begin() + dataSize, out.end());
-
-//        int size = (out.length > dataSize) ? (int)dataSize : out.length;
-//        int size = Math.min(outHelper.out.length, outHelper.dataSize);
-//        int size = (out.length() > dataSize) ? (int)dataSize : out.length();
-//        int from = outHelper.removeBlocksFromOutput * RC5_BLOCK_LEN;
-//        out = Arrays.copyOfRange(out, from , from  + size);
-//        byte[] outBytes = Utils.toBytes(out);
-        return new String(outHelper.out, outHelper.getShift(), outHelper.getSize());
-    }
-
-    /**
-     * Decrypt byte array
-     * @param inSigned
-     * @return
-     */
-    public byte[] decryptArray(byte[] inSigned) {
-        DecryptOutHelper outHelper = decrypt(inSigned);
-        int from = outHelper.getShift();
-        byte[] res = Arrays.copyOfRange(outHelper.out, from , from  + outHelper.getSize());
-//        return Utils.toBytes(out);
-        return res;
-    }
-
-    private DecryptOutHelper decrypt(byte[] inSigned) {
+    public byte[] decrypt(byte[] inSigned) {
         int[] in = Utils.toUnsigned(inSigned);
         //        RC5_LOG(("\nDecrypt\n"));
 
@@ -269,10 +241,11 @@ public class RC5Simple {
 
         // Cleaning output vector
 //        int[] out = new int[inSize];
-        byte[] out = new byte[inSize];
+//        byte[] out = new byte[inSize];
+        byte[] out = null;
 
         // Decode by blocks from started data block
-        long dataSize = 0;
+        int dataSize = 0;
         int block = firstDataBlock;
         while ((RC5_BLOCK_LEN * (block + 1)) <= inSize) {
             int shift = block * RC5_BLOCK_LEN;
@@ -308,14 +281,16 @@ public class RC5Simple {
                 ct_part[i] ^= iv[i];
 
             if (block == blockWithDataSize) {
-                dataSize = getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
+                dataSize = (int)getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
+
+                out = new byte[dataSize];
 
 //                addDebugLog(String.format("Decrypt data size: %d", dataSize));
 
                 // Uncorrect decryptBase64 data size
                 if (dataSize > inSize)
                 {
-                    addErrorLog(String.format( "Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
+                    addErrorLog(String.format("Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
                     errorCode = RC5_ERROR_CODE_7;
                     return null;
                 }
@@ -325,22 +300,36 @@ public class RC5Simple {
             for (int i = 0; i < RC5_BLOCK_LEN; i++)
                 iv[i] = in[shift + i];
 
-
-            // Save decryptBase64 data
-            for (int i = 0; i < RC5_BLOCK_LEN; i++) {
+            if (block >= firstDataBlock + removeBlocksFromOutput) {
+                // Save decryptBase64 data
+                int curBlockLen = ((inSize - shift) <= RC5_BLOCK_LEN && dataSize % RC5_BLOCK_LEN != 0)
+                        ? dataSize % RC5_BLOCK_LEN : RC5_BLOCK_LEN;
+                for (int i = 0; i < curBlockLen; i++) {
 //                addDebugLog(String.format("Put decryptBase64 data size vector out[%d] = %X", shift - (removeBlocksFromOutput * RC5_BLOCK_LEN) + i, ct_part[i]));
 //                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
-                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = (byte)ct_part[i];
+                    out[(block - (firstDataBlock + removeBlocksFromOutput)) * RC5_BLOCK_LEN + i] = (byte) ct_part[i];
+                }
             }
 
             block++;
         }
 
         // Cleaning IV
-        for (int i = 0; i < RC5_BLOCK_LEN; i++)
-            iv[i] = 0;
+//        for (int i = 0; i < RC5_BLOCK_LEN; i++)
+//            iv[i] = 0;
 
-        return new DecryptOutHelper(out, (int)dataSize, removeBlocksFromOutput);
+//        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
+
+        // Remove from output a last byte with random byte for aligning
+//        if (out.size() > dataSize)
+//            out.erase(out.begin() + dataSize, out.end());
+
+//        int size = (out.length > dataSize) ? (int)dataSize : out.length;
+//        int from = outHelper.removeBlocksFromOutput * RC5_BLOCK_LEN;
+//        out = Arrays.copyOfRange(out, from , from  + size);
+
+//        return new DecryptOutHelper(out, (int)dataSize, removeBlocksFromOutput);
+        return out;
     }
 
 

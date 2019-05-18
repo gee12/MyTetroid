@@ -22,6 +22,7 @@ public class ActivityDialogs {
 
     public interface IReloadStorageResult {
         void onApply();
+        void onCancel();
     }
 
     public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
@@ -74,6 +75,9 @@ public class ActivityDialogs {
                 switch (which){
                     case DialogInterface.BUTTON_POSITIVE:
                         applyHandler.onApply();
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        applyHandler.onCancel();
                         break;
                 }
             }

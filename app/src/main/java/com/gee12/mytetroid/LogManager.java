@@ -66,7 +66,7 @@ public class LogManager {
         }
         if (isWriteToFile)
             writeToFile(typeTag + s);
-        if (duration > 0)
+        if (duration >= 0)
             showToast(s, duration);
     }
 
@@ -119,7 +119,7 @@ public class LogManager {
     }
 
     private static String createMessage(String s) {
-        return String.format("%s - %s", DateFormat.format("yyyy.MM.dd hh:mm:ss",
+        return String.format("%s - %s", DateFormat.format("yyyy.MM.dd HH:mm:ss",
                 Calendar.getInstance().getTime()), s);
     }
 

@@ -113,10 +113,9 @@ public class RecordsListAdapter extends BaseAdapter {
                     context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width),0);
         }
         else {
-            // нет смысла менять пока записи только на чтение
-//            convertView.setBackgroundColor(Color.TRANSPARENT);
-//            viewHolder.attachedView.setVisibility(View.GONE);
-//            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,0,0);
+            convertView.setBackgroundColor(Color.TRANSPARENT);
+            viewHolder.attachedView.setVisibility(View.GONE);
+            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,0,0);
         }
 
         return convertView;

@@ -74,7 +74,7 @@ public class Utils {
     }
 
     public static int toUnsigned(byte b) {
-        return 0x000000FF & (int)b;
+        return 0x000000FF & b;
     }
 
     public static int[] toUnsigned(byte[] ba) {
@@ -82,7 +82,7 @@ public class Utils {
             return null;
         int[] res = new int[ba.length];
         for (int i = 0; i < ba.length; i ++) {
-            res[i] = toUnsigned(ba[i]);
+            res[i] = 0x000000FF & ba[i];
         }
         return res;
     }
@@ -111,36 +111,25 @@ public class Utils {
 //        return res;
 //    }
 
-    public static String readTextFile(URI fileUrl) {
+    public static String readTextFile(URI fileUrl) throws IOException {
         StringBuilder sb = new StringBuilder();
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(new File(fileUrl)));
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-                sb.append('\n');
-            }
-            br.close();
+        BufferedReader br = new BufferedReader(new FileReader(new File(fileUrl)));
+        String line;
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+            sb.append('\n');
         }
-        catch (IOException e) {
-            return null;
-        }
+        br.close();
         return sb.toString();
     }
 
-    public static byte[] readFile(URI fileUrl) {
+    public static byte[] readFile(URI fileUrl) throws IOException {
         File file = new File(fileUrl);
         byte[] data = new byte[(int) file.length()];
         DataInputStream dis;
-        try {
-            dis = new DataInputStream(new FileInputStream(file));
-            dis.readFully(data);
-            dis.close();
-        } catch (IOException e) {
-            return null;
-        }
+        dis = new DataInputStream(new FileInputStream(file));
+        dis.readFully(data);
+        dis.close();
         return data;
     }
 
