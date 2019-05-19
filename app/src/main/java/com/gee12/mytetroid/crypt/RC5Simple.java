@@ -98,6 +98,9 @@ public class RC5Simple {
     private boolean rc5_isSetFormatVersionForce;
     private int errorCode;
 
+    /**
+     *
+     */
     public RC5Simple() {
         // Set magic constants
         rc5_p = 0xb7e15163L;
@@ -112,9 +115,10 @@ public class RC5Simple {
         errorCode = 0;
     }
 
-    // Setup secret key
-    // Parameters:
-    // key - secret input key[RC5_B]
+    /**
+     * Setup secret key
+     * @param key secret input key[RC5_B]
+     */
     private void setup(int[] key) {
         int i, j, k, u = RC5_W/8;
         long[] l = new long[RC5_C];
@@ -137,7 +141,10 @@ public class RC5Simple {
     }
 
 
-    // Set secret key
+    /**
+     * Set secret key
+     * @param key
+     */
     public void setKey(int[] key) {
         if(key.length != RC5_B) {
             errorCode = RC5_ERROR_CODE_1;
@@ -148,10 +155,11 @@ public class RC5Simple {
             rc5_key[i]=key[i];
     }
 
-    // Decrypt data block
-    // Parameters:
-    // pt - input data
-    // ct - decryptBase64 data
+    /**
+     * Decrypt data block
+     * @param ct input data
+     * @param pt decrypt Base64 data
+     */
     private void decryptBlock(long[] ct, long[] pt) {
         long b = ct[1];
         long a = ct[0];
@@ -166,10 +174,13 @@ public class RC5Simple {
         pt[0] = a - rc5_s[0];
     }
 
+    /**
+     *
+     * @param inSigned
+     * @return
+     */
     public byte[] decrypt(byte[] inSigned) {
         int[] in = Utils.toUnsigned(inSigned);
-        //        RC5_LOG(("\nDecrypt\n"));
-
 //        addDebugLog(String.format("Input data size: %d", in.length));
 
         // No decryptBase64 null data
@@ -180,7 +191,7 @@ public class RC5Simple {
         }
 
         // Detect format version
-        int formatVersion = 0;
+        int formatVersion;
         if (rc5_isSetFormatVersionForce)
             formatVersion = rc5_formatVersion; // If format set force, format not autodetected
         else {
@@ -358,7 +369,13 @@ public class RC5Simple {
     }*/
 
 
-    // Rotation operators. x must be unsigned, to get logical right shift
+    /**
+     * Rotation operators
+     * x must be unsigned, to get logical right shift
+     * @param x
+     * @param y
+     * @return
+     */
     public static long ROTL(long x, long y) {
         x = 0xFFFFFFFFL & x;
         long res = (((x) << (y & (RC5_W - 1))) | ((x) >> (RC5_W - (y & (RC5_W - 1)))));
