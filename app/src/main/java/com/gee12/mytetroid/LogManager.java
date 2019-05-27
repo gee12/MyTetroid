@@ -38,10 +38,6 @@ public class LogManager {
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
-    public static void setIsWriteToFile(boolean isWriteToFile) {
-        LogManager.isWriteToFile = isWriteToFile;
-    }
-
     public static void addLog(String s, Types type, boolean isWriteToFile, int duration) {
         if (type == Types.DEBUG && !BuildConfig.DEBUG)
             return;

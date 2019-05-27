@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -16,6 +14,7 @@ import android.widget.TextView;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.Utils;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -25,7 +24,7 @@ public class AboutActivity extends AppCompatActivity {
         setContentView(R.layout.activity_about);
 
         TextView tvVesion = findViewById(R.id.text_view_version);
-        tvVesion.setText(getVersionName());
+        tvVesion.setText(Utils.getVersionName(this));
 
         TextView tvappSumm = findViewById(R.id.text_view_app_summ);
         tvappSumm.setText(Html.fromHtml(getString(R.string.app_summ_html)));
@@ -42,16 +41,6 @@ public class AboutActivity extends AppCompatActivity {
                 rateApp();
             }
         });
-    }
-
-    String getVersionName() {
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            return pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            LogManager.addLog(e);
-        }
-        return null;
     }
 
     void rateApp() {

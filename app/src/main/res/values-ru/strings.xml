@@ -71,7 +71,7 @@
     <string name="errors_during_decryption">При расшифровке произошли ошибки.</string>
     <string name="details_in_logs">Подробности в логах</string>
     <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>
-    <string name="app_start">Запуск приложения</string>
+    <string name="app_start">Запуск приложения. Версия %s</string>
     <string name="storage_loaded">Хранилище загружено: </string>
     <string name="show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="storage_decrypted">Хранилище расшифровано</string>

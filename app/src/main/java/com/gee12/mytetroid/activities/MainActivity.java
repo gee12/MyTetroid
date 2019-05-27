@@ -34,6 +34,7 @@ import android.widget.ViewFlipper;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // инициализация
         SettingsManager.init(this);
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
-        LogManager.addLog(R.string.app_start);
+        LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
     }
 

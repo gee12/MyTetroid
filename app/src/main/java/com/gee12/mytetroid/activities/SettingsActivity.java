@@ -123,7 +123,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             SettingsManager.DateFormatStringCache = SettingsManager.getDateFormatString();
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
-            LogManager.setIsWriteToFile(SettingsManager.isWriteLog());
+            LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         }
     }
 
