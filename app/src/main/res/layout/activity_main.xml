@@ -14,13 +14,13 @@
         android:layout_height="match_parent" />
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
+        android:id="@+id/nav_view_left"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="false"
         android:background="#f6f6fc"
-        app:headerLayout="@layout/layout_header">
+        app:headerLayout="@layout/nav_view_header_left">
 
         <pl.openrnd.multilevellistview.MultiLevelListView
             android:id="@+id/nodes_list_view"
@@ -30,6 +30,24 @@
             android:layout_marginBottom="8dp"
             app:alwaysExtended="false"
             app:nestType="multiple" />
+
+    </com.google.android.material.navigation.NavigationView>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view_right"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:fitsSystemWindows="false"
+        android:background="#f6f6fc"
+        app:headerLayout="@layout/nav_view_header_left">
+
+        <ListView
+            android:id="@+id/tags_list_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="87dp"
+            android:layout_marginBottom="8dp" />
 
     </com.google.android.material.navigation.NavigationView>
 

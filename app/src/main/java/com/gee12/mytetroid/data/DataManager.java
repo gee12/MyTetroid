@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
@@ -46,12 +47,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      *
      */
-    private List<TetroidNode> rootNodesCollection;
+    private String storagePath;
+
     /**
      *
      */
-    private String storagePath;
-
     private static INIProperties databaseINI;
 
     /**
@@ -84,17 +84,18 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static boolean readStorage(boolean isDecrypt) {
+        boolean res = false;
         try {
             FileInputStream fis = new FileInputStream(
                     instance.storagePath + File.separator + MYTETRA_XML_FILE);
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-            DataManager.instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+//            DataManager.instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+            res = instance.parse(fis, decryptHandler);
         } catch (Exception ex) {
             // ошибка загрузки xml
             LogManager.addLog(ex);
-            return false;
         }
-        return true;
+        return res;
     }
 
     public static boolean decryptAll() {

@@ -91,8 +91,8 @@
     <string name="details_in_logs">Details in the logs</string>
     <string name="for_more_info_enable_log">For more information, enable logging</string>
     <string name="app_start">Run app. Version %s</string>
-    <string name="storage_loaded">Хранилище загружено:</string>
-    <string name="show_pass_dialog">Запуск диалога запроса пароля</string>
-    <string name="storage_decrypted">Хранилище расшифровано</string>
-    <string name="storage_settings_inited">Настройки хранилища загружены:</string>
+    <string name="storage_loaded">Storage is loaded: </string>
+    <string name="show_pass_dialog"> Starting the password request dialog</string>
+    <string name="storage_decrypted">Storage is decrypted</string>
+    <string name="storage_settings_inited">Storage settings is loaded: </string>
 </resources>

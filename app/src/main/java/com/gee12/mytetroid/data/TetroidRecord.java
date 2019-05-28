@@ -102,7 +102,7 @@ public class TetroidRecord {
     }
 
     public String getCreatedString(String format) {
-        return new SimpleDateFormat(format).format(created);
+        return (created != null) ? new SimpleDateFormat(format).format(created) : "";
 //        return dateFormat.format(created);
     }
 

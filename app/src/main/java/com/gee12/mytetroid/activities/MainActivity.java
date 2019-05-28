@@ -466,7 +466,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 tvRecordTags.setText(record.getTags());
                 tvRecordAuthor.setText(record.getAuthor());
                 tvRecordUrl.setText(record.getUrl());
-                tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
+                if (record.getCreated() != null)
+                    tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
                 showView(VIEW_RECORD_TEXT);
             }
         });
