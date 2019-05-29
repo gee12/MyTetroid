@@ -44,6 +44,7 @@ import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.ActivityDialogs;
 import com.gee12.mytetroid.views.RecordsListAdapter;
+import com.gee12.mytetroid.views.TagsListAdapter;
 
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
@@ -63,10 +64,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
 
-    public static final int FILE_BROWSE = 1;
-    public static final int GET_CONTENT = 2;
-    public static final int OPEN_DOC = 3;
-
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
     public static final int OPEN_RECORD_FOLDER_MENU_ITEM_ID = 3;
@@ -80,7 +77,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private RecordsListAdapter recordsListAdapter;
     private ListView recordsListView;
     private FilesListAdapter filesListAdapter;
+    private TagsListAdapter tagsListAdapter;
     private ListView filesListView;
+    private ListView tagsListView;
     private TetroidNode currentNode;
     private TetroidRecord currentRecord;
     private ViewFlipper viewFlipper;
@@ -131,6 +130,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         filesListView.setOnItemClickListener(onFileClicklistener);
         emptyTextView = findViewById(R.id.files_text_view_empty);
         filesListView.setEmptyView(emptyTextView);
+        // список меток
+        tagsListView = findViewById(R.id.tags_list_view);
+        tagsListView.setOnItemClickListener(onTagClicklistener);
+        emptyTextView = findViewById(R.id.tags_text_view_empty);
+        tagsListView.setEmptyView(emptyTextView);
+
 
         viewFlipper = findViewById(R.id.view_flipper);
         recordContentWebView = findViewById(R.id.web_view_record_content);
@@ -360,6 +365,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // список файлов
         this.filesListAdapter = new FilesListAdapter(this);
         filesListView.setAdapter(filesListAdapter);
+        // список меток
+        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
+        tagsListView.setAdapter(tagsListAdapter);
     }
 
     void showFolderChooser() {
@@ -589,6 +597,17 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             openFile(position);
+        }
+    };
+
+    /**
+     * Обработчик клика на метке
+     */
+    private AdapterView.OnItemClickListener onTagClicklistener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//            showTagRecords(position);
+            LogManager.addLog("Открытие записей метки " + position, Toast.LENGTH_SHORT);
         }
     };
 

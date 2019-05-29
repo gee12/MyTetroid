@@ -76,4 +76,5 @@
     <string name="show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="storage_decrypted">Хранилище расшифровано</string>
     <string name="storage_settings_inited">Настройки хранилища загружены: </string>
+    <string name="tags_is_missing">Метки отсутствуют</string>
 </resources>

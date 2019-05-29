@@ -95,4 +95,5 @@
     <string name="show_pass_dialog"> Starting the password request dialog</string>
     <string name="storage_decrypted">Storage is decrypted</string>
     <string name="storage_settings_inited">Storage settings is loaded: </string>
+    <string name="tags_is_missing">Tags is missing</string>
 </resources>

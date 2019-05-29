@@ -330,6 +330,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesCollection;
     }
 
+    public static HashMap<String, List<TetroidRecord>> getTagsHashMap() {
+        return instance.tagsMap;
+    }
+
+
+
     public static boolean isNodesExist() {
         return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
     }

@@ -20,7 +20,7 @@ import java.util.List;
 public abstract class XMLManager implements INodeIconLoader {
 
     private static final String ns = null;
-    private static final String TAGS_SEPARATOR = ",";
+    private static final String TAGS_SEPARATOR = ", ";
 
     protected Version formatVersion;
     protected boolean isExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
@@ -47,6 +47,8 @@ public abstract class XMLManager implements INodeIconLoader {
 //    public List<TetroidNode> parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
+        this.rootNodesCollection = new ArrayList<>();
+        this.tagsMap = new HashMap<>();
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -294,4 +296,5 @@ public abstract class XMLManager implements INodeIconLoader {
             }
         }
     }
+
 }
