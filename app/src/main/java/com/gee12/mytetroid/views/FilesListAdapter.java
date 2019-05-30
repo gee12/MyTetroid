@@ -26,7 +26,7 @@ public class FilesListAdapter extends BaseAdapter {
         TextView sizeView;
     }
 
-    private static LayoutInflater inflater = null;
+    private LayoutInflater inflater;
     private List<TetroidFile> dataSet;
     private TetroidRecord record;
     private Context context;

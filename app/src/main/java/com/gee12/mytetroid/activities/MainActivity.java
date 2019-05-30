@@ -51,7 +51,7 @@ import com.gee12.mytetroid.views.TagsListAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
-import java.io.File;
+import java.util.List;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int VIEW_RECORDS_LIST = 0;
     public static final int VIEW_RECORD_TEXT = 1;
     public static final int VIEW_RECORD_FILES = 2;
+    public static final int VIEW_TAG_RECORDS = 3;
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private ListView tagsListView;
     private TetroidNode currentNode;
     private TetroidRecord currentRecord;
+    private String currentTag;
     private ViewFlipper viewFlipper;
     private WebView recordContentWebView;
     ToggleButton tbRecordFieldsExpander;
@@ -90,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvRecordAuthor;
     TextView tvRecordUrl;
     TextView tvRecordDate;
-    private int lastDisplayedViewId = 0;
+    private int curViewId;
+    private int lastViewId;
     private boolean isAlreadyTryDecrypt = false;
 
     @Override
@@ -428,16 +431,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             return;
         }
         this.currentNode = node;
-//        Toast.makeText(getApplicationContext(), node.getName(), Toast.LENGTH_SHORT).showPassDialog();
-//        if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT)
-//            viewFlipper.showPrevious();
-        showView(VIEW_RECORDS_LIST);
+        LogManager.addLog("Открытие записей ветки: " + node.getName());
+        showRecords(node.getRecords(), VIEW_RECORDS_LIST);
+    }
+
+    private void showRecords(List<TetroidRecord> records, int viewId) {
+        showView(viewId);
         drawerLayout.closeDrawers();
 
-        this.recordsListAdapter.reset(node.getRecords());
+        this.recordsListAdapter.reset(records);
         recordsListView.setAdapter(recordsListAdapter);
-//        setTitle(node.getName());
-//        Toast.makeText(this, "Открытие " + node.getName(), Toast.LENGTH_SHORT).showPassDialog();
     }
 
     /**
@@ -445,7 +448,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      * @param position Индекс записи в списке записей ветки
      */
     private void showRecord(int position) {
-        TetroidRecord record = currentNode.getRecords().get(position);
+        TetroidRecord record = (curViewId == VIEW_RECORDS_LIST)
+                ? currentNode.getRecords().get(position)
+                : DataManager.getTagsHashMap().get(currentTag).get(position);
         showRecord(record);
     }
 
@@ -532,6 +537,18 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     /**
+     * Отображение записей по метке
+     * @param position Индекс метки в списке
+     */
+    private void showTagRecords(int position) {
+        this.currentNode = null;
+        String tag = (String)tagsListAdapter.getItem(position);
+        this.currentTag = tag;
+        LogManager.addLog("Открытие записей метки: " + tag);
+        showRecords(DataManager.getTagsHashMap().get(tag), VIEW_TAG_RECORDS);
+    }
+
+    /**
      * Обработчик клика на заголовке ветки с подветками
      */
     NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
@@ -606,8 +623,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private AdapterView.OnItemClickListener onTagClicklistener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            showTagRecords(position);
-            LogManager.addLog("Открытие записей метки " + position, Toast.LENGTH_SHORT);
+            showTagRecords(position);
         }
     };
 
@@ -616,13 +632,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      * @param viewId
      */
     void showView(int viewId) {
-        lastDisplayedViewId = viewFlipper.getDisplayedChild();
-        viewFlipper.setDisplayedChild(viewId);
+        this.lastViewId = this.curViewId;
+        int whichChild = viewId;
         if (viewId == VIEW_RECORDS_LIST) {
             setTitle((currentNode != null) ? currentNode.getName() : "");
         } else if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
             setTitle((currentRecord != null) ? currentRecord.getName() : "");
+        } else if (viewId == VIEW_TAG_RECORDS) {
+            setTitle((currentTag != null) ? String.format(getString(R.string.current_tag), currentTag) : "");
+            // один контрол на записи ветки и метки
+            whichChild = VIEW_RECORDS_LIST;
         }
+        this.curViewId = viewId;
+        viewFlipper.setDisplayedChild(whichChild);
     }
 
     /**
@@ -633,13 +655,18 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
-            showView(VIEW_RECORDS_LIST);
+            if (lastViewId == VIEW_RECORDS_LIST)
+                showView(VIEW_RECORDS_LIST);
+            else
+                showView(VIEW_TAG_RECORDS);
         } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_FILES) {
             // смотрим какая страница была перед этим
-            if (lastDisplayedViewId == VIEW_RECORD_TEXT)
+            if (lastViewId == VIEW_RECORD_TEXT)
                 showView(VIEW_RECORD_TEXT);
-            else
+            else if (lastViewId == VIEW_RECORDS_LIST)
                 showView(VIEW_RECORDS_LIST);
+            else
+                showView(VIEW_TAG_RECORDS);
         } else {
             super.onBackPressed();
         }

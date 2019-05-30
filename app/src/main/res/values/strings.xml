@@ -96,4 +96,6 @@
     <string name="storage_decrypted">Storage is decrypted</string>
     <string name="storage_settings_inited">Storage settings is loaded: </string>
     <string name="tags_is_missing">Tags is missing</string>
+    <string name="current_tag">Tag: %s</string>
+    <string name="tags_header">Tags</string>
 </resources>

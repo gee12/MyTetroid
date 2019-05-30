@@ -42,7 +42,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     }
 
     private Context context;
-    private static LayoutInflater inflater = null;
+    private LayoutInflater inflater;
     private OnNodeHeaderClickListener onNodeHeaderClickListener;
 
     public NodesListAdapter(Context context, OnNodeHeaderClickListener onNodeHeaderClickListener) {

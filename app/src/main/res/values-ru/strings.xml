@@ -77,4 +77,6 @@
     <string name="storage_decrypted">Хранилище расшифровано</string>
     <string name="storage_settings_inited">Настройки хранилища загружены: </string>
     <string name="tags_is_missing">Метки отсутствуют</string>
+    <string name="current_tag">Метка: %s</string>
+    <string name="tags_header">Метки</string>
 </resources>

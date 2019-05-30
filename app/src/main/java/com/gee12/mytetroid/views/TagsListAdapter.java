@@ -15,6 +15,7 @@ import com.gee12.mytetroid.data.TetroidRecord;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 public class TagsListAdapter extends BaseAdapter {
 
@@ -22,17 +23,17 @@ public class TagsListAdapter extends BaseAdapter {
      *
      */
     private class FileViewHolder {
-        TextView lineNumView;
+//        TextView lineNumView;
         TextView nameView;
         TextView recordsCountView;
     }
 
-    private static LayoutInflater inflater = null;
-    private HashMap<String, List<TetroidRecord>> dataHashMap;
+    private LayoutInflater inflater;
+    private TreeMap<String, List<TetroidRecord>> dataHashMap;
     private Object[] keySet;
     private Context context;
 
-    public TagsListAdapter(Context context, HashMap<String, List<TetroidRecord>> data) {
+    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> data) {
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.dataHashMap = data;
@@ -66,7 +67,7 @@ public class TagsListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new FileViewHolder();
             convertView = inflater.inflate(R.layout.list_item_tag, null);
-            viewHolder.lineNumView = convertView.findViewById(R.id.tag_view_line_num);
+//            viewHolder.lineNumView = convertView.findViewById(R.id.tag_view_line_num);
             viewHolder.nameView = convertView.findViewById(R.id.tag_view_name);
             viewHolder.recordsCountView = convertView.findViewById(R.id.tag_view_records_count);
             convertView.setTag(viewHolder);
@@ -77,7 +78,7 @@ public class TagsListAdapter extends BaseAdapter {
         Object key = keySet[position];
         final List<TetroidRecord> records = dataHashMap.get(key);
         // номер строки
-        viewHolder.lineNumView.setText(String.valueOf(position + 1));
+//        viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла
         viewHolder.nameView.setText((String)key);
         // размер файла

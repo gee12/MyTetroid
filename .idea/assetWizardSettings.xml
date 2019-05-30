@@ -212,7 +212,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_down_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_local_offer_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -222,13 +222,11 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="555555" />
-                            <entry key="height" value="36" />
+                            <entry key="color" value="009000" />
                             <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_arrow_drop_down" />
+                            <entry key="outputName" value="ic_tag" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\Ivan\D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
-                            <entry key="width" value="36" />
+                            <entry key="sourceFile" value="$USER_HOME$/C:\Users\Ivan\D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
                           </map>
                         </option>
                       </PersistentState>

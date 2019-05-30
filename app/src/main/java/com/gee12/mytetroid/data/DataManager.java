@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
@@ -330,10 +331,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesCollection;
     }
 
-    public static HashMap<String, List<TetroidRecord>> getTagsHashMap() {
+    public static TreeMap<String, List<TetroidRecord>> getTagsHashMap() {
         return instance.tagsMap;
     }
-
 
 
     public static boolean isNodesExist() {

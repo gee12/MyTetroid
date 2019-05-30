@@ -38,15 +38,15 @@ public class RecordsListAdapter extends BaseAdapter {
         ImageView attachedView;
     }
 
-    private static LayoutInflater inflater = null;
+    private LayoutInflater inflater;
     private List<TetroidRecord> dataSet;
     private OnRecordAttachmentClickListener onRecordAttachmentClickListener;
     private Context context;
 
-    public RecordsListAdapter(Context ctx, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
+    public RecordsListAdapter(Context context, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
         super();
-        this.context = ctx;
-        this.inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
+        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.onRecordAttachmentClickListener = onRecordAttachmentClickListener;
         this.dataSet = new ArrayList<>();
     }

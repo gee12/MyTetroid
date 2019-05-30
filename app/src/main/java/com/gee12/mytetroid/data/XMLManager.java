@@ -10,14 +10,31 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  *
  */
 public abstract class XMLManager implements INodeIconLoader {
+
+    private Comparator<String> tagsComparator = new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+            if (o1 == o2) {
+                return 0;
+            }
+            if (o1 == null) {
+                return -1;
+            }
+            if (o2 == null) {
+                return 1;
+            }
+            return o1.toLowerCase().compareTo(o2.toLowerCase());
+        }
+    };
 
     private static final String ns = null;
     private static final String TAGS_SEPARATOR = ", ";
@@ -35,7 +52,7 @@ public abstract class XMLManager implements INodeIconLoader {
     /**
      *
      */
-    protected HashMap<String,List<TetroidRecord>> tagsMap;
+    protected TreeMap<String,List<TetroidRecord>> tagsMap;
 
     /**
      *
@@ -48,7 +65,7 @@ public abstract class XMLManager implements INodeIconLoader {
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
         this.rootNodesCollection = new ArrayList<>();
-        this.tagsMap = new HashMap<>();
+        this.tagsMap = new TreeMap<>(tagsComparator);
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
