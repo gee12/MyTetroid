@@ -79,4 +79,5 @@
     <string name="tags_is_missing">Метки отсутствуют</string>
     <string name="current_tag">Метка: %s</string>
     <string name="tags_header">Метки</string>
+    <string name="exit_from_app">Выйти из приложения?</string>
 </resources>

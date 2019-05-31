@@ -325,9 +325,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
         if (isMiddleHash)
-            CryptManager.initFromMiddleHash(pass);
+            CryptManager.initFromMiddleHash(pass, DataManager.getInstance());
         else
-            CryptManager.initFromPass(pass);
+            CryptManager.initFromPass(pass, DataManager.getInstance());
         initStorage(nodeToSelect, true);
     }
 
@@ -344,6 +344,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         Toast.LENGTH_LONG);
             }
             nodesListAdapter.notifyDataSetChanged();
+            tagsListAdapter.onDataSetChanged();
         } else {
             // парсим дерево веток и расшифровываем зашифрованные
             if (DataManager.readStorage(isDecrypt)) {
@@ -668,7 +669,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             else
                 showView(VIEW_TAG_RECORDS);
         } else {
-            super.onBackPressed();
+            if (true) {
+                ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
+                    @Override
+                    public void onApply() {
+                        finish();
+                    }
+                });
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 

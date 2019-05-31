@@ -109,12 +109,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param node
      */
     @Override
-    public void decryptNode(TetroidNode node) {
-        CryptManager.decryptNode(node, false, this);
+    public boolean decryptNode(TetroidNode node) {
+//        boolean res = CryptManager.decryptNode(node, false, this);
+//        if (res) {
+//            // парсим метки
+//            parseNodeTags(node);
+//        }
+        return CryptManager.decryptNode(node, false, this);
     }
 
     public static boolean checkPass(String pass) throws EmptyFieldException {
-        // нужно тоже обработать варианты, когда эти поля пустые (!)
+        // нужно также обработать варианты, когда эти поля пустые (!)
         // ...
         String salt = databaseINI.getWithoutQuotes("crypt_check_salt");
         if (Utils.isNullOrEmpty(salt)) {
@@ -335,7 +340,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.tagsMap;
     }
 
-
     public static boolean isNodesExist() {
         return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
     }
@@ -350,5 +354,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean isCrypted() {
         return (Integer.parseInt(databaseINI.get("crypt_mode")) == 1);
+    }
+
+    public static DataManager getInstance() {
+        return instance;
     }
 }

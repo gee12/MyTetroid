@@ -25,6 +25,10 @@ public class ActivityDialogs {
         void onCancel();
     }
 
+    public interface IExitResult {
+        void onApply();
+    }
+
     public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString(R.string.title_pass_input));
@@ -84,6 +88,23 @@ public class ActivityDialogs {
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(R.string.storage_path_was_changed).setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    }
+
+    public static void showExitDialog(Context context, final IExitResult applyHandler) {
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    applyHandler.onApply();
+                }
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setIcon(R.mipmap.ic_launcher)
+                .setMessage(R.string.exit_from_app)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 }

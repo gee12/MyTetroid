@@ -4,7 +4,9 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.data.IDecryptHandler;
 import com.gee12.mytetroid.data.INodeIconLoader;
+import com.gee12.mytetroid.data.ITagsParseHandler;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
@@ -30,17 +32,20 @@ public class CryptManager {
     private static RC5Simple rc5 = new RC5Simple();
     private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
+    private static ITagsParseHandler tagsParser;
 
-    public static void initFromPass(String pass) {
+    public static void initFromPass(String pass, ITagsParseHandler tagsParser) {
         int[] key = passToKey(pass);
         // записываем в память
         setCryptKey(key);
+        CryptManager.tagsParser = tagsParser;
     }
 
-    public static void initFromMiddleHash(String passHash) {
+    public static void initFromMiddleHash(String passHash, ITagsParseHandler tagsParser) {
         int[] key = middlePassHashToKey(passHash);
         // записываем в память
         setCryptKey(key);
+        CryptManager.tagsParser = tagsParser;
     }
 
     /***
@@ -169,6 +174,7 @@ public class CryptManager {
         res = res & (temp != null);
         if (temp != null) {
             record.setTags(temp);
+            tagsParser.parseRecordTags(record);
         }
 //        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
         temp = CryptManager.decryptBase64(cryptKey, record.getAuthor());

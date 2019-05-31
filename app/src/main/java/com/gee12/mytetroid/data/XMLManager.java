@@ -18,7 +18,7 @@ import java.util.TreeMap;
 /**
  *
  */
-public abstract class XMLManager implements INodeIconLoader {
+public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
     private Comparator<String> tagsComparator = new Comparator<String>() {
         @Override
@@ -173,6 +173,12 @@ public abstract class XMLManager implements INodeIconLoader {
         if (crypt && decryptCallback != null) {
             decryptCallback.decryptNode(node);
         }
+        //else if (!crypt) {
+        if (node.isNonCryptedOrDecrypted()) {
+            // парсим метки
+            parseNodeTags(node);
+        }
+
         // загрузка иконки из файла (после расшифровки имени иконки)
         loadIcon(node);
 
@@ -189,26 +195,40 @@ public abstract class XMLManager implements INodeIconLoader {
             String tagName = parser.getName();
             if (tagName.equals("record")) {
                 TetroidRecord record = readRecord(parser);
-                // parse tags
-                String tagsString = record.getTags();
-                if (!Utils.isNullOrEmpty(tagsString))
-                    for (String tag : tagsString.split(TAGS_SEPARATOR)) {
-                        if (tagsMap.containsKey(tag)) {
-                            tagsMap.get(tag).add(record);
-                        } else {
-                            List<TetroidRecord> tagRecords = new ArrayList<>();
-                            tagRecords.add(record);
-                            tagsMap.put(tag, tagRecords);
-                        }
-                    }
-
-
                 records.add(record);
             } else {
                 skip(parser);
             }
         }
         return records;
+    }
+
+    protected void parseNodeTags(TetroidNode node) {
+        for(TetroidRecord record : node.getRecords()) {
+            parseTags(record);
+        }
+    }
+
+    @Override
+    public void parseRecordTags(TetroidRecord record) {
+        parseTags(record);
+    }
+
+    protected void parseTags(TetroidRecord record) {
+//        if (!record.isNonCryptedOrDecrypted())
+//            return;
+        String tagsString = record.getTags();
+        if (!Utils.isNullOrEmpty(tagsString)) {
+            for (String tag : tagsString.split(TAGS_SEPARATOR)) {
+                if (tagsMap.containsKey(tag)) {
+                    tagsMap.get(tag).add(record);
+                } else {
+                    List<TetroidRecord> tagRecords = new ArrayList<>();
+                    tagRecords.add(record);
+                    tagsMap.put(tag, tagRecords);
+                }
+            }
+        }
     }
 
     private TetroidRecord readRecord(XmlPullParser parser) throws XmlPullParserException, IOException {
