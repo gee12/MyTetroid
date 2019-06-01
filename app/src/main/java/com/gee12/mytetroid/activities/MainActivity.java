@@ -2,10 +2,12 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
@@ -21,10 +23,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -86,12 +90,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private String currentTag;
     private ViewFlipper viewFlipper;
     private WebView recordContentWebView;
+    private LinearLayout layoutProgress;
     ToggleButton tbRecordFieldsExpander;
     ExpandableLayout expRecordFieldsLayout;
     TextView tvRecordTags;
     TextView tvRecordAuthor;
     TextView tvRecordUrl;
     TextView tvRecordDate;
+    TextView tvProgress;
     private int curViewId;
     private int lastViewId;
     private boolean isAlreadyTryDecrypt = false;
@@ -116,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
-        drawerLayout.openDrawer(GravityCompat.START);
+//        drawerLayout.openDrawer(GravityCompat.START);
         toggle.syncState();
 
         // список веток
@@ -141,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
 
         viewFlipper = findViewById(R.id.view_flipper);
+        layoutProgress = findViewById(R.id.layout_progress);
+        tvProgress = findViewById(R.id.progress_text);
         recordContentWebView = findViewById(R.id.web_view_record_content);
 
         tvRecordTags = findViewById(R.id.text_view_record_tags);
@@ -289,7 +297,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     if (DataManager.checkPass(pass)) {
                         String passHash = CryptManager.passToHash(pass);
                         // сохраняем хэш пароля
-                        SettingsManager.setMiddlePassHash(passHash);
+                        if (SettingsManager.isSaveMiddlePassHashLocal())
+                            SettingsManager.setMiddlePassHash(passHash);
+                        else
+                            CryptManager.setMiddlePassHash(passHash);
 
                         decryptStorage(pass, false, node);
                     } else {
@@ -297,9 +308,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         showPassDialog(node);
                     }
                 } catch (DataManager.EmptyFieldException e) {
-
+                    // если поля в INI-файле для проверки пустые
                     LogManager.addLog(e);
-
                     ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
@@ -345,18 +355,24 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
             nodesListAdapter.notifyDataSetChanged();
             tagsListAdapter.onDataSetChanged();
+
+            if (node != null)
+                showNode(node);
         } else {
+            LogManager.addLog(getString(R.string.start_storage_loading) +  DataManager.getStoragePath());
+            new ReadStorageTask().execute(isDecrypt);
             // парсим дерево веток и расшифровываем зашифрованные
-            if (DataManager.readStorage(isDecrypt)) {
-                LogManager.addLog(R.string.storage_loaded);
-            }
+//            if (DataManager.readStorage(isDecrypt)) {
+//                LogManager.addLog(R.string.storage_loaded);
+//            }
             // инициализация контролов
-            initListViews();
+//            initListViews();
         }
         // выбираем ветку в новом списке расшифрованных веток
-        if (node != null)
-            showNode(node);
+//        if (node != null)
+//            showNode(node);
     }
+
 
     private void initListViews() {
         // список веток
@@ -432,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             return;
         }
         this.currentNode = node;
-        LogManager.addLog("Открытие записей ветки: " + node.getName());
+        LogManager.addLog("Открытие записей ветки: id=" + node.getId());
         showRecords(node.getRecords(), VIEW_RECORDS_LIST);
     }
 
@@ -461,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      */
     private void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
-        LogManager.addLog("Чтение записи: " + record.getDirName());
+        LogManager.addLog("Чтение записи: id=" + record.getId());
         String text = DataManager.getRecordTextDecrypted(record);
         if (text == null) {
             LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
@@ -669,7 +685,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             else
                 showView(VIEW_TAG_RECORDS);
         } else {
-            if (true) {
+            if (SettingsManager.isConfirmAppExit()) {
                 ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
                     @Override
                     public void onApply() {
@@ -758,5 +774,36 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void showActivityForResult(Class<?> cls, int requestCode) {
         Intent intent = new Intent(this, cls);
         startActivityForResult(intent, requestCode);
+    }
+
+
+    private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
+        @Override
+        protected void onPreExecute() {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            tvProgress.setText(R.string.storage_loading);
+            layoutProgress.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Boolean doInBackground(Boolean... booleans) {
+            boolean isDecrypt = booleans[0];
+            return DataManager.readStorage(isDecrypt);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean res) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            drawerLayout.openDrawer(Gravity.LEFT);
+            layoutProgress.setVisibility(View.INVISIBLE);
+            if (res) {
+                LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath());
+            }
+            // инициализация контролов
+            initListViews();
+        }
     }
 }

@@ -33,6 +33,13 @@ public class CryptManager {
     private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
     private static ITagsParseHandler tagsParser;
+    /**
+     * Для будущего сохранения в настройках.
+     * Если поставили галку "Сохранять хеш пароля локально" уже после того,
+     * как ввели пароль
+     */
+    private static String middlePassHash;
+
 
     public static void initFromPass(String pass, ITagsParseHandler tagsParser) {
         int[] key = passToKey(pass);
@@ -264,7 +271,7 @@ public class CryptManager {
      * @return
      */
     public static String passToHash(String pass) {
-        String res=  null;
+        String res =  null;
         try {
             byte[] passHashSigned = calculateMiddleHash(pass);
 //            byte[] passHash = Utils.toUnsigned(passHashSigned);
@@ -395,6 +402,14 @@ public class CryptManager {
 
     static void setCryptKey(int[] key) {
         CryptManager.cryptKey = key;
+    }
+
+    public static void setMiddlePassHash(String passHash) {
+        middlePassHash = passHash;
+    }
+
+    public static String getMiddlePassHash() {
+        return middlePassHash;
     }
 
     private static void addLog(String s) {

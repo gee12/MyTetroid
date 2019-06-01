@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
@@ -78,7 +79,14 @@ public class FilesListAdapter extends BaseAdapter {
         // название файла
         viewHolder.nameView.setText(file.getName());
         // размер файла
-        viewHolder.sizeView.setText(DataManager.getFileSize(context, record, file));
+        String fileSize = DataManager.getFileSize(context, record, file);
+        if (fileSize != null) {
+            viewHolder.sizeView.setText(fileSize);
+        } else {
+            ImageView icon = convertView.findViewById(R.id.file_view_icon);
+            icon.setImageResource(R.drawable.ic_file_missing_24dp);
+            viewHolder.sizeView.setText(R.string.file_is_missing);
+        }
 
         return convertView;
     }

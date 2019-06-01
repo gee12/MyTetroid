@@ -11,6 +11,7 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.crypt.CryptManager;
 
 import lib.folderpicker.FolderPicker;
 
@@ -106,8 +107,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //            }
 
         } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            // удаляем хэш пароля, если сняли галку
-            SettingsManager.setMiddlePassHash(null);
+            if (SettingsManager.isSaveMiddlePassHashLocal()) {
+                // сохраняем хеш пароля локально в настройках
+                SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());
+            }
+            else  {
+                // удаляем хэш пароля, если сняли галку
+                SettingsManager.setMiddlePassHash(null);
+            }
 //        } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
 //            // меняем список полей для отображения
 

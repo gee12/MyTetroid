@@ -80,4 +80,9 @@
     <string name="current_tag">Метка: %s</string>
     <string name="tags_header">Метки</string>
     <string name="exit_from_app">Выйти из приложения?</string>
+    <string name="is_confirm_app_exit">Подтверждать выход</string>
+    <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
+    <string name="file_is_missing">Файл отсутствует</string>
+    <string name="storage_loading">Загрузка хранилища..</string>
+    <string name="start_storage_loading">Начало загрузки хранилища:</string>
 </resources>

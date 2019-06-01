@@ -8,6 +8,7 @@
     <color name="colorBlueDark">#303F9F</color>
     <color name="colorAccent">#009990</color>
     <color name="colorHighlight">#A0FFA0</color>
+    <color name="colorProgress">#EEE</color>
     <!--<color name="colorNodeName">#000</color>-->
     <!--<color name="colorNodeNameWithoutRecords">#777</color>-->
     <!--<color name="colorRecordWithAttach">#AEA</color>-->

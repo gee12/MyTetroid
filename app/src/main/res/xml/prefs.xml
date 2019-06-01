@@ -93,6 +93,12 @@
             android:title="@string/log_path"
             android:summary="@string/log_path_summ" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_confirm_app_exit"
+            android:title="@string/is_confirm_app_exit"
+            android:summary="@string/is_confirm_app_exit_summ"
+            android:defaultValue="true" />
+
     </PreferenceCategory>
 
 </PreferenceScreen>

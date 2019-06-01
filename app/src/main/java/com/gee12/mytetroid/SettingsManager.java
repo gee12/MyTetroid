@@ -248,6 +248,19 @@ public class SettingsManager {
         editor.apply();
     }
 
+    /**
+     * Писать логи в файл
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isConfirmAppExit() {
+        boolean def = true;
+        if(settings.contains(context.getString(R.string.pref_key_is_confirm_app_exit))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_confirm_app_exit), def);
+        }
+        return def;
+    }
+
     public static SharedPreferences getSettings() {
         return settings;
     }

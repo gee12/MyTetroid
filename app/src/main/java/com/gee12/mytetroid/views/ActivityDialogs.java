@@ -102,8 +102,7 @@ public class ActivityDialogs {
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setIcon(R.mipmap.ic_launcher)
-                .setMessage(R.string.exit_from_app)
+        builder.setMessage(R.string.exit_from_app)
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }

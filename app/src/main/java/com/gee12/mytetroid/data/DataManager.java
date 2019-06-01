@@ -325,7 +325,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
         long size = new File(fullFileName).length() / 1024;
-        if (size >= 1024) {
+        if (size == 0) {
+            return null;
+        } else if (size >= 1024) {
             return (size / 1024) + context.getString(R.string.m_bytes);
         } else {
             return size + context.getString(R.string.k_bytes);
@@ -344,9 +346,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
     }
 
-//    public static String getStoragePath() {
-//        return instance.storagePath;
-//    }
+    public static String getStoragePath() {
+        return instance.storagePath;
+    }
 
     public static boolean isExistsCryptedNodes() {
         return instance.isExistCryptedNodes;
