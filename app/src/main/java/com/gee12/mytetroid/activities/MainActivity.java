@@ -3,6 +3,7 @@ package com.gee12.mytetroid.activities;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,10 +11,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
+import android.provider.SearchRecentSuggestions;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.View;
@@ -36,6 +40,7 @@ import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.MySuggestionProvider;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int VIEW_RECORD_TEXT = 1;
     public static final int VIEW_RECORD_FILES = 2;
     public static final int VIEW_TAG_RECORDS = 3;
+    public static final int VIEW_FINDED_RECORDS = 4;
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
@@ -164,6 +170,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
+
+        // search
+        Intent intent  = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            MySuggestionProvider.SaveRecentQuery(this, query);
+            setTitle("Результаты поиска: " + query);
+            List<TetroidRecord> finded = DataManager.searchInRecordsNames(currentNode.getRecords(), query);
+            showRecords(finded, VIEW_FINDED_RECORDS);
+        }
     }
 
     @Override
@@ -705,7 +721,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // меню
         getMenuInflater().inflate(R.menu.main, menu);
+        // виджет поиска
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.search_record).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(true);
         return true;
     }
 
