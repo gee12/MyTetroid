@@ -77,7 +77,6 @@
     <string name="storage_decrypted">Хранилище расшифровано</string>
     <string name="storage_settings_inited">Настройки хранилища загружены: </string>
     <string name="tags_is_missing">Метки отсутствуют</string>
-    <string name="current_tag">Метка: %s</string>
     <string name="tags_header">Метки</string>
     <string name="exit_from_app">Выйти из приложения?</string>
     <string name="is_confirm_app_exit">Подтверждать выход</string>
@@ -87,4 +86,11 @@
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="search_records_title">Поиск по записям</string>
+    <string-array name="view_type_titles">
+        <item name="records_list">Ветка</item>
+        <item name="record_text">Запись</item>
+        <item name="recor_files">Файлы</item>
+        <item name="tag_records">Метка</item>
+        <item name="finded_records">Найдено</item>
+    </string-array>
 </resources>

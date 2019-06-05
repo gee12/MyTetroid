@@ -3,6 +3,6 @@
     android:label="@string/app_name"
     android:hint="@string/search_records_hint"
     android:searchSuggestAuthority="com.gee12.MySuggestionProvider"
+    android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
     android:searchSuggestSelection=" ?" >
-    <!--android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"-->
 </searchable>

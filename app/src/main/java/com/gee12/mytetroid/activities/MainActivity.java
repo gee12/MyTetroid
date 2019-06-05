@@ -2,7 +2,6 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
-import android.provider.SearchRecentSuggestions;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.View;
@@ -81,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int VIEW_RECORD_FILES = 2;
     public static final int VIEW_TAG_RECORDS = 3;
     public static final int VIEW_FINDED_RECORDS = 4;
+//    public static final String[] VIEW_TYPE_TITLES = { "", ""};
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
@@ -104,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvRecordUrl;
     TextView tvRecordDate;
     TextView tvProgress;
+    TextView tvAppTitle;
+    TextView tvViewType;
     private int curViewId;
     private int lastViewId;
     private boolean isAlreadyTryDecrypt = false;
@@ -112,8 +113,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // зададим Toolbar, как ActioanBar, для обратной совместимости с API<21
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        this.tvAppTitle = toolbar.findViewById(R.id.text_view_app_title);
+        this.tvViewType = toolbar.findViewById(R.id.text_view_view_type);
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         });*/
         // панель
         drawerLayout = findViewById(R.id.drawer_layout);
+        // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -672,12 +678,28 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         } else if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
             setTitle((currentRecord != null) ? currentRecord.getName() : "");
         } else if (viewId == VIEW_TAG_RECORDS) {
-            setTitle((currentTag != null) ? String.format(getString(R.string.current_tag), currentTag) : "");
+            setTitle((currentTag != null) ? currentTag : "");
             // один контрол на записи ветки и метки
             whichChild = VIEW_RECORDS_LIST;
         }
+        setViewTypeTitle(viewId);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild);
+    }
+
+    /**
+     * Переопределяем заголовок активности
+     * @param title
+     */
+    @Override
+    public void setTitle(CharSequence title) {
+        tvAppTitle.setText(title);
+    }
+
+    private void setViewTypeTitle(int viewId) {
+        String[] titles = getResources().getStringArray(R.array.view_type_titles);
+        if (viewId >= 0 && viewId < titles.length)
+            tvViewType.setText(titles[viewId]);
     }
 
     /**

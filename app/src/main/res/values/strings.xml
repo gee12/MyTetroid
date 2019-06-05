@@ -33,6 +33,10 @@
     <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">When choosing an encrypted branch</string>
     <string name="pref_when_ask_password_on_start">When the application starts</string>
+    <string-array name="when_ask_password_entries">
+        <item>@string/pref_when_ask_password_on_select</item>
+        <item>@string/pref_when_ask_password_on_start</item>
+    </string-array>
     <string name="pref_key_pass_hash">pref_key_pass_hash</string>
     <string name="pref_key_selected_node_id">pref_key_selected_node_id</string>
     <string name="title_pass_input">Enter password</string>
@@ -96,7 +100,6 @@
     <string name="storage_decrypted">Storage is decrypted</string>
     <string name="storage_settings_inited">Storage settings is loaded: </string>
     <string name="tags_is_missing">Tags is missing</string>
-    <string name="current_tag">Tag: %s</string>
     <string name="tags_header">Tags</string>
     <string name="exit_from_app">Exit from app?</string>
     <string name="pref_key_is_confirm_app_exit">pref_key_is_confirm_app_exit</string>
@@ -105,6 +108,13 @@
     <string name="file_is_missing">File is missing</string>
     <string name="storage_loading">Storage loading..</string>
     <string name="start_storage_loading">Start storage loading: </string>
-    <string name="search_records_hint">Поиск по записям</string>
-    <string name="search_records_title">Поиск по записям</string>
+    <string name="search_records_hint">Records search</string>
+    <string name="search_records_title">Records search</string>
+    <string-array name="view_type_titles">
+        <item name="records_list">Node</item>
+        <item name="record_text">Record</item>
+        <item name="recor_files">Files</item>
+        <item name="tag_records">Tag</item>
+        <item name="finded_records">Finded</item>
+    </string-array>
 </resources>
