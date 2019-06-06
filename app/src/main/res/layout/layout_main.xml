@@ -26,12 +26,13 @@
                 android:layout_margin="5dp" />
 
             <TextView
-                android:id="@+id/text_view_empty"
+                android:id="@+id/records_text_view_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="@string/empty_list" />
+                android:padding="10dp"
+                android:text="@string/records_is_missing" />
         </RelativeLayout>
 
         <include
@@ -55,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="@string/files_empty_list" />
+                android:text="@string/files_is_missing" />
 
         </RelativeLayout>
 

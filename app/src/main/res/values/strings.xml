@@ -7,7 +7,7 @@
     <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="empty_list">Records is missing</string>
+    <string name="records_is_missing">Records is missing</string>
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
     <string name="pref_category_crypt">Encryption</string>
@@ -42,7 +42,7 @@
     <string name="title_pass_input">Enter password</string>
     <string name="answer_ok">Ok</string>
     <string name="answer_cancel">Cancel</string>
-    <string name="files_empty_list">Attach is missing</string>
+    <string name="files_is_missing">Attach is missing</string>
     <string name="pref_category_srorage">Storage</string>
     <string name="pref_storage_path">Storage path</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and /base</string>
@@ -110,11 +110,14 @@
     <string name="start_storage_loading">Start storage loading: </string>
     <string name="search_records_hint">Records search</string>
     <string name="search_records_title">Records search</string>
+    <string name="records_search_select_node">Select a branch with records to search or use the global search.</string>
+    <string name="records_not_finded">No records found for query \"%s\" in node [%s]</string>
+    <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
     <string-array name="view_type_titles">
         <item name="records_list">Node</item>
         <item name="record_text">Record</item>
         <item name="recor_files">Files</item>
         <item name="tag_records">Tag</item>
-        <item name="finded_records">Finded</item>
+        <item name="finded_records">Search records</item>
     </string-array>
 </resources>

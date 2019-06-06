@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">MyTetroid</string>
     <string name="action_settings">Настройки</string>
-    <string name="empty_list">Записей нет</string>
-    <string name="files_empty_list">Прикрепленных файлов нет</string>
+    <string name="records_is_missing">Записей нет</string>
+    <string name="files_is_missing">Прикрепленных файлов нет</string>
     <string name="pref_category_srorage">Хранилище</string>
     <string name="pref_storage_path">Путь к хранилищу</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и /base</string>
@@ -86,11 +86,14 @@
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="search_records_title">Поиск по записям</string>
+    <string name="records_search_select_node">Выберите ветку с записями для поиска или воспользуйтесь глобальным поиском</string>
+    <string name="records_not_finded">По запросу \"%s\" в ветке [%s] не найдено записей</string>
+    <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
     <string-array name="view_type_titles">
         <item name="records_list">Ветка</item>
         <item name="record_text">Запись</item>
         <item name="recor_files">Файлы</item>
         <item name="tag_records">Метка</item>
-        <item name="finded_records">Найдено</item>
+        <item name="finded_records">Поиск по записям</item>
     </string-array>
 </resources>

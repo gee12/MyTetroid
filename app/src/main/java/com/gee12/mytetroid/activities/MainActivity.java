@@ -58,6 +58,7 @@ import com.gee12.mytetroid.views.TagsListAdapter;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lib.folderpicker.FolderPicker;
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvProgress;
     TextView tvAppTitle;
     TextView tvViewType;
+    TextView tvRecordsEmpty;
     private int curViewId;
     private int lastViewId;
     private boolean isAlreadyTryDecrypt = false;
@@ -143,13 +145,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // список записей
         recordsListView = findViewById(R.id.records_list_view);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
-        TextView emptyTextView = findViewById(R.id.text_view_empty);
-        recordsListView.setEmptyView(emptyTextView);
+        this.tvRecordsEmpty = findViewById(R.id.records_text_view_empty);
+        recordsListView.setEmptyView(tvRecordsEmpty);
         registerForContextMenu(recordsListView);
         // список файлов
         filesListView = findViewById(R.id.files_list_view);
         filesListView.setOnItemClickListener(onFileClicklistener);
-        emptyTextView = findViewById(R.id.files_text_view_empty);
+        TextView emptyTextView = findViewById(R.id.files_text_view_empty);
         filesListView.setEmptyView(emptyTextView);
         // список меток
         tagsListView = findViewById(R.id.tags_list_view);
@@ -176,16 +178,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
-
-        // search
-        Intent intent  = getIntent();
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            MySuggestionProvider.SaveRecentQuery(this, query);
-            setTitle("Результаты поиска: " + query);
-            List<TetroidRecord> finded = DataManager.searchInRecordsNames(currentNode.getRecords(), query);
-            showRecords(finded, VIEW_FINDED_RECORDS);
-        }
     }
 
     @Override
@@ -471,11 +463,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
         this.currentNode = node;
         LogManager.addLog("Открытие записей ветки: id=" + node.getId());
+//        tvRecordsEmpty.setText(R.string.records_is_missing);
         showRecords(node.getRecords(), VIEW_RECORDS_LIST);
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
         showView(viewId);
+        if (viewId == VIEW_RECORDS_LIST)
+            tvRecordsEmpty.setText(R.string.records_is_missing);
+//        else
+//            tvRecordsEmpty.setText(R.string.);
         drawerLayout.closeDrawers();
 
         this.recordsListAdapter.reset(records);
@@ -696,10 +693,31 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         tvAppTitle.setText(title);
     }
 
+    /**
+     * Заголовок типа активности
+     * @param viewId
+     */
     private void setViewTypeTitle(int viewId) {
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
         if (viewId >= 0 && viewId < titles.length)
             tvViewType.setText(titles[viewId]);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // search
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            if (currentNode != null) {
+                String query = intent.getStringExtra(SearchManager.QUERY);
+                LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
+                MySuggestionProvider.SaveRecentQuery(this, query);
+                List<TetroidRecord> finded = DataManager.searchInRecordsNames(currentNode.getRecords(), query);
+                tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
+                showRecords(finded, VIEW_FINDED_RECORDS);
+            } else {
+                LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
+            }
+        }
     }
 
     /**
@@ -750,6 +768,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         SearchView searchView = (SearchView) menu.findItem(R.id.search_record).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(true);
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                List<TetroidRecord> records = (currentNode != null) ? currentNode.getRecords() : new ArrayList<TetroidRecord>();
+                showRecords(records, VIEW_RECORDS_LIST);
+                return false;
+            }
+        });
+
         return true;
     }
 
