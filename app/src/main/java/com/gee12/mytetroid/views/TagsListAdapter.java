@@ -40,6 +40,11 @@ public class TagsListAdapter extends BaseAdapter {
         this.keySet = dataHashMap.keySet().toArray();
     }
 
+    public void setDataItems(TreeMap<String, List<TetroidRecord>> data) {
+        this.dataHashMap = data;
+        onDataSetChanged();
+    }
+
     public void onDataSetChanged() {
         this.keySet = dataHashMap.keySet().toArray();
         notifyDataSetChanged();

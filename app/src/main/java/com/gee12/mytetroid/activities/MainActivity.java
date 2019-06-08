@@ -51,7 +51,9 @@ import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.ActivityDialogs;
 import com.gee12.mytetroid.views.RecordsListAdapter;
+import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
+import com.google.android.material.navigation.NavigationView;
 
 //import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 //import net.rdrei.android.dirchooser.DirectoryChooserConfig;
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvAppTitle;
     TextView tvViewType;
     TextView tvRecordsEmpty;
+    android.widget.SearchView nodesSearchView;
+    android.widget.SearchView tagsSearchView;
     private int curViewId;
     private int lastViewId;
     private boolean isAlreadyTryDecrypt = false;
@@ -131,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
         });*/
         // панель
-        drawerLayout = findViewById(R.id.drawer_layout);
+        this.drawerLayout = findViewById(R.id.drawer_layout);
         // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -143,34 +147,43 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         nodesListView = findViewById(R.id.nodes_list_view);
         nodesListView.setOnItemClickListener(onNodeClickListener);
         // список записей
-        recordsListView = findViewById(R.id.records_list_view);
+        this.recordsListView = findViewById(R.id.records_list_view);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
         this.tvRecordsEmpty = findViewById(R.id.records_text_view_empty);
         recordsListView.setEmptyView(tvRecordsEmpty);
         registerForContextMenu(recordsListView);
         // список файлов
-        filesListView = findViewById(R.id.files_list_view);
+        this.filesListView = findViewById(R.id.files_list_view);
         filesListView.setOnItemClickListener(onFileClicklistener);
         TextView emptyTextView = findViewById(R.id.files_text_view_empty);
         filesListView.setEmptyView(emptyTextView);
         // список меток
-        tagsListView = findViewById(R.id.tags_list_view);
+        this.tagsListView = findViewById(R.id.tags_list_view);
         tagsListView.setOnItemClickListener(onTagClicklistener);
         emptyTextView = findViewById(R.id.tags_text_view_empty);
         tagsListView.setEmptyView(emptyTextView);
 
+        this.viewFlipper = findViewById(R.id.view_flipper);
+        this.layoutProgress = findViewById(R.id.layout_progress);
+        this.tvProgress = findViewById(R.id.progress_text);
+        this.recordContentWebView = findViewById(R.id.web_view_record_content);
 
-        viewFlipper = findViewById(R.id.view_flipper);
-        layoutProgress = findViewById(R.id.layout_progress);
-        tvProgress = findViewById(R.id.progress_text);
-        recordContentWebView = findViewById(R.id.web_view_record_content);
+        NavigationView nodesNavView = drawerLayout.findViewById(R.id.nav_view_left);
+        View nodesHeader = nodesNavView.getHeaderView(0);
+        this.nodesSearchView = nodesHeader.findViewById(R.id.search_view_nodes);
+        nodesViewInit(nodesHeader);
 
-        tvRecordTags = findViewById(R.id.text_view_record_tags);
-        tvRecordAuthor = findViewById(R.id.text_view_record_author);
-        tvRecordUrl = findViewById(R.id.text_view_record_url);
-        tvRecordDate = findViewById(R.id.text_view_record_date);
-        expRecordFieldsLayout = findViewById(R.id.layout_expander);
-        tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
+        NavigationView tagsNavView = drawerLayout.findViewById(R.id.nav_view_right);
+        View tagsHeader = tagsNavView.getHeaderView(0);
+        this.tagsSearchView = tagsHeader.findViewById(R.id.search_view_tags);
+        tagsViewInit(tagsHeader);
+
+        this.tvRecordTags = findViewById(R.id.text_view_record_tags);
+        this.tvRecordAuthor = findViewById(R.id.text_view_record_author);
+        this.tvRecordUrl = findViewById(R.id.text_view_record_url);
+        this.tvRecordDate = findViewById(R.id.text_view_record_date);
+        this.expRecordFieldsLayout = findViewById(R.id.layout_expander);
+        this.tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
         // инициализация
@@ -178,6 +191,48 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
+    }
+
+    private void nodesViewInit(View nodesHeader) {
+        final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
+        new SearchViewListener(nodesSearchView) {
+            @Override
+            public void OnClose() {
+                nodesListAdapter.setDataItems(DataManager.getRootNodes());
+                tvHeader.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void OnSearch() {
+                tvHeader.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                nodesListAdapter.setDataItems(DataManager.searchInNodesNames(query));
+            }
+        };
+    }
+
+    private void tagsViewInit(View tagsHeader) {
+        final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
+        new SearchViewListener(tagsSearchView) {
+            @Override
+            public void OnClose() {
+                tagsListAdapter.setDataItems(DataManager.getTagsHashMap());
+                tvHeader.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void OnSearch() {
+                tvHeader.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                tagsListAdapter.setDataItems(DataManager.searchInTags(query));
+            }
+        };
     }
 
     @Override
@@ -727,6 +782,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            drawerLayout.closeDrawer(GravityCompat.END);
         } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
             if (lastViewId == VIEW_RECORDS_LIST)
                 showView(VIEW_RECORDS_LIST);
@@ -740,18 +797,20 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 showView(VIEW_RECORDS_LIST);
             else
                 showView(VIEW_TAG_RECORDS);
+        } else if (SettingsManager.isConfirmAppExit()) {
+            onExit();
         } else {
-            if (SettingsManager.isConfirmAppExit()) {
-                ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
-                    @Override
-                    public void onApply() {
-                        finish();
-                    }
-                });
-            } else {
-                super.onBackPressed();
-            }
+            super.onBackPressed();
         }
+    }
+
+    private void onExit() {
+        ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
+            @Override
+            public void onApply() {
+                finish();
+            }
+        });
     }
 
     /**

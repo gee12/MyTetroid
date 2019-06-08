@@ -14,14 +14,14 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/image_view"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@drawable/ic_mytetroid" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
@@ -30,6 +30,7 @@
         android:paddingLeft="16dp">
 
         <TextView
+            android:id="@+id/text_view_app_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/nav_header_vertical_spacing"
@@ -37,11 +38,24 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/text_view_nodes_header"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/site_url" />
+            android:layout_alignBottom="@id/text_view_app_name"
+            android:text="@string/nodes_header"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textSize="@dimen/font_big"/>
 
-    </LinearLayout>
+        <SearchView
+            android:id="@+id/search_view_nodes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/text_view_app_name"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:queryHint="@string/nodes_search_hint"
+            android:iconifiedByDefault="true" />
+
+    </RelativeLayout>
 
 </LinearLayout>

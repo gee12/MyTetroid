@@ -89,6 +89,9 @@
     <string name="records_search_select_node">Выберите ветку с записями для поиска или воспользуйтесь глобальным поиском</string>
     <string name="records_not_finded">По запросу \"%s\" в ветке [%s] не найдено записей</string>
     <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
+    <string name="tags_search_hint">Поиск по меткам</string>
+    <string name="nodes_search_hint">Поиск по веткам</string>
+    <string name="nodes_header">Ветки</string>
     <string-array name="view_type_titles">
         <item name="records_list">Ветка</item>
         <item name="record_text">Запись</item>

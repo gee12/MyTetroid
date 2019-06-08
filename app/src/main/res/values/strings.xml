@@ -113,6 +113,9 @@
     <string name="records_search_select_node">Select a branch with records to search or use the global search.</string>
     <string name="records_not_finded">No records found for query \"%s\" in node [%s]</string>
     <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
+    <string name="tags_search_hint">Tags search</string>
+    <string name="nodes_search_hint">Nodes search</string>
+    <string name="nodes_header">Nodes</string>
     <string-array name="view_type_titles">
         <item name="records_list">Node</item>
         <item name="record_text">Record</item>

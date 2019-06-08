@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
@@ -172,6 +173,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER);
     }
 
+    /**
+     * Получение текста записи.
+     * @param record
+     * @return
+     */
     public static String getRecordTextDecrypted(TetroidRecord record) {
         String pathUri = getStoragePathBaseUri() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
@@ -249,6 +255,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return null;
     }*/
 
+    /**
+     * Открытие файла записи сторонным приложением.
+     * @param context
+     * @param record
+     * @param file
+     * @return
+     */
     public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
         String fileDisplayName = file.getName();
         String ext = Utils.getExtWithComma(fileDisplayName);
@@ -322,6 +335,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //        return file;
 //    }
 
+    /**
+     * Получение размера прикрепленного файла.
+     * @param context
+     * @param record
+     * @param file
+     * @return
+     */
     public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
         String ext = Utils.getExtWithComma(file.getName());
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
@@ -336,12 +356,52 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
     }
 
+    public static List<TetroidNode> searchInNodesNames(String query) {
+        return searchInNodesNames(instance.rootNodesCollection, query);
+    }
+
+    public static List<TetroidNode> searchInNodesNames(List<TetroidNode> nodes, String query) {
+        List<TetroidNode> finded = new ArrayList<>();
+        String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
+        for (TetroidNode node : nodes) {
+            if (node.getName().matches(regex)) {
+                finded.add(node);
+            }
+            if (node.getSubNodesCount() > 0) {
+                finded.addAll(searchInNodesNames(node.getSubNodes(), query));
+            }
+        }
+        return finded;
+    }
+
+    /**
+     * Поиск по названиям записей.
+     * @param srcRecords
+     * @param query
+     * @return
+     */
     public static List<TetroidRecord> searchInRecordsNames(List<TetroidRecord> srcRecords, String query) {
         List<TetroidRecord> finded = new ArrayList<>();
         String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
         for (TetroidRecord record : srcRecords) {
             if (record.getName().matches(regex)) {
                 finded.add(record);
+            }
+        }
+        return finded;
+    }
+
+    /**
+     * Поиск по именам меток.
+     * @param query
+     * @return
+     */
+    public static TreeMap<String, List<TetroidRecord>> searchInTags(String query) {
+        TreeMap<String, List<TetroidRecord>> finded = new TreeMap<>();
+        String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
+        for (Map.Entry<String, List<TetroidRecord>> tagEntry : instance.tagsMap.entrySet()) {
+            if (tagEntry.getKey().matches(regex)) {
+                finded.put(tagEntry.getKey(), tagEntry.getValue());
             }
         }
         return finded;
