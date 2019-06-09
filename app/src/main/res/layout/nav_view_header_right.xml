@@ -31,7 +31,8 @@
             android:layout_centerVertical="true"
             android:text="@string/tags_header"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="@dimen/font_big" />
+            android:textStyle="italic"
+            android:textSize="20sp" />
 
         <SearchView
             android:id="@+id/search_view_tags"
@@ -41,7 +42,7 @@
             android:layout_alignParentEnd="true"
             android:paddingLeft="20dp"
             android:paddingStart="20dp"
-            android:queryHint="@string/tags_search_hint"
-            android:iconifiedByDefault="true" />
+            android:iconifiedByDefault="true"
+            android:queryHint="@string/tags_search_hint" />
 
 </RelativeLayout>

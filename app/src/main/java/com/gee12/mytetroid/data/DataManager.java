@@ -360,10 +360,19 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return searchInNodesNames(instance.rootNodesCollection, query);
     }
 
+    /**
+     * Поиск по названиям веток.
+     * Пропускает зашифрованные ветки.
+     * @param nodes
+     * @param query
+     * @return
+     */
     public static List<TetroidNode> searchInNodesNames(List<TetroidNode> nodes, String query) {
         List<TetroidNode> finded = new ArrayList<>();
         String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
         for (TetroidNode node : nodes) {
+            if (!node.isNonCryptedOrDecrypted())
+                continue;
             if (node.getName().matches(regex)) {
                 finded.add(node);
             }

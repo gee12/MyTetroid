@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.StringRes;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,6 +31,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -62,6 +64,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -108,7 +111,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     TextView tvProgress;
     TextView tvAppTitle;
     TextView tvViewType;
+    TextView tvNodesEmpty;
     TextView tvRecordsEmpty;
+    TextView tvTagsEmpty;
     android.widget.SearchView nodesSearchView;
     android.widget.SearchView tagsSearchView;
     private int curViewId;
@@ -146,6 +151,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // список веток
         nodesListView = findViewById(R.id.nodes_list_view);
         nodesListView.setOnItemClickListener(onNodeClickListener);
+        this.tvNodesEmpty = findViewById(R.id.nodes_text_view_empty);
+//        nodesListView.setEmptyView(tvNodesEmpty);
         // список записей
         this.recordsListView = findViewById(R.id.records_list_view);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
@@ -160,8 +167,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // список меток
         this.tagsListView = findViewById(R.id.tags_list_view);
         tagsListView.setOnItemClickListener(onTagClicklistener);
-        emptyTextView = findViewById(R.id.tags_text_view_empty);
-        tagsListView.setEmptyView(emptyTextView);
+        this.tvTagsEmpty = findViewById(R.id.tags_text_view_empty);
+        tagsListView.setEmptyView(tvTagsEmpty);
 
         this.viewFlipper = findViewById(R.id.view_flipper);
         this.layoutProgress = findViewById(R.id.layout_progress);
@@ -195,23 +202,41 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     private void nodesViewInit(View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
+        final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
         new SearchViewListener(nodesSearchView) {
             @Override
             public void OnClose() {
                 nodesListAdapter.setDataItems(DataManager.getRootNodes());
+                setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
+                ivIcon.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void OnSearch() {
                 tvHeader.setVisibility(View.GONE);
+                ivIcon.setVisibility(View.GONE);
             }
 
             @Override
             public void onQuerySubmit(String query) {
-                nodesListAdapter.setDataItems(DataManager.searchInNodesNames(query));
+                LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
+                List<TetroidNode> finded = DataManager.searchInNodesNames(query);
+                nodesListAdapter.setDataItems(finded);
+                setListEmptyViewState(tvNodesEmpty, finded.isEmpty(),
+                        String.format(getString(R.string.nodes_not_finded), query));
             }
         };
+    }
+
+    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, @StringRes int stringId) {
+        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        tvEmpty.setText(stringId);
+    }
+
+    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, String string) {
+        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        tvEmpty.setText(string);
     }
 
     private void tagsViewInit(View tagsHeader) {
@@ -219,7 +244,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         new SearchViewListener(tagsSearchView) {
             @Override
             public void OnClose() {
-                tagsListAdapter.setDataItems(DataManager.getTagsHashMap());
+                TreeMap<String, List<TetroidRecord>> tags = DataManager.getTagsHashMap();
+                tagsListAdapter.setDataItems(tags);
+                if (tags.isEmpty())
+                    tvTagsEmpty.setText(R.string.tags_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
             }
 
@@ -230,7 +258,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
             @Override
             public void onQuerySubmit(String query) {
-                tagsListAdapter.setDataItems(DataManager.searchInTags(query));
+                LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
+                TreeMap<String, List<TetroidRecord>> finded = DataManager.searchInTags(query);
+                tagsListAdapter.setDataItems(finded);
+                if (finded.isEmpty())
+                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_finded), query));
             }
         };
     }
@@ -448,6 +480,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
         nodesListView.setAdapter(nodesListAdapter);
         nodesListAdapter.setDataItems(DataManager.getRootNodes());
+        setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
         // список записей
         this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
         recordsListView.setAdapter(recordsListAdapter);
@@ -457,6 +490,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         // список меток
         this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
         tagsListView.setAdapter(tagsListAdapter);
+        tvTagsEmpty.setText(R.string.tags_is_missing);
     }
 
     void showFolderChooser() {
@@ -530,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 //            tvRecordsEmpty.setText(R.string.);
         drawerLayout.closeDrawers();
 
-        this.recordsListAdapter.reset(records);
+        this.recordsListAdapter.setDataItems(records);
         recordsListView.setAdapter(recordsListAdapter);
     }
 
@@ -767,7 +801,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
                 MySuggestionProvider.SaveRecentQuery(this, query);
                 List<TetroidRecord> finded = DataManager.searchInRecordsNames(currentNode.getRecords(), query);
-                tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
+                if (finded.isEmpty())
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
+                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
                 showRecords(finded, VIEW_FINDED_RECORDS);
             } else {
                 LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);

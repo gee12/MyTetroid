@@ -92,6 +92,11 @@
     <string name="tags_search_hint">Поиск по меткам</string>
     <string name="nodes_search_hint">Поиск по веткам</string>
     <string name="nodes_header">Ветки</string>
+    <string name="nodes_is_missing">Ветки отсутствуют</string>
+    <string name="nodes_not_finded">По запросу \"%s\" не найдено веток</string>
+    <string name="search_nodes_by_query">Поиск веток по запросу "%s"</string>
+    <string name="tags_not_finded">По запросу \"%s\" не найдено меток</string>
+    <string name="search_tags_by_query">Поиск меток по запросу "%s"</string>
     <string-array name="view_type_titles">
         <item name="records_list">Ветка</item>
         <item name="record_text">Запись</item>

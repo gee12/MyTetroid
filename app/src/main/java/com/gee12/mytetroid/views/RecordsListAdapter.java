@@ -51,7 +51,7 @@ public class RecordsListAdapter extends BaseAdapter {
         this.dataSet = new ArrayList<>();
     }
 
-    public void reset(List<TetroidRecord> dataSet) {
+    public void setDataItems(List<TetroidRecord> dataSet) {
         this.dataSet = dataSet;
         notifyDataSetChanged();
     }
