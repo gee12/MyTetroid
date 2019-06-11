@@ -31,7 +31,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:padding="10dp"
+                android:padding="@dimen/tv_empty_padding"
+                android:textAlignment="center"
                 android:text="@string/records_is_missing" />
         </RelativeLayout>
 
@@ -56,6 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:padding="@dimen/tv_empty_padding"
+                android:textAlignment="center"
                 android:text="@string/files_is_missing" />
 
         </RelativeLayout>

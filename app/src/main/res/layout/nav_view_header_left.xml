@@ -49,6 +49,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="20sp"
             android:textStyle="italic"
+            android:paddingTop="3dp"
             android:paddingLeft="12dp"
             android:paddingRight="6dp"/>
 

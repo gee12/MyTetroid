@@ -860,7 +860,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         getMenuInflater().inflate(R.menu.main, menu);
         // виджет поиска
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search_record).getActionView();
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setIconifiedByDefault(true);
 
@@ -887,7 +887,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         if (id == R.id.action_settings) {
             showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
             return true;
-        } else if (id == R.id.action_about) {
+        } else if (id == R.id.action_global_search) {
+            showActivity(this, SearchActivity.class);
+            return true;
+        } else if (id == R.id.action_about_app) {
             showActivity(this, AboutActivity.class);
             return true;
         }

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.gee12.mytetroid.activities.SearchActivity"
+    tools:showIn="@layout/activity_search">
+
+    <EditText
+        android:id="@+id/edit_text_query"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:hint="Введите запрос"
+
+        />
+
+    <TextView
+        android:id="@+id/text_view_search_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text_query"
+        android:paddingVertical="10dp"
+        android:text="Искать в:"/>
+
+    <CheckBox
+        android:id="@+id/check_box_records_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_search_in"
+        android:checked="true"
+        android:text="Текст записи" />
+
+    <CheckBox
+        android:id="@+id/check_box_records_names"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_records_text"
+        android:checked="true"
+        android:text="Название записи" />
+
+    <CheckBox
+        android:id="@+id/check_box_author"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_records_names"
+        android:checked="true"
+        android:text="Автор" />
+
+    <CheckBox
+        android:id="@+id/check_box_url"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_author"
+        android:checked="true"
+        android:text="Url" />
+
+    <CheckBox
+        android:id="@+id/check_box_tags"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_url"
+        android:checked="true"
+        android:text="Метки" />
+
+    <CheckBox
+        android:id="@+id/check_box_nodes_names"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_tags"
+        android:checked="true"
+        android:text="Название ветки" />
+
+    <CheckBox
+        android:id="@+id/check_box_files"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_nodes_names"
+        android:checked="true"
+        android:text="Название файла" />
+
+    <TextView
+        android:id="@+id/text_view_other_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/check_box_files"
+        android:paddingVertical="10dp"
+        android:text="Другие параметры:"/>
+
+</RelativeLayout>

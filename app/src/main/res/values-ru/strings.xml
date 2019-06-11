@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MyTetroid</string>
-    <string name="action_settings">Настройки</string>
+    <string name="title_settings">Настройки</string>
     <string name="records_is_missing">Записей нет</string>
     <string name="files_is_missing">Прикрепленных файлов нет</string>
     <string name="pref_category_srorage">Хранилище</string>
@@ -41,10 +41,10 @@
     <string name="pref_date_format_string_summ">Формат для отображения даты/времени создания записи</string>
     <string name="folder_chooser_title">Каталог хранилища</string>
     <string name="app_summ_html"><![CDATA[Просмотрщик хранилища полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
+    <string name="title_about_app">О приложении</string>
     <string name="license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
     <string name="rate_app">Оценить приложение</string>
     <string name="version_label">Версия</string>
-    <string name="about_app">О приложении</string>
     <string name="project_url"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="password_is_incorrect">Введен неверный пароль</string>
     <string name="m_bytes">Мб</string>
@@ -77,7 +77,7 @@
     <string name="storage_decrypted">Хранилище расшифровано</string>
     <string name="storage_settings_inited">Настройки хранилища загружены: </string>
     <string name="tags_is_missing">Метки отсутствуют</string>
-    <string name="tags_header">Метки</string>
+    <string name="tags_header">МЕТКИ</string>
     <string name="exit_from_app">Выйти из приложения?</string>
     <string name="is_confirm_app_exit">Подтверждать выход</string>
     <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
@@ -85,23 +85,24 @@
     <string name="storage_loading">Загрузка хранилища..</string>
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
-    <string name="search_records_title">Поиск по записям</string>
+    <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите ветку с записями для поиска или воспользуйтесь глобальным поиском</string>
     <string name="records_not_finded">По запросу \"%s\" в ветке [%s] не найдено записей</string>
     <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
     <string name="tags_search_hint">Поиск по меткам</string>
     <string name="nodes_search_hint">Поиск по веткам</string>
-    <string name="nodes_header">Ветки</string>
+    <string name="nodes_header">ВЕТКИ</string>
     <string name="nodes_is_missing">Ветки отсутствуют</string>
     <string name="nodes_not_finded">По запросу \"%s\" не найдено веток</string>
     <string name="search_nodes_by_query">Поиск веток по запросу "%s"</string>
     <string name="tags_not_finded">По запросу \"%s\" не найдено меток</string>
     <string name="search_tags_by_query">Поиск меток по запросу "%s"</string>
+    <string name="title_global_search">Глобальный поиск</string>
     <string-array name="view_type_titles">
-        <item name="records_list">Ветка</item>
-        <item name="record_text">Запись</item>
-        <item name="recor_files">Файлы</item>
-        <item name="tag_records">Метка</item>
-        <item name="finded_records">Поиск по записям</item>
+        <item name="records_list">ВЕТКА</item>
+        <item name="record_text">ЗАПИСЬ</item>
+        <item name="recor_files">ФАЙЛЫ</item>
+        <item name="tag_records">МЕТКА</item>
+        <item name="finded_records">ПОИСК ПО ЗАПИСЯМ</item>
     </string-array>
 </resources>

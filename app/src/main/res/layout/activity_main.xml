@@ -38,7 +38,11 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
+            android:layout_gravity="center"
             android:visibility="gone"
+            android:layout_marginTop="@dimen/nav_header_height"
+            android:padding="@dimen/tv_empty_padding"
+            android:textAlignment="center"
             android:text="@string/nodes_is_missing"/>
 
     </com.google.android.material.navigation.NavigationView>
@@ -70,6 +74,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
+                android:textAlignment="center"
+                android:padding="@dimen/tv_empty_padding"
                 android:text="@string/tags_is_missing" />
 
         </RelativeLayout>

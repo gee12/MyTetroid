@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -22,6 +23,9 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         TextView tvVesion = findViewById(R.id.text_view_version);
         tvVesion.setText(Utils.getVersionName(this));

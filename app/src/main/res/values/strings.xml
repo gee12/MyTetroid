@@ -6,7 +6,7 @@
     <string name="site_url">gee12.space</string>
     <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="title_settings">Settings</string>
     <string name="records_is_missing">Records is missing</string>
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -61,10 +61,10 @@
     <string name="def_date_format_string">dd.MM.yyyy HH:mm</string>
     <string name="folder_chooser_title">Storage folder</string>
     <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
+    <string name="title_about_app">About app</string>
     <string name="license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
     <string name="rate_app">Rate app</string>
     <string name="version_label">Version</string>
-    <string name="about_app">About app</string>
     <string name="password_is_incorrect">Password is incorrect</string>
     <string name="m_bytes">Mb</string>
     <string name="k_bytes">Kb</string>
@@ -100,7 +100,7 @@
     <string name="storage_decrypted">Storage is decrypted</string>
     <string name="storage_settings_inited">Storage settings is loaded: </string>
     <string name="tags_is_missing">Tags is missing</string>
-    <string name="tags_header">Tags</string>
+    <string name="tags_header">TAGS</string>
     <string name="exit_from_app">Exit from app?</string>
     <string name="pref_key_is_confirm_app_exit">pref_key_is_confirm_app_exit</string>
     <string name="is_confirm_app_exit">Confirm app exit</string>
@@ -109,23 +109,25 @@
     <string name="storage_loading">Storage loading..</string>
     <string name="start_storage_loading">Start storage loading: </string>
     <string name="search_records_hint">Records search</string>
-    <string name="search_records_title">Records search</string>
+    <string name="title_search_records">Records search</string>
     <string name="records_search_select_node">Select a branch with records to search or use the global search.</string>
     <string name="records_not_finded">No records found for query \"%s\" in node [%s]</string>
     <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
     <string name="tags_search_hint">Tags search</string>
     <string name="nodes_search_hint">Nodes search</string>
-    <string name="nodes_header">Nodes</string>
+    <string name="nodes_header">NODES</string>
     <string name="nodes_is_missing">Nodes is missing</string>
     <string name="nodes_not_finded">No nodes found for query \"%s\"</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"</string>
     <string name="tags_not_finded">No tags found for query \"%s\"</string>
     <string name="search_tags_by_query">Search tags by query "%s"</string>
     <string-array name="view_type_titles">
-        <item name="records_list">Node</item>
-        <item name="record_text">Record</item>
-        <item name="recor_files">Files</item>
-        <item name="tag_records">Tag</item>
-        <item name="finded_records">Search records</item>
+        <item name="records_list">NODE</item>
+        <item name="record_text">RECORD</item>
+        <item name="recor_files">FILES</item>
+        <item name="tag_records">TAG</item>
+        <item name="finded_records">SEARCH RECORDS</item>
     </string-array>
+    <string name="title_activity_search">Global search</string>
+    <string name="title_global_search">Глобальный поиск</string>
 </resources>
