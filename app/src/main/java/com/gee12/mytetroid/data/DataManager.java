@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -354,66 +352,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         } else {
             return size + context.getString(R.string.k_bytes);
         }
-    }
-
-    public static List<TetroidNode> searchInNodesNames(String query) {
-        return searchInNodesNames(instance.rootNodesCollection, query);
-    }
-
-    /**
-     * Поиск по названиям веток.
-     * Пропускает зашифрованные ветки.
-     * @param nodes
-     * @param query
-     * @return
-     */
-    public static List<TetroidNode> searchInNodesNames(List<TetroidNode> nodes, String query) {
-        List<TetroidNode> finded = new ArrayList<>();
-        String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
-        for (TetroidNode node : nodes) {
-            if (!node.isNonCryptedOrDecrypted())
-                continue;
-            if (node.getName().matches(regex)) {
-                finded.add(node);
-            }
-            if (node.getSubNodesCount() > 0) {
-                finded.addAll(searchInNodesNames(node.getSubNodes(), query));
-            }
-        }
-        return finded;
-    }
-
-    /**
-     * Поиск по названиям записей.
-     * @param srcRecords
-     * @param query
-     * @return
-     */
-    public static List<TetroidRecord> searchInRecordsNames(List<TetroidRecord> srcRecords, String query) {
-        List<TetroidRecord> finded = new ArrayList<>();
-        String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
-        for (TetroidRecord record : srcRecords) {
-            if (record.getName().matches(regex)) {
-                finded.add(record);
-            }
-        }
-        return finded;
-    }
-
-    /**
-     * Поиск по именам меток.
-     * @param query
-     * @return
-     */
-    public static TreeMap<String, List<TetroidRecord>> searchInTags(String query) {
-        TreeMap<String, List<TetroidRecord>> finded = new TreeMap<>();
-        String regex = "(?is)" + ".*" + Pattern.quote(query) + ".*";
-        for (Map.Entry<String, List<TetroidRecord>> tagEntry : instance.tagsMap.entrySet()) {
-            if (tagEntry.getKey().matches(regex)) {
-                finded.put(tagEntry.getKey(), tagEntry.getValue());
-            }
-        }
-        return finded;
     }
 
     public static List<TetroidNode> getRootNodes() {

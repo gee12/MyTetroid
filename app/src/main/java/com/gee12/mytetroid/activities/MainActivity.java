@@ -46,6 +46,7 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
+    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public static final int VIEW_RECORD_TEXT = 1;
     public static final int VIEW_RECORD_FILES = 2;
     public static final int VIEW_TAG_RECORDS = 3;
-    public static final int VIEW_FINDED_RECORDS = 4;
+    public static final int VIEW_found_RECORDS = 4;
 //    public static final String[] VIEW_TYPE_TITLES = { "", ""};
 
     private DrawerLayout drawerLayout;
@@ -221,10 +223,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
-                List<TetroidNode> finded = DataManager.searchInNodesNames(query);
-                nodesListAdapter.setDataItems(finded);
-                setListEmptyViewState(tvNodesEmpty, finded.isEmpty(),
-                        String.format(getString(R.string.nodes_not_finded), query));
+                List<TetroidNode> found = ScanManager.searchInNodesNames(
+                        DataManager.getRootNodes(), query);
+                nodesListAdapter.setDataItems(found);
+                setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
+                        String.format(getString(R.string.nodes_not_found), query));
             }
         };
     }
@@ -259,10 +262,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-                TreeMap<String, List<TetroidRecord>> finded = DataManager.searchInTags(query);
-                tagsListAdapter.setDataItems(finded);
-                if (finded.isEmpty())
-                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_finded), query));
+                TreeMap<String, List<TetroidRecord>> found = ScanManager.searchInTags(
+                        DataManager.getTagsHashMap(), query);
+                tagsListAdapter.setDataItems(found);
+                if (found.isEmpty())
+                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
             }
         };
     }
@@ -498,44 +502,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         intent.putExtra("title", getString(R.string.folder_chooser_title));
         intent.putExtra("location", SettingsManager.getStoragePath());
         startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
-            if (SettingsManager.isAskReloadStorage) {
-                SettingsManager.isAskReloadStorage = false;
-                ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
-                    @Override
-                    public void onApply() {
-                        startInitStorage();
-                    }
-                    @Override
-                    public void onCancel() {
-                    }
-                });
-            }
-        } else if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
-            String folderFullName = data.getStringExtra("data");
-            initStorage(folderFullName);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_PERMISSION_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startInitStorage();
-                } else {
-                    LogManager.addLog(R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
-                }
-            }
-        }
     }
 
     /**
@@ -793,6 +759,53 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+            if (SettingsManager.isAskReloadStorage) {
+                SettingsManager.isAskReloadStorage = false;
+                ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
+                    @Override
+                    public void onApply() {
+                        startInitStorage();
+                    }
+                    @Override
+                    public void onCancel() {
+                    }
+                });
+            }
+        } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
+            ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
+            startGlobalSearch(scan);
+
+        } else if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+            String folderFullName = data.getStringExtra("data");
+            initStorage(folderFullName);
+        }
+    }
+
+    private void startGlobalSearch(ScanManager scan) {
+        List<String> found = scan.globalSearch(DataManager.getInstance(), currentNode);
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startInitStorage();
+                } else {
+                    LogManager.addLog(R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
+                }
+            }
+        }
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         // search
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
@@ -800,11 +813,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 String query = intent.getStringExtra(SearchManager.QUERY);
                 LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
                 MySuggestionProvider.SaveRecentQuery(this, query);
-                List<TetroidRecord> finded = DataManager.searchInRecordsNames(currentNode.getRecords(), query);
-                if (finded.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
-                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_finded), query, currentNode.getName()));
-                showRecords(finded, VIEW_FINDED_RECORDS);
+                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query);
+                if (found.isEmpty())
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+                showRecords(found, VIEW_found_RECORDS);
             } else {
                 LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
             }
@@ -888,7 +901,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
             return true;
         } else if (id == R.id.action_global_search) {
-            showActivity(this, SearchActivity.class);
+            showActivityForResult(SearchActivity.class, REQUEST_CODE_SEARCH_ACTIVITY);
             return true;
         } else if (id == R.id.action_about_app) {
             showActivity(this, AboutActivity.class);

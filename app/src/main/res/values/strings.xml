@@ -111,23 +111,25 @@
     <string name="search_records_hint">Records search</string>
     <string name="title_search_records">Records search</string>
     <string name="records_search_select_node">Select a branch with records to search or use the global search.</string>
-    <string name="records_not_finded">No records found for query \"%s\" in node [%s]</string>
+    <string name="records_not_found">No records found for query \"%s\" in node [%s]</string>
     <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
     <string name="tags_search_hint">Tags search</string>
     <string name="nodes_search_hint">Nodes search</string>
     <string name="nodes_header">NODES</string>
     <string name="nodes_is_missing">Nodes is missing</string>
-    <string name="nodes_not_finded">No nodes found for query \"%s\"</string>
+    <string name="nodes_not_found">No nodes found for query \"%s\"</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"</string>
-    <string name="tags_not_finded">No tags found for query \"%s\"</string>
+    <string name="tags_not_found">No tags found for query \"%s\"</string>
     <string name="search_tags_by_query">Search tags by query "%s"</string>
-    <string-array name="view_type_titles">
-        <item name="records_list">NODE</item>
-        <item name="record_text">RECORD</item>
-        <item name="recor_files">FILES</item>
-        <item name="tag_records">TAG</item>
-        <item name="finded_records">SEARCH RECORDS</item>
-    </string-array>
-    <string name="title_activity_search">Global search</string>
-    <string name="title_global_search">Глобальный поиск</string>
+    <string name="title_global_search">Global search</string>
+    <string name="search_hint_input_query">Введите запрос</string>
+    <string name="search_search_in">Искать в:</string>
+    <string name="search_in_record_text">Текст записи</string>
+    <string name="search_in_record_name">Название записи</string>
+    <string name="search_in_record_author">Автор</string>
+    <string name="search_in_record_url">Url</string>
+    <string name="search_in_tags">Метки</string>
+    <string name="search_in_nodes">Название ветки</string>
+    <string name="search_in_file_names">Название файла</string>
+    <string name="search_other_options">Другие параметры:</string>
 </resources>

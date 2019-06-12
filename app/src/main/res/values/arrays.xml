@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="view_type_titles">
+        <item name="records_list">NODE</item>
+        <item name="record_text">RECORD</item>
+        <item name="recor_files">FILES</item>
+        <item name="tag_records">TAG</item>
+        <item name="finded_records">SEARCH RECORDS</item>
+    </string-array>
+    <string-array name="search_split_to_words">
+        <item name="search_any_word">Any word</item>
+        <item name="search_all_words">All words</item>
+    </string-array>
+    <string-array name="search_in_whole_words">
+        <item name="search_whole_word">Whole words</item>
+        <item name="search_substring">Substring</item>
+    </string-array>
+    <string-array name="search_in_cur_node">
+        <item name="search_all_database">All database</item>
+        <item name="search_cur_node">Current node</item>
+    </string-array>
+</resources>

@@ -87,22 +87,22 @@
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите ветку с записями для поиска или воспользуйтесь глобальным поиском</string>
-    <string name="records_not_finded">По запросу \"%s\" в ветке [%s] не найдено записей</string>
+    <string name="records_not_found">По запросу \"%s\" в ветке [%s] не найдено записей</string>
     <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
     <string name="tags_search_hint">Поиск по меткам</string>
     <string name="nodes_search_hint">Поиск по веткам</string>
     <string name="nodes_header">ВЕТКИ</string>
     <string name="nodes_is_missing">Ветки отсутствуют</string>
-    <string name="nodes_not_finded">По запросу \"%s\" не найдено веток</string>
+    <string name="nodes_not_found">По запросу \"%s\" не найдено веток</string>
     <string name="search_nodes_by_query">Поиск веток по запросу "%s"</string>
-    <string name="tags_not_finded">По запросу \"%s\" не найдено меток</string>
+    <string name="tags_not_found">По запросу \"%s\" не найдено меток</string>
     <string name="search_tags_by_query">Поиск меток по запросу "%s"</string>
     <string name="title_global_search">Глобальный поиск</string>
-    <string-array name="view_type_titles">
-        <item name="records_list">ВЕТКА</item>
-        <item name="record_text">ЗАПИСЬ</item>
-        <item name="recor_files">ФАЙЛЫ</item>
-        <item name="tag_records">МЕТКА</item>
-        <item name="finded_records">ПОИСК ПО ЗАПИСЯМ</item>
-    </string-array>
+    <string name="search_hint_input_query">Введите запрос</string>
+    <string name="search_search_in">Искать в:</string>
+    <string name="search_in_record_name">Название записи</string>
+    <string name="search_in_record_author">Автор</string>
+    <string name="search_in_record_url">Url</string>
+    <string name="search_in_tags">Метки</string>
+    <string name="search_other_options">Другие параметры:</string>
 </resources>
