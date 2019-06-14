@@ -21,4 +21,5 @@
     <dimen name="record_attached_image_width">41dp</dimen>
 
     <dimen name="tv_empty_padding">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 </resources>

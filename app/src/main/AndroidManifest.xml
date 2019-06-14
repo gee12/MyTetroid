@@ -13,6 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".activities.FoundActivity"
+            android:label="@string/title_activity_found"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <!-- для dirchooser -->
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
@@ -48,16 +52,14 @@
             <!-- android:screenOrientation="landscape" -->
             <!-- android:configChanges="orientation|keyboardHidden|screenSize" -->
         </activity>
-
         <activity
             android:name=".activities.SearchActivity"
             android:label="@string/title_global_search"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.AboutActivity"
             android:label="@string/title_about_app"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

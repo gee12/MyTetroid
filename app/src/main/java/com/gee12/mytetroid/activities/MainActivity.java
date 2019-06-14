@@ -788,6 +788,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void startGlobalSearch(ScanManager scan) {
         List<String> found = scan.globalSearch(DataManager.getInstance(), currentNode);
 
+        showActivity(this, FoundActivity.class);
     }
 
     @Override

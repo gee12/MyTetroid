@@ -132,4 +132,10 @@
     <string name="search_in_nodes">Название ветки</string>
     <string name="search_in_file_names">Название файла</string>
     <string name="search_other_options">Другие параметры:</string>
+    <string name="title_activity_found">Found</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_3">Tab 3</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>
