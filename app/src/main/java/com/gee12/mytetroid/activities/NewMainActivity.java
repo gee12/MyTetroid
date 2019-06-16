@@ -1,5 +1,22 @@
 package com.gee12.mytetroid.activities;
 
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.PagerTabStrip;
+import androidx.viewpager.widget.PagerTitleStrip;
+import lib.folderpicker.FolderPicker;
+import pl.openrnd.multilevellistview.ItemInfo;
+import pl.openrnd.multilevellistview.MultiLevelListView;
+import pl.openrnd.multilevellistview.OnItemClickListener;
+
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
@@ -10,39 +27,22 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.StringRes;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-
-import android.view.ContextMenu;
 import android.view.Gravity;
-import android.view.View;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
-import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
@@ -50,77 +50,47 @@ import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
-import com.gee12.mytetroid.views.FilesListAdapter;
-import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.ActivityDialogs;
-import com.gee12.mytetroid.views.RecordsListAdapter;
+import com.gee12.mytetroid.views.MainPagerAdapter;
+import com.gee12.mytetroid.views.MainViewPager;
+import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
-
-//import net.rdrei.android.dirchooser.DirectoryChooserActivity;
-//import net.rdrei.android.dirchooser.DirectoryChooserConfig;
-
-import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
-import lib.folderpicker.FolderPicker;
-import pl.openrnd.multilevellistview.ItemInfo;
-import pl.openrnd.multilevellistview.MultiLevelListView;
-import pl.openrnd.multilevellistview.OnItemClickListener;
+public class NewMainActivity extends AppCompatActivity implements IMainView {
 
-public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
-
-    public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
+    public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
 
-    public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
-    public static final int SHOW_FILES_MENU_ITEM_ID = 2;
-    public static final int OPEN_RECORD_FOLDER_MENU_ITEM_ID = 3;
-    public static final int VIEW_RECORDS_LIST = 0;
-    public static final int VIEW_RECORD_TEXT = 1;
-    public static final int VIEW_RECORD_FILES = 2;
-    public static final int VIEW_TAG_RECORDS = 3;
-    public static final int VIEW_found_RECORDS = 4;
 //    public static final String[] VIEW_TYPE_TITLES = { "", ""};
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
     private NodesListAdapter nodesListAdapter;
-    private RecordsListAdapter recordsListAdapter;
-    private ListView recordsListView;
-    private FilesListAdapter filesListAdapter;
     private TagsListAdapter tagsListAdapter;
-    private ListView filesListView;
     private ListView tagsListView;
     private TetroidNode currentNode;
-    private TetroidRecord currentRecord;
     private String currentTag;
-    private ViewFlipper viewFlipper;
-    private WebView recordContentWebView;
     private LinearLayout layoutProgress;
-    ToggleButton tbRecordFieldsExpander;
-    ExpandableLayout expRecordFieldsLayout;
-    TextView tvRecordTags;
-    TextView tvRecordAuthor;
-    TextView tvRecordUrl;
-    TextView tvRecordDate;
-    TextView tvProgress;
-    TextView tvAppTitle;
-    TextView tvViewType;
-    TextView tvNodesEmpty;
-    TextView tvRecordsEmpty;
-    TextView tvTagsEmpty;
-    android.widget.SearchView nodesSearchView;
-    android.widget.SearchView tagsSearchView;
-    private int curViewId;
-    private int lastViewId;
+    private TextView tvProgress;
+    private TextView tvAppTitle;
+    private TextView tvViewType;
+    private TextView tvNodesEmpty;
+    private TextView tvTagsEmpty;
+    private android.widget.SearchView nodesSearchView;
+    private android.widget.SearchView tagsSearchView;
     private boolean isAlreadyTryDecrypt = false;
+
+    private MainPagerAdapter viewPagerAdapter;
+    private MainViewPager viewPager;
+    private PagerTabStrip titleStrip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,10 +100,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        this.tvAppTitle = toolbar.findViewById(R.id.text_view_app_title);
-        this.tvViewType = toolbar.findViewById(R.id.text_view_view_type);
-
-        // панель
+        // выдвигающиеся панели
         this.drawerLayout = findViewById(R.id.drawer_layout);
         // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -142,32 +109,34 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 //        drawerLayout.openDrawer(GravityCompat.START);
         toggle.syncState();
 
+        // страницы (главная и найдено)
+        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter.getMainFragment().setMainView(this);
+        this.viewPager = findViewById(R.id.view_pager);
+        viewPager.setAdapter(viewPagerAdapter);
+        this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
+        setFoundPageVisibility(false);
+
+//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+//        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
+
+        this.tvAppTitle = toolbar.findViewById(R.id.text_view_app_title);
+        this.tvViewType = toolbar.findViewById(R.id.text_view_view_type);
+
         // список веток
         nodesListView = findViewById(R.id.nodes_list_view);
         nodesListView.setOnItemClickListener(onNodeClickListener);
         this.tvNodesEmpty = findViewById(R.id.nodes_text_view_empty);
 //        nodesListView.setEmptyView(tvNodesEmpty);
-        // список записей
-        this.recordsListView = findViewById(R.id.records_list_view);
-        recordsListView.setOnItemClickListener(onRecordClicklistener);
-        this.tvRecordsEmpty = findViewById(R.id.records_text_view_empty);
-        recordsListView.setEmptyView(tvRecordsEmpty);
-        registerForContextMenu(recordsListView);
-        // список файлов
-        this.filesListView = findViewById(R.id.files_list_view);
-        filesListView.setOnItemClickListener(onFileClicklistener);
-        TextView emptyTextView = findViewById(R.id.files_text_view_empty);
-        filesListView.setEmptyView(emptyTextView);
         // список меток
         this.tagsListView = findViewById(R.id.tags_list_view);
         tagsListView.setOnItemClickListener(onTagClicklistener);
         this.tvTagsEmpty = findViewById(R.id.tags_text_view_empty);
         tagsListView.setEmptyView(tvTagsEmpty);
 
-        this.viewFlipper = findViewById(R.id.view_flipper);
         this.layoutProgress = findViewById(R.id.layout_progress);
         this.tvProgress = findViewById(R.id.progress_text);
-        this.recordContentWebView = findViewById(R.id.web_view_record_content);
 
         NavigationView nodesNavView = drawerLayout.findViewById(R.id.nav_view_left);
         View nodesHeader = nodesNavView.getHeaderView(0);
@@ -178,14 +147,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         View tagsHeader = tagsNavView.getHeaderView(0);
         this.tagsSearchView = tagsHeader.findViewById(R.id.search_view_tags);
         tagsViewInit(tagsHeader);
-
-        this.tvRecordTags = findViewById(R.id.text_view_record_tags);
-        this.tvRecordAuthor = findViewById(R.id.text_view_record_author);
-        this.tvRecordUrl = findViewById(R.id.text_view_record_url);
-        this.tvRecordDate = findViewById(R.id.text_view_record_date);
-        this.expRecordFieldsLayout = findViewById(R.id.layout_expander);
-        this.tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
-        tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
         // инициализация
         SettingsManager.init(this);
@@ -261,11 +222,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
             }
         };
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton view, boolean isChecked) {
-        expRecordFieldsLayout.toggle();
     }
 
     private void startInitStorage() {
@@ -371,12 +327,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 }
             } catch (DataManager.EmptyFieldException e) {
                 // if middle_hash_check_data field is empty, so asking "decrypt anyway?"
-               ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
-                   @Override
-                   public void onApply(TetroidNode node) {
-                       decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
-                   }
-               });
+                ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
+                    @Override
+                    public void onApply(TetroidNode node) {
+                        decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
+                    }
+                });
             }
         } else {
             showPassDialog(node);
@@ -407,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 } catch (DataManager.EmptyFieldException e) {
                     // если поля в INI-файле для проверки пустые
                     LogManager.addLog(e);
-                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
+                    ActivityDialogs.showEmptyPassCheckingFieldDialog(NewMainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
                             decryptStorage(pass, false, node);
@@ -445,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 LogManager.addLog(R.string.storage_decrypted);
             } else {
                 LogManager.addLog(getString(R.string.errors_during_decryption)
-                    + (SettingsManager.isWriteLog()
+                                + (SettingsManager.isWriteLog()
                                 ? getString(R.string.details_in_logs)
                                 : getString(R.string.for_more_info_enable_log)),
                         Toast.LENGTH_LONG);
@@ -457,7 +413,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 showNode(node);
         } else {
             LogManager.addLog(getString(R.string.start_storage_loading) +  DataManager.getStoragePath());
-            new ReadStorageTask().execute(isDecrypt);
+            new NewMainActivity.ReadStorageTask().execute(isDecrypt);
             // парсим дерево веток и расшифровываем зашифрованные
 //            if (DataManager.readStorage(isDecrypt)) {
 //                LogManager.addLog(R.string.storage_loaded);
@@ -478,11 +434,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         nodesListAdapter.setDataItems(DataManager.getRootNodes());
         setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
         // список записей
-        this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
-        recordsListView.setAdapter(recordsListAdapter);
+//        this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
+//        recordsListView.setAdapter(recordsListAdapter);
         // список файлов
-        this.filesListAdapter = new FilesListAdapter(this);
-        filesListView.setAdapter(filesListAdapter);
+//        this.filesListAdapter = new FilesListAdapter(this);
+//        filesListView.setAdapter(filesListAdapter);
+
+        viewPagerAdapter.getMainFragment().initListViews();
+
         // список меток
         this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
         tagsListView.setAdapter(tagsListAdapter);
@@ -493,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra("title", getString(R.string.folder_chooser_title));
         intent.putExtra("location", SettingsManager.getStoragePath());
-        startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
+        startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
     }
 
     /**
@@ -511,112 +470,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         this.currentNode = node;
         LogManager.addLog("Открытие записей ветки: id=" + node.getId());
 //        tvRecordsEmpty.setText(R.string.records_is_missing);
-        showRecords(node.getRecords(), VIEW_RECORDS_LIST);
-    }
-
-    private void showRecords(List<TetroidRecord> records, int viewId) {
-        showView(viewId);
-        if (viewId == VIEW_RECORDS_LIST)
-            tvRecordsEmpty.setText(R.string.records_is_missing);
-//        else
-//            tvRecordsEmpty.setText(R.string.);
-        drawerLayout.closeDrawers();
-
-        this.recordsListAdapter.setDataItems(records);
-        recordsListView.setAdapter(recordsListAdapter);
-    }
-
-    /**
-     * Отображение записи
-     * @param position Индекс записи в списке записей ветки
-     */
-    private void showRecord(int position) {
-        TetroidRecord record = (curViewId == VIEW_RECORDS_LIST)
-                ? currentNode.getRecords().get(position)
-                : DataManager.getTagsHashMap().get(currentTag).get(position);
-        showRecord(record);
-    }
-
-    /**
-     * Отображение записи
-     * @param record Запись
-     */
-    private void showRecord(final TetroidRecord record) {
-        this.currentRecord = record;
-        LogManager.addLog("Чтение записи: id=" + record.getId());
-        String text = DataManager.getRecordTextDecrypted(record);
-        if (text == null) {
-            LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
-            return;
-        }
-        recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                text, "text/html", "UTF-8", null);
-//            recordContentWebView.loadUrl(recordContentUrl);
-        recordContentWebView.setWebViewClient(new WebViewClient() {
-            /*@Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return super.shouldOverrideUrlLoading(view, request);
-            }*/
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                tvRecordTags.setText(record.getTags());
-                tvRecordAuthor.setText(record.getAuthor());
-                tvRecordUrl.setText(record.getUrl());
-                if (record.getCreated() != null)
-                    tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
-                showView(VIEW_RECORD_TEXT);
-            }
-        });
-    }
-
-    /**
-     * Отображение списка прикрепленных файлов
-     * @param position Индекс записи в списке записей ветки
-     */
-    private void showFilesList(int position) {
-        TetroidRecord record = currentNode.getRecords().get(position);
-        showFilesList(record);
-    }
-
-    /**
-     * Отображение списка прикрепленных файлов
-     * @param record Запись
-     */
-    private void showFilesList(TetroidRecord record) {
-        this.currentRecord = record;
-        showView(VIEW_RECORD_FILES);
-        this.filesListAdapter.reset(record);
-        filesListView.setAdapter(filesListAdapter);
-//        setTitle(record.getName());
-    }
-
-    /**
-     * Открытие прикрепленного файла
-     * @param position Индекс файла в списке прикрепленных файлов записи
-     */
-    private void openFile(int position) {
-        if (currentRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
-            LogManager.addLog(R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG);
-            return;
-        }
-        TetroidFile file = currentRecord.getAttachedFiles().get(position);
-        DataManager.openFile(this, currentRecord, file);
-    }
-
-    private void openRecordFolder(int position) {
-        TetroidRecord record = currentNode.getRecords().get(position);
-        openFolder(DataManager.getRecordDirUri(record));
-    }
-
-    public void openFolder(String pathUri){
-        Uri uri = Uri.parse(pathUri);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "resource/folder");
-        if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
-            startActivity(intent);
-        } else {
-            LogManager.addLog("Отсутствует файл менеджер", Toast.LENGTH_LONG);
-        }
+        showRecords(node.getRecords(), MainPageFragment.VIEW_RECORDS_LIST);
     }
 
     /**
@@ -628,7 +482,30 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         String tag = (String)tagsListAdapter.getItem(position);
         this.currentTag = tag;
         LogManager.addLog("Открытие записей метки: " + tag);
-        showRecords(DataManager.getTagsHashMap().get(tag), VIEW_TAG_RECORDS);
+        showRecords(DataManager.getTagsHashMap().get(tag), MainPageFragment.VIEW_TAG_RECORDS);
+    }
+
+    private void showRecords(List<TetroidRecord> records, int viewId) {
+//        setMainTitle(viewId);
+        drawerLayout.closeDrawers();
+        viewPagerAdapter.getMainFragment().showRecords(records, viewId);
+    }
+
+    @Override
+    public void openFolder(String pathUri){
+        Uri uri = Uri.parse(pathUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "resource/folder");
+        if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+            startActivity(intent);
+        } else {
+            LogManager.addLog("Отсутствует файл менеджер", Toast.LENGTH_LONG);
+        }
+    }
+
+    @Override
+    public void openFile(TetroidRecord record, TetroidFile file) {
+        DataManager.openFile(this, record, file);
     }
 
     /**
@@ -638,16 +515,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         @Override
         public void onClick(TetroidNode node) {
             showNode(node);
-        }
-    };
-
-    /**
-     * Обработчик клика на иконке прикрепленных файлов записи
-     */
-    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
-        @Override
-        public void onClick(TetroidRecord record) {
-            showFilesList(record);
         }
     };
 
@@ -681,26 +548,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     };
 
     /**
-     * Обработчик клика на записи
-     */
-    private AdapterView.OnItemClickListener onRecordClicklistener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            showRecord(position);
-        }
-    };
-
-    /**
-     * Обработчик клика на прикрепленном файле
-     */
-    private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            openFile(position);
-        }
-    };
-
-    /**
      * Обработчик клика на метке
      */
     private AdapterView.OnItemClickListener onTagClicklistener = new AdapterView.OnItemClickListener() {
@@ -714,21 +561,15 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
      *
      * @param viewId
      */
-    void showView(int viewId) {
-        this.lastViewId = this.curViewId;
-        int whichChild = viewId;
-        if (viewId == VIEW_RECORDS_LIST) {
-            setTitle((currentNode != null) ? currentNode.getName() : "");
-        } else if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
-            setTitle((currentRecord != null) ? currentRecord.getName() : "");
-        } else if (viewId == VIEW_TAG_RECORDS) {
-            setTitle((currentTag != null) ? currentTag : "");
-            // один контрол на записи ветки и метки
-            whichChild = VIEW_RECORDS_LIST;
+    @Override
+    public void setMainTitle(String title, int viewId) {
+        if (viewId == MainPageFragment.VIEW_RECORDS_LIST) {
+            title = ((currentNode != null) ? currentNode.getName() : "");
+        } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
+            title = ((currentTag != null) ? currentTag : "");
         }
+        setTitle(title);
         setViewTypeTitle(viewId);
-        this.curViewId = viewId;
-        viewFlipper.setDisplayedChild(whichChild);
     }
 
     /**
@@ -748,6 +589,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
         if (viewId >= 0 && viewId < titles.length)
             tvViewType.setText(titles[viewId]);
+    }
+
+    public void setFoundPageVisibility(boolean isVisible) {
+        viewPager.setPagingEnabled(isVisible);
+        titleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -771,7 +617,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
 
-        } else if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+        } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
             initStorage(folderFullName);
         }
@@ -780,7 +626,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void startGlobalSearch(ScanManager scan) {
         List<String> found = scan.globalSearch(DataManager.getInstance(), currentNode);
 
-        showActivity(this, NewMainActivity.class);
+        setFoundPageVisibility(true);
+        viewPager.setCurrent(MainViewPager.PAGE_FOUND);
     }
 
     @Override
@@ -809,8 +656,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query);
                 if (found.isEmpty())
 //                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
-                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
-                showRecords(found, VIEW_found_RECORDS);
+                    viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
+                            String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+                showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
             } else {
                 LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
             }
@@ -826,33 +674,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.closeDrawer(GravityCompat.END);
-        } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
-            if (lastViewId == VIEW_RECORDS_LIST)
-                showView(VIEW_RECORDS_LIST);
-            else
-                showView(VIEW_TAG_RECORDS);
-        } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_FILES) {
-            // смотрим какая страница была перед этим
-            if (lastViewId == VIEW_RECORD_TEXT)
-                showView(VIEW_RECORD_TEXT);
-            else if (lastViewId == VIEW_RECORDS_LIST)
-                showView(VIEW_RECORDS_LIST);
-            else
-                showView(VIEW_TAG_RECORDS);
-        } else if (SettingsManager.isConfirmAppExit()) {
-            onExit();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    private void onExit() {
-        ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
-            @Override
-            public void onApply() {
-                finish();
+        } else if (!viewPagerAdapter.getMainFragment().onBackPressed()) {
+            if (SettingsManager.isConfirmAppExit()) {
+                onExit();
+            } else {
+                super.onBackPressed();
             }
-        });
+        }
     }
 
     /**
@@ -874,7 +702,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public boolean onClose() {
                 List<TetroidRecord> records = (currentNode != null) ? currentNode.getRecords() : new ArrayList<TetroidRecord>();
-                showRecords(records, VIEW_RECORDS_LIST);
+                showRecords(records, MainPageFragment.VIEW_RECORDS_LIST);
                 return false;
             }
         });
@@ -904,42 +732,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Обработчик создания контекстного меню при долгом тапе на записи
-     * @param menu
-     * @param v
-     * @param menuInfo
-     */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        menu.add(Menu.NONE, OPEN_RECORD_MENU_ITEM_ID, Menu.NONE, R.string.show_record_content);
-        menu.add(Menu.NONE, SHOW_FILES_MENU_ITEM_ID, Menu.NONE, R.string.show_attached_files);
-        menu.add(Menu.NONE, OPEN_RECORD_FOLDER_MENU_ITEM_ID, Menu.NONE, R.string.open_record_folder);
-    }
-
-    /**
-     * Обработчик выбора пунктов контекстного меню записи
-     * @param item
-     * @return
-     */
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        switch (item.getItemId()) {
-            case OPEN_RECORD_MENU_ITEM_ID:
-                showRecord(info.position);
-                return true;
-            case SHOW_FILES_MENU_ITEM_ID:
-                showFilesList(info.position);
-                return true;
-            case OPEN_RECORD_FOLDER_MENU_ITEM_ID:
-                openRecordFolder(info.position);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
+    private void onExit() {
+        ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
+            @Override
+            public void onApply() {
+                finish();
+            }
+        });
     }
 
     public static void showActivity(Context context, Class<?> cls) {
