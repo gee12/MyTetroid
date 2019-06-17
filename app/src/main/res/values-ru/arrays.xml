@@ -15,7 +15,7 @@
         <item name="search_whole_word">Совпадение только целого слова</item>
         <item name="search_substring">Подстрока</item>
     </string-array>
-    <string-array name="search_in_current_node">
+    <string-array name="search_in_cur_node">
         <item name="search_all_database">Вся база</item>
         <item name="search_cur_node">Текущая ветка</item>
     </string-array>

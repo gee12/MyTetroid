@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
  */
 public class ScanManager implements Parcelable {
 
+    public static final String QUERY_SEPAR = " ";
 //    private DataManager dataManager;
     /**
      * Запрос
@@ -61,10 +62,49 @@ public class ScanManager implements Parcelable {
         this.isSearchInNode = in.readInt() == 1;
     }
 
-    public static List<String> globalSearch(DataManager data, TetroidNode node) {
+    public List<String> globalSearch(DataManager data, TetroidNode node) {
         List<String> res = new ArrayList<>();
 
+        if (isSplitToWords) {
+            for (String word : query.split(QUERY_SEPAR)) {
+                res.addAll(globalSearch(data, node, word));
+            }
+        } else {
+            res.addAll(globalSearch(data, node, query));
+        }
         return res;
+    }
+
+    public List<String> globalSearch(DataManager data, TetroidNode node, String query) {
+        List<String> res = new ArrayList<>();
+
+            if (isSearchInNode && node != null) {
+
+            }
+
+            if (inNodes) {
+
+            }
+            if (inTags) {
+
+            }
+            if (inFiles) {
+
+            }
+            if (inRecordsNames) {
+
+            }
+            if (inText) {
+
+            }
+            if (inAuthor) {
+
+            }
+            if (inUrl) {
+
+            }
+
+            return res;
     }
 
     /**
