@@ -15,6 +15,8 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
+import org.jsoup.Jsoup;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -172,11 +174,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Получение текста записи.
+     * Получение содержимого записи в виде голого html.
      * @param record
      * @return
      */
-    public static String getRecordTextDecrypted(TetroidRecord record) {
+    public static String getRecordHtmlTextDecrypted(TetroidRecord record) {
         String pathUri = getStoragePathBaseUri() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
 //        String text = Utils.readAllFile(URI.create(pathUri));
@@ -189,7 +191,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 } catch (IOException ex) {
                     LogManager.addLog("Ошибка чтения файла записи: ", ex);
                 }
-                // расшифровываем файл
+                // расшифровываем содержимое файла
                 res = CryptManager.decryptText(text);
                 if (res == null) {
                     LogManager.addLog("Ошибка расшифровки файла записи: " + pathUri, LogManager.Types.ERROR);
@@ -203,6 +205,20 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
         }
         return res;
+    }
+
+    /**
+     * Получение содержимого записи в виде текста.
+     * @param record
+     * @return
+     */
+    public static String getRecordTextDecrypted(TetroidRecord record) {
+        String text = null;
+        String html = getRecordHtmlTextDecrypted(record);
+        if (html != null) {
+            text = Jsoup.parse(html).text();
+        }
+        return text;
     }
 
     public static String getRecordDirUri(TetroidRecord record) {

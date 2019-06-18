@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data;
 
-public class TetroidFile {
+public class TetroidFile extends FoundObject {
     private String id;
     private String name;
     private String type;
@@ -25,5 +25,10 @@ public class TetroidFile {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return name;
     }
 }

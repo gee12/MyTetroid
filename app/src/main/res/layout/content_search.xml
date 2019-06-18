@@ -23,7 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/edit_text_query"
-        android:paddingVertical="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_search_in"/>
 
     <CheckBox
@@ -32,6 +33,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view_search_in"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_record_text" />
 
     <CheckBox
@@ -40,6 +43,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_records_text"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_record_name" />
 
     <CheckBox
@@ -48,6 +53,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_records_names"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_record_author" />
 
     <CheckBox
@@ -56,6 +63,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_author"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_record_url" />
 
     <CheckBox
@@ -64,6 +73,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_url"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_tags" />
 
     <CheckBox
@@ -72,6 +83,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_tags"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_nodes" />
 
     <CheckBox
@@ -80,6 +93,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_nodes"
         android:checked="true"
+        android:paddingTop="@dimen/checkbox_vert_padding"
+        android:paddingBottom="@dimen/checkbox_vert_padding"
         android:text="@string/search_in_file_names" />
 
     <TextView
@@ -87,7 +102,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/check_box_files"
-        android:paddingVertical="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="@dimen/spinner_vert_padding"
         android:text="@string/search_other_options"/>
 
     <Spinner
@@ -95,6 +111,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view_other_options"
+        android:paddingTop="@dimen/spinner_vert_padding"
+        android:paddingBottom="@dimen/spinner_vert_padding"
         />
 
     <Spinner
@@ -102,6 +120,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinner_split_to_words"
+        android:paddingTop="@dimen/spinner_vert_padding"
+        android:paddingBottom="@dimen/spinner_vert_padding"
         />
 
     <Spinner
@@ -109,6 +129,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinner_in_whole_words"
+        android:paddingTop="@dimen/spinner_vert_padding"
+        android:paddingBottom="@dimen/spinner_vert_padding"
         />
 
     <!--<CheckBox-->

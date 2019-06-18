@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data;
 
-public class FoundObject {
+public abstract class FoundObject {
 
     public static final int TYPE_RECORD_NAME = 0;
     public static final int TYPE_RECORD_TEXT = 1;
@@ -10,15 +10,32 @@ public class FoundObject {
     public static final int TYPE_TAG = 5;
     public static final int TYPE_NODE = 6;
 
-    private String matchText;
-    private Object foundObj;
-    private int objType;
+//    private String matchText;
+//    private T foundObj;
+    private int foundType;
 
-    public FoundObject(String matchText, Object foundObj, int objType) {
+    /*public FoundObject(String matchText, T foundObj, int foundType) {
         this.matchText = matchText;
-        this.foundObj = foundObj;
-        this.objType = objType;
+//        this.foundObj = foundObj;
+        this.foundType = foundType;
+    }*/
+
+    public void addFoundType(int foundType) {
+        this.foundType |= (1 << foundType);
     }
 
+//    public String getMatchText() {
+//        return matchText;
+//    }
+
+//    public T getFoundObj() {
+//        return foundObj;
+//    }
+
+    public int getFoundType() {
+        return foundType;
+    }
+
+    public abstract String getDisplayName();
 
 }

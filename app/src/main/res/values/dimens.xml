@@ -22,4 +22,7 @@
 
     <dimen name="tv_empty_padding">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+
+    <dimen name="checkbox_vert_padding">2dp</dimen>
+    <dimen name="spinner_vert_padding">4dp</dimen>
 </resources>

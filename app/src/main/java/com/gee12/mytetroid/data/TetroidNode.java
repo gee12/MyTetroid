@@ -8,7 +8,7 @@ import com.gee12.mytetroid.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TetroidNode {
+public class TetroidNode extends FoundObject {
     private String id;
     private String name;
     private int level;
@@ -148,5 +148,10 @@ public class TetroidNode {
 
     public boolean isExpandable() {
         return !subNodes.isEmpty() /*&& isNonCryptedOrDecrypted()*/;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return name;
     }
 }

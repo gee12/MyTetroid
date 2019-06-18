@@ -163,7 +163,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
         LogManager.addLog("Чтение записи: id=" + record.getId());
-        String text = DataManager.getRecordTextDecrypted(record);
+        String text = DataManager.getRecordHtmlTextDecrypted(record);
         if (text == null) {
             LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
             return;

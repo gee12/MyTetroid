@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class TetroidRecord {
+public class TetroidRecord extends FoundObject {
 
     private String id;
     private TetroidNode node;
@@ -172,6 +172,11 @@ public class TetroidRecord {
 
     public void setNode(TetroidNode node) {
         this.node = node;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return name;
     }
 
 //    public void setDateFormat(String format) {
