@@ -46,10 +46,12 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.FoundObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.data.TetroidTag;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.ActivityDialogs;
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
                 List<TetroidNode> found = ScanManager.searchInNodesNames(
-                        DataManager.getRootNodes(), query);
+                        DataManager.getRootNodes(), query, false);
                 nodesListAdapter.setDataItems(found);
                 setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
                         String.format(getString(R.string.nodes_not_found), query));
@@ -239,7 +241,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         new SearchViewListener(tagsSearchView) {
             @Override
             public void OnClose() {
-                TreeMap<String, List<TetroidRecord>> tags = DataManager.getTagsHashMap();
+//                TreeMap<String, List<TetroidRecord>> tags = DataManager.getTagsHashMap();
+                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
                 tagsListAdapter.setDataItems(tags);
                 if (tags.isEmpty())
                     tvTagsEmpty.setText(R.string.tags_is_missing);
@@ -254,7 +257,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-                TreeMap<String, List<TetroidRecord>> found = ScanManager.searchInTags(
+//                TreeMap<String, List<TetroidRecord>> found = ScanManager.searchInTags(
+                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
                         DataManager.getTagsHashMap(), query);
                 tagsListAdapter.setDataItems(found);
                 if (found.isEmpty())
@@ -533,7 +537,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private void showRecord(int position) {
         TetroidRecord record = (curViewId == VIEW_RECORDS_LIST)
                 ? currentNode.getRecords().get(position)
-                : DataManager.getTagsHashMap().get(currentTag).get(position);
+                : DataManager.getTagsHashMap().get(currentTag).getRecord(position);
         showRecord(record);
     }
 
@@ -559,7 +563,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }*/
             @Override
             public void onPageFinished(WebView view, String url) {
-                tvRecordTags.setText(record.getTags());
+                tvRecordTags.setText(record.getTagsString());
                 tvRecordAuthor.setText(record.getAuthor());
                 tvRecordUrl.setText(record.getUrl());
                 if (record.getCreated() != null)
@@ -628,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         String tag = (String)tagsListAdapter.getItem(position);
         this.currentTag = tag;
         LogManager.addLog("Открытие записей метки: " + tag);
-        showRecords(DataManager.getTagsHashMap().get(tag), VIEW_TAG_RECORDS);
+        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), VIEW_TAG_RECORDS);
     }
 
     /**
@@ -778,7 +782,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     private void startGlobalSearch(ScanManager scan) {
-        List<String> found = scan.globalSearch(DataManager.getInstance(), currentNode);
+        List<FoundObject> found = scan.globalSearch(/*DataManager.getInstance(), */currentNode);
 
         showActivity(this, NewMainActivity.class);
     }
@@ -806,7 +810,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 String query = intent.getStringExtra(SearchManager.QUERY);
                 LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
                 TetroidSuggestionProvider.SaveRecentQuery(this, query);
-                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query);
+                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query, false);
                 if (found.isEmpty())
 //                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
                     tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));

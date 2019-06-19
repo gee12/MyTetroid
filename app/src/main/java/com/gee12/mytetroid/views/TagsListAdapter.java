@@ -11,6 +11,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.data.TetroidTag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,18 +30,21 @@ public class TagsListAdapter extends BaseAdapter {
     }
 
     private LayoutInflater inflater;
-    private TreeMap<String, List<TetroidRecord>> dataHashMap;
+//    private TreeMap<String, List<TetroidRecord>> dataHashMap;
+    private TreeMap<String, TetroidTag> dataHashMap;
     private Object[] keySet;
     private Context context;
 
-    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> data) {
+//    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> data) {
+    public TagsListAdapter(Context context, TreeMap<String, TetroidTag> data) {
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.dataHashMap = data;
         this.keySet = dataHashMap.keySet().toArray();
     }
 
-    public void setDataItems(TreeMap<String, List<TetroidRecord>> data) {
+//    public void setDataItems(TreeMap<String, List<TetroidRecord>> data) {
+    public void setDataItems(TreeMap<String, TetroidTag> data) {
         this.dataHashMap = data;
         onDataSetChanged();
     }
@@ -80,7 +84,7 @@ public class TagsListAdapter extends BaseAdapter {
         }
 
         Object key = keySet[position];
-        final List<TetroidRecord> records = dataHashMap.get(key);
+        final List<TetroidRecord> records = dataHashMap.get(key).getRecords();
         // номер строки
 //        viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла

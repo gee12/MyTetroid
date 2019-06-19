@@ -11,7 +11,7 @@ public class TetroidRecord extends FoundObject {
     private String id;
     private TetroidNode node;
     private String name;
-    private String tags;
+    private String tagsString;
     private String author;
     private String url;
     private Date created;
@@ -20,6 +20,7 @@ public class TetroidRecord extends FoundObject {
     private String dirName;
     private String fileName;
     List<TetroidFile> files = new ArrayList<>();
+    List<TetroidTag> tags = new ArrayList<>();
 
     private boolean isDecrypted;
 
@@ -29,6 +30,7 @@ public class TetroidRecord extends FoundObject {
 //        this.htmlContent = htmlContent;
 //        this.content = Utils.fromHtml(name);
         this.created = Calendar.getInstance().getTime();
+        this.tags = new ArrayList<>();
     }
 
     public TetroidRecord(String id,String name, String htmlContent) {
@@ -37,20 +39,22 @@ public class TetroidRecord extends FoundObject {
 //        this.htmlContent = htmlContent;
 //        this.content = Utils.fromHtml(htmlContent);
         this.created = Calendar.getInstance().getTime();
+        this.tags = new ArrayList<>();
     }
 
-    public TetroidRecord(boolean crypt, String id, String name, String tags, String author, String url,
+    public TetroidRecord(boolean crypt, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, List<TetroidFile> files) {
         this.isCrypted = crypt;
         this.id = id;
         this.name = name;
-        this.tags = tags;
+        this.tagsString = tagsString;
         this.author = author;
         this.url = url;
         this.created = created;
         this.dirName = dirName;
         this.fileName = fileName;
         this.files = files;
+        this.tags = new ArrayList<>();
     }
 
     public String getId() {
@@ -65,8 +69,8 @@ public class TetroidRecord extends FoundObject {
         return name;
     }
 
-    public String getTags() {
-        return tags;
+    public String getTagsString() {
+        return tagsString;
     }
 
     public String getAuthor() {
@@ -142,8 +146,8 @@ public class TetroidRecord extends FoundObject {
         this.name = name;
     }
 
-    public void setTags(String tags) {
-        this.tags = tags;
+    public void setTagsString(String tagsString) {
+        this.tagsString = tagsString;
     }
 
     public void setAuthor(String author) {
@@ -172,6 +176,10 @@ public class TetroidRecord extends FoundObject {
 
     public void setNode(TetroidNode node) {
         this.node = node;
+    }
+
+    public void addTag(TetroidTag tag) {
+        tags.add(tag);
     }
 
     @Override

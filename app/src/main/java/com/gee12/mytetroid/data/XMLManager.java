@@ -52,7 +52,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-    protected TreeMap<String,List<TetroidRecord>> tagsMap;
+//    protected TreeMap<String,List<TetroidRecord>> tagsMap;
+    protected TreeMap<String,TetroidTag> tagsMap;
 
     /**
      *
@@ -61,7 +62,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @throws XmlPullParserException
      * @throws IOException
      */
-//    public List<TetroidNode> parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
         this.rootNodesCollection = new ArrayList<>();
@@ -77,9 +77,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
     }
 
-//    private List<TetroidNode> readRoot(XmlPullParser parser) throws XmlPullParserException, IOException {
     private boolean readRoot(XmlPullParser parser) throws XmlPullParserException, IOException {
-//        List<TetroidNode> nodes = new ArrayList();
         boolean res = false;
         parser.require(XmlPullParser.START_TAG, ns, "root");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -91,11 +89,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             if (tagName.equals("format")) {
                 formatVersion = readFormatVersion(parser);
             } else if (tagName.equals("content")) {
-//                nodes = readContent(parser);
                 res = readContent(parser);
             }
         }
-//        rootNodesCollection = nodes;
         return res;
     }
 
@@ -114,7 +110,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return new Version(version, subversion);
     }
 
-//    private List<TetroidNode> readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
     private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "content");
@@ -214,10 +209,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         parseTags(record);
     }
 
+    /*
     protected void parseTags(TetroidRecord record) {
 //        if (!record.isNonCryptedOrDecrypted())
 //            return;
-        String tagsString = record.getTags();
+        String tagsString = record.getTagsString();
         if (!Utils.isNullOrEmpty(tagsString)) {
             for (String tag : tagsString.split(TAGS_SEPARATOR)) {
                 if (tagsMap.containsKey(tag)) {
@@ -226,6 +222,23 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);
                     tagsMap.put(tag, tagRecords);
+                }
+            }
+        }
+    }*/
+
+    protected void parseTags(TetroidRecord record) {
+//        if (!record.isNonCryptedOrDecrypted())
+//            return;
+        String tagsString = record.getTagsString();
+        if (!Utils.isNullOrEmpty(tagsString)) {
+            for (String tag : tagsString.split(TAGS_SEPARATOR)) {
+                if (tagsMap.containsKey(tag)) {
+                    tagsMap.get(tag).addRecord(record);
+                } else {
+                    List<TetroidRecord> tagRecords = new ArrayList<>();
+                    tagRecords.add(record);
+                    tagsMap.put(tag, new TetroidTag(tag, tagRecords));
                 }
             }
         }

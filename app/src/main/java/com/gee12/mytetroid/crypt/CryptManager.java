@@ -4,7 +4,6 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
-import com.gee12.mytetroid.data.IDecryptHandler;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.ITagsParseHandler;
 import com.gee12.mytetroid.data.TetroidFile;
@@ -176,11 +175,11 @@ public class CryptManager {
         if (res) {
             record.setName(temp);
         }
-//        record.setTags(CryptManager.decryptBase64(cryptKey, record.getTags()));
-        temp = CryptManager.decryptBase64(cryptKey, record.getTags());
+//        record.setTagsString(CryptManager.decryptBase64(cryptKey, record.getTagsString()));
+        temp = CryptManager.decryptBase64(cryptKey, record.getTagsString());
         res = res & (temp != null);
         if (temp != null) {
-            record.setTags(temp);
+            record.setTagsString(temp);
             tagsParser.parseRecordTags(record);
         }
 //        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));

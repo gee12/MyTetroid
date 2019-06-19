@@ -119,8 +119,8 @@
     <string name="nodes_is_missing">Nodes is missing</string>
     <string name="nodes_not_found">No nodes found for query \"%s\"</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"</string>
-    <string name="tags_not_found">No tags found for query \"%s\"</string>
-    <string name="search_tags_by_query">Search tags by query "%s"</string>
+    <string name="tags_not_found">No tagsString found for query \"%s\"</string>
+    <string name="search_tags_by_query">Search tagsString by query "%s"</string>
     <string name="title_global_search">Global search</string>
     <string name="search_hint_input_query">Введите запрос</string>
     <string name="search_search_in">Искать в:</string>

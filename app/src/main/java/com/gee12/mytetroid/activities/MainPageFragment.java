@@ -178,7 +178,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             }*/
             @Override
             public void onPageFinished(WebView view, String url) {
-                tvRecordTags.setText(record.getTags());
+                tvRecordTags.setText(record.getTagsString());
                 tvRecordAuthor.setText(record.getAuthor());
                 tvRecordUrl.setText(record.getUrl());
                 if (record.getCreated() != null)

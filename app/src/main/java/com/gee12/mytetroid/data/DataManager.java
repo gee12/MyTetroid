@@ -374,7 +374,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesCollection;
     }
 
-    public static TreeMap<String, List<TetroidRecord>> getTagsHashMap() {
+//    public static TreeMap<String, List<TetroidRecord>> getTagsHashMap() {
+//        return instance.tagsMap;
+//    }
+    public static TreeMap<String, TetroidTag> getTagsHashMap() {
         return instance.tagsMap;
     }
 
