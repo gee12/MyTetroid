@@ -19,4 +19,13 @@
         <item name="search_all_database">Вся база</item>
         <item name="search_cur_node">Текущая ветка</item>
     </string-array>
+    <string-array name="found_types">
+        <item>Имя записи</item>
+        <item>Текст записи</item>
+        <item>Автор</item>
+        <item>Url</item>
+        <item>Файл</item>
+        <item>Метка</item>
+        <item>Ветка</item>
+    </string-array>
 </resources>

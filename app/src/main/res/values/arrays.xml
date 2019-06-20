@@ -19,4 +19,13 @@
         <item name="search_all_database">All database</item>
         <item name="search_cur_node">Current node</item>
     </string-array>
+    <string-array name="found_types">
+        <item>Record name</item>
+        <item>Record text</item>
+        <item>Author</item>
+        <item>Url</item>
+        <item>File</item>
+        <item>Tag</item>
+        <item>Node</item>
+    </string-array>
 </resources>

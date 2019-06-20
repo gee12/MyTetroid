@@ -44,8 +44,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public static final int OPEN_RECORD_FOLDER_MENU_ITEM_ID = 3;
 
     private ViewFlipper viewFlipper;
-    private ListView recordsListView;
-    private ListView filesListView;
+    private ListView lvRecords;
+    private ListView lvFiles;
     private TextView tvRecordsEmpty;
     private ExpandableLayout expRecordFieldsLayout;
     private ToggleButton tbRecordFieldsExpander;
@@ -74,20 +74,20 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.layout_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         this.viewFlipper = view.findViewById(R.id.view_flipper);
         // список записей
-        this.recordsListView = view.findViewById(R.id.records_list_view);
-        recordsListView.setOnItemClickListener(onRecordClicklistener);
-        this.tvRecordsEmpty = view.findViewById(R.id.records_text_view_empty);
-        recordsListView.setEmptyView(tvRecordsEmpty);
-        registerForContextMenu(recordsListView);
+        this.lvRecords = view.findViewById(R.id.list_view_records);
+        lvRecords.setOnItemClickListener(onRecordClicklistener);
+        this.tvRecordsEmpty = view.findViewById(R.id.text_view_empty_records);
+        lvRecords.setEmptyView(tvRecordsEmpty);
+        registerForContextMenu(lvRecords);
         // список файлов
-        this.filesListView = view.findViewById(R.id.files_list_view);
-        filesListView.setOnItemClickListener(onFileClicklistener);
-        TextView emptyTextView = view.findViewById(R.id.files_text_view_empty);
-        filesListView.setEmptyView(emptyTextView);
+        this.lvFiles = view.findViewById(R.id.list_view_files);
+        lvFiles.setOnItemClickListener(onFileClicklistener);
+        TextView emptyTextView = view.findViewById(R.id.text_view_empty_files);
+        lvFiles.setEmptyView(emptyTextView);
         // текст записи
         this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
         this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
@@ -108,10 +108,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public void initListViews() {
         // список записей
         this.recordsListAdapter = new RecordsListAdapter(this.getContext(), onRecordAttachmentClickListener);
-        recordsListView.setAdapter(recordsListAdapter);
+        lvRecords.setAdapter(recordsListAdapter);
         // список файлов
         this.filesListAdapter = new FilesListAdapter(this.getContext());
-        filesListView.setAdapter(filesListAdapter);
+        lvFiles.setAdapter(filesListAdapter);
     }
 
     /**
@@ -141,7 +141,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 //            tvRecordsEmpty.setText(R.string.);
 
         this.recordsListAdapter.setDataItems(records);
-        recordsListView.setAdapter(recordsListAdapter);
+        lvRecords.setAdapter(recordsListAdapter);
     }
 
     /**
@@ -206,7 +206,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.currentRecord = record;
         showView(VIEW_RECORD_FILES);
         this.filesListAdapter.reset(record);
-        filesListView.setAdapter(filesListAdapter);
+        lvFiles.setAdapter(filesListAdapter);
 //        setTitle(record.getName());
     }
 

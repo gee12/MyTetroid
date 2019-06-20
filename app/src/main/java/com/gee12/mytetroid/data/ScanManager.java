@@ -179,7 +179,7 @@ public class ScanManager implements Parcelable {
                 }
             }
             if (inTags && isSearchInNode) {
-
+                found.addAll(searchInRecordTags(record.getTags(), query, isOnlyWholeWords));
             }
         }
         return found;
@@ -238,11 +238,13 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public static List<FoundObject> searchInRecordTags(List<TetroidTag> tags, String query) {
+    public static List<FoundObject> searchInRecordTags(
+            List<TetroidTag> tags, String query, boolean isOnlyWholeWords) {
         List<FoundObject> found = new ArrayList<>();
         String regex = buildRegex(query);
         for (TetroidTag tagEntry : tags) {
             if (tagEntry.getName().matches(regex)) {
+                tagEntry.addFoundType(FoundObject.TYPE_TAG);
                 found.add(tagEntry);
             }
         }

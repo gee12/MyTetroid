@@ -150,15 +150,15 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         this.tvNodesEmpty = findViewById(R.id.nodes_text_view_empty);
 //        nodesListView.setEmptyView(tvNodesEmpty);
         // список записей
-        this.recordsListView = findViewById(R.id.records_list_view);
+        this.recordsListView = findViewById(R.id.list_view_records);
         recordsListView.setOnItemClickListener(onRecordClicklistener);
-        this.tvRecordsEmpty = findViewById(R.id.records_text_view_empty);
+        this.tvRecordsEmpty = findViewById(R.id.text_view_empty_records);
         recordsListView.setEmptyView(tvRecordsEmpty);
         registerForContextMenu(recordsListView);
         // список файлов
-        this.filesListView = findViewById(R.id.files_list_view);
+        this.filesListView = findViewById(R.id.list_view_files);
         filesListView.setOnItemClickListener(onFileClicklistener);
-        TextView emptyTextView = findViewById(R.id.files_text_view_empty);
+        TextView emptyTextView = findViewById(R.id.text_view_empty_files);
         filesListView.setEmptyView(emptyTextView);
         // список меток
         this.tagsListView = findViewById(R.id.tags_list_view);

@@ -182,6 +182,10 @@ public class TetroidRecord extends FoundObject {
         tags.add(tag);
     }
 
+    public List<TetroidTag> getTags() {
+        return tags;
+    }
+
     @Override
     public String getDisplayName() {
         return name;
