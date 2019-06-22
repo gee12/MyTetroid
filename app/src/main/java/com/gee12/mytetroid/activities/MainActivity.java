@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
 //                TreeMap<String, List<TetroidRecord>> found = ScanManager.searchInTags(
                 TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
-                        DataManager.getTagsHashMap(), query);
+                        DataManager.getTagsHashMap(), query, false);
                 tagsListAdapter.setDataItems(found);
                 if (found.isEmpty())
                     tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));

@@ -1,9 +1,11 @@
 package com.gee12.mytetroid.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -19,8 +21,18 @@ public class FoundPageFragment extends TetroidFragment {
     ListView lvFound;
     FoundListAdapter listAdapter;
     TextView tvEmpty;
+    int foundCount;
+
+//    public FoundPageFragment(IMainView mainView) {
+//        super(mainView);
+//    }
 
     public FoundPageFragment() {
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
     }
 
     @Override
@@ -30,22 +42,44 @@ public class FoundPageFragment extends TetroidFragment {
         this.lvFound = rootView.findViewById(R.id.list_view_found);
         this.tvEmpty = rootView.findViewById(R.id.text_view_empty_found);
         lvFound.setEmptyView(tvEmpty);
-//        registerForContextMenu(lvFound);
+        registerForContextMenu(lvFound);
+        lvFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openFoundObject(position);
+            }
+        });
+
+        this.listAdapter = new FoundListAdapter(this.getContext());
+        lvFound.setAdapter(listAdapter);
 
         // ...
-        String query = null;
-        List<FoundObject> found = null;
-        this.listAdapter = new FoundListAdapter(this.getContext(), found);
-        lvFound.setAdapter(listAdapter);
-        if (found.isEmpty()) {
-            tvEmpty.setText(String.format("", query));
-        }
+//        String query = null;
+//        List<FoundObject> found = null;
+        setMainView(getArguments());
 
         return rootView;
     }
 
+    public void setFounds(List<FoundObject> found, String query) {
+//        this.listAdapter = new FoundListAdapter(this.getContext(), found);
+        this.listAdapter.setDataItems(found);
+        this.foundCount = found.size();
+        if (found.isEmpty()) {
+            tvEmpty.setText(String.format("", query));
+        }
+    }
+
+    private void openFoundObject(int position) {
+        FoundObject found = (FoundObject) listAdapter.getItem(position);
+        mainView.openFoundObject(found);
+    }
+
     @Override
     public String getTitle() {
-        return String.format("Найдено: %d", 42);
+        if (getContext() != null)
+            return String.format(getString(R.string.found_mask), foundCount);
+        else
+            return null;
     }
 }

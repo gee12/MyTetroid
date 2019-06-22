@@ -41,6 +41,10 @@ public abstract class FoundObject {
         return foundType;
     }
 
+    public boolean checkFoundType(int type) {
+        return ((foundType & (1 << type)) > 0);
+    }
+
     public String  getFoundTypeString(Context context) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;

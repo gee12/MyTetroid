@@ -100,9 +100,14 @@
     <string name="title_global_search">Глобальный поиск</string>
     <string name="search_hint_input_query">Введите запрос</string>
     <string name="search_search_in">Искать в:</string>
+    <string name="search_in_record_text">Текст записи</string>
     <string name="search_in_record_name">Название записи</string>
     <string name="search_in_record_author">Автор</string>
     <string name="search_in_record_url">Url</string>
     <string name="search_in_tags">Метки</string>
+    <string name="search_in_nodes">Название ветки</string>
+    <string name="search_in_file_names">Название файла</string>
     <string name="search_other_options">Другие параметры:</string>
+    <string name="found_mask">Найдено: %d</string>
+    <!--<string name="title_activity_found">Найдено</string>-->
 </resources>

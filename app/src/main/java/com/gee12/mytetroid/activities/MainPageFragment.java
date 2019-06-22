@@ -61,10 +61,12 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private FilesListAdapter filesListAdapter;
     private TetroidRecord currentRecord;
 
-    private IMainView mainView;
-
     public MainPageFragment() {
     }
+//
+//    public MainPageFragment(IMainView mainView) {
+//        super(mainView);
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,11 +100,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.tbRecordFieldsExpander =  view.findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
-        return view;
-    }
+        setMainView(getArguments());
 
-    public void setMainView(IMainView main) {
-        this.mainView = main;
+        return view;
     }
 
     public void initListViews() {
@@ -160,7 +160,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * Отображение записи
      * @param record Запись
      */
-    private void showRecord(final TetroidRecord record) {
+    public void showRecord(final TetroidRecord record) {
         this.currentRecord = record;
         LogManager.addLog("Чтение записи: id=" + record.getId());
         String text = DataManager.getRecordHtmlTextDecrypted(record);
@@ -202,7 +202,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * Отображение списка прикрепленных файлов
      * @param record Запись
      */
-    private void showFilesList(TetroidRecord record){
+    public void showFilesList(TetroidRecord record){
         this.currentRecord = record;
         showView(VIEW_RECORD_FILES);
         this.filesListAdapter.reset(record);

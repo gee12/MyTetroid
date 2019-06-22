@@ -33,17 +33,18 @@ public class FoundListAdapter extends BaseAdapter {
     private List<FoundObject> dataSet;
     private Context context;
 
-    public FoundListAdapter(Context context, List<FoundObject> dataSet) {
+    public FoundListAdapter(Context context/*, List<FoundObject> dataSet*/) {
         super();
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.dataSet = dataSet;
+//        this.dataSet = dataSet;
+        this.dataSet = new ArrayList<>();
     }
 
-//    public void setDataItems(List<FoundObject> dataSet) {
-//        this.dataSet = dataSet;
-//        notifyDataSetChanged();
-//    }
+    public void setDataItems(List<FoundObject> dataSet) {
+        this.dataSet = dataSet;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {

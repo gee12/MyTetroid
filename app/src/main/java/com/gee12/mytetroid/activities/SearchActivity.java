@@ -77,14 +77,6 @@ public class SearchActivity extends AppCompatActivity {
 
     public ScanManager buildScanManager() {
         String query = etQuery.getText().toString();
-//        boolean inText = cbText.isChecked();
-//        boolean inRecorNames = cbRecordsNames.isChecked();
-//        boolean inAuthor = cbAuthor.isChecked();
-//        boolean inUrl = cbUrl.isChecked();
-//        boolean inTags = cbTags.isChecked();
-//        boolean inNodes = cbNodes.isChecked();
-//        boolean inFiles = cbFiles.isChecked();
-
         ScanManager scan = new ScanManager(query);
         scan.setInText(cbText.isChecked());
         scan.setInRecordsNames(cbRecordsNames.isChecked());

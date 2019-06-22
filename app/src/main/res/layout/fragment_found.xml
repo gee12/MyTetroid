@@ -17,6 +17,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:padding="@dimen/tv_empty_padding"
-        android:textAlignment="center" />
+        android:textAlignment="center"/>
 
 </RelativeLayout>

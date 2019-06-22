@@ -122,15 +122,16 @@
     <string name="tags_not_found">No tagsString found for query \"%s\"</string>
     <string name="search_tags_by_query">Search tagsString by query "%s"</string>
     <string name="title_global_search">Global search</string>
-    <string name="search_hint_input_query">Введите запрос</string>
-    <string name="search_search_in">Искать в:</string>
-    <string name="search_in_record_text">Текст записи</string>
-    <string name="search_in_record_name">Название записи</string>
-    <string name="search_in_record_author">Автор</string>
+    <string name="search_hint_input_query">Enter query</string>
+    <string name="search_search_in">Search in:</string>
+    <string name="search_in_record_text">Record text</string>
+    <string name="search_in_record_name">Record name</string>
+    <string name="search_in_record_author">Author</string>
     <string name="search_in_record_url">Url</string>
-    <string name="search_in_tags">Метки</string>
-    <string name="search_in_nodes">Название ветки</string>
-    <string name="search_in_file_names">Название файла</string>
-    <string name="search_other_options">Другие параметры:</string>
-    <string name="title_activity_found">Found</string>
+    <string name="search_in_tags">Tags</string>
+    <string name="search_in_nodes">Node name</string>
+    <string name="search_in_file_names">File name</string>
+    <string name="search_other_options">Other:</string>
+    <string name="found_mask">Found: %d</string>
+    <!--<string name="title_activity_found">Found</string>-->
 </resources>

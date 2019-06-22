@@ -27,6 +27,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,10 +47,12 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.FoundObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.data.TetroidTag;
 import com.gee12.mytetroid.views.ActivityDialogs;
 import com.gee12.mytetroid.views.MainPagerAdapter;
 import com.gee12.mytetroid.views.MainViewPager;
@@ -92,6 +95,14 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
 
+    public NewMainActivity() {
+
+    }
+
+    public NewMainActivity(Parcel in) {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,8 +121,9 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         toggle.syncState();
 
         // страницы (главная и найдено)
-        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.getMainFragment().setMainView(this);
+        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this);
+//        viewPagerAdapter.getMainFragment().setMainView(this);
+//        viewPagerAdapter.getFoundFragment().setMainView(this);
         this.viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
         this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
@@ -177,7 +189,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
                 List<TetroidNode> found = ScanManager.searchInNodesNames(
-                        DataManager.getRootNodes(), query);
+                        DataManager.getRootNodes(), query, false);
                 nodesListAdapter.setDataItems(found);
                 setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
                         String.format(getString(R.string.nodes_not_found), query));
@@ -200,7 +212,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         new SearchViewListener(tagsSearchView) {
             @Override
             public void OnClose() {
-                TreeMap<String, List<TetroidRecord>> tags = DataManager.getTagsHashMap();
+                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
                 tagsListAdapter.setDataItems(tags);
                 if (tags.isEmpty())
                     tvTagsEmpty.setText(R.string.tags_is_missing);
@@ -215,8 +227,8 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             @Override
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-                TreeMap<String, List<TetroidRecord>> found = ScanManager.searchInTags(
-                        DataManager.getTagsHashMap(), query);
+                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
+                        DataManager.getTagsHashMap(), query, false);
                 tagsListAdapter.setDataItems(found);
                 if (found.isEmpty())
                     tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
@@ -459,8 +471,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      * Отображение ветки => список записей
      * @param node
      */
-    private void showNode(TetroidNode node)
-    {
+    private void showNode(TetroidNode node) {
         // проверка нужно ли расшифровать ветку перед отображением
         if (!node.isNonCryptedOrDecrypted()) {
             decryptStorage(node);
@@ -478,11 +489,15 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      * @param position Индекс метки в списке
      */
     private void showTagRecords(int position) {
-        this.currentNode = null;
         String tag = (String)tagsListAdapter.getItem(position);
+        showTag(tag);
+    }
+
+    private void showTag(String tag) {
+        this.currentNode = null;
         this.currentTag = tag;
         LogManager.addLog("Открытие записей метки: " + tag);
-        showRecords(DataManager.getTagsHashMap().get(tag), MainPageFragment.VIEW_TAG_RECORDS);
+        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
@@ -624,10 +639,45 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void startGlobalSearch(ScanManager scan) {
-        List<String> found = scan.globalSearch(DataManager.getInstance(), currentNode);
+        List<FoundObject> found = scan.globalSearch(/*DataManager.getInstance(), */currentNode);
+        viewPagerAdapter.getFoundFragment().setFounds(found, scan.getQuery());
 
         setFoundPageVisibility(true);
         viewPager.setCurrent(MainViewPager.PAGE_FOUND);
+    }
+
+    @Override
+    public void openFoundObject(FoundObject found) {
+//        switch (found.getFoundType()) {
+//            case FoundObject.TYPE_RECORD_NAME:
+//            case FoundObject.TYPE_RECORD_TEXT:
+//            case FoundObject.TYPE_AUTHOR:
+//            case FoundObject.TYPE_URL:
+//                viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
+//                break;
+//            case FoundObject.TYPE_FILE:
+//                viewPagerAdapter.getMainFragment().showFilesList((TetroidRecord)found);
+//                break;
+//            case FoundObject.TYPE_NODE:
+//                showNode((TetroidNode) found);
+//                break;
+//            case FoundObject.TYPE_TAG:
+//                showTag(((TetroidTag) found).getName());
+//                break;
+//        }
+        if (found.checkFoundType(FoundObject.TYPE_RECORD_NAME)
+            || found.checkFoundType(FoundObject.TYPE_RECORD_TEXT)
+            || found.checkFoundType(FoundObject.TYPE_AUTHOR)
+            || found.checkFoundType(FoundObject.TYPE_URL)) {
+            viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
+        } else if (found.checkFoundType(FoundObject.TYPE_FILE)) {
+            viewPagerAdapter.getMainFragment().showFilesList((TetroidRecord)found);
+        } else if (found.checkFoundType(FoundObject.TYPE_NODE)) {
+            showNode((TetroidNode)found);
+        } else if (found.checkFoundType(FoundObject.TYPE_TAG)) {
+            showTag(((TetroidTag)found).getName());
+        }
+        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
 
     @Override
@@ -653,7 +703,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
                 String query = intent.getStringExtra(SearchManager.QUERY);
                 LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
                 TetroidSuggestionProvider.SaveRecentQuery(this, query);
-                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query);
+                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query, false);
                 if (found.isEmpty())
 //                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
                     viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
@@ -751,6 +801,16 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         startActivityForResult(intent, requestCode);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+    }
+
     /**
      *
      */
@@ -783,4 +843,16 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             initListViews();
         }
     }
+
+    public static final Creator<NewMainActivity> CREATOR = new Creator<NewMainActivity>() {
+        @Override
+        public NewMainActivity createFromParcel(Parcel in) {
+            return new NewMainActivity(in);
+        }
+
+        @Override
+        public NewMainActivity[] newArray(int size) {
+            return new NewMainActivity[size];
+        }
+    };
 }
