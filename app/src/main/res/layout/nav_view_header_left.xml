@@ -18,7 +18,6 @@
         android:layout_gravity="top"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:contentDescription="@string/nav_header_desc"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@drawable/ic_mytetroid" />
     <!--android:paddingRight="12dp"-->

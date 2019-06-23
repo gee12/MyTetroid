@@ -44,6 +44,11 @@ public class FilesListAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void reset(List<TetroidFile> data) {
+        this.dataSet = data;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return dataSet.size();

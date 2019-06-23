@@ -4,5 +4,5 @@
     <item android:id="@+id/action_query_submit"
         android:title="Начать поиск"
         android:icon="@drawable/ic_search_24dp"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 </menu>

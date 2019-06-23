@@ -62,7 +62,7 @@ public class TetroidTag extends FoundObject { //implements Map.Entry<String, Lis
 //    }
 
     @Override
-    public String getDisplayName() {
+    public String getFoundName() {
         return name;
     }
 }

@@ -86,9 +86,12 @@
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
-    <string name="records_search_select_node">Выберите ветку с записями для поиска или воспользуйтесь глобальным поиском</string>
+    <string name="records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
     <string name="records_not_found">По запросу \"%s\" в ветке [%s] не найдено записей</string>
+    <string name="files_not_found">По запросу \"%s\" не найдено файлов</string>
     <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
+    <string name="search_files_by_query">Поиск файлов в записи [%s] по запросу "%s"</string>
+    <string name="search_text_by_query">Поиск текста в записи [%s] по запросу "%s"</string>
     <string name="tags_search_hint">Поиск по меткам</string>
     <string name="nodes_search_hint">Поиск по веткам</string>
     <string name="nodes_header">ВЕТКИ</string>
@@ -109,5 +112,6 @@
     <string name="search_in_file_names">Название файла</string>
     <string name="search_other_options">Другие параметры:</string>
     <string name="found_mask">Найдено: %d</string>
+    <string name="records_search_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
     <!--<string name="title_activity_found">Найдено</string>-->
 </resources>

@@ -1,19 +1,14 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.FoundObject;
-import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +53,7 @@ public class FoundListAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return dataSet.get(position).getDisplayName().hashCode();
+        return dataSet.get(position).getFoundName().hashCode();
     }
 
     @Override
@@ -79,7 +74,7 @@ public class FoundListAdapter extends BaseAdapter {
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название найденного объекта
-        viewHolder.nameView.setText(found.getDisplayName());
+        viewHolder.nameView.setText(found.getFoundName());
         // тип найденного объекта
         viewHolder.typeView.setText(found.getFoundTypeString(context));
 

@@ -52,10 +52,6 @@ public class FoundPageFragment extends TetroidFragment {
 
         this.listAdapter = new FoundListAdapter(this.getContext());
         lvFound.setAdapter(listAdapter);
-
-        // ...
-//        String query = null;
-//        List<FoundObject> found = null;
         setMainView(getArguments());
 
         return rootView;

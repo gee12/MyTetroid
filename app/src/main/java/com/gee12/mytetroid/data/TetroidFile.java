@@ -28,7 +28,7 @@ public class TetroidFile extends FoundObject {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getFoundName() {
         return name;
     }
 }

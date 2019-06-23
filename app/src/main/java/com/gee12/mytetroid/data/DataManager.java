@@ -22,9 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
@@ -93,7 +91,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             FileInputStream fis = new FileInputStream(
                     instance.storagePath + File.separator + MYTETRA_XML_FILE);
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-//            DataManager.instance.rootNodesCollection = instance.parse(fis, decryptHandler);
+//            DataManager.instance.rootNodesList = instance.parse(fis, decryptHandler);
             res = instance.parse(fis, decryptHandler);
         } catch (Exception ex) {
             // ошибка загрузки xml
@@ -104,7 +102,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean decryptAll() {
         // достаем сохраненный пароль
-        return CryptManager.decryptAll(instance.rootNodesCollection, true, instance);
+        return CryptManager.decryptAll(instance.rootNodesList, true, instance);
     }
 
     /**
@@ -237,11 +235,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidNode getNode(String id) {
-//        for (TetroidNode node : instance.rootNodesCollection) {
+//        for (TetroidNode node : instance.rootNodesList) {
 //            if (getNodeInHierarchy(node, id) != null)
 //                return node;
 //        }
-        return getNodeInHierarchy(instance.rootNodesCollection, id);
+        return getNodeInHierarchy(instance.rootNodesList, id);
     }
 
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
@@ -371,18 +369,19 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static List<TetroidNode> getRootNodes() {
-        return instance.rootNodesCollection;
+        return instance.rootNodesList;
     }
 
-//    public static TreeMap<String, List<TetroidRecord>> getTagsHashMap() {
+//    public static TreeMap<String, TetroidTag> getTagsHashMap() {
 //        return instance.tagsMap;
 //    }
-    public static TreeMap<String, TetroidTag> getTagsHashMap() {
-        return instance.tagsMap;
+
+    public static List<TetroidTag> getTags() {
+        return instance.tagsList;
     }
 
     public static boolean isNodesExist() {
-        return (instance.rootNodesCollection != null && !instance.rootNodesCollection.isEmpty());
+        return (instance.rootNodesList != null && !instance.rootNodesList.isEmpty());
     }
 
     public static String getStoragePath() {

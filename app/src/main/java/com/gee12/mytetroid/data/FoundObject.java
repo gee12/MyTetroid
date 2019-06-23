@@ -58,6 +58,6 @@ public abstract class FoundObject {
         return sb.toString();
     }
 
-    public abstract String getDisplayName();
+    public abstract String getFoundName();
 
 }

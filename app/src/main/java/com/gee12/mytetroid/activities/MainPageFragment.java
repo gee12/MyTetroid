@@ -33,7 +33,7 @@ import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
 
-    public static final int VIEW_RECORDS_LIST = 0;
+    public static final int VIEW_NODE_RECORDS = 0;
     public static final int VIEW_RECORD_TEXT = 1;
     public static final int VIEW_RECORD_FILES = 2;
     public static final int VIEW_TAG_RECORDS = 3;
@@ -47,6 +47,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private ListView lvRecords;
     private ListView lvFiles;
     private TextView tvRecordsEmpty;
+    private TextView tvFilesEmpty;
     private ExpandableLayout expRecordFieldsLayout;
     private ToggleButton tbRecordFieldsExpander;
     private TextView tvRecordTags;
@@ -88,8 +89,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         // список файлов
         this.lvFiles = view.findViewById(R.id.list_view_files);
         lvFiles.setOnItemClickListener(onFileClicklistener);
-        TextView emptyTextView = view.findViewById(R.id.text_view_empty_files);
-        lvFiles.setEmptyView(emptyTextView);
+        this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
+        lvFiles.setEmptyView(tvFilesEmpty);
         // текст записи
         this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
         this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
@@ -126,7 +127,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             title = ((currentRecord != null) ? currentRecord.getName() : "");
         } else if (viewId == VIEW_TAG_RECORDS) {
             // один контрол на записи ветки и метки
-            whichChild = VIEW_RECORDS_LIST;
+            whichChild = VIEW_NODE_RECORDS;
         }
         mainView.setMainTitle(title, viewId);
         this.curViewId = viewId;
@@ -135,7 +136,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
         showView(viewId);
-//        if (viewId == VIEW_RECORDS_LIST)
+//        if (viewId == VIEW_NODE_RECORDS)
             tvRecordsEmpty.setText(R.string.records_is_missing);
 //        else
 //            tvRecordsEmpty.setText(R.string.);
@@ -149,7 +150,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param position Индекс записи в списке записей
      */
     private void showRecord(int position) {
-//        TetroidRecord record = (curViewId == VIEW_RECORDS_LIST)
+//        TetroidRecord record = (curViewId == VIEW_NODE_RECORDS)
 //                ? currentNode.getRecords().get(position)
 //                : DataManager.getTagsHashMap().get(currentTag).get(position);
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
@@ -192,22 +193,26 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * Отображение списка прикрепленных файлов
      * @param position Индекс записи в списке записей ветки
      */
-    private void showFilesList(int position) {
+    private void showRecordFiles(int position) {
 //        TetroidRecord record = currentNode.getRecords().get(position);
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
-        showFilesList(record);
+        showRecordFiles(record);
     }
 
     /**
      * Отображение списка прикрепленных файлов
      * @param record Запись
      */
-    public void showFilesList(TetroidRecord record){
+    public void showRecordFiles(TetroidRecord record) {
         this.currentRecord = record;
-        showView(VIEW_RECORD_FILES);
-        this.filesListAdapter.reset(record);
-        lvFiles.setAdapter(filesListAdapter);
+        showRecordFiles(record.getAttachedFiles());
 //        setTitle(record.getName());
+    }
+
+    public void showRecordFiles(List<TetroidFile> files) {
+        showView(VIEW_RECORD_FILES);
+        this.filesListAdapter.reset(files);
+        lvFiles.setAdapter(filesListAdapter);
     }
 
     /**
@@ -246,7 +251,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
         @Override
         public void onClick(TetroidRecord record) {
-            showFilesList(record);
+            showRecordFiles(record);
         }
     };
 
@@ -293,7 +298,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 showRecord(info.position);
                 return true;
             case SHOW_FILES_MENU_ITEM_ID:
-                showFilesList(info.position);
+                showRecordFiles(info.position);
                 return true;
             case OPEN_RECORD_FOLDER_MENU_ITEM_ID:
                 openRecordFolder(info.position);
@@ -310,8 +315,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         boolean res = false;
         if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
             res = true;
-            if (lastViewId == VIEW_RECORDS_LIST)
-                showView(VIEW_RECORDS_LIST);
+            if (lastViewId == VIEW_NODE_RECORDS)
+                showView(VIEW_NODE_RECORDS);
             else
                 showView(VIEW_TAG_RECORDS);
         } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_FILES) {
@@ -319,8 +324,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             // смотрим какая страница была перед этим
             if (lastViewId == VIEW_RECORD_TEXT)
                 showView(VIEW_RECORD_TEXT);
-            else if (lastViewId == VIEW_RECORDS_LIST)
-                showView(VIEW_RECORDS_LIST);
+            else if (lastViewId == VIEW_NODE_RECORDS)
+                showView(VIEW_NODE_RECORDS);
             else
                 showView(VIEW_TAG_RECORDS);
         }
@@ -331,8 +336,16 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         tvRecordsEmpty.setText(s);
     }
 
+    public void setFilesEmptyViewText(String s) {
+        tvFilesEmpty.setText(s);
+    }
+
     public TetroidRecord getCurrentRecord() {
         return currentRecord;
+    }
+
+    public int getCurViewId() {
+        return curViewId;
     }
 
     @Override

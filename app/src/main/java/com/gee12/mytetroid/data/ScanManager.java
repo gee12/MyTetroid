@@ -101,7 +101,8 @@ public class ScanManager implements Parcelable {
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
         if (inTags && !isSearchInNode) {
-            res.addAll(globalSearchInTags(DataManager.getTagsHashMap(), query, isOnlyWholeWords));
+//            res.addAll(globalSearchInTags(DataManager.getTagsHashMap(), query, isOnlyWholeWords));
+            res.addAll(searchInTags(DataManager.getTags(), query, isOnlyWholeWords));
         }
         return res;
     }
@@ -192,7 +193,8 @@ public class ScanManager implements Parcelable {
             }
             // поиск по меткам (только если указана ветка для поиска)
             if (inTags && isSearchInNode) {
-                found.addAll(searchInRecordTags(record.getTags(), query, isOnlyWholeWords));
+//                found.addAll(searchInRecordTags(record.getTags(), query, isOnlyWholeWords));
+                found.addAll(searchInTags(record.getTags(), query, isOnlyWholeWords));
             }
         }
         return found;
@@ -210,73 +212,96 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public static List<FoundObject> searchInFiles(
-            List<TetroidFile> srcFiles, String query, boolean isOnlyWholeWords) {
-        List<FoundObject> found = new ArrayList<>();
+//    public static List<FoundObject> searchInFiles(
+//            List<TetroidFile> srcFiles, String query, boolean isOnlyWholeWords) {
+//        List<FoundObject> found = new ArrayList<>();
+//        String regex = buildRegex(query);
+//        for (TetroidFile file : srcFiles) {
+//            if (file.getName().matches(regex)) {
+//                file.addFoundType(FoundObject.TYPE_FILE);
+//                found.add(file);
+//            }
+//        }
+//        return found;
+//    }
+
+    public static <T extends FoundObject>  List<T> searchInFiles(
+            List<TetroidFile> srcFiles, String query, boolean isOnlyWholeWords)
+    {
+        List<T> found = new ArrayList<>();
         String regex = buildRegex(query);
         for (TetroidFile file : srcFiles) {
             if (file.getName().matches(regex)) {
                 file.addFoundType(FoundObject.TYPE_FILE);
-                found.add(file);
+                found.add((T)file);
             }
         }
         return found;
     }
 
-    /**
-     * Поиск по именам меток.
-     * @param query
-     * @return
-     */
-/*    public static TreeMap<String, List<TetroidRecord>> searchInTags(
-            Map<String, List<TetroidRecord>> tagsMap, String query, boolean isOnlyWholeWords) {
-        TreeMap<String, List<TetroidRecord>> found = new TreeMap<>();
-        String regex = buildRegex(query);
-        for (Map.Entry<String, List<TetroidRecord>> tagEntry : tagsMap.entrySet()) {
-            if (tagEntry.getKey().matches(regex)) {
-                found.put(tagEntry.getKey(), tagEntry.getValue());
-            }
-        }
-        return found;
-    }*/
+//    /**
+//     * Поиск по именам меток.
+//     * @param tagsMap
+//     * @param query
+//     * @param isOnlyWholeWords
+//     * @return
+//     */
+//    public static TreeMap<String, TetroidTag> searchInTags(
+//            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
+//        TreeMap<String, TetroidTag> found = new TreeMap<>();
+//        String regex = buildRegex(query);
+//        for (TetroidTag tagEntry : tagsMap.values()) {
+//            if (tagEntry.getName().matches(regex)) {
+//                found.put(tagEntry.getName(), tagEntry);
+//            }
+//        }
+//        return found;
+//    }
 
-    public static TreeMap<String, TetroidTag> searchInTags(
-            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
-        TreeMap<String, TetroidTag> found = new TreeMap<>();
-        String regex = buildRegex(query);
-        for (TetroidTag tagEntry : tagsMap.values()) {
-            if (tagEntry.getName().matches(regex)) {
-                found.put(tagEntry.getName(), tagEntry);
-            }
-        }
-        return found;
-    }
-
-    public static List<TetroidTag> globalSearchInTags(
-            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
+    public static List<TetroidTag> searchInTags(
+            List<TetroidTag> tags, String query, boolean isOnlyWholeWords) {
         List<TetroidTag> found = new ArrayList<>();
         String regex = buildRegex(query);
-        for (TetroidTag tagEntry : tagsMap.values()) {
-            if (tagEntry.getName().matches(regex)) {
-                tagEntry.addFoundType(FoundObject.TYPE_TAG);
-                found.add(tagEntry);
+        for (TetroidTag tag : tags) {
+            if (tag.getName().matches(regex)) {
+                found.add(tag);
             }
         }
         return found;
     }
 
-    public static List<FoundObject> searchInRecordTags(
-            List<TetroidTag> tags, String query, boolean isOnlyWholeWords) {
-        List<FoundObject> found = new ArrayList<>();
-        String regex = buildRegex(query);
-        for (TetroidTag tagEntry : tags) {
-            if (tagEntry.getName().matches(regex)) {
-                tagEntry.addFoundType(FoundObject.TYPE_TAG);
-                found.add(tagEntry);
-            }
-        }
-        return found;
-    }
+//    public static List<TetroidTag> globalSearchInTags(
+//            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
+//        List<TetroidTag> found = new ArrayList<>();
+//        String regex = buildRegex(query);
+//        for (TetroidTag tagEntry : tagsMap.values()) {
+//            if (tagEntry.getName().matches(regex)) {
+//                tagEntry.addFoundType(FoundObject.TYPE_TAG);
+//                found.add(tagEntry);
+//            }
+//        }
+//        return found;
+//    }
+
+//    /**
+//     * Поиск по именам меток, указанные в записи.
+//     * @param tags
+//     * @param query
+//     * @param isOnlyWholeWords
+//     * @return
+//     */
+//    public static List<FoundObject> searchInRecordTags(
+//            List<TetroidTag> tags, String query, boolean isOnlyWholeWords) {
+//        List<FoundObject> found = new ArrayList<>();
+//        String regex = buildRegex(query);
+//        for (TetroidTag tagEntry : tags) {
+//            if (tagEntry.getName().matches(regex)) {
+//                tagEntry.addFoundType(FoundObject.TYPE_TAG);
+//                found.add(tagEntry);
+//            }
+//        }
+//        return found;
+//    }
 
     private static String buildRegex(String query) {
         return "(?is)" + ".*" + Pattern.quote(query) + ".*";

@@ -47,13 +47,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-    protected List<TetroidNode> rootNodesCollection;
+    protected List<TetroidNode> rootNodesList;
 
     /**
      *
      */
 //    protected TreeMap<String,List<TetroidRecord>> tagsMap;
-    protected TreeMap<String,TetroidTag> tagsMap;
+    private TreeMap<String,TetroidTag> tagsMap;
+    protected List<TetroidTag> tagsList;
 
     /**
      *
@@ -64,8 +65,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      */
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
-        this.rootNodesCollection = new ArrayList<>();
+        this.rootNodesList = new ArrayList<>();
         this.tagsMap = new TreeMap<>(tagsComparator);
+//        this.tagsList = new ArrayList<>();
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -74,6 +76,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             return readRoot(parser);
         } finally {
             in.close();
+            this.tagsList = new ArrayList<>(tagsMap.values());
+            this.tagsMap = null;
         }
     }
 
@@ -124,7 +128,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 skip(parser);
             }
         }
-        this.rootNodesCollection = nodes;
+        this.rootNodesList = nodes;
 //        return nodes;
         return true;
     }

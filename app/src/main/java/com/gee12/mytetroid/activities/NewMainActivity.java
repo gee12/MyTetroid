@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
-import androidx.viewpager.widget.PagerTitleStrip;
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
@@ -63,7 +62,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class NewMainActivity extends AppCompatActivity implements IMainView {
 
@@ -72,21 +70,24 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
 
-//    public static final String[] VIEW_TYPE_TITLES = { "", ""};
-
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
     private NodesListAdapter nodesListAdapter;
     private TagsListAdapter tagsListAdapter;
     private ListView tagsListView;
     private TetroidNode currentNode;
-    private String currentTag;
+//    private String currentTag;
+    private TetroidTag currentTag;
     private LinearLayout layoutProgress;
     private TextView tvProgress;
     private TextView tvAppTitle;
     private TextView tvViewType;
     private TextView tvNodesEmpty;
     private TextView tvTagsEmpty;
+//    private TextView tvNodesHeader;
+//    private TextView tvTagsHeader;
+    private View vNodesHeader;
+    private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
     private boolean isAlreadyTryDecrypt = false;
@@ -114,11 +115,18 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         // выдвигающиеся панели
         this.drawerLayout = findViewById(R.id.drawer_layout);
         // задаем кнопку (стрелку) управления шторкой
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-//        drawerLayout.openDrawer(GravityCompat.START);
-        toggle.syncState();
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // ?
+//                if (drawerView == )
+//                closeNodesSearchView();
+            }
+        };
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
 
         // страницы (главная и найдено)
         this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this);
@@ -151,14 +159,16 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         this.tvProgress = findViewById(R.id.progress_text);
 
         NavigationView nodesNavView = drawerLayout.findViewById(R.id.nav_view_left);
-        View nodesHeader = nodesNavView.getHeaderView(0);
-        this.nodesSearchView = nodesHeader.findViewById(R.id.search_view_nodes);
-        nodesViewInit(nodesHeader);
+        this.vNodesHeader = nodesNavView.getHeaderView(0);
+        this.nodesSearchView = vNodesHeader.findViewById(R.id.search_view_nodes);
+//        this.tvNodesHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
+        initNodesView(vNodesHeader);
 
         NavigationView tagsNavView = drawerLayout.findViewById(R.id.nav_view_right);
-        View tagsHeader = tagsNavView.getHeaderView(0);
-        this.tagsSearchView = tagsHeader.findViewById(R.id.search_view_tags);
-        tagsViewInit(tagsHeader);
+        this.vTagsHeader = tagsNavView.getHeaderView(0);
+        this.tagsSearchView = vTagsHeader.findViewById(R.id.search_view_tags);
+//        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
+        initTagsView(vTagsHeader);
 
         // инициализация
         SettingsManager.init(this);
@@ -167,7 +177,11 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         startInitStorage();
     }
 
-    private void nodesViewInit(View nodesHeader) {
+    /**
+     *
+     * @param nodesHeader
+     */
+    private void initNodesView(View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
         new SearchViewListener(nodesSearchView) {
@@ -197,6 +211,21 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         };
     }
 
+//    private void closeNodesSearchView() {
+//        nodesSearchView.setIconified(true);
+//        nodesSearchView.setQuery("", false);
+//    }
+//
+//    private void closeTagsSearchView() {
+//        tagsSearchView.setIconified(true);
+//        tagsSearchView.setQuery("", false);
+//    }
+
+    private void closeSearchView(SearchView search) {
+        search.setIconified(true);
+        search.setQuery("", false);
+    }
+
     private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, @StringRes int stringId) {
         tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
         tvEmpty.setText(stringId);
@@ -207,12 +236,17 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         tvEmpty.setText(string);
     }
 
-    private void tagsViewInit(View tagsHeader) {
+    /**
+     *
+     * @param tagsHeader
+     */
+    private void initTagsView(View tagsHeader) {
         final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         new SearchViewListener(tagsSearchView) {
             @Override
             public void OnClose() {
-                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
+//                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
+                List<TetroidTag> tags = DataManager.getTags();
                 tagsListAdapter.setDataItems(tags);
                 if (tags.isEmpty())
                     tvTagsEmpty.setText(R.string.tags_is_missing);
@@ -227,13 +261,62 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             @Override
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
-                        DataManager.getTagsHashMap(), query, false);
+//                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
+//                        DataManager.getTagsHashMap(), query, false);
+                List<TetroidTag> found = ScanManager.searchInTags(
+                        DataManager.getTags(), query, false);
                 tagsListAdapter.setDataItems(found);
                 if (found.isEmpty())
                     tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
             }
         };
+    }
+
+
+
+    /**
+     * Виджет поиска по записям/файлам/тексту.
+     * @param menu
+     */
+    private void initRecordsSearchView(Menu menu) {
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(true);
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+//                List<TetroidRecord> records = (currentNode != null) ? currentNode.getRecords() : new ArrayList<TetroidRecord>();
+//                showRecords(records, MainPageFragment.VIEW_NODE_RECORDS);
+                onRecordsSearchClose();
+                return false;
+            }
+        });
+    }
+
+    private void onRecordsSearchClose() {
+        switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
+            case MainPageFragment.VIEW_NODE_RECORDS:
+                if (currentNode != null) {
+                    showRecords(currentNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
+                }
+                break;
+            case MainPageFragment.VIEW_TAG_RECORDS:
+                if (currentTag != null) {
+                    showRecords(currentTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+                }
+                break;
+            case MainPageFragment.VIEW_RECORD_FILES:
+                TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+                if (curRecord != null) {
+                    viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
+                }
+                break;
+            case MainPageFragment.VIEW_RECORD_TEXT:
+                // ?
+                break;
+        }
     }
 
     private void startInitStorage() {
@@ -419,7 +502,9 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
                         Toast.LENGTH_LONG);
             }
             nodesListAdapter.notifyDataSetChanged();
-            tagsListAdapter.onDataSetChanged();
+//            tagsListAdapter.onDataSetChanged();
+//            tagsListAdapter.setDataItems(DataManager.getTagsHashMap());
+            tagsListAdapter.setDataItems(DataManager.getTags());
 
             if (node != null)
                 showNode(node);
@@ -455,7 +540,8 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         viewPagerAdapter.getMainFragment().initListViews();
 
         // список меток
-        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
+//        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
+        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTags());
         tagsListView.setAdapter(tagsListAdapter);
         tvTagsEmpty.setText(R.string.tags_is_missing);
     }
@@ -481,7 +567,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         this.currentNode = node;
         LogManager.addLog("Открытие записей ветки: id=" + node.getId());
 //        tvRecordsEmpty.setText(R.string.records_is_missing);
-        showRecords(node.getRecords(), MainPageFragment.VIEW_RECORDS_LIST);
+        showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
     }
 
     /**
@@ -489,15 +575,18 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      * @param position Индекс метки в списке
      */
     private void showTagRecords(int position) {
-        String tag = (String)tagsListAdapter.getItem(position);
+//        String tag = (String)tagsListAdapter.getItem(position);
+        TetroidTag tag = (TetroidTag)tagsListAdapter.getItem(position);
         showTag(tag);
     }
 
-    private void showTag(String tag) {
+//    private void showTag(String tag) {
+    private void showTag(TetroidTag tag) {
         this.currentNode = null;
         this.currentTag = tag;
         LogManager.addLog("Открытие записей метки: " + tag);
-        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+//        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+        showRecords(tag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
@@ -578,10 +667,11 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      */
     @Override
     public void setMainTitle(String title, int viewId) {
-        if (viewId == MainPageFragment.VIEW_RECORDS_LIST) {
+        if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
             title = ((currentNode != null) ? currentNode.getName() : "");
         } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
-            title = ((currentTag != null) ? currentTag : "");
+//            title = ((currentTag != null) ? currentTag : "");
+            title = ((currentTag != null) ? currentTag.getName() : "");
         }
         setTitle(title);
         setViewTypeTitle(viewId);
@@ -639,7 +729,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void startGlobalSearch(ScanManager scan) {
-        List<FoundObject> found = scan.globalSearch(/*DataManager.getInstance(), */currentNode);
+        List<FoundObject> found = scan.globalSearch(currentNode);
         viewPagerAdapter.getFoundFragment().setFounds(found, scan.getQuery());
 
         setFoundPageVisibility(true);
@@ -648,34 +738,18 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
 
     @Override
     public void openFoundObject(FoundObject found) {
-//        switch (found.getFoundType()) {
-//            case FoundObject.TYPE_RECORD_NAME:
-//            case FoundObject.TYPE_RECORD_TEXT:
-//            case FoundObject.TYPE_AUTHOR:
-//            case FoundObject.TYPE_URL:
-//                viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
-//                break;
-//            case FoundObject.TYPE_FILE:
-//                viewPagerAdapter.getMainFragment().showFilesList((TetroidRecord)found);
-//                break;
-//            case FoundObject.TYPE_NODE:
-//                showNode((TetroidNode) found);
-//                break;
-//            case FoundObject.TYPE_TAG:
-//                showTag(((TetroidTag) found).getName());
-//                break;
-//        }
         if (found.checkFoundType(FoundObject.TYPE_RECORD_NAME)
             || found.checkFoundType(FoundObject.TYPE_RECORD_TEXT)
             || found.checkFoundType(FoundObject.TYPE_AUTHOR)
             || found.checkFoundType(FoundObject.TYPE_URL)) {
             viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
         } else if (found.checkFoundType(FoundObject.TYPE_FILE)) {
-            viewPagerAdapter.getMainFragment().showFilesList((TetroidRecord)found);
+            viewPagerAdapter.getMainFragment().showRecordFiles((TetroidRecord)found);
         } else if (found.checkFoundType(FoundObject.TYPE_NODE)) {
             showNode((TetroidNode)found);
         } else if (found.checkFoundType(FoundObject.TYPE_TAG)) {
-            showTag(((TetroidTag)found).getName());
+//            showTag(((TetroidTag)found).getName());
+            showTag((TetroidTag)found);
         }
         viewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
@@ -699,20 +773,87 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     protected void onNewIntent(Intent intent) {
         // search
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            if (currentNode != null) {
-                String query = intent.getStringExtra(SearchManager.QUERY);
-                LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
-                TetroidSuggestionProvider.SaveRecentQuery(this, query);
-                List<TetroidRecord> found = ScanManager.searchInRecordsNames(currentNode.getRecords(), query, false);
-                if (found.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
-                    viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
-                            String.format(getString(R.string.records_not_found), query, currentNode.getName()));
-                showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
-            } else {
-                LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
-            }
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            search(query);
         }
+    }
+
+    private void search(String query) {
+        TetroidSuggestionProvider.SaveRecentQuery(this, query);
+
+        switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
+            case MainPageFragment.VIEW_NODE_RECORDS:
+                searchInNodeRecords(query);
+                break;
+            case MainPageFragment.VIEW_TAG_RECORDS:
+                searchInTagRecords(query);
+                break;
+            case MainPageFragment.VIEW_RECORD_FILES:
+                searchInRecordFiles(query);
+                break;
+            case MainPageFragment.VIEW_RECORD_TEXT:
+                searchInRecordText(query);
+                break;
+        }
+    }
+
+    private void searchInNodeRecords(String query) {
+        if (currentNode != null) {
+            searchInRecords(query, currentNode.getRecords());
+        } else {
+            LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
+        }
+    }
+
+    private void searchInTagRecords(String query) {
+        if (currentTag != null) {
+            searchInRecords(query, currentTag.getRecords());
+        } else {
+            LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
+        }
+    }
+
+    private void searchInRecords(String query, List<TetroidRecord> records) {
+            LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
+            List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query, false);
+            if (found.isEmpty())
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+                viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
+                        String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+            showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
+    }
+
+    private void searchInRecordFiles(String query) {
+        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+        if (curRecord != null) {
+            searchInFiles(query, curRecord);
+        } else {
+//            LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
+        }
+    }
+
+    private void searchInFiles(String query, TetroidRecord record) {
+        LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
+        List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query, false);
+        if (found.isEmpty())
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+            viewPagerAdapter.getMainFragment().setFilesEmptyViewText(
+                    String.format(getString(R.string.files_not_found), query));
+        viewPagerAdapter.getMainFragment().showRecordFiles(found);
+    }
+
+    private void searchInRecordText(String query) {
+        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+        if (curRecord != null) {
+            searchInText(query, curRecord);
+        } else {
+//            LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
+        }
+    }
+
+    private void searchInText(String query, TetroidRecord record) {
+        LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
+
     }
 
     /**
@@ -740,23 +881,8 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // меню
         getMenuInflater().inflate(R.menu.main, menu);
-        // виджет поиска
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(true);
-
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                List<TetroidRecord> records = (currentNode != null) ? currentNode.getRecords() : new ArrayList<TetroidRecord>();
-                showRecords(records, MainPageFragment.VIEW_RECORDS_LIST);
-                return false;
-            }
-        });
-
+        initRecordsSearchView(menu);
         return true;
     }
 

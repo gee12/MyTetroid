@@ -5,7 +5,6 @@
     <string name="main_header_title">MyTetroid</string>
     <string name="site_url">gee12.space</string>
     <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="title_settings">Settings</string>
     <string name="records_is_missing">Records is missing</string>
     <string name="pref_is_load_last_storage_path">Load previous</string>
@@ -13,32 +12,27 @@
     <string name="pref_category_crypt">Encryption</string>
     <string name="pref_is_save_pass_hash_local">Save password</string>
     <string name="pref_is_save_pass_hash_local_summ">Save password hash locally</string>
-    <string name="pref_key_storage_path">pref_key_storage_path</string>
-    <string name="pref_key_is_save_pass_hash_local">pref_key_is_save_pass_hash_local</string>
-    <string name="pref_key_is_load_last_storage_path">pref_key_is_load_last_storage_path</string>
+    <string name="pref_key_storage_path" translatable="false">pref_key_storage_path</string>
+    <string name="pref_key_is_save_pass_hash_local" translatable="false">pref_key_is_save_pass_hash_local</string>
+    <string name="pref_key_is_load_last_storage_path" translatable="false">pref_key_is_load_last_storage_path</string>
     <string name="pref_key_category_other">Rest</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
     <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time</string>
-    <string name="pref_key_is_keep_selected_node">pref_key_is_select_last_node</string>
+    <string name="pref_key_is_keep_selected_node" translatable="false">pref_key_is_select_last_node</string>
     <string name="pref_record_fields_cols">Displayed field entries in the list</string>
-    <string name="pref_key_record_fields_cols">pref_key_record_fields_cols</string>
-    <string name="pref_key_is_highlight_attach">pref_key_highlight_attach</string>
+    <string name="pref_key_record_fields_cols" translatable="false">pref_key_record_fields_cols</string>
+    <string name="pref_key_is_highlight_attach" translatable="false">pref_key_highlight_attach</string>
     <string name="pref_is_highlight_attach">Highlight entries with attach</string>
     <string name="pref_is_highlight_attach_summ">Enable highlight entries with attached files</string>
-    <string name="pref_key_highlight_attach_color">pref_highlight_attach_color</string>
+    <string name="pref_key_highlight_attach_color" translatable="false">pref_highlight_attach_color</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
-    <string name="pref_highlight_attach_color_dialog">Select color</string>
     <string name="pref_when_ask_password">Ask for a password</string>
     <string name="pref_when_ask_password_summ">When to ask for a password?</string>
-    <string name="pref_key_when_ask_password">pref_key_when_aks_password</string>
+    <string name="pref_key_when_ask_password" translatable="false">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">When choosing an encrypted branch</string>
     <string name="pref_when_ask_password_on_start">When the application starts</string>
-    <string-array name="when_ask_password_entries">
-        <item>@string/pref_when_ask_password_on_select</item>
-        <item>@string/pref_when_ask_password_on_start</item>
-    </string-array>
-    <string name="pref_key_pass_hash">pref_key_pass_hash</string>
-    <string name="pref_key_selected_node_id">pref_key_selected_node_id</string>
+    <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
+    <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
     <string name="title_pass_input">Enter password</string>
     <string name="answer_ok">Ok</string>
     <string name="answer_cancel">Cancel</string>
@@ -55,10 +49,10 @@
     <string name="record_author_label">Author:</string>
     <string name="record_uri_label">Url:</string>
     <string name="record_date_label">Date:</string>
-    <string name="pref_key_date_format_string">pref_key_date_format_string</string>
+    <string name="pref_key_date_format_string" translatable="false">pref_key_date_format_string</string>
     <string name="pref_date_format_string">Date format string</string>
     <string name="pref_date_format_string_summ">Format string for created date/time display</string>
-    <string name="def_date_format_string">dd.MM.yyyy HH:mm</string>
+    <string name="def_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
     <string name="folder_chooser_title">Storage folder</string>
     <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="title_about_app">About app</string>
@@ -72,10 +66,10 @@
     <string name="show_attached_files">Show files</string>
     <string name="open_record_folder">Open folder</string>
     <string name="open_record_folder_dialog">Open record folder</string>
-    <string name="pref_key_is_decrypt_in_temp">pref_key_is_decrypt_in_temp</string>
+    <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
     <string name="temp_path">Temporary catalog</string>
     <string name="temp_path_summ">Temporary catalog path</string>
-    <string name="pref_key_temp_path">pref_key_temp_path</string>
+    <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
     <string name="viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
     <string name="could_not_decrypt_file">Could not decrypt file</string>
     <string name="could_not_create_temp_dir">Could not create temp directory </string>
@@ -84,8 +78,8 @@
     <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>
     <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="pref_key_category_display">Display</string>
-    <string name="pref_key_is_write_log">pref_key_is_write_log</string>
-    <string name="pref_key_log_path">pref_key_log_path</string>
+    <string name="pref_key_is_write_log" translatable="false">pref_key_is_write_log</string>
+    <string name="pref_key_log_path" translatable="false">pref_key_log_path</string>
     <string name="write_log">Is write log</string>
     <string name="is_write_log">Log events to file</string>
     <string name="log_path">Logs catalog</string>
@@ -102,7 +96,7 @@
     <string name="tags_is_missing">Tags is missing</string>
     <string name="tags_header">TAGS</string>
     <string name="exit_from_app">Exit from app?</string>
-    <string name="pref_key_is_confirm_app_exit">pref_key_is_confirm_app_exit</string>
+    <string name="pref_key_is_confirm_app_exit" translatable="false">pref_key_is_confirm_app_exit</string>
     <string name="is_confirm_app_exit">Confirm app exit</string>
     <string name="is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
     <string name="file_is_missing">File is missing</string>
@@ -110,9 +104,12 @@
     <string name="start_storage_loading">Start storage loading: </string>
     <string name="search_records_hint">Records search</string>
     <string name="title_search_records">Records search</string>
-    <string name="records_search_select_node">Select a branch with records to search or use the global search.</string>
+    <string name="records_search_select_node">Select not an ampty branch or use the global search.</string>
     <string name="records_not_found">No records found for query \"%s\" in node [%s]</string>
+    <string name="files_not_found">No files found for query \"%s\"</string>
     <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
+    <string name="search_files_by_query">Search files in record [%s] by query "%s"</string>
+    <string name="search_text_by_query">Search text in record [%s] by query "%s"</string>
     <string name="tags_search_hint">Tags search</string>
     <string name="nodes_search_hint">Nodes search</string>
     <string name="nodes_header">NODES</string>
@@ -133,5 +130,6 @@
     <string name="search_in_file_names">File name</string>
     <string name="search_other_options">Other:</string>
     <string name="found_mask">Found: %d</string>
+    <string name="records_search_select_tag">Select not an ampty tag or use the global search.</string>
     <!--<string name="title_activity_found">Found</string>-->
 </resources>

@@ -151,7 +151,7 @@ public class TetroidNode extends FoundObject {
     }
 
     @Override
-    public String getDisplayName() {
+    public String getFoundName() {
         return name;
     }
 }
