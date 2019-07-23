@@ -4,10 +4,10 @@ import android.view.View;
 import android.widget.SearchView;
 
 public abstract class SearchViewListener {
-    private SearchView searchView;
+//    private SearchView searchView;
 
     public SearchViewListener(SearchView searchView) {
-        this.searchView = searchView;
+//        this.searchView = searchView;
         searchView.setOnCloseListener(new android.widget.SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
@@ -15,6 +15,7 @@ public abstract class SearchViewListener {
                 return false;
             }
         });
+//        searchView.setOn
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

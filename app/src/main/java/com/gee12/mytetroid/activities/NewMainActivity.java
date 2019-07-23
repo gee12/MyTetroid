@@ -33,9 +33,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+//import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,11 +99,9 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     private PagerTabStrip titleStrip;
 
     public NewMainActivity() {
-
     }
 
     public NewMainActivity(Parcel in) {
-
     }
 
     @Override
@@ -162,7 +162,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         this.vNodesHeader = nodesNavView.getHeaderView(0);
         this.nodesSearchView = vNodesHeader.findViewById(R.id.search_view_nodes);
 //        this.tvNodesHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
-        initNodesView(vNodesHeader);
+        initNodesView(nodesSearchView, vNodesHeader);
 
         NavigationView tagsNavView = drawerLayout.findViewById(R.id.nav_view_right);
         this.vTagsHeader = tagsNavView.getHeaderView(0);
@@ -181,9 +181,31 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
      *
      * @param nodesHeader
      */
-    private void initNodesView(View nodesHeader) {
+    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
+
+//        int searchCloseButtonId = searchView.getContext().getResources()
+//                .getIdentifier("android:id/search_close_btn", null, null);
+//        ImageView clearButton = (ImageView) searchView.findViewById(searchCloseButtonId);
+//        clearButton.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                EditText et = (EditText) findViewById(R.id.search_src_text);
+//
+//                //Clear the text from EditText view
+//                et.setText("");
+//
+//                //Clear query
+//                searchView.setQuery("", false);
+//                //Collapse the action view
+//                searchView.onActionViewCollapsed();
+//                //Collapse the search widget
+////                searchView.collapseActionView();
+//            }
+//        });
+
         new SearchViewListener(nodesSearchView) {
             @Override
             public void OnClose() {
