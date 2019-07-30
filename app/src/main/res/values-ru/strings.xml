@@ -3,6 +3,7 @@
     <string name="app_name">MyTetroid</string>
     <string name="title_settings">Настройки</string>
     <string name="records_is_missing">Записей нет</string>
+    <string name="select_the_node">Выберите ветку..</string>
     <string name="files_is_missing">Прикрепленных файлов нет</string>
     <string name="pref_category_srorage">Хранилище</string>
     <string name="pref_storage_path">Путь к хранилищу</string>

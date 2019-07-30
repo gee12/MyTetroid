@@ -122,8 +122,8 @@ public class ScanManager implements Parcelable {
             if (!node.isNonCryptedOrDecrypted())
                 continue;
             if (node.getName().matches(regex)) {
-                node.addFoundType(FoundObject.TYPE_NODE);
-                found.add(node);
+                if (!node.addFoundType(FoundObject.TYPE_NODE))
+                    found.add(node);
             }
             if (node.getSubNodesCount() > 0) {
                 found.addAll(searchInNodesNames(node.getSubNodes(), query, isOnlyWholeWords));
@@ -140,8 +140,8 @@ public class ScanManager implements Parcelable {
             if (!node.isNonCryptedOrDecrypted())
                 continue;
             if (inNodes && node.getName().matches(regex)) {
-                node.addFoundType(FoundObject.TYPE_NODE);
-                found.add(node);
+                if (!node.addFoundType(FoundObject.TYPE_NODE))
+                    found.add(node);
             }
             if (inRecords && node.getRecordsCount() > 0) {
                 found.addAll(searchInRecords(node.getRecords(), query, isOnlyWholeWords));
@@ -166,17 +166,17 @@ public class ScanManager implements Parcelable {
         for (TetroidRecord record : srcRecords) {
             // поиск по именам записей
             if (inRecordsNames && record.getName().matches(regex)) {
-                record.addFoundType(FoundObject.TYPE_RECORD_NAME);
-                found.add(record);
+                if (!record.addFoundType(FoundObject.TYPE_RECORD_NAME))
+                    found.add(record);
             }
             // поиск по авторам
             if (inAuthor && record.getAuthor().matches(regex)) {
-                record.addFoundType(FoundObject.TYPE_AUTHOR);
-                found.add(record);
+                if (!record.addFoundType(FoundObject.TYPE_AUTHOR))
+                    found.add(record);
             }
             // поиск по ссылкам
             if (inUrl && record.getAuthor().matches(regex)) {
-                record.addFoundType(FoundObject.TYPE_URL);
+                if (!record.addFoundType(FoundObject.TYPE_URL))
                 found.add(record);
             }
             // поиск по файлам записи
@@ -186,9 +186,9 @@ public class ScanManager implements Parcelable {
             // поиск по тексту записи (читаем текст html файла)
             if (inText) {
                 String text = DataManager.getRecordTextDecrypted(record);
-                if (text.matches(regex)) {
-                    record.addFoundType(FoundObject.TYPE_RECORD_TEXT);
-                    found.add(record);
+                if (text != null && text.matches(regex)) {
+                    if (!record.addFoundType(FoundObject.TYPE_RECORD_TEXT))
+                        found.add(record);
                 }
             }
             // поиск по меткам (только если указана ветка для поиска)
@@ -232,8 +232,8 @@ public class ScanManager implements Parcelable {
         String regex = buildRegex(query);
         for (TetroidFile file : srcFiles) {
             if (file.getName().matches(regex)) {
-                file.addFoundType(FoundObject.TYPE_FILE);
-                found.add((T)file);
+                if (!file.addFoundType(FoundObject.TYPE_FILE))
+                    found.add((T)file);
             }
         }
         return found;

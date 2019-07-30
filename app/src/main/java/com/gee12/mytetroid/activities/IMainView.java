@@ -11,4 +11,5 @@ public interface IMainView extends Parcelable {
     void openFile(TetroidRecord record, TetroidFile file);
     void setMainTitle(String title, int viewId);
     void openFoundObject(FoundObject found);
+    void closeFoundFragment();
 }

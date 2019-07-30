@@ -13,6 +13,8 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.FoundObject;
 import com.gee12.mytetroid.views.FoundListAdapter;
 import com.gee12.mytetroid.views.TetroidFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -53,6 +55,15 @@ public class FoundPageFragment extends TetroidFragment {
         this.listAdapter = new FoundListAdapter(this.getContext());
         lvFound.setAdapter(listAdapter);
         setMainView(getArguments());
+
+
+        FloatingActionButton fab = rootView.findViewById(R.id.button_close);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainView.closeFoundFragment();
+            }
+        });
 
         return rootView;
     }

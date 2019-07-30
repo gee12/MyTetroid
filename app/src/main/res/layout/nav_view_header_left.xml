@@ -46,7 +46,7 @@
             android:layout_below="@id/text_view_app_name"
             android:text="@string/nodes_header"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="20sp"
+            android:textSize="@dimen/nav_view_headers_text_size"
             android:textStyle="italic"
             android:paddingTop="3dp"
             android:paddingLeft="12dp"

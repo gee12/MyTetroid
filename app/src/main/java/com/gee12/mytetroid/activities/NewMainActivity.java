@@ -777,6 +777,11 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     @Override
+    public void closeFoundFragment() {
+        setFoundPageVisibility(false);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_REQUEST: {

@@ -25,8 +25,16 @@ public abstract class FoundObject {
         this.foundType = foundType;
     }*/
 
-    public void addFoundType(int foundType) {
+    /**
+     * Добавление типа объекта.
+     * @param foundType
+     * @return Возвращает true, если тип уже был установлен.
+     * false, если тип устанавливается в первый раз.
+     */
+    public boolean addFoundType(int foundType) {
+        int oldType = foundType;
         this.foundType |= (1 << foundType);
+        return oldType != 0;
     }
 
 //    public String getMatchText() {

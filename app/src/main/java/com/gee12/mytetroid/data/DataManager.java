@@ -226,7 +226,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     @NonNull
     private static Uri getStoragePathBaseUri() {
 //        return "file://" + instance.storagePath + "/base/";
-        return Uri.fromFile(new File(getStoragePathBase()));
+//        return Uri.fromFile(new File(getStoragePathBase()));
+        return Uri.parse("file://" + getStoragePathBase());
     }
 
     @NonNull

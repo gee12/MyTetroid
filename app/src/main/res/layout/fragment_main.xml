@@ -33,7 +33,7 @@
                 android:layout_centerVertical="true"
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
-                android:text="@string/records_is_missing" />
+                android:text="@string/select_the_node" />
         </RelativeLayout>
 
         <include
