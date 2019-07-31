@@ -73,7 +73,7 @@ public class FoundPageFragment extends TetroidFragment {
         this.listAdapter.setDataItems(found);
         this.foundCount = found.size();
         if (found.isEmpty()) {
-            tvEmpty.setText(String.format("", query));
+            tvEmpty.setText(String.format(getString(R.string.not_found), query));
         }
     }
 

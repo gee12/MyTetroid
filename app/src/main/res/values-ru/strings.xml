@@ -88,8 +88,8 @@
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
-    <string name="records_not_found">По запросу \"%s\" в ветке [%s] не найдено записей</string>
-    <string name="files_not_found">По запросу \"%s\" не найдено файлов</string>
+    <string name="records_not_found">По запросу \"%s\" в ветке [%s] не найдено записей..</string>
+    <string name="files_not_found">По запросу \"%s\" не найдено файлов..</string>
     <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
     <string name="search_files_by_query">Поиск файлов в записи [%s] по запросу "%s"</string>
     <string name="search_text_by_query">Поиск текста в записи [%s] по запросу "%s"</string>
@@ -97,10 +97,10 @@
     <string name="nodes_search_hint">Поиск по веткам</string>
     <string name="nodes_header">ВЕТКИ</string>
     <string name="nodes_is_missing">Ветки отсутствуют</string>
-    <string name="nodes_not_found">По запросу \"%s\" не найдено веток</string>
-    <string name="search_nodes_by_query">Поиск веток по запросу "%s"</string>
-    <string name="tags_not_found">По запросу \"%s\" не найдено меток</string>
-    <string name="search_tags_by_query">Поиск меток по запросу "%s"</string>
+    <string name="nodes_not_found">По запросу \"%s\" не найдено веток..</string>
+    <string name="search_nodes_by_query">Поиск веток по запросу "%s"..</string>
+    <string name="tags_not_found">По запросу \"%s\" не найдено меток..</string>
+    <string name="search_tags_by_query">Поиск меток по запросу "%s"..</string>
     <string name="title_global_search">Глобальный поиск</string>
     <string name="search_hint_input_query">Введите запрос</string>
     <string name="search_search_in">Искать в:</string>
@@ -114,5 +114,6 @@
     <string name="search_other_options">Другие параметры:</string>
     <string name="found_mask">Найдено: %d</string>
     <string name="records_search_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
+    <string name="not_found">По запросу \"%s\" ничего не найдено..</string>
     <!--<string name="title_activity_found">Найдено</string>-->
 </resources>

@@ -719,6 +719,8 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
+        if (!isVisible)
+            viewPager.setCurrent(MainViewPager.PAGE_MAIN);
         viewPager.setPagingEnabled(isVisible);
         titleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }

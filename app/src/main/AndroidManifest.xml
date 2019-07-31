@@ -51,10 +51,12 @@
         <activity
             android:name=".activities.SearchActivity"
             android:label="@string/title_global_search"
+            android:parentActivityName=".activities.NewMainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.AboutActivity"
             android:label="@string/title_about_app"
+            android:parentActivityName=".activities.NewMainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
