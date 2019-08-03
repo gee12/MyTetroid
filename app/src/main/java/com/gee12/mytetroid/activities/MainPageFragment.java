@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.activities;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -7,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -173,10 +176,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 text, "text/html", "UTF-8", null);
 //            recordContentWebView.loadUrl(recordContentUrl);
         recordContentWebView.setWebViewClient(new WebViewClient() {
-            /*@Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                return super.shouldOverrideUrlLoading(view, request);
-            }*/
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 tvRecordTags.setText(record.getTagsString());
@@ -185,6 +185,29 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 if (record.getCreated() != null)
                     tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
                 showView(VIEW_RECORD_TEXT);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("mytetra")) {
+                    // обрабатываем внутреннюю ссылку
+                    String id = url.substring(url.lastIndexOf('/')+1);
+                    TetroidRecord record = DataManager.getRecord(id);
+
+                    // !!
+                    // вот тут пока неясно что делать потом с командой Back, например.
+                    showRecord(record);
+
+//                    return super.shouldOverrideUrlLoading(view, request);
+                } else {
+                    try {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(browserIntent);
+                    } catch (Exception ex) {
+                        LogManager.addLog(ex);
+                    }
+                }
+                return true;
             }
         });
     }

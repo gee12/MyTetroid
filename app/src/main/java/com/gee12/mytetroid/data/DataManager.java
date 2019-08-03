@@ -236,11 +236,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidNode getNode(String id) {
-//        for (TetroidNode node : instance.rootNodesList) {
-//            if (getNodeInHierarchy(node, id) != null)
-//                return node;
-//        }
         return getNodeInHierarchy(instance.rootNodesList, id);
+    }
+
+    public static TetroidRecord getRecord(String id) {
+        return getRecordInHierarchy(instance.rootNodesList, id);
     }
 
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
@@ -249,8 +249,26 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //                return node;
             if (id.equals(node.getId()))
                 return node;
-            else if (node.isExpandable())
-                return getNodeInHierarchy(node.getSubNodes(), id);
+            else if (node.isExpandable()) {
+                TetroidNode found = getNodeInHierarchy(node.getSubNodes(), id);
+                if (found != null)
+                    return found;
+            }
+        }
+        return null;
+    }
+
+    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String id) {
+        for (TetroidNode node : nodes) {
+            for (TetroidRecord record : node.getRecords()) {
+                if (id.equals(record.getId()))
+                    return record;
+            }
+            if (node.isExpandable()) {
+                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), id);
+                if (found != null)
+                    return found;
+            }
         }
         return null;
     }
