@@ -1,11 +1,8 @@
 package com.gee12.mytetroid.data;
 
 import java.util.List;
-import java.util.Map;
 
-import androidx.annotation.Nullable;
-
-public class TetroidTag extends FoundObject { //implements Map.Entry<String, List<TetroidRecord>> {
+public class TetroidTag implements ITetroidObject { //implements Map.Entry<String, List<TetroidRecord>> {
     private String name;
     private List<TetroidRecord> records;
 
@@ -14,12 +11,23 @@ public class TetroidTag extends FoundObject { //implements Map.Entry<String, Lis
         this.records = records;
     }
 
-    public void addRecord(TetroidRecord record) {
-        records.add(record);
+    @Override
+    public String getId() {
+        return "";
     }
 
+    @Override
+    public int getType() {
+        return FoundType.TYPE_TAG;
+    }
+
+    @Override
     public String getName() {
         return name;
+    }
+
+    public void addRecord(TetroidRecord record) {
+        records.add(record);
     }
 
     public List<TetroidRecord> getRecords() {
@@ -60,9 +68,4 @@ public class TetroidTag extends FoundObject { //implements Map.Entry<String, Lis
 //        return (getKey()==null ? 0 : getKey().hashCode()) ^
 //                (getValue()==null ? 0 : getValue().hashCode());
 //    }
-
-    @Override
-    public String getFoundName() {
-        return name;
-    }
 }

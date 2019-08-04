@@ -10,12 +10,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.FoundObject;
+import com.gee12.mytetroid.data.FoundType;
+import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.views.FoundListAdapter;
 import com.gee12.mytetroid.views.TetroidFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class FoundPageFragment extends TetroidFragment {
@@ -52,7 +53,7 @@ public class FoundPageFragment extends TetroidFragment {
             }
         });
 
-        this.listAdapter = new FoundListAdapter(this.getContext());
+        this.listAdapter = new FoundListAdapter(getContext());
         lvFound.setAdapter(listAdapter);
         setMainView(getArguments());
 
@@ -68,9 +69,10 @@ public class FoundPageFragment extends TetroidFragment {
         return rootView;
     }
 
-    public void setFounds(List<FoundObject> found, String query) {
-//        this.listAdapter = new FoundListAdapter(this.getContext(), found);
-        this.listAdapter.setDataItems(found);
+    public void setFounds(HashMap<ITetroidObject, FoundType> found, String query) {
+        this.listAdapter = new FoundListAdapter(getContext());
+        lvFound.setAdapter(listAdapter);
+        listAdapter.setDataItems(found);
         this.foundCount = found.size();
         if (found.isEmpty()) {
             tvEmpty.setText(String.format(getString(R.string.not_found), query));
@@ -78,7 +80,7 @@ public class FoundPageFragment extends TetroidFragment {
     }
 
     private void openFoundObject(int position) {
-        FoundObject found = (FoundObject) listAdapter.getItem(position);
+        ITetroidObject found = (ITetroidObject) listAdapter.getItem(position);
         mainView.openFoundObject(found);
     }
 

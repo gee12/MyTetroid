@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -63,7 +62,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private int lastViewId;
     private RecordsListAdapter recordsListAdapter;
     private FilesListAdapter filesListAdapter;
-    private TetroidRecord currentRecord;
+    private TetroidRecord prevRecord;
+    private TetroidRecord curRecord;
 
     public MainPageFragment() {
     }
@@ -127,7 +127,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         int whichChild = viewId;
         String title = null;
         if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
-            title = ((currentRecord != null) ? currentRecord.getName() : "");
+            title = ((curRecord != null) ? curRecord.getName() : "");
         } else if (viewId == VIEW_TAG_RECORDS) {
             // один контрол на записи ветки и метки
             whichChild = VIEW_NODE_RECORDS;
@@ -165,7 +165,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param record Запись
      */
     public void showRecord(final TetroidRecord record) {
-        this.currentRecord = record;
+        this.curRecord = record;
         LogManager.addLog("Чтение записи: id=" + record.getId());
         String text = DataManager.getRecordHtmlTextDecrypted(record);
         if (text == null) {
@@ -227,7 +227,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param record Запись
      */
     public void showRecordFiles(TetroidRecord record) {
-        this.currentRecord = record;
+        this.curRecord = record;
         showRecordFiles(record.getAttachedFiles());
 //        setTitle(record.getName());
     }
@@ -243,12 +243,12 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openFile(int position) {
-        if (currentRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
+        if (curRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
             LogManager.addLog(R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG);
             return;
         }
-        TetroidFile file = currentRecord.getAttachedFiles().get(position);
-        mainView.openFile(currentRecord, file);
+        TetroidFile file = curRecord.getAttachedFiles().get(position);
+        mainView.openFile(curRecord, file);
     }
 
     private void openRecordFolder(int position) {
@@ -363,8 +363,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         tvFilesEmpty.setText(s);
     }
 
-    public TetroidRecord getCurrentRecord() {
-        return currentRecord;
+    public TetroidRecord getCurRecord() {
+        return curRecord;
     }
 
     public int getCurViewId() {

@@ -33,7 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -48,7 +47,8 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.FoundObject;
+import com.gee12.mytetroid.data.FoundType;
+import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
@@ -62,10 +62,10 @@ import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class NewMainActivity extends AppCompatActivity implements IMainView {
+public class MainActivity extends AppCompatActivity implements IMainView {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -77,17 +77,14 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     private NodesListAdapter nodesListAdapter;
     private TagsListAdapter tagsListAdapter;
     private ListView tagsListView;
-    private TetroidNode currentNode;
-//    private String currentTag;
-    private TetroidTag currentTag;
+    private TetroidNode curNode;
+    private TetroidTag curTag;
     private LinearLayout layoutProgress;
     private TextView tvProgress;
     private TextView tvAppTitle;
     private TextView tvViewType;
     private TextView tvNodesEmpty;
     private TextView tvTagsEmpty;
-//    private TextView tvNodesHeader;
-//    private TextView tvTagsHeader;
     private View vNodesHeader;
     private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
@@ -98,10 +95,10 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
 
-    public NewMainActivity() {
+    public MainActivity() {
     }
 
-    public NewMainActivity(Parcel in) {
+    public MainActivity(Parcel in) {
     }
 
     @Override
@@ -225,7 +222,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             public void onQuerySubmit(String query) {
                 LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
                 List<TetroidNode> found = ScanManager.searchInNodesNames(
-                        DataManager.getRootNodes(), query, false);
+                        DataManager.getRootNodes(), query);
                 nodesListAdapter.setDataItems(found);
                 setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
                         String.format(getString(R.string.nodes_not_found), query));
@@ -309,7 +306,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-//                List<TetroidRecord> records = (currentNode != null) ? currentNode.getRecords() : new ArrayList<TetroidRecord>();
+//                List<TetroidRecord> records = (curNode != null) ? curNode.getRecords() : new ArrayList<TetroidRecord>();
 //                showRecords(records, MainPageFragment.VIEW_NODE_RECORDS);
                 onRecordsSearchClose();
                 return false;
@@ -320,17 +317,17 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     private void onRecordsSearchClose() {
         switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
             case MainPageFragment.VIEW_NODE_RECORDS:
-                if (currentNode != null) {
-                    showRecords(currentNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
+                if (curNode != null) {
+                    showRecords(curNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
                 }
                 break;
             case MainPageFragment.VIEW_TAG_RECORDS:
-                if (currentTag != null) {
-                    showRecords(currentTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+                if (curTag != null) {
+                    showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
                 }
                 break;
             case MainPageFragment.VIEW_RECORD_FILES:
-                TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+                TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
                 if (curRecord != null) {
                     viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                 }
@@ -480,7 +477,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
                 } catch (DataManager.EmptyFieldException e) {
                     // если поля в INI-файле для проверки пустые
                     LogManager.addLog(e);
-                    ActivityDialogs.showEmptyPassCheckingFieldDialog(NewMainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
+                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
                             decryptStorage(pass, false, node);
@@ -532,7 +529,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
                 showNode(node);
         } else {
             LogManager.addLog(getString(R.string.start_storage_loading) +  DataManager.getStoragePath());
-            new NewMainActivity.ReadStorageTask().execute(isDecrypt);
+            new MainActivity.ReadStorageTask().execute(isDecrypt);
             // парсим дерево веток и расшифровываем зашифрованные
 //            if (DataManager.readStorage(isDecrypt)) {
 //                LogManager.addLog(R.string.storage_loaded);
@@ -576,7 +573,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     /**
-     * Отображение ветки => список записей
+     * Отображение записей ветки.
      * @param node
      */
     private void showNode(TetroidNode node) {
@@ -586,14 +583,14 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
             // выходим, т.к. возможен запрос пароля в асинхронном режиме
             return;
         }
-        this.currentNode = node;
+        this.curNode = node;
         LogManager.addLog("Открытие записей ветки: id=" + node.getId());
 //        tvRecordsEmpty.setText(R.string.records_is_missing);
         showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
     }
 
     /**
-     * Отображение записей по метке
+     * Отображение записей по метке.
      * @param position Индекс метки в списке
      */
     private void showTagRecords(int position) {
@@ -604,8 +601,8 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
 
 //    private void showTag(String tag) {
     private void showTag(TetroidTag tag) {
-        this.currentNode = null;
-        this.currentTag = tag;
+        this.curNode = null;
+        this.curTag = tag;
         LogManager.addLog("Открытие записей метки: " + tag);
 //        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
         showRecords(tag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
@@ -635,7 +632,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     /**
-     * Обработчик клика на заголовке ветки с подветками
+     * Обработчик клика на заголовке ветки с подветками.
      */
     NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
         @Override
@@ -645,7 +642,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     };
 
     /**
-     * Обработчик клика на "конечной" ветке (без подветок)
+     * Обработчик клика на "конечной" ветке (без подветок).
      */
     private OnItemClickListener onNodeClickListener = new OnItemClickListener() {
 
@@ -674,7 +671,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     };
 
     /**
-     * Обработчик клика на метке
+     * Обработчик клика на метке.
      */
     private AdapterView.OnItemClickListener onTagClicklistener = new AdapterView.OnItemClickListener() {
         @Override
@@ -690,17 +687,17 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     @Override
     public void setMainTitle(String title, int viewId) {
         if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
-            title = ((currentNode != null) ? currentNode.getName() : "");
+            title = ((curNode != null) ? curNode.getName() : "");
         } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
-//            title = ((currentTag != null) ? currentTag : "");
-            title = ((currentTag != null) ? currentTag.getName() : "");
+//            title = ((curTag != null) ? curTag : "");
+            title = ((curTag != null) ? curTag.getName() : "");
         }
         setTitle(title);
         setViewTypeTitle(viewId);
     }
 
     /**
-     * Переопределяем заголовок активности
+     * Переопределение заголовка активности.
      * @param title
      */
     @Override
@@ -709,7 +706,7 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     /**
-     * Заголовок типа активности
+     * Заголовок типа активности.
      * @param viewId
      */
     private void setViewTypeTitle(int viewId) {
@@ -752,28 +749,37 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
+    /**
+     * Запуск глобального поиска.
+     * @param scan
+     */
     private void startGlobalSearch(ScanManager scan) {
-        List<FoundObject> found = scan.globalSearch(currentNode);
+        HashMap<ITetroidObject,FoundType> found = scan.globalSearch(curNode);
         viewPagerAdapter.getFoundFragment().setFounds(found, scan.getQuery());
 
         setFoundPageVisibility(true);
         viewPager.setCurrent(MainViewPager.PAGE_FOUND);
     }
 
+    /**
+     * Открытие объекта из поисковой выдачи в зависимости от его типа.
+     * @param found
+     */
     @Override
-    public void openFoundObject(FoundObject found) {
-        if (found.checkFoundType(FoundObject.TYPE_RECORD_NAME)
-            || found.checkFoundType(FoundObject.TYPE_RECORD_TEXT)
-            || found.checkFoundType(FoundObject.TYPE_AUTHOR)
-            || found.checkFoundType(FoundObject.TYPE_URL)) {
-            viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
-        } else if (found.checkFoundType(FoundObject.TYPE_FILE)) {
-            viewPagerAdapter.getMainFragment().showRecordFiles((TetroidRecord)found);
-        } else if (found.checkFoundType(FoundObject.TYPE_NODE)) {
-            showNode((TetroidNode)found);
-        } else if (found.checkFoundType(FoundObject.TYPE_TAG)) {
-//            showTag(((TetroidTag)found).getName());
-            showTag((TetroidTag)found);
+    public void openFoundObject(ITetroidObject found) {
+        switch (found.getType()) {
+            case FoundType.TYPE_RECORD:
+                viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
+                break;
+            case FoundType.TYPE_FILE:
+                viewPagerAdapter.getMainFragment().showRecordFiles((TetroidRecord)found);
+                break;
+            case FoundType.TYPE_NODE:
+                showNode((TetroidNode)found);
+                break;
+            case FoundType.TYPE_TAG:
+                showTag((TetroidTag)found);
+                break;
         }
         viewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
@@ -827,33 +833,33 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void searchInNodeRecords(String query) {
-        if (currentNode != null) {
-            searchInRecords(query, currentNode.getRecords());
+        if (curNode != null) {
+            searchInRecords(query, curNode.getRecords());
         } else {
             LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
         }
     }
 
     private void searchInTagRecords(String query) {
-        if (currentTag != null) {
-            searchInRecords(query, currentTag.getRecords());
+        if (curTag != null) {
+            searchInRecords(query, curTag.getRecords());
         } else {
             LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
         }
     }
 
     private void searchInRecords(String query, List<TetroidRecord> records) {
-            LogManager.addLog(String.format(getString(R.string.search_records_by_query), currentNode.getName(), query));
-            List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query, false);
+            LogManager.addLog(String.format(getString(R.string.search_records_by_query), curNode.getName(), query));
+            List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
             if (found.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, curNode.getName()));
                 viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
-                        String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+                        String.format(getString(R.string.records_not_found), query, curNode.getName()));
             showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
     }
 
     private void searchInRecordFiles(String query) {
-        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
         if (curRecord != null) {
             searchInFiles(query, curRecord);
         } else {
@@ -863,16 +869,16 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
 
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
-        List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query, false);
+        List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
         if (found.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, currentNode.getName()));
+//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, curNode.getName()));
             viewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.files_not_found), query));
         viewPagerAdapter.getMainFragment().showRecordFiles(found);
     }
 
     private void searchInRecordText(String query) {
-        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurrentRecord();
+        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
         if (curRecord != null) {
             searchInText(query, curRecord);
         } else {
@@ -999,15 +1005,15 @@ public class NewMainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
-    public static final Creator<NewMainActivity> CREATOR = new Creator<NewMainActivity>() {
+    public static final Creator<MainActivity> CREATOR = new Creator<MainActivity>() {
         @Override
-        public NewMainActivity createFromParcel(Parcel in) {
-            return new NewMainActivity(in);
+        public MainActivity createFromParcel(Parcel in) {
+            return new MainActivity(in);
         }
 
         @Override
-        public NewMainActivity[] newArray(int size) {
-            return new NewMainActivity[size];
+        public MainActivity[] newArray(int size) {
+            return new MainActivity[size];
         }
     };
 }

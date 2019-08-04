@@ -8,7 +8,7 @@ import com.gee12.mytetroid.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TetroidNode extends FoundObject {
+public class TetroidNode implements ITetroidObject {
     private String id;
     private String name;
     private int level;
@@ -43,8 +43,19 @@ public class TetroidNode extends FoundObject {
 //            setIcon(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
     }
 
+    @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public int getType() {
+        return FoundType.TYPE_NODE;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
 //    public Uri getIconUri() {
@@ -77,10 +88,6 @@ public class TetroidNode extends FoundObject {
         if (Utils.isNullOrEmpty(iconName))
             return;
         loadIcon(iconsStoragePath + iconName);
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getIconName() {
@@ -150,8 +157,4 @@ public class TetroidNode extends FoundObject {
         return !subNodes.isEmpty() /*&& isNonCryptedOrDecrypted()*/;
     }
 
-    @Override
-    public String getFoundName() {
-        return name;
-    }
 }

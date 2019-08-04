@@ -18,7 +18,7 @@
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
         <activity
-            android:name=".activities.NewMainActivity"
+            android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTop"
@@ -41,7 +41,8 @@
 
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/app_name"
+            android:label="@string/title_settings"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
             <!-- android:launchMode="singleTop"> -->
@@ -51,12 +52,12 @@
         <activity
             android:name=".activities.SearchActivity"
             android:label="@string/title_global_search"
-            android:parentActivityName=".activities.NewMainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.AboutActivity"
             android:label="@string/title_about_app"
-            android:parentActivityName=".activities.NewMainActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

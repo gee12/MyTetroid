@@ -2,11 +2,10 @@ package com.gee12.mytetroid.data;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class TetroidRecord extends FoundObject {
+public class TetroidRecord implements ITetroidObject {
 
     private String id;
     private TetroidNode node;
@@ -19,28 +18,28 @@ public class TetroidRecord extends FoundObject {
 
     private String dirName;
     private String fileName;
-    List<TetroidFile> files = new ArrayList<>();
-    List<TetroidTag> tags = new ArrayList<>();
+    List<TetroidFile> files;
+    List<TetroidTag> tags;
 
     private boolean isDecrypted;
 
-    public TetroidRecord(String id, String name) {
-        this.id = id;
-        this.name = name;
-//        this.htmlContent = htmlContent;
-//        this.content = Utils.fromHtml(name);
-        this.created = Calendar.getInstance().getTime();
-        this.tags = new ArrayList<>();
-    }
+//    public TetroidRecord(String id, String name) {
+//        this.id = id;
+//        this.name = name;
+////        this.htmlContent = htmlContent;
+////        this.content = Utils.fromHtml(name);
+//        this.created = Calendar.getInstance().getTime();
+//        this.tags = new ArrayList<>();
+//    }
 
-    public TetroidRecord(String id,String name, String htmlContent) {
-        this.id = id;
-        this.name = name;
-//        this.htmlContent = htmlContent;
-//        this.content = Utils.fromHtml(htmlContent);
-        this.created = Calendar.getInstance().getTime();
-        this.tags = new ArrayList<>();
-    }
+//    public TetroidRecord(String id,String name, String htmlContent) {
+//        this.id = id;
+//        this.name = name;
+////        this.htmlContent = htmlContent;
+////        this.content = Utils.fromHtml(htmlContent);
+//        this.created = Calendar.getInstance().getTime();
+//        this.tags = new ArrayList<>();
+//    }
 
     public TetroidRecord(boolean crypt, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, List<TetroidFile> files) {
@@ -57,6 +56,7 @@ public class TetroidRecord extends FoundObject {
         this.tags = new ArrayList<>();
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -65,6 +65,12 @@ public class TetroidRecord extends FoundObject {
         return node;
     }
 
+    @Override
+    public int getType() {
+        return FoundType.TYPE_RECORD;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -184,11 +190,6 @@ public class TetroidRecord extends FoundObject {
 
     public List<TetroidTag> getTags() {
         return tags;
-    }
-
-    @Override
-    public String getFoundName() {
-        return name;
     }
 
 //    public void setDateFormat(String format) {

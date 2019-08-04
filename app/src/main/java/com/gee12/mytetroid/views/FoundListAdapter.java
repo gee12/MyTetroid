@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +9,11 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.FoundObject;
+import com.gee12.mytetroid.data.FoundType;
+import com.gee12.mytetroid.data.ITetroidObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FoundListAdapter extends BaseAdapter {
@@ -25,19 +28,23 @@ public class FoundListAdapter extends BaseAdapter {
     }
 
     private LayoutInflater inflater;
-    private List<FoundObject> dataSet;
+    private List<ITetroidObject> dataSet;
+    private HashMap<ITetroidObject, FoundType> hashMap;
     private Context context;
 
-    public FoundListAdapter(Context context/*, List<FoundObject> dataSet*/) {
+    public FoundListAdapter(Context context/*, List<ITetroidObject> dataSet*/) {
         super();
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //        this.dataSet = dataSet;
+//        this.dataSet = new HashMap<>();
         this.dataSet = new ArrayList<>();
     }
 
-    public void setDataItems(List<FoundObject> dataSet) {
-        this.dataSet = dataSet;
+//    public void setDataItems(List<ITetroidObject> dataSet) {
+    public void setDataItems(HashMap<ITetroidObject, FoundType> hashMap) {
+        this.hashMap = hashMap;
+        this.dataSet.addAll(hashMap.keySet());
         notifyDataSetChanged();
     }
 
@@ -51,9 +58,15 @@ public class FoundListAdapter extends BaseAdapter {
         return dataSet.get(position);
     }
 
+    public Pair<ITetroidObject,FoundType> getFoundObject(int position) {
+        ITetroidObject obj = dataSet.get(position);
+        FoundType type = hashMap.get(obj);
+        return new Pair<>(obj,type);
+    }
+
     @Override
     public long getItemId(int position) {
-        return dataSet.get(position).getFoundName().hashCode();
+        return dataSet.get(position).hashCode();
     }
 
     @Override
@@ -70,13 +83,13 @@ public class FoundListAdapter extends BaseAdapter {
             viewHolder = (FoundViewHolder)convertView.getTag();
         }
 
-        final FoundObject found = dataSet.get(position);
+        final ITetroidObject found = dataSet.get(position);
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название найденного объекта
-        viewHolder.nameView.setText(found.getFoundName());
+        viewHolder.nameView.setText(found.getName());
         // тип найденного объекта
-        viewHolder.typeView.setText(found.getFoundTypeString(context));
+        viewHolder.typeView.setText(hashMap.get(found).getTypeString(context));
 
         return convertView;
     }

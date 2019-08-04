@@ -51,7 +51,7 @@
     <string name="m_bytes">Мб</string>
     <string name="k_bytes">Кб</string>
     <string name="show_record_content">Открыть запись</string>
-    <string name="show_attached_files">Показать файлы</string>
+    <string name="show_attached_files">Прикрепленные файлы</string>
     <string name="open_record_folder">Открыть каталог</string>
     <string name="open_record_folder_dialog">Открыть каталог записи</string>
     <string name="temp_path">Временной каталог</string>
@@ -103,17 +103,20 @@
     <string name="search_tags_by_query">Поиск меток по запросу "%s"..</string>
     <string name="title_global_search">Глобальный поиск</string>
     <string name="search_hint_input_query">Введите запрос</string>
-    <string name="search_search_in">Искать в:</string>
-    <string name="search_in_record_text">Текст записи</string>
-    <string name="search_in_record_name">Название записи</string>
-    <string name="search_in_record_author">Автор</string>
+    <string name="search_search_in">Искать по:</string>
+    <string name="search_in_record_text">Содержимому записей</string>
+    <string name="search_in_record_name">Названиям записей</string>
+    <string name="search_in_record_author">Авторам</string>
     <string name="search_in_record_url">Url</string>
-    <string name="search_in_tags">Метки</string>
-    <string name="search_in_nodes">Название ветки</string>
-    <string name="search_in_file_names">Название файла</string>
+    <string name="search_in_tags">Меткам</string>
+    <string name="search_in_nodes">Названиям веток</string>
+    <string name="search_in_file_names">Названиям прикрепленных файлов</string>
     <string name="search_other_options">Другие параметры:</string>
     <string name="found_mask">Найдено: %d</string>
     <string name="records_search_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
     <string name="not_found">По запросу \"%s\" ничего не найдено..</string>
+    <string name="show_node_records">Записи ветки</string>
+    <string name="search_submit_title">Начать поиск</string>
+    <string name="enter_query">Введите запрос для поиска</string>
     <!--<string name="title_activity_found">Найдено</string>-->
 </resources>

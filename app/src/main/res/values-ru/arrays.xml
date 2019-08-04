@@ -8,15 +8,15 @@
         <item name="finded_records">ПОИСК ПО ЗАПИСЯМ</item>
     </string-array>
     <string-array name="search_split_to_words">
-        <item name="search_any_word">Любое слово в запросе</item>
+        <item name="search_any_word">Поиск по каждому слову в запросе</item>
         <item name="search_all_words">Запрос целиком</item>
     </string-array>
     <string-array name="search_in_whole_words">
-        <item name="search_whole_word">Совпадение только целого слова</item>
-        <item name="search_substring">Подстрока</item>
+        <item name="search_whole_word">Поиск по совпадению только целых слов</item>
+        <item name="search_substring">По подстрокам</item>
     </string-array>
     <string-array name="search_in_cur_node">
-        <item name="search_all_database">Вся база</item>
+        <item name="search_all_database">Поиск по всей базе</item>
         <item name="search_cur_node">Текущая ветка</item>
     </string-array>
     <string-array name="found_types">

@@ -64,7 +64,7 @@
     <string name="m_bytes">Mb</string>
     <string name="k_bytes">Kb</string>
     <string name="show_record_content">Open record</string>
-    <string name="show_attached_files">Show files</string>
+    <string name="show_attached_files">Attached files</string>
     <string name="open_record_folder">Open folder</string>
     <string name="open_record_folder_dialog">Open record folder</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
@@ -133,5 +133,19 @@
     <string name="found_mask">Found: %d</string>
     <string name="records_search_select_tag">Select not an ampty tag or use the global search.</string>
     <string name="not_found">No matches found for query \"%s\"..</string>
+    <string name="show_node_records">Show node records</string>
+    <string name="pref_key_search_text" translatable="false">pref_key_search_text</string>
+    <string name="pref_key_search_records_names" translatable="false">pref_key_search_records_names</string>
+    <string name="pref_key_search_author" translatable="false">pref_key_search_author</string>
+    <string name="pref_key_search_url" translatable="false">pref_key_search_url</string>
+    <string name="pref_key_search_tags" translatable="false">pref_key_search_tags</string>
+    <string name="pref_key_search_nodes" translatable="false">pref_key_search_nodes</string>
+    <string name="pref_key_search_files" translatable="false">pref_key_search_files</string>
+    <string name="pref_key_search_split_to_words" translatable="false">pref_key_search_split_to_words</string>
+    <string name="pref_key_search_in_whole_words" translatable="false">pref_key_search_in_whole_words</string>
+    <string name="pref_key_search_in_cur_node" translatable="false">pref_key_search_in_cur_node</string>
+    <string name="search_submit_title">Start search</string>
+    <string name="pref_key_search_query" translatable="false">pref_key_search_query</string>
+    <string name="enter_query">Enter the search query</string>
     <!--<string name="title_activity_found">Found</string>-->
 </resources>
