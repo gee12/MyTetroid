@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
+import androidx.viewpager.widget.ViewPager;
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
@@ -89,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
+    private SearchView recordsSearchView;
     private boolean isAlreadyTryDecrypt = false;
 
     private MainPagerAdapter viewPagerAdapter;
@@ -133,6 +135,22 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         viewPager.setAdapter(viewPagerAdapter);
         this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+                changeToolBarByPage(i);
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                changeToolBarByPage(i);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+                changeToolBarByPage(i);
+            }
+        });
 
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 //        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -172,6 +190,16 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
+    }
+
+    private void changeToolBarByPage(int curPage) {
+        if (curPage == MainViewPager.PAGE_MAIN) {
+            viewPagerAdapter.getMainFragment().restoreLastTitle();
+            recordsSearchView.setVisibility(View.VISIBLE);
+        } else {
+            setMainTitle(null, MainPageFragment.VIEW_NONE);
+            recordsSearchView.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -299,11 +327,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      */
     private void initRecordsSearchView(Menu menu) {
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(true);
+        this.recordsSearchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
+        recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        recordsSearchView.setIconifiedByDefault(true);
 
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+        recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
 //                List<TetroidRecord> records = (curNode != null) ? curNode.getRecords() : new ArrayList<TetroidRecord>();
@@ -686,7 +714,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      */
     @Override
     public void setMainTitle(String title, int viewId) {
-        if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
+        if (viewId == MainPageFragment.VIEW_NONE) {
+            title = getString(R.string.global_search_results);
+        } else if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
             title = ((curNode != null) ? curNode.getName() : "");
         } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
 //            title = ((curTag != null) ? curTag : "");
@@ -713,6 +743,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
         if (viewId >= 0 && viewId < titles.length)
             tvViewType.setText(titles[viewId]);
+        else {
+            tvViewType.setText("");
+        }
     }
 
     public void setFoundPageVisibility(boolean isVisible) {

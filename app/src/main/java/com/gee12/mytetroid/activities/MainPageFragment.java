@@ -35,11 +35,12 @@ import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
 
-    public static final int VIEW_NODE_RECORDS = 0;
-    public static final int VIEW_RECORD_TEXT = 1;
-    public static final int VIEW_RECORD_FILES = 2;
-    public static final int VIEW_TAG_RECORDS = 3;
-    public static final int VIEW_FOUND_RECORDS = 4;
+    public static final int VIEW_NONE = 0;
+    public static final int VIEW_NODE_RECORDS = 1;
+    public static final int VIEW_RECORD_TEXT = 2;
+    public static final int VIEW_RECORD_FILES = 3;
+    public static final int VIEW_TAG_RECORDS = 4;
+    public static final int VIEW_FOUND_RECORDS = 5;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
@@ -135,6 +136,15 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         mainView.setMainTitle(title, viewId);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild);
+    }
+
+    public void restoreLastTitle() {
+        String title = null;
+        int viewId = curViewId;
+        if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
+            title = ((curRecord != null) ? curRecord.getName() : "");
+        }
+        mainView.setMainTitle(title, viewId);
     }
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
