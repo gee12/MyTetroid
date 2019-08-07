@@ -133,9 +133,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             // один контрол на записи ветки и метки
             whichChild = VIEW_NODE_RECORDS;
         }
-        mainView.setMainTitle(title, viewId);
+        mainView.updateMainTooltip(title, viewId);
         this.curViewId = viewId;
-        viewFlipper.setDisplayedChild(whichChild);
+        viewFlipper.setDisplayedChild(whichChild-1);
     }
 
     public void restoreLastTitle() {
@@ -144,7 +144,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
             title = ((curRecord != null) ? curRecord.getName() : "");
         }
-        mainView.setMainTitle(title, viewId);
+        mainView.updateMainTooltip(title, viewId);
     }
 
     public void showRecords(List<TetroidRecord> records, int viewId) {

@@ -5,6 +5,7 @@
         <item>@string/pref_when_ask_password_on_start</item>
     </string-array>
     <string-array name="view_type_titles">
+        <item name="none"> </item>
         <item name="records_list">NODE</item>
         <item name="record_text">RECORD</item>
         <item name="recor_files">FILES</item>

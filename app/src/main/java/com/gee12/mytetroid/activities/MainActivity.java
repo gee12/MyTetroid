@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
 
+    boolean isStarted = false;
+
     public MainActivity() {
     }
 
@@ -138,17 +140,16 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
-                changeToolBarByPage(i);
             }
 
             @Override
             public void onPageSelected(int i) {
-                changeToolBarByPage(i);
+                if (isStarted)
+                    changeToolBarByPage(i);
             }
 
             @Override
             public void onPageScrollStateChanged(int i) {
-                changeToolBarByPage(i);
             }
         });
 
@@ -190,16 +191,6 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
-    }
-
-    private void changeToolBarByPage(int curPage) {
-        if (curPage == MainViewPager.PAGE_MAIN) {
-            viewPagerAdapter.getMainFragment().restoreLastTitle();
-            recordsSearchView.setVisibility(View.VISIBLE);
-        } else {
-            setMainTitle(null, MainPageFragment.VIEW_NONE);
-            recordsSearchView.setVisibility(View.GONE);
-        }
     }
 
     /**
@@ -637,8 +628,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
-//        setMainTitle(viewId);
+//        updateMainTooltip(viewId);
         drawerLayout.closeDrawers();
+        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
         viewPagerAdapter.getMainFragment().showRecords(records, viewId);
     }
 
@@ -710,20 +702,38 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
     /**
      *
+     * @param curPage
+     */
+    private void changeToolBarByPage(int curPage) {
+        if (curPage == MainViewPager.PAGE_MAIN) {
+            viewPagerAdapter.getMainFragment().restoreLastTitle();
+//            setRecordsSearchViewVisibility(true);
+        } else {
+            updateMainTooltip(null, MainPageFragment.VIEW_NONE);
+//            setRecordsSearchViewVisibility(false);
+        }
+    }
+
+    /**
+     *
      * @param viewId
      */
     @Override
-    public void setMainTitle(String title, int viewId) {
+    public void updateMainTooltip(String title, int viewId) {
+        boolean showRecordsSearch = false;
         if (viewId == MainPageFragment.VIEW_NONE) {
             title = getString(R.string.global_search_results);
         } else if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
             title = ((curNode != null) ? curNode.getName() : "");
+            showRecordsSearch = true;
         } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
 //            title = ((curTag != null) ? curTag : "");
             title = ((curTag != null) ? curTag.getName() : "");
+            showRecordsSearch = true;
         }
         setTitle(title);
         setViewTypeTitle(viewId);
+        setRecordsSearchViewVisibility(showRecordsSearch);
     }
 
     /**
@@ -741,11 +751,17 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      */
     private void setViewTypeTitle(int viewId) {
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
-        if (viewId >= 0 && viewId < titles.length)
+        if (viewId > 0 && viewId < titles.length) {
+            tvViewType.setVisibility(View.VISIBLE);
             tvViewType.setText(titles[viewId]);
-        else {
-            tvViewType.setText("");
         }
+        else if (viewId == 0) {
+            tvViewType.setVisibility(View.GONE);
+        }
+    }
+
+    public void setRecordsSearchViewVisibility(boolean isVisible) {
+        recordsSearchView.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
@@ -951,6 +967,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         initRecordsSearchView(menu);
+        //
+        this.isStarted = true;
         return true;
     }
 

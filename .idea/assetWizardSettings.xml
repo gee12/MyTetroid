@@ -222,7 +222,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="009a00" />
+                            <entry key="color" value="ffffff" />
                             <entry key="opacityPercent" value="80" />
                             <entry key="outputName" value="ic_search_24dp" />
                             <entry key="overrideSize" value="true" />
