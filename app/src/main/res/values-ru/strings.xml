@@ -119,5 +119,7 @@
     <string name="search_submit_title">Начать поиск</string>
     <string name="enter_query">Введите запрос для поиска</string>
     <string name="global_search_results">Результаты поиска</string>
+    <string name="global_search_return_null">В процессе поиска что-то пошло не так..</string>
+    <string name="cur_node_is_not_selected">Текущая ветка не выбрана</string>
     <!--<string name="title_activity_found">Найдено</string>-->
 </resources>

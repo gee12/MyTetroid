@@ -12,8 +12,6 @@ import com.gee12.mytetroid.data.ScanManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -38,6 +36,7 @@ public class SearchActivity extends AppCompatActivity {
     Spinner spSplitToWords;
     Spinner spInWholeWords;
     Spinner spInCurrentNode;
+    boolean isCurNodeNotNull;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +66,11 @@ public class SearchActivity extends AppCompatActivity {
         readSearchPrefs();
 
         etQuery.setSelection(etQuery.getText().length());
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            this.isCurNodeNotNull = extras.getBoolean(MainActivity.EXTRA_CUR_NODE_IS_NOT_NULL);
+        }
     }
 
     private void readSearchPrefs() {
@@ -152,7 +156,10 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_query_submit) {
             if (Utils.isNullOrEmpty(etQuery.getText().toString())) {
-                Message.create(this, getString(R.string.enter_query));
+                Message.show(this, getString(R.string.enter_query));
+            } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.pref_key_search_in_cur_node))
+                && !isCurNodeNotNull) {
+                Message.show(this, getString(R.string.cur_node_is_not_selected));
             } else {
                 startSearch();
             }

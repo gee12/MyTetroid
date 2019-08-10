@@ -132,7 +132,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         } else if (viewId == VIEW_TAG_RECORDS) {
             // один контрол на записи ветки и метки
             whichChild = VIEW_NODE_RECORDS;
-        }
+        } /*else if (viewId == VIEW_NONE) {
+            // для "очистки" активности выводим пустой список записей
+            whichChild = VIEW_NODE_RECORDS;
+        }*/
         mainView.updateMainTooltip(title, viewId);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild-1);
@@ -346,13 +349,14 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      */
     public boolean onBackPressed() {
         boolean res = false;
-        if (viewFlipper.getDisplayedChild() == VIEW_RECORD_TEXT) {
+        int curView = viewFlipper.getDisplayedChild() + 1;
+        if (curView == VIEW_RECORD_TEXT) {
             res = true;
             if (lastViewId == VIEW_NODE_RECORDS)
                 showView(VIEW_NODE_RECORDS);
             else
                 showView(VIEW_TAG_RECORDS);
-        } else if (viewFlipper.getDisplayedChild() == VIEW_RECORD_FILES) {
+        } else if (curView == VIEW_RECORD_FILES) {
             res = true;
             // смотрим какая страница была перед этим
             if (lastViewId == VIEW_RECORD_TEXT)

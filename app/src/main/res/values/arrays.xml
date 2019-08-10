@@ -21,8 +21,8 @@
         <item name="search_substring">Substring</item>
     </string-array>
     <string-array name="search_in_cur_node">
-        <item name="search_all_database">All database</item>
-        <item name="search_cur_node">Current node</item>
+        <item name="search_all_database">Search all database</item>
+        <item name="search_cur_node">In current node</item>
     </string-array>
     <string-array name="found_types">
         <item>Record name</item>

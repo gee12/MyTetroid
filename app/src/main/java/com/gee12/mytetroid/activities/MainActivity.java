@@ -42,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
+    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
 
     private DrawerLayout drawerLayout;
     private MultiLevelListView nodesListView;
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private android.widget.SearchView tagsSearchView;
     private SearchView recordsSearchView;
     private boolean isAlreadyTryDecrypt = false;
+    private boolean isStorageLoaded = false;
 
     private MainPagerAdapter viewPagerAdapter;
     private MainViewPager viewPager;
@@ -249,16 +252,6 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         };
     }
 
-//    private void closeNodesSearchView() {
-//        nodesSearchView.setIconified(true);
-//        nodesSearchView.setQuery("", false);
-//    }
-//
-//    private void closeTagsSearchView() {
-//        tagsSearchView.setIconified(true);
-//        tagsSearchView.setQuery("", false);
-//    }
-
     private void closeSearchView(SearchView search) {
         search.setIconified(true);
         search.setQuery("", false);
@@ -358,7 +351,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void startInitStorage() {
-        isAlreadyTryDecrypt = false;
+        this.isStorageLoaded = false;
+        this.isAlreadyTryDecrypt = false;
         String storagePath = SettingsManager.getStoragePath();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -378,19 +372,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private boolean checkReadExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            // Should we show an explanation?
-            /*if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else*/ {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
-                        REQUEST_CODE_PERMISSION_REQUEST);
-            }
+            ActivityCompat.requestPermissions(this,
+                    new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
+                    REQUEST_CODE_PERMISSION_REQUEST);
             return false;
         }
         return true;
@@ -510,8 +494,12 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
             @Override
             public void cancelPass() {
-                // загружаем хранилище как есть (только в первый раз, затем перезагружать не нужно)
-                if (!isAlreadyTryDecrypt) {
+                // Если при первой загрузке хранилища
+                // установлена текущей зашифрованная ветка (node),
+                // и пароль не сохраняли, то нужно его спросить.
+                // Но если пароль вводить отказались, то просто грузим хранилище как есть
+                // (только в первый раз, затем перезагружать не нужно)
+                if (!isAlreadyTryDecrypt && !isStorageLoaded) {
                     isAlreadyTryDecrypt = true;
                     initStorage(node, false);
                 }
@@ -721,6 +709,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     @Override
     public void updateMainTooltip(String title, int viewId) {
         boolean showRecordsSearch = false;
+
+        // ИСПРАВИТЬ NONE НА SEARCH
+
         if (viewId == MainPageFragment.VIEW_NONE) {
             title = getString(R.string.global_search_results);
         } else if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
@@ -804,6 +795,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      */
     private void startGlobalSearch(ScanManager scan) {
         HashMap<ITetroidObject,FoundType> found = scan.globalSearch(curNode);
+        if (found == null) {
+            Message.show(this, getString(R.string.global_search_return_null));
+            return;
+        }
         viewPagerAdapter.getFoundFragment().setFounds(found, scan.getQuery());
 
         setFoundPageVisibility(true);
@@ -984,7 +979,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
             return true;
         } else if (id == R.id.action_global_search) {
-            showActivityForResult(SearchActivity.class, REQUEST_CODE_SEARCH_ACTIVITY);
+            showGlobalSearchActivity();
             return true;
         } else if (id == R.id.action_about_app) {
             showActivity(this, AboutActivity.class);
@@ -1006,6 +1001,12 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     public static void showActivity(Context context, Class<?> cls) {
         Intent intent = new Intent(context, cls);
         context.startActivity(intent);
+    }
+
+    private void showGlobalSearchActivity() {
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (curNode != null));
+        startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
     }
 
     public void showActivityForResult(Class<?> cls, int requestCode) {
@@ -1049,6 +1050,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             drawerLayout.openDrawer(Gravity.LEFT);
             layoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
+                MainActivity.this.isStorageLoaded = true;
                 LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath());
             }
             // инициализация контролов

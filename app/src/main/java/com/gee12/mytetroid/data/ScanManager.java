@@ -90,9 +90,13 @@ public class ScanManager implements Parcelable {
 
     public HashMap<ITetroidObject,FoundType> globalSearch(/*DataManager data, */TetroidNode node, String query) {
         List<TetroidNode> srcNodes;
-        if (isSearchInNode && node != null) {
-            srcNodes = new ArrayList<>();
-            srcNodes.add(node);
+        if (isSearchInNode) {
+            if (node != null) {
+                srcNodes = new ArrayList<>();
+                srcNodes.add(node);
+            } else {
+                return null;
+            }
         } else {
             srcNodes = DataManager.getRootNodes();
         }

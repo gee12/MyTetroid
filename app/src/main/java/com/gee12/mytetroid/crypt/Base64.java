@@ -14,9 +14,9 @@ import java.util.Arrays;
  * version is about three times as fast due to the fact that the Commons Codec result has to be recoded
  * to a <code>String</code> from <code>byte[]</code>, which is very expensive.<br><br>
  *
- * This encode/decode algorithm doesn't create any temporary arrays as many other codecs do, it only
+ * This encode/decode algorithm doesn't show any temporary arrays as many other codecs do, it only
  * allocates the resulting array. This produces less garbage and it is possible to handle arrays twice
- * as large as algorithms that create a temporary array. (E.g. Jakarta Commons Codec). It is unknown
+ * as large as algorithms that show a temporary array. (E.g. Jakarta Commons Codec). It is unknown
  * whether Sun's <code>sun.misc.Encoder()/Decoder()</code> produce temporary arrays but since performance
  * is quite low it probably does.<br><br>
  *
@@ -27,7 +27,7 @@ import java.util.Arrays;
  *
  * <b>Note!</b>
  * The encode/decode method pairs (types) come in three versions with the <b>exact</b> same algorithm and
- * thus a lot of code redundancy. This is to not create any temporary arrays for transcoding to/from different
+ * thus a lot of code redundancy. This is to not show any temporary arrays for transcoding to/from different
  * format types. The methods not used can simply be commented out.<br><br>
  *
  * There is also a "fast" version of all decode methods that works the same way as the normal ones, but
@@ -447,14 +447,14 @@ public class Base64
      */
     public final static String encodeToString(byte[] sArr, boolean lineSep)
     {
-        // Reuse char[] since we can't create a String incrementally anyway and StringBuffer/Builder would be slower.
+        // Reuse char[] since we can't show a String incrementally anyway and StringBuffer/Builder would be slower.
         return new String(encodeToChar(sArr, lineSep));
     }
 
     /** Decodes a BASE64 encoded <code>String</code>. All illegal characters will be ignored and can handle both strings with
      * and without line separators.<br>
      * <b>Note!</b> It can be up to about 2x the speed to call <code>decode(str.toCharArray())</code> instead. That
-     * will create a temporary array though. This version will use <code>str.charAt(i)</code> to iterate the string.
+     * will show a temporary array though. This version will use <code>str.charAt(i)</code> to iterate the string.
      * @param str The source string. <code>null</code> or length 0 will return an empty array.
      * @return The decoded array of bytes. May be of length 0. Will be <code>null</code> if the legal characters
      * (including '=') isn't divideable by 4.  (I.e. definitely corrupted).

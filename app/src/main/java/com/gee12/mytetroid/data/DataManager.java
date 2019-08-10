@@ -179,7 +179,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static String getRecordHtmlTextDecrypted(TetroidRecord record) {
         String pathUri = getStoragePathBaseUri() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
-//        String text = Utils.readAllFile(URI.create(pathUri));
+//        String text = Utils.readAllFile(URI.show(pathUri));
         String res = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {

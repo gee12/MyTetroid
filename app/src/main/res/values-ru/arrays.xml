@@ -18,7 +18,7 @@
     </string-array>
     <string-array name="search_in_cur_node">
         <item name="search_all_database">Поиск по всей базе</item>
-        <item name="search_cur_node">Текущая ветка</item>
+        <item name="search_cur_node">В текущей ветке</item>
     </string-array>
     <string-array name="found_types">
         <item>Имя записи</item>

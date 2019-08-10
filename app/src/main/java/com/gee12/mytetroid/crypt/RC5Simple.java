@@ -83,7 +83,7 @@ public class RC5Simple {
      public static final int RC5_ERROR_CODE_1 = 1;      // Bad RC5 key length
      public static final int RC5_ERROR_CODE_2 = 2;      // Can't read input file
      public static final int RC5_ERROR_CODE_3 = 3;      // Input file is empty
-     public static final int RC5_ERROR_CODE_4 = 4;      // Can't create output file
+     public static final int RC5_ERROR_CODE_4 = 4;      // Can't show output file
      public static final int RC5_ERROR_CODE_5 = 5;      // Can't encrypt null data
      public static final int RC5_ERROR_CODE_6 = 6;      // Can't decryptBase64 null data
      public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decryptBase64 data
