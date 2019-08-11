@@ -12,19 +12,19 @@ import android.widget.TextView;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
+import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.views.FoundListAdapter;
 import com.gee12.mytetroid.views.TetroidFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class FoundPageFragment extends TetroidFragment {
 
-    ListView lvFound;
-    FoundListAdapter listAdapter;
-    TextView tvEmpty;
-    int foundCount;
+    private ListView lvFound;
+    private FoundListAdapter listAdapter;
+    private TextView tvEmpty;
+    private int foundCount;
 
 //    public FoundPageFragment(IMainView mainView) {
 //        super(mainView);
@@ -69,13 +69,18 @@ public class FoundPageFragment extends TetroidFragment {
         return rootView;
     }
 
-    public void setFounds(HashMap<ITetroidObject, FoundType> found, String query) {
+    public void setFounds(HashMap<ITetroidObject, FoundType> found, ScanManager scan) {
         this.listAdapter = new FoundListAdapter(getContext());
         lvFound.setAdapter(listAdapter);
         listAdapter.setDataItems(found);
         this.foundCount = found.size();
         if (found.isEmpty()) {
-            tvEmpty.setText(String.format(getString(R.string.not_found), query));
+            if (scan.isSearchInNode() && scan.getNode() != null) {
+                tvEmpty.setText(String.format(getString(R.string.global_search_not_found_in_node),
+                        scan.getQuery(), scan.getNode().getName()));
+            } else {
+                tvEmpty.setText(String.format(getString(R.string.global_search_not_found), scan.getQuery()));
+            }
         }
     }
 
@@ -91,4 +96,13 @@ public class FoundPageFragment extends TetroidFragment {
         else
             return null;
     }
+
+    /**
+     * Обработчик нажатия кнопки Назад
+     */
+    public boolean onBackPressed() {
+        mainView.openMainPage();
+        return true;
+    }
+
 }

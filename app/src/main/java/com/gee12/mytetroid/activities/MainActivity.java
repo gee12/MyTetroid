@@ -304,14 +304,15 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
 
-
+    private MenuItem miRecordsSearchView;
     /**
      * Виджет поиска по записям/файлам/тексту.
      * @param menu
      */
     private void initRecordsSearchView(Menu menu) {
+        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
+        this.recordsSearchView = (SearchView) miRecordsSearchView.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        this.recordsSearchView = (SearchView) menu.findItem(R.id.action_search_records).getActionView();
         recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         recordsSearchView.setIconifiedByDefault(true);
 
@@ -350,6 +351,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
+    /**
+     * Начало загрузки хранилища.
+     */
     private void startInitStorage() {
         this.isStorageLoaded = false;
         this.isAlreadyTryDecrypt = false;
@@ -368,6 +372,19 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
+    /**
+     * Перезагрузка хранилища (при изменении пути в настройках).
+     */
+    private void reinitStorage() {
+        closeFoundFragment();
+        viewPagerAdapter.getMainFragment().clearView();
+        startInitStorage();
+    }
+
+    /**
+     * Предоставление разрешения для чтения с внешней памяти.
+     * @return
+     */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private boolean checkReadExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -380,6 +397,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         return true;
     }
 
+    /**
+     * Загрузка хранилища по указанному пути.
+     * @param storagePath Путь хранилища
+     */
     private void initStorage(String storagePath) {
         if (DataManager.init(storagePath)) {
             LogManager.addLog(getString(R.string.storage_settings_inited) + storagePath);
@@ -456,6 +477,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
+    /**
+     * Отображения запроса пароля от хранилища.
+     * @param node
+     */
     void showPassDialog(final TetroidNode node) {
         LogManager.addLog(R.string.show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
@@ -507,6 +532,12 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         });
     }
 
+    /**
+     * Расшифровка хранилища.
+     * @param pass
+     * @param isMiddleHash
+     * @param nodeToSelect
+     */
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
         if (isMiddleHash)
             CryptManager.initFromMiddleHash(pass, DataManager.getInstance());
@@ -515,6 +546,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         initStorage(nodeToSelect, true);
     }
 
+    /**
+     * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища
+     * @param node
+     * @param isDecrypt
+     */
     private void initStorage(TetroidNode node, boolean isDecrypt) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
@@ -528,8 +564,6 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                         Toast.LENGTH_LONG);
             }
             nodesListAdapter.notifyDataSetChanged();
-//            tagsListAdapter.onDataSetChanged();
-//            tagsListAdapter.setDataItems(DataManager.getTagsHashMap());
             tagsListAdapter.setDataItems(DataManager.getTags());
 
             if (node != null)
@@ -549,7 +583,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 //            showNode(node);
     }
 
-
+    /**
+     * Первоначальная инициализация списков веток, записей, файлов, меток
+     */
     private void initListViews() {
         // список веток
         this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
@@ -572,6 +608,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         tvTagsEmpty.setText(R.string.tags_is_missing);
     }
 
+    /**
+     * Открытие активности для первоначального выбора пути хранилища в файловой системе.
+     */
     void showFolderChooser() {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra("title", getString(R.string.folder_chooser_title));
@@ -694,11 +733,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      */
     private void changeToolBarByPage(int curPage) {
         if (curPage == MainViewPager.PAGE_MAIN) {
-            viewPagerAdapter.getMainFragment().restoreLastTitle();
-//            setRecordsSearchViewVisibility(true);
+            viewPagerAdapter.getMainFragment().restoreLastMainTooltipState();
+            setRecordsSearchViewVisibility(true);
         } else {
-            updateMainTooltip(null, MainPageFragment.VIEW_NONE);
-//            setRecordsSearchViewVisibility(false);
+            updateMainTooltip(MainPageFragment.VIEW_FOUND, null);
         }
     }
 
@@ -707,20 +745,28 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      * @param viewId
      */
     @Override
-    public void updateMainTooltip(String title, int viewId) {
-        boolean showRecordsSearch = false;
+    public void updateMainTooltip(int viewId, String title) {
+        boolean showRecordsSearch;
 
-        // ИСПРАВИТЬ NONE НА SEARCH
-
-        if (viewId == MainPageFragment.VIEW_NONE) {
-            title = getString(R.string.global_search_results);
-        } else if (viewId == MainPageFragment.VIEW_NODE_RECORDS) {
-            title = ((curNode != null) ? curNode.getName() : "");
-            showRecordsSearch = true;
-        } else if (viewId == MainPageFragment.VIEW_TAG_RECORDS) {
-//            title = ((curTag != null) ? curTag : "");
-            title = ((curTag != null) ? curTag.getName() : "");
-            showRecordsSearch = true;
+        switch (viewId) {
+            case MainPageFragment.VIEW_FOUND:
+                title = getString(R.string.title_global_search);
+                showRecordsSearch = false;
+                break;
+            case MainPageFragment.VIEW_NONE:
+                title = null;
+                showRecordsSearch = false;
+                break;
+            case MainPageFragment.VIEW_NODE_RECORDS:
+                title = ((curNode != null) ? curNode.getName() : "");
+                showRecordsSearch = true;
+                break;
+            case MainPageFragment.VIEW_TAG_RECORDS:
+                title = ((curTag != null) ? curTag.getName() : "");
+                showRecordsSearch = true;
+                break;
+            default:
+                showRecordsSearch = false;
         }
         setTitle(title);
         setViewTypeTitle(viewId);
@@ -728,7 +774,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     /**
-     * Переопределение заголовка активности.
+     * Установка заголовка активности.
      * @param title
      */
     @Override
@@ -737,22 +783,24 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     /**
-     * Заголовок типа активности.
+     * Установка заголовка типа активности.
      * @param viewId
      */
     private void setViewTypeTitle(int viewId) {
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
-        if (viewId > 0 && viewId < titles.length) {
+        // преобразуем идентификатор view в индекс заголовка
+        int titleId = viewId - 1;
+        if (titleId >= 0 && titleId < titles.length) {
             tvViewType.setVisibility(View.VISIBLE);
-            tvViewType.setText(titles[viewId]);
+            tvViewType.setText(titles[titleId]);
         }
-        else if (viewId == 0) {
+        else if (titleId < 0) {
             tvViewType.setVisibility(View.GONE);
         }
     }
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
-        recordsSearchView.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        miRecordsSearchView.setVisible(isVisible);
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
@@ -772,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
                     @Override
                     public void onApply() {
-                        startInitStorage();
+                        reinitStorage();
                     }
                     @Override
                     public void onCancel() {
@@ -799,8 +847,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             Message.show(this, getString(R.string.global_search_return_null));
             return;
         }
-        viewPagerAdapter.getFoundFragment().setFounds(found, scan.getQuery());
-
+        viewPagerAdapter.getFoundFragment().setFounds(found, scan);
         setFoundPageVisibility(true);
         viewPager.setCurrent(MainViewPager.PAGE_FOUND);
     }
@@ -831,6 +878,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     @Override
     public void closeFoundFragment() {
         setFoundPageVisibility(false);
+    }
+
+    @Override
+    public void openMainPage() {
+        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
 
     @Override
@@ -944,7 +996,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
             drawerLayout.closeDrawer(GravityCompat.END);
-        } else if (!viewPagerAdapter.getMainFragment().onBackPressed()) {
+        } else if (viewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
+                && !viewPagerAdapter.getMainFragment().onBackPressed()
+            || viewPager.getCurrentItem() == MainViewPager.PAGE_FOUND
+                && !viewPagerAdapter.getFoundFragment().onBackPressed()) {
             if (SettingsManager.isConfirmAppExit()) {
                 onExit();
             } else {

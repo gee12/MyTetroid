@@ -15,19 +15,18 @@ import java.util.regex.Pattern;
 public class ScanManager implements Parcelable {
 
     public static final String QUERY_SEPAR = " ";
-//    private DataManager dataManager;
 
     /**
-     * Словарь найденных объектов
+     * Словарь найденных объектов.
      */
     HashMap<ITetroidObject, FoundType> foundObjects = new HashMap<>();
 
     /**
-     * Запрос
+     * Запрос.
      */
     private String query;
     /**
-     * Источники поиска
+     * Источники поиска.
      */
     boolean inText;
     boolean inRecordsNames;
@@ -37,29 +36,26 @@ public class ScanManager implements Parcelable {
     boolean inNodes;
     boolean inFiles;
     /**
-     * Разбивать ли запрос на слова
+     * Разбивать ли запрос на слова.
      */
     private boolean isSplitToWords;
     /**
-     * Искать только целые слова
+     * Искать только целые слова.
      */
     private boolean isOnlyWholeWords;
     /**
-     * Искать только в текущей ветке
+     * Искать только в текущей ветке.
      */
     private boolean isSearchInNode;
 
+    /**
+     * Целевая ветка для поиска.
+     */
+    private TetroidNode node;
 
     public ScanManager(String query) {
         this.query = query;
     }
-
-//    public ScanManager(String query, boolean isSplitToWords, boolean isOnlyWholeWords, boolean isSearchInNode) {
-//        this.query = query;
-//        this.isSplitToWords = isSplitToWords;
-//        this.isOnlyWholeWords = isOnlyWholeWords;
-//        this.isSearchInNode = isSearchInNode;
-//    }
 
     protected ScanManager(Parcel in) {
         this.query = in.readString();
@@ -75,8 +71,8 @@ public class ScanManager implements Parcelable {
         this.isSearchInNode = in.readInt() == 1;
     }
 
-    public HashMap<ITetroidObject,FoundType> globalSearch(/*DataManager data, */TetroidNode node) {
-//        List<ITetroidObject> res = new ArrayList<>();
+    public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node) {
+        this.node = node;
 
         if (isSplitToWords) {
             for (String word : query.split(QUERY_SEPAR)) {
@@ -88,7 +84,7 @@ public class ScanManager implements Parcelable {
         return foundObjects;
     }
 
-    public HashMap<ITetroidObject,FoundType> globalSearch(/*DataManager data, */TetroidNode node, String query) {
+    public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node, String query) {
         List<TetroidNode> srcNodes;
         if (isSearchInNode) {
             if (node != null) {
@@ -107,7 +103,6 @@ public class ScanManager implements Parcelable {
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
         if (inTags && !isSearchInNode) {
-//            res.addAll(globalSearchInTags(DataManager.getTagsHashMap(), query, isOnlyWholeWords));
             searchInTags(DataManager.getTags(), query, isOnlyWholeWords);
         }
         return foundObjects;
@@ -408,6 +403,10 @@ public class ScanManager implements Parcelable {
 
     public boolean isSearchInNode() {
         return isSearchInNode;
+    }
+
+    public TetroidNode getNode() {
+        return node;
     }
 
     @Override

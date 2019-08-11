@@ -31,10 +31,12 @@ import com.gee12.mytetroid.views.TetroidFragment;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
 
+    public static final int VIEW_FOUND = -1;
     public static final int VIEW_NONE = 0;
     public static final int VIEW_NODE_RECORDS = 1;
     public static final int VIEW_RECORD_TEXT = 2;
@@ -105,6 +107,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.tbRecordFieldsExpander =  view.findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
+        this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
 
         return view;
@@ -124,30 +127,53 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param viewId
      */
     public void showView(int viewId) {
+        // сохраняем значение для возврата на старое View при нажатии Back
         this.lastViewId = this.curViewId;
         int whichChild = viewId;
         String title = null;
-        if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
-            title = ((curRecord != null) ? curRecord.getName() : "");
-        } else if (viewId == VIEW_TAG_RECORDS) {
-            // один контрол на записи ветки и метки
-            whichChild = VIEW_NODE_RECORDS;
-        } /*else if (viewId == VIEW_NONE) {
+        switch (viewId) {
             // для "очистки" активности выводим пустой список записей
-            whichChild = VIEW_NODE_RECORDS;
-        }*/
-        mainView.updateMainTooltip(title, viewId);
+            case MainPageFragment.VIEW_NONE:
+            // один контрол на записи ветки и метки
+            case MainPageFragment.VIEW_TAG_RECORDS:
+                whichChild = VIEW_NODE_RECORDS;
+                break;
+            case MainPageFragment.VIEW_RECORD_TEXT:
+            case MainPageFragment.VIEW_RECORD_FILES:
+                title = ((curRecord != null) ? curRecord.getName() : "");
+                break;
+//            case MainPageFragment.VIEW_TAG_RECORDS:
+                // один контрол на записи ветки и метки
+//                whichChild = VIEW_NODE_RECORDS;
+//                break;
+        }
+        mainView.updateMainTooltip(viewId, title);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild-1);
     }
 
-    public void restoreLastTitle() {
+    /**
+     * Восстанавливаем
+     */
+    public void restoreLastMainTooltipState() {
         String title = null;
-        int viewId = curViewId;
-        if (viewId == VIEW_RECORD_TEXT || viewId == VIEW_RECORD_FILES) {
-            title = ((curRecord != null) ? curRecord.getName() : "");
+        int restoredViewId = curViewId;
+        switch (restoredViewId) {
+            case MainPageFragment.VIEW_RECORD_TEXT:
+            case MainPageFragment.VIEW_RECORD_FILES:
+                title = ((curRecord != null) ? curRecord.getName() : "");
+            break;
         }
-        mainView.updateMainTooltip(title, viewId);
+        mainView.updateMainTooltip(restoredViewId, title);
+    }
+
+    public void clearView() {
+        showView(VIEW_NONE);
+        this.curRecord = null;
+        tvRecordsEmpty.setText(R.string.select_the_node);
+//        this.recordsListAdapter.setDataItems(new ArrayList<TetroidRecord>());
+        lvRecords.setAdapter(null);
+        lvFiles.setAdapter(null);
     }
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
@@ -352,6 +378,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         int curView = viewFlipper.getDisplayedChild() + 1;
         if (curView == VIEW_RECORD_TEXT) {
             res = true;
+            // смотрим какая страница была перед этим
             if (lastViewId == VIEW_NODE_RECORDS)
                 showView(VIEW_NODE_RECORDS);
             else

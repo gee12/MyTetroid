@@ -114,7 +114,8 @@
     <string name="search_other_options">Другие параметры:</string>
     <string name="found_mask">Найдено: %d</string>
     <string name="records_search_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
-    <string name="not_found">По запросу \"%s\" ничего не найдено..</string>
+    <string name="global_search_not_found">По запросу \"%s\" ничего не найдено..</string>
+    <string name="global_search_not_found_in_node">По запросу \"%s\" в ветке \"%s\" ничего не найдено..</string>
     <string name="show_node_records">Записи ветки</string>
     <string name="search_submit_title">Начать поиск</string>
     <string name="enter_query">Введите запрос для поиска</string>

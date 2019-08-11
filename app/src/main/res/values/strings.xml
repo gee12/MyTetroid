@@ -117,7 +117,7 @@
     <string name="nodes_is_missing">Nodes is missing</string>
     <string name="nodes_not_found">No nodes found for query \"%s\"..</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"..</string>
-    <string name="tags_not_found">No tagsString found for query \"%s\"..</string>
+    <string name="tags_not_found">No tags found for query \"%s\"..</string>
     <string name="search_tags_by_query">Search tagsString by query "%s"..</string>
     <string name="title_global_search">Global search</string>
     <string name="search_hint_input_query">Enter query</string>
@@ -132,7 +132,8 @@
     <string name="search_other_options">Other:</string>
     <string name="found_mask">Found: %d</string>
     <string name="records_search_select_tag">Select not an ampty tag or use the global search.</string>
-    <string name="not_found">No matches found for query \"%s\"..</string>
+    <string name="global_search_not_found">No matches found for query \"%s\"..</string>
+    <string name="global_search_not_found_in_node">No matches found for query \"%s\" in node \"%s\"..</string>
     <string name="show_node_records">Show node records</string>
     <string name="pref_key_search_text" translatable="false">pref_key_search_text</string>
     <string name="pref_key_search_records_names" translatable="false">pref_key_search_records_names</string>
