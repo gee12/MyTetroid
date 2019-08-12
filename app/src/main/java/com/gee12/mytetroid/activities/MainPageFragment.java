@@ -31,12 +31,11 @@ import com.gee12.mytetroid.views.TetroidFragment;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
 
-    public static final int VIEW_FOUND = -1;
+    public static final int VIEW_GLOBAL_FOUND = -1;
     public static final int VIEW_NONE = 0;
     public static final int VIEW_NODE_RECORDS = 1;
     public static final int VIEW_RECORD_TEXT = 2;
@@ -147,7 +146,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 //                whichChild = VIEW_NODE_RECORDS;
 //                break;
         }
-        mainView.updateMainTooltip(viewId, title);
+        mainView.updateMainToolbar(viewId, title);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild-1);
     }
@@ -164,7 +163,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 title = ((curRecord != null) ? curRecord.getName() : "");
             break;
         }
-        mainView.updateMainTooltip(restoredViewId, title);
+        mainView.updateMainToolbar(restoredViewId, title);
     }
 
     public void clearView() {
@@ -410,6 +409,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public int getCurViewId() {
         return curViewId;
+    }
+
+    public int getLastViewId() {
+        return lastViewId;
     }
 
     @Override

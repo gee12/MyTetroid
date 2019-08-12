@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
     private SearchView recordsSearchView;
+    private MenuItem miRecordsSearchView;
     private boolean isAlreadyTryDecrypt = false;
     private boolean isStorageLoaded = false;
 
@@ -194,161 +195,6 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
-    }
-
-    /**
-     *
-     * @param nodesHeader
-     */
-    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
-        final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
-        final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
-
-//        int searchCloseButtonId = searchView.getContext().getResources()
-//                .getIdentifier("android:id/search_close_btn", null, null);
-//        ImageView clearButton = (ImageView) searchView.findViewById(searchCloseButtonId);
-//        clearButton.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                EditText et = (EditText) findViewById(R.id.search_src_text);
-//
-//                //Clear the text from EditText view
-//                et.setText("");
-//
-//                //Clear query
-//                searchView.setQuery("", false);
-//                //Collapse the action view
-//                searchView.onActionViewCollapsed();
-//                //Collapse the search widget
-////                searchView.collapseActionView();
-//            }
-//        });
-
-        new SearchViewListener(nodesSearchView) {
-            @Override
-            public void OnClose() {
-                nodesListAdapter.setDataItems(DataManager.getRootNodes());
-                setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
-                tvHeader.setVisibility(View.VISIBLE);
-                ivIcon.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void OnSearch() {
-                tvHeader.setVisibility(View.GONE);
-                ivIcon.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onQuerySubmit(String query) {
-                LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
-                List<TetroidNode> found = ScanManager.searchInNodesNames(
-                        DataManager.getRootNodes(), query);
-                nodesListAdapter.setDataItems(found);
-                setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
-                        String.format(getString(R.string.nodes_not_found), query));
-            }
-        };
-    }
-
-    private void closeSearchView(SearchView search) {
-        search.setIconified(true);
-        search.setQuery("", false);
-    }
-
-    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, @StringRes int stringId) {
-        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
-        tvEmpty.setText(stringId);
-    }
-
-    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, String string) {
-        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
-        tvEmpty.setText(string);
-    }
-
-    /**
-     *
-     * @param tagsHeader
-     */
-    private void initTagsView(View tagsHeader) {
-        final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
-        new SearchViewListener(tagsSearchView) {
-            @Override
-            public void OnClose() {
-//                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
-                List<TetroidTag> tags = DataManager.getTags();
-                tagsListAdapter.setDataItems(tags);
-                if (tags.isEmpty())
-                    tvTagsEmpty.setText(R.string.tags_is_missing);
-                tvHeader.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void OnSearch() {
-                tvHeader.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onQuerySubmit(String query) {
-                LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-//                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
-//                        DataManager.getTagsHashMap(), query, false);
-                List<TetroidTag> found = ScanManager.searchInTags(
-                        DataManager.getTags(), query, false);
-                tagsListAdapter.setDataItems(found);
-                if (found.isEmpty())
-                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
-            }
-        };
-    }
-
-
-    private MenuItem miRecordsSearchView;
-    /**
-     * Виджет поиска по записям/файлам/тексту.
-     * @param menu
-     */
-    private void initRecordsSearchView(Menu menu) {
-        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
-        this.recordsSearchView = (SearchView) miRecordsSearchView.getActionView();
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        recordsSearchView.setIconifiedByDefault(true);
-
-        recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-//                List<TetroidRecord> records = (curNode != null) ? curNode.getRecords() : new ArrayList<TetroidRecord>();
-//                showRecords(records, MainPageFragment.VIEW_NODE_RECORDS);
-                onRecordsSearchClose();
-                return false;
-            }
-        });
-    }
-
-    private void onRecordsSearchClose() {
-        switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
-            case MainPageFragment.VIEW_NODE_RECORDS:
-                if (curNode != null) {
-                    showRecords(curNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
-                }
-                break;
-            case MainPageFragment.VIEW_TAG_RECORDS:
-                if (curTag != null) {
-                    showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
-                }
-                break;
-            case MainPageFragment.VIEW_RECORD_FILES:
-                TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
-                if (curRecord != null) {
-                    viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
-                }
-                break;
-            case MainPageFragment.VIEW_RECORD_TEXT:
-                // ?
-                break;
-        }
     }
 
     /**
@@ -655,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
-//        updateMainTooltip(viewId);
+//        updateMainToolbar(viewId);
         drawerLayout.closeDrawers();
         viewPager.setCurrent(MainViewPager.PAGE_MAIN);
         viewPagerAdapter.getMainFragment().showRecords(records, viewId);
@@ -729,6 +575,154 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
     /**
      *
+     * @param nodesHeader
+     */
+    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
+        final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
+        final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
+
+//        int searchCloseButtonId = searchView.getContext().getResources()
+//                .getIdentifier("android:id/search_close_btn", null, null);
+//        ImageView clearButton = (ImageView) searchView.findViewById(searchCloseButtonId);
+//        clearButton.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                EditText et = (EditText) findViewById(R.id.search_src_text);
+//
+//                //Clear the text from EditText view
+//                et.setText("");
+//
+//                //Clear query
+//                searchView.setQuery("", false);
+//                //Collapse the action view
+//                searchView.onActionViewCollapsed();
+//                //Collapse the search widget
+////                searchView.collapseActionView();
+//            }
+//        });
+
+        new SearchViewListener(nodesSearchView) {
+            @Override
+            public void OnClose() {
+                nodesListAdapter.setDataItems(DataManager.getRootNodes());
+                setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
+                tvHeader.setVisibility(View.VISIBLE);
+                ivIcon.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void OnSearch() {
+                tvHeader.setVisibility(View.GONE);
+                ivIcon.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
+                List<TetroidNode> found = ScanManager.searchInNodesNames(
+                        DataManager.getRootNodes(), query);
+                nodesListAdapter.setDataItems(found);
+                setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
+                        String.format(getString(R.string.nodes_not_found), query));
+            }
+        };
+    }
+
+    private void closeSearchView(SearchView search) {
+        search.setIconified(true);
+        search.setQuery("", false);
+    }
+
+    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, @StringRes int stringId) {
+        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        tvEmpty.setText(stringId);
+    }
+
+    private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, String string) {
+        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        tvEmpty.setText(string);
+    }
+
+    /**
+     *
+     * @param tagsHeader
+     */
+    private void initTagsView(View tagsHeader) {
+        final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
+        new SearchViewListener(tagsSearchView) {
+            @Override
+            public void OnClose() {
+//                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
+                List<TetroidTag> tags = DataManager.getTags();
+                tagsListAdapter.setDataItems(tags);
+                if (tags.isEmpty())
+                    tvTagsEmpty.setText(R.string.tags_is_missing);
+                tvHeader.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void OnSearch() {
+                tvHeader.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
+//                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
+//                        DataManager.getTagsHashMap(), query, false);
+                List<TetroidTag> found = ScanManager.searchInTags(
+                        DataManager.getTags(), query, false);
+                tagsListAdapter.setDataItems(found);
+                if (found.isEmpty())
+                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
+            }
+        };
+    }
+
+
+    /**
+     * Виджет поиска по записям/файлам/тексту.
+     * @param menu
+     */
+    private void initRecordsSearchView(Menu menu) {
+        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
+        this.recordsSearchView = (SearchView) miRecordsSearchView.getActionView();
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        recordsSearchView.setIconifiedByDefault(true);
+
+        recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
+                    case MainPageFragment.VIEW_NODE_RECORDS:
+                        if (curNode != null) {
+                            showRecords(curNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
+                        }
+                        break;
+                    case MainPageFragment.VIEW_TAG_RECORDS:
+                        if (curTag != null) {
+                            showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+                        }
+                        break;
+                    case MainPageFragment.VIEW_RECORD_FILES:
+                        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
+                        if (curRecord != null) {
+                            viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
+                        }
+                        break;
+                    case MainPageFragment.VIEW_RECORD_TEXT:
+                        // ?
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+    /**
+     *
      * @param curPage
      */
     private void changeToolBarByPage(int curPage) {
@@ -736,7 +730,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             viewPagerAdapter.getMainFragment().restoreLastMainTooltipState();
             setRecordsSearchViewVisibility(true);
         } else {
-            updateMainTooltip(MainPageFragment.VIEW_FOUND, null);
+            updateMainToolbar(MainPageFragment.VIEW_GLOBAL_FOUND, null);
         }
     }
 
@@ -745,11 +739,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      * @param viewId
      */
     @Override
-    public void updateMainTooltip(int viewId, String title) {
+    public void updateMainToolbar(int viewId, String title) {
         boolean showRecordsSearch;
 
         switch (viewId) {
-            case MainPageFragment.VIEW_FOUND:
+            case MainPageFragment.VIEW_GLOBAL_FOUND:
                 title = getString(R.string.title_global_search);
                 showRecordsSearch = false;
                 break;
@@ -763,6 +757,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 break;
             case MainPageFragment.VIEW_TAG_RECORDS:
                 title = ((curTag != null) ? curTag.getName() : "");
+                showRecordsSearch = true;
+                break;
+            case MainPageFragment.VIEW_FOUND_RECORDS:
                 showRecordsSearch = true;
                 break;
             default:
@@ -900,19 +897,30 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         }
     }
 
+    /**
+     * Вызывается при submit на RecordsSearchView (вместо пересоздания всей активности).
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
-        // search
+        // search in main page
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            search(query);
+            searchInMainPage(query);
         }
     }
 
-    private void search(String query) {
+    /**
+     * Поиск по записям, меткам, файлам, тексту записи.
+     * @param query
+     */
+    private void searchInMainPage(String query) {
         TetroidSuggestionProvider.SaveRecentQuery(this, query);
+        searchInMainPage(query, viewPagerAdapter.getMainFragment().getCurViewId());
+    }
 
-        switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
+    private void searchInMainPage(String query, int viewId) {
+        switch (viewId) {
             case MainPageFragment.VIEW_NODE_RECORDS:
                 searchInNodeRecords(query);
                 break;
@@ -924,6 +932,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 break;
             case MainPageFragment.VIEW_RECORD_TEXT:
                 searchInRecordText(query);
+                break;
+            case MainPageFragment.VIEW_FOUND_RECORDS:
+                searchInMainPage(query, viewPagerAdapter.getMainFragment().getLastViewIdBeforeSearch());
                 break;
         }
     }
