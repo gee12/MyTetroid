@@ -698,7 +698,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
                     case MainPageFragment.VIEW_NODE_RECORDS:
                         if (curNode != null) {
-                            showRecords(curNode.getRecords(), MainPageFragment.VIEW_FOUND_RECORDS);
+                            showRecords(curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
                         }
                         break;
                     case MainPageFragment.VIEW_TAG_RECORDS:
@@ -934,7 +934,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 searchInRecordText(query);
                 break;
             case MainPageFragment.VIEW_FOUND_RECORDS:
-                searchInMainPage(query, viewPagerAdapter.getMainFragment().getLastViewIdBeforeSearch());
+                searchInMainPage(query, viewPagerAdapter.getMainFragment().getLastViewId());
                 break;
         }
     }

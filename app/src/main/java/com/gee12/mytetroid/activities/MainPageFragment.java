@@ -126,8 +126,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param viewId
      */
     public void showView(int viewId) {
-        // сохраняем значение для возврата на старое View при нажатии Back
-        this.lastViewId = this.curViewId;
+        // сохраняем значение для возврата на старое View
+        // (только, если осуществляется переключение на действительно другую вьюшку)
+        if (viewId != curViewId)
+            this.lastViewId = curViewId;
         int whichChild = viewId;
         String title = null;
         switch (viewId) {
@@ -414,6 +416,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public int getLastViewId() {
         return lastViewId;
     }
+
+//    public int getLastViewIdBeforeSearch() {
+//        return lastViewId;
+//    }
 
     @Override
     public String getTitle() {
