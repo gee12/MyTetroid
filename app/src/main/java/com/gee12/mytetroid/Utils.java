@@ -55,7 +55,7 @@ public class Utils {
         try {
             convertedDate = dateFormat.parse(dateString);
         } catch (ParseException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return convertedDate;
     }

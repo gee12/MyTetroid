@@ -52,7 +52,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-//    protected TreeMap<String,List<TetroidRecord>> tagsMap;
     private TreeMap<String,TetroidTag> tagsMap;
     protected List<TetroidTag> tagsList;
 
@@ -67,7 +66,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         this.decryptCallback = decryptHandler;
         this.rootNodesList = new ArrayList<>();
         this.tagsMap = new TreeMap<>(tagsComparator);
-//        this.tagsList = new ArrayList<>();
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -129,7 +127,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
         this.rootNodesList = nodes;
-//        return nodes;
         return true;
     }
 
