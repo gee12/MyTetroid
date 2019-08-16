@@ -105,10 +105,12 @@
     <string name="start_storage_loading">Start storage loading: </string>
     <string name="search_records_hint">Records search</string>
     <string name="title_search_records">Records search</string>
-    <string name="records_search_select_node">Select not an ampty branch or use the global search.</string>
-    <string name="records_not_found">No records found for query \"%s\" in node [%s]..</string>
+    <string name="records_search_select_node">Select not an empty branch or use the global search.</string>
+    <string name="records_in_node_not_found">No records found for query \"%s\" in node [%s]..</string>
+    <string name="records_in_tag_not_found">No records found for query \"%s\" in tag [%s]..</string>
     <string name="files_not_found">No files found for query \"%s\"..</string>
-    <string name="search_records_by_query">Search records in node [%s] by query "%s"</string>
+    <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
+    <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
     <string name="search_files_by_query">Search files in record [%s] by query "%s"</string>
     <string name="search_text_by_query">Search text in record [%s] by query "%s"</string>
     <string name="tags_search_hint">Tags search</string>
@@ -118,7 +120,7 @@
     <string name="nodes_not_found">No nodes found for query \"%s\"..</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"..</string>
     <string name="tags_not_found">No tags found for query \"%s\"..</string>
-    <string name="search_tags_by_query">Search tagsString by query "%s"..</string>
+    <string name="search_tags_by_query">Search tags by query "%s"..</string>
     <string name="title_global_search">Global search</string>
     <string name="search_hint_input_query">Enter query</string>
     <string name="search_search_in">Search in:</string>
@@ -131,7 +133,7 @@
     <string name="search_in_file_names">File name</string>
     <string name="search_other_options">Other:</string>
     <string name="found_mask">Found: %d</string>
-    <string name="records_search_select_tag">Select not an ampty tag or use the global search.</string>
+    <string name="records_search_select_tag">Select not an empty tag or use the global search.</string>
     <string name="global_search_not_found">No matches found for query \"%s\"..</string>
     <string name="global_search_not_found_in_node">No matches found for query \"%s\" in node \"%s\"..</string>
     <string name="show_node_records">Show node records</string>

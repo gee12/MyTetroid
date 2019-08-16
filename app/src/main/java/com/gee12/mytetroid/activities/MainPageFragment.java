@@ -179,11 +179,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
         showView(viewId);
-//        if (viewId == VIEW_NODE_RECORDS)
-            tvRecordsEmpty.setText(R.string.records_is_missing);
-//        else
-//            tvRecordsEmpty.setText(R.string.);
-
+        tvRecordsEmpty.setText(R.string.records_is_missing);
         this.recordsListAdapter.setDataItems(records);
         lvRecords.setAdapter(recordsListAdapter);
     }
@@ -193,9 +189,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param position Индекс записи в списке записей
      */
     private void showRecord(int position) {
-//        TetroidRecord record = (curViewId == VIEW_NODE_RECORDS)
-//                ? currentNode.getRecords().get(position)
-//                : DataManager.getTagsHashMap().get(currentTag).get(position);
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
         showRecord(record);
     }

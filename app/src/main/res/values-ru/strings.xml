@@ -88,9 +88,11 @@
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
-    <string name="records_not_found">По запросу \"%s\" в ветке [%s] не найдено записей..</string>
+    <string name="records_in_node_not_found">По запросу \"%s\" в ветке [%s] не найдено записей..</string>
+    <string name="records_in_tag_not_found">По запросу \"%s\" в записях метки [%s] не найдено записей..</string>
     <string name="files_not_found">По запросу \"%s\" не найдено файлов..</string>
-    <string name="search_records_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
+    <string name="search_records_in_node_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
+    <string name="search_records_in_tag_by_query">Поиск в записях метки [%s] по запросу "%s"</string>
     <string name="search_files_by_query">Поиск файлов в записи [%s] по запросу "%s"</string>
     <string name="search_text_by_query">Поиск текста в записи [%s] по запросу "%s"</string>
     <string name="tags_search_hint">Поиск по меткам</string>

@@ -941,7 +941,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
     private void searchInNodeRecords(String query) {
         if (curNode != null) {
-            searchInRecords(query, curNode.getRecords());
+            searchInRecords(query, curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
         } else {
             LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
         }
@@ -949,20 +949,25 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
     private void searchInTagRecords(String query) {
         if (curTag != null) {
-            searchInRecords(query, curTag.getRecords());
+            searchInRecords(query, curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
         } else {
             LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
         }
     }
 
-    private void searchInRecords(String query, List<TetroidRecord> records) {
-            LogManager.addLog(String.format(getString(R.string.search_records_by_query), curNode.getName(), query));
-            List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
-            if (found.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, curNode.getName()));
-                viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(
-                        String.format(getString(R.string.records_not_found), query, curNode.getName()));
-            showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
+    private void searchInRecords(String query, List<TetroidRecord> records, int viewId) {
+        String log = (viewId == MainPageFragment.VIEW_NODE_RECORDS)
+                ? String.format(getString(R.string.search_records_in_node_by_query), curNode.getName(), query)
+                : String.format(getString(R.string.search_records_in_tag_by_query), curTag.getName(), query);
+        LogManager.addLog(log);
+        List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
+        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
+        if (found.isEmpty()) {
+            String emptyText = (viewId == MainPageFragment.VIEW_NODE_RECORDS)
+                    ? String.format(getString(R.string.records_in_node_not_found), query, curNode.getName())
+                    : String.format(getString(R.string.records_in_tag_not_found), query, curTag.getName());
+            viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(emptyText);
+        }
     }
 
     private void searchInRecordFiles(String query) {
@@ -977,11 +982,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
-        if (found.isEmpty())
-//                    tvRecordsEmpty.setText(String.format(getString(R.string.records_not_found), query, curNode.getName()));
+        viewPagerAdapter.getMainFragment().showRecordFiles(found);
+        if (found.isEmpty()) {
             viewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.files_not_found), query));
-        viewPagerAdapter.getMainFragment().showRecordFiles(found);
+        }
     }
 
     private void searchInRecordText(String query) {
