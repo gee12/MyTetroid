@@ -157,7 +157,7 @@ public class SearchActivity extends AppCompatActivity {
         if (id == R.id.action_query_submit) {
             if (Utils.isNullOrEmpty(etQuery.getText().toString())) {
                 Message.show(this, getString(R.string.enter_query));
-            } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.pref_key_search_in_cur_node))
+            } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.global_search_in_cur_node))
                 && !isCurNodeNotNull) {
                 Message.show(this, getString(R.string.cur_node_is_not_selected));
             } else {

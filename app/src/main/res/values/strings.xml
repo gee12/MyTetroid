@@ -154,4 +154,5 @@
     <string name="global_search_return_null">Some error in global search..</string>
     <string name="cur_node_is_not_selected">Current node is not selected</string>
     <!--<string name="title_activity_found">Found</string>-->
+    <string name="global_search_in_cur_node">In current node</string>
 </resources>

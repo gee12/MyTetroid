@@ -22,7 +22,7 @@
     </string-array>
     <string-array name="search_in_cur_node">
         <item name="search_all_database">Search all database</item>
-        <item name="search_cur_node">In current node</item>
+        <item>@string/global_search_in_cur_node</item>
     </string-array>
     <string-array name="found_types">
         <item>Record name</item>

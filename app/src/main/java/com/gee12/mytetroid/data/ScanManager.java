@@ -19,7 +19,7 @@ public class ScanManager implements Parcelable {
     /**
      * Словарь найденных объектов.
      */
-    HashMap<ITetroidObject, FoundType> foundObjects = new HashMap<>();
+    HashMap<ITetroidObject, FoundType> foundObjects;
 
     /**
      * Запрос.
@@ -32,6 +32,12 @@ public class ScanManager implements Parcelable {
     boolean inRecordsNames;
     boolean inAuthor;
     boolean inUrl;
+
+    /**
+     * Поиск по меткам.
+     * Тип поиска 1 - добавление в результат самих меток.
+     * Тип поиска 2 - добавление в результат записей меток.
+     */
     boolean inTags;
     boolean inNodes;
     boolean inFiles;
@@ -72,6 +78,7 @@ public class ScanManager implements Parcelable {
     }
 
     public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node) {
+        this.foundObjects = new HashMap<>();
         this.node = node;
 
         if (isSplitToWords) {
@@ -91,20 +98,24 @@ public class ScanManager implements Parcelable {
                 srcNodes = new ArrayList<>();
                 srcNodes.add(node);
             } else {
-                return null;
+                return foundObjects;
             }
         } else {
             srcNodes = DataManager.getRootNodes();
         }
+        String regex = buildRegex(query);
         // поиск по веткам, записям, реквизитам записей, файлам
-        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles;
+        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles
+                // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
+                || inTags;
         if (inNodes || inRecords) {
-            searchInNodes(srcNodes, query, isOnlyWholeWords, inRecords);
+            globalSearchInNodes(srcNodes, regex, isOnlyWholeWords, inRecords);
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
-        if (inTags && !isSearchInNode) {
-            searchInTags(DataManager.getTags(), query, isOnlyWholeWords);
-        }
+        // 2 - если используем тип (2), то комментируем
+//        if (inTags && !isSearchInNode) {
+//            globalSearchInTags(DataManager.getTags(), regex, isOnlyWholeWords);
+//        }
         return foundObjects;
     }
 
@@ -146,9 +157,8 @@ public class ScanManager implements Parcelable {
     }
 
 
-    public void searchInNodes(List<TetroidNode> nodes, String query,
-                                              boolean isOnlyWholeWords, boolean inRecords) {
-        String regex = buildRegex(query);
+    public void globalSearchInNodes(List<TetroidNode> nodes, String regex,
+                                    boolean isOnlyWholeWords, boolean inRecords) {
         for (TetroidNode node : nodes) {
             if (!node.isNonCryptedOrDecrypted())
                 continue;
@@ -156,10 +166,10 @@ public class ScanManager implements Parcelable {
                 addFoundObject(node, FoundType.TYPE_NODE);
             }
             if (inRecords && node.getRecordsCount() > 0) {
-                searchInRecords(node.getRecords(), query, isOnlyWholeWords);
+                globalSearchInRecords(node.getRecords(), regex, isOnlyWholeWords);
             }
             if (node.getSubNodesCount() > 0) {
-                searchInNodes(node.getSubNodes(), query, isOnlyWholeWords, inRecords);
+                globalSearchInNodes(node.getSubNodes(), regex, isOnlyWholeWords, inRecords);
             }
         }
     }
@@ -167,12 +177,11 @@ public class ScanManager implements Parcelable {
     /**
      * Поиск по названиям записей.
      * @param srcRecords
-     * @param query
+     * @param regex
      * @return
      */
-    public void searchInRecords(
-            List<TetroidRecord> srcRecords, String query, boolean isOnlyWholeWords) {
-        String regex = buildRegex(query);
+    public void globalSearchInRecords(
+            List<TetroidRecord> srcRecords, String regex, boolean isOnlyWholeWords) {
         for (TetroidRecord record : srcRecords) {
             // поиск по именам записей
             if (inRecordsNames && record.getName().matches(regex)) {
@@ -188,7 +197,7 @@ public class ScanManager implements Parcelable {
             }
             // поиск по файлам записи
             if (inFiles && record.getAttachedFilesCount() > 0) {
-                searchInFiles(record.getAttachedFiles(), query, isOnlyWholeWords);
+                globalSearchInFiles(record.getAttachedFiles(), regex, isOnlyWholeWords);
             }
             // поиск по тексту записи (читаем текст html файла)
             if (inText) {
@@ -198,9 +207,14 @@ public class ScanManager implements Parcelable {
                 }
             }
             // поиск по меткам (только если указана ветка для поиска)
-            if (inTags && isSearchInNode) {
-//                found.addAll(searchInRecordTags(record.getTags(), query, isOnlyWholeWords));
-                searchInTags(record.getTags(), query, isOnlyWholeWords);
+            // 2 - комментируем isSearchInNode, если используем тип (2)
+            if (inTags /*&& isSearchInNode*/) {
+                // 1 - добавляем саму метку в результат
+//                globalSearchInTags(record.getTags(), query, isOnlyWholeWords);
+                // 2 - добавляем запись, содержащую метку
+                if (record.getTagsString().matches(regex)) {
+                    addFoundObject(record, FoundType.TYPE_TAG);
+                }
             }
         }
     }
@@ -227,11 +241,9 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public <T extends ITetroidObject>  List<T> searchInFiles(
-            List<TetroidFile> srcFiles, String query, boolean isOnlyWholeWords)
-    {
+    public <T extends ITetroidObject>  List<T> globalSearchInFiles(
+            List<TetroidFile> srcFiles, String regex, boolean isOnlyWholeWords) {
         List<T> found = new ArrayList<>();
-        String regex = buildRegex(query);
         for (TetroidFile file : srcFiles) {
             if (file.getName().matches(regex)) {
                 addFoundObject(file, FoundType.TYPE_FILE);
@@ -271,18 +283,19 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-//    public static List<TetroidTag> globalSearchInTags(
-//            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
-//        List<TetroidTag> found = new ArrayList<>();
-//        String regex = buildRegex(query);
-//        for (TetroidTag tagEntry : tagsMap.values()) {
-//            if (tagEntry.getName().matches(regex)) {
-//                tagEntry.addFoundType(ITetroidObject.TYPE_TAG);
-//                found.add(tagEntry);
-//            }
-//        }
-//        return found;
-//    }
+    public void globalSearchInTags(
+            List<TetroidTag> tags, String regex, boolean isOnlyWholeWords) {
+        for (TetroidTag tagEntry : tags) {
+            if (tagEntry.getName().matches(regex)) {
+                // 1 - добавляем саму метку в результат
+//                addFoundObject(tagEntry, FoundType.TYPE_TAG);
+                // 2 - добавляем записи метки в результат
+                for (TetroidRecord record : tagEntry.getRecords()) {
+                    addFoundObject(record, FoundType.TYPE_TAG);
+                }
+            }
+        }
+    }
 
 //    /**
 //     * Поиск по именам меток, указанные в записи.
