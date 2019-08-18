@@ -26,7 +26,7 @@
     </string-array>
     <string-array name="found_types">
         <item>Record name</item>
-        <item>Record text</item>
+        <item>Text</item>
         <item>Author</item>
         <item>Url</item>
         <item>File</item>

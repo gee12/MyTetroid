@@ -42,7 +42,7 @@ public class TetroidRecord implements ITetroidObject {
 //    }
 
     public TetroidRecord(boolean crypt, String id, String name, String tagsString, String author, String url,
-                         Date created, String dirName, String fileName, List<TetroidFile> files) {
+                         Date created, String dirName, String fileName/*, List<TetroidFile> files*/) {
         this.isCrypted = crypt;
         this.id = id;
         this.name = name;
@@ -52,7 +52,8 @@ public class TetroidRecord implements ITetroidObject {
         this.created = created;
         this.dirName = dirName;
         this.fileName = fileName;
-        this.files = files;
+//        this.files = files;
+        this.files = new ArrayList<>();
         this.tags = new ArrayList<>();
     }
 
@@ -91,13 +92,13 @@ public class TetroidRecord implements ITetroidObject {
 //        return htmlContent;
 //    }
 
-    /**
-     * Получение пути к файлу с содержимым записи.
-     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
-     * @param storagePath
-     * @param tempPath
-     * @return
-     */
+//    /**
+//     * Получение пути к файлу с содержимым записи.
+//     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
+//     * @param storagePath
+//     * @param tempPath
+//     * @return
+//     */
     /*public String getRecordTextUri(String storagePath, String tempPath) {
         String path = (isCrypted && isNonCryptedOrDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -134,6 +135,10 @@ public class TetroidRecord implements ITetroidObject {
 
     public boolean isCrypted() {
         return isCrypted;
+    }
+
+    public List<TetroidTag> getTags() {
+        return tags;
     }
 
     /**
@@ -188,11 +193,7 @@ public class TetroidRecord implements ITetroidObject {
         tags.add(tag);
     }
 
-    public List<TetroidTag> getTags() {
-        return tags;
+    public void setFiles(List<TetroidFile> files) {
+        this.files = files;
     }
-
-//    public void setDateFormat(String format) {
-//        this.dateFormat = new SimpleDateFormat(format);
-//    }
 }

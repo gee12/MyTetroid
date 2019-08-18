@@ -42,7 +42,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
@@ -839,12 +838,15 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      * @param scan
      */
     private void startGlobalSearch(ScanManager scan) {
+        LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
         HashMap<ITetroidObject,FoundType> found = scan.globalSearch(curNode);
         if (found == null) {
-            Message.show(this, getString(R.string.global_search_return_null));
+            LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
             return;
         }
+        LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
         viewPagerAdapter.getFoundFragment().setFounds(found, scan);
+        viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
         setFoundPageVisibility(true);
         viewPager.setCurrent(MainViewPager.PAGE_FOUND);
     }
@@ -860,7 +862,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
                 viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
                 break;
             case FoundType.TYPE_FILE:
-                viewPagerAdapter.getMainFragment().showRecordFiles((TetroidRecord)found);
+                viewPagerAdapter.getMainFragment().showRecordFiles(((TetroidFile)found).getRecord());
                 break;
             case FoundType.TYPE_NODE:
                 showNode((TetroidNode)found);
@@ -982,7 +984,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
-        viewPagerAdapter.getMainFragment().showRecordFiles(found);
+        viewPagerAdapter.getMainFragment().showRecordFiles(found, record);
         if (found.isEmpty()) {
             viewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.files_not_found), query));

@@ -4,11 +4,13 @@ public class TetroidFile implements ITetroidObject {
     private String id;
     private String name;
     private String fileType;
+    private TetroidRecord record;
 
-    public TetroidFile(String id, String name, String fileType) {
+    public TetroidFile(String id, String name, String fileType, TetroidRecord record) {
         this.id = id;
         this.name = name;
         this.fileType = fileType;
+        this.record = record;
     }
 
     @Override
@@ -32,5 +34,9 @@ public class TetroidFile implements ITetroidObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public TetroidRecord getRecord() {
+        return record;
     }
 }

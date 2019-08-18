@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 
 public class LogManager {
 
@@ -63,7 +62,7 @@ public class LogManager {
         if (isWriteToFile)
             writeToFile(typeTag + s);
         if (duration >= 0)
-            showToast(s, duration);
+            showMessage(s, duration);
     }
 
     public static void addLog(String s, Types type, int duration) {
@@ -106,8 +105,9 @@ public class LogManager {
         addLog(s + getExceptionInfo(ex), Types.ERROR, duration);
     }
 
-    public static void showToast(String s, int duration) {
-        Toast.makeText(context, s, duration).show();
+    public static void showMessage(String s, int duration) {
+//        Toast.makeText(context, s, duration).show();
+        Message.show(context, s, duration);
     }
 
     private static void addLogWithoutFile(Exception ex, int duration) {

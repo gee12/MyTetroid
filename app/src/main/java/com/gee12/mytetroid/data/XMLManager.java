@@ -75,7 +75,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         } finally {
             in.close();
             this.tagsList = new ArrayList<>(tagsMap.values());
-            this.tagsMap = null;
+//            this.tagsMap = null;
         }
     }
 
@@ -269,6 +269,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             dirName = parser.getAttributeValue(ns, "dir");
             fileName = parser.getAttributeValue(ns, "file");
         }
+        TetroidRecord record = new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName);
 //        parser.nextTag();
 //        parser.require(XmlPullParser.END_TAG, ns, "record");
         // файлы
@@ -279,16 +280,19 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             tagName = parser.getName();
             if (tagName.equals("files")) {
-                files = readFiles(parser);
+                files = readFiles(parser, record);
             } else {
                 skip(parser);
             }
         }
+        if (files != null) {
+            record.setFiles(files);
+        }
         parser.require(XmlPullParser.END_TAG, ns, "record");
-        return new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, files);
+        return record;
     }
 
-    private List<TetroidFile> readFiles(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private List<TetroidFile> readFiles(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
         List<TetroidFile> files = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, ns, "files");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -297,7 +301,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             String tagName = parser.getName();
             if (tagName.equals("file")) {
-                files.add(readFile(parser));
+                files.add(readFile(parser, record));
             } else {
                 skip(parser);
             }
@@ -305,7 +309,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return files;
     }
 
-    private TetroidFile readFile(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private TetroidFile readFile(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
         String id = null;
         String fileName = null;
         String type = null;
@@ -319,7 +323,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
         parser.nextTag();
         parser.require(XmlPullParser.END_TAG, ns, "file");
-        return new TetroidFile(id, fileName, type);
+        return new TetroidFile(id, fileName, type, record);
     }
 
     /**

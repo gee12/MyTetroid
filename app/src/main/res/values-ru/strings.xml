@@ -126,4 +126,6 @@
     <string name="cur_node_is_not_selected">Текущая ветка не выбрана</string>
     <!--<string name="title_activity_found">Найдено</string>-->
     <string name="global_search_in_cur_node">В текущей ветке</string>
+    <string name="global_search_start">Запуск глобального поиска по запросу \"%s\"</string>
+    <string name="global_search_end">Глобальный поиск закончен. Найдено \"%d\" объектов</string>
 </resources>

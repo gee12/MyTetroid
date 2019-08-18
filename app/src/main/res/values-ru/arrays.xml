@@ -22,7 +22,7 @@
     </string-array>
     <string-array name="found_types">
         <item>Имя записи</item>
-        <item>Текст записи</item>
+        <item>Текст</item>
         <item>Автор</item>
         <item>Url</item>
         <item>Файл</item>

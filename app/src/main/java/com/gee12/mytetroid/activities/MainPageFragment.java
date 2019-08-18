@@ -172,7 +172,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         showView(VIEW_NONE);
         this.curRecord = null;
         tvRecordsEmpty.setText(R.string.select_the_node);
-//        this.recordsListAdapter.setDataItems(new ArrayList<TetroidRecord>());
         lvRecords.setAdapter(null);
         lvFiles.setAdapter(null);
     }
@@ -250,7 +249,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param position Индекс записи в списке записей ветки
      */
     private void showRecordFiles(int position) {
-//        TetroidRecord record = currentNode.getRecords().get(position);
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
         showRecordFiles(record);
     }
@@ -261,13 +259,12 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      */
     public void showRecordFiles(TetroidRecord record) {
         this.curRecord = record;
-        showRecordFiles(record.getAttachedFiles());
-//        setTitle(record.getName());
+        showRecordFiles(record.getAttachedFiles(), record);
     }
 
-    public void showRecordFiles(List<TetroidFile> files) {
+    public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
         showView(VIEW_RECORD_FILES);
-        this.filesListAdapter.reset(files);
+        this.filesListAdapter.reset(files, record);
         lvFiles.setAdapter(filesListAdapter);
     }
 
@@ -375,8 +372,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             // смотрим какая страница была перед этим
             if (lastViewId == VIEW_NODE_RECORDS)
                 showView(VIEW_NODE_RECORDS);
-            else
+            else if (lastViewId == VIEW_TAG_RECORDS)
                 showView(VIEW_TAG_RECORDS);
+            else
+                showView(VIEW_NONE);
         } else if (curView == VIEW_RECORD_FILES) {
             res = true;
             // смотрим какая страница была перед этим
@@ -384,8 +383,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 showView(VIEW_RECORD_TEXT);
             else if (lastViewId == VIEW_NODE_RECORDS)
                 showView(VIEW_NODE_RECORDS);
-            else
+            else if (lastViewId == VIEW_TAG_RECORDS)
                 showView(VIEW_TAG_RECORDS);
+            else
+                showView(VIEW_NONE);
         }
         return res;
     }

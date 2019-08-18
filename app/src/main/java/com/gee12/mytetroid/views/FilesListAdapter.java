@@ -38,14 +38,9 @@ public class FilesListAdapter extends BaseAdapter {
         this.dataSet = new ArrayList<>();
     }
 
-    public void reset(TetroidRecord record) {
-        this.dataSet = record.getAttachedFiles();
-        this.record = record;
-        notifyDataSetChanged();
-    }
-
-    public void reset(List<TetroidFile> data) {
+    public void reset(List<TetroidFile> data, TetroidRecord record) {
         this.dataSet = data;
+        this.record = record;
         notifyDataSetChanged();
     }
 
