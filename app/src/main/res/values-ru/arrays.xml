@@ -10,10 +10,10 @@
     </string-array>
     <string-array name="search_split_to_words">
         <item name="search_any_word">Поиск по каждому слову в запросе</item>
-        <item name="search_all_words">Запрос целиком</item>
+        <item name="search_all_words">По запросу целиком</item>
     </string-array>
     <string-array name="search_in_whole_words">
-        <item name="search_whole_word">Поиск по совпадению только целых слов</item>
+        <item name="search_whole_word">По целым словам</item>
         <item name="search_substring">По подстрокам</item>
     </string-array>
     <string-array name="search_in_cur_node">

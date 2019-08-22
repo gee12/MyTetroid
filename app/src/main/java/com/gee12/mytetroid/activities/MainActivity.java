@@ -671,7 +671,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 //                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
 //                        DataManager.getTagsHashMap(), query, false);
                 List<TetroidTag> found = ScanManager.searchInTags(
-                        DataManager.getTags(), query, false);
+                        DataManager.getTags(), query);
                 tagsListAdapter.setDataItems(found);
                 if (found.isEmpty())
                     tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));

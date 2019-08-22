@@ -60,7 +60,6 @@ public class SearchActivity extends AppCompatActivity {
 
         initSpinner(spSplitToWords, R.array.search_split_to_words);
         initSpinner(spInWholeWords, R.array.search_in_whole_words);
-        spInWholeWords.setEnabled(false);
         initSpinner(spInCurrentNode, R.array.search_in_cur_node);
 
         readSearchPrefs();
