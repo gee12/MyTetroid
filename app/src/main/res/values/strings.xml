@@ -53,7 +53,8 @@
     <string name="pref_key_date_format_string" translatable="false">pref_key_date_format_string</string>
     <string name="pref_date_format_string">Date format string</string>
     <string name="pref_date_format_string_summ">Format string for created date/time display</string>
-    <string name="def_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
+    <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
+    <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
     <string name="folder_chooser_title">Storage folder</string>
     <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="title_about_app">About app</string>
@@ -157,4 +158,5 @@
     <string name="global_search_in_cur_node">In current node</string>
     <string name="global_search_start">Global search started by query \"%s\"</string>
     <string name="global_search_end">Global search end. Found \"%d\" objects</string>
+    <string name="global_search_by_node_result">Search results by node \"%s\"</string>
 </resources>

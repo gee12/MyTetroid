@@ -42,6 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
@@ -618,14 +619,18 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
-                LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
-                List<TetroidNode> found = ScanManager.searchInNodesNames(
-                        DataManager.getRootNodes(), query);
-                nodesListAdapter.setDataItems(found);
-                setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
-                        String.format(getString(R.string.nodes_not_found), query));
+                searchInNodesNames(query);
             }
         };
+    }
+
+    private void searchInNodesNames(String query) {
+        LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
+        List<TetroidNode> found = ScanManager.searchInNodesNames(
+                DataManager.getRootNodes(), query);
+        nodesListAdapter.setDataItems(found);
+        setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
+                String.format(getString(R.string.nodes_not_found), query));
     }
 
     private void closeSearchView(SearchView search) {
@@ -652,11 +657,7 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         new SearchViewListener(tagsSearchView) {
             @Override
             public void OnClose() {
-//                TreeMap<String, TetroidTag> tags = DataManager.getTagsHashMap();
-                List<TetroidTag> tags = DataManager.getTags();
-                tagsListAdapter.setDataItems(tags);
-                if (tags.isEmpty())
-                    tvTagsEmpty.setText(R.string.tags_is_missing);
+                searchInTags(null, false);
                 tvHeader.setVisibility(View.VISIBLE);
             }
 
@@ -667,16 +668,24 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
-                LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
-//                TreeMap<String, TetroidTag> found = ScanManager.searchInTags(
-//                        DataManager.getTagsHashMap(), query, false);
-                List<TetroidTag> found = ScanManager.searchInTags(
-                        DataManager.getTags(), query);
-                tagsListAdapter.setDataItems(found);
-                if (found.isEmpty())
-                    tvTagsEmpty.setText(String.format(getString(R.string.tags_not_found), query));
+                searchInTags(query, true);
             }
         };
+    }
+
+    private void searchInTags(String query, boolean isSearch) {
+        List<TetroidTag> tags;
+        if (isSearch) {
+            LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
+            tags = ScanManager.searchInTags(DataManager.getTags(), query);
+        } else {
+            tags = DataManager.getTags();
+        }
+        tagsListAdapter.setDataItems(tags);
+        if (tags.isEmpty())
+            tvTagsEmpty.setText((isSearch)
+                    ? String.format(getString(R.string.tags_not_found), query)
+                    : getString(R.string.tags_is_missing));
     }
 
 
@@ -843,6 +852,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         if (found == null) {
             LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
             return;
+        } else if (scan.isSearchInNode() && scan.getNode() != null) {
+            Message.show(this, String.format(getString(R.string.global_search_by_node_result),
+                    scan.getNode().getName()), Toast.LENGTH_LONG);
         }
         LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
         viewPagerAdapter.getFoundFragment().setFounds(found, scan);

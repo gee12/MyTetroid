@@ -59,10 +59,18 @@ public class ScanManager implements Parcelable {
      */
     private TetroidNode node;
 
+    /**
+     *
+     * @param query
+     */
     public ScanManager(String query) {
         this.query = query;
     }
 
+    /**
+     *
+     * @param in
+     */
     protected ScanManager(Parcel in) {
         this.query = in.readString();
         this.inText = in.readInt() == 1;
@@ -77,6 +85,11 @@ public class ScanManager implements Parcelable {
         this.isSearchInNode = in.readInt() == 1;
     }
 
+    /**
+     * Глобальный поиск.
+     * @param node
+     * @return
+     */
     public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node) {
         this.foundObjects = new HashMap<>();
         this.node = node;
@@ -91,7 +104,13 @@ public class ScanManager implements Parcelable {
         return foundObjects;
     }
 
-    public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node, String query) {
+    /**
+     * Глобальный поиск
+     * @param node
+     * @param query
+     * @return
+     */
+    private HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node, String query) {
         List<TetroidNode> srcNodes;
         if (isSearchInNode) {
             if (node != null) {
@@ -120,44 +139,41 @@ public class ScanManager implements Parcelable {
     }
 
     /**
-     * Поиск по названиям веток.
+     * Поиск по названиям веток (рекурсивно с подветками).
      * Пропускает зашифрованные ветки.
      * @param nodes
      * @param query
      * @return
      */
-//    public void globalSearchInNodesNames(List<TetroidNode> nodes, String regex) {
-//        String regex = buildRegex(query);
-//        for (TetroidNode node : nodes) {
-//            if (!node.isNonCryptedOrDecrypted())
-//                continue;
-//            if (node.getName().matches(regex)) {
-//                addFoundObject(node, FoundType.TYPE_NODE);
-//            }
-//            if (node.getSubNodesCount() > 0) {
-//                searchInNodesNames(node.getSubNodes(), regex);
-//            }
-//        }
-//    }
-
     public static List<TetroidNode> searchInNodesNames(List<TetroidNode> nodes, String query) {
-        List<TetroidNode> res = new ArrayList<>();
         String regex = buildRegex(query);
+        return searchInNodesNamesRecursively(nodes, regex);
+    }
+
+    private static List<TetroidNode> searchInNodesNamesRecursively(List<TetroidNode> nodes, String regex) {
+        List<TetroidNode> res = new ArrayList<>();
         for (TetroidNode node : nodes) {
             if (!node.isNonCryptedOrDecrypted())
                 continue;
             if (node.getName().matches(regex)) {
                 res.add(node);
+                continue;
             }
             if (node.getSubNodesCount() > 0) {
-                searchInNodesNames(node.getSubNodes(), query);
+                res.addAll(searchInNodesNamesRecursively(node.getSubNodes(), regex));
             }
         }
         return res;
     }
 
-
-    public void globalSearchInNodes(List<TetroidNode> nodes, String regex, boolean inRecords) {
+    /**
+     * Глобальный поиск по названиям веток.
+     * Пропускает зашифрованные ветки.
+     * @param nodes
+     * @param regex
+     * @param inRecords
+     */
+    private void globalSearchInNodes(List<TetroidNode> nodes, String regex, boolean inRecords) {
         for (TetroidNode node : nodes) {
             if (!node.isNonCryptedOrDecrypted())
                 continue;
@@ -179,7 +195,7 @@ public class ScanManager implements Parcelable {
      * @param regex
      * @return
      */
-    public void globalSearchInRecords(
+    private void globalSearchInRecords(
             List<TetroidRecord> srcRecords, String regex) {
         for (TetroidRecord record : srcRecords) {
             // поиск по именам записей
@@ -218,6 +234,12 @@ public class ScanManager implements Parcelable {
         }
     }
 
+    /**
+     * Поиск по названиям записей.
+     * @param srcRecords
+     * @param query
+     * @return
+     */
     public static List<TetroidRecord> searchInRecordsNames(List<TetroidRecord> srcRecords, String query) {
         List<TetroidRecord> found = new ArrayList<>();
         String regex = buildRegex(query);
@@ -229,10 +251,16 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public static List<TetroidFile> searchInFiles(List<TetroidFile> srcFiles, String query) {
+    /**
+     * Поиск по файлам записи.
+     * @param files
+     * @param query
+     * @return
+     */
+    public static List<TetroidFile> searchInFiles(List<TetroidFile> files, String query) {
         List<TetroidFile> found = new ArrayList<>();
         String regex = buildRegex(query);
-        for (TetroidFile file : srcFiles) {
+        for (TetroidFile file : files) {
             if (file.getName().matches(regex)) {
                 found.add(file);
             }
@@ -240,38 +268,27 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public <T extends ITetroidObject>  List<T> globalSearchInFiles(
-            List<TetroidFile> srcFiles, String regex) {
-        List<T> found = new ArrayList<>();
-        for (TetroidFile file : srcFiles) {
+    /**
+     * Глобальный поиск по файлам записи.
+     * @param files
+     * @param regex
+     * @return
+     */
+    private void globalSearchInFiles(List<TetroidFile> files, String regex) {
+        for (TetroidFile file : files) {
             if (file.getName().matches(regex)) {
                 addFoundObject(file, FoundType.TYPE_FILE);
             }
         }
-        return found;
     }
 
-//    /**
-//     * Поиск по именам меток.
-//     * @param tagsMap
-//     * @param query
-//     * @param isOnlyWholeWords
-//     * @return
-//     */
-//    public static TreeMap<String, TetroidTag> searchInTags(
-//            Map<String, TetroidTag> tagsMap, String query, boolean isOnlyWholeWords) {
-//        TreeMap<String, TetroidTag> found = new TreeMap<>();
-//        String regex = buildRegex(query);
-//        for (TetroidTag tagEntry : tagsMap.values()) {
-//            if (tagEntry.getName().matches(regex)) {
-//                found.put(tagEntry.getName(), tagEntry);
-//            }
-//        }
-//        return found;
-//    }
-
-    public static List<TetroidTag> searchInTags(
-            List<TetroidTag> tags, String query) {
+    /**
+     * Поиск по меткам.
+     * @param tags
+     * @param query
+     * @return
+     */
+    public static List<TetroidTag> searchInTags(List<TetroidTag> tags, String query) {
         List<TetroidTag> found = new ArrayList<>();
         String regex = buildRegex(query);
         for (TetroidTag tag : tags) {
@@ -282,8 +299,13 @@ public class ScanManager implements Parcelable {
         return found;
     }
 
-    public void globalSearchInTags(
-            List<TetroidTag> tags, String regex) {
+    /**
+     * Глобальный поиск по меткам.
+     * Не используется в связи с переходом на 2й тип поиска по меткам.
+     * @param tags
+     * @param regex
+     */
+    public void globalSearchInTags(List<TetroidTag> tags, String regex) {
         for (TetroidTag tagEntry : tags) {
             if (tagEntry.getName().matches(regex)) {
                 // 1 - добавляем саму метку в результат
@@ -317,6 +339,7 @@ public class ScanManager implements Parcelable {
 //    }
 
     /**
+     * Формирование регулярного выражения для поиска.
      * i - CASE_INSENSITIVE
      * s - DOTALL
      * @param query
@@ -331,8 +354,12 @@ public class ScanManager implements Parcelable {
         return String.format("(?is).*%s%s%s.*", boundary, Pattern.quote(query), boundary);
     }
 
-    public void addFoundObject(ITetroidObject obj, int foundType) {
-//        obj.foundType |= (1 << foundType);
+    /**
+     * Добавление типа найденного объекта (в зависимости от того, где он найден).
+     * @param obj
+     * @param foundType
+     */
+    private void addFoundObject(ITetroidObject obj, int foundType) {
         if (foundObjects.containsKey(obj)) {
             foundObjects.get(obj).addType(foundType);
         } else {

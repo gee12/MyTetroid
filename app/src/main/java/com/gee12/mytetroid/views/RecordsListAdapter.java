@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.activities.MainPageFragment;
 import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class RecordsListAdapter extends BaseAdapter {
     private class RecordViewHolder {
         TextView lineNumView;
         TextView nameView;
+        TextView nodeNameView;
         TextView infoView;
         ImageView attachedView;
     }
@@ -42,6 +44,7 @@ public class RecordsListAdapter extends BaseAdapter {
     private List<TetroidRecord> dataSet;
     private OnRecordAttachmentClickListener onRecordAttachmentClickListener;
     private Context context;
+    boolean isShowNodeName;
 
     public RecordsListAdapter(Context context, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
         super();
@@ -51,8 +54,9 @@ public class RecordsListAdapter extends BaseAdapter {
         this.dataSet = new ArrayList<>();
     }
 
-    public void setDataItems(List<TetroidRecord> dataSet) {
+    public void setDataItems(List<TetroidRecord> dataSet, int viewId) {
         this.dataSet = dataSet;
+        this.isShowNodeName = (viewId == MainPageFragment.VIEW_TAG_RECORDS);
         notifyDataSetChanged();
     }
 
@@ -79,6 +83,7 @@ public class RecordsListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.list_item_record, null);
             viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
+            viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
             viewHolder.infoView = convertView.findViewById(R.id.record_view_info);
             viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
@@ -91,6 +96,13 @@ public class RecordsListAdapter extends BaseAdapter {
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название записи
         viewHolder.nameView.setText(record.getName());
+        // название ветки
+        if (isShowNodeName) {
+            viewHolder.nodeNameView.setVisibility(View.VISIBLE);
+            viewHolder.nodeNameView.setText(record.getNode().getName());
+        } else {
+            viewHolder.nodeNameView.setVisibility(View.GONE);
+        }
         // другая информация о записи
         if (record.getCreated() != null)
             viewHolder.infoView.setText(record.getCreatedString(SettingsManager.getDateFormatString()));

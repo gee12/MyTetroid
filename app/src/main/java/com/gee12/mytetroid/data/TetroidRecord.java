@@ -23,26 +23,8 @@ public class TetroidRecord implements ITetroidObject {
 
     private boolean isDecrypted;
 
-//    public TetroidRecord(String id, String name) {
-//        this.id = id;
-//        this.name = name;
-////        this.htmlContent = htmlContent;
-////        this.content = Utils.fromHtml(name);
-//        this.created = Calendar.getInstance().getTime();
-//        this.tags = new ArrayList<>();
-//    }
-
-//    public TetroidRecord(String id,String name, String htmlContent) {
-//        this.id = id;
-//        this.name = name;
-////        this.htmlContent = htmlContent;
-////        this.content = Utils.fromHtml(htmlContent);
-//        this.created = Calendar.getInstance().getTime();
-//        this.tags = new ArrayList<>();
-//    }
-
     public TetroidRecord(boolean crypt, String id, String name, String tagsString, String author, String url,
-                         Date created, String dirName, String fileName/*, List<TetroidFile> files*/) {
+                         Date created, String dirName, String fileName, TetroidNode node) {
         this.isCrypted = crypt;
         this.id = id;
         this.name = name;
@@ -52,9 +34,9 @@ public class TetroidRecord implements ITetroidObject {
         this.created = created;
         this.dirName = dirName;
         this.fileName = fileName;
-//        this.files = files;
         this.files = new ArrayList<>();
         this.tags = new ArrayList<>();
+        this.node = node;
     }
 
     @Override
@@ -87,26 +69,6 @@ public class TetroidRecord implements ITetroidObject {
     public String getUrl() {
         return url;
     }
-
-//    public String getHtmlContent() {
-//        return htmlContent;
-//    }
-
-//    /**
-//     * Получение пути к файлу с содержимым записи.
-//     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
-//     * @param storagePath
-//     * @param tempPath
-//     * @return
-//     */
-    /*public String getRecordTextUri(String storagePath, String tempPath) {
-        String path = (isCrypted && isNonCryptedOrDecrypted)    // логическая ошибка в условии
-                ? tempPath+dirName+"/"+fileName
-                : storagePath+"/base/"+dirName+"/"+fileName;
-//        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
-//        return "file:///" + file.getAbsolutePath();
-        return "file:///" + path;
-    }*/
 
     public Date getCreated() {
         return created;

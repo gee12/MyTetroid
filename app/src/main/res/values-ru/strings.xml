@@ -128,4 +128,5 @@
     <string name="global_search_in_cur_node">В текущей ветке</string>
     <string name="global_search_start">Запуск глобального поиска по запросу \"%s\"</string>
     <string name="global_search_end">Глобальный поиск закончен. Найдено \"%d\" объектов</string>
+    <string name="global_search_by_node_result">Результаты поиска по ветке \"%s\"</string>
 </resources>

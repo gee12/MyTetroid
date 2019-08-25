@@ -9,8 +9,10 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.activities.MainPageFragment;
 import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
+import com.gee12.mytetroid.data.TetroidRecord;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,7 @@ public class FoundListAdapter extends BaseAdapter {
     private class FoundViewHolder {
         TextView lineNumView;
         TextView nameView;
+        TextView nodeNameView;
         TextView typeView;
     }
 
@@ -75,9 +78,10 @@ public class FoundListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new FoundViewHolder();
             convertView = inflater.inflate(R.layout.list_item_found, null);
-            viewHolder.lineNumView = convertView.findViewById(R.id.text_view_line_num);
-            viewHolder.nameView = convertView.findViewById(R.id.text_view_name);
-            viewHolder.typeView = convertView.findViewById(R.id.text_view_type);
+            viewHolder.lineNumView = convertView.findViewById(R.id.found_view_line_num);
+            viewHolder.nameView = convertView.findViewById(R.id.found_view_name);
+            viewHolder.nodeNameView = convertView.findViewById(R.id.found_view_node);
+            viewHolder.typeView = convertView.findViewById(R.id.found_view_type);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (FoundViewHolder)convertView.getTag();
@@ -88,6 +92,15 @@ public class FoundListAdapter extends BaseAdapter {
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название найденного объекта
         viewHolder.nameView.setText(found.getName());
+        if (found.getType() == FoundType.TYPE_RECORD) {
+            TetroidRecord record = (TetroidRecord)found;
+            if (record != null) {
+                viewHolder.nodeNameView.setVisibility(View.VISIBLE);
+                viewHolder.nodeNameView.setText(record.getNode().getName());
+            }
+        } else {
+            viewHolder.nodeNameView.setVisibility(View.GONE);
+        }
         // тип найденного объекта
         viewHolder.typeView.setText(hashMap.get(found).getTypeString(context));
 

@@ -179,7 +179,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public void showRecords(List<TetroidRecord> records, int viewId) {
         showView(viewId);
         tvRecordsEmpty.setText(R.string.records_is_missing);
-        this.recordsListAdapter.setDataItems(records);
+        this.recordsListAdapter.setDataItems(records, viewId);
         lvRecords.setAdapter(recordsListAdapter);
     }
 
@@ -215,7 +215,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 tvRecordAuthor.setText(record.getAuthor());
                 tvRecordUrl.setText(record.getUrl());
                 if (record.getCreated() != null)
-                    tvRecordDate.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
+                    tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
                 showView(VIEW_RECORD_TEXT);
             }
 

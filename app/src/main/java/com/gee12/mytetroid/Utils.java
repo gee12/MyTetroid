@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Environment;
 import android.text.Html;
 import android.text.Spanned;
@@ -50,6 +51,9 @@ public class Utils {
      * @return
      */
     public static Date toDate(String dateString, String pattern) {
+        if (isNullOrEmpty(dateString)) {
+            return null;
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
         Date convertedDate = null;
         try {
@@ -58,6 +62,17 @@ public class Utils {
 //            e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    public static boolean checkDateFormatString(String format) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            dateFormat.format(new Date());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public static boolean isNullOrEmpty(String s) {
@@ -144,8 +159,21 @@ public class Utils {
         return (file != null) ? file.getAbsolutePath() : null;
     }
 
+    /**
+     * Получение внешнего каталога по-умоланию.
+     *
+     * !!!
+     * Еще нужно проверять getExternalStorageState().
+     *
+     * @return
+     */
     public static String getExtPublicDocumentsDir() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+//        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+        } else {
+            return Environment.getExternalStorageDirectory() + "/Documents";
+        }
     }
 
     public static String getVersionName(Context context) {

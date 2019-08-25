@@ -20,15 +20,14 @@ public class TetroidNode implements ITetroidObject {
 
     private boolean isDecrypted;
 
-    public TetroidNode(boolean crypt, String id, String name, String iconName,
-                       List<TetroidNode> subNodes, List<TetroidRecord> records, int level) {
+    public TetroidNode(boolean crypt, String id, String name, String iconName, int level) {
         this.id = id;
         this.name = name;
 //        setIcon(iconFullName);
         this.iconName = iconName;
         this.isCrypted = crypt;
-        this.subNodes = subNodes;
-        this.records = records;
+//        this.subNodes = subNodes;
+//        this.records = records;
         this.level = level;
     }
 
@@ -38,9 +37,6 @@ public class TetroidNode implements ITetroidObject {
         this.level = level;
         this.subNodes = new ArrayList<>();
         this.records = new ArrayList<>();
-        //
-//        if (new Random().nextInt(10) % 2 == 0)
-//            setIcon(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
     }
 
     @Override
@@ -140,6 +136,14 @@ public class TetroidNode implements ITetroidObject {
 
     public void setDecrypted(boolean decrypted) {
         isDecrypted = decrypted;
+    }
+
+    public void setSubNodes(List<TetroidNode> subNodes) {
+        this.subNodes = subNodes;
+    }
+
+    public void setRecords(List<TetroidRecord> records) {
+        this.records = records;
     }
 
     public void addSubNode(TetroidNode subNode)
