@@ -129,4 +129,6 @@
     <string name="global_search_start">Запуск глобального поиска по запросу \"%s\"</string>
     <string name="global_search_end">Глобальный поиск закончен. Найдено \"%d\" объектов</string>
     <string name="global_search_by_node_result">Результаты поиска по ветке \"%s\"</string>
+    <string name="title_cur_node">Текущая ветка</string>
+    <string name="title_attached_files">Прикрепленные файлы</string>
 </resources>

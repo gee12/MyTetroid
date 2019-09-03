@@ -7,6 +7,18 @@
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
+        android:id="@+id/action_cur_node"
+        android:orderInCategory="80"
+        android:title="@string/title_cur_node"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_attached_files"
+        android:orderInCategory="90"
+        android:title="@string/title_attached_files"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_global_search"
         android:orderInCategory="100"
         android:title="@string/title_global_search"

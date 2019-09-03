@@ -469,6 +469,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      * @param node
      */
     private void showNode(TetroidNode node) {
+        if (node == null)
+            return;
         // проверка нужно ли расшифровать ветку перед отображением
         if (!node.isNonCryptedOrDecrypted()) {
             decryptStorage(node);
@@ -693,9 +695,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
      * Виджет поиска по записям/файлам/тексту.
      * @param menu
      */
-    private void initRecordsSearchView(Menu menu) {
-        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
-        this.recordsSearchView = (SearchView) miRecordsSearchView.getActionView();
+    private void initRecordsSearchView(MenuItem menuItem) {
+        this.recordsSearchView = (SearchView) menuItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         recordsSearchView.setIconifiedByDefault(true);
@@ -1046,7 +1047,9 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        initRecordsSearchView(menu);
+        viewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
+        initRecordsSearchView(miRecordsSearchView);
         //
         this.isStarted = true;
         return true;
@@ -1060,7 +1063,11 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_cur_node) {
+            showNode(curNode);
+        } else if (id == R.id.action_attached_files) {
+            viewPagerAdapter.getMainFragment().showCurRecordFiles();
+        } else if (id == R.id.action_settings) {
             showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
             return true;
         } else if (id == R.id.action_global_search) {

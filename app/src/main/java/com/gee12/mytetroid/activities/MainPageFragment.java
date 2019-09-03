@@ -59,6 +59,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
     private WebView recordContentWebView;
+    private MenuItem miCurNode;
+    private MenuItem miAttachedFiles;
 
     private int curViewId;
     private int lastViewId;
@@ -69,10 +71,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public MainPageFragment() {
     }
-//
-//    public MainPageFragment(IMainView mainView) {
-//        super(mainView);
-//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,6 +124,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param viewId
      */
     public void showView(int viewId) {
+        miAttachedFiles.setVisible(false);
+        miCurNode.setVisible(false);
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
         if (viewId != curViewId)
@@ -140,7 +140,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 whichChild = VIEW_NODE_RECORDS;
                 break;
             case MainPageFragment.VIEW_RECORD_TEXT:
+                miAttachedFiles.setVisible(true);
             case MainPageFragment.VIEW_RECORD_FILES:
+                miCurNode.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
                 break;
 //            case MainPageFragment.VIEW_TAG_RECORDS:
@@ -258,8 +260,14 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      * @param record Запись
      */
     public void showRecordFiles(TetroidRecord record) {
+        if (record == null)
+            return;
         this.curRecord = record;
         showRecordFiles(record.getAttachedFiles(), record);
+    }
+
+    public void showCurRecordFiles() {
+        showRecordFiles(curRecord);
     }
 
     public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
@@ -321,6 +329,11 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     @Override
     public void onCheckedChanged(CompoundButton view, boolean isChecked) {
         expRecordFieldsLayout.toggle();
+    }
+
+    public void onCreateOptionsMenu(Menu menu) {
+        this.miCurNode = menu.findItem(R.id.action_cur_node);
+        this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
     }
 
     /**
@@ -410,10 +423,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public int getLastViewId() {
         return lastViewId;
     }
-
-//    public int getLastViewIdBeforeSearch() {
-//        return lastViewId;
-//    }
 
     @Override
     public String getTitle() {

@@ -159,4 +159,6 @@
     <string name="global_search_start">Global search started by query \"%s\"</string>
     <string name="global_search_end">Global search end. Found \"%d\" objects</string>
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
+    <string name="title_cur_node">Current node</string>
+    <string name="title_attached_files">Attached files</string>
 </resources>
