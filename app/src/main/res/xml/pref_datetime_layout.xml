@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentTop="true"
-    android:hint="@string/def_date_format_string"
+    android:hint="@string/hint_date_format_string"
+    android:padding="10dp"
+    android:layout_gravity="center_vertical"
     xmlns:android="http://schemas.android.com/apk/res/android" />
 

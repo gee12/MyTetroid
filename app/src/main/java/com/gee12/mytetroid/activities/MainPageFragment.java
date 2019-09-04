@@ -60,6 +60,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private TextView tvRecordDate;
     private WebView recordContentWebView;
     private MenuItem miCurNode;
+    private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
 
     private int curViewId;
@@ -96,6 +97,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         lvFiles.setEmptyView(tvFilesEmpty);
         // текст записи
         this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
+        recordContentWebView.getSettings().setBuiltInZoomControls(true);
+        recordContentWebView.getSettings().setDisplayZoomControls(false);
         this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
         this.tvRecordAuthor =  view.findViewById(R.id.text_view_record_author);
         this.tvRecordUrl =  view.findViewById(R.id.text_view_record_url);
@@ -126,6 +129,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public void showView(int viewId) {
         miAttachedFiles.setVisible(false);
         miCurNode.setVisible(false);
+        miCurRecord.setVisible(false);
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
         if (viewId != curViewId)
@@ -143,6 +147,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 miAttachedFiles.setVisible(true);
             case MainPageFragment.VIEW_RECORD_FILES:
                 miCurNode.setVisible(true);
+                if (viewId != MainPageFragment.VIEW_RECORD_TEXT)
+                    miCurRecord.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
                 break;
 //            case MainPageFragment.VIEW_TAG_RECORDS:
@@ -194,11 +200,17 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         showRecord(record);
     }
 
+    public void showCurRecord() {
+        showRecord(curRecord);
+    }
+
     /**
      * Отображение записи
      * @param record Запись
      */
     public void showRecord(final TetroidRecord record) {
+        if (record == null)
+            return;
         this.curRecord = record;
         LogManager.addLog("Чтение записи: id=" + record.getId());
         String text = DataManager.getRecordHtmlTextDecrypted(record);
@@ -333,6 +345,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public void onCreateOptionsMenu(Menu menu) {
         this.miCurNode = menu.findItem(R.id.action_cur_node);
+        this.miCurRecord = menu.findItem(R.id.action_cur_record);
         this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
     }
 

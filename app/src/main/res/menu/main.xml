@@ -8,8 +8,14 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
         android:id="@+id/action_cur_node"
-        android:orderInCategory="80"
+        android:orderInCategory="70"
         android:title="@string/title_cur_node"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_cur_record"
+        android:orderInCategory="80"
+        android:title="@string/title_cur_record"
         android:visible="false"
         app:showAsAction="never" />
     <item

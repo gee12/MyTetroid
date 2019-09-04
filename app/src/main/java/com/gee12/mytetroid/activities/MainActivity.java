@@ -1065,6 +1065,8 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         int id = item.getItemId();
         if (id == R.id.action_cur_node) {
             showNode(curNode);
+        } else if (id == R.id.action_cur_record) {
+            viewPagerAdapter.getMainFragment().showCurRecord();
         } else if (id == R.id.action_attached_files) {
             viewPagerAdapter.getMainFragment().showCurRecordFiles();
         } else if (id == R.id.action_settings) {

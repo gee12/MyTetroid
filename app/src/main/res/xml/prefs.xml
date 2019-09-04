@@ -63,7 +63,15 @@
             android:defaultValue="@color/colorHighlight" />
         <!--android:defaultValue="0xffA0FFA0"-->
 
-        <EditTextPreference
+        <!--<EditTextPreference-->
+            <!--android:key="@string/pref_key_date_format_string"-->
+            <!--android:dialogTitle="@string/pref_date_format_string"-->
+            <!--android:title="@string/pref_date_format_string"-->
+            <!--android:summary="@string/pref_date_format_string_summ"-->
+            <!--android:inputType="text"-->
+            <!--android:defaultValue="@string/def_date_format_string" />-->
+
+        <com.gee12.mytetroid.views.DateTimeFormatPreference
             android:key="@string/pref_key_date_format_string"
             android:dialogTitle="@string/pref_date_format_string"
             android:title="@string/pref_date_format_string"

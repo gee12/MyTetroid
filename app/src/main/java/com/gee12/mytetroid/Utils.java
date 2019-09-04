@@ -54,9 +54,9 @@ public class Utils {
         if (isNullOrEmpty(dateString)) {
             return null;
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
         Date convertedDate = null;
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
             convertedDate = dateFormat.parse(dateString);
         } catch (ParseException e) {
 //            e.printStackTrace();
@@ -65,11 +65,11 @@ public class Utils {
     }
 
     public static boolean checkDateFormatString(String format) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(format);
             dateFormat.format(new Date());
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return false;
         }
         return true;
