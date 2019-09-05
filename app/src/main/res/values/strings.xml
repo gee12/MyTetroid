@@ -163,4 +163,5 @@
     <string name="title_cur_node">Record node</string>
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
+    <string name="title_fullscreen">Fullscreen</string>
 </resources>

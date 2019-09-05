@@ -28,10 +28,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -100,8 +103,10 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     private MainPagerAdapter viewPagerAdapter;
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
+    private boolean isFullscreen;
+    private boolean isStarted = false;
 
-    boolean isStarted = false;
+    GestureDetector detector;
 
     public MainActivity() {
     }
@@ -139,6 +144,17 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 //        viewPagerAdapter.getFoundFragment().setMainView(this);
         this.viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
+
+
+        this.detector = new GestureDetector(this, new GestureTap());
+        viewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return detector.onTouchEvent(event);
+            }
+        });
+
+
         this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -1063,25 +1079,74 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_cur_node) {
-            showNode(curNode);
-        } else if (id == R.id.action_cur_record) {
-            viewPagerAdapter.getMainFragment().showCurRecord();
-        } else if (id == R.id.action_attached_files) {
-            viewPagerAdapter.getMainFragment().showCurRecordFiles();
-        } else if (id == R.id.action_settings) {
-            showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
-            return true;
-        } else if (id == R.id.action_global_search) {
-            showGlobalSearchActivity();
-            return true;
-        } else if (id == R.id.action_about_app) {
-            showActivity(this, AboutActivity.class);
-            return true;
+        switch (id) {
+            case R.id.action_cur_node:
+                showNode(curNode);
+                return true;
+            case R.id.action_cur_record:
+                viewPagerAdapter.getMainFragment().showCurRecord();
+                return true;
+            case R.id.action_attached_files:
+                viewPagerAdapter.getMainFragment().showCurRecordFiles();
+                return true;
+            case R.id.action_fullscreen:
+                switchFullscreen();
+                return true;
+            case R.id.action_settings:
+                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
+                return true;
+            case R.id.action_global_search:
+                showGlobalSearchActivity();
+                return true;
+            case R.id.action_about_app:
+                showActivity(this, AboutActivity.class);
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+    private void switchFullscreen() {
+//        this.isFullscreen = !isFullscreen;
+//        if (isFullscreen) {
+//            requestWindowFeature(Window.FEATURE_NO_TITLE);
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        } else {
+//            requestWindowFeature(Window.FEATURE_ACTION_BAR);
+//            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        }
+        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+        int newUiOptions = uiOptions;
+//        boolean isImmersiveModeEnabled =
+//                ((uiOptions | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY) == uiOptions);
+        // Navigation bar hiding:  Backwards compatible to ICS.
+        if (Build.VERSION.SDK_INT >= 14) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        }
+
+        // Status bar hiding: Backwards compatible to Jellybean
+        if (Build.VERSION.SDK_INT >= 16) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        // Immersive mode: Backward compatible to KitKat.
+        // Note that this flag doesn't do anything by itself, it only augments the behavior
+        // of HIDE_NAVIGATION and FLAG_FULLSCREEN.  For the purposes of this sample
+        // all three flags are being toggled together.
+        // Note that there are two immersive mode UI flags, one of which is referred to as "sticky".
+        // Sticky immersive mode differs in that it makes the navigation and status bars
+        // semi-transparent, and the UI flag does not get cleared when the user interacts with
+        // the screen.
+//        if (Build.VERSION.SDK_INT >= 18) {
+//            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+//        }
+        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+    }
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        detector.onTouchEvent(event);
+//        return true;
+//    }
 
     private void onExit() {
         ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
@@ -1149,6 +1214,19 @@ public class MainActivity extends AppCompatActivity implements IMainView {
             }
             // инициализация контролов
             initListViews();
+        }
+    }
+
+    class GestureTap extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            switchFullscreen();
+            return true;
         }
     }
 

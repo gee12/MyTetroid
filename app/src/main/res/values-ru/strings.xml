@@ -133,4 +133,5 @@
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
+    <string name="title_fullscreen">Полноэкранный режим</string>
 </resources>
