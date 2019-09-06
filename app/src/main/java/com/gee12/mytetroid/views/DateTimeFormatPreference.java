@@ -16,7 +16,7 @@ import com.gee12.mytetroid.Utils;
 public class DateTimeFormatPreference extends DialogPreference {
 
     private String value;
-    private String prevValue;
+    private String newValue;
 
     public DateTimeFormatPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -38,17 +38,15 @@ public class DateTimeFormatPreference extends DialogPreference {
 
             @Override
             public void afterTextChanged(Editable s) {
-                DateTimeFormatPreference.this.value = s.toString();
+                DateTimeFormatPreference.this.newValue = s.toString();
             }
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start,
-                                          int count, int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start,
-                                      int before, int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
         return view;
@@ -59,11 +57,11 @@ public class DateTimeFormatPreference extends DialogPreference {
         if (restorePersistedValue) {
             // Restore existing state
             this.value = this.getPersistedString(getContext().getString(R.string.def_date_format_string));
-            this.prevValue = value;
         } else {
             // Set default state from the XML attribute
             setValue((String) defaultValue);
         }
+        this.newValue = value;
     }
 
     @Override
@@ -74,21 +72,17 @@ public class DateTimeFormatPreference extends DialogPreference {
     @Override
     protected void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
-            if (!Utils.isNullOrEmpty(value) && Utils.checkDateFormatString(value)) {
-                setValue(value);
+            if (!Utils.isNullOrEmpty(newValue) && Utils.checkDateFormatString(newValue)) {
+                setValue(newValue);
             } else {
-                this.value = prevValue;
                 Message.show(getContext(), "Введена некорректная строка формата даты/времени");
             }
-        } else {
-            this.value = prevValue;
         }
     }
 
     public void setValue(String value) {
         this.value = value;
         persistString(value);
-        this.prevValue = value;
     }
 
     public String getValue() {
