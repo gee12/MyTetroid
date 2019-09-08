@@ -45,6 +45,7 @@ public class RecordsListAdapter extends BaseAdapter {
     private OnRecordAttachmentClickListener onRecordAttachmentClickListener;
     private Context context;
     boolean isShowNodeName;
+    String dateTimeFormat;
 
     public RecordsListAdapter(Context context, OnRecordAttachmentClickListener onRecordAttachmentClickListener) {
         super();
@@ -54,9 +55,10 @@ public class RecordsListAdapter extends BaseAdapter {
         this.dataSet = new ArrayList<>();
     }
 
-    public void setDataItems(List<TetroidRecord> dataSet, int viewId) {
+    public void setDataItems(List<TetroidRecord> dataSet, int viewId, String dateTimeFormat) {
         this.dataSet = dataSet;
         this.isShowNodeName = (viewId == MainPageFragment.VIEW_TAG_RECORDS);
+        this.dateTimeFormat = dateTimeFormat;
         notifyDataSetChanged();
     }
 
@@ -105,7 +107,7 @@ public class RecordsListAdapter extends BaseAdapter {
         }
         // другая информация о записи
         if (record.getCreated() != null)
-            viewHolder.infoView.setText(record.getCreatedString(SettingsManager.getDateFormatString()));
+            viewHolder.infoView.setText(record.getCreatedString(dateTimeFormat));
         // есть ли прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон

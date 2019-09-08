@@ -20,8 +20,10 @@ import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
@@ -67,7 +69,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private int lastViewId;
     private RecordsListAdapter recordsListAdapter;
     private FilesListAdapter filesListAdapter;
-    private TetroidRecord prevRecord;
+//    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
 
     public MainPageFragment() {
@@ -185,10 +187,27 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     }
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
+        String dateTimeFormat = checkDateFormatString();
         showView(viewId);
         tvRecordsEmpty.setText(R.string.records_is_missing);
-        this.recordsListAdapter.setDataItems(records, viewId);
+        this.recordsListAdapter.setDataItems(records, viewId, dateTimeFormat);
         lvRecords.setAdapter(recordsListAdapter);
+    }
+
+    /**
+     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
+     * введенная строка в настройках не проверялась, что могло привести к падению приложения
+     * при отображении списка.
+     * @return
+     */
+    private String checkDateFormatString() {
+        String dateFormatString = SettingsManager.getDateFormatString();
+        if (Utils.checkDateFormatString(dateFormatString)) {
+            return dateFormatString;
+        } else {
+            LogManager.addLog(getString(R.string.incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            return getContext().getString(R.string.def_date_format_string);
+        }
     }
 
     /**
