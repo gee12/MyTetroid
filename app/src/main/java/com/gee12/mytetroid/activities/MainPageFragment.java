@@ -7,6 +7,7 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -18,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
+
+import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Message;
@@ -64,6 +67,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
+    private GestureDetectorCompat detector;
 
     private int curViewId;
     private int lastViewId;
@@ -71,6 +75,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private FilesListAdapter filesListAdapter;
 //    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
+    private boolean isOnItemClicked;
 
     public MainPageFragment() {
     }
@@ -85,20 +90,33 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (!isOnItemClicked) {
+                    isOnItemClicked = false;
+                    detector.onTouchEvent(event);
+                }
+                return false;
+            }
+        };
         this.viewFlipper = view.findViewById(R.id.view_flipper);
         // список записей
         this.lvRecords = view.findViewById(R.id.list_view_records);
+        lvRecords.setOnTouchListener(touchListener);
         lvRecords.setOnItemClickListener(onRecordClicklistener);
         this.tvRecordsEmpty = view.findViewById(R.id.text_view_empty_records);
         lvRecords.setEmptyView(tvRecordsEmpty);
         registerForContextMenu(lvRecords);
         // список файлов
         this.lvFiles = view.findViewById(R.id.list_view_files);
+        lvFiles.setOnTouchListener(touchListener);
         lvFiles.setOnItemClickListener(onFileClicklistener);
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
         // текст записи
         this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
+        recordContentWebView.setOnTouchListener(touchListener);
         recordContentWebView.getSettings().setBuiltInZoomControls(true);
         recordContentWebView.getSettings().setDisplayZoomControls(false);
         this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
@@ -333,6 +351,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private AdapterView.OnItemClickListener onRecordClicklistener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            MainPageFragment.this.isOnItemClicked = true;
             showRecord(position);
         }
     };
@@ -343,6 +362,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
         @Override
         public void onClick(TetroidRecord record) {
+            MainPageFragment.this.isOnItemClicked = true;
             showRecordFiles(record);
         }
     };
@@ -353,6 +373,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            MainPageFragment.this.isOnItemClicked = true;
             openFile(position);
         }
     };
@@ -442,6 +463,14 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
     public void setFilesEmptyViewText(String s) {
         tvFilesEmpty.setText(s);
+    }
+
+    /**
+     *
+     * @param detector
+     */
+    public void setGestureDetector(GestureDetectorCompat detector) {
+        this.detector = detector;
     }
 
     public TetroidRecord getCurRecord() {

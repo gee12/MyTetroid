@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.core.view.GestureDetectorCompat;
 import androidx.viewpager.widget.ViewPager;
 
 public class MainViewPager extends ViewPager {
@@ -11,24 +12,26 @@ public class MainViewPager extends ViewPager {
     public static int PAGE_MAIN = 0;
     public static int PAGE_FOUND = 1;
 
-    private boolean isPagindEnabled;
+    private boolean isSwipeEnabled;
+    private GestureDetectorCompat detector;
 
     public MainViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.isPagindEnabled = true;
+        this.isSwipeEnabled = true;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (this.isPagindEnabled) {
+        this.detector.onTouchEvent(event);
+        if (this.isSwipeEnabled) {
             return super.onTouchEvent(event);
         }
-        return false;
+        return true;
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (this.isPagindEnabled) {
+        if (this.isSwipeEnabled) {
             return super.onInterceptTouchEvent(event);
         }
         return false;
@@ -39,7 +42,15 @@ public class MainViewPager extends ViewPager {
      * @param enabled
      */
     public void setPagingEnabled(boolean enabled) {
-        this.isPagindEnabled = enabled;
+        this.isSwipeEnabled = enabled;
+    }
+
+    /**
+     *
+     * @param detector
+     */
+    public void setGestureDetector(GestureDetectorCompat detector) {
+        this.detector = detector;
     }
 
     /**
