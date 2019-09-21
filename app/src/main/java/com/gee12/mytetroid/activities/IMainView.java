@@ -13,4 +13,5 @@ public interface IMainView extends Parcelable {
     void openFoundObject(ITetroidObject found);
     void openMainPage();
     void closeFoundFragment();
+    void toggleFullscreen();
 }

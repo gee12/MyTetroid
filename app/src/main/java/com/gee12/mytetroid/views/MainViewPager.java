@@ -22,11 +22,12 @@ public class MainViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        this.detector.onTouchEvent(event);
+        if (detector != null)
+            detector.onTouchEvent(event);
         if (this.isSwipeEnabled) {
             return super.onTouchEvent(event);
         }
-        return true;
+        return false;
     }
 
     @Override

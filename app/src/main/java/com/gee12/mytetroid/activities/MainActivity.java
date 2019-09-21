@@ -71,7 +71,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IMainView {
+public class MainActivity extends AppCompatActivity implements IMainView/*, View.OnTouchListener*/ {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -138,57 +138,14 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
+        this.gestureDetector = new GestureDetectorCompat(this, new MyGestureListener());
         // страницы (главная и найдено)
-        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this);
+        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
         this.viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
-
-        this.gestureDetector = new GestureDetectorCompat(this, new MyGestureListener());
         viewPager.setGestureDetector(gestureDetector);
-        viewPagerAdapter.getMainFragment().setGestureDetector(gestureDetector);
 
-/*        if (Build.VERSION.SDK_INT >= 20) {
-            View decorView = getWindow().getDecorView();
-//        if (translucent) {
-            decorView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-                    WindowInsets defaultInsets = v.onApplyWindowInsets(insets);
-                    return defaultInsets.replaceSystemWindowInsets(
-                            defaultInsets.getSystemWindowInsetLeft(),
-                            0,
-                            defaultInsets.getSystemWindowInsetRight(),
-                            defaultInsets.getSystemWindowInsetBottom());
-                }
-            });
-        }*/
-//        else {
-//            decorView.setOnApplyWindowInsetsListener(null);
-//        }
-
-        // добавляем отступ, когда StatusBar вновь отображается (для полноэкранного режима)
-        View decorView = getWindow().getDecorView();
-        final int statusBarHeight = Utils.getStatusBarHeight(this);
-        final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-        decorView.setOnSystemUiVisibilityChangeListener
-                (new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility) {
-                        // Note that system bars will only be "visible" if none of the
-                        // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
-                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                            params.setMargins(0, statusBarHeight, 0, 0);
-                            drawerLayout.setLayoutParams(params);
-                            getSupportActionBar().show();
-                            MainActivity.this.isFullscreen = false;
-                        } else {
-                            params.setMargins(0, 0, 0, 0);
-                            drawerLayout.setLayoutParams(params);
-                        }
-                    }
-                });
+//        viewPagerAdapter.getMainFragment().setGestureDetector(gestureDetector);
 
         this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
@@ -1140,31 +1097,37 @@ public class MainActivity extends AppCompatActivity implements IMainView {
         return super.onOptionsItemSelected(item);
     }
 
-    private void toggleFullscreen() {
+    @Override
+    public void toggleFullscreen() {
         setFullscreen(!isFullscreen);
     }
 
     private void setFullscreen(boolean isFullscreen) {
         this.isFullscreen = isFullscreen;
 
+
         View decorView = getWindow().getDecorView();
         int visibility = (isFullscreen)
                 ? View.SYSTEM_UI_FLAG_IMMERSIVE
                     // Set the content to appear under the system bars so that the
                     // content doesn't resize when the system bars hide and show.
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     // Hide the nav bar and status bar
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
                 // Shows the system bars by removing all the flags
                 // except for the ones that make the content appear under the system bars.
-                : View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+                :
+//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                0
+                ;
         decorView.setSystemUiVisibility(
                 visibility);
+//        decorView.setFitsSystemWindows(false);
 
         /*int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
         int newUiOptions = uiOptions | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
@@ -1201,15 +1164,21 @@ public class MainActivity extends AppCompatActivity implements IMainView {
 
 //    @Override
 //    public boolean onTouchEvent(MotionEvent event) {
-//        this.gestureDetector.onTouchEvent(event);
+//        gestureDetector.onTouchEvent(event);
 //        return super.onTouchEvent(event);
+//    }
+
+//    @Override
+//    public boolean onTouch(View v, MotionEvent event) {
+//        return gestureDetector.onTouchEvent(event);
+////        return false;
 //    }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-//            setFullscreen(false);
+        if (!hasFocus) {
+            setFullscreen(false);
         }
     }
 
@@ -1283,20 +1252,16 @@ public class MainActivity extends AppCompatActivity implements IMainView {
     }
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            return true;
-        }
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
+        public boolean onDoubleTap(MotionEvent e) {
             toggleFullscreen();
             return true;
         }
 
         @Override
         public boolean onDown(MotionEvent e) {
-            return true;
+            return false;
         }
     }
 

@@ -3,7 +3,9 @@ package com.gee12.mytetroid.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,12 +35,13 @@ import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 import com.gee12.mytetroid.views.TetroidFragment;
+import com.gee12.mytetroid.views.TetroidWebView;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.util.List;
 
-public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
+public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener/*, View.OnTouchListener*/ {
 
     public static final int VIEW_GLOBAL_FOUND = -1;
     public static final int VIEW_NONE = 0;
@@ -63,11 +66,11 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
-    private WebView recordContentWebView;
+    private TetroidWebView recordContentWebView;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
-    private GestureDetectorCompat detector;
+//    private GestureDetectorCompat detector;
 
     private int curViewId;
     private int lastViewId;
@@ -75,48 +78,119 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private FilesListAdapter filesListAdapter;
 //    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
-    private boolean isOnItemClicked;
 
-    public MainPageFragment() {
+    public MainPageFragment(GestureDetectorCompat gestureDetector) {
+        super(gestureDetector);
     }
+
+    public MainPageFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+//    private GestureDetectorCompat gestureDetector;
+//
+//    @Override
+//    public boolean onTouch(View v, MotionEvent event) {
+//        return gestureDetector.onTouchEvent(event);
+////        return false;
+//    }
+
+//    private class TetroidGestureDetector extends GestureDetector.SimpleOnGestureListener {
+//
+//        @Override
+//        public boolean onDoubleTap(MotionEvent e) {
+//            mainView.toggleFullscreen();
+//            return true;
+//        }
+//
+////        @Override
+////        public void onLongPress(MotionEvent e) {
+////            super.onLongPress(e);
+////        }
+//
+//        @Override
+//        public boolean onDown(MotionEvent e) {
+//            return false;
+//        }
+//    }
+
+//    public boolean onSingleTapConfirmed(MotionEvent e) {
+//        if (curViewId == VIEW_NODE_RECORDS || curViewId == VIEW_RECORD_FILES) {
+//            int position = lvRecords.pointToPosition((int) e.getX(), (int) e.getY());
+//            if (position >= 0) {
+//                showRecord(position);
+//                return true;
+//            }
+//        } else if (curViewId == VIEW_RECORD_TEXT) {
+//                WebView.HitTestResult result = recordContentWebView.getHitTestResult();
+////                String url = result.getExtra();
+////                if (!Utils.isNullOrEmpty(url)) {
+////                    return true;
+////                }
+//            android.os.Message msg = mHandler.obtainMessage();
+//            recordContentWebView.requestFocusNodeHref(msg);
+//            return true;
+//        }
+//        return false;
+//    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        View.OnTouchListener touchListener = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (!isOnItemClicked) {
-                    isOnItemClicked = false;
-                    detector.onTouchEvent(event);
-                }
-                return false;
-            }
-        };
+//        View.OnTouchListener touchListener = new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                if (event.getAction() == MotionEvent.ACTION_UP) {
+//                    if (curViewId == VIEW_NODE_RECORDS || curViewId == VIEW_RECORD_FILES) {
+//                        int position = lvRecords.pointToPosition((int) event.getX(), (int) event.getY());
+//                        if (position >= 0) {
+//                            showRecord(position);
+//                            return true;
+//                        }
+//                    } else if (curViewId == VIEW_RECORD_TEXT) {
+////                        WebView.HitTestResult result = recordContentWebView.getHitTestResult();
+////                        String url = result.getExtra();
+////                        if (!Utils.isNullOrEmpty(url)) {
+////                            return true;
+////                        }
+//                    }
+//                }
+//                if (curViewId == VIEW_RECORD_TEXT) {
+//                    WebView.HitTestResult result = ((WebView)v).getHitTestResult();
+//                    String url = result.getExtra();
+//                    int type = result.getType();
+//                    String s = result.toString();
+//                    if (!Utils.isNullOrEmpty(url)) {
+//                        return true;
+//                    }
+//                }
+//                return detector.onTouchEvent(event);
+//            }
+//        };
         this.viewFlipper = view.findViewById(R.id.view_flipper);
         // список записей
         this.lvRecords = view.findViewById(R.id.list_view_records);
-        lvRecords.setOnTouchListener(touchListener);
+        lvRecords.setOnTouchListener(this);
+        //
         lvRecords.setOnItemClickListener(onRecordClicklistener);
         this.tvRecordsEmpty = view.findViewById(R.id.text_view_empty_records);
         lvRecords.setEmptyView(tvRecordsEmpty);
         registerForContextMenu(lvRecords);
         // список файлов
         this.lvFiles = view.findViewById(R.id.list_view_files);
-        lvFiles.setOnTouchListener(touchListener);
+        lvFiles.setOnTouchListener(this);
         lvFiles.setOnItemClickListener(onFileClicklistener);
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
         // текст записи
         this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
-        recordContentWebView.setOnTouchListener(touchListener);
+//        this.gestureDetector = new GestureDetectorCompat(getContext(), new TetroidGestureDetector());
+        recordContentWebView.setOnTouchListener(this);
         recordContentWebView.getSettings().setBuiltInZoomControls(true);
         recordContentWebView.getSettings().setDisplayZoomControls(false);
         this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
@@ -132,6 +206,12 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
         return view;
     }
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+////        return super.onTouchEvent(event);
+//        return false;
+//    }
 
     public void initListViews() {
         // список записей
@@ -272,27 +352,32 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.startsWith("mytetra")) {
-                    // обрабатываем внутреннюю ссылку
-                    String id = url.substring(url.lastIndexOf('/')+1);
-                    TetroidRecord record = DataManager.getRecord(id);
-
-                    // !!
-                    // вот тут пока неясно что делать потом с командой Back, например.
-                    showRecord(record);
-
-//                    return super.shouldOverrideUrlLoading(view, request);
-                } else {
-                    try {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                        startActivity(browserIntent);
-                    } catch (Exception ex) {
-                        LogManager.addLog(ex);
-                    }
-                }
+                handleUrl(url);
                 return true;
             }
         });
+
+    }
+
+    private void handleUrl(String url) {
+        if (url.startsWith("mytetra")) {
+            // обрабатываем внутреннюю ссылку
+            String id = url.substring(url.lastIndexOf('/')+1);
+            TetroidRecord record = DataManager.getRecord(id);
+
+            // !!
+            // вот тут пока неясно что делать потом с командой Back, например.
+            showRecord(record);
+
+//                    return super.shouldOverrideUrlLoading(view, request);
+        } else {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(browserIntent);
+            } catch (Exception ex) {
+                LogManager.addLog(ex);
+            }
+        }
     }
 
     /**
@@ -351,7 +436,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private AdapterView.OnItemClickListener onRecordClicklistener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            MainPageFragment.this.isOnItemClicked = true;
             showRecord(position);
         }
     };
@@ -362,7 +446,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
         @Override
         public void onClick(TetroidRecord record) {
-            MainPageFragment.this.isOnItemClicked = true;
             showRecordFiles(record);
         }
     };
@@ -373,7 +456,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            MainPageFragment.this.isOnItemClicked = true;
             openFile(position);
         }
     };
@@ -465,13 +547,13 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         tvFilesEmpty.setText(s);
     }
 
-    /**
-     *
-     * @param detector
-     */
-    public void setGestureDetector(GestureDetectorCompat detector) {
-        this.detector = detector;
-    }
+//    /**
+//     *
+//     * @param detector
+//     */
+//    public void setGestureDetector(GestureDetectorCompat detector) {
+//        this.gestureDetector = detector;
+//    }
 
     public TetroidRecord getCurRecord() {
         return curRecord;

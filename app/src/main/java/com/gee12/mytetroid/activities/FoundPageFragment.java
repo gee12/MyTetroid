@@ -9,6 +9,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.core.view.GestureDetectorCompat;
+
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
@@ -26,9 +28,9 @@ public class FoundPageFragment extends TetroidFragment {
     private TextView tvEmpty;
     private int foundCount;
 
-//    public FoundPageFragment(IMainView mainView) {
-//        super(mainView);
-//    }
+    public FoundPageFragment(GestureDetectorCompat detector) {
+        super(detector);
+    }
 
     public FoundPageFragment() {
     }
@@ -52,6 +54,7 @@ public class FoundPageFragment extends TetroidFragment {
                 openFoundObject(position);
             }
         });
+        lvFound.setOnTouchListener(this);
 
         this.listAdapter = new FoundListAdapter(getContext());
         lvFound.setAdapter(listAdapter);

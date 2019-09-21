@@ -140,7 +140,7 @@
         </net.cachapa.expandablelayout.ExpandableLayout>
     </RelativeLayout>
 
-    <WebView
+    <com.gee12.mytetroid.views.TetroidWebView
         android:id="@+id/web_view_record_content"
         android:layout_below="@id/layout_fields"
         android:textIsSelectable="true"

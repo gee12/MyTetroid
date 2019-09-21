@@ -7,6 +7,7 @@ import com.gee12.mytetroid.activities.FoundPageFragment;
 import com.gee12.mytetroid.activities.IMainView;
 import com.gee12.mytetroid.activities.MainPageFragment;
 
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -18,12 +19,10 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
     private TetroidFragment[] fragments = new TetroidFragment[2];
     Bundle arguments;
 
-    public MainPagerAdapter(FragmentManager fm, IMainView mainView) {
+    public MainPagerAdapter(FragmentManager fm, IMainView mainView, GestureDetectorCompat detector) {
         super(fm);
-        fragments[0] = new MainPageFragment();
-//        fragments[0].setTitleMask("Главная");
-        fragments[1] = new FoundPageFragment();
-//        fragments[1].setTitleMask(getString(R.string.found_mask));
+        fragments[0] = new MainPageFragment(detector);
+        fragments[1] = new FoundPageFragment(detector);
 
         this.arguments = new Bundle();
         arguments.putParcelable(KEY_MAIN_VIEW, mainView);
