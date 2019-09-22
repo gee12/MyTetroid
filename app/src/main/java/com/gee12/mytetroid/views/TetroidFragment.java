@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 public abstract class TetroidFragment extends Fragment implements View.OnTouchListener {
 
     protected GestureDetectorCompat gestureDetector;
-
     protected IMainView mainView;
     protected String titleMask;
 
@@ -46,12 +45,17 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
         this.gestureDetector = detector;
     }
 
-
+    /**
+     * Переопределяем обработчик нажатия на экране
+     * для обработки перехода в полноэкранный режим.
+     * @param v
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (gestureDetector != null)
             gestureDetector.onTouchEvent(event);
         return false;
     }
-
 }

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.activities;
 
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -71,7 +72,7 @@ import com.google.android.material.navigation.NavigationView;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IMainView/*, View.OnTouchListener*/ {
+public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -138,14 +139,16 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
+        // обработчик нажатия на экране
         this.gestureDetector = new GestureDetectorCompat(this, new MyGestureListener());
+        // обработчик нажатия на экране, когда ветка не выбрана
+        drawerLayout.setOnTouchListener(this);
+
         // страницы (главная и найдено)
         this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
         this.viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
-        viewPager.setGestureDetector(gestureDetector);
-
-//        viewPagerAdapter.getMainFragment().setGestureDetector(gestureDetector);
+//        viewPager.setGestureDetector(gestureDetector);
 
         this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
@@ -1027,7 +1030,7 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
     }
 
     /**
-     * Обработчик нажатия кнопки Назад
+     * Обработчик нажатия кнопки Назад.
      */
     @Override
     public void onBackPressed() {
@@ -1048,7 +1051,7 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
     }
 
     /**
-     * Обработчик создания системного меню
+     * Обработчик создания системного меню.
      * @param menu
      * @return
      */
@@ -1064,7 +1067,7 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
     }
 
     /**
-     * Обработчик выбора пунктов системного меню
+     * Обработчик выбора пунктов системного меню.
      * @param item
      * @return
      */
@@ -1097,15 +1100,23 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Переключатель полноэкранного режима.
+     */
     @Override
     public void toggleFullscreen() {
         setFullscreen(!isFullscreen);
     }
 
+    /**
+     * Установка полноэкранного режима.
+     * @param isFullscreen Если true, то toolbar исчезает и в опциях SystemUiVisibility устанавливаются нужные флаги
+     *                     для полноэкранного режима, иначе все флаги сбрасываются.
+     */
     private void setFullscreen(boolean isFullscreen) {
         this.isFullscreen = isFullscreen;
 
-
+        // StatusBar
         View decorView = getWindow().getDecorView();
         int visibility = (isFullscreen)
                 ? View.SYSTEM_UI_FLAG_IMMERSIVE
@@ -1152,28 +1163,41 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
         }
         getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
 */
+        // ToolBar
         try {
-            if (isFullscreen)
-                getSupportActionBar().hide();
-            else
-                getSupportActionBar().show();
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                if (isFullscreen)
+                    actionBar.hide();
+                else
+                    actionBar.show();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        // панель с полями записи
+        viewPagerAdapter.getMainFragment().setRecordFieldsVisibility(!isFullscreen);
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        gestureDetector.onTouchEvent(event);
-//        return super.onTouchEvent(event);
-//    }
+    /**
+     * Переопределяем обработчик нажатия на экране
+     * для обработки перехода в полноэеранный режим.
+     * @param v
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return false;
+    }
 
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        return gestureDetector.onTouchEvent(event);
-////        return false;
-//    }
-
+    /**
+     * Выходим их полноэкранного режима, когда потеряли фокус активности
+     * (например, при нажатии на "физическую" кнопку вызова меню).
+     * @param hasFocus
+     */
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -1218,7 +1242,7 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
     }
 
     /**
-     *
+     * Задание (параллельный поток), в котором выполняется загрузка хранилища.
      */
     private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
         @Override
@@ -1251,7 +1275,10 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
         }
     }
 
-    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+    /**
+     * Обработчик двойного нажатия на экране.
+     */
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
@@ -1265,6 +1292,9 @@ public class MainActivity extends AppCompatActivity implements IMainView/*, View
         }
     }
 
+    /**
+     *
+     */
     public static final Creator<MainActivity> CREATOR = new Creator<MainActivity>() {
         @Override
         public MainActivity createFromParcel(Parcel in) {

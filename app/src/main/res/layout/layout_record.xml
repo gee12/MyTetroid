@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
-        android:id="@+id/layout_fields"
+        android:id="@+id/layout_record_fields"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -142,7 +142,7 @@
 
     <com.gee12.mytetroid.views.TetroidWebView
         android:id="@+id/web_view_record_content"
-        android:layout_below="@id/layout_fields"
+        android:layout_below="@id/layout_record_fields"
         android:textIsSelectable="true"
         android:layout_margin="2dp"
         android:layout_width="match_parent"
