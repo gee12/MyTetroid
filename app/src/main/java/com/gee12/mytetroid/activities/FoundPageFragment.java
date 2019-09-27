@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.core.view.GestureDetectorCompat;
@@ -44,6 +45,10 @@ public class FoundPageFragment extends TetroidFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_found, container, false);
+        // ?
+//        rootView.setOnTouchListener(this);
+//        RelativeLayout rl = rootView.findViewById(R.id.layout_found);
+//        rl.setOnTouchListener(this);
         this.lvFound = rootView.findViewById(R.id.list_view_found);
         this.tvEmpty = rootView.findViewById(R.id.text_view_empty_found);
         lvFound.setEmptyView(tvEmpty);

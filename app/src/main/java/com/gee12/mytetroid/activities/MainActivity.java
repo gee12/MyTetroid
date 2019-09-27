@@ -1202,7 +1202,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (!hasFocus) {
-            setFullscreen(false);
+//            setFullscreen(false);
         }
     }
 

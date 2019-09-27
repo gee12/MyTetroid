@@ -93,7 +93,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
         this.viewFlipper = view.findViewById(R.id.view_flipper);
-//        viewFlipper.setOnTouchListener(this);
+        // обработка нажатия на пустом месте экрана, когда записей в ветке нет
+        viewFlipper.setOnTouchListener(this);
         // список записей
         this.lvRecords = view.findViewById(R.id.list_view_records);
         // обработка нажатия на пустом месте списка записей

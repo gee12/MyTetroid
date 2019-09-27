@@ -10,7 +10,8 @@
         <item name="record_text">RECORD</item>
         <item name="recor_files">FILES</item>
         <item name="tag_records">TAG</item>
-        <item name="finded_records">SEARCH RECORDS</item>
+        <item name="finded_records"></item>
+        <!--<item name="finded_records">SEARCH RECORDS</item>-->
     </string-array>
     <string-array name="search_split_to_words">
         <item name="search_any_word">Any word</item>
