@@ -84,6 +84,7 @@
     <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
     <string name="file_is_missing">Файл отсутствует</string>
     <string name="storage_loading">Загрузка хранилища..</string>
+    <string name="global_searching">Глобальный поиск..</string>
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>

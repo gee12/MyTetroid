@@ -14,4 +14,5 @@ public interface IMainView extends Parcelable {
     void openMainPage();
     void closeFoundFragment();
     void toggleFullscreen();
+    void openTag(String tag);
 }

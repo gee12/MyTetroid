@@ -243,6 +243,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return getRecordInHierarchy(instance.rootNodesList, id);
     }
 
+    public static TetroidTag getTag(String tagName) {
+        for (TetroidTag tag : getTags()) {
+            if (tag.getName().contentEquals(tagName))
+                return tag;
+        }
+        return null;
+    }
+
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
         for (TetroidNode node : nodes) {
 //            if (getNodeInHierarchy(node, id) != null)

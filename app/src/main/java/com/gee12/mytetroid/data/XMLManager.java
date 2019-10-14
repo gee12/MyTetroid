@@ -20,24 +20,15 @@ import java.util.TreeMap;
  */
 public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
-    private Comparator<String> tagsComparator = new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 == null) {
-                return -1;
-            }
-            if (o2 == null) {
-                return 1;
-            }
-            return o1.toLowerCase().compareTo(o2.toLowerCase());
-        }
-    };
+    /**
+     * Запятая или запятая с пробелами
+     */
+    private static final String TAGS_SEPARATOR = "\\s*,\\s*";
 
+    /**
+     *
+     */
     private static final String ns = null;
-    private static final String TAGS_SEPARATOR = ", ";
 
     protected Version formatVersion;
     protected boolean isExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
@@ -56,7 +47,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected List<TetroidTag> tagsList;
 
     /**
-     *
+     * Чтение хранилища.
      * @param in Файл mytetra.xml
      * @return Иерархический список веток с записями и документами
      * @throws XmlPullParserException
@@ -235,14 +226,18 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 //            return;
         String tagsString = record.getTagsString();
         if (!Utils.isNullOrEmpty(tagsString)) {
-            for (String tag : tagsString.split(TAGS_SEPARATOR)) {
-                if (tagsMap.containsKey(tag)) {
-                    tagsMap.get(tag).addRecord(record);
+            for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
+                TetroidTag tag;
+                if (tagsMap.containsKey(tagName)) {
+                    tag = tagsMap.get(tagName);
+                    tag.addRecord(record);
                 } else {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);
-                    tagsMap.put(tag, new TetroidTag(tag, tagRecords));
+                    tag = new TetroidTag(tagName, tagRecords);
+                    tagsMap.put(tagName, tag);
                 }
+                record.addTag(tag);
             }
         }
     }
@@ -354,4 +349,22 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
     }
 
+    /**
+     * Функция сравнения меток.
+     */
+    private Comparator<String> tagsComparator = new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+            if (o1 == o2) {
+                return 0;
+            }
+            if (o1 == null) {
+                return -1;
+            }
+            if (o2 == null) {
+                return 1;
+            }
+            return o1.toLowerCase().compareTo(o2.toLowerCase());
+        }
+    };
 }

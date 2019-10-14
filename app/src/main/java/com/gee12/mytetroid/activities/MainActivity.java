@@ -513,6 +513,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         showRecords(tag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
     }
 
+    @Override
+    public void openTag(String tagName) {
+        TetroidTag tag = DataManager.getTag(tagName);
+        showTag(tag);
+    }
+
     private void showRecords(List<TetroidRecord> records, int viewId) {
 //        updateMainToolbar(viewId);
         drawerLayout.closeDrawers();
@@ -859,7 +865,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * @param scan
      */
     private void startGlobalSearch(ScanManager scan) {
-        LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
+        /*LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
         HashMap<ITetroidObject,FoundType> found = scan.globalSearch(curNode);
         if (found == null) {
             LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
@@ -872,7 +878,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         viewPagerAdapter.getFoundFragment().setFounds(found, scan);
         viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
         setFoundPageVisibility(true);
-        viewPager.setCurrent(MainViewPager.PAGE_FOUND);
+        viewPager.setCurrent(MainViewPager.PAGE_FOUND);*/
+        new GlobalSearchTask(scan).execute();
     }
 
     /**
@@ -1272,6 +1279,55 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             }
             // инициализация контролов
             initListViews();
+        }
+    }
+
+    /**
+     * Задание, в котором выполняется глобальный поиск по объектам.
+     */
+    private class GlobalSearchTask extends AsyncTask<Void, Void,HashMap<ITetroidObject,FoundType>> {
+
+        private ScanManager scan;
+
+        GlobalSearchTask(ScanManager scan) {
+            this.scan = scan;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            tvProgress.setText(R.string.global_searching);
+            layoutProgress.setVisibility(View.VISIBLE);
+
+            LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
+        }
+
+        @Override
+        protected HashMap<ITetroidObject, FoundType> doInBackground(Void... voids /*ScanManager... scans*/) {
+//            ScanManager scan = scans[0];
+            return scan.globalSearch(curNode);
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+//            drawerLayout.openDrawer(Gravity.LEFT);
+            layoutProgress.setVisibility(View.INVISIBLE);
+            if (found == null) {
+                LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
+                return;
+            } else if (scan.isSearchInNode() && scan.getNode() != null) {
+                Message.show(MainActivity.this, String.format(getString(R.string.global_search_by_node_result),
+                        scan.getNode().getName()), Toast.LENGTH_LONG);
+            }
+            LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
+            viewPagerAdapter.getFoundFragment().setFounds(found, scan);
+            viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
+            setFoundPageVisibility(true);
+            viewPager.setCurrent(MainViewPager.PAGE_FOUND);
         }
     }
 

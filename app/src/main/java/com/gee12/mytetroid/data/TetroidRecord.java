@@ -62,6 +62,19 @@ public class TetroidRecord implements ITetroidObject {
         return tagsString;
     }
 
+    public String getTagsLinksString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<body>");
+        int size = tags.size();
+        for (TetroidTag tag : tags) {
+            sb.append("<a href='" + tag.getName() + "'>" + tag.getName() + "</a>");
+            if (--size > 0)
+                sb.append(", ");
+        }
+        sb.append("</body>");
+        return sb.toString();
+    }
+
     public String getAuthor() {
         return author;
     }

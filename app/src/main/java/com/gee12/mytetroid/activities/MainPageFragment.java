@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -9,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -60,7 +62,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
     private ToggleButton tbRecordFieldsExpander;
-    private TextView tvRecordTags;
+//    private TextView tvRecordTags;
+    private WebView wvRecordTags;
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
@@ -118,7 +121,16 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         recordContentWebView.getSettings().setBuiltInZoomControls(true);
         recordContentWebView.getSettings().setDisplayZoomControls(false);
         this.recordFieldsLayout = view.findViewById(R.id.layout_record_fields);
-        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
+//        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
+        this.wvRecordTags =  view.findViewById(R.id.web_view_record_tags);
+        wvRecordTags.setBackgroundColor(Color.TRANSPARENT);
+        wvRecordTags.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                mainView.openTag(url);
+                return true;
+            }
+        });
         this.tvRecordAuthor =  view.findViewById(R.id.text_view_record_author);
         this.tvRecordUrl =  view.findViewById(R.id.text_view_record_url);
         this.tvRecordDate =  view.findViewById(R.id.text_view_record_date);
@@ -261,7 +273,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                tvRecordTags.setText(record.getTagsString());
+//                tvRecordTags.setText(record.getTagsString());
+                String tagsString = record.getTagsLinksString();
+                wvRecordTags.loadData(tagsString, "text/html; charset=UTF-8", null);
                 tvRecordAuthor.setText(record.getAuthor());
                 tvRecordUrl.setText(record.getUrl());
                 if (record.getCreated() != null)
