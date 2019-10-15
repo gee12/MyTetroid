@@ -7,6 +7,8 @@ import java.util.List;
 
 public class TetroidRecord implements ITetroidObject {
 
+    public static final String TAG_LINKS_PREF = "tag:";
+
     private String id;
     private TetroidNode node;
     private String name;
@@ -64,10 +66,14 @@ public class TetroidRecord implements ITetroidObject {
 
     public String getTagsLinksString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("<body>");
         int size = tags.size();
+        if (size == 0) {
+            return "";
+        }
+        sb.append("<body style=\"color:#a4a4e4;\">");
         for (TetroidTag tag : tags) {
-            sb.append("<a href='" + tag.getName() + "'>" + tag.getName() + "</a>");
+            sb.append("<a href=\"").append(TAG_LINKS_PREF).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
+                    append(tag.getName()).append("</a>");
             if (--size > 0)
                 sb.append(", ");
         }

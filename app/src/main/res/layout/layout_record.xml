@@ -48,7 +48,7 @@
             android:layout_toRightOf="@id/label_record_tags"
             android:layout_toEndOf="@id/label_record_tags"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:textIsSelectable="false"
             android:paddingLeft="3dp"
             android:paddingRight="3dp"
@@ -56,6 +56,7 @@
             android:paddingBottom="3dp"
             android:layout_marginRight="36dp"
             android:layout_marginEnd="36dp"
+            android:minHeight="50dp"
             android:background="@android:color/transparent"
             tools:ignore="WebViewLayout" />
 
@@ -75,7 +76,7 @@
             android:id="@+id/layout_expander"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/toggle_button_expander"
+            android:layout_below="@id/web_view_record_tags"
             app:el_duration="300"
             app:el_expanded="false"
             app:el_parallax="0.5">
@@ -93,7 +94,10 @@
                     android:layout_alignParentLeft="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="2dp"
+                    android:paddingTop="0dp"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:paddingBottom="2dp"
                     android:text="@string/record_author_label"
                     android:layout_alignParentStart="true"
                     android:textColor="@color/colorLightLabelText" />
@@ -105,7 +109,10 @@
                     android:layout_toEndOf="@id/label_record_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="2dp" />
+                    android:paddingTop="0dp"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:paddingBottom="2dp" />
 
                 <TextView
                     android:id="@+id/label_record_url"

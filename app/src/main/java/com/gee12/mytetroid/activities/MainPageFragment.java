@@ -15,6 +15,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -127,7 +128,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         wvRecordTags.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                mainView.openTag(url);
+                // избавляемся от приставки tag:
+                String tagName = url.substring(TetroidRecord.TAG_LINKS_PREF.length());
+                mainView.openTag(tagName);
                 return true;
             }
         });
@@ -144,7 +147,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         return view;
     }
 
-    public void initListViews() {
+    void initListViews() {
         // список записей
         this.recordsListAdapter = new RecordsListAdapter(this.getContext(), onRecordAttachmentClickListener);
         lvRecords.setAdapter(recordsListAdapter);
@@ -266,6 +269,27 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
             return;
         }
+        // поля
+//                tvRecordTags.setText(record.getTagsString());
+        String tagsString = record.getTagsLinksString();
+//                wvRecordTags.setVisibility(View.GONE);
+        wvRecordTags.loadData(tagsString, "text/html", "UTF-8");
+//                wvRecordTags.reload();
+//                wvRecordTags.setVisibility(View.VISIBLE);
+//        wvRecordTags.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+//                ViewGroup.LayoutParams.WRAP_CONTENT));
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        int id = (record.getTags().size() == 0) ? R.id.label_record_tags : R.id.web_view_record_tags;
+        params.addRule(RelativeLayout.BELOW, id);
+        expRecordFieldsLayout.setLayoutParams(params);
+
+        tvRecordAuthor.setText(record.getAuthor());
+        tvRecordUrl.setText(record.getUrl());
+        if (record.getCreated() != null)
+            tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+
+        // текст
         recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 text, "text/html", "UTF-8", null);
 //            recordContentWebView.loadUrl(recordContentUrl);
@@ -273,13 +297,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
             @Override
             public void onPageFinished(WebView view, String url) {
-//                tvRecordTags.setText(record.getTagsString());
-                String tagsString = record.getTagsLinksString();
-                wvRecordTags.loadData(tagsString, "text/html; charset=UTF-8", null);
-                tvRecordAuthor.setText(record.getAuthor());
-                tvRecordUrl.setText(record.getUrl());
-                if (record.getCreated() != null)
-                    tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
                 showView(VIEW_RECORD_TEXT);
             }
 
