@@ -76,7 +76,7 @@
             android:id="@+id/layout_expander"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/web_view_record_tags"
+            android:layout_below="@id/label_record_tags"
             app:el_duration="300"
             app:el_expanded="false"
             app:el_parallax="0.5">

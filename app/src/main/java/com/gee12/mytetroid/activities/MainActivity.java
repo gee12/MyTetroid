@@ -722,6 +722,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             @Override
             public boolean onClose() {
                 switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
+//                switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
                     case MainPageFragment.VIEW_NODE_RECORDS:
                         if (curNode != null) {
                             showRecords(curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
@@ -785,6 +786,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 title = ((curTag != null) ? curTag.getName() : "");
                 showRecordsSearch = true;
                 break;
+            case MainPageFragment.VIEW_RECORD_FILES:
             case MainPageFragment.VIEW_FOUND_RECORDS:
                 showRecordsSearch = true;
                 break;
@@ -1008,7 +1010,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         if (curRecord != null) {
             searchInFiles(query, curRecord);
         } else {
-//            LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -1027,13 +1029,20 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         if (curRecord != null) {
             searchInText(query, curRecord);
         } else {
-//            LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
+    /**
+     * Поиск по тексту записи (НЕ РЕАЛИЗОВАНО !)
+     * @param query
+     * @param record
+     */
     private void searchInText(String query, TetroidRecord record) {
+        //
+        //
+        //
         LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
-
     }
 
     /**

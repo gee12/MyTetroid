@@ -64,14 +64,20 @@ public class TetroidRecord implements ITetroidObject {
         return tagsString;
     }
 
+    /**
+     * Формирование списка меток в виде html-кода.
+     * @return
+     */
     public String getTagsLinksString() {
         StringBuilder sb = new StringBuilder();
         int size = tags.size();
         if (size == 0) {
-            return "";
+            return null;
         }
-        sb.append("<body style=\"color:#a4a4e4;\">");
+        // #a4a4e4 - это colorLightLabelText
+        sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;\">");
         for (TetroidTag tag : tags) {
+            // #303F9F - это colorBlueDark
             sb.append("<a href=\"").append(TAG_LINKS_PREF).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
                     append(tag.getName()).append("</a>");
             if (--size > 0)

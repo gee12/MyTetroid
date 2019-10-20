@@ -136,4 +136,5 @@
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
     <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
+    <string name="cur_record_is_not_set">Не указана текущая запись</string>
 </resources>

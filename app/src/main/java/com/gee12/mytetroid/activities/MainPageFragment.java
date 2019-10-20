@@ -39,6 +39,9 @@ import com.gee12.mytetroid.views.TetroidWebView;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
@@ -128,8 +131,17 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         wvRecordTags.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // избавляемся от приставки tag:
-                String tagName = url.substring(TetroidRecord.TAG_LINKS_PREF.length());
+                String decodedUrl;
+                // декодируем url
+                try {
+                    decodedUrl = URLDecoder.decode(url, "UTF-8");
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                    LogManager.addLog("Ошибка декодирования url: " + url, ex);
+                    return true;
+                }
+                // избавляемся от приставки "tag:"
+                String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
                 mainView.openTag(tagName);
                 return true;
             }
@@ -272,15 +284,15 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         // поля
 //                tvRecordTags.setText(record.getTagsString());
         String tagsString = record.getTagsLinksString();
-//                wvRecordTags.setVisibility(View.GONE);
-        wvRecordTags.loadData(tagsString, "text/html", "UTF-8");
-//                wvRecordTags.reload();
-//                wvRecordTags.setVisibility(View.VISIBLE);
-//        wvRecordTags.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.WRAP_CONTENT));
+        int id = R.id.label_record_tags;
+        if (tagsString != null) {
+            // указываем charset в mimeType для кириллицы
+            wvRecordTags.loadData(tagsString, "text/html; charset=UTF-8", null);
+            id = R.id.web_view_record_tags;
+        }
+        // указываем относительно чего теперь выравнивать следующую панель
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        int id = (record.getTags().size() == 0) ? R.id.label_record_tags : R.id.web_view_record_tags;
         params.addRule(RelativeLayout.BELOW, id);
         expRecordFieldsLayout.setLayoutParams(params);
 
