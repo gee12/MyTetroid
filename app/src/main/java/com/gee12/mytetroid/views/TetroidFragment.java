@@ -4,10 +4,10 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.gee12.mytetroid.activities.IMainView;
-
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
+
+import com.gee12.mytetroid.activities.IMainView;
 
 public abstract class TetroidFragment extends Fragment implements View.OnTouchListener {
 

@@ -3,15 +3,6 @@ package com.gee12.mytetroid.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.gee12.mytetroid.Message;
-import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.Utils;
-import com.gee12.mytetroid.data.ScanManager;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -19,7 +10,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.data.ScanManager;
 
 public class SearchActivity extends AppCompatActivity {
 

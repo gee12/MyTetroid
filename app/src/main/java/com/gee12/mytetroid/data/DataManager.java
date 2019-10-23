@@ -4,10 +4,11 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -22,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.TreeMap;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
@@ -338,9 +338,19 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 }
             }
 
+//            Uri fileURI = Uri.fromFile(srcFile);
+            // 1) необходимо использовать FileProvider ?
+            // FileProvider is a special subclass of ContentProvider
+            // that facilitates secure sharing of files associated with an app
+            // by creating a content:// Uri for a file instead of a file:/// Uri.
+            Uri fileURI = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", srcFile);
+
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
-            intent.setDataAndType(Uri.fromFile(srcFile), mimeType);
+            intent.setDataAndType(fileURI, mimeType);
+            // 2) или достаточно добавить этот флаг ?
+            // Add this flag if you're using an intent to make the system open your file.
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 context.startActivity(intent);

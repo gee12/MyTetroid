@@ -2,15 +2,14 @@ package com.gee12.mytetroid.views;
 
 import android.os.Bundle;
 
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.activities.FoundPageFragment;
-import com.gee12.mytetroid.activities.IMainView;
-import com.gee12.mytetroid.activities.MainPageFragment;
-
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
+import com.gee12.mytetroid.activities.FoundPageFragment;
+import com.gee12.mytetroid.activities.IMainView;
+import com.gee12.mytetroid.activities.MainPageFragment;
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
 

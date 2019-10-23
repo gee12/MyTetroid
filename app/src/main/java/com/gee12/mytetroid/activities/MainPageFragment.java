@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -10,12 +11,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -41,7 +40,6 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
@@ -159,12 +157,12 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         return view;
     }
 
-    void initListViews() {
+    void initListViews(Context context) {
         // список записей
-        this.recordsListAdapter = new RecordsListAdapter(this.getContext(), onRecordAttachmentClickListener);
+        this.recordsListAdapter = new RecordsListAdapter(context, onRecordAttachmentClickListener);
         lvRecords.setAdapter(recordsListAdapter);
         // список файлов
-        this.filesListAdapter = new FilesListAdapter(this.getContext());
+        this.filesListAdapter = new FilesListAdapter(context);
         lvFiles.setAdapter(filesListAdapter);
     }
 

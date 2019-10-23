@@ -3,9 +3,7 @@ package com.gee12.mytetroid.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
-import androidx.core.view.GestureDetectorCompat;
 import androidx.viewpager.widget.ViewPager;
 
 public class MainViewPager extends ViewPager /*implements View.OnTouchListener*/ {

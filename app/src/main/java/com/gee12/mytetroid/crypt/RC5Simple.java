@@ -3,8 +3,6 @@ package com.gee12.mytetroid.crypt;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
 
-import java.util.Arrays;
-
 /**
  * Реализация на Java класса RC5Simple, написанного Сергеем Степановым (xintrea) на C++.
  * Источник:

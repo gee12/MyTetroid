@@ -1,24 +1,5 @@
 package com.gee12.mytetroid.activities;
 
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.viewpager.widget.PagerTabStrip;
-import androidx.viewpager.widget.ViewPager;
-import lib.folderpicker.FolderPicker;
-import pl.openrnd.multilevellistview.ItemInfo;
-import pl.openrnd.multilevellistview.MultiLevelListView;
-import pl.openrnd.multilevellistview.OnItemClickListener;
-
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.SearchManager;
@@ -38,13 +19,25 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-//import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.viewpager.widget.PagerTabStrip;
+import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Message;
@@ -71,6 +64,13 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.HashMap;
 import java.util.List;
+
+import lib.folderpicker.FolderPicker;
+import pl.openrnd.multilevellistview.ItemInfo;
+import pl.openrnd.multilevellistview.MultiLevelListView;
+import pl.openrnd.multilevellistview.OnItemClickListener;
+
+//import android.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
 
@@ -447,6 +447,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         // список веток
         this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
         nodesListView.setAdapter(nodesListAdapter);
+        // throws NullPointerException if the specified collection contains one or more null elements
+        // and this list does not permit null elements, or if the specified collection is null.
         nodesListAdapter.setDataItems(DataManager.getRootNodes());
         setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
         // список записей
@@ -456,7 +458,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        this.filesListAdapter = new FilesListAdapter(this);
 //        filesListView.setAdapter(filesListAdapter);
 
-        viewPagerAdapter.getMainFragment().initListViews();
+        viewPagerAdapter.getMainFragment().initListViews(this);
 
         // список меток
 //        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());

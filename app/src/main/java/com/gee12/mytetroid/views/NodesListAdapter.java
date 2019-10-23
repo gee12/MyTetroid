@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.views;
 
 import android.content.Context;
-import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,7 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.gee12.mytetroid.BuildConfig;
+import androidx.core.content.ContextCompat;
+
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidNode;
 

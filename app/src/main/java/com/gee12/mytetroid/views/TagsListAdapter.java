@@ -11,9 +11,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.data.TetroidTag;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class TagsListAdapter extends BaseAdapter {
 
