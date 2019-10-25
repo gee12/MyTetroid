@@ -18,7 +18,8 @@
         <!-- tools:replace="android:theme" -->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.gee12.mytetroid.fileprovider"
+            android:authorities="${applicationId}.provider"
+            android:enabled="true"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

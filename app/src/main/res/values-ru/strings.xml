@@ -82,7 +82,7 @@
     <string name="exit_from_app">Выйти из приложения?</string>
     <string name="is_confirm_app_exit">Подтверждать выход</string>
     <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
-    <string name="file_is_missing">Файл отсутствует</string>
+    <string name="file_is_missing">Файл отсутствует </string>
     <string name="storage_loading">Загрузка хранилища..</string>
     <string name="global_searching">Глобальный поиск..</string>
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
@@ -137,4 +137,6 @@
     <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
     <string name="cur_record_is_not_set">Не указана текущая запись</string>
+    <string name="no_app_found">Не найдено подходящего приложения для открытия файла </string>
+    <string name="error_file_open">Ошибка открытия файла </string>
 </resources>

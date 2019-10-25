@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -339,28 +340,31 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
 
 //            Uri fileURI = Uri.fromFile(srcFile);
-            // 1) необходимо использовать FileProvider ?
             // FileProvider is a special subclass of ContentProvider
             // that facilitates secure sharing of files associated with an app
             // by creating a content:// Uri for a file instead of a file:/// Uri.
-            Uri fileURI = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", srcFile);
+            Uri fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
             intent.setDataAndType(fileURI, mimeType);
-            // 2) или достаточно добавить этот флаг ?
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
-                context.startActivity(intent);
+                // проверить, есть ли подходящее приложение для открытия файла
+                if (intent.resolveActivity(context.getPackageManager()) != null) {
+                    context.startActivity(intent);
+                } else {
+                    LogManager.addLog(context.getString(R.string.no_app_found) + fileDisplayName, Toast.LENGTH_LONG);
+                    return false;
+                }
             }
             catch(ActivityNotFoundException e) {
-                LogManager.addLog("Ошибка открытия файла " + fileDisplayName, Toast.LENGTH_LONG);
+                LogManager.addLog(context.getString(R.string.error_file_open) + fileDisplayName, Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            LogManager.addLog("Файл отсутствует: " + fileDisplayName, Toast.LENGTH_SHORT);
+            LogManager.addLog(context.getString(R.string.file_is_missing) + fileDisplayName, Toast.LENGTH_SHORT);
             return false;
         }
         return true;

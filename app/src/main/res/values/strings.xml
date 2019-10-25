@@ -102,7 +102,7 @@
     <string name="pref_key_is_confirm_app_exit" translatable="false">pref_key_is_confirm_app_exit</string>
     <string name="is_confirm_app_exit">Confirm app exit</string>
     <string name="is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
-    <string name="file_is_missing">File is missing</string>
+    <string name="file_is_missing">File is missing </string>
     <string name="storage_loading">Storage loading..</string>
     <string name="global_searching">Global searching..</string>
     <string name="start_storage_loading">Start storage loading: </string>
@@ -167,4 +167,6 @@
     <string name="title_fullscreen">Fullscreen</string>
     <string name="incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="cur_record_is_not_set">Current record is not set</string>
+    <string name="no_app_found">No suitable application was found to open the file </string>
+    <string name="error_file_open">File open error </string>
 </resources>
