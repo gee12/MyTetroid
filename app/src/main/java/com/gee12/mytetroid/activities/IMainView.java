@@ -7,6 +7,7 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 
 public interface IMainView extends Parcelable {
+    void onMainPageCreated();
     void openFolder(String pathUri);
     void openFile(TetroidRecord record, TetroidFile file);
     void updateMainToolbar(int viewId, String title);

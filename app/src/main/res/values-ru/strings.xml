@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MyTetroid</string>
     <string name="title_settings">Настройки</string>
     <string name="records_is_missing">Записей нет</string>
     <string name="select_the_node">Выберите ветку..</string>
@@ -27,7 +26,6 @@
     <string name="title_pass_input">Введите пароль</string>
     <string name="answer_ok">Ок</string>
     <string name="answer_cancel">Отмена</string>
-    <string name="main_header_title">MyTetroid</string>
     <string name="site_url">gee12.space</string>
     <string name="missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
     <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
@@ -58,7 +56,7 @@
     <string name="temp_path_summ">Путь к временному каталогу</string>
     <string name="viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
     <string name="could_not_decrypt_file">Не удалось расшифровать файл</string>
-    <string name="could_not_create_temp_dir">Не удалось создать временный каталог </string>
+    <string name="could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="decrypt_files_to_temp_dir">Расшифровывать файлы в каталог</string>
     <string name="decrypt_files_to_temp_dir_sum">Расшифровывать прикрепленные файлы во временный каталог при предпросмотре</string>
@@ -73,16 +71,16 @@
     <string name="details_in_logs">Подробности в логах</string>
     <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>
     <string name="app_start">Запуск приложения. Версия %s</string>
-    <string name="storage_loaded">Хранилище загружено: </string>
+    <string name="storage_loaded">Хранилище загружено:&#160;</string>
     <string name="show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="storage_decrypted">Хранилище расшифровано</string>
-    <string name="storage_settings_inited">Настройки хранилища загружены: </string>
+    <string name="storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="tags_is_missing">Метки отсутствуют</string>
     <string name="tags_header">МЕТКИ</string>
     <string name="exit_from_app">Выйти из приложения?</string>
     <string name="is_confirm_app_exit">Подтверждать выход</string>
     <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
-    <string name="file_is_missing">Файл отсутствует </string>
+    <string name="file_is_missing">Файл отсутствует&#160;</string>
     <string name="storage_loading">Загрузка хранилища..</string>
     <string name="global_searching">Глобальный поиск..</string>
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
@@ -137,6 +135,7 @@
     <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
     <string name="cur_record_is_not_set">Не указана текущая запись</string>
-    <string name="no_app_found">Не найдено подходящего приложения для открытия файла </string>
-    <string name="error_file_open">Ошибка открытия файла </string>
+    <string name="no_app_found">Не найдено подходящего приложения для открытия файла&#160;</string>
+    <string name="error_file_open">Ошибка открытия файла&#160;</string>
+    <string name="failed_storage_load">Не удалось загрузить хранилище:&#160;</string>
 </resources>

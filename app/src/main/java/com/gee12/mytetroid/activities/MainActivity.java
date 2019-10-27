@@ -39,6 +39,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
@@ -201,6 +202,14 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         initTagsView(vTagsHeader);
 
+        // инициализация
+//        SettingsManager.init(this);
+//        LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
+//        LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
+        //startInitStorage();
+    }
+
+    public void onMainPageCreated() {
         // инициализация
         SettingsManager.init(this);
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
@@ -458,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        this.filesListAdapter = new FilesListAdapter(this);
 //        filesListView.setAdapter(filesListAdapter);
 
-        viewPagerAdapter.getMainFragment().initListViews(this);
+        viewPagerAdapter.getMainFragment().initListAdapters(this);
 
         // список меток
 //        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
@@ -1286,10 +1295,15 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             layoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 MainActivity.this.isStorageLoaded = true;
-                LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath());
+                LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_LONG);
+            } else {
+                LogManager.addLog(getString(R.string.failed_storage_load) + DataManager.getStoragePath(),
+                        LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
             initListViews();
+
+            LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
         }
     }
 

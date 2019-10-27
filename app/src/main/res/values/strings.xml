@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">MyTetroid</string>
+    <string name="app_name" translatable="false">MyTetroid</string>
+    <string name="main_header_title" translatable="false">MyTetroid</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="main_header_title">MyTetroid</string>
     <string name="site_url">gee12.space</string>
     <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
     <string name="title_settings">Settings</string>
@@ -75,8 +75,8 @@
     <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
     <string name="viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
     <string name="could_not_decrypt_file">Could not decrypt file</string>
-    <string name="could_not_create_temp_dir">Could not create temp directory </string>
-    <string name="file_decryption_error">File decryption error: </string>
+    <string name="could_not_create_temp_dir">Could not create temp directory&#160;</string>
+    <string name="file_decryption_error">File decryption error:&#160;</string>
     <string name="decrypt_files_to_temp_dir">Decrypt files to directory</string>
     <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>
     <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
@@ -92,20 +92,20 @@
     <string name="details_in_logs">Details in the logs</string>
     <string name="for_more_info_enable_log">For more information, enable logging</string>
     <string name="app_start">Run app. Version %s</string>
-    <string name="storage_loaded">Storage is loaded: </string>
+    <string name="storage_loaded">Storage is loaded:&#160;</string>
     <string name="show_pass_dialog"> Starting the password request dialog</string>
     <string name="storage_decrypted">Storage is decrypted</string>
-    <string name="storage_settings_inited">Storage settings is loaded: </string>
+    <string name="storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="tags_is_missing">Tags is missing</string>
     <string name="tags_header">TAGS</string>
     <string name="exit_from_app">Exit from app?</string>
     <string name="pref_key_is_confirm_app_exit" translatable="false">pref_key_is_confirm_app_exit</string>
     <string name="is_confirm_app_exit">Confirm app exit</string>
     <string name="is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
-    <string name="file_is_missing">File is missing </string>
+    <string name="file_is_missing">File is missing&#160;</string>
     <string name="storage_loading">Storage loading..</string>
     <string name="global_searching">Global searching..</string>
-    <string name="start_storage_loading">Start storage loading: </string>
+    <string name="start_storage_loading">Start storage loading:&#160;</string>
     <string name="search_records_hint">Records search</string>
     <string name="title_search_records">Records search</string>
     <string name="records_search_select_node">Select not an empty branch or use the global search.</string>
@@ -167,6 +167,7 @@
     <string name="title_fullscreen">Fullscreen</string>
     <string name="incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="cur_record_is_not_set">Current record is not set</string>
-    <string name="no_app_found">No suitable application was found to open the file </string>
-    <string name="error_file_open">File open error </string>
+    <string name="no_app_found">No suitable application was found to open the file&#160;</string>
+    <string name="error_file_open">File open error&#160;</string>
+    <string name="failed_storage_load">Failed to load storage:&#160;</string>
 </resources>

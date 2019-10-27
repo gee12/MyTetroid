@@ -154,16 +154,22 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
 
+        mainView.onMainPageCreated();
+
         return view;
     }
 
-    void initListViews(Context context) {
+    void initListAdapters(Context context) {
         // список записей
-        this.recordsListAdapter = new RecordsListAdapter(context, onRecordAttachmentClickListener);
-        lvRecords.setAdapter(recordsListAdapter);
+        if (lvRecords != null) {
+            this.recordsListAdapter = new RecordsListAdapter(context, onRecordAttachmentClickListener);
+            lvRecords.setAdapter(recordsListAdapter);
+        }
         // список файлов
-        this.filesListAdapter = new FilesListAdapter(context);
-        lvFiles.setAdapter(filesListAdapter);
+        if (lvFiles != null) {
+            this.filesListAdapter = new FilesListAdapter(context);
+            lvFiles.setAdapter(filesListAdapter);
+        }
     }
 
     /**

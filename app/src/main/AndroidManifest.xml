@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.gee12.mytetroid"
     android:installLocation="auto">
     <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
@@ -11,15 +12,17 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <!-- для dirchooser -->
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
+<!--        android:authorities="@string/authority_provider"-->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
-            android:enabled="true"
+            android:authorities="applicationTetroid.provider"
+            tools:replace="android:authorities"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

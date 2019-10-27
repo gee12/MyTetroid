@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">MyTetroid debug</string>
-    <string name="main_header_title">MyTetroid debug</string>
+    <string name="app_name" translatable="false">MyTetroid debug</string>
+    <string name="main_header_title" translatable="false">MyTetroid debug</string>
 </resources>

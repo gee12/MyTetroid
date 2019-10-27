@@ -11,9 +11,10 @@ android {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 13
-        versionName "1.11"
+        versionCode 14
+        versionName "1.12"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        resValue "string", "app_name", "MyTetroid"
     }
     buildTypes {
         debug {
@@ -24,6 +25,24 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    flavorDimensions 'default'
+    productFlavors {
+        free {
+            dimension = 'default'
+//            applicationIdSuffix = '.free'
+            applicationId "com.gee12.mytetroid.free"
+//            resValue "string", "app_name", "MyTetroid Free"
+//            buildConfigField "String", "BUILD_VARIANT", "\"free\""
+//            resValue "string", "authority_provider", "\"com.gee12.mytetroid.free.fileprovider\""
+        }
+        full {
+            dimension = 'default'
+//            applicationIdSuffix = '.full'
+            applicationId "com.gee12.mytetroid.full"
+//            buildConfigField "String", "BUILD_VARIANT", "\"full\""
+//            resValue "string", "authority_provider", "\"com.gee12.mytetroid.full.fileprovider\""
         }
     }
 }

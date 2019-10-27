@@ -343,6 +343,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             // FileProvider is a special subclass of ContentProvider
             // that facilitates secure sharing of files associated with an app
             // by creating a content:// Uri for a file instead of a file:/// Uri.
+//            context.getString(R.string.authority_provider)
             Uri fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
 
             Intent intent = new Intent(Intent.ACTION_VIEW);

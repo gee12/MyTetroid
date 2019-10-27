@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name" translatable="false">MyTetroid Full debug</string>
+    <string name="main_header_title" translatable="false">MyTetroid Full debug</string>
+</resources>
