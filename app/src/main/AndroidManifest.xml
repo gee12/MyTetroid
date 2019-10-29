@@ -21,7 +21,7 @@
 <!--        android:authorities="@string/authority_provider"-->
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="applicationTetroid.provider"
+            android:authorities="${applicationId}.provider"
             tools:replace="android:authorities"
             android:exported="false"
             android:grantUriPermissions="true">
