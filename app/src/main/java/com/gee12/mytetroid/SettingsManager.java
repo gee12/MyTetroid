@@ -181,6 +181,18 @@ public class SettingsManager {
     }
 
     /**
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isKeepScreenOn() {
+        final boolean def = false;
+        if(settings.contains(context.getString(R.string.pref_key_is_keep_screen_on))) {
+            return settings.getBoolean(context.getString(R.string.pref_key_is_keep_screen_on), def);
+        }
+        return def;
+    }
+
+    /**
      * Устанавливать текущей выбранную при предыдущем запуске ветку
      * По-умолчанию - да
      * @return

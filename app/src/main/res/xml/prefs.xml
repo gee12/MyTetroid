@@ -78,6 +78,12 @@
             android:inputType="text"
             android:defaultValue="@string/def_date_format_string" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_keep_screen_on"
+            android:title="@string/pref_keep_screen_on"
+            android:summary="@string/pref_keep_screen_on_summ"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">

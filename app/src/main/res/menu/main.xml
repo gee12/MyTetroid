@@ -25,6 +25,12 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_cur_record_folder"
+        android:orderInCategory="90"
+        android:title="@string/open_record_folder"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"

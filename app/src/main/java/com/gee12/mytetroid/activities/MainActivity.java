@@ -41,7 +41,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
@@ -73,7 +72,8 @@ import pl.openrnd.multilevellistview.OnItemClickListener;
 
 //import android.widget.SearchView;
 
-public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
+public class MainActivity extends AppCompatActivity
+        implements IMainView, ISystemFunctions, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -1056,6 +1056,14 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
     }
 
+    @Override
+    public void setKeepScreenOn(boolean keepScreenOn) {
+        if (keepScreenOn)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
     /**
      * Обработчик нажатия кнопки Назад.
      */
@@ -1111,6 +1119,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case R.id.action_attached_files:
                 viewPagerAdapter.getMainFragment().showCurRecordFiles();
                 return true;
+            case R.id.action_cur_record_folder:
+                viewPagerAdapter.getMainFragment().openRecordFolder();
+                return true;
             case R.id.action_fullscreen:
                 toggleFullscreen();
                 return true;
@@ -1147,49 +1158,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         View decorView = getWindow().getDecorView();
         int visibility = (isFullscreen)
                 ? View.SYSTEM_UI_FLAG_IMMERSIVE
-                    // Set the content to appear under the system bars so that the
-                    // content doesn't resize when the system bars hide and show.
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    // Hide the nav bar and status bar
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_FULLSCREEN
-                // Shows the system bars by removing all the flags
-                // except for the ones that make the content appear under the system bars.
-                :
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                     View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                0
-                ;
+                : 0;
         decorView.setSystemUiVisibility(
                 visibility);
-//        decorView.setFitsSystemWindows(false);
-
-        /*int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-        int newUiOptions = uiOptions | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-        // Navigation bar hiding:  Backwards compatible to ICS.
-        if (Build.VERSION.SDK_INT >= 14) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        }
-
-        // Status bar hiding: Backwards compatible to Jellybean
-        if (Build.VERSION.SDK_INT >= 16) {
-//            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
-            if (isFullscreen)
-                newUiOptions |= (View.SYSTEM_UI_FLAG_FULLSCREEN );
-            else
-                newUiOptions &= (~(View.SYSTEM_UI_FLAG_FULLSCREEN));
-        }
-
-        // Immersive mode: Backward compatible to KitKat.
-        if (Build.VERSION.SDK_INT >= 19) {
-            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-//            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE;
-        }
-        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
-*/
         // ToolBar
         try {
             ActionBar actionBar = getSupportActionBar();
@@ -1295,7 +1269,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             layoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 MainActivity.this.isStorageLoaded = true;
-                LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_LONG);
+                LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.failed_storage_load) + DataManager.getStoragePath(),
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
@@ -1345,8 +1319,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
                 return;
             } else if (scan.isSearchInNode() && scan.getNode() != null) {
-                Message.show(MainActivity.this, String.format(getString(R.string.global_search_by_node_result),
+                LogManager.addLog(String.format(getString(R.string.global_search_by_node_result),
                         scan.getNode().getName()), Toast.LENGTH_LONG);
+            }
+            // уведомляем, если не смогли поискать в зашифрованных ветках
+            if (scan.isExistCryptedNodes()) {
+                LogManager.addLog(R.string.found_crypted_nodes, Toast.LENGTH_SHORT);
             }
             LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
             viewPagerAdapter.getFoundFragment().setFounds(found, scan);

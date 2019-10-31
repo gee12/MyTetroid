@@ -58,6 +58,10 @@ public class ScanManager implements Parcelable {
      * Целевая ветка для поиска.
      */
     private TetroidNode node;
+    /**
+     * Найдены зашифрованные ветки.
+     */
+    private boolean existCryptedNodes;
 
     /**
      *
@@ -175,8 +179,10 @@ public class ScanManager implements Parcelable {
      */
     private void globalSearchInNodes(List<TetroidNode> nodes, String regex, boolean inRecords) {
         for (TetroidNode node : nodes) {
-            if (!node.isNonCryptedOrDecrypted())
+            if (!node.isNonCryptedOrDecrypted()) {
+                this.existCryptedNodes = true;
                 continue;
+            }
             if (inNodes && node.getName().matches(regex)) {
                 addFoundObject(node, FoundType.TYPE_NODE);
             }
@@ -457,6 +463,10 @@ public class ScanManager implements Parcelable {
 
     public TetroidNode getNode() {
         return node;
+    }
+
+    public boolean isExistCryptedNodes() {
+        return existCryptedNodes;
     }
 
     @Override

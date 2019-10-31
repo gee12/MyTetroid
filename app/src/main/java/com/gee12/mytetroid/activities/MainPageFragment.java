@@ -73,6 +73,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
+    private MenuItem miCurRecordFolder;
 
     private int curViewId;
     private int lastViewId;
@@ -180,6 +181,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         miAttachedFiles.setVisible(false);
         miCurNode.setVisible(false);
         miCurRecord.setVisible(false);
+        miCurRecordFolder.setVisible(false);
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
         if (viewId != curViewId)
@@ -197,6 +199,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 miAttachedFiles.setVisible(true);
             case MainPageFragment.VIEW_RECORD_FILES:
                 miCurNode.setVisible(true);
+                miCurRecordFolder.setVisible(true);
                 if (viewId != MainPageFragment.VIEW_RECORD_TEXT)
                     miCurRecord.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
@@ -390,9 +393,14 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     }
 
     private void openRecordFolder(int position) {
-//        TetroidRecord record = currentNode.getRecords().get(position);
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
         mainView.openFolder(DataManager.getRecordDirUri(record));
+    }
+
+    public void openRecordFolder() {
+        if (curRecord != null) {
+            mainView.openFolder(DataManager.getRecordDirUri(curRecord));
+        }
     }
 
     public void setRecordFieldsVisibility(boolean isVisible) {
@@ -438,6 +446,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.miCurNode = menu.findItem(R.id.action_cur_node);
         this.miCurRecord = menu.findItem(R.id.action_cur_record);
         this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
+        this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
     }
 
     /**

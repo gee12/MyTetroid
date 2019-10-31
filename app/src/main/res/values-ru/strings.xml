@@ -51,7 +51,6 @@
     <string name="show_record_content">Открыть запись</string>
     <string name="show_attached_files">Прикрепленные файлы</string>
     <string name="open_record_folder">Открыть каталог</string>
-    <string name="open_record_folder_dialog">Открыть каталог записи</string>
     <string name="temp_path">Временной каталог</string>
     <string name="temp_path_summ">Путь к временному каталогу</string>
     <string name="viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
@@ -138,4 +137,7 @@
     <string name="no_app_found">Не найдено подходящего приложения для открытия файла&#160;</string>
     <string name="error_file_open">Ошибка открытия файла&#160;</string>
     <string name="failed_storage_load">Не удалось загрузить хранилище:&#160;</string>
+    <string name="found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
+    <string name="pref_keep_screen_on">Не гасить экран</string>
+    <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
 </resources>
