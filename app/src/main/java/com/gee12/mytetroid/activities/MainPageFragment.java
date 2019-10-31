@@ -210,6 +210,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 //                break;
         }
         mainView.updateMainToolbar(viewId, title);
+        mainView.checkKeepScreenOn(viewId);
         this.curViewId = viewId;
         viewFlipper.setDisplayedChild(whichChild-1);
     }

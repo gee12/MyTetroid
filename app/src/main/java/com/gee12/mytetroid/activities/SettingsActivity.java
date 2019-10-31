@@ -29,7 +29,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     public static final int REQUEST_CODE_OPEN_LOG_PATH = 3;
 
     private AppCompatDelegate mDelegate;
-    private ISystemFunctions systemFunctions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,8 +145,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
-        } else if (key.equals(getString(R.string.pref_key_is_keep_screen_on))) {
-            systemFunctions.setKeepScreenOn(SettingsManager.isKeepScreenOn());
         }
     }
 

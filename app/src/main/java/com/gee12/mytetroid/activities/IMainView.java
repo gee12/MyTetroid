@@ -16,4 +16,5 @@ public interface IMainView extends Parcelable {
     void closeFoundFragment();
     void toggleFullscreen();
     void openTag(String tag);
+    void checkKeepScreenOn(int curViewId);
 }

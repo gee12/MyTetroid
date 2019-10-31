@@ -40,6 +40,7 @@ import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -72,8 +73,7 @@ import pl.openrnd.multilevellistview.OnItemClickListener;
 
 //import android.widget.SearchView;
 
-public class MainActivity extends AppCompatActivity
-        implements IMainView, ISystemFunctions, View.OnTouchListener {
+public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
@@ -209,6 +209,7 @@ public class MainActivity extends AppCompatActivity
         //startInitStorage();
     }
 
+    @Override
     public void onMainPageCreated() {
         // инициализация
         SettingsManager.init(this);
@@ -851,6 +852,7 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+            // перезагружаем хранилище, если изменили путь
             if (SettingsManager.isAskReloadStorage) {
                 SettingsManager.isAskReloadStorage = false;
                 ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
@@ -863,6 +865,8 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
+            // не гасим экран, если установили опцию
+            checkKeepScreenOn(viewPagerAdapter.getMainFragment().getCurViewId());
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
@@ -878,20 +882,6 @@ public class MainActivity extends AppCompatActivity
      * @param scan
      */
     private void startGlobalSearch(ScanManager scan) {
-        /*LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
-        HashMap<ITetroidObject,FoundType> found = scan.globalSearch(curNode);
-        if (found == null) {
-            LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
-            return;
-        } else if (scan.isSearchInNode() && scan.getNode() != null) {
-            Message.show(this, String.format(getString(R.string.global_search_by_node_result),
-                    scan.getNode().getName()), Toast.LENGTH_LONG);
-        }
-        LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
-        viewPagerAdapter.getFoundFragment().setFounds(found, scan);
-        viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
-        setFoundPageVisibility(true);
-        viewPager.setCurrent(MainViewPager.PAGE_FOUND);*/
         new GlobalSearchTask(scan).execute();
     }
 
@@ -954,6 +944,7 @@ public class MainActivity extends AppCompatActivity
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchInMainPage(query);
         }
+        super.onNewIntent(intent);
     }
 
     /**
@@ -1057,7 +1048,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void setKeepScreenOn(boolean keepScreenOn) {
+    public void checkKeepScreenOn(int curViewId) {
+        setKeepScreenOn(curViewId == MainPageFragment.VIEW_RECORD_TEXT
+            && SettingsManager.isKeepScreenOn());
+    }
+
+    private void setKeepScreenOn(boolean keepScreenOn) {
         if (keepScreenOn)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else
@@ -1277,7 +1273,9 @@ public class MainActivity extends AppCompatActivity
             // инициализация контролов
             initListViews();
 
-            LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
+            if (BuildConfig.DEBUG) {
+                LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
+            }
         }
     }
 
