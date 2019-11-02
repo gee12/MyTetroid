@@ -42,6 +42,11 @@
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="never|collapseActionView" />
     <item
+        android:id="@+id/action_storage_info"
+        android:orderInCategory="250"
+        android:title="@string/title_storage_info"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="@string/title_settings"

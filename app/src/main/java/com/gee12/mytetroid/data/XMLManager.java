@@ -47,6 +47,21 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected List<TetroidTag> tagsList;
 
     /**
+     * Статистические данные.
+     */
+    protected int nodesCount;
+    protected int cryptedNodesCount;
+    protected int recordsCount;
+    protected int cryptedRecordsCount;
+    protected int filesCount;
+    protected int tagsCount;
+    protected int uniqueTagsCount;
+    protected int authorsCount;
+    protected int iconsCount;
+    protected int maxSubnodesCount;
+    protected int maxDepthLevel;
+
+    /**
      * Чтение хранилища.
      * @param in Файл mytetra.xml
      * @return Иерархический список веток с записями и документами
@@ -57,6 +72,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         this.decryptCallback = decryptHandler;
         this.rootNodesList = new ArrayList<>();
         this.tagsMap = new TreeMap<>(tagsComparator);
+        this.nodesCount = 0;
+        this.cryptedNodesCount = 0;
+        this.recordsCount = 0;
+        this.cryptedRecordsCount = 0;
+        this.filesCount = 0;
+        this.tagsCount = 0;
+        this.uniqueTagsCount = 0;
+        this.authorsCount = 0;
+        this.iconsCount = 0;
+        this.maxSubnodesCount = 0;
+        this.maxDepthLevel = 0;
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -80,7 +106,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             String tagName = parser.getName();
             if (tagName.equals("format")) {
-                formatVersion = readFormatVersion(parser);
+                this.formatVersion = readFormatVersion(parser);
             } else if (tagName.equals("content")) {
                 res = readContent(parser);
             }
@@ -121,7 +147,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return true;
     }
 
-    private TetroidNode readNode(XmlPullParser parser, int level) throws XmlPullParserException, IOException {
+    private TetroidNode readNode(XmlPullParser parser, int depthLevel) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
@@ -137,7 +163,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             name = parser.getAttributeValue(ns, "name");
             iconPath = parser.getAttributeValue(ns, "icon");
         }
-        TetroidNode node = new TetroidNode(crypt, id, name, iconPath, level);
+        TetroidNode node = new TetroidNode(crypt, id, name, iconPath, depthLevel);
+
         List<TetroidNode> subNodes = new ArrayList<>();
         List<TetroidRecord> records = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -150,7 +177,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 records = readRecords(parser, node);
             } else if (tagName.equals("node")) {
                 // вложенная ветка
-                subNodes.add(readNode(parser, level+1));
+                subNodes.add(readNode(parser, depthLevel+1));
             } else {
                 skip(parser);
             }
@@ -170,6 +197,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
         // загрузка иконки из файла (после расшифровки имени иконки)
         loadIcon(node);
+
+        this.nodesCount++;
+        if (crypt)
+            this.cryptedNodesCount++;
+        if (subNodes.size() > maxSubnodesCount)
+            this.maxSubnodesCount = subNodes.size();
+        if (depthLevel > maxDepthLevel)
+            this.maxDepthLevel = depthLevel;
+        if (!Utils.isNullOrEmpty(iconPath)) {
+            this.iconsCount++;
+        }
 
         return node;
     }
@@ -203,24 +241,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         parseTags(record);
     }
 
-    /*
-    protected void parseTags(TetroidRecord record) {
-//        if (!record.isNonCryptedOrDecrypted())
-//            return;
-        String tagsString = record.getTagsString();
-        if (!Utils.isNullOrEmpty(tagsString)) {
-            for (String tag : tagsString.split(TAGS_SEPARATOR)) {
-                if (tagsMap.containsKey(tag)) {
-                    tagsMap.get(tag).add(record);
-                } else {
-                    List<TetroidRecord> tagRecords = new ArrayList<>();
-                    tagRecords.add(record);
-                    tagsMap.put(tag, tagRecords);
-                }
-            }
-        }
-    }*/
-
     protected void parseTags(TetroidRecord record) {
 //        if (!record.isNonCryptedOrDecrypted())
 //            return;
@@ -236,7 +256,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                     tagRecords.add(record);
                     tag = new TetroidTag(tagName, tagRecords);
                     tagsMap.put(tagName, tag);
+                    this.uniqueTagsCount++;
                 }
+                this.tagsCount++;
                 record.addTag(tag);
             }
         }
@@ -267,6 +289,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             fileName = parser.getAttributeValue(ns, "file");
         }
         TetroidRecord record = new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node);
+
+        if (!Utils.isNullOrEmpty(author))
+            this.authorsCount++;
 //        parser.nextTag();
 //        parser.require(XmlPullParser.END_TAG, ns, "record");
         // файлы
@@ -286,6 +311,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             record.setFiles(files);
         }
         parser.require(XmlPullParser.END_TAG, ns, "record");
+
+        if (crypt)
+            this.cryptedRecordsCount++;
+        this.recordsCount++;
+
         return record;
     }
 
@@ -320,6 +350,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
         parser.nextTag();
         parser.require(XmlPullParser.END_TAG, ns, "file");
+
+        this.filesCount++;
+
         return new TetroidFile(id, fileName, type, record);
     }
 
@@ -367,4 +400,52 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             return o1.toLowerCase().compareTo(o2.toLowerCase());
         }
     };
+
+    public Version getFormatVersion() {
+        return formatVersion;
+    }
+
+    public int getNodesCount() {
+        return nodesCount;
+    }
+
+    public int getCryptedNodesCount() {
+        return cryptedNodesCount;
+    }
+
+    public int getRecordsCount() {
+        return recordsCount;
+    }
+
+    public int getCryptedRecordsCount() {
+        return cryptedRecordsCount;
+    }
+
+    public int getFilesCount() {
+        return filesCount;
+    }
+
+    public int getTagsCount() {
+        return tagsCount;
+    }
+
+    public int getUniqueTagsCount() {
+        return uniqueTagsCount;
+    }
+
+    public int getAuthorsCount() {
+        return authorsCount;
+    }
+
+    public int getIconsCount() {
+        return iconsCount;
+    }
+
+    public int getMaxSubnodesCount() {
+        return maxSubnodesCount;
+    }
+
+    public int getMaxDepthLevel() {
+        return maxDepthLevel;
+    }
 }

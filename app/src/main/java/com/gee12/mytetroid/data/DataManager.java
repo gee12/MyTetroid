@@ -94,6 +94,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
 //            DataManager.instance.rootNodesList = instance.parse(fis, decryptHandler);
             res = instance.parse(fis, decryptHandler);
+
+            if (BuildConfig.DEBUG) {
+//                TestData.addNodesDeep(instance.rootNodesList, 100);
+                TestData.addNodes(instance.rootNodesList, 500, 500);
+            }
+
         } catch (Exception ex) {
             // ошибка загрузки xml
             LogManager.addLog(ex);

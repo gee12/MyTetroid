@@ -140,4 +140,5 @@
     <string name="found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="pref_keep_screen_on">Не гасить экран</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
+    <string name="title_storage_info">Статистика хранилища</string>
 </resources>

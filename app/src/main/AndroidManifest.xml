@@ -63,6 +63,11 @@
             android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
+            android:name=".activities.InfoActivity"
+            android:label="@string/title_storage_info"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
             android:name=".activities.AboutActivity"
             android:label="@string/title_about_app"
             android:parentActivityName=".activities.MainActivity"

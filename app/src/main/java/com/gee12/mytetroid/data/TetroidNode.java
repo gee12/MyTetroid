@@ -34,6 +34,7 @@ public class TetroidNode implements ITetroidObject {
     public TetroidNode(String id, String name, int level) {
         this.id = id;
         this.name = name;
+        this.iconName = null;
         this.level = level;
         this.subNodes = new ArrayList<>();
         this.records = new ArrayList<>();
@@ -146,13 +147,12 @@ public class TetroidNode implements ITetroidObject {
         this.records = records;
     }
 
-    public void addSubNode(TetroidNode subNode)
-    {
-        subNodes.add(subNode);
+    public void addSubNode(TetroidNode subNode) {
+        if (subNodes != null)
+            subNodes.add(subNode);
     }
 
-    public void addRecord(TetroidRecord record)
-    {
+    public void addRecord(TetroidRecord record) {
         record.setNode(this);
         records.add(record);
     }

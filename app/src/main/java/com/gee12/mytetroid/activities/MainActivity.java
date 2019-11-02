@@ -1127,6 +1127,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case R.id.action_global_search:
                 showGlobalSearchActivity();
                 return true;
+            case R.id.action_storage_info:
+                showActivity(this, InfoActivity.class);
+                return true;
             case R.id.action_about_app:
                 showActivity(this, AboutActivity.class);
                 return true;

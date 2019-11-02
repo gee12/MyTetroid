@@ -27,8 +27,8 @@ public class AboutActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        TextView tvVesion = findViewById(R.id.text_view_version);
-        tvVesion.setText(Utils.getVersionName(this));
+        TextView tvVersion = findViewById(R.id.text_view_version);
+        tvVersion.setText(Utils.getVersionName(this));
 
         TextView tvappSumm = findViewById(R.id.text_view_app_summ);
         tvappSumm.setText(Html.fromHtml(getString(R.string.app_summ_html)));

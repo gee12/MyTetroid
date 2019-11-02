@@ -27,4 +27,5 @@
     <dimen name="checkbox_vert_padding">2dp</dimen>
     <dimen name="spinner_vert_padding">8dp</dimen>
     <dimen name="nav_view_headers_text_size">18sp</dimen>
+    <dimen name="stats_labels_width">200dp</dimen>
 </resources>
