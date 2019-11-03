@@ -346,8 +346,8 @@ public class ScanManager implements Parcelable {
 
     /**
      * Формирование регулярного выражения для поиска.
-     * i - CASE_INSENSITIVE
-     * s - DOTALL
+     * i - CASE_INSENSITIVE - регистронезависимый режим
+     * s - DOTALL - режим одной строки (\n и \r не играют роли)
      * @param query
      * @return
      */
@@ -356,7 +356,8 @@ public class ScanManager implements Parcelable {
     }
 
     private static String buildRegex(String query, boolean isOnlyWholeWords) {
-        String boundary = (isOnlyWholeWords) ? "\\\\b" : "";
+        String boundary = (isOnlyWholeWords) ? "\\b" : "";
+        // Pattern.quote - помещаем запрос между \Q и \E, чтобы он интерпритировался "как есть"
         return String.format("(?is).*%s%s%s.*", boundary, Pattern.quote(query), boundary);
     }
 

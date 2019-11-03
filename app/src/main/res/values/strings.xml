@@ -174,4 +174,15 @@
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
     <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
     <string name="title_storage_info">Storage statistics</string>
+    <string name="stats_nodes_count">Nodes:</string>
+    <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
+    <string name="stats_icons_count">Of them with icons:</string>
+    <string name="stats_max_subnodes">Maximum number of nodes:</string>
+    <string name="stats_max_depth">Maximum nesting depth:</string>
+    <string name="stats_records_count">Records:</string>
+    <string name="stats_crypt_records_count">Of which is encrypted:</string>
+    <string name="stats_files_count">Attached files:</string>
+    <string name="stats_tags_count">Tags:</string>
+    <string name="stats_unique_tags_count">Of which are unique:</string>
+    <string name="stats_authors_count">Authors:</string>
 </resources>

@@ -141,4 +141,15 @@
     <string name="pref_keep_screen_on">Не гасить экран</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
     <string name="title_storage_info">Статистика хранилища</string>
+    <string name="stats_nodes_count">Веток:</string>
+    <string name="stats_crypt_nodes_count">Из них зашифровано:</string>
+    <string name="stats_icons_count">Из них с иконками:</string>
+    <string name="stats_max_subnodes">Максимальное количество подветок:</string>
+    <string name="stats_max_depth">Максимальная глубина вложенности:</string>
+    <string name="stats_records_count">Записей:</string>
+    <string name="stats_crypt_records_count">Из них зашифровано:</string>
+    <string name="stats_files_count">Прикрепленных файлов:</string>
+    <string name="stats_tags_count">Меток:</string>
+    <string name="stats_unique_tags_count">Из них уникальных:</string>
+    <string name="stats_authors_count">Авторов:</string>
 </resources>

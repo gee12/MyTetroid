@@ -19,4 +19,36 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="StatsLabels">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_column">0</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorBaseText</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+    </style>
+
+    <style name="StatsValues">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_column">1</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:text">0</item>
+    </style>
+
+    <style name="StatsLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_columnSpan">2</item>
+        <item name="android:background">#DDD</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
 </resources>

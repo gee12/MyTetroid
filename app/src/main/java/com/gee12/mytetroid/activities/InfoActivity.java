@@ -21,14 +21,14 @@ public class InfoActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         XMLManager storage = DataManager.getInstance();
-        ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(storage.getNodesCount());
-        ((TextView)findViewById(R.id.text_view_stats_crypt_nodes_count)).setText(storage.getCryptedNodesCount());
-        ((TextView)findViewById(R.id.text_view_stats_icons_count)).setText(storage.getIconsCount());
-        ((TextView)findViewById(R.id.text_view_stats_max_subnodes)).setText(storage.getMaxSubnodesCount());
-        ((TextView)findViewById(R.id.text_view_stats_max_depth)).setText(storage.getMaxDepthLevel());
-        ((TextView)findViewById(R.id.text_view_stats_records_count)).setText(storage.getRecordsCount());
-        ((TextView)findViewById(R.id.text_view_stats_tags_count)).setText(storage.getTagsCount());
-        ((TextView)findViewById(R.id.text_view_stats_unique_tags_count)).setText(storage.getUniqueTagsCount());
-        ((TextView)findViewById(R.id.text_view_stats_authors_count)).setText(storage.getAuthorsCount());
+        ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(String.valueOf(storage.getNodesCount()));
+        ((TextView)findViewById(R.id.text_view_stats_crypt_nodes_count)).setText(String.valueOf(storage.getCryptedNodesCount()));
+        ((TextView)findViewById(R.id.text_view_stats_icons_count)).setText(String.valueOf(storage.getIconsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_max_subnodes)).setText(String.valueOf(storage.getMaxSubnodesCount()));
+        ((TextView)findViewById(R.id.text_view_stats_max_depth)).setText(String.valueOf(storage.getMaxDepthLevel()));
+        ((TextView)findViewById(R.id.text_view_stats_records_count)).setText(String.valueOf(storage.getRecordsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_tags_count)).setText(String.valueOf(storage.getTagsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_unique_tags_count)).setText(String.valueOf(storage.getUniqueTagsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_authors_count)).setText(String.valueOf(storage.getAuthorsCount()));
     }
 }

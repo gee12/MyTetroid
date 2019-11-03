@@ -1,245 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.gee12.mytetroid.activities.InfoActivity"
     android:paddingHorizontal="16dp"
     android:paddingVertical="12dp"
+    android:layout_gravity="top"
+    android:columnCount="2"
+    android:orientation="horizontal"
     tools:showIn="@layout/activity_info">
+
+<!--    android:alignmentMode="alignBounds"-->
+<!--    android:numColumns="2"-->
+<!--    android:stretchMode="spacingWidth"-->
+<!--    android:rowOrderPreserved="false"-->
+<!--    android:useDefaultMargins="true"-->
 
     <TextView
         android:id="@+id/label_stats_nodes_count"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_width="@dimen/stats_labels_width"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Веток:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_nodes_count"
+        style="@style/StatsLabels" />
+<!--    android:text="oll dorfdlo dfo ldf ld lfod fld lf od lfos dssdfsdfsd sdfsdfs dsfsdfwe wef wef wew"-->
 
     <TextView
         android:id="@+id/text_view_stats_nodes_count"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/label_stats_nodes_count"
-        android:layout_toEndOf="@id/label_stats_nodes_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp" />
+        style="@style/StatsValues" />
 
     <TextView
         android:id="@+id/label_stats_crypt_nodes_count"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/label_stats_nodes_count"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
         android:paddingLeft="15dp"
-        android:paddingTop="2dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="2dp"
-        android:text="Из них зашифровано:"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_crypt_nodes_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_crypt_nodes_count"
-        android:layout_below="@id/text_view_stats_nodes_count"
-        android:layout_toRightOf="@id/label_stats_crypt_nodes_count"
-        android:layout_toEndOf="@id/label_stats_crypt_nodes_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
 
     <TextView
         android:id="@+id/label_stats_icons_count"
-        android:layout_below="@id/label_stats_crypt_nodes_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
         android:paddingLeft="15dp"
-        android:paddingTop="2dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="2dp"
-        android:text="Из них с иконками:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_icons_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_icons_count"
-        android:layout_below="@id/text_view_stats_crypt_nodes_count"
-        android:layout_toRightOf="@id/label_stats_icons_count"
-        android:layout_toEndOf="@id/label_stats_icons_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
+
+    <View style="@style/StatsLine"/>
 
     <TextView
         android:id="@+id/label_stats_max_subnodes"
-        android:layout_below="@id/label_stats_icons_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Максимальное количество подветок:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_max_subnodes"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_max_subnodes"
-        android:layout_below="@id/text_view_stats_icons_count"
-        android:layout_toRightOf="@id/label_stats_max_subnodes"
-        android:layout_toEndOf="@id/label_stats_max_subnodes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
 
     <TextView
         android:id="@+id/label_stats_max_depth"
-        android:layout_below="@id/label_stats_max_subnodes"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Максимальная глубина вложенности:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_max_depth"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_max_depth"
-        android:layout_below="@id/text_view_stats_max_subnodes"
-        android:layout_toRightOf="@id/label_stats_max_depth"
-        android:layout_toEndOf="@id/label_stats_max_depth"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
+
+    <View style="@style/StatsLine"/>
 
     <TextView
         android:id="@+id/label_stats_records_count"
-        android:layout_below="@id/label_stats_max_depth"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Записей:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_records_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_records_count"
-        android:layout_below="@id/text_view_stats_max_depth"
-        android:layout_toRightOf="@id/label_stats_records_count"
-        android:layout_toEndOf="@id/label_stats_records_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
 
     <TextView
         android:id="@+id/label_stats_crypt_records_count"
-        android:layout_below="@id/label_stats_records_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
         android:paddingLeft="15dp"
-        android:paddingTop="2dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="2dp"
-        android:text="Из них зашифровано:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_crypt_records_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_crypt_records_count"
-        android:layout_below="@id/text_view_stats_records_count"
-        android:layout_toRightOf="@id/label_stats_crypt_records_count"
-        android:layout_toEndOf="@id/label_stats_crypt_records_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
+
+    <View style="@style/StatsLine"/>
 
     <TextView
         android:id="@+id/label_stats_files_count"
-        android:layout_below="@id/label_stats_crypt_records_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Прикрепленных файлов:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_files_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_files_count"
-        android:layout_below="@id/text_view_stats_crypt_records_count"
-        android:layout_toRightOf="@id/label_stats_files_count"
-        android:layout_toEndOf="@id/label_stats_files_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
+
+    <View style="@style/StatsLine"/>
 
     <TextView
         android:id="@+id/label_stats_tags_count"
-        android:layout_below="@id/label_stats_files_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Меток:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_tags_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_tags_count"
-        android:layout_below="@id/text_view_stats_files_count"
-        android:layout_toRightOf="@id/label_stats_tags_count"
-        android:layout_toEndOf="@id/label_stats_tags_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
 
     <TextView
         android:id="@+id/label_stats_unique_tags_count"
-        android:layout_below="@id/label_stats_tags_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
         android:paddingLeft="15dp"
-        android:paddingTop="2dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="2dp"
-        android:text="Из них уникальных:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_unique_tags_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_unique_tags_count"
-        android:layout_below="@id/text_view_stats_tags_count"
-        android:layout_toRightOf="@id/label_stats_unique_tags_count"
-        android:layout_toEndOf="@id/label_stats_unique_tags_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
+
+    <View style="@style/StatsLine"/>
 
     <TextView
         android:id="@+id/label_stats_authors_count"
-        android:layout_below="@id/label_stats_unique_tags_count"
-        android:layout_alignParentLeft="true"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:text="Авторов:"
-        android:layout_alignParentStart="true"
-        android:textColor="@color/colorLightLabelText" />
+        android:text="@string/stats_authors_count"
+        style="@style/StatsLabels" />
 
     <TextView
         android:id="@+id/text_view_stats_authors_count"
-        android:layout_below="@id/text_view_stats_unique_tags_count"
-        android:layout_toRightOf="@id/label_stats_authors_count"
-        android:layout_toEndOf="@id/label_stats_authors_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="2dp"/>
+        style="@style/StatsValues" />
 
-</RelativeLayout>
+</GridLayout>
