@@ -7,6 +7,6 @@ public class App {
      * @return
      */
     public static boolean isFullVersion() {
-        return (BuildConfig.FLAVOR.equals("full"));
+        return (BuildConfig.FLAVOR.equals("pro"));
     }
 }

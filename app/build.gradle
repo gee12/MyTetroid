@@ -5,25 +5,15 @@ android {
         debug {
             storeFile file("external/debug.keystore")
         }
-        release {
-            storeFile file('/home/gee12/Android/Keystore/gee12_keystore.jks')
-            storePassword 'AE3dDWZU'
-            keyAlias = 'mytetroid'
-            keyPassword 'iHMy5~sv62'
-        }
-//        debugFull {
-//            storeFile file('external/debugFull.keystore')
-//        }
     }
     compileSdkVersion 28
     defaultConfig {
-//        applicationId "com.gee12.mytetroid"
+        applicationId "com.gee12.mytetroid"
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 14
         versionName "1.12"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-//        resValue "string", "app_name", "MyTetroid"
     }
 //    defaultConfig.applicationId = "com.gee12.mytetroid"
     buildTypes {
@@ -35,7 +25,6 @@ android {
         }
         release {
             minifyEnabled false
-            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -44,19 +33,13 @@ android {
         free {
             dimension = 'default'
 //            applicationIdSuffix = '.free'
-            applicationId "com.gee12.mytetroid.free"
-//            signingConfig signingConfigs.debug
 //            resValue "string", "app_name", "MyTetroid Free"
 //            buildConfigField "String", "BUILD_VARIANT", "\"free\""
-//            resValue "string", "authority_provider", "\"com.gee12.mytetroid.free.fileprovider\""
         }
-        full {
+        pro {
             dimension = 'default'
-//            applicationIdSuffix = '.full'
-            applicationId "com.gee12.mytetroid.full"
-//            signingConfig signingConfigs.debugFull
-//            buildConfigField "String", "BUILD_VARIANT", "\"full\""
-//            resValue "string", "authority_provider", "\"com.gee12.mytetroid.full.fileprovider\""
+            applicationIdSuffix = '.pro'
+//            buildConfigField "String", "BUILD_VARIANT", "\"pro\""
         }
     }
 }

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.gee12.mytetroid"
     android:installLocation="auto">
+
     <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -19,10 +20,10 @@
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
 <!--        android:authorities="@string/authority_provider"-->
+<!--        tools:replace="android:authorities"-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
-            tools:replace="android:authorities"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

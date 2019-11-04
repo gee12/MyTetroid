@@ -27,6 +27,8 @@ public class InfoActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.text_view_stats_max_subnodes)).setText(String.valueOf(storage.getMaxSubnodesCount()));
         ((TextView)findViewById(R.id.text_view_stats_max_depth)).setText(String.valueOf(storage.getMaxDepthLevel()));
         ((TextView)findViewById(R.id.text_view_stats_records_count)).setText(String.valueOf(storage.getRecordsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_crypt_records_count)).setText(String.valueOf(storage.getCryptedRecordsCount()));
+        ((TextView)findViewById(R.id.text_view_stats_files_count)).setText(String.valueOf(storage.getFilesCount()));
         ((TextView)findViewById(R.id.text_view_stats_tags_count)).setText(String.valueOf(storage.getTagsCount()));
         ((TextView)findViewById(R.id.text_view_stats_unique_tags_count)).setText(String.valueOf(storage.getUniqueTagsCount()));
         ((TextView)findViewById(R.id.text_view_stats_authors_count)).setText(String.valueOf(storage.getAuthorsCount()));
