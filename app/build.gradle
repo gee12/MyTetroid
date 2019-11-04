@@ -5,15 +5,6 @@ android {
         debug {
             storeFile file("external/debug.keystore")
         }
-        release {
-            storeFile file('/home/gee12/Android/Keystore/gee12_keystore.jks')
-            storePassword 'AE3dDWZU'
-            keyAlias = 'mytetroid'
-            keyPassword 'iHMy5~sv62'
-        }
-//        debugFull {
-//            storeFile file('external/debugFull.keystore')
-//        }
     }
     compileSdkVersion 28
     defaultConfig {
