@@ -351,15 +351,24 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //            context.getString(R.string.authority_provider)
             Uri fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
 
+            // ?
+            //grant permision for app with package "packegeName", eg. before starting other app via intent
+//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //revoke permisions
+//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
             Intent intent = new Intent(Intent.ACTION_VIEW);
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
             intent.setDataAndType(fileURI, mimeType);
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
+            Intent chooser = Intent.createChooser(intent, "");
             try {
                 // проверить, есть ли подходящее приложение для открытия файла
                 if (intent.resolveActivity(context.getPackageManager()) != null) {
-                    context.startActivity(intent);
+//                    context.startActivity(intent);
+                    context.startActivity(chooser);
                 } else {
                     LogManager.addLog(context.getString(R.string.no_app_found) + fileDisplayName, Toast.LENGTH_LONG);
                     return false;
