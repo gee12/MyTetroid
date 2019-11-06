@@ -22,7 +22,6 @@ import org.jsoup.Jsoup;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
@@ -47,6 +46,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static final String MYTETRA_XML_FILE = "mytetra.xml";
     public static final String DATABASE_INI_FILE = "database.ini";
 
+    private static Context context;
+
     /**
      *
      */
@@ -67,7 +68,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param storagePath
      * @return
      */
-    public static boolean init(String storagePath) {
+    public static boolean init(Context ctx, String storagePath) {
+        context = ctx;
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
@@ -183,29 +185,38 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static String getRecordHtmlTextDecrypted(TetroidRecord record) {
-        String pathUri = getStoragePathBaseUri() + File.separator
+        String path = getStoragePathBase() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
-//        String text = Utils.readAllFile(URI.show(pathUri));
+//        String pathUri = null;
+        Uri uri = null;
+        try {
+//            pathUri = "file://" + URLEncoder.encode(path, "UTF-8");
+            uri = Uri.parse(path);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_generate_record_file_path) + path, ex);
+            return null;
+        }
         String res = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 byte[] text = new byte[0];
                 try {
-                    text = Utils.readFile(URI.create(pathUri));
-                } catch (IOException ex) {
-                    LogManager.addLog("Ошибка чтения файла записи: ", ex);
+                    text = Utils.readFile(uri);
+                } catch (Exception ex) {
+                    LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
                 }
                 // расшифровываем содержимое файла
                 res = CryptManager.decryptText(text);
                 if (res == null) {
-                    LogManager.addLog("Ошибка расшифровки файла записи: " + pathUri, LogManager.Types.ERROR);
+                    LogManager.addLog(context.getString(R.string.error_decrypt_record_file) + path,
+                            LogManager.Types.ERROR);
                 }
             }
         } else {
             try {
-                res = Utils.readTextFile(URI.create(pathUri));
-            } catch (IOException ex) {
-                LogManager.addLog("Ошибка чтения файла записи: ", ex);
+                res = Utils.readTextFile(uri);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
             }
         }
         return res;

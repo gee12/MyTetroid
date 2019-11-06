@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.text.Html;
@@ -20,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -127,9 +127,9 @@ public class Utils {
 //        return res;
 //    }
 
-    public static String readTextFile(URI fileUrl) throws IOException {
+    public static String readTextFile(Uri fileUri) throws IOException {
         StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(new File(fileUrl)));
+        BufferedReader br = new BufferedReader(new FileReader(new File(fileUri.getPath())));
         String line;
         while ((line = br.readLine()) != null) {
             sb.append(line);
@@ -139,8 +139,8 @@ public class Utils {
         return sb.toString();
     }
 
-    public static byte[] readFile(URI fileUrl) throws IOException {
-        File file = new File(fileUrl);
+    public static byte[] readFile(Uri fileUri) throws IOException {
+        File file = new File(fileUri.getPath());
         byte[] data = new byte[(int) file.length()];
         DataInputStream dis;
         dis = new DataInputStream(new FileInputStream(file));

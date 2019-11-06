@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * @param storagePath Путь хранилища
      */
     private void initStorage(String storagePath) {
-        if (DataManager.init(storagePath)) {
+        if (DataManager.init(this, storagePath)) {
             LogManager.addLog(getString(R.string.storage_settings_inited) + storagePath);
             drawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
@@ -546,7 +546,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
             startActivity(intent);
         } else {
-            LogManager.addLog("Отсутствует файл менеджер", Toast.LENGTH_LONG);
+            LogManager.addLog(R.string.missing_file_manager, Toast.LENGTH_LONG);
         }
     }
 

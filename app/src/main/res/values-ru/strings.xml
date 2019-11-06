@@ -152,4 +152,8 @@
     <string name="stats_tags_count">Меток:</string>
     <string name="stats_unique_tags_count">Из них уникальных:</string>
     <string name="stats_authors_count">Авторов:</string>
+    <string name="missing_file_manager">Отсутствует файловый менеджер</string>
+    <string name="error_read_record_file">Ошибка чтения файла записи:&#160;</string>
+    <string name="error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
+    <string name="error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
 </resources>

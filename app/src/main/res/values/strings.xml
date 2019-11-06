@@ -185,4 +185,8 @@
     <string name="stats_tags_count">Tags:</string>
     <string name="stats_unique_tags_count">Of which are unique:</string>
     <string name="stats_authors_count">Authors:</string>
+    <string name="missing_file_manager">Missing file manager</string>
+    <string name="error_read_record_file">Error reading record file:&#160;</string>
+    <string name="error_decrypt_record_file">Error decrypting record file:&#160;</string>
+    <string name="error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
 </resources>
