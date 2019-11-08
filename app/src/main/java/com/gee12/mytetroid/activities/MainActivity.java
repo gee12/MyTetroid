@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private android.widget.SearchView tagsSearchView;
     private SearchView recordsSearchView;
     private MenuItem miRecordsSearchView;
+    private MenuItem miGlobalSearch;
+    private MenuItem miStorageInfo;
     private GestureDetectorCompat gestureDetector;
     private boolean isAlreadyTryDecrypt = false;
     private boolean isStorageLoaded = false;
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             }
 
             // нужно ли выделять ветку, выбранную в прошлый раз
-            // (обязательно после initListViews)
+            // (обязательно после initGUI)
             TetroidNode nodeToSelect = null;
             String nodeId = SettingsManager.getSelectedNodeId();
             if (nodeId != null) {
@@ -303,7 +305,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             initStorage(nodeToSelect, false);
 
         } else {
-            LogManager.addLog(R.string.storage_init_error, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.failed_storage_init) + DataManager.getStoragePath(),
+                    LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
     }
 
@@ -443,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //                LogManager.addLog(R.string.storage_loaded);
 //            }
             // инициализация контролов
-//            initListViews();
+//            initGUI();
         }
         // выбираем ветку в новом списке расшифрованных веток
 //        if (node != null)
@@ -453,28 +456,37 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
      */
-    private void initListViews() {
-        // список веток
-        this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
-        nodesListView.setAdapter(nodesListAdapter);
-        // throws NullPointerException if the specified collection contains one or more null elements
-        // and this list does not permit null elements, or if the specified collection is null.
-        nodesListAdapter.setDataItems(DataManager.getRootNodes());
-        setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
-        // список записей
-//        this.recordsListAdapter = new RecordsListAdapter(this, onRecordAttachmentClickListener);
-//        recordsListView.setAdapter(recordsListAdapter);
-        // список файлов
-//        this.filesListAdapter = new FilesListAdapter(this);
-//        filesListView.setAdapter(filesListAdapter);
+    private void initGUI(boolean res) {
+        List<TetroidNode> rootNodes = DataManager.getRootNodes();
+        if (res && rootNodes != null) {
+            // список веток
+            this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
+            nodesListView.setAdapter(nodesListAdapter);
+            nodesListAdapter.setDataItems(rootNodes);
+            boolean isEmpty = DataManager.getRootNodes().isEmpty();
+            if (!isEmpty) {
+                // списки записей, файлов
+                viewPagerAdapter.getMainFragment().initListAdapters(this);
 
-        viewPagerAdapter.getMainFragment().initListAdapters(this);
+                // список меток
+                this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTags());
+                tagsListView.setAdapter(tagsListAdapter);
+                tvTagsEmpty.setText(R.string.tags_is_missing);
+            }
+            setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.nodes_is_missing);
+        } else {
+            setListEmptyViewState(tvNodesEmpty, true, R.string.storage_load_error);
+        }
+        setMenuItemsAvailable(res);
+    }
 
-        // список меток
-//        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTagsHashMap());
-        this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTags());
-        tagsListView.setAdapter(tagsListAdapter);
-        tvTagsEmpty.setText(R.string.tags_is_missing);
+    private void setMenuItemsAvailable(boolean isAvailable) {
+        int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
+        nodesSearchView.setVisibility(vis);
+        tagsSearchView.setVisibility(vis);
+        miGlobalSearch.setEnabled(isAvailable);
+        miStorageInfo.setEnabled(isAvailable);
+        miRecordsSearchView.setVisible(isAvailable);
     }
 
     /**
@@ -1090,6 +1102,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         viewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+        this.miGlobalSearch = menu.findItem(R.id.action_global_search);
+        this.miStorageInfo = menu.findItem(R.id.action_storage_info);
         this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(miRecordsSearchView);
         //
@@ -1274,7 +1288,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
-            initListViews();
+            initGUI(res);
 
             if (BuildConfig.DEBUG) {
                 LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);

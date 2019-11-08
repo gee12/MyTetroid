@@ -86,7 +86,7 @@
     <string name="is_write_log">Log events to file</string>
     <string name="log_path">Logs catalog</string>
     <string name="log_path_summ">Path to catalog with log file</string>
-    <string name="storage_init_error">Storage initialization error</string>
+    <string name="storage_load_error">Storage loading error</string>
     <string name="errors_during_decryption">Errors occurred during decryption.</string>
     <string name="details_in_logs">Details in the logs</string>
     <string name="for_more_info_enable_log">For more information, enable logging</string>
@@ -169,6 +169,7 @@
     <string name="no_app_found">No suitable application was found to open the file&#160;</string>
     <string name="error_file_open">File open error&#160;</string>
     <string name="failed_storage_load">Failed to load storage:&#160;</string>
+    <string name="failed_storage_init">Failed to init storage:&#160;</string>
     <string name="found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>

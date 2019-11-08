@@ -65,7 +65,7 @@
     <string name="is_write_log">Логировать события в файл</string>
     <string name="log_path">Каталог логов</string>
     <string name="log_path_summ">Путь к каталогу для записи лог-файла</string>
-    <string name="storage_init_error">Ошибка инициализации хранилища</string>
+    <string name="storage_load_error">Ошибка загрузки хранилища</string>
     <string name="errors_during_decryption">При расшифровке произошли ошибки.</string>
     <string name="details_in_logs">Подробности в логах</string>
     <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>
@@ -137,6 +137,7 @@
     <string name="no_app_found">Не найдено подходящего приложения для открытия файла&#160;</string>
     <string name="error_file_open">Ошибка открытия файла&#160;</string>
     <string name="failed_storage_load">Не удалось загрузить хранилище:&#160;</string>
+    <string name="failed_storage_init">Не удалось инициализировать хранилище:&#160;</string>
     <string name="found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="pref_keep_screen_on">Не гасить экран</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
