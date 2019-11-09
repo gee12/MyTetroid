@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import java.io.File;
 
@@ -33,19 +34,19 @@ import java.io.File;
  */
 public class UriUtil {
     public static Uri parseDefaultFile(String text) {
-        if (Utils.isNullOrEmpty(text)) {
+        if (TextUtils.isEmpty(text)) {
             return null;
         }
 
         Uri uri = Uri.parse(text);
-        if (Utils.isNullOrEmpty(uri.getScheme())) {
+        if (TextUtils.isEmpty(uri.getScheme())) {
             uri = uri.buildUpon().scheme("file").authority("").build();
         }
 
         return uri;
     }
     public static Uri parseDefaultFile(Uri uri) {
-        if (Utils.isNullOrEmpty(uri.getScheme())) {
+        if (TextUtils.isEmpty(uri.getScheme())) {
             uri = uri.buildUpon().scheme("file").authority("").build();
         }
 
@@ -67,7 +68,7 @@ public class UriUtil {
 //        if (uri == null) return null;
 //
 //        String scheme = uri.getScheme();
-//        if (Utils.isNullOrEmpty(scheme) || scheme.equals("file")) {
+//        if (TextUtils.isEmpty(scheme) || scheme.equals("file")) {
 //            return new FileInputStream(uri.getPath());
 //        }
 //        else if (scheme.equals("content")) {
@@ -100,7 +101,7 @@ public class UriUtil {
         if (useStorageFramework(ctx) || hasWritableContentUri(uri)) { return uri; }
 
         String scheme = uri.getScheme();
-        if (Utils.isNullOrEmpty(scheme)) { return uri; }
+        if (TextUtils.isEmpty(scheme)) { return uri; }
 
         String filepath = null;
 
@@ -122,7 +123,7 @@ public class UriUtil {
             }
 
             // Try using the URI path as a straight file
-            if (Utils.isNullOrEmpty(filepath)) {
+            if (TextUtils.isEmpty(filepath)) {
                 filepath = uri.getEncodedPath();
                 if (!isValidFilePath(filepath)) {
                     filepath = null;
@@ -135,7 +136,7 @@ public class UriUtil {
         }
 
         // Update the file to a file URI
-        if (!Utils.isNullOrEmpty(filepath)) {
+        if (!TextUtils.isEmpty(filepath)) {
             Uri.Builder b = new Uri.Builder();
             uri = b.scheme("file").authority("").path(filepath).build();
         }
@@ -144,7 +145,7 @@ public class UriUtil {
     }
 
     private static boolean isValidFilePath(String filepath) {
-        if (Utils.isNullOrEmpty(filepath)) { return false; }
+        if (TextUtils.isEmpty(filepath)) { return false; }
 
         File file = new File(filepath);
         return file.exists() && file.canRead();
@@ -158,7 +159,7 @@ public class UriUtil {
     private static boolean hasWritableContentUri(Uri uri) {
         String scheme = uri.getScheme();
 
-        if (Utils.isNullOrEmpty(scheme)) { return false; }
+        if (TextUtils.isEmpty(scheme)) { return false; }
 
         if (!scheme.equalsIgnoreCase("content")) { return false; }
 

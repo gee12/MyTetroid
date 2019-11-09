@@ -3,6 +3,7 @@ package com.gee12.mytetroid.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -16,7 +17,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.ScanManager;
 
 public class SearchActivity extends AppCompatActivity {
@@ -152,7 +152,7 @@ public class SearchActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_query_submit) {
-            if (Utils.isNullOrEmpty(etQuery.getText().toString())) {
+            if (TextUtils.isEmpty(etQuery.getText().toString())) {
                 Message.show(this, getString(R.string.enter_query));
             } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.global_search_in_cur_node))
                 && !isCurNodeNotNull) {

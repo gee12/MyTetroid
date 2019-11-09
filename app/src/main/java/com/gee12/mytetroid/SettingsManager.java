@@ -3,6 +3,7 @@ package com.gee12.mytetroid;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
 
@@ -51,7 +52,7 @@ public class SettingsManager {
 
     public static void setStoragePath(String value) {
         String oldPath = getStoragePath();
-        if (Utils.isNullOrEmpty(oldPath) || !value.equals(oldPath)) {
+        if (TextUtils.isEmpty(oldPath) || !value.equals(oldPath)) {
 //            isAskReloadStorage = true;
             SettingsManager.setMiddlePassHash(null);
         }

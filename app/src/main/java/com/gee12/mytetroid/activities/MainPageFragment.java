@@ -204,10 +204,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                     miCurRecord.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
                 break;
-//            case MainPageFragment.VIEW_TAG_RECORDS:
-                // один контрол на записи ветки и метки
-//                whichChild = VIEW_NODE_RECORDS;
-//                break;
         }
         mainView.updateMainToolbar(viewId, title);
         mainView.checkKeepScreenOn(viewId);
@@ -216,9 +212,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     }
 
     /**
-     * Восстанавливаем
+     * Восстанавливаем состояние Toolbar при переключении обратно к фрагменту MainPageFragment.
      */
-    public void restoreLastMainTooltipState() {
+    public void restoreLastMainToolbarState() {
         String title = null;
         int restoredViewId = curViewId;
         switch (restoredViewId) {
@@ -494,7 +490,20 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public boolean onBackPressed() {
         boolean res = false;
         int curView = viewFlipper.getDisplayedChild() + 1;
-        if (curView == VIEW_RECORD_TEXT) {
+        if (curView == VIEW_RECORD_TEXT || curView == VIEW_RECORD_FILES) {
+            res = true;
+            switch (lastViewId) {
+                case VIEW_NODE_RECORDS:
+                case VIEW_TAG_RECORDS:
+                case VIEW_FOUND_RECORDS:
+                case VIEW_RECORD_TEXT: // если curView=VIEW_RECORD_FILES
+                    showView(lastViewId);
+                    break;
+                default:
+                    showView(VIEW_NONE);
+            }
+        }
+        /*if (curView == VIEW_RECORD_TEXT) {
             res = true;
             // смотрим какая страница была перед этим
             if (lastViewId == VIEW_NODE_RECORDS)
@@ -514,7 +523,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                 showView(VIEW_TAG_RECORDS);
             else
                 showView(VIEW_NONE);
-        }
+        }*/
         return res;
     }
 

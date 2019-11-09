@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import android.text.TextUtils;
 import android.util.Xml;
 
 import com.gee12.mytetroid.Utils;
@@ -205,7 +206,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             this.maxSubnodesCount = subNodes.size();
         if (depthLevel > maxDepthLevel)
             this.maxDepthLevel = depthLevel;
-        if (!Utils.isNullOrEmpty(iconPath)) {
+        if (!TextUtils.isEmpty(iconPath)) {
             this.iconsCount++;
         }
 
@@ -245,7 +246,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 //        if (!record.isNonCryptedOrDecrypted())
 //            return;
         String tagsString = record.getTagsString();
-        if (!Utils.isNullOrEmpty(tagsString)) {
+        if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
                 TetroidTag tag;
                 if (tagsMap.containsKey(tagName)) {
@@ -290,7 +291,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
         TetroidRecord record = new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node);
 
-        if (!Utils.isNullOrEmpty(author))
+        if (!TextUtils.isEmpty(author))
             this.authorsCount++;
 //        parser.nextTag();
 //        parser.require(XmlPullParser.END_TAG, ns, "record");

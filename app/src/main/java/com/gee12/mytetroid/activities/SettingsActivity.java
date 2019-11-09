@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.text.TextUtils;
 import android.view.MenuItem;
 
 import androidx.annotation.LayoutRes;
@@ -45,7 +46,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 String path = SettingsManager.getStoragePath();
-                if (Utils.isNullOrEmpty(path)) {
+                if (TextUtils.isEmpty(path)) {
                     path = Utils.getExtPublicDocumentsDir();
                 }
                 SettingsManager.isAskReloadStorage = false;
@@ -116,7 +117,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             // вызывается, когда задаем
             // удаляем хэш пароля, если поменяли хранилище
 //            String newStoragePath = SettingsManager.getStoragePath();
-//            if (Utils.isNullOrEmpty(newStoragePath) || !newStoragePath.equals(SettingsManager.LastStoragePath)) {
+//            if (TextUtils.isEmpty(newStoragePath) || !newStoragePath.equals(SettingsManager.LastStoragePath)) {
 //                SettingsManager.setMiddlePassHash(null);
 //            }
 

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.data;
 
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.Utils;
@@ -82,7 +83,7 @@ public class TetroidNode implements ITetroidObject {
     }
 
     public void loadIconFromStorage(String iconsStoragePath) {
-        if (Utils.isNullOrEmpty(iconName))
+        if (TextUtils.isEmpty(iconName))
             return;
         loadIcon(iconsStoragePath + iconName);
     }

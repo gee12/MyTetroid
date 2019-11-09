@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
@@ -72,7 +73,7 @@ public class DateTimeFormatPreference extends DialogPreference {
     @Override
     protected void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
-            if (!Utils.isNullOrEmpty(newValue) && Utils.checkDateFormatString(newValue)) {
+            if (!TextUtils.isEmpty(newValue) && Utils.checkDateFormatString(newValue)) {
                 setValue(newValue);
             } else {
                 Message.show(getContext(), "Введена некорректная строка формата даты/времени");

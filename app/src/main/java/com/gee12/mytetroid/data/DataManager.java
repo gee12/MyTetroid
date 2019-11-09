@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -90,11 +91,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean readStorage(boolean isDecrypt) {
         boolean res = false;
+        File file = new File(instance.storagePath + File.separator + MYTETRA_XML_FILE);
+        if (!file.exists()) {
+            LogManager.addLog("Отсутствует файл " + MYTETRA_XML_FILE, LogManager.Types.ERROR);
+            return false;
+        }
         try {
-            FileInputStream fis = new FileInputStream(
-                    instance.storagePath + File.separator + MYTETRA_XML_FILE);
+            FileInputStream fis = new FileInputStream(file);
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-//            DataManager.instance.rootNodesList = instance.parse(fis, decryptHandler);
             res = instance.parse(fis, decryptHandler);
 
             if (BuildConfig.DEBUG) {
@@ -131,11 +135,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         // нужно также обработать варианты, когда эти поля пустые (!)
         // ...
         String salt = databaseINI.getWithoutQuotes("crypt_check_salt");
-        if (Utils.isNullOrEmpty(salt)) {
+        if (TextUtils.isEmpty(salt)) {
             throw new EmptyFieldException("crypt_check_salt");
         }
         String checkhash = databaseINI.getWithoutQuotes("crypt_check_hash");
-        if (Utils.isNullOrEmpty(checkhash)) {
+        if (TextUtils.isEmpty(checkhash)) {
             throw new EmptyFieldException("crypt_check_hash");
         }
         // ...
@@ -144,7 +148,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
         String checkdata = databaseINI.get("middle_hash_check_data");
-        if (Utils.isNullOrEmpty(checkdata)) {
+        if (TextUtils.isEmpty(checkdata)) {
             throw new EmptyFieldException("middle_hash_check_data");
         }
         return CryptManager.checkMiddlePassHash(passHash, checkdata);

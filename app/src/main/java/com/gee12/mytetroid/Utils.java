@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
@@ -28,6 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Utils {
+
+    public static boolean isEquals(String one, String two, boolean checkCase) {
+        return (one != null && (checkCase && one.equals(two) || !checkCase && one.equalsIgnoreCase(two)));
+    }
 
     public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException, SVGParseException, NullPointerException {
         File file = new File(fullFileName);
@@ -50,7 +55,7 @@ public class Utils {
      * @return
      */
     public static Date toDate(String dateString, String pattern) {
-        if (isNullOrEmpty(dateString)) {
+        if (TextUtils.isEmpty(dateString)) {
             return null;
         }
         Date convertedDate = null;
@@ -74,9 +79,9 @@ public class Utils {
         return true;
     }
 
-    public static boolean isNullOrEmpty(String s) {
-        return s == null || s.isEmpty();
-    }
+//    public static boolean isNullOrEmpty(String s) {
+//        return s == null || s.isEmpty();
+//    }
 
     /**
      * Преобразование в MD5

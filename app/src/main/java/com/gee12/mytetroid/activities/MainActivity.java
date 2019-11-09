@@ -544,7 +544,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
-//        updateMainToolbar(viewId);
         drawerLayout.closeDrawers();
         viewPager.setCurrent(MainViewPager.PAGE_MAIN);
         viewPagerAdapter.getMainFragment().showRecords(records, viewId);
@@ -778,12 +777,14 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      */
     private void changeToolBarByPage(int curPage) {
         if (curPage == MainViewPager.PAGE_MAIN) {
-            viewPagerAdapter.getMainFragment().restoreLastMainTooltipState();
+            viewPagerAdapter.getMainFragment().restoreLastMainToolbarState();
             setRecordsSearchViewVisibility(true);
         } else {
             updateMainToolbar(MainPageFragment.VIEW_GLOBAL_FOUND, null);
         }
     }
+
+    String recordsSearchQuery;
 
     /**
      *
@@ -819,7 +820,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         }
         setTitle(title);
         setViewTypeTitle(viewId);
-        setRecordsSearchViewVisibility(showRecordsSearch);
+        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
     }
 
     /**
@@ -849,7 +850,33 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
+        setRecordsSearchViewVisibility(isVisible, viewPagerAdapter.getMainFragment().getCurViewId());
+    }
+
+    public void setRecordsSearchViewVisibility(boolean isVisible, int viewId) {
         miRecordsSearchView.setVisible(isVisible);
+        if (isVisible) {
+            String query;
+            boolean restoreSearch = (viewId == MainPageFragment.VIEW_FOUND_RECORDS);
+            if (restoreSearch) {
+                // не устанавливаем заново текст запроса, если он уже установлен
+                if (Utils.isEquals(recordsSearchQuery, recordsSearchView.getQuery().toString(), false)) {
+                    if (recordsSearchView.isIconified())
+                        recordsSearchView.setIconified(false);
+                    return;
+                }
+                query = recordsSearchQuery;
+            } else {
+                query = null;
+            }
+            recordsSearchView.setIconified(!restoreSearch);
+
+            // ...
+            // установка query заставляет сделаться iconofied ?
+            recordsSearchView.setQuery(query, false);
+            // а если не сбрасывать запрос в null, то после установки iconofied в false
+            // будет отображет запрос из RECORDS_FOUND ?
+        }
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
@@ -971,9 +998,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private void searchInMainPage(String query, int viewId) {
         switch (viewId) {
             case MainPageFragment.VIEW_NODE_RECORDS:
+                this.recordsSearchQuery = query;
                 searchInNodeRecords(query);
                 break;
             case MainPageFragment.VIEW_TAG_RECORDS:
+                this.recordsSearchQuery = query;
                 searchInTagRecords(query);
                 break;
             case MainPageFragment.VIEW_RECORD_FILES:
@@ -983,7 +1012,10 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 searchInRecordText(query);
                 break;
             case MainPageFragment.VIEW_FOUND_RECORDS:
-                searchInMainPage(query, viewPagerAdapter.getMainFragment().getLastViewId());
+                //
+                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
+                if (viewId != lastVIewId)
+                    searchInMainPage(query, lastVIewId);
                 break;
         }
     }
