@@ -93,7 +93,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         boolean res = false;
         File file = new File(instance.storagePath + File.separator + MYTETRA_XML_FILE);
         if (!file.exists()) {
-            LogManager.addLog("Отсутствует файл " + MYTETRA_XML_FILE, LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.missing_file) + MYTETRA_XML_FILE, LogManager.Types.ERROR);
             return false;
         }
         try {

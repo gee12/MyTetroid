@@ -744,6 +744,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
+                // Баг: при переходе из отфильтрованного списка в запись/список файлов и обратно,
+                // а затем если закрыть SearchView, то:
+                // вместо закрытия будет переход к записи/списку файлов
+                // Поэтому (?):
+                // нужно убрать константу FOUND_RECORDS, и в обоих случаях использовать
+                // NODE_RECORDS или TAG_RECORDS, а состояние фильтрации
+                // сохранять в отдельной переменной isFiltered
                 switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
 //                switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
                     case MainPageFragment.VIEW_NODE_RECORDS:
@@ -784,7 +791,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         }
     }
 
-    String recordsSearchQuery;
+//    String recordsSearchQuery;
 
     /**
      *
@@ -811,16 +818,17 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 title = ((curTag != null) ? curTag.getName() : "");
                 showRecordsSearch = true;
                 break;
-            case MainPageFragment.VIEW_RECORD_FILES:
             case MainPageFragment.VIEW_FOUND_RECORDS:
                 showRecordsSearch = true;
                 break;
+            case MainPageFragment.VIEW_RECORD_FILES:
             default:
                 showRecordsSearch = false;
         }
         setTitle(title);
         setViewTypeTitle(viewId);
-        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
+        setRecordsSearchViewVisibility(showRecordsSearch);
+//        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
     }
 
     /**
@@ -850,10 +858,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
-        setRecordsSearchViewVisibility(isVisible, viewPagerAdapter.getMainFragment().getCurViewId());
+        miRecordsSearchView.setVisible(isVisible);
+//        setRecordsSearchViewVisibility(isVisible, viewPagerAdapter.getMainFragment().getCurViewId());
     }
 
-    public void setRecordsSearchViewVisibility(boolean isVisible, int viewId) {
+   /* public void setRecordsSearchViewVisibility(boolean isVisible, int viewId) {
         miRecordsSearchView.setVisible(isVisible);
         if (isVisible) {
             String query;
@@ -877,7 +886,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             // а если не сбрасывать запрос в null, то после установки iconofied в false
             // будет отображет запрос из RECORDS_FOUND ?
         }
-    }
+    }*/
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible)
@@ -998,11 +1007,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private void searchInMainPage(String query, int viewId) {
         switch (viewId) {
             case MainPageFragment.VIEW_NODE_RECORDS:
-                this.recordsSearchQuery = query;
+//                this.recordsSearchQuery = query;
                 searchInNodeRecords(query);
                 break;
             case MainPageFragment.VIEW_TAG_RECORDS:
-                this.recordsSearchQuery = query;
+//                this.recordsSearchQuery = query;
                 searchInTagRecords(query);
                 break;
             case MainPageFragment.VIEW_RECORD_FILES:

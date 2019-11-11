@@ -190,4 +190,5 @@
     <string name="error_read_record_file">Error reading record file:&#160;</string>
     <string name="error_decrypt_record_file">Error decrypting record file:&#160;</string>
     <string name="error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
+    <string name="missing_file">Missing file&#160;</string>
 </resources>
