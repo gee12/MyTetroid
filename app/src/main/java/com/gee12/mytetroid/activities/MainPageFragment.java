@@ -50,7 +50,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public static final int VIEW_RECORD_TEXT = 2;
     public static final int VIEW_RECORD_FILES = 3;
     public static final int VIEW_TAG_RECORDS = 4;
-    public static final int VIEW_FOUND_RECORDS = 5;
+//    public static final int VIEW_FOUND_RECORDS = 5;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
@@ -334,8 +334,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             // !!
             // вот тут пока неясно что делать потом с командой Back, например.
             showRecord(record);
-
-//                    return super.shouldOverrideUrlLoading(view, request);
+            // return super.shouldOverrideUrlLoading(view, request);
         } else {
             try {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -495,7 +494,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             switch (lastViewId) {
                 case VIEW_NODE_RECORDS:
                 case VIEW_TAG_RECORDS:
-                case VIEW_FOUND_RECORDS:
+//                case VIEW_FOUND_RECORDS:
                 case VIEW_RECORD_TEXT: // если curView=VIEW_RECORD_FILES
                     showView(lastViewId);
                     break;

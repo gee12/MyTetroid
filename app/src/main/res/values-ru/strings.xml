@@ -158,4 +158,5 @@
     <string name="error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
     <string name="error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="missing_file">Отсутствует файл&#160;</string>
+    <string name="open_node_records">Открытие записей ветки: id=</string>
 </resources>

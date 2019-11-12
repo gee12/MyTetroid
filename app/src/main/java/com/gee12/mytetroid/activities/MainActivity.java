@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
+    private boolean isRecordsFiltered = false;
     private SearchView recordsSearchView;
     private MenuItem miRecordsSearchView;
     private MenuItem miGlobalSearch;
@@ -513,9 +514,18 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             return;
         }
         this.curNode = node;
-        LogManager.addLog("Открытие записей ветки: id=" + node.getId());
-//        tvRecordsEmpty.setText(R.string.records_is_missing);
-        showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
+        LogManager.addLog(getString(R.string.open_node_records) + node.getId());
+        // сбрасываем фиьтрацию при переходе на другую ветку
+        if (node != curNode && isRecordsFiltered) {
+
+            // ...
+            // но как сбросить SearchView, если срабатывает событие onClose,
+            // в котором происходит опять же загрузка полного списка записей
+            // ??
+        }
+        // и сохраняем фильтрацию, если осуществляется повторное открытие той же ветки
+        boolean isFiltered = (node == curNode && this.isRecordsFiltered);
+        showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS, isFiltered);
     }
 
     /**
@@ -544,6 +554,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
+        showRecords(records, viewId, false);
+    }
+
+    private void showRecords(List<TetroidRecord> records, int viewId, boolean isFiltered) {
+        this.isRecordsFiltered = isFiltered;
         drawerLayout.closeDrawers();
         viewPager.setCurrent(MainViewPager.PAGE_MAIN);
         viewPagerAdapter.getMainFragment().showRecords(records, viewId);
@@ -600,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             if (!node.isNonCryptedOrDecrypted()) {
                 decryptStorage(node);
                 // как остановить дальнейшее выполнение, чтобы не стабатывал Expander?
-                return;
+//                return;
             }
         }
     };
@@ -744,15 +759,17 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-                // Баг: при переходе из отфильтрованного списка в запись/список файлов и обратно,
+
+                MainActivity.this.isRecordsFiltered = false;
+                // Баг (исправлено!): при переходе из отфильтрованного списка в запись/список файлов и обратно,
                 // а затем если закрыть SearchView, то:
                 // вместо закрытия будет переход к записи/списку файлов
                 // Поэтому (?):
                 // нужно убрать константу FOUND_RECORDS, и в обоих случаях использовать
                 // NODE_RECORDS или TAG_RECORDS, а состояние фильтрации
-                // сохранять в отдельной переменной isFiltered
-                switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
-//                switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
+                // сохранять в отдельной переменной isRecordsFiltered
+//                switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
+                switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
                     case MainPageFragment.VIEW_NODE_RECORDS:
                         if (curNode != null) {
                             showRecords(curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
@@ -763,12 +780,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                             showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
                         }
                         break;
-                    case MainPageFragment.VIEW_RECORD_FILES:
+                        // пока по файлам не ищем
+                   /* case MainPageFragment.VIEW_RECORD_FILES:
                         TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
                         if (curRecord != null) {
                             viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
-                        break;
+                        break;*/
                     case MainPageFragment.VIEW_RECORD_TEXT:
                         // ?
                         break;
@@ -818,9 +836,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 title = ((curTag != null) ? curTag.getName() : "");
                 showRecordsSearch = true;
                 break;
-            case MainPageFragment.VIEW_FOUND_RECORDS:
-                showRecordsSearch = true;
-                break;
+//            case MainPageFragment.VIEW_FOUND_RECORDS:
+//                showRecordsSearch = true;
+//                break;
             case MainPageFragment.VIEW_RECORD_FILES:
             default:
                 showRecordsSearch = false;
@@ -1020,12 +1038,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case MainPageFragment.VIEW_RECORD_TEXT:
                 searchInRecordText(query);
                 break;
-            case MainPageFragment.VIEW_FOUND_RECORDS:
-                //
-                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
-                if (viewId != lastVIewId)
-                    searchInMainPage(query, lastVIewId);
-                break;
+//            case MainPageFragment.VIEW_FOUND_RECORDS:
+//                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
+//                if (viewId != lastVIewId)
+//                    searchInMainPage(query, lastVIewId);
+//                break;
         }
     }
 
@@ -1051,7 +1068,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 : String.format(getString(R.string.search_records_in_tag_by_query), curTag.getName(), query);
         LogManager.addLog(log);
         List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
-        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
+//        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
+        showRecords(found, viewId, true);
         if (found.isEmpty()) {
             String emptyText = (viewId == MainPageFragment.VIEW_NODE_RECORDS)
                     ? String.format(getString(R.string.records_in_node_not_found), query, curNode.getName())
