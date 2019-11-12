@@ -40,11 +40,13 @@
         android:orderInCategory="200"
         android:title="@string/title_global_search"
         android:icon="@android:drawable/ic_menu_search"
+        android:enabled="false"
         app:showAsAction="never|collapseActionView" />
     <item
         android:id="@+id/action_storage_info"
         android:orderInCategory="250"
         android:title="@string/title_storage_info"
+        android:enabled="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"

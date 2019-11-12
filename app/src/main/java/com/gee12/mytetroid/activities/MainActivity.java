@@ -205,11 +205,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         initTagsView(vTagsHeader);
 
-        // инициализация
-//        SettingsManager.init(this);
-//        LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
-//        LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
-        //startInitStorage();
     }
 
     @Override
@@ -308,6 +303,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         } else {
             LogManager.addLog(getString(R.string.failed_storage_init) + DataManager.getStoragePath(),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            drawerLayout.openDrawer(Gravity.LEFT);
+            initGUI(false);
         }
     }
 
@@ -485,9 +482,14 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
         nodesSearchView.setVisibility(vis);
         tagsSearchView.setVisibility(vis);
-        miGlobalSearch.setEnabled(isAvailable);
-        miStorageInfo.setEnabled(isAvailable);
-        miRecordsSearchView.setVisible(isAvailable);
+        setEnabledIfNotNull(miGlobalSearch, isAvailable);
+        setEnabledIfNotNull(miStorageInfo, isAvailable);
+        setEnabledIfNotNull(miRecordsSearchView, isAvailable);
+    }
+
+    private void setEnabledIfNotNull(MenuItem mi, boolean isEnabled) {
+        if (mi != null)
+            mi.setEnabled(isEnabled);
     }
 
     /**
@@ -499,6 +501,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         intent.putExtra("location", SettingsManager.getStoragePath());
         startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
     }
+
+
+    boolean isNodeOpening = false;
 
     /**
      * Отображение записей ветки.
@@ -513,19 +518,20 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             // выходим, т.к. возможен запрос пароля в асинхронном режиме
             return;
         }
-        this.curNode = node;
         LogManager.addLog(getString(R.string.open_node_records) + node.getId());
-        // сбрасываем фиьтрацию при переходе на другую ветку
-        if (node != curNode && isRecordsFiltered) {
-
-            // ...
-            // но как сбросить SearchView, если срабатывает событие onClose,
-            // в котором происходит опять же загрузка полного списка записей
-            // ??
+        // сбрасываем фильтрацию при открытии ветки
+        if (isRecordsFiltered && !recordsSearchView.isIconified()) {
+            // сбрасываем SearchView;
+            // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
+            // полного списка записей в его обработчике с помощью проверки isNodeOpening
+            this.isNodeOpening = true;
+//          recordsSearchView.onActionViewCollapsed();
+            recordsSearchView.setQuery("", false);
+            recordsSearchView.setIconified(true);
+            this.isNodeOpening = false;
         }
-        // и сохраняем фильтрацию, если осуществляется повторное открытие той же ветки
-        boolean isFiltered = (node == curNode && this.isRecordsFiltered);
-        showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS, isFiltered);
+        this.curNode = node;
+        showRecords(node.getRecords(), MainPageFragment.VIEW_NODE_RECORDS, false);
     }
 
     /**
@@ -759,27 +765,21 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
-
-                MainActivity.this.isRecordsFiltered = false;
-                // Баг (исправлено!): при переходе из отфильтрованного списка в запись/список файлов и обратно,
-                // а затем если закрыть SearchView, то:
-                // вместо закрытия будет переход к записи/списку файлов
-                // Поэтому (?):
-                // нужно убрать константу FOUND_RECORDS, и в обоих случаях использовать
-                // NODE_RECORDS или TAG_RECORDS, а состояние фильтрации
-                // сохранять в отдельной переменной isRecordsFiltered
-//                switch (viewPagerAdapter.getMainFragment().getLastViewId()) {
-                switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
-                    case MainPageFragment.VIEW_NODE_RECORDS:
-                        if (curNode != null) {
-                            showRecords(curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
-                        }
-                        break;
-                    case MainPageFragment.VIEW_TAG_RECORDS:
-                        if (curTag != null) {
-                            showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
-                        }
-                        break;
+                // "сбрасываем" фильтрацию, но не для только что открытых веток
+                // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
+                // что приводит к повторному открытию списка записей)
+                if (!isNodeOpening) {
+                    switch (viewPagerAdapter.getMainFragment().getCurViewId()) {
+                        case MainPageFragment.VIEW_NODE_RECORDS:
+                            if (curNode != null) {
+                                showRecords(curNode.getRecords(), MainPageFragment.VIEW_NODE_RECORDS);
+                            }
+                            break;
+                        case MainPageFragment.VIEW_TAG_RECORDS:
+                            if (curTag != null) {
+                                showRecords(curTag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
+                            }
+                            break;
                         // пока по файлам не ищем
                    /* case MainPageFragment.VIEW_RECORD_FILES:
                         TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
@@ -787,10 +787,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                             viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
                         break;*/
-                    case MainPageFragment.VIEW_RECORD_TEXT:
-                        // ?
-                        break;
+                        case MainPageFragment.VIEW_RECORD_TEXT:
+                            // ?
+                            break;
+                    }
                 }
+                MainActivity.this.isRecordsFiltered = false;
                 return false;
             }
         });
