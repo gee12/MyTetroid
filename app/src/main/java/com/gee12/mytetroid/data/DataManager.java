@@ -19,6 +19,7 @@ import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
 import org.jsoup.Jsoup;
+import org.jsoup.internal.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -373,7 +374,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1));
+            String mimeType = (!StringUtil.isBlank(ext))
+                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
+                    : "text/plain";
             intent.setDataAndType(fileURI, mimeType);
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

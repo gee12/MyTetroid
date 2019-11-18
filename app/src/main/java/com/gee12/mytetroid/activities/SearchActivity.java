@@ -72,16 +72,16 @@ public class SearchActivity extends AppCompatActivity {
 
     private void readSearchPrefs() {
         etQuery.setText(SettingsManager.getSearchQuery());
-        cbText.setChecked(SettingsManager.getSearchInText());
-        cbRecordsNames.setChecked(SettingsManager.getSearchInRecordsNames());
-        cbAuthor.setChecked(SettingsManager.getSearchInAuthor());
-        cbUrl.setChecked(SettingsManager.getSearchInUrl());
-        cbTags.setChecked(SettingsManager.getSearchInTags());
-        cbNodes.setChecked(SettingsManager.getSearchInNodes());
-        cbFiles.setChecked(SettingsManager.getSearchInFiles());
-        spSplitToWords.setSelection(SettingsManager.getSearchSplitToWords() ? 0 : 1);
-        spInWholeWords.setSelection(SettingsManager.getSearchInWholeWords() ? 0 : 1);
-        spInCurrentNode.setSelection(SettingsManager.getSearchInCurNode() ? 1 : 0);
+        cbText.setChecked(SettingsManager.isSearchInText());
+        cbRecordsNames.setChecked(SettingsManager.isSearchInRecordsNames());
+        cbAuthor.setChecked(SettingsManager.isSearchInAuthor());
+        cbUrl.setChecked(SettingsManager.isSearchInUrl());
+        cbTags.setChecked(SettingsManager.isSearchInTags());
+        cbNodes.setChecked(SettingsManager.isSearchInNodes());
+        cbFiles.setChecked(SettingsManager.isSearchInFiles());
+        spSplitToWords.setSelection(SettingsManager.isSearchSplitToWords() ? 0 : 1);
+        spInWholeWords.setSelection(SettingsManager.isSearchInWholeWords() ? 0 : 1);
+        spInCurrentNode.setSelection(SettingsManager.isSearchInCurNode() ? 1 : 0);
     }
 
     private void initSpinner(Spinner spinner, int arrayId) {

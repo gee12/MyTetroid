@@ -43,11 +43,7 @@ public class SettingsManager {
      * @return
      */
     public static String getStoragePath() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_storage_path))) {
-            return settings.getString(context.getString(R.string.pref_key_storage_path), def);
-        }
-        return def;
+        return getString(R.string.pref_key_storage_path, null);
     }
 
     public static void setStoragePath(String value) {
@@ -67,11 +63,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isLoadLastStoragePath() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_is_load_last_storage_path))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_load_last_storage_path), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_load_last_storage_path, true);
     }
 
 //    public static void setIsLoadLastStoragePath(boolean value) {
@@ -81,16 +73,21 @@ public class SettingsManager {
 //    }
 
     /**
+     * Запускать синхронизацию хранилища при запуске приложения.
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isSyncOnStart() {
+        return getBoolean(R.string.pref_key_is_sync_on_start, false);
+    }
+
+    /**
      * Сохранять хэш пароля локально?
      * По-умолчанию - да
      * @return
      */
     public static boolean isSaveMiddlePassHashLocal() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_is_save_pass_hash_local))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_save_pass_hash_local), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_save_pass_hash_local, true);
     }
 
     /**
@@ -98,17 +95,11 @@ public class SettingsManager {
      * @return
      */
     public static String getMiddlePassHash() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_pass_hash))) {
-            return settings.getString(context.getString(R.string.pref_key_pass_hash), def);
-        }
-        return def;
+        return getString(R.string.pref_key_pass_hash, null);
     }
 
     public static void setMiddlePassHash(String pass) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(context.getString(R.string.pref_key_pass_hash), pass);
-        editor.apply();
+        setString(R.string.pref_key_pass_hash, pass);
     }
 
     /**
@@ -117,11 +108,8 @@ public class SettingsManager {
      * @return
      */
     public static String getWhenAskPass() {
-        final String def = context.getString(R.string.pref_when_ask_password_on_select);
-        if(settings.contains(context.getString(R.string.pref_key_when_ask_password))) {
-            return settings.getString(context.getString(R.string.pref_key_when_ask_password), def);
-        }
-        return def;
+        return getString(R.string.pref_key_when_ask_password,
+                context.getString(R.string.pref_when_ask_password_on_select));
     }
 
     /**
@@ -130,11 +118,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isDecryptFilesInTemp() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_is_decrypt_in_temp))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_decrypt_in_temp), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_decrypt_in_temp, false);
     }
 
     /**
@@ -142,17 +126,11 @@ public class SettingsManager {
      * @return
      */
     public static String getTempPath() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_temp_path))) {
-            return settings.getString(context.getString(R.string.pref_key_temp_path), def);
-        }
-        return def;
+        return getString(R.string.pref_key_temp_path, null);
     }
 
     public static void setTempPath(String value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(context.getString(R.string.pref_key_temp_path), value);
-        editor.apply();
+        setString(R.string.pref_key_temp_path, value);
     }
 
     /**
@@ -161,11 +139,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isHighlightRecordWithAttach() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_is_highlight_attach))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_highlight_attach), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_highlight_attach, true);
     }
 
     /**
@@ -186,11 +160,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isKeepScreenOn() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_is_keep_screen_on))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_keep_screen_on), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_keep_screen_on, false);
     }
 
     /**
@@ -199,11 +169,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isKeepSelectedNode() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_is_keep_selected_node))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_keep_selected_node), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_keep_selected_node, true);
     }
 
     /**
@@ -211,11 +177,7 @@ public class SettingsManager {
      * @return
      */
     public static String getSelectedNodeId() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_selected_node_id))) {
-            return settings.getString(context.getString(R.string.pref_key_selected_node_id), def);
-        }
-        return def;
+        return getString(R.string.pref_key_selected_node_id, null);
     }
 
     /**
@@ -223,11 +185,8 @@ public class SettingsManager {
      * @return
      */
     public static String getDateFormatString() {
-        final String def = context.getString(R.string.def_date_format_string);
-        if(settings.contains(context.getString(R.string.pref_key_date_format_string))) {
-            return settings.getString(context.getString(R.string.pref_key_date_format_string), def);
-        }
-        return def;
+        return getString(R.string.pref_key_date_format_string,
+                context.getString(R.string.def_date_format_string));
     }
 
     /**
@@ -236,11 +195,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isWriteLog() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_is_write_log))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_write_log), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_write_log, false);
     }
 
     /**
@@ -248,17 +203,11 @@ public class SettingsManager {
      * @return
      */
     public static String getLogPath() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_log_path))) {
-            return settings.getString(context.getString(R.string.pref_key_log_path), def);
-        }
-        return def;
+        return getString(R.string.pref_key_log_path, null);
     }
 
     public static void setLogPath(String value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(context.getString(R.string.pref_key_log_path), value);
-        editor.apply();
+       setString(R.string.pref_key_log_path, value);
     }
 
     /**
@@ -267,11 +216,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isConfirmAppExit() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_is_confirm_app_exit))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_is_confirm_app_exit), def);
-        }
-        return def;
+        return getBoolean(R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /**
@@ -279,199 +224,170 @@ public class SettingsManager {
      * @return
      */
     public static String getSearchQuery() {
-        final String def = null;
-        if(settings.contains(context.getString(R.string.pref_key_search_query))) {
-            return settings.getString(context.getString(R.string.pref_key_search_query), def);
-        }
-        return def;
+        return getString(R.string.pref_key_search_query, null);
     }
 
     public static void setSearchQuery(String value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(context.getString(R.string.pref_key_search_query), value);
-        editor.apply();
+        setString(R.string.pref_key_search_query, value);
     }
 
     /**
      * Поиск по содержимому записей
      * @return
      */
-    public static boolean getSearchInText() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_text))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_text), def);
-        }
-        return def;
+    public static boolean isSearchInText() {
+        return getBoolean(R.string.pref_key_search_text, true);
     }
 
     public static void setSearchInText(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_text), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_text, value);
     }
 
     /**
      * Поиск по именам записей
      * @return
      */
-    public static boolean getSearchInRecordsNames() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_records_names))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_records_names), def);
-        }
-        return def;
+    public static boolean isSearchInRecordsNames() {
+        return getBoolean(R.string.pref_key_search_records_names, true);
     }
 
     public static void setSearchInRecordsNames(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_records_names), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_records_names, value);
     }
 
     /**
      * Поиск по авторам записей
      * @return
      */
-    public static boolean getSearchInAuthor() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_author))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_author), def);
-        }
-        return def;
+    public static boolean isSearchInAuthor() {
+        return getBoolean(R.string.pref_key_search_author, true);
     }
 
     public static void setSearchInAuthor(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_author), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_author, value);
     }
 
     /**
      * Поиск по url записей
      * @return
      */
-    public static boolean getSearchInUrl() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_url))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_url), def);
-        }
-        return def;
+    public static boolean isSearchInUrl() {
+        return getBoolean(R.string.pref_key_search_url, true);
     }
 
     public static void setSearchInUrl(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_url), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_url, value);
     }
 
     /**
      * Поиск по меткам
      * @return
      */
-    public static boolean getSearchInTags() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_tags))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_tags), def);
-        }
-        return def;
+    public static boolean isSearchInTags() {
+        return getBoolean(R.string.pref_key_search_tags, true);
     }
 
     public static void setSearchInTags(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_tags), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_tags, value);
     }
 
     /**
      * Поиск по веткам
      * @return
      */
-    public static boolean getSearchInNodes() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_nodes))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_nodes), def);
-        }
-        return def;
+    public static boolean isSearchInNodes() {
+        return getBoolean(R.string.pref_key_search_nodes, true);
     }
 
     public static void setSearchInNodes(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_nodes), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_nodes, value);
     }
 
     /**
      * Поиск по прикрепленным файлам
      * @return
      */
-    public static boolean getSearchInFiles() {
-        final boolean def = true;
-        if(settings.contains(context.getString(R.string.pref_key_search_files))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_files), def);
-        }
-        return def;
+    public static boolean isSearchInFiles() {
+        return getBoolean(R.string.pref_key_search_files, true);
     }
 
     public static void setSearchInFiles(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_files), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_files, value);
     }
 
     /**
      * Поиск по каждому из слов в запросе?
      * @return
      */
-    public static boolean getSearchSplitToWords() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_search_split_to_words))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_split_to_words), def);
-        }
-        return def;
+    public static boolean isSearchSplitToWords() {
+        return getBoolean(R.string.pref_key_search_split_to_words, true);
     }
 
     public static void setSearchSplitToWords(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_split_to_words), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_split_to_words, value);
     }
 
     /**
      * Поиск по совпадению только целых слов?
      * @return
      */
-    public static boolean getSearchInWholeWords() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_search_in_whole_words))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_in_whole_words), def);
-        }
-        return def;
+    public static boolean isSearchInWholeWords() {
+        return getBoolean(R.string.pref_key_search_in_whole_words, true);
     }
 
     public static void setSearchInWholeWords(boolean value) {
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_in_whole_words), value);
-        editor.apply();
+        setBoolean(R.string.pref_key_search_in_whole_words, value);
     }
 
     /**
      * Поиск только в текущей ветке?
      * @return
      */
-    public static boolean getSearchInCurNode() {
-        final boolean def = false;
-        if(settings.contains(context.getString(R.string.pref_key_search_in_cur_node))) {
-            return settings.getBoolean(context.getString(R.string.pref_key_search_in_cur_node), def);
-        }
-        return def;
+    public static boolean isSearchInCurNode() {
+        return getBoolean(R.string.pref_key_search_in_cur_node, true);
     }
 
     public static void setSearchInCurNode(boolean value) {
+        setBoolean(R.string.pref_key_search_in_cur_node, value);
+    }
+
+    private static void setBoolean(int prefKeyStringRes, boolean value) {
         SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(context.getString(R.string.pref_key_search_in_cur_node), value);
+        editor.putBoolean(context.getString(prefKeyStringRes), value);
         editor.apply();
     }
 
+    private static void setString(int prefKeyStringRes, String value) {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(context.getString(prefKeyStringRes), value);
+        editor.apply();
+    }
+
+    /**
+     * Получить boolean опцию.
+     * @param prefKeyStringRes
+     * @param defValue
+     * @return
+     */
+    private static boolean getBoolean(int prefKeyStringRes, final boolean defValue) {
+        if(settings.contains(context.getString(prefKeyStringRes))) {
+            return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
+        }
+        return defValue;
+    }
+
+    /**
+     * Получить String опцию.
+     * @param prefKeyStringRes
+     * @param defValue
+     * @return
+     */
+    private static String getString(int prefKeyStringRes, final String defValue) {
+        if(settings.contains(context.getString(prefKeyStringRes))) {
+            return settings.getString(context.getString(prefKeyStringRes), defValue);
+        }
+        return defValue;
+    }
     public static SharedPreferences getSettings() {
         return settings;
     }
