@@ -43,6 +43,12 @@
         android:enabled="false"
         app:showAsAction="never|collapseActionView" />
     <item
+        android:id="@+id/action_storage_sync"
+        android:orderInCategory="230"
+        android:title="@string/title_storage_sync"
+        android:enabled="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_storage_info"
         android:orderInCategory="250"
         android:title="@string/title_storage_info"

@@ -159,4 +159,5 @@
     <string name="error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="missing_file">Отсутствует файл&#160;</string>
     <string name="open_node_records">Открытие записей ветки: id=</string>
+    <string name="title_storage_sync">Синхронизация</string>
 </resources>

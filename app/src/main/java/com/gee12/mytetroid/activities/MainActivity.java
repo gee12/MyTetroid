@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         }
 
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
-            initStorage(storagePath);
+            initOrSyncStorage(storagePath);
         } else {
             showFolderChooser();
         }
@@ -260,6 +260,56 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             return false;
         }
         return true;
+    }
+
+    private void startStorageSync() {
+        startStorageSync(SettingsManager.getStoragePath());
+
+        //
+        reinitStorage();
+    }
+
+    private void startStorageSync(String storagePath) {
+//        new SyncStorageTask(storagePath);
+        startStorageSync1(storagePath);
+//        startStorageSync2(this, "com.manichord.mgit", storagePath);
+
+        //
+        initStorage(storagePath);
+    }
+
+    private void startStorageSync1(String storagePath) {
+//        new SyncStorageTask(storagePath);
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, storagePath);
+        intent.setType("text/plain");
+//        startActivity(intent);
+        startActivity(Intent.createChooser(intent, ""));
+//        startActivityForResult(Intent.createChooser(intent, ""), 123);
+    }
+
+
+    public void startStorageSync2(Context context, String packageName, String storagePath) {
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            // Bring user to the market or let them choose an app?
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=" + packageName)); // "https://play.google.com/store/apps/details?id="
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(Intent.EXTRA_TEXT, storagePath);
+        intent.setType("text/plain");
+        context.startActivity(intent);
+//        startActivityForResult(intent, 123);
+    }
+
+
+    private void initOrSyncStorage(String storagePath) {
+        if (SettingsManager.isSyncOnStart())
+            startStorageSync(storagePath);
+        else
+            initStorage(storagePath);
     }
 
     /**
@@ -941,7 +991,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
         } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
-            initStorage(folderFullName);
+            initOrSyncStorage(folderFullName);
         }
     }
 
@@ -1201,6 +1251,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 return true;
             case R.id.action_global_search:
                 showGlobalSearchActivity();
+                return true;
+            case R.id.action_storage_sync:
+                startStorageSync();
                 return true;
             case R.id.action_storage_info:
                 showActivity(this, InfoActivity.class);

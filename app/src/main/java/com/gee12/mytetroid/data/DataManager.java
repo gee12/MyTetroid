@@ -381,7 +381,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-            Intent chooser = Intent.createChooser(intent, "");
+            Intent chooser = Intent.createChooser(intent, "Открыть с помощью");
             try {
                 // проверить, есть ли подходящее приложение для открытия файла
                 if (intent.resolveActivity(context.getPackageManager()) != null) {
