@@ -46,6 +46,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.ViewUtils;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.FoundType;
@@ -102,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private SearchView recordsSearchView;
     private MenuItem miRecordsSearchView;
     private MenuItem miGlobalSearch;
+    private MenuItem miStorageSync;
     private MenuItem miStorageInfo;
     private GestureDetectorCompat gestureDetector;
     private boolean isAlreadyTryDecrypt = false;
@@ -211,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     public void onMainPageCreated() {
         // инициализация
         SettingsManager.init(this);
+        setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
@@ -262,12 +265,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         return true;
     }
 
-    private void startStorageSync() {
-        startStorageSync(SettingsManager.getStoragePath());
-
-        //
-        reinitStorage();
-    }
+//    private void startStorageSync() {
+//        startStorageSync(SettingsManager.getStoragePath());
+//
+//        //
+////        reinitStorage();
+//    }
 
     private void startStorageSync(String storagePath) {
 //        new SyncStorageTask(storagePath);
@@ -275,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        startStorageSync2(this, "com.manichord.mgit", storagePath);
 
         //
-        initStorage(storagePath);
+//        initStorage(storagePath);
     }
 
     private void startStorageSync1(String storagePath) {
@@ -285,8 +288,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         intent.putExtra(Intent.EXTRA_TEXT, storagePath);
         intent.setType("text/plain");
 //        startActivity(intent);
-        startActivity(Intent.createChooser(intent, ""));
-//        startActivityForResult(Intent.createChooser(intent, ""), 123);
+//        startActivity(Intent.createChooser(intent, "Синхронизировать в"));
+        startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), 123);
     }
 
 
@@ -306,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
 
     private void initOrSyncStorage(String storagePath) {
-        if (SettingsManager.isSyncOnStart())
+        if (SettingsManager.isSyncBeforeInit())
             startStorageSync(storagePath);
         else
             initStorage(storagePath);
@@ -528,18 +531,18 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         setMenuItemsAvailable(res);
     }
 
+    private void setMenuItemsVisible() {
+        ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
+    }
+
     private void setMenuItemsAvailable(boolean isAvailable) {
         int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
         nodesSearchView.setVisibility(vis);
         tagsSearchView.setVisibility(vis);
-        setEnabledIfNotNull(miGlobalSearch, isAvailable);
-        setEnabledIfNotNull(miStorageInfo, isAvailable);
-        setEnabledIfNotNull(miRecordsSearchView, isAvailable);
-    }
-
-    private void setEnabledIfNotNull(MenuItem mi, boolean isEnabled) {
-        if (mi != null)
-            mi.setEnabled(isEnabled);
+        ViewUtils.setEnabledIfNotNull(miGlobalSearch, isAvailable);
+        ViewUtils.setEnabledIfNotNull(miStorageSync, isAvailable);
+        ViewUtils.setEnabledIfNotNull(miStorageInfo, isAvailable);
+        ViewUtils.setEnabledIfNotNull(miRecordsSearchView, isAvailable);
     }
 
     /**
@@ -929,34 +932,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
         miRecordsSearchView.setVisible(isVisible);
-//        setRecordsSearchViewVisibility(isVisible, viewPagerAdapter.getMainFragment().getCurViewId());
     }
-
-   /* public void setRecordsSearchViewVisibility(boolean isVisible, int viewId) {
-        miRecordsSearchView.setVisible(isVisible);
-        if (isVisible) {
-            String query;
-            boolean restoreSearch = (viewId == MainPageFragment.VIEW_FOUND_RECORDS);
-            if (restoreSearch) {
-                // не устанавливаем заново текст запроса, если он уже установлен
-                if (Utils.isEquals(recordsSearchQuery, recordsSearchView.getQuery().toString(), false)) {
-                    if (recordsSearchView.isIconified())
-                        recordsSearchView.setIconified(false);
-                    return;
-                }
-                query = recordsSearchQuery;
-            } else {
-                query = null;
-            }
-            recordsSearchView.setIconified(!restoreSearch);
-
-            // ...
-            // установка query заставляет сделаться iconofied ?
-            recordsSearchView.setQuery(query, false);
-            // а если не сбрасывать запрос в null, то после установки iconofied в false
-            // будет отображет запрос из RECORDS_FOUND ?
-        }
-    }*/
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible)
@@ -985,6 +961,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             }
             // не гасим экран, если установили опцию
             checkKeepScreenOn(viewPagerAdapter.getMainFragment().getCurViewId());
+            // скрываем пункт меню Синхронизация, если отключили
+            ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
@@ -992,6 +970,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
             initOrSyncStorage(folderFullName);
+        } else if (requestCode == 123) {
+            initStorage(SettingsManager.getStoragePath());
         }
     }
 
@@ -1214,6 +1194,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         getMenuInflater().inflate(R.menu.main, menu);
         viewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
         this.miGlobalSearch = menu.findItem(R.id.action_global_search);
+        this.miStorageSync = menu.findItem(R.id.action_storage_sync);
         this.miStorageInfo = menu.findItem(R.id.action_storage_info);
         this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(miRecordsSearchView);
@@ -1253,7 +1234,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 showGlobalSearchActivity();
                 return true;
             case R.id.action_storage_sync:
-                startStorageSync();
+                startStorageSync(SettingsManager.getStoragePath());
                 return true;
             case R.id.action_storage_info:
                 showActivity(this, InfoActivity.class);

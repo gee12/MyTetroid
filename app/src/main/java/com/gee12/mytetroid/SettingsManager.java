@@ -73,12 +73,21 @@ public class SettingsManager {
 //    }
 
     /**
-     * Запускать синхронизацию хранилища при запуске приложения.
+     * Использовать синхронизацию хранилища.
      * По-умолчанию - нет
      * @return
      */
-    public static boolean isSyncOnStart() {
-        return getBoolean(R.string.pref_key_is_sync_on_start, false);
+    public static boolean isSyncStorage() {
+        return getBoolean(R.string.pref_key_is_sync_storage, true);
+    }
+
+    /**
+     * Запускать синхронизацию хранилища перед его загрузкой.
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isSyncBeforeInit() {
+        return getBoolean(R.string.pref_key_is_sync_before_init, true);
     }
 
     /**
