@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
+    public static final int REQUEST_CODE_SYNC_STORAGE = 5;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
 
     private DrawerLayout drawerLayout;
@@ -274,11 +275,26 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     private void startStorageSync(String storagePath) {
 //        new SyncStorageTask(storagePath);
-        startStorageSync1(storagePath);
+        startStorageSync0(storagePath, "git merge origin");
 //        startStorageSync2(this, "com.manichord.mgit", storagePath);
 
         //
 //        initStorage(storagePath);
+    }
+
+    private void startStorageSync0(String storagePath, String command) {
+        Intent intent = new Intent(Intent.ACTION_SYNC);
+        Uri uri = Uri.fromParts("content", storagePath, null);
+        intent.setDataAndType(uri, "text/plain");
+
+        // как приложение узнает, что Intent от MyTetroid ?
+
+        intent.putExtra(Intent.EXTRA_TEXT, command);
+
+        // как запомнить выбранное приложение ? (это система делает сама)
+
+        //        startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
+        startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), REQUEST_CODE_SYNC_STORAGE);
     }
 
     private void startStorageSync1(String storagePath) {
@@ -313,6 +329,19 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             startStorageSync(storagePath);
         else
             initStorage(storagePath);
+    }
+
+    private void onSyncStorageFinish(boolean res) {
+        if (res) {
+            LogManager.addLog("");
+            initStorage(SettingsManager.getStoragePath());
+        }
+        else {
+            LogManager.addLog("", LogManager.Types.WARNING, Toast.LENGTH_LONG);
+
+            // задавать вопрос: Синхронизация не удалась. Все равно загрузить хранилище?
+            // ...
+        }
     }
 
     /**
@@ -970,8 +999,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
             initOrSyncStorage(folderFullName);
-        } else if (requestCode == 123) {
-            initStorage(SettingsManager.getStoragePath());
+        } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
+            onSyncStorageFinish(resultCode == RESULT_OK);
         }
     }
 
