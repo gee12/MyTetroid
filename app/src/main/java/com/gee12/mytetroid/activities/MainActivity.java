@@ -64,6 +64,7 @@ import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -284,17 +285,20 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     private void startStorageSync0(String storagePath, String command) {
         Intent intent = new Intent(Intent.ACTION_SYNC);
-        Uri uri = Uri.fromParts("content", storagePath, null);
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+
+//        Uri uri = Uri.fromParts("content", storagePath, null);
+        Uri uri = Uri.fromFile(new File(storagePath));
+//        Uri uri = Uri.parse("content://" + storagePath);
         intent.setDataAndType(uri, "text/plain");
-
-        // как приложение узнает, что Intent от MyTetroid ?
-
         intent.putExtra(Intent.EXTRA_TEXT, command);
 
-        // как запомнить выбранное приложение ? (это система делает сама)
-
-        //        startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
-        startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), REQUEST_CODE_SYNC_STORAGE);
+        if (true) {
+            startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
+        } else {
+            startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), REQUEST_CODE_SYNC_STORAGE);
+        }
     }
 
     private void startStorageSync1(String storagePath) {
