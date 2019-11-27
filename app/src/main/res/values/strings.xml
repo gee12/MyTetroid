@@ -204,4 +204,8 @@
     <string name="pref_sync_command">Sync command</string>
     <string name="pref_sync_command_summ">A synchronization command as a string, for example: \"git pull\" (optional, depends on a third-party application)</string>
     <string name="title_choose_sync_app">Choose sync app</string>
+    <string name="sync_successful">Sync successful</string>
+    <string name="sync_failed">Failed to sync</string>
+    <string name="sync_success_dialog_request">Sync done. Reboot storage?</string>
+    <string name="sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
 </resources>

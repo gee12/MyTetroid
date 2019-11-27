@@ -25,6 +25,10 @@ public class ActivityDialogs {
         void onCancel();
     }
 
+    public interface ISyncResult {
+        void onApply();
+    }
+
     public interface IExitResult {
         void onApply();
     }
@@ -54,7 +58,8 @@ public class ActivityDialogs {
         builder.show();
     }
 
-    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final TetroidNode node, final IPassCheckResult applyHandler) {
+    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName,
+                        final TetroidNode node, final IPassCheckResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -67,7 +72,8 @@ public class ActivityDialogs {
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(String.format(context.getString(R.string.empty_middle_hash_check_data_field), fieldName)).setPositiveButton(R.string.answer_yes, dialogClickListener)
+        builder.setMessage(String.format(context.getString(R.string.empty_middle_hash_check_data_field), fieldName))
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
@@ -87,7 +93,25 @@ public class ActivityDialogs {
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.storage_path_was_changed).setPositiveButton(R.string.answer_yes, dialogClickListener)
+        builder.setMessage(R.string.storage_path_was_changed)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    }
+
+    public static void showSyncDialog(Context context, boolean isSyncSuccess, final ISyncResult applyHandler) {
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    applyHandler.onApply();
+                }
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        int mesRes = (isSyncSuccess) ? R.string.sync_success_dialog_request : R.string.sync_failed_dialog_request;
+        builder.setMessage(mesRes)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 

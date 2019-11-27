@@ -64,7 +64,6 @@ import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 
@@ -116,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private PagerTabStrip titleStrip;
     private boolean isFullscreen;
     private boolean isStarted = false;
+    private boolean isLoadStorageAfterSync = false;
 
     public MainActivity() {
     }
@@ -267,85 +267,71 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         return true;
     }
 
-//    private void startStorageSync() {
-//        startStorageSync(SettingsManager.getStoragePath());
-//
-//        //
-////        reinitStorage();
-//    }
-
-    private void startStorageSync(String storagePath) {
-//        new SyncStorageTask(storagePath);
-        startStorageSync0(storagePath, SettingsManager.getSyncCommand());
-//        startStorageSync2(this, "com.manichord.mgit", storagePath);
-
-        //
-//        initStorage(storagePath);
+    /**
+     * Проверка нужно ли синхронизировать хранилище перед загрузкой.
+     * @param storagePath
+     */
+    private void initOrSyncStorage(String storagePath) {
+        if (SettingsManager.isSyncBeforeInit()) {
+            this.isLoadStorageAfterSync = true;
+            startStorageSync(storagePath);
+        } else {
+            initStorage(storagePath);
+        }
     }
 
-    private void startStorageSync0(String storagePath, String command) {
+    /**
+     * Отправление запроса на синхронизацию стороннему приложению.
+     * @param storagePath
+     */
+    private void startStorageSync(String storagePath) {
         Intent intent = new Intent(Intent.ACTION_SYNC);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-//        Uri uri = Uri.fromParts("content", storagePath, null);
-        Uri uri = Uri.fromFile(new File(storagePath));
-//        Uri uri = Uri.parse("content://" + storagePath);
+//        Uri uri = Uri.fromFile(new File(storagePath));
+        Uri uri = Uri.parse("content://" + storagePath);
         intent.setDataAndType(uri, "text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, command);
+        intent.putExtra(Intent.EXTRA_TEXT, SettingsManager.getSyncCommand());
 
-        if (true) {
+        // FIXME: добавить опцию в настройки
+        if (false) { // использовать стандартный механизм запоминания используемого приложения
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
-        } else {
+        } else { // или спрашивать постоянно
             startActivityForResult(Intent.createChooser(intent,
                     getString(R.string.title_choose_sync_app)), REQUEST_CODE_SYNC_STORAGE);
         }
     }
 
-    private void startStorageSync1(String storagePath) {
-//        new SyncStorageTask(storagePath);
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_TEXT, storagePath);
-        intent.setType("text/plain");
-//        startActivity(intent);
-//        startActivity(Intent.createChooser(intent, "Синхронизировать в"));
-        startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), 123);
-    }
-
-
-    public void startStorageSync2(Context context, String packageName, String storagePath) {
-        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        if (intent == null) {
-            // Bring user to the market or let them choose an app?
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + packageName)); // "https://play.google.com/store/apps/details?id="
-        }
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(Intent.EXTRA_TEXT, storagePath);
-        intent.setType("text/plain");
-        context.startActivity(intent);
-//        startActivityForResult(intent, 123);
-    }
-
-
-    private void initOrSyncStorage(String storagePath) {
-        if (SettingsManager.isSyncBeforeInit())
-            startStorageSync(storagePath);
-        else
-            initStorage(storagePath);
-    }
-
+    /**
+     * Обработка результата синхронизации хранилища.
+     * @param res
+     */
     private void onSyncStorageFinish(boolean res) {
+        final String storagePath = SettingsManager.getStoragePath();
         if (res) {
-            LogManager.addLog("");
-            initStorage(SettingsManager.getStoragePath());
+            LogManager.addLog(R.string.sync_successful, Toast.LENGTH_SHORT);
+            if (isLoadStorageAfterSync)
+                initStorage(storagePath);
+            else {
+                ActivityDialogs.showSyncDialog(this, true, new ActivityDialogs.ISyncResult() {
+                    @Override
+                    public void onApply() {
+                        initStorage(storagePath);
+                    }
+                });
+            }
+        } else {
+            LogManager.addLog(getString(R.string.sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            if (isLoadStorageAfterSync) {
+                ActivityDialogs.showSyncDialog(this, false, new ActivityDialogs.ISyncResult() {
+                    @Override
+                    public void onApply() {
+                        initStorage(storagePath);
+                    }
+                });
+            }
         }
-        else {
-            LogManager.addLog("", LogManager.Types.WARNING, Toast.LENGTH_LONG);
-
-            // задавать вопрос: Синхронизация не удалась. Все равно загрузить хранилище?
-            // ...
-        }
+        this.isLoadStorageAfterSync = false;
     }
 
     /**
@@ -360,7 +346,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-
             // нужно ли выделять ветку, выбранную в прошлый раз
             // (обязательно после initGUI)
             TetroidNode nodeToSelect = null;
@@ -372,7 +357,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //                    showNode(nodeToSelect);
 //                }
             }
-
             // проверка зашифрованы ли данные
 //            if (DataManager.isExistsCryptedNodes()) {
             if (DataManager.isCrypted()) {
@@ -383,9 +367,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                     return;
                 }
             }
-
             initStorage(nodeToSelect, false);
-
         } else {
             LogManager.addLog(getString(R.string.failed_storage_init) + DataManager.getStoragePath(),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);

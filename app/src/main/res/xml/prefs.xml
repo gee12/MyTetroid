@@ -60,8 +60,7 @@
             android:dialogTitle="@string/pref_sync_command"
             android:title="@string/pref_sync_command"
             android:summary="@string/pref_sync_command_summ"
-            android:inputType="text"
-            android:defaultValue="@string/def_date_format_string" />
+            android:inputType="text" />
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_sync_before_init"

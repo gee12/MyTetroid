@@ -168,4 +168,8 @@
     <string name="pref_sync_command">Команда синхронизации</string>
     <string name="pref_sync_command_summ">Команда синхронизации в виде строки, например: \"git pull\" (не обязательно, зависит от стороннего приложения)</string>
     <string name="title_choose_sync_app">Синхронизировать в</string>
+    <string name="sync_successful">Синхронизация успешно выполнена</string>
+    <string name="sync_failed">Не удалось выполнить синхронизацию</string>
+    <string name="sync_success_dialog_request">Синхронизация выполнена. Перезагрузить хранилище?</string>
+    <string name="sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
 </resources>
