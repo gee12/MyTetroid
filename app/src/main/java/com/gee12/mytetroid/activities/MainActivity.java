@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     private void startStorageSync(String storagePath) {
 //        new SyncStorageTask(storagePath);
-        startStorageSync0(storagePath, "git merge origin");
+        startStorageSync0(storagePath, SettingsManager.getSyncCommand());
 //        startStorageSync2(this, "com.manichord.mgit", storagePath);
 
         //
@@ -285,7 +285,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     private void startStorageSync0(String storagePath, String command) {
         Intent intent = new Intent(Intent.ACTION_SYNC);
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
 
 //        Uri uri = Uri.fromParts("content", storagePath, null);
@@ -297,7 +296,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         if (true) {
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
         } else {
-            startActivityForResult(Intent.createChooser(intent, "Синхронизировать в"), REQUEST_CODE_SYNC_STORAGE);
+            startActivityForResult(Intent.createChooser(intent,
+                    getString(R.string.title_choose_sync_app)), REQUEST_CODE_SYNC_STORAGE);
         }
     }
 

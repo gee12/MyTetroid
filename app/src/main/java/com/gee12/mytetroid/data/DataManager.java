@@ -12,10 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.BuildConfig;
+import com.gee12.mytetroid.FileUtils;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
 import org.jsoup.Jsoup;
@@ -206,7 +206,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             if (record.isDecrypted()) {
                 byte[] text = new byte[0];
                 try {
-                    text = Utils.readFile(uri);
+                    text = FileUtils.readFile(uri);
                 } catch (Exception ex) {
                     LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
                 }
@@ -219,7 +219,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
         } else {
             try {
-                res = Utils.readTextFile(uri);
+                res = FileUtils.readTextFile(uri);
             } catch (Exception ex) {
                 LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
             }
@@ -325,7 +325,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
         String fileDisplayName = file.getName();
-        String ext = Utils.getExtWithComma(fileDisplayName);
+        String ext = FileUtils.getExtWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
         String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
         File srcFile = new File(fullFileName);
@@ -429,7 +429,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
-        String ext = Utils.getExtWithComma(file.getName());
+        String ext = FileUtils.getExtWithComma(file.getName());
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
         long size = new File(fullFileName).length() / 1024;

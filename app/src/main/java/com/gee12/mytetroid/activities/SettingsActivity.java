@@ -15,10 +15,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import com.gee12.mytetroid.FileUtils;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.crypt.CryptManager;
 
 import lib.folderpicker.FolderPicker;
@@ -47,7 +47,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             public boolean onPreferenceClick(Preference preference) {
                 String path = SettingsManager.getStoragePath();
                 if (TextUtils.isEmpty(path)) {
-                    path = Utils.getExtPublicDocumentsDir();
+                    path = FileUtils.getExtPublicDocumentsDir();
                 }
                 SettingsManager.isAskReloadStorage = false;
                 openFolderPicker(getString(R.string.folder_chooser_title),

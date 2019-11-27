@@ -27,10 +27,10 @@ public class SettingsManager {
 //            setStoragePath(Utils.getExtPublicDocumentsDir());
 //        }
         if (getTempPath() == null) {
-            setTempPath(Utils.getAppExtFilesDir(context));
+            setTempPath(FileUtils.getAppExtFilesDir(context));
         }
         if (getLogPath() == null) {
-            setLogPath(Utils.getAppExtFilesDir(context));
+            setLogPath(FileUtils.getAppExtFilesDir(context));
         }
 //        LastStoragePath = getStoragePath();
         SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
@@ -78,12 +78,21 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSyncStorage() {
-        return getBoolean(R.string.pref_key_is_sync_storage, true);
+        return getBoolean(R.string.pref_key_is_sync_storage, false);
+    }
+
+    /**
+     * Команда синхронизации для стороннего приложения.
+     * Например: "git pull".
+     * @return
+     */
+    public static String getSyncCommand() {
+        return getString(R.string.pref_key_sync_command, null);
     }
 
     /**
      * Запускать синхронизацию хранилища перед его загрузкой.
-     * По-умолчанию - нет
+     * По-умолчанию - да
      * @return
      */
     public static boolean isSyncBeforeInit() {
