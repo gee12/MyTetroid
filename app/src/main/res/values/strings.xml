@@ -208,4 +208,7 @@
     <string name="sync_failed">Failed to sync</string>
     <string name="sync_success_dialog_request">Sync done. Reboot storage?</string>
     <string name="sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
+    <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
+    <string name="pref_is_not_remember_sync_app">Do not remember application</string>
+    <string name="pref_is_not_remember_sync_app_summ">Do not use the standard mechanism for remembering the last used application for sync</string>
 </resources>

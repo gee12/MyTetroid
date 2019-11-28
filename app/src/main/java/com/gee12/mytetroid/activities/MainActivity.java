@@ -293,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         intent.setDataAndType(uri, "text/plain");
         intent.putExtra(Intent.EXTRA_TEXT, SettingsManager.getSyncCommand());
 
-        // FIXME: добавить опцию в настройки
-        if (false) { // использовать стандартный механизм запоминания используемого приложения
+        if (!SettingsManager.isNotRememberSyncApp()) {
+            // использовать стандартный механизм запоминания используемого приложения
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
         } else { // или спрашивать постоянно
             startActivityForResult(Intent.createChooser(intent,

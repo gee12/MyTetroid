@@ -100,6 +100,15 @@ public class SettingsManager {
     }
 
     /**
+     * Не запоминать используемое приложения для синхронизации в последний раз.
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isNotRememberSyncApp() {
+        return getBoolean(R.string.pref_key_is_not_remember_sync_app, false);
+    }
+
+    /**
      * Сохранять хэш пароля локально?
      * По-умолчанию - да
      * @return

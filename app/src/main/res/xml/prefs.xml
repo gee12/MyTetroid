@@ -68,6 +68,12 @@
             android:summary="@string/pref_is_sync_before_loading_summ"
             android:defaultValue="true" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_not_remember_sync_app"
+            android:title="@string/pref_is_not_remember_sync_app"
+            android:summary="@string/pref_is_not_remember_sync_app_summ"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">

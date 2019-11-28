@@ -172,4 +172,6 @@
     <string name="sync_failed">Не удалось выполнить синхронизацию</string>
     <string name="sync_success_dialog_request">Синхронизация выполнена. Перезагрузить хранилище?</string>
     <string name="sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
+    <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>
+    <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>
 </resources>

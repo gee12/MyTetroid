@@ -78,6 +78,24 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 return true;
             }
         });
+
+        String storagePath = SettingsManager.getStoragePath();
+        if (!TextUtils.isEmpty(storagePath)) {
+            Preference pref = findPreference(getString(R.string.pref_key_storage_path));
+            pref.setSummary(storagePath);
+        }
+
+        String syncCommand = SettingsManager.getSyncCommand();
+        if (!TextUtils.isEmpty(syncCommand)) {
+            Preference pref = findPreference(getString(R.string.pref_key_sync_command));
+            pref.setSummary(syncCommand);
+        }
+
+        String logPath = SettingsManager.getLogPath();
+        if (!TextUtils.isEmpty(logPath)) {
+            Preference pref = findPreference(getString(R.string.pref_key_log_path));
+            pref.setSummary(logPath);
+        }
     }
 
     private void openFolderPicker(String title, String location, int requestCode) {
