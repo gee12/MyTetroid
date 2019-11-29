@@ -52,6 +52,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
+import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
@@ -285,13 +286,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * @param storagePath
      */
     private void startStorageSync(String storagePath) {
-        Intent intent = new Intent(Intent.ACTION_SYNC);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-
-//        Uri uri = Uri.fromFile(new File(storagePath));
-        Uri uri = Uri.parse("content://" + storagePath);
-        intent.setDataAndType(uri, "text/plain");
-        intent.putExtra(Intent.EXTRA_TEXT, SettingsManager.getSyncCommand());
+        Intent intent = SyncManager.createCommandSender(this, storagePath, SettingsManager.getSyncCommand());
 
         if (!SettingsManager.isNotRememberSyncApp()) {
             // использовать стандартный механизм запоминания используемого приложения
