@@ -39,8 +39,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -1395,9 +1393,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             // инициализация контролов
             initGUI(res);
 
-            if (BuildConfig.DEBUG) {
-                LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
-            }
+//            if (BuildConfig.DEBUG) {
+//                LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
+//            }
         }
     }
 
