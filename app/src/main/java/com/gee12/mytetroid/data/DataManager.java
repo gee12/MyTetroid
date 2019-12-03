@@ -28,7 +28,9 @@ import java.util.List;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
-//    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
+    public static final String QUOTES_PARAM_STRING = "\"\"";
+
+    //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
 
         private String fieldName;
@@ -149,7 +151,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
         String checkdata = databaseINI.get("middle_hash_check_data");
-        if (TextUtils.isEmpty(checkdata)) {
+        if (TextUtils.isEmpty(checkdata) || QUOTES_PARAM_STRING.equals(checkdata)) {
             throw new EmptyFieldException("middle_hash_check_data");
         }
         return CryptManager.checkMiddlePassHash(passHash, checkdata);

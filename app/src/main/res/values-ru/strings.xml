@@ -31,7 +31,7 @@
     <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>
-    <string name="wrong_saved_pass">Неверный сохраненный пароль</string>
+    <string name="wrong_saved_pass">Неверный сохраненный пароль (значение не совпадает с middle_hash_check_data)</string>
     <string name="record_tags_label">Метки:</string>
     <string name="record_author_label">Автор:</string>
     <string name="record_uri_label">Url:</string>

@@ -45,7 +45,7 @@
     <string name="empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Anyway decrypt with this password?</string>
     <string name="answer_yes">Yes</string>
     <string name="answer_no">No</string>
-    <string name="wrong_saved_pass">Wrong saved pass</string>
+    <string name="wrong_saved_pass">Wrong saved pass (value does not match middle_hash_check_data)</string>
     <string name="record_tags_label">Tags:</string>
     <string name="record_author_label">Author:</string>
     <string name="record_uri_label">Url:</string>
