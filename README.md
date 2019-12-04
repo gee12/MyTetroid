@@ -43,5 +43,5 @@
 
 Также остается открытым вопрос о синхронизации хранилища с удаленным репозиторием (на данный момент я использую сторонние git-клиенты, например, [MGit](https://play.google.com/store/apps/details?id=com.manichord.mgit)). Можно использовать клиенты для синхронизации с облачными дисками (Яндекс.Диск, Google.Drive и др.).
 
-***Более подробное описание проекта:*** https://gee12.space/mytetroid<br>
-***Оригинальный проект MyTetra:*** https://webhamster.ru/site/page/index/articles/projectcode/105
+***Более подробное описание проекта:*** *https://gee12.space/mytetroid*<br>
+***Оригинальный проект MyTetra:*** *https://webhamster.ru/site/page/index/articles/projectcode/105*
