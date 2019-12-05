@@ -271,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * @param storagePath
      */
     private void initOrSyncStorage(String storagePath) {
-        if (SettingsManager.isSyncBeforeInit()) {
+        if (SettingsManager.isSyncStorage() && SettingsManager.isSyncBeforeInit()) {
             this.isLoadStorageAfterSync = true;
             startStorageSync(storagePath);
         } else {
@@ -1147,13 +1147,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     /**
-     * Поиск по тексту записи (НЕ РЕАЛИЗОВАНО !)
+     * Поиск по тексту записи.
      * @param query
      * @param record
      */
     private void searchInText(String query, TetroidRecord record) {
         //
-        //
+        // TODO: реализовать поиск по тексту записи
         //
         LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
     }
@@ -1203,6 +1203,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         viewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
         this.miGlobalSearch = menu.findItem(R.id.action_global_search);
         this.miStorageSync = menu.findItem(R.id.action_storage_sync);
+        ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
         this.miStorageInfo = menu.findItem(R.id.action_storage_info);
         this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(miRecordsSearchView);

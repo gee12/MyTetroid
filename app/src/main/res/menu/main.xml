@@ -47,6 +47,7 @@
         android:orderInCategory="230"
         android:title="@string/title_storage_sync"
         android:enabled="false"
+        android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_storage_info"
