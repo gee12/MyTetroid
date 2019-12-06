@@ -29,6 +29,10 @@ import java.util.List;
 public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static final String QUOTES_PARAM_STRING = "\"\"";
+    public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
+    public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
+    public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
+    public static final String INI_CRYPT_MODE = "crypt_mode";
 
     //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
@@ -137,22 +141,22 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static boolean checkPass(String pass) throws EmptyFieldException {
         // нужно также обработать варианты, когда эти поля пустые (!)
         // ...
-        String salt = databaseINI.getWithoutQuotes("crypt_check_salt");
+        String salt = databaseINI.getWithoutQuotes(INI_CRYPT_CHECK_SALT);
         if (TextUtils.isEmpty(salt)) {
-            throw new EmptyFieldException("crypt_check_salt");
+            throw new EmptyFieldException(INI_CRYPT_CHECK_SALT);
         }
-        String checkhash = databaseINI.getWithoutQuotes("crypt_check_hash");
+        String checkhash = databaseINI.getWithoutQuotes(INI_CRYPT_CHECK_HASH);
         if (TextUtils.isEmpty(checkhash)) {
-            throw new EmptyFieldException("crypt_check_hash");
+            throw new EmptyFieldException(INI_CRYPT_CHECK_HASH);
         }
         // ...
         return CryptManager.checkPass(pass, salt, checkhash);
     }
 
     public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
-        String checkdata = databaseINI.get("middle_hash_check_data");
+        String checkdata = databaseINI.get(INI_MIDDLE_HASH_CHECK_DATA);
         if (TextUtils.isEmpty(checkdata) || QUOTES_PARAM_STRING.equals(checkdata)) {
-            throw new EmptyFieldException("middle_hash_check_data");
+            throw new EmptyFieldException(INI_MIDDLE_HASH_CHECK_DATA);
         }
         return CryptManager.checkMiddlePassHash(passHash, checkdata);
     }
@@ -305,19 +309,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return null;
     }
 
-    /*private static TetroidNode getNodeInHierarchy(TetroidNode node, String id) {
-        if (id.equals(node.getId()))
-            return node;
-        else if (node.isExpandable()) {
-            return getNodeInHierarchy(node.getSubNodes(), id);
-//            for (TetroidNode subNode : node.getSubNodes()) {
-//                if (getNodeInHierarchy(subNode, id) != null)
-//                    return subNode;
-//            }
-        }
-        return null;
-    }*/
-
     /**
      * Открытие файла записи сторонным приложением.
      * @param context
@@ -333,7 +324,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
         File srcFile = new File(fullFileName);
         //
-        LogManager.addLog("Открытие файла: " + fullFileName);
+        LogManager.addLog(context.getString(R.string.open_file) + fullFileName);
         if (srcFile.exists()) {
             // если запись зашифрована
             if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
@@ -384,7 +375,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-            Intent chooser = Intent.createChooser(intent, "Открыть с помощью");
+            Intent chooser = Intent.createChooser(intent, context.getString(R.string.open_with));
             try {
                 // проверить, есть ли подходящее приложение для открытия файла
                 if (intent.resolveActivity(context.getPackageManager()) != null) {
@@ -406,6 +397,18 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
+    public static boolean openFolder(Context context, String pathUri){
+        Uri uri = Uri.parse(pathUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "resource/folder");
+        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
+            context.startActivity(intent);
+            return true;
+        } else {
+            LogManager.addLog(R.string.missing_file_manager, Toast.LENGTH_LONG);
+        }
+        return false;
+    }
 //    public static File createTempExtStorageFile(Context context, String fileName) {
 //        return new File(context.getExternalFilesDir(null), fileName);
 //    }
@@ -449,10 +452,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesList;
     }
 
-//    public static TreeMap<String, TetroidTag> getTagsHashMap() {
-//        return instance.tagsMap;
-//    }
-
     public static List<TetroidTag> getTags() {
         return instance.tagsList;
     }
@@ -470,7 +469,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static boolean isCrypted() {
-        return (Integer.parseInt(databaseINI.get("crypt_mode")) == 1);
+        return (Integer.parseInt(databaseINI.get(INI_CRYPT_MODE)) == 1);
     }
 
     public static DataManager getInstance() {

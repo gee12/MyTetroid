@@ -211,4 +211,8 @@
     <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
     <string name="pref_is_not_remember_sync_app">Do not remember application</string>
     <string name="pref_is_not_remember_sync_app_summ">Do not use the standard mechanism for remembering the last used application for sync</string>
+    <string name="open_file">Open file:&#160;</string>
+    <string name="open_with">Open with</string>
+    <string name="open_tag_records">Open tag records:&#160;</string>
+    <string name="start_storage_sync">Start storage sync. Command:&#160;</string>
 </resources>

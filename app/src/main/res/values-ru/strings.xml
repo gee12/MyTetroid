@@ -174,4 +174,8 @@
     <string name="sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
     <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>
     <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>
+    <string name="open_file">Открытие файла:&#160;</string>
+    <string name="open_with">Открыть с помощью</string>
+    <string name="open_tag_records">Открытие записей метки::&#160;</string>
+    <string name="start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
 </resources>

@@ -6,7 +6,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -284,8 +283,10 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * @param storagePath
      */
     private void startStorageSync(String storagePath) {
-        Intent intent = SyncManager.createCommandSender(this, storagePath, SettingsManager.getSyncCommand());
+        String command = SettingsManager.getSyncCommand();
+        Intent intent = SyncManager.createCommandSender(this, storagePath, command);
 
+        LogManager.addLog(getString(R.string.start_storage_sync) + command);
         if (!SettingsManager.isNotRememberSyncApp()) {
             // использовать стандартный механизм запоминания используемого приложения
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
@@ -609,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private void showTag(TetroidTag tag) {
         this.curNode = null;
         this.curTag = tag;
-        LogManager.addLog("Открытие записей метки: " + tag);
+        LogManager.addLog(getString(R.string.open_tag_records) + tag);
 //        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
         showRecords(tag.getRecords(), MainPageFragment.VIEW_TAG_RECORDS);
     }
@@ -633,14 +634,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     @Override
     public void openFolder(String pathUri){
-        Uri uri = Uri.parse(pathUri);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "resource/folder");
-        if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
-            startActivity(intent);
-        } else {
-            LogManager.addLog(R.string.missing_file_manager, Toast.LENGTH_LONG);
-        }
+        DataManager.openFolder(this, pathUri);
     }
 
     @Override
