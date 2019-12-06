@@ -325,6 +325,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param file
      * @return
      */
+//    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
     public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtWithComma(fileDisplayName);

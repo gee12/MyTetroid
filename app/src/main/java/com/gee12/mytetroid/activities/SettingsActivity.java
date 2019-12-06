@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.text.TextUtils;
 import android.view.MenuItem;
 
 import androidx.annotation.LayoutRes;
@@ -20,6 +19,8 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
+
+import org.jsoup.internal.StringUtil;
 
 import lib.folderpicker.FolderPicker;
 
@@ -46,7 +47,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 String path = SettingsManager.getStoragePath();
-                if (TextUtils.isEmpty(path)) {
+                if (StringUtil.isBlank(path)) {
                     path = FileUtils.getExtPublicDocumentsDir();
                 }
                 SettingsManager.isAskReloadStorage = false;
@@ -80,19 +81,19 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         });
 
         String storagePath = SettingsManager.getStoragePath();
-        if (!TextUtils.isEmpty(storagePath)) {
+        if (!StringUtil.isBlank(storagePath)) {
             Preference pref = findPreference(getString(R.string.pref_key_storage_path));
             pref.setSummary(storagePath);
         }
 
         String syncCommand = SettingsManager.getSyncCommand();
-        if (!TextUtils.isEmpty(syncCommand)) {
+        if (!StringUtil.isBlank(syncCommand)) {
             Preference pref = findPreference(getString(R.string.pref_key_sync_command));
             pref.setSummary(syncCommand);
         }
 
         String logPath = SettingsManager.getLogPath();
-        if (!TextUtils.isEmpty(logPath)) {
+        if (!StringUtil.isBlank(logPath)) {
             Preference pref = findPreference(getString(R.string.pref_key_log_path));
             pref.setSummary(logPath);
         }
