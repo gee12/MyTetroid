@@ -215,4 +215,7 @@
     <string name="open_with">Open with</string>
     <string name="open_tag_records">Open tag records:&#160;</string>
     <string name="start_storage_sync">Start storage sync. Command:&#160;</string>
+    <string name="get_file_size_error">Error getting file size:&#160;</string>
+    <string name="denied_read_file_access">Denied read access to the file:&#160;</string>
+    <string name="file_sharing_error">File sharing error:</string>
 </resources>

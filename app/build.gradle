@@ -60,4 +60,5 @@ dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     // для парсинга html
     implementation 'org.jsoup:jsoup:1.12.1'
+    implementation 'org.jetbrains:annotations-java5:15.0'
 }

@@ -178,4 +178,7 @@
     <string name="open_with">Открыть с помощью</string>
     <string name="open_tag_records">Открытие записей метки::&#160;</string>
     <string name="start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
+    <string name="get_file_size_error">Ошибка получения размера файла:&#160;</string>
+    <string name="denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
+    <string name="file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>
 </resources>

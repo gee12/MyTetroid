@@ -129,7 +129,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param node
      */
     @Override
-    public boolean decryptNode(TetroidNode node) {
+    public boolean decryptNode(@NonNull TetroidNode node) {
 //        boolean res = CryptManager.decryptNode(node, false, this);
 //        if (res) {
 //            // парсим метки
@@ -166,7 +166,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
      * @return
      */
-    public static String getRecordTextUri(TetroidRecord record) {
+    public static String getRecordTextUri(@NonNull TetroidRecord record) {
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
@@ -185,7 +185,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     @Override
-    public void loadIcon(TetroidNode node) {
+    public void loadIcon(@NonNull TetroidNode node) {
         if (node.isNonCryptedOrDecrypted())
             node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER);
     }
@@ -195,7 +195,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param record
      * @return
      */
-    public static String getRecordHtmlTextDecrypted(TetroidRecord record) {
+    public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
         String path = getStoragePathBase() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
 //        String pathUri = null;
@@ -238,7 +238,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param record
      * @return
      */
-    public static String getRecordTextDecrypted(TetroidRecord record) {
+    public static String getRecordTextDecrypted(@NonNull TetroidRecord record) {
         String text = null;
         String html = getRecordHtmlTextDecrypted(record);
         if (html != null) {
@@ -247,7 +247,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return text;
     }
 
-    public static String getRecordDirUri(TetroidRecord record) {
+    public static String getRecordDirUri(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;
     }
 
@@ -317,7 +317,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
 //    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
-    public static boolean openFile(Context context, TetroidRecord record, TetroidFile file) {
+    public static boolean openFile(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
@@ -359,8 +359,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             // that facilitates secure sharing of files associated with an app
             // by creating a content:// Uri for a file instead of a file:/// Uri.
 //            context.getString(R.string.authority_provider)
-            Uri fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
-
+            Uri fileURI = null;
+            try {
+                fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.file_sharing_error) + srcFile.getAbsolutePath(),
+                        ex, Toast.LENGTH_LONG);
+                return false;
+            }
             // ?
             //grant permision for app with package "packegeName", eg. before starting other app via intent
 //            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -368,7 +374,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            String mimeType = (!StringUtil.isBlank(ext))
+            // определяем тип файла по расширению, если оно есть
+            String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
                     ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
                     : "text/plain";
             intent.setDataAndType(fileURI, mimeType);
@@ -434,11 +441,20 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param file
      * @return
      */
-    public static String getFileSize(Context context, TetroidRecord record, TetroidFile file) {
+    public static String getFileSize(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
         String ext = FileUtils.getExtWithComma(file.getName());
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
-        long size = new File(fullFileName).length() / 1024;
+        long size;
+        try {
+            size = new File(fullFileName).length() / 1024;
+        } catch (SecurityException ex) {
+            LogManager.addLog(context.getString(R.string.denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.get_file_size_error) + fullFileName, ex);
+            return null;
+        }
         if (size == 0) {
             return null;
         } else if (size >= 1024) {

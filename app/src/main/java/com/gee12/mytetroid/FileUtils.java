@@ -84,12 +84,13 @@ public class FileUtils {
     }
 
     /**
-     *
+     * Получение расширения файла с точкой.
      * @param fileFullName
-     * @return
+     * @return Расширение файла с точкой, или пустую строку, если расширение отсутствует.
      */
     public static String getExtWithComma(String fileFullName) {
-        return fileFullName.substring(fileFullName.lastIndexOf("."));
+        int extIndex = fileFullName.lastIndexOf(".");
+        return (extIndex > -1) ? fileFullName.substring(extIndex) : "";
     }
 
     /**
