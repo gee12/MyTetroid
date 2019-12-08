@@ -197,7 +197,7 @@
     <string name="title_storage_sync">Sync</string>
     <string name="pref_category_sync">Sync</string>
     <string name="pref_is_sync_storage">Sync storage</string>
-    <string name="pref_is_sync_summ">Enable the transfer of the synchronization start command to the third-party application</string>
+    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
     <string name="pref_is_sync_before_loading">Sync before loading</string>
     <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
@@ -218,4 +218,8 @@
     <string name="get_file_size_error">Error getting file size:&#160;</string>
     <string name="denied_read_file_access">Denied read access to the file:&#160;</string>
     <string name="file_sharing_error">File sharing error:</string>
+    <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
+    <string name="ask_before_sync">Ask before starting</string>
+    <string name="ask_before_sync_summ">Show confirmation of synchronization start</string>
+    <string name="start_sync_dialog_title">Start storage sync?</string>
 </resources>

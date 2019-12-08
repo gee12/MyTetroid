@@ -9,7 +9,16 @@ import android.widget.EditText;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.TetroidNode;
 
-public class ActivityDialogs {
+public class AskDialogs {
+
+    public interface IApplyResult {
+        void onApply();
+    }
+
+    public interface IApplyCancelResult {
+        void onApply();
+        void onCancel();
+    }
 
     public interface IPassInputResult {
         void applyPass(String pass, TetroidNode node);
@@ -18,19 +27,6 @@ public class ActivityDialogs {
 
     public interface IPassCheckResult {
         void onApply(TetroidNode node);
-    }
-
-    public interface IReloadStorageResult {
-        void onApply();
-        void onCancel();
-    }
-
-    public interface ISyncResult {
-        void onApply();
-    }
-
-    public interface IExitResult {
-        void onApply();
     }
 
     public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
@@ -77,7 +73,7 @@ public class ActivityDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showReloadStorageDialog(Context context, final IReloadStorageResult applyHandler) {
+    public static void showReloadStorageDialog(Context context, final IApplyCancelResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -98,7 +94,7 @@ public class ActivityDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showSyncDialog(Context context, boolean isSyncSuccess, final ISyncResult applyHandler) {
+    public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -115,7 +111,25 @@ public class ActivityDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showExitDialog(Context context, final IExitResult applyHandler) {
+    public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    applyHandler.onApply();
+                } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                    applyHandler.onCancel();
+                }
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(context.getString(R.string.start_sync_dialog_title))
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    }
+
+    public static void showExitDialog(Context context, final IApplyResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override

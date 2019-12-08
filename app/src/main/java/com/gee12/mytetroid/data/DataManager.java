@@ -9,6 +9,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresPermission;
 import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.BuildConfig;
@@ -25,6 +26,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
@@ -316,13 +319,21 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param file
      * @return
      */
-//    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
+    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
     public static boolean openFile(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
         String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
-        File srcFile = new File(fullFileName);
+        File srcFile;
+        try {
+            srcFile = new File(fullFileName);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_file_open) + fullFileName,
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(ex);
+            return false;
+        }
         //
         LogManager.addLog(context.getString(R.string.open_file) + fullFileName);
         if (srcFile.exists()) {
@@ -355,16 +366,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
 
 //            Uri fileURI = Uri.fromFile(srcFile);
-            // FileProvider is a special subclass of ContentProvider
-            // that facilitates secure sharing of files associated with an app
-            // by creating a content:// Uri for a file instead of a file:/// Uri.
-//            context.getString(R.string.authority_provider)
-            Uri fileURI = null;
+            // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
+            // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
+            // нужно использовать механизм FileProvider.
+            // Путь к файлу должен быть сформирован так: content://<Uri for a file>
+            Uri fileURI;
             try {
                 fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
             } catch (Exception ex) {
                 LogManager.addLog(context.getString(R.string.file_sharing_error) + srcFile.getAbsolutePath(),
-                        ex, Toast.LENGTH_LONG);
+                        LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.addLog(ex);
                 return false;
             }
             // ?
@@ -389,16 +401,16 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //                    context.startActivity(intent);
                     context.startActivity(chooser);
                 } else {
-                    LogManager.addLog(context.getString(R.string.no_app_found) + fileDisplayName, Toast.LENGTH_LONG);
+                    LogManager.addLog(context.getString(R.string.no_app_found) + fullFileName, Toast.LENGTH_LONG);
                     return false;
                 }
             }
-            catch(ActivityNotFoundException e) {
-                LogManager.addLog(context.getString(R.string.error_file_open) + fileDisplayName, Toast.LENGTH_LONG);
+            catch(ActivityNotFoundException ex) {
+                LogManager.addLog(context.getString(R.string.error_file_open) + fullFileName, Toast.LENGTH_LONG);
                 return false;
             }
         } else {
-            LogManager.addLog(context.getString(R.string.file_is_missing) + fileDisplayName, Toast.LENGTH_SHORT);
+            LogManager.addLog(context.getString(R.string.file_is_missing) + fullFileName, Toast.LENGTH_SHORT);
             return false;
         }
         return true;

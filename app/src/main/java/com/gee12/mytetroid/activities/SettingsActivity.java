@@ -86,6 +86,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             pref.setSummary(storagePath);
         }
 
+        String tempPath = SettingsManager.getTempPath();
+        if (!StringUtil.isBlank(tempPath)) {
+            Preference pref = findPreference(getString(R.string.pref_key_temp_path));
+            pref.setSummary(tempPath);
+        }
+
         String syncCommand = SettingsManager.getSyncCommand();
         if (!StringUtil.isBlank(syncCommand)) {
             Preference pref = findPreference(getString(R.string.pref_key_sync_command));

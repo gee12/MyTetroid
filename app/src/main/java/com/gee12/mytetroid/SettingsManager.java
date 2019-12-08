@@ -100,6 +100,15 @@ public class SettingsManager {
     }
 
     /**
+     * Выводить подтверждение запуска синхронизации.
+     * По-умолчанию - да
+     * @return
+     */
+    public static boolean isAskBeforeSync() {
+        return getBoolean(R.string.pref_key_is_ask_before_sync, true);
+    }
+
+    /**
      * Не запоминать используемое приложения для синхронизации в последний раз.
      * По-умолчанию - нет
      * @return

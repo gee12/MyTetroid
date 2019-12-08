@@ -5,6 +5,7 @@ import android.util.Xml;
 
 import com.gee12.mytetroid.Utils;
 
+import org.jsoup.internal.StringUtil;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -291,7 +292,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
         TetroidRecord record = new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node);
 
-        if (!TextUtils.isEmpty(author))
+        if (!StringUtil.isBlank(author))
             this.authorsCount++;
 //        parser.nextTag();
 //        parser.require(XmlPullParser.END_TAG, ns, "record");

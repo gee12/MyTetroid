@@ -54,13 +54,15 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.data.TetroidTag;
-import com.gee12.mytetroid.views.ActivityDialogs;
+import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainPagerAdapter;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -269,10 +271,25 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      * Проверка нужно ли синхронизировать хранилище перед загрузкой.
      * @param storagePath
      */
-    private void initOrSyncStorage(String storagePath) {
+    private void initOrSyncStorage(final String storagePath) {
         if (SettingsManager.isSyncStorage() && SettingsManager.isSyncBeforeInit()) {
-            this.isLoadStorageAfterSync = true;
-            startStorageSync(storagePath);
+            // спрашиваем о необходимости запуска синхронизации, если установлена опция
+            if (SettingsManager.isAskBeforeSync()) {
+                AskDialogs.showSyncRequestDialog(this, new AskDialogs.IApplyCancelResult() {
+                    @Override
+                    public void onApply() {
+                        MainActivity.this.isLoadStorageAfterSync = true;
+                        startStorageSync(storagePath);
+                    }
+                    @Override
+                    public void onCancel() {
+                        initStorage(storagePath);
+                    }
+                });
+            } else {
+                this.isLoadStorageAfterSync = true;
+                startStorageSync(storagePath);
+            }
         } else {
             initStorage(storagePath);
         }
@@ -307,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             if (isLoadStorageAfterSync)
                 initStorage(storagePath);
             else {
-                ActivityDialogs.showSyncDialog(this, true, new ActivityDialogs.ISyncResult() {
+                AskDialogs.showSyncDoneDialog(this, true, new AskDialogs.IApplyResult() {
                     @Override
                     public void onApply() {
                         initStorage(storagePath);
@@ -317,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         } else {
             LogManager.addLog(getString(R.string.sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             if (isLoadStorageAfterSync) {
-                ActivityDialogs.showSyncDialog(this, false, new ActivityDialogs.ISyncResult() {
+                AskDialogs.showSyncDoneDialog(this, false, new AskDialogs.IApplyResult() {
                     @Override
                     public void onApply() {
                         initStorage(storagePath);
@@ -395,7 +412,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 }
             } catch (DataManager.EmptyFieldException e) {
                 // if middle_hash_check_data field is empty, so asking "decrypt anyway?"
-                ActivityDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
+                AskDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new AskDialogs.IPassCheckResult() {
                     @Override
                     public void onApply(TetroidNode node) {
                         decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
@@ -414,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     void showPassDialog(final TetroidNode node) {
         LogManager.addLog(R.string.show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
-        ActivityDialogs.showPassDialog(this, node, new ActivityDialogs.IPassInputResult() {
+        AskDialogs.showPassDialog(this, node, new AskDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 // подтверждение введенного пароля
@@ -435,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 } catch (DataManager.EmptyFieldException e) {
                     // если поля в INI-файле для проверки пустые
                     LogManager.addLog(e);
-                    ActivityDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new ActivityDialogs.IPassCheckResult() {
+                    AskDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), node, new AskDialogs.IPassCheckResult() {
                         @Override
                         public void onApply(TetroidNode node) {
                             decryptStorage(pass, false, node);
@@ -951,7 +968,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             // перезагружаем хранилище, если изменили путь
             if (SettingsManager.isAskReloadStorage) {
                 SettingsManager.isAskReloadStorage = false;
-                ActivityDialogs.showReloadStorageDialog(this, new ActivityDialogs.IReloadStorageResult() {
+                AskDialogs.showReloadStorageDialog(this, new AskDialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         reinitStorage();
@@ -1019,7 +1036,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
@@ -1319,7 +1336,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     private void onExit() {
-        ActivityDialogs.showExitDialog(this, new ActivityDialogs.IExitResult() {
+        AskDialogs.showExitDialog(this, new AskDialogs.IApplyResult() {
             @Override
             public void onApply() {
                 finish();
