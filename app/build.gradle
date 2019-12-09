@@ -9,7 +9,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.gee12.mytetroid"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 28
         versionCode 16
         versionName "1.14"
@@ -61,4 +61,5 @@ dependencies {
     // для парсинга html
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation 'com.github.irshulx:laser-native-editor:3.0.4'
 }

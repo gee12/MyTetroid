@@ -31,10 +31,12 @@ import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.views.EditorView;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 import com.gee12.mytetroid.views.TetroidFragment;
 import com.gee12.mytetroid.views.TetroidWebView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -69,7 +71,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
-    private TetroidWebView recordContentWebView;
+    private TetroidWebView recordWebView;
+    private EditorView recordEditorView;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
@@ -81,6 +84,8 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private FilesListAdapter filesListAdapter;
 //    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
+
+    private boolean editMode;
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
@@ -118,11 +123,11 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
         // текст записи
-        this.recordContentWebView = view.findViewById(R.id.web_view_record_content);
+        this.recordWebView = view.findViewById(R.id.web_view_record_content);
         // обработка нажатия на тексте записи
-        recordContentWebView.setOnTouchListener(this);
-        recordContentWebView.getSettings().setBuiltInZoomControls(true);
-        recordContentWebView.getSettings().setDisplayZoomControls(false);
+        recordWebView.setOnTouchListener(this);
+        recordWebView.getSettings().setBuiltInZoomControls(true);
+        recordWebView.getSettings().setDisplayZoomControls(false);
         this.recordFieldsLayout = view.findViewById(R.id.layout_record_fields);
 //        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
         this.wvRecordTags =  view.findViewById(R.id.web_view_record_tags);
@@ -151,6 +156,16 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         this.expRecordFieldsLayout =  view.findViewById(R.id.layout_expander);
         this.tbRecordFieldsExpander =  view.findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
+
+        this.recordEditorView = view.findViewById(R.id.record_editor_view);
+
+        FloatingActionButton fab = view.findViewById(R.id.button_view_edit);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchViewEditMode();
+            }
+        });
 
         this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
@@ -306,10 +321,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
 
         // текст
-        recordContentWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 text, "text/html", "UTF-8", null);
-//            recordContentWebView.loadUrl(recordContentUrl);
-        recordContentWebView.setWebViewClient(new WebViewClient() {
+//            recordWebView.loadUrl(recordContentUrl);
+        recordWebView.setWebViewClient(new WebViewClient() {
 
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -323,6 +338,26 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             }
         });
 
+    }
+
+    private void switchViewEditMode() {
+        if (editMode)
+            viewCurRecord();
+        else
+            editCurRecord();
+        editMode = !editMode;
+    }
+
+    private void viewCurRecord() {
+        recordEditorView.setVisibility(View.GONE);
+        recordWebView.setVisibility(View.VISIBLE);
+        recordFieldsLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void editCurRecord() {
+        recordWebView.setVisibility(View.GONE);
+        recordFieldsLayout.setVisibility(View.GONE);
+        recordEditorView.setVisibility(View.VISIBLE);
     }
 
     private void onUrlClick(String url) {

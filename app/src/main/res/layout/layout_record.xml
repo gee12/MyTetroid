@@ -167,11 +167,32 @@
 
     <com.gee12.mytetroid.views.TetroidWebView
         android:id="@+id/web_view_record_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@id/layout_record_fields"
         android:textIsSelectable="true"
         android:layout_margin="2dp"
+        android:background="@android:color/transparent"/>
+
+    <com.gee12.mytetroid.views.EditorView
+        android:id="@+id/record_editor_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"/>
+         />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_view_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:src="@android:drawable/ic_menu_edit"
+        app:backgroundTint="#4B4"/>
 
 </RelativeLayout>
