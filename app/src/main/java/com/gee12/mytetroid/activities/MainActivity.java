@@ -54,6 +54,7 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.data.TetroidTag;
+import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainPagerAdapter;
 import com.gee12.mytetroid.views.MainViewPager;

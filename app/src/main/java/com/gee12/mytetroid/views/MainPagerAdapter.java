@@ -7,9 +7,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.gee12.mytetroid.activities.FoundPageFragment;
 import com.gee12.mytetroid.activities.IMainView;
-import com.gee12.mytetroid.activities.MainPageFragment;
+import com.gee12.mytetroid.fragments.FoundPageFragment;
+import com.gee12.mytetroid.fragments.MainPageFragment;
+import com.gee12.mytetroid.fragments.TetroidFragment;
 
 public class MainPagerAdapter extends FragmentPagerAdapter {
 

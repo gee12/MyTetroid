@@ -12,8 +12,8 @@ import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.activities.MainPageFragment;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.fragments.MainPageFragment;
 
 import java.util.ArrayList;
 import java.util.List;

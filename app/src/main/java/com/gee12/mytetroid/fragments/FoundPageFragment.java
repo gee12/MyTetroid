@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.activities;
+package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,7 +16,6 @@ import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.views.FoundListAdapter;
-import com.gee12.mytetroid.views.TetroidFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;

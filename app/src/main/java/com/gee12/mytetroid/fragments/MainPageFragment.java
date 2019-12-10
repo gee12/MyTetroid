@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.activities;
+package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,10 +31,8 @@ import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
-import com.gee12.mytetroid.views.EditorView;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
-import com.gee12.mytetroid.views.TetroidFragment;
 import com.gee12.mytetroid.views.TetroidWebView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -72,7 +70,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
     private TetroidWebView recordWebView;
-    private EditorView recordEditorView;
+    private EditorFragment recordEditorView;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
@@ -159,7 +157,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
 
         this.recordEditorView = view.findViewById(R.id.record_editor_view);
 
-        FloatingActionButton fab = view.findViewById(R.id.button_view_edit);
+        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
