@@ -1,9 +1,6 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -11,15 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 import android.widget.ViewFlipper;
 
 import androidx.core.view.GestureDetectorCompat;
@@ -33,16 +25,11 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
-import com.gee12.mytetroid.views.TetroidWebView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import net.cachapa.expandablelayout.ExpandableLayout;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.List;
 
-public class MainPageFragment extends TetroidFragment implements CompoundButton.OnCheckedChangeListener {
+public class MainPageFragment extends TetroidFragment {
 
     public static final int VIEW_GLOBAL_FOUND = -1;
     public static final int VIEW_NONE = 0;
@@ -52,25 +39,22 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     public static final int VIEW_TAG_RECORDS = 4;
 //    public static final int VIEW_FOUND_RECORDS = 5;
 
+    public static final int VIEW_RECORD_VIEWER = 1;
+    public static final int VIEW_RECORD_EDITOR = 2;
+    public static final int VIEW_RECORD_HTML = 3;
+
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
     public static final int OPEN_RECORD_FOLDER_MENU_ITEM_ID = 3;
 
-    private ViewFlipper viewFlipper;
+    private ViewFlipper vfMain;
     private ListView lvRecords;
     private ListView lvFiles;
     private TextView tvRecordsEmpty;
     private TextView tvFilesEmpty;
-    private RelativeLayout recordFieldsLayout;
-    private ExpandableLayout expRecordFieldsLayout;
-    private ToggleButton tbRecordFieldsExpander;
-//    private TextView tvRecordTags;
-    private WebView wvRecordTags;
-    private TextView tvRecordAuthor;
-    private TextView tvRecordUrl;
-    private TextView tvRecordDate;
-    private TetroidWebView recordWebView;
-    private EditorFragment recordEditorView;
+    private ViewFlipper vfRecord;
+    private ViewerFragment recordViewer;
+    private EditorFragment recordEditor;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
@@ -101,9 +85,9 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        this.viewFlipper = view.findViewById(R.id.view_flipper);
+        this.vfMain = view.findViewById(R.id.view_flipper);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
-        viewFlipper.setOnTouchListener(this);
+        vfMain.setOnTouchListener(this);
         // список записей
         this.lvRecords = view.findViewById(R.id.list_view_records);
         // обработка нажатия на пустом месте списка записей
@@ -120,42 +104,10 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         lvFiles.setOnItemClickListener(onFileClicklistener);
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
-        // текст записи
-        this.recordWebView = view.findViewById(R.id.web_view_record_content);
-        // обработка нажатия на тексте записи
-        recordWebView.setOnTouchListener(this);
-        recordWebView.getSettings().setBuiltInZoomControls(true);
-        recordWebView.getSettings().setDisplayZoomControls(false);
-        this.recordFieldsLayout = view.findViewById(R.id.layout_record_fields);
-//        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
-        this.wvRecordTags =  view.findViewById(R.id.web_view_record_tags);
-        wvRecordTags.setBackgroundColor(Color.TRANSPARENT);
-        wvRecordTags.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                String decodedUrl;
-                // декодируем url
-                try {
-                    decodedUrl = URLDecoder.decode(url, "UTF-8");
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                    LogManager.addLog("Ошибка декодирования url: " + url, ex);
-                    return true;
-                }
-                // избавляемся от приставки "tag:"
-                String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
-                mainView.openTag(tagName);
-                return true;
-            }
-        });
-        this.tvRecordAuthor =  view.findViewById(R.id.text_view_record_author);
-        this.tvRecordUrl =  view.findViewById(R.id.text_view_record_url);
-        this.tvRecordDate =  view.findViewById(R.id.text_view_record_date);
-        this.expRecordFieldsLayout =  view.findViewById(R.id.layout_expander);
-        this.tbRecordFieldsExpander =  view.findViewById(R.id.toggle_button_expander);
-        tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
-        this.recordEditorView = view.findViewById(R.id.record_editor_view);
+        this.vfRecord = view.findViewById(R.id.view_flipper);
+        this.recordViewer = view.findViewById(R.id.record_viewer_view);
+        this.recordEditor = view.findViewById(R.id.record_editor_view);
 
         FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -221,7 +173,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         mainView.updateMainToolbar(viewId, title);
         mainView.checkKeepScreenOn(viewId);
         this.curViewId = viewId;
-        viewFlipper.setDisplayedChild(whichChild-1);
+        vfMain.setDisplayedChild(whichChild-1);
     }
 
     /**
@@ -255,6 +207,23 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         lvRecords.setAdapter(recordsListAdapter);
     }
 
+    private void showRecordView(int viewId) {
+        vfRecord.setDisplayedChild(viewId-1);
+    }
+
+    /**
+     * Отображение записи
+     * @param position Индекс записи в списке записей
+     */
+    private void showRecord(int position) {
+        TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
+        recordViewer.showRecord(record);
+    }
+
+    public void showCurRecord() {
+        recordViewer.showRecord(curRecord);
+    }
+
     /**
      * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
      * введенная строка в настройках не проверялась, что могло привести к падению приложения
@@ -271,73 +240,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         }
     }
 
-    /**
-     * Отображение записи
-     * @param position Индекс записи в списке записей
-     */
-    private void showRecord(int position) {
-        TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
-        showRecord(record);
-    }
-
-    public void showCurRecord() {
-        showRecord(curRecord);
-    }
-
-    /**
-     * Отображение записи
-     * @param record Запись
-     */
-    public void showRecord(final TetroidRecord record) {
-        if (record == null)
-            return;
-        this.curRecord = record;
-        LogManager.addLog("Чтение записи: id=" + record.getId());
-        String text = DataManager.getRecordHtmlTextDecrypted(record);
-        if (text == null) {
-            LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
-            return;
-        }
-        // поля
-//                tvRecordTags.setText(record.getTagsString());
-        String tagsString = record.getTagsLinksString();
-        int id = R.id.label_record_tags;
-        if (tagsString != null) {
-            // указываем charset в mimeType для кириллицы
-            wvRecordTags.loadData(tagsString, "text/html; charset=UTF-8", null);
-            id = R.id.web_view_record_tags;
-        }
-        // указываем относительно чего теперь выравнивать следующую панель
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.BELOW, id);
-        expRecordFieldsLayout.setLayoutParams(params);
-
-        tvRecordAuthor.setText(record.getAuthor());
-        tvRecordUrl.setText(record.getUrl());
-        if (record.getCreated() != null)
-            tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
-
-        // текст
-        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                text, "text/html", "UTF-8", null);
-//            recordWebView.loadUrl(recordContentUrl);
-        recordWebView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                showView(VIEW_RECORD_TEXT);
-            }
-
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                onUrlClick(url);
-                return true;
-            }
-        });
-
-    }
-
     private void switchViewEditMode() {
         if (editMode)
             viewCurRecord();
@@ -347,35 +249,15 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
     }
 
     private void viewCurRecord() {
-        recordEditorView.setVisibility(View.GONE);
-        recordWebView.setVisibility(View.VISIBLE);
-        recordFieldsLayout.setVisibility(View.VISIBLE);
+//        recordEditor.setVisibility(View.GONE);
+//        recordWebView.setVisibility(View.VISIBLE);
+//        recordFieldsLayout.setVisibility(View.VISIBLE);
     }
 
     private void editCurRecord() {
-        recordWebView.setVisibility(View.GONE);
-        recordFieldsLayout.setVisibility(View.GONE);
-        recordEditorView.setVisibility(View.VISIBLE);
-    }
-
-    private void onUrlClick(String url) {
-        if (url.startsWith("mytetra")) {
-            // обрабатываем внутреннюю ссылку
-            String id = url.substring(url.lastIndexOf('/')+1);
-            TetroidRecord record = DataManager.getRecord(id);
-
-            // !!
-            // вот тут пока неясно что делать потом с командой Back, например.
-            showRecord(record);
-            // return super.shouldOverrideUrlLoading(view, request);
-        } else {
-            try {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            } catch (Exception ex) {
-                LogManager.addLog(ex);
-            }
-        }
+//        recordWebView.setVisibility(View.GONE);
+//        recordFieldsLayout.setVisibility(View.GONE);
+//        recordEditor.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -432,10 +314,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
         }
     }
 
-    public void setRecordFieldsVisibility(boolean isVisible) {
-        recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
-    }
-
     /**
      * Обработчик клика на записи
      */
@@ -465,11 +343,6 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
             openFile(position);
         }
     };
-
-    @Override
-    public void onCheckedChanged(CompoundButton view, boolean isChecked) {
-        expRecordFieldsLayout.toggle();
-    }
 
     public void onCreateOptionsMenu(Menu menu) {
         this.miCurNode = menu.findItem(R.id.action_cur_node);
@@ -521,7 +394,7 @@ public class MainPageFragment extends TetroidFragment implements CompoundButton.
      */
     public boolean onBackPressed() {
         boolean res = false;
-        int curView = viewFlipper.getDisplayedChild() + 1;
+        int curView = vfMain.getDisplayedChild() + 1;
         if (curView == VIEW_RECORD_TEXT || curView == VIEW_RECORD_FILES) {
             res = true;
             switch (lastViewId) {
