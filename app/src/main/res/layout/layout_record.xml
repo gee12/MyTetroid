@@ -11,13 +11,13 @@
         android:autoStart="false"
         android:background="#f6f6fc">
 
-        <com.gee12.mytetroid.fragments.ViewerFragment
+        <com.gee12.mytetroid.fragments.RecordViewerView
             android:id="@+id/record_viewer_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
 
-        <com.gee12.mytetroid.fragments.EditorFragment
+        <com.gee12.mytetroid.fragments.RecordEditorView
             android:id="@+id/record_editor_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -28,6 +28,7 @@
     <string name="answer_cancel">Отмена</string>
     <string name="site_url">gee12.space</string>
     <string name="missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
+    <string name="missing_write_ext_storage_permissions">Недостаточно прав для записи во внешнее файловое хранилище</string>
     <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>

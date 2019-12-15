@@ -25,7 +25,6 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -39,9 +38,9 @@ public class MainPageFragment extends TetroidFragment {
     public static final int VIEW_TAG_RECORDS = 4;
 //    public static final int VIEW_FOUND_RECORDS = 5;
 
-    public static final int VIEW_RECORD_VIEWER = 1;
-    public static final int VIEW_RECORD_EDITOR = 2;
-    public static final int VIEW_RECORD_HTML = 3;
+    public static final int VIEW_RECORD_VIEWER = 0;
+    public static final int VIEW_RECORD_EDITOR = 1;
+    public static final int VIEW_RECORD_HTML = 2;
 
     public static final int OPEN_RECORD_MENU_ITEM_ID = 1;
     public static final int SHOW_FILES_MENU_ITEM_ID = 2;
@@ -53,8 +52,8 @@ public class MainPageFragment extends TetroidFragment {
     private TextView tvRecordsEmpty;
     private TextView tvFilesEmpty;
     private ViewFlipper vfRecord;
-    private ViewerFragment recordViewer;
-    private EditorFragment recordEditor;
+    private RecordViewerView recordViewer;
+    private RecordEditorView recordEditor;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
@@ -67,7 +66,7 @@ public class MainPageFragment extends TetroidFragment {
 //    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
 
-    private boolean editMode;
+    private int curRecordViewId;
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
@@ -105,17 +104,19 @@ public class MainPageFragment extends TetroidFragment {
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
 
-        this.vfRecord = view.findViewById(R.id.view_flipper);
-        this.recordViewer = view.findViewById(R.id.record_viewer_view);
-        this.recordEditor = view.findViewById(R.id.record_editor_view);
+//        this.vfRecord = view.findViewById(R.id.view_flipper);
+//        this.recordViewer = view.findViewById(R.id.record_viewer_view);
+//        recordViewer.setGestureDetector(gestureDetector);
+//        this.recordEditor = view.findViewById(R.id.record_editor_view);
+//        recordEditor.setGestureDetector(gestureDetector);
 
-        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchViewEditMode();
-            }
-        });
+//        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                switchViewEditMode();
+//            }
+//        });
 
         this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
@@ -125,7 +126,14 @@ public class MainPageFragment extends TetroidFragment {
         return view;
     }
 
-    void initListAdapters(Context context) {
+    private void initRecordViews() {
+        for(int i = 0; i < vfRecord.getChildCount(); i++) {
+            RecordView view = (RecordView)vfRecord.getChildAt(i);
+            view.setGestureDetector(gestureDetector);
+        }
+    }
+
+    public void initListAdapters(Context context) {
         // список записей
         if (lvRecords != null) {
             this.recordsListAdapter = new RecordsListAdapter(context, onRecordAttachmentClickListener);
@@ -217,11 +225,29 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void showRecord(int position) {
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
-        recordViewer.showRecord(record);
+        openRecord(record, getDefaultRecordViewId());
     }
 
     public void showCurRecord() {
-        recordViewer.showRecord(curRecord);
+        openRecord(curRecord, getDefaultRecordViewId());
+    }
+
+    public void openRecord(TetroidRecord record) {
+        openRecord(record, getDefaultRecordViewId());
+    }
+
+    /**
+     *
+     * @param record
+     */
+    public void openRecord(TetroidRecord record, int recordViewId) {
+        vfRecord.setDisplayedChild(recordViewId);
+        RecordView view = getCurRecordView();
+        if (view != null) {
+            view.openRecord(record);
+            showView(VIEW_RECORD_TEXT);
+            this.curRecordViewId = recordViewId;
+        }
     }
 
     /**
@@ -240,13 +266,13 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
-    private void switchViewEditMode() {
-        if (editMode)
-            viewCurRecord();
-        else
-            editCurRecord();
-        editMode = !editMode;
-    }
+//    private void switchViewEditMode() {
+//        if (editMode)
+//            viewCurRecord();
+//        else
+//            editCurRecord();
+//        editMode = !editMode;
+//    }
 
     private void viewCurRecord() {
 //        recordEditor.setVisibility(View.GONE);
@@ -300,7 +326,7 @@ public class MainPageFragment extends TetroidFragment {
             return;
         }
         TetroidFile file = curRecord.getAttachedFiles().get(position);
-        mainView.openFile(curRecord, file);
+        mainView.openFile(file);
     }
 
     private void openRecordFolder(int position) {
@@ -312,6 +338,12 @@ public class MainPageFragment extends TetroidFragment {
         if (curRecord != null) {
             mainView.openFolder(DataManager.getRecordDirUri(curRecord));
         }
+    }
+
+    public void setFullscreen(boolean isFullscreen) {
+        RecordView view = getCurRecordView();
+        if (view != null)
+            view.setFullscreen(isFullscreen);
     }
 
     /**
@@ -450,6 +482,21 @@ public class MainPageFragment extends TetroidFragment {
 
     public int getLastViewId() {
         return lastViewId;
+    }
+
+    public RecordView getCurRecordView() {
+        int count = vfRecord.getChildCount();
+        return (curRecordViewId > 0 && count > 0 && curRecordViewId < count)
+                ? (RecordView)vfRecord.getChildAt(curRecordViewId)
+                : null;
+    }
+
+    private int getDefaultRecordViewId() {
+
+        // TODO: добавить опцию в настройки
+        boolean isEditDefault = false;
+
+        return (isEditDefault) ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.gee12.mytetroid.data.TetroidRecord;
 public interface IMainView extends Parcelable {
     void onMainPageCreated();
     void openFolder(String pathUri);
-    void openFile(TetroidRecord record, TetroidFile file);
+    void openFile(TetroidFile file);
     void updateMainToolbar(int viewId, String title);
     void openFoundObject(ITetroidObject found);
     void openMainPage();
@@ -17,4 +17,6 @@ public interface IMainView extends Parcelable {
     void toggleFullscreen();
     void openTag(String tag);
     void checkKeepScreenOn(int curViewId);
+    void openRecord(TetroidRecord record);
+    boolean isFullscreen();
 }

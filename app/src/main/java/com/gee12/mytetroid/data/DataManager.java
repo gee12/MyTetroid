@@ -315,12 +315,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      * Открытие файла записи сторонным приложением.
      * @param context
-     * @param record
      * @param file
      * @return
      */
     @RequiresPermission(WRITE_EXTERNAL_STORAGE)
-    public static boolean openFile(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
+    public static boolean openFile(Context context, @NonNull TetroidFile file) {
+        TetroidRecord record = file.getRecord();
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;

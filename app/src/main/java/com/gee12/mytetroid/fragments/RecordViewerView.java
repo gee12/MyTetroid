@@ -11,13 +11,13 @@ import android.webkit.WebViewClient;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.data.TetroidRecordExt;
 import com.gee12.mytetroid.views.TetroidWebView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -26,7 +26,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class ViewerFragment extends RecordFragment implements CompoundButton.OnCheckedChangeListener {
+public class RecordViewerView extends RecordView implements CompoundButton.OnCheckedChangeListener {
 
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
@@ -38,7 +38,7 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
     private TextView tvRecordDate;
     private TetroidWebView recordWebView;
 
-    public ViewerFragment(Context context) {
+    public RecordViewerView(Context context) {
         super(context);
 
         View view = this;
@@ -100,15 +100,15 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
 
     /**
      * Отображение записи
-     * @param record Запись
      */
-    public void showRecord(final TetroidRecord record) {
+    @Override
+    public void openRecord(final TetroidRecordExt record) {
+//    public void showCurRecord() {
         if (record == null)
             return;
-//        this.curRecord = record;
-        this.record = record;
+      this.recordExt = record;
 
-        LogManager.addLog("Чтение записи: id=" + record.getId());
+ /*         LogManager.addLog("Чтение записи: id=" + record.getId());
         String text = DataManager.getRecordHtmlTextDecrypted(record);
         if (text == null) {
             LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
@@ -116,11 +116,11 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
         }
         // поля
 //                tvRecordTags.setText(record.getTagsString());
-        String tagsString = record.getTagsLinksString();
+        String tagsString = record.getTagsLinksString();*/
         int id = R.id.label_record_tags;
-        if (tagsString != null) {
+        if (record.getTagsHtml() != null) {
             // указываем charset в mimeType для кириллицы
-            wvRecordTags.loadData(tagsString, "text/html; charset=UTF-8", null);
+            wvRecordTags.loadData(record.getTagsHtml(), "text/html; charset=UTF-8", null);
             id = R.id.web_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующую панель
@@ -129,21 +129,21 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
         params.addRule(RelativeLayout.BELOW, id);
         expRecordFieldsLayout.setLayoutParams(params);
 
-        tvRecordAuthor.setText(record.getAuthor());
-        tvRecordUrl.setText(record.getUrl());
-        if (record.getCreated() != null)
-            tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+        tvRecordAuthor.setText(record.getRecord().getAuthor());
+        tvRecordUrl.setText(record.getRecord().getUrl());
+        if (record.getRecord().getCreated() != null)
+            tvRecordDate.setText(record.getRecord().getCreatedString(getContext().getString(R.string.full_date_format_string)));
 
         // текст
-        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                text, "text/html", "UTF-8", null);
+        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record.getRecord()),
+                record.getTextHtml(), "text/html", "UTF-8", null);
 //            recordWebView.loadUrl(recordContentUrl);
         recordWebView.setWebViewClient(new WebViewClient() {
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                showView(VIEW_RECORD_TEXT);
-            }
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                showView(VIEW_RECORD_TEXT);
+//            }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -162,12 +162,12 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
 
             // !!
             // вот тут пока неясно что делать потом с командой Back, например.
-            showRecord(record);
+            mainView.openRecord(record);
             // return super.shouldOverrideUrlLoading(view, request);
         } else {
             try {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
+                getContext().startActivity(browserIntent);
             } catch (Exception ex) {
                 LogManager.addLog(ex);
             }
@@ -181,6 +181,11 @@ public class ViewerFragment extends RecordFragment implements CompoundButton.OnC
     @Override
     public void onCheckedChanged(CompoundButton view, boolean isChecked) {
         expRecordFieldsLayout.toggle();
+    }
+
+    @Override
+    public void setFullscreen(boolean isFullscreen) {
+        setRecordFieldsVisibility(!isFullscreen);
     }
 
 //    @Override

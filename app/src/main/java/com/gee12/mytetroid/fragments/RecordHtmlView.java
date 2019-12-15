@@ -6,9 +6,9 @@ import android.view.View;
 import com.gee12.mytetroid.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class HtmlFragment extends RecordFragment {
+public class RecordHtmlView extends RecordView {
 
-    public HtmlFragment(Context context) {
+    public RecordHtmlView(Context context) {
         super(context);
 
         FloatingActionButton fab = findViewById(R.id.button_edit_record);
@@ -30,6 +30,11 @@ public class HtmlFragment extends RecordFragment {
 //
 //        return rootView;
 //    }
+
+    @Override
+    public void setFullscreen(boolean isFullscreen) {
+
+    }
 
 //    @Override
 //    public String getTitle() {

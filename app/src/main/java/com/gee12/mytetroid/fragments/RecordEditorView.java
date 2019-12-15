@@ -4,22 +4,20 @@ import android.content.Context;
 import android.view.View;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.data.TetroidRecordExt;
 import com.github.irshulx.Editor;
 import com.github.irshulx.models.EditorTextStyle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.jetbrains.annotations.NotNull;
-
-public class EditorFragment extends RecordFragment {
+public class RecordEditorView extends RecordView {
 
     private Editor editor;
 
-    public EditorFragment(Context context) {
+    public RecordEditorView(Context context) {
         super(context);
 
         this.editor =  findViewById(R.id.editor);
-        setUpEditor();
+        initEditor();
 
         FloatingActionButton fab = findViewById(R.id.button_view_record);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -41,7 +39,7 @@ public class EditorFragment extends RecordFragment {
 //        return view;
 //    }
 
-    private void setUpEditor() {
+    private void initEditor() {
         findViewById(R.id.action_h1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,7 +48,19 @@ public class EditorFragment extends RecordFragment {
         });
     }
 
-    public void editRecord(@NotNull TetroidRecord record) {
+    @Override
+    public void openRecord(final TetroidRecordExt record) {
+//    public void showCurRecord() {
+        if (record == null)
+//            LogManager.addLog("Текущая запись не установлена", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return;
+        this.recordExt = record;
+
+        editor.render(record.getTextHtml());
+    }
+
+    @Override
+    public void setFullscreen(boolean isFullscreen) {
 
     }
 

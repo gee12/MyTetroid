@@ -78,10 +78,11 @@ import pl.openrnd.multilevellistview.OnItemClickListener;
 public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
-    public static final int REQUEST_CODE_PERMISSION_REQUEST = 2;
-    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
-    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
-    public static final int REQUEST_CODE_SYNC_STORAGE = 5;
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
+    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 3;
+    public static final int REQUEST_CODE_SYNC_STORAGE = 4;
+    public static final int REQUEST_CODE_PERMISSION_READ = 1;
+    public static final int REQUEST_CODE_PERMISSION_WRITE = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
 
     private DrawerLayout drawerLayout;
@@ -101,22 +102,23 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
-    private boolean isRecordsFiltered = false;
+    private boolean isRecordsFiltered;
     private SearchView recordsSearchView;
     private MenuItem miRecordsSearchView;
     private MenuItem miGlobalSearch;
     private MenuItem miStorageSync;
     private MenuItem miStorageInfo;
     private GestureDetectorCompat gestureDetector;
-    private boolean isAlreadyTryDecrypt = false;
-    private boolean isStorageLoaded = false;
+    private boolean isAlreadyTryDecrypt;
+    private boolean isStorageLoaded;
 
     private MainPagerAdapter viewPagerAdapter;
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
     private boolean isFullscreen;
-    private boolean isStarted = false;
-    private boolean isLoadStorageAfterSync = false;
+    private boolean isStarted;
+    private boolean isLoadStorageAfterSync;
+    private TetroidFile tempOpenableFile;
 
     public MainActivity() {
     }
@@ -261,8 +263,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[] { Manifest.permission.READ_EXTERNAL_STORAGE },
-                    REQUEST_CODE_PERMISSION_REQUEST);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_CODE_PERMISSION_READ);
             return false;
         }
         return true;
@@ -282,6 +284,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                         MainActivity.this.isLoadStorageAfterSync = true;
                         startStorageSync(storagePath);
                     }
+
                     @Override
                     public void onCancel() {
                         initStorage(storagePath);
@@ -517,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             if (node != null)
                 showNode(node);
         } else {
-            LogManager.addLog(getString(R.string.start_storage_loading) +  DataManager.getStoragePath());
+            LogManager.addLog(getString(R.string.start_storage_loading) + DataManager.getStoragePath());
             new MainActivity.ReadStorageTask().execute(isDecrypt);
             // парсим дерево веток и расшифровываем зашифрованные
 //            if (DataManager.readStorage(isDecrypt)) {
@@ -620,11 +623,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
      */
     private void showTagRecords(int position) {
 //        String tag = (String)tagsListAdapter.getItem(position);
-        TetroidTag tag = (TetroidTag)tagsListAdapter.getItem(position);
+        TetroidTag tag = (TetroidTag) tagsListAdapter.getItem(position);
         showTag(tag);
     }
 
-//    private void showTag(String tag) {
+    //    private void showTag(String tag) {
     private void showTag(TetroidTag tag) {
         this.curNode = null;
         this.curTag = tag;
@@ -651,13 +654,37 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     @Override
-    public void openFolder(String pathUri){
+    public void openFolder(String pathUri) {
         DataManager.openFolder(this, pathUri);
     }
 
     @Override
-    public void openFile(TetroidRecord record, TetroidFile file) {
-        DataManager.openFile(this, record, file);
+    public void openRecord(TetroidRecord record) {
+        viewPagerAdapter.getMainFragment().openRecord(record);
+    }
+
+    /**
+     * Отрытие прикрепленного файла.
+     * Если файл нужно расшифровать во временные каталог, спрашиваем разрешение
+     * на запись во внешнее хранилище.
+     * @param file
+     */
+    @Override
+    public void openFile(TetroidFile file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
+            if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
+                && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                this.tempOpenableFile = file;
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_CODE_PERMISSION_WRITE);
+                return;
+            }
+        }
+        // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения
+        // уже были выданы при установке приложения
+        DataManager.openFile(this, file);
     }
 
     /**
@@ -1011,7 +1038,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     public void openFoundObject(ITetroidObject found) {
         switch (found.getType()) {
             case FoundType.TYPE_RECORD:
-                viewPagerAdapter.getMainFragment().showRecord((TetroidRecord)found);
+                openRecord((TetroidRecord)found);
                 break;
             case FoundType.TYPE_FILE:
                 viewPagerAdapter.getMainFragment().showRecordFiles(((TetroidFile)found).getRecord());
@@ -1038,14 +1065,20 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        boolean permGranted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
-            case REQUEST_CODE_PERMISSION_REQUEST: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            case REQUEST_CODE_PERMISSION_READ: {
+                if (permGranted) {
                     startInitStorage();
                 } else {
                     LogManager.addLog(R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
+                }
+            } break;
+            case REQUEST_CODE_PERMISSION_WRITE: {
+                if (permGranted) {
+                    openFile(tempOpenableFile);
+                } else {
+                    LogManager.addLog(R.string.missing_write_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }
             }
         }
@@ -1307,7 +1340,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         }
 
         // панель с полями записи
-        viewPagerAdapter.getMainFragment().setRecordFieldsVisibility(!isFullscreen);
+        viewPagerAdapter.getMainFragment().setFullscreen(isFullscreen);
+    }
+
+    @Override
+    public boolean isFullscreen() {
+        return isFullscreen;
     }
 
     /**
