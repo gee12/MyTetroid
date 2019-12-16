@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/view_flipper"
@@ -21,8 +21,29 @@
             android:id="@+id/record_editor_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-         />
+            />
+
+        <com.gee12.mytetroid.fragments.RecordHtmlView
+            android:id="@+id/record_html_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
 
     </ViewFlipper>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_record_view_switcher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:src="@android:drawable/ic_menu_view"
+        app:backgroundTint="#4B4"/>
 
 </RelativeLayout>

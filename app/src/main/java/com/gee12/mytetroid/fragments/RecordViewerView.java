@@ -89,10 +89,15 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
 
     }
 
+    @Override
+    protected int getViewId() {
+        return R.layout.layout_record_viewer;
+    }
+
 //    @Override
 //    public View onCreateView(LayoutInflater inflater, ViewGroup container,
 //                             Bundle savedInstanceState) {
-//        View view = inflater.inflate(R.layout.fragment_editor, container, false);
+//        View view = inflater.inflate(R.layout.layout_record_editor, container, false);
 //        setMainView(getArguments());
 //
 //        return view;

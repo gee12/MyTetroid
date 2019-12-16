@@ -38,19 +38,19 @@
 
     </ScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_view_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginLeft="@dimen/fab_margin"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
-        android:src="@android:drawable/ic_menu_view"
-        app:backgroundTint="#4B4"/>
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/button_view_record"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:layout_marginStart="@dimen/fab_margin"-->
+<!--        android:layout_marginLeft="@dimen/fab_margin"-->
+<!--        android:layout_marginTop="@dimen/fab_margin"-->
+<!--        android:layout_marginEnd="@dimen/fab_margin"-->
+<!--        android:layout_marginRight="@dimen/fab_margin"-->
+<!--        android:layout_marginBottom="@dimen/fab_margin"-->
+<!--        android:src="@android:drawable/ic_menu_view"-->
+<!--        app:backgroundTint="#4B4"/>-->
 
 </RelativeLayout>

@@ -25,6 +25,7 @@ import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class MainPageFragment extends TetroidFragment {
     public static final int VIEW_TAG_RECORDS = 4;
 //    public static final int VIEW_FOUND_RECORDS = 5;
 
+    public static final int VIEW_RECORD_NONE = -1;
     public static final int VIEW_RECORD_VIEWER = 0;
     public static final int VIEW_RECORD_EDITOR = 1;
     public static final int VIEW_RECORD_HTML = 2;
@@ -109,14 +111,15 @@ public class MainPageFragment extends TetroidFragment {
 //        recordViewer.setGestureDetector(gestureDetector);
 //        this.recordEditor = view.findViewById(R.id.record_editor_view);
 //        recordEditor.setGestureDetector(gestureDetector);
+        initRecordViews();
 
-//        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                switchViewEditMode();
-//            }
-//        });
+        final FloatingActionButton fab = view.findViewById(R.id.button_record_view_switcher);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchRecordView(fab);
+            }
+        });
 
         this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
@@ -129,8 +132,9 @@ public class MainPageFragment extends TetroidFragment {
     private void initRecordViews() {
         for(int i = 0; i < vfRecord.getChildCount(); i++) {
             RecordView view = (RecordView)vfRecord.getChildAt(i);
-            view.setGestureDetector(gestureDetector);
+            view.init(mainView, gestureDetector);
         }
+        this.curRecordViewId = getDefaultRecordViewId();
     }
 
     public void initListAdapters(Context context) {
@@ -215,9 +219,19 @@ public class MainPageFragment extends TetroidFragment {
         lvRecords.setAdapter(recordsListAdapter);
     }
 
-    private void showRecordView(int viewId) {
-        vfRecord.setDisplayedChild(viewId-1);
+
+    private void switchRecordView(FloatingActionButton button) {
+        int nextViewId = (curRecordViewId == VIEW_RECORD_VIEWER)
+                ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
+        showCurRecord(nextViewId);
+        int imageId = (curRecordViewId == VIEW_RECORD_VIEWER)
+                ? android.R.drawable.ic_menu_edit : android.R.drawable.ic_menu_view;
+        button.setImageResource(imageId);
     }
+
+//    private void showRecordView(int viewId) {
+//        vfRecord.setDisplayedChild(viewId);
+//    }
 
     /**
      * Отображение записи
@@ -225,28 +239,32 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void showRecord(int position) {
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
-        openRecord(record, getDefaultRecordViewId());
+        showRecord(record, getDefaultRecordViewId());
+    }
+
+    public void showCurRecord(int recordViewId) {
+        showRecord(curRecord, recordViewId);
     }
 
     public void showCurRecord() {
-        openRecord(curRecord, getDefaultRecordViewId());
+        showRecord(curRecord, getDefaultRecordViewId());
     }
 
-    public void openRecord(TetroidRecord record) {
-        openRecord(record, getDefaultRecordViewId());
+    public void showRecord(TetroidRecord record) {
+        showRecord(record, getDefaultRecordViewId());
     }
 
     /**
-     *
+     * Непосредственное отображение записи в нужном режиме.
      * @param record
      */
-    public void openRecord(TetroidRecord record, int recordViewId) {
+    public void showRecord(TetroidRecord record, int recordViewId) {
         vfRecord.setDisplayedChild(recordViewId);
+        this.curRecordViewId = recordViewId;
         RecordView view = getCurRecordView();
         if (view != null) {
             view.openRecord(record);
             showView(VIEW_RECORD_TEXT);
-            this.curRecordViewId = recordViewId;
         }
     }
 

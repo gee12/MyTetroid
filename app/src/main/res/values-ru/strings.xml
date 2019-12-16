@@ -185,4 +185,6 @@
     <string name="ask_before_sync">Спрашивать перед запуском</string>
     <string name="ask_before_sync_summ">Выводить подтверждение запуска синхронизации</string>
     <string name="start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
+    <string name="record_file_reading">Чтение файла записи: id=</string>
+    <string name="error_record_reading">Ошибка чтения записи</string>
 </resources>

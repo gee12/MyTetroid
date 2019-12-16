@@ -660,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     @Override
     public void openRecord(TetroidRecord record) {
-        viewPagerAdapter.getMainFragment().openRecord(record);
+        viewPagerAdapter.getMainFragment().showRecord(record);
     }
 
     /**

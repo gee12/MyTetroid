@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.TetroidRecordExt;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class RecordHtmlView extends RecordView {
@@ -21,15 +22,29 @@ public class RecordHtmlView extends RecordView {
 
     }
 
+    @Override
+    protected int getViewId() {
+        return R.layout.layout_record_html;
+    }
+
 //    @Override
 //    public View onCreateView(LayoutInflater inflater, ViewGroup container,
 //                             Bundle savedInstanceState) {
-//        View rootView = inflater.inflate(R.layout.fragment_html, container, false);
+//        View rootView = inflater.inflate(R.layout.layout_record_html, container, false);
 //        setMainView(getArguments());
 //
 //
 //        return rootView;
 //    }
+
+
+    /**
+     * Отображение записи
+     */
+    @Override
+    public void openRecord(final TetroidRecordExt record) {
+
+    }
 
     @Override
     public void setFullscreen(boolean isFullscreen) {
