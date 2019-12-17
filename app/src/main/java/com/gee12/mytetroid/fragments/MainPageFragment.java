@@ -86,7 +86,7 @@ public class MainPageFragment extends TetroidFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        this.vfMain = view.findViewById(R.id.view_flipper);
+        this.vfMain = view.findViewById(R.id.view_flipper_main);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
         vfMain.setOnTouchListener(this);
         // список записей
@@ -111,18 +111,22 @@ public class MainPageFragment extends TetroidFragment {
 //        recordViewer.setGestureDetector(gestureDetector);
 //        this.recordEditor = view.findViewById(R.id.record_editor_view);
 //        recordEditor.setGestureDetector(gestureDetector);
-        initRecordViews();
-
+        this.vfRecord = view.findViewById(R.id.view_flipper_record);
+        this.curRecordViewId = getDefaultRecordViewId();
         final FloatingActionButton fab = view.findViewById(R.id.button_record_view_switcher);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchRecordView(fab);
+                switchRecordView();
+                switchRecordViewButton(fab, curRecordViewId);
             }
         });
+        switchRecordViewButton(fab, curRecordViewId);
 
         this.curViewId = MainPageFragment.VIEW_NONE;
         setMainView(getArguments());
+
+        initRecordViews();
 
         mainView.onMainPageCreated();
 
@@ -132,9 +136,12 @@ public class MainPageFragment extends TetroidFragment {
     private void initRecordViews() {
         for(int i = 0; i < vfRecord.getChildCount(); i++) {
             RecordView view = (RecordView)vfRecord.getChildAt(i);
-            view.init(mainView, gestureDetector);
+            if (view != null) {
+                view.init(mainView, gestureDetector);
+            } else {
+                LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
         }
-        this.curRecordViewId = getDefaultRecordViewId();
     }
 
     public void initListAdapters(Context context) {
@@ -220,18 +227,22 @@ public class MainPageFragment extends TetroidFragment {
     }
 
 
-    private void switchRecordView(FloatingActionButton button) {
+    private void switchRecordView() {
+        // сохраняем внесенные изменения в текст
+        if (curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML) {
+            // TODO: сохранение изменений текста
+        }
+        // переключаем
         int nextViewId = (curRecordViewId == VIEW_RECORD_VIEWER)
                 ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
         showCurRecord(nextViewId);
-        int imageId = (curRecordViewId == VIEW_RECORD_VIEWER)
-                ? android.R.drawable.ic_menu_edit : android.R.drawable.ic_menu_view;
-        button.setImageResource(imageId);
     }
 
-//    private void showRecordView(int viewId) {
-//        vfRecord.setDisplayedChild(viewId);
-//    }
+    private static void switchRecordViewButton(FloatingActionButton fab, int recordViewId) {
+        int imageId = (recordViewId == VIEW_RECORD_VIEWER)
+                ? android.R.drawable.ic_menu_edit : android.R.drawable.ic_menu_view;
+        fab.setImageResource(imageId);
+    }
 
     /**
      * Отображение записи
@@ -259,12 +270,15 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     public void showRecord(TetroidRecord record, int recordViewId) {
-        vfRecord.setDisplayedChild(recordViewId);
+        this.curRecord = record;
         this.curRecordViewId = recordViewId;
+        vfRecord.setDisplayedChild(recordViewId);
         RecordView view = getCurRecordView();
         if (view != null) {
             view.openRecord(record);
             showView(VIEW_RECORD_TEXT);
+        } else {
+            LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -504,7 +518,7 @@ public class MainPageFragment extends TetroidFragment {
 
     public RecordView getCurRecordView() {
         int count = vfRecord.getChildCount();
-        return (curRecordViewId > 0 && count > 0 && curRecordViewId < count)
+        return (curRecordViewId >= 0 && count > 0 && curRecordViewId < count)
                 ? (RecordView)vfRecord.getChildAt(curRecordViewId)
                 : null;
     }

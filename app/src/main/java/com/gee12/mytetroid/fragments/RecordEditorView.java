@@ -3,16 +3,19 @@ package com.gee12.mytetroid.fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.Editable;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidRecordExt;
 import com.github.irshulx.Editor;
 import com.github.irshulx.EditorListener;
 import com.github.irshulx.models.EditorTextStyle;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,80 +26,99 @@ public class RecordEditorView extends RecordView {
 
     public RecordEditorView(Context context) {
         super(context);
+        initView();
+    }
 
+    public RecordEditorView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
+
+    public RecordEditorView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public RecordEditorView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initView();
+    }
+
+    private void initView() {
         this.editor =  findViewById(R.id.editor);
 
-        findViewById(R.id.action_h1).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_h1).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.H1);
             }
         });
 
-        findViewById(R.id.action_h2).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_h2).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.H2);
             }
         });
 
-        findViewById(R.id.action_h3).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_h3).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.H3);
             }
         });
 
-        findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_bold).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.BOLD);
             }
         });
 
-        findViewById(R.id.action_Italic).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_Italic).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.ITALIC);
             }
         });
 
-        findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_indent).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.INDENT);
             }
         });
 
-        findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_blockquote).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.BLOCKQUOTE);
             }
         });
 
-        findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_outdent).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.updateTextStyle(EditorTextStyle.OUTDENT);
             }
         });
 
-        findViewById(R.id.action_bulleted).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_bulleted).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.insertList(false);
             }
         });
 
-        findViewById(R.id.action_unordered_numbered).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_unordered_numbered).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.insertList(true);
             }
         });
 
-        findViewById(R.id.action_hr).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_hr).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.insertDivider();
@@ -104,7 +126,7 @@ public class RecordEditorView extends RecordView {
         });
 
 
-        findViewById(R.id.action_color).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_color).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 /*new ColorPickerPopup.Builder(EditorTestActivity.this)
@@ -132,14 +154,14 @@ public class RecordEditorView extends RecordView {
             }
         });
 
-        findViewById(R.id.action_insert_image).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_insert_image).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.openImagePicker();
             }
         });
 
-        findViewById(R.id.action_insert_link).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_insert_link).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.insertLink();
@@ -147,7 +169,7 @@ public class RecordEditorView extends RecordView {
         });
 
 
-        findViewById(R.id.action_erase).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_erase).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 editor.clearAllContents();
@@ -174,7 +196,7 @@ public class RecordEditorView extends RecordView {
             @Override
             public void onUpload(Bitmap image, String uuid) {
                 /*Toast.makeText(RecordEditorView.this, uuid, Toast.LENGTH_LONG).show();
-                *//**
+                 *//**
                  * TODO do your upload here from the bitmap received and all onImageUploadComplete(String url); to insert the result url to
                  * let the editor know the upload has completed
                  *//*
@@ -204,15 +226,6 @@ public class RecordEditorView extends RecordView {
                 startActivity(intent);
             }
         });*/
-
-
-        FloatingActionButton fab = findViewById(R.id.button_view_record);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
     }
 
     @Override
@@ -231,14 +244,13 @@ public class RecordEditorView extends RecordView {
 
 
     @Override
-    public void openRecord(final TetroidRecordExt record) {
-//    public void showCurRecord() {
-        if (record == null)
-//            LogManager.addLog("Текущая запись не установлена", LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            return;
-        this.recordExt = record;
+    public void openRecord() {
+        editor.clearAllContents();
+        editor.render(recordExt.getTextHtml());
+    }
 
-        editor.render(record.getTextHtml());
+    public String getRecordHtml() {
+        return editor.getContentAsHTML();
     }
 
     public Map<Integer, String> getHeadingTypeface() {

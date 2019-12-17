@@ -162,7 +162,7 @@
     <string name="open_node_records">Открытие записей ветки: id=</string>
     <string name="title_storage_sync">Синхронизация</string>
     <string name="pref_category_sync">Синхронизация</string>
-    <string name="pref_is_sync_storage">Синхронизировать хранилище</string>
+    <string name="pref_is_sync_storage">Синхронизация хранилища</string>
     <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища</string>
     <string name="pref_is_sync_before_loading">Синхронизировать перед загрузкой</string>
     <string name="pref_is_sync_before_loading_summ">Автоматически запускать синхронизацию перед загрузкой хранилища</string>
@@ -187,4 +187,5 @@
     <string name="start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
     <string name="record_file_reading">Чтение файла записи: id=</string>
     <string name="error_record_reading">Ошибка чтения записи</string>
+    <string name="not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
 </resources>

@@ -66,7 +66,7 @@ public abstract class RecordView extends FrameLayout implements View.OnTouchList
         if (recordExt == null) {
             return;
         }
-        openRecord(recordExt);
+        openRecord();
         setFullscreen(mainView.isFullscreen());
     }
 
@@ -91,7 +91,7 @@ public abstract class RecordView extends FrameLayout implements View.OnTouchList
     }
 
 
-    protected abstract void openRecord(final TetroidRecordExt record);
+    protected abstract void openRecord();//final TetroidRecordExt record);
 
 
     public void setMainView(IMainView mainView) {

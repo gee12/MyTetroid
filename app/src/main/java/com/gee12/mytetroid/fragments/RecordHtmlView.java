@@ -1,25 +1,39 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
-import android.view.View;
+import android.os.Build;
+import android.util.AttributeSet;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidRecordExt;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class RecordHtmlView extends RecordView {
 
     public RecordHtmlView(Context context) {
         super(context);
+        initView();
+    }
 
-        FloatingActionButton fab = findViewById(R.id.button_edit_record);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+    public RecordHtmlView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
 
-            }
-        });
+    public RecordHtmlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public RecordHtmlView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initView();
+    }
+
+    private void initView() {
+        
     }
 
     @Override
@@ -42,7 +56,7 @@ public class RecordHtmlView extends RecordView {
      * Отображение записи
      */
     @Override
-    public void openRecord(final TetroidRecordExt record) {
+    public void openRecord() {//final TetroidRecordExt record) {
 
     }
 

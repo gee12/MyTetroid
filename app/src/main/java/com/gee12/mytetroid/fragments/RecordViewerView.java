@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
@@ -13,13 +15,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidRecord;
-import com.gee12.mytetroid.data.TetroidRecordExt;
 import com.gee12.mytetroid.views.TetroidWebView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -40,11 +43,30 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
 
     public RecordViewerView(Context context) {
         super(context);
+        initView();
+    }
 
+    public RecordViewerView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
+
+    public RecordViewerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public RecordViewerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initView();
+    }
+
+    private void initView() {
         View view = this;
 
         // текст записи
-        this.recordWebView = view.findViewById(R.id.web_view_record_content);
+        this.recordWebView = view.findViewById(R.id.web_view_record_text);
         // обработка нажатия на тексте записи
         recordWebView.setOnTouchListener(this);
         recordWebView.getSettings().setBuiltInZoomControls(true);
@@ -79,14 +101,13 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
 
-        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
+//        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
     }
 
     @Override
@@ -107,25 +128,11 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
      * Отображение записи
      */
     @Override
-    public void openRecord(final TetroidRecordExt record) {
-//    public void showCurRecord() {
-        if (record == null)
-            return;
-      this.recordExt = record;
-
- /*         LogManager.addLog("Чтение записи: id=" + record.getId());
-        String text = DataManager.getRecordHtmlTextDecrypted(record);
-        if (text == null) {
-            LogManager.addLog("Ошибка чтения записи", Toast.LENGTH_LONG);
-            return;
-        }
-        // поля
-//                tvRecordTags.setText(record.getTagsString());
-        String tagsString = record.getTagsLinksString();*/
+    public void openRecord() {
         int id = R.id.label_record_tags;
-        if (record.getTagsHtml() != null) {
+        if (recordExt.getTagsHtml() != null) {
             // указываем charset в mimeType для кириллицы
-            wvRecordTags.loadData(record.getTagsHtml(), "text/html; charset=UTF-8", null);
+            wvRecordTags.loadData(recordExt.getTagsHtml(), "text/html; charset=UTF-8", null);
             id = R.id.web_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующую панель
@@ -134,21 +141,21 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
         params.addRule(RelativeLayout.BELOW, id);
         expRecordFieldsLayout.setLayoutParams(params);
 
-        tvRecordAuthor.setText(record.getRecord().getAuthor());
-        tvRecordUrl.setText(record.getRecord().getUrl());
-        if (record.getRecord().getCreated() != null)
-            tvRecordDate.setText(record.getRecord().getCreatedString(getContext().getString(R.string.full_date_format_string)));
+        tvRecordAuthor.setText(recordExt.getRecord().getAuthor());
+        tvRecordUrl.setText(recordExt.getRecord().getUrl());
+        if (recordExt.getRecord().getCreated() != null)
+            tvRecordDate.setText(recordExt.getRecord().getCreatedString(getContext().getString(R.string.full_date_format_string)));
 
         // текст
-        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(record.getRecord()),
-                record.getTextHtml(), "text/html", "UTF-8", null);
-//            recordWebView.loadUrl(recordContentUrl);
+        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(recordExt.getRecord()),
+                recordExt.getTextHtml(), "text/html", "UTF-8", null);
+    //            recordWebView.loadUrl(recordContentUrl);
         recordWebView.setWebViewClient(new WebViewClient() {
 
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                showView(VIEW_RECORD_TEXT);
-//            }
+    //            @Override
+    //            public void onPageFinished(WebView view, String url) {
+    //                showView(VIEW_RECORD_TEXT);
+    //            }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -163,11 +170,11 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
         if (url.startsWith("mytetra")) {
             // обрабатываем внутреннюю ссылку
             String id = url.substring(url.lastIndexOf('/')+1);
-            TetroidRecord record = DataManager.getRecord(id);
+            TetroidRecord recordExt = DataManager.getRecord(id);
 
             // !!
             // вот тут пока неясно что делать потом с командой Back, например.
-            mainView.openRecord(record);
+            mainView.openRecord(recordExt);
             // return super.shouldOverrideUrlLoading(view, request);
         } else {
             try {

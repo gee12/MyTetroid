@@ -225,4 +225,5 @@
     <string name="start_sync_dialog_title">Start storage sync?</string>
     <string name="record_file_reading">Record file reading: id=</string>
     <string name="error_record_reading">Record reading error</string>
+    <string name="not_found_child_in_viewflipper">Not found cild in ViewFliper</string>
 </resources>

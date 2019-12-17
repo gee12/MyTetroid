@@ -167,7 +167,7 @@
     </RelativeLayout>
 
     <com.gee12.mytetroid.views.TetroidWebView
-        android:id="@+id/web_view_record_content"
+        android:id="@+id/web_view_record_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layout_record_fields"
