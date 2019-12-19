@@ -3,12 +3,12 @@ package com.gee12.mytetroid.crypt;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.ITagsParseHandler;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidNode;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -398,6 +398,10 @@ public class CryptManager {
 //        }
 //        return res;
 //    }
+
+    public static String cryptText(String text) {
+        return text;
+    }
 
     static void setCryptKey(int[] key) {
         CryptManager.cryptKey = key;

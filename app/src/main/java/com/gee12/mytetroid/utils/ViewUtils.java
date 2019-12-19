@@ -1,7 +1,10 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 public class ViewUtils {
 
@@ -17,11 +20,20 @@ public class ViewUtils {
     }
 
     public static int getStatusBarHeight(Context context) {
+        if (context == null)
+            return 0;
         int result = 0;
         int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
             result = context.getResources().getDimensionPixelSize(resourceId);
         }
         return result;
+    }
+
+    public static void hideKeyboard(Context context, View view) {
+        if (context == null || view == null)
+            return;
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

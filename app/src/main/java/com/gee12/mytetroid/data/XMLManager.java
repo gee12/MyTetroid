@@ -3,7 +3,7 @@ package com.gee12.mytetroid.data;
 import android.text.TextUtils;
 import android.util.Xml;
 
-import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.utils.Utils;
 
 import org.jsoup.internal.StringUtil;
 import org.xmlpull.v1.XmlPullParser;

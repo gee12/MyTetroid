@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.utils;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;

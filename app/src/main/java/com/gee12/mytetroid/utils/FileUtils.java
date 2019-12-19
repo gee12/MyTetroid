@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.utils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -14,9 +14,11 @@ import com.larvalabs.svgandroid.SVGParser;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -76,11 +78,24 @@ public class FileUtils {
     public static byte[] readFile(Uri fileUri) throws IOException {
         File file = new File(fileUri.getPath());
         byte[] data = new byte[(int) file.length()];
-        DataInputStream dis;
-        dis = new DataInputStream(new FileInputStream(file));
+        DataInputStream dis = new DataInputStream(new FileInputStream(file));
         dis.readFully(data);
         dis.close();
         return data;
+    }
+
+    /**
+     * TODO: Запись файла.
+     * @param fileUri
+     * @param text
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeFile(Uri fileUri, String text)  throws IOException {
+        File file = new File(fileUri.getPath());
+
+        DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
+        dos.write
     }
 
     /**

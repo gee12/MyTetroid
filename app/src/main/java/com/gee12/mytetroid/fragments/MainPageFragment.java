@@ -19,10 +19,11 @@ import androidx.core.view.GestureDetectorCompat;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.FilesListAdapter;
 import com.gee12.mytetroid.views.RecordsListAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -231,11 +232,16 @@ public class MainPageFragment extends TetroidFragment {
         // сохраняем внесенные изменения в текст
         if (curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML) {
             // TODO: сохранение изменений текста
+            DataManager.saveRecordHtmlText(curRecord);
         }
         // переключаем
         int nextViewId = (curRecordViewId == VIEW_RECORD_VIEWER)
                 ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
         showCurRecord(nextViewId);
+        if (curRecordViewId == VIEW_RECORD_VIEWER) {
+//            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
+            ViewUtils.hideKeyboard(getContext(), getView());
+        }
     }
 
     private static void switchRecordViewButton(FloatingActionButton fab, int recordViewId) {

@@ -3,8 +3,8 @@ package com.gee12.mytetroid.data;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
-import com.gee12.mytetroid.FileUtils;
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;

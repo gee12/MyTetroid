@@ -17,7 +17,7 @@
  *  along with KeePassDroid.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

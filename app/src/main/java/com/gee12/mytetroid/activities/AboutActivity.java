@@ -15,7 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.utils.Utils;
 
 public class AboutActivity extends AppCompatActivity {
 

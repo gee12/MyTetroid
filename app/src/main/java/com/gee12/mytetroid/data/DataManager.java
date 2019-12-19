@@ -13,11 +13,11 @@ import androidx.annotation.RequiresPermission;
 import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.BuildConfig;
-import com.gee12.mytetroid.FileUtils;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.utils.FileUtils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.internal.StringUtil;
@@ -202,7 +202,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String path = getStoragePathBase() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
 //        String pathUri = null;
-        Uri uri = null;
+        Uri uri;
         try {
 //            pathUri = "file://" + URLEncoder.encode(path, "UTF-8");
             uri = Uri.parse(path);
@@ -234,6 +234,46 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
         }
         return res;
+    }
+
+    public static boolean saveRecordHtmlText(@NonNull TetroidRecord record, String htmlText) {
+        String path = getStoragePathBase() + File.separator
+                + record.getDirName() + File.separator + record.getFileName();
+        Uri uri;
+        try {
+            uri = Uri.parse(path);
+        } catch (Exception ex) {
+            LogManager.addLog("Ошибка формирования Uri пути к файлу" + path, ex);
+            return false;
+        }
+        String resText = htmlText;
+        if (record.isCrypted()) {
+            resText = CryptManager.cryptText(htmlText);
+//            if (record.isDecrypted()) {
+//                byte[] text = new byte[0];
+//                try {
+//                    text = FileUtils.readFile(uri);
+//                } catch (Exception ex) {
+//                    LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
+//                }
+//                // расшифровываем содержимое файла
+//                res = CryptManager.decryptText(text);
+//                if (res == null) {
+//                    LogManager.addLog(context.getString(R.string.error_decrypt_record_file) + path,
+//                            LogManager.Types.ERROR);
+//                }
+//            }
+        } /*else {
+            try {
+                res = FileUtils.readTextFile(uri);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
+            }
+        }*/
+
+
+
+        return true;
     }
 
     /**

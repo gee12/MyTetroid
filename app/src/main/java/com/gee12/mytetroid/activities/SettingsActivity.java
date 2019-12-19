@@ -14,11 +14,11 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
-import com.gee12.mytetroid.FileUtils;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.utils.FileUtils;
 
 import org.jsoup.internal.StringUtil;
 

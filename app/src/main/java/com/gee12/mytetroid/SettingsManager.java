@@ -7,6 +7,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
 
+import com.gee12.mytetroid.utils.FileUtils;
+
 public class SettingsManager {
 
     private static SharedPreferences settings;
