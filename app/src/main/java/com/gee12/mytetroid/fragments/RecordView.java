@@ -94,6 +94,11 @@ public abstract class RecordView extends FrameLayout implements View.OnTouchList
     protected abstract void openRecord();//final TetroidRecordExt record);
 
 
+    public String getRecordHtml() {
+        return null;
+    }
+
+
     public void setMainView(IMainView mainView) {
         this.mainView = mainView;
     }

@@ -188,4 +188,6 @@
     <string name="record_file_reading">Чтение файла записи: id=</string>
     <string name="error_record_reading">Ошибка чтения записи</string>
     <string name="not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
+    <string name="error_write_to_record_file">Ошибка записи в файл:&#160;</string>
+    <string name="title_record_html">Html записи</string>
 </resources>

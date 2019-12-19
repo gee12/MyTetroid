@@ -58,6 +58,8 @@ public class FileUtils {
      * @throws IOException
      */
     public static String readTextFile(Uri fileUri) throws IOException {
+        if (fileUri == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         BufferedReader br = new BufferedReader(new FileReader(new File(fileUri.getPath())));
         String line;
@@ -76,6 +78,8 @@ public class FileUtils {
      * @throws IOException
      */
     public static byte[] readFile(Uri fileUri) throws IOException {
+        if (fileUri == null)
+            return null;
         File file = new File(fileUri.getPath());
         byte[] data = new byte[(int) file.length()];
         DataInputStream dis = new DataInputStream(new FileInputStream(file));
@@ -91,11 +95,15 @@ public class FileUtils {
      * @return
      * @throws IOException
      */
-    public static boolean writeFile(Uri fileUri, String text)  throws IOException {
+    public static boolean writeFile(Uri fileUri, String text) throws IOException {
+        if (fileUri == null || text == null)
+            return false;
         File file = new File(fileUri.getPath());
-
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
-        dos.write
+        dos.write(text.getBytes());
+        dos.flush();
+        dos.close();
+        return true;
     }
 
     /**
@@ -121,8 +129,8 @@ public class FileUtils {
     /**
      * Получение внешнего каталога по-умоланию.
      *
-     * // FIXME: Еще нужно проверять getExternalStorageState().
-     *
+     * FIXME: Еще нужно проверять Environment.getExternalStorageState():
+     * Environment.MEDIA_MOUNTED или Environment.MEDIA_MOUNTED_READ_ONLY
      * @return
      */
     public static String getExtPublicDocumentsDir() {
@@ -133,4 +141,5 @@ public class FileUtils {
             return Environment.getExternalStorageDirectory() + "/Documents";
         }
     }
+
 }

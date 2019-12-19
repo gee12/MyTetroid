@@ -399,7 +399,13 @@ public class CryptManager {
 //        return res;
 //    }
 
+    /**
+     * TODO: реализовать шифровку данных.
+     * @param text
+     * @return
+     */
     public static String cryptText(String text) {
+
         return text;
     }
 

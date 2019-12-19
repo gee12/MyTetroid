@@ -226,4 +226,6 @@
     <string name="record_file_reading">Record file reading: id=</string>
     <string name="error_record_reading">Record reading error</string>
     <string name="not_found_child_in_viewflipper">Not found cild in ViewFliper</string>
+    <string name="error_write_to_record_file">Error write to the record file:&#160;</string>
+    <string name="title_record_html">Record html</string>
 </resources>

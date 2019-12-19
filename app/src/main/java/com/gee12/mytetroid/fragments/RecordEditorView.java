@@ -249,6 +249,7 @@ public class RecordEditorView extends RecordView {
         editor.render(recordExt.getTextHtml());
     }
 
+    @Override
     public String getRecordHtml() {
         return editor.getContentAsHTML();
     }

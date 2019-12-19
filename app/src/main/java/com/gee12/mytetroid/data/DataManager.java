@@ -243,36 +243,19 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         try {
             uri = Uri.parse(path);
         } catch (Exception ex) {
-            LogManager.addLog("Ошибка формирования Uri пути к файлу" + path, ex);
+            LogManager.addLog(context.getString(R.string.error_generate_record_file_path) + path, ex);
             return false;
         }
         String resText = htmlText;
         if (record.isCrypted()) {
             resText = CryptManager.cryptText(htmlText);
-//            if (record.isDecrypted()) {
-//                byte[] text = new byte[0];
-//                try {
-//                    text = FileUtils.readFile(uri);
-//                } catch (Exception ex) {
-//                    LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
-//                }
-//                // расшифровываем содержимое файла
-//                res = CryptManager.decryptText(text);
-//                if (res == null) {
-//                    LogManager.addLog(context.getString(R.string.error_decrypt_record_file) + path,
-//                            LogManager.Types.ERROR);
-//                }
-//            }
-        } /*else {
-            try {
-                res = FileUtils.readTextFile(uri);
-            } catch (Exception ex) {
-                LogManager.addLog(context.getString(R.string.error_read_record_file) + path, ex);
-            }
-        }*/
-
-
-
+        }
+        try {
+            FileUtils.writeFile(uri, resText);
+        } catch (IOException ex) {
+            LogManager.addLog(context.getString(R.string.error_write_to_record_file) + path, ex);
+            return false;
+        }
         return true;
     }
 

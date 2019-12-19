@@ -61,6 +61,7 @@ public class MainPageFragment extends TetroidFragment {
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
     private MenuItem miCurRecordFolder;
+    private MenuItem miRecordHtml;
 
     private int curViewId;
     private int lastViewId;
@@ -231,8 +232,11 @@ public class MainPageFragment extends TetroidFragment {
     private void switchRecordView() {
         // сохраняем внесенные изменения в текст
         if (curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML) {
-            // TODO: сохранение изменений текста
-            DataManager.saveRecordHtmlText(curRecord);
+            RecordView view = getCurRecordView();
+            if (view != null) {
+                String htmlText = view.getRecordHtml();
+                DataManager.saveRecordHtmlText(curRecord, htmlText);
+            }
         }
         // переключаем
         int nextViewId = (curRecordViewId == VIEW_RECORD_VIEWER)
@@ -242,6 +246,7 @@ public class MainPageFragment extends TetroidFragment {
 //            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
             ViewUtils.hideKeyboard(getContext(), getView());
         }
+        miRecordHtml.setVisible(curRecordViewId == VIEW_RECORD_EDITOR);
     }
 
     private static void switchRecordViewButton(FloatingActionButton fab, int recordViewId) {
@@ -419,6 +424,7 @@ public class MainPageFragment extends TetroidFragment {
         this.miCurRecord = menu.findItem(R.id.action_cur_record);
         this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
         this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
+        this.miRecordHtml = menu.findItem(R.id.action_record_html);
     }
 
     /**

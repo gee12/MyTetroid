@@ -3,6 +3,7 @@ package com.gee12.mytetroid.fragments;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.widget.EditText;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -10,6 +11,8 @@ import androidx.annotation.RequiresApi;
 import com.gee12.mytetroid.R;
 
 public class RecordHtmlView extends RecordView {
+
+    private EditText etHtml;
 
     public RecordHtmlView(Context context) {
         super(context);
@@ -33,7 +36,7 @@ public class RecordHtmlView extends RecordView {
     }
 
     private void initView() {
-        
+        this.etHtml = findViewById(R.id.edit_text_html);
     }
 
     @Override
@@ -58,6 +61,11 @@ public class RecordHtmlView extends RecordView {
     @Override
     public void openRecord() {//final TetroidRecordExt record) {
 
+    }
+
+    @Override
+    public String getRecordHtml() {
+        return etHtml.getText().toString();
     }
 
     @Override

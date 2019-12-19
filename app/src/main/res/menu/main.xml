@@ -31,6 +31,12 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_record_html"
+        android:orderInCategory="90"
+        android:title="@string/title_record_html"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"
@@ -59,10 +65,12 @@
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="@string/title_settings"
+        android:icon="@android:drawable/ic_menu_manage"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_about_app"
         android:orderInCategory="400"
         android:title="@string/title_about_app"
+        android:icon="@android:drawable/ic_menu_info_details"
         app:showAsAction="never" />
 </menu>
