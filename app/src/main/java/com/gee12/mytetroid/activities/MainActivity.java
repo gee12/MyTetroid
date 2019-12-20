@@ -1269,15 +1269,15 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case R.id.action_cur_node:
                 showNode(curNode);
                 return true;
-            case R.id.action_cur_record:
-                viewPagerAdapter.getMainFragment().showCurRecord();
-                return true;
-            case R.id.action_attached_files:
-                viewPagerAdapter.getMainFragment().showCurRecordFiles();
-                return true;
-            case R.id.action_cur_record_folder:
-                viewPagerAdapter.getMainFragment().openRecordFolder();
-                return true;
+//            case R.id.action_cur_record:
+//                viewPagerAdapter.getMainFragment().showCurRecord();
+//                return true;
+//            case R.id.action_attached_files:
+//                viewPagerAdapter.getMainFragment().showCurRecordFiles();
+//                return true;
+//            case R.id.action_cur_record_folder:
+//                viewPagerAdapter.getMainFragment().openRecordFolder();
+//                return true;
             case R.id.action_fullscreen:
                 toggleFullscreen();
                 return true;

@@ -228,6 +228,15 @@ public class SettingsManager {
     }
 
     /**
+     * Открывать записи сразу в режиме редактирования?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isRecordEditMode() {
+        return getBoolean(R.string.pref_key_is_record_edit_mode, false);
+    }
+
+    /**
      * Писать логи в файл
      * По-умолчанию - нет
      * @return

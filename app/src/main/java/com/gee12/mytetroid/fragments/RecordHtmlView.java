@@ -60,7 +60,7 @@ public class RecordHtmlView extends RecordView {
      */
     @Override
     public void openRecord() {//final TetroidRecordExt record) {
-
+        etHtml.setText(recordExt.getTextHtml());
     }
 
     @Override

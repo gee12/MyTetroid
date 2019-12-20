@@ -55,12 +55,13 @@ public class MainPageFragment extends TetroidFragment {
     private TextView tvRecordsEmpty;
     private TextView tvFilesEmpty;
     private ViewFlipper vfRecord;
-    private RecordViewerView recordViewer;
-    private RecordEditorView recordEditor;
+//    private RecordViewerView recordViewer;
+//    private RecordEditorView recordEditor;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
     private MenuItem miCurRecordFolder;
+    private MenuItem miRecordSave;
     private MenuItem miRecordHtml;
 
     private int curViewId;
@@ -231,13 +232,7 @@ public class MainPageFragment extends TetroidFragment {
 
     private void switchRecordView() {
         // сохраняем внесенные изменения в текст
-        if (curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML) {
-            RecordView view = getCurRecordView();
-            if (view != null) {
-                String htmlText = view.getRecordHtml();
-                DataManager.saveRecordHtmlText(curRecord, htmlText);
-            }
-        }
+        saveCurRecord();
         // переключаем
         int nextViewId = (curRecordViewId == VIEW_RECORD_VIEWER)
                 ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
@@ -246,7 +241,18 @@ public class MainPageFragment extends TetroidFragment {
 //            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
             ViewUtils.hideKeyboard(getContext(), getView());
         }
+        miRecordSave.setVisible(curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML);
         miRecordHtml.setVisible(curRecordViewId == VIEW_RECORD_EDITOR);
+    }
+
+    private void saveCurRecord() {
+        if (curRecordViewId == VIEW_RECORD_EDITOR || curRecordViewId == VIEW_RECORD_HTML) {
+            RecordView view = getCurRecordView();
+            if (view != null) {
+                String htmlText = view.getRecordHtml();
+                DataManager.saveRecordHtmlText(curRecord, htmlText);
+            }
+        }
     }
 
     private static void switchRecordViewButton(FloatingActionButton fab, int recordViewId) {
@@ -419,11 +425,35 @@ public class MainPageFragment extends TetroidFragment {
         }
     };
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_cur_record:
+                showCurRecord();
+                return true;
+            case R.id.action_attached_files:
+                showCurRecordFiles();
+                return true;
+            case R.id.action_cur_record_folder:
+                openRecordFolder();
+                return true;
+            case R.id.action_record_save:
+                saveCurRecord();
+                return true;
+            case R.id.action_record_html:
+                showCurRecord(VIEW_RECORD_HTML);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public void onCreateOptionsMenu(Menu menu) {
         this.miCurNode = menu.findItem(R.id.action_cur_node);
         this.miCurRecord = menu.findItem(R.id.action_cur_record);
         this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
         this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
+        this.miRecordSave = menu.findItem(R.id.action_record_save);
         this.miRecordHtml = menu.findItem(R.id.action_record_html);
     }
 
@@ -536,11 +566,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     private int getDefaultRecordViewId() {
-
-        // TODO: добавить опцию в настройки
-        boolean isEditDefault = false;
-
-        return (isEditDefault) ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
+        return (SettingsManager.isRecordEditMode()) ? VIEW_RECORD_EDITOR : VIEW_RECORD_VIEWER;
     }
 
     @Override

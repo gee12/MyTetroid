@@ -31,8 +31,14 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_record_save"
+        android:orderInCategory="91"
+        android:title="@string/title_record_save"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/action_record_html"
-        android:orderInCategory="90"
+        android:orderInCategory="92"
         android:title="@string/title_record_html"
         android:visible="false"
         app:showAsAction="ifRoom" />
