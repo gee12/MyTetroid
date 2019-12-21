@@ -8,10 +8,12 @@ import android.text.Editable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.github.irshulx.Editor;
 import com.github.irshulx.EditorListener;
@@ -246,7 +248,12 @@ public class RecordEditorView extends RecordView {
     @Override
     public void openRecord() {
         editor.clearAllContents();
-        editor.render(recordExt.getTextHtml());
+        String textHtml = recordExt.getTextHtml();
+        try {
+            editor.render(textHtml);
+        } catch (Exception ex) {
+            LogManager.addLog("Ошибка отображения записи", ex, Toast.LENGTH_LONG);
+        }
     }
 
     @Override

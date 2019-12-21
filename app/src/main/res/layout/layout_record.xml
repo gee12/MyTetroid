@@ -45,7 +45,6 @@
         android:layout_marginBottom="@dimen/fab_margin"
         app:fabSize="mini"
         android:src="@android:drawable/ic_menu_edit"
-        android:alpha="0.5f"
         app:backgroundTint="#4B4"/>
 
 </RelativeLayout>

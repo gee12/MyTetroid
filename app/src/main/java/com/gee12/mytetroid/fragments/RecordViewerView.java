@@ -154,7 +154,7 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
 
     //            @Override
     //            public void onPageFinished(WebView view, String url) {
-    //                showView(VIEW_RECORD_TEXT);
+    //                showView(MAIN_VIEW_RECORD_TEXT);
     //            }
 
             @Override

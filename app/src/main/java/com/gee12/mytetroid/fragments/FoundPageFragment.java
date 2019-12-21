@@ -71,6 +71,7 @@ public class FoundPageFragment extends TetroidFragment {
                 mainView.closeFoundFragment();
             }
         });
+        fab.setAlpha(0.5f);
 
         return rootView;
     }

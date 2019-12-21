@@ -399,12 +399,16 @@ public class SettingsManager {
     }
 
     private static void setBoolean(int prefKeyStringRes, boolean value) {
+        if (settings == null)
+            return;
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(context.getString(prefKeyStringRes), value);
         editor.apply();
     }
 
     private static void setString(int prefKeyStringRes, String value) {
+        if (settings == null)
+            return;
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(context.getString(prefKeyStringRes), value);
         editor.apply();
@@ -417,6 +421,8 @@ public class SettingsManager {
      * @return
      */
     private static boolean getBoolean(int prefKeyStringRes, final boolean defValue) {
+        if (settings == null)
+            return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
         }
@@ -430,6 +436,8 @@ public class SettingsManager {
      * @return
      */
     private static String getString(int prefKeyStringRes, final String defValue) {
+        if (settings == null)
+            return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getString(context.getString(prefKeyStringRes), defValue);
         }

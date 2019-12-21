@@ -31,6 +31,7 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
+        app:fabSize="mini"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:backgroundTint="#BBB"/>
 

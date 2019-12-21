@@ -57,7 +57,7 @@ public class RecordsListAdapter extends BaseAdapter {
 
     public void setDataItems(List<TetroidRecord> dataSet, int viewId, String dateTimeFormat) {
         this.dataSet = dataSet;
-        this.isShowNodeName = (viewId == MainPageFragment.VIEW_TAG_RECORDS);
+        this.isShowNodeName = (viewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS);
         this.dateTimeFormat = dateTimeFormat;
         notifyDataSetChanged();
     }
