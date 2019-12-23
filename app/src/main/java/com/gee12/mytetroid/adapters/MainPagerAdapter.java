@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views;
+package com.gee12.mytetroid.adapters;
 
 import android.os.Bundle;
 

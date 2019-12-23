@@ -11,41 +11,48 @@
         android:orderInCategory="70"
         android:title="@string/title_cur_node"
         android:visible="false"
+        android:icon="@drawable/ic_show_node_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_cur_record"
         android:orderInCategory="80"
         android:title="@string/title_cur_record"
         android:visible="false"
+        android:icon="@drawable/ic_record_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_attached_files"
         android:orderInCategory="90"
         android:title="@string/title_attached_files"
         android:visible="false"
+        android:icon="@drawable/ic_attachment"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_cur_record_folder"
         android:orderInCategory="90"
         android:title="@string/open_record_folder"
         android:visible="false"
+        android:icon="@drawable/ic_folder24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_record_save"
         android:orderInCategory="91"
         android:title="@string/title_record_save"
         android:visible="false"
+        android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_html"
         android:orderInCategory="92"
         android:title="@string/title_record_html"
         android:visible="false"
+        android:icon="@drawable/ic_code_24dp"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"
+        android:icon="@drawable/ic_fullscreen_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_global_search"
@@ -60,12 +67,14 @@
         android:title="@string/title_storage_sync"
         android:enabled="false"
         android:visible="false"
+        android:icon="@android:drawable/stat_notify_sync"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_storage_info"
         android:orderInCategory="250"
         android:title="@string/title_storage_info"
         android:enabled="false"
+        android:icon="@drawable/ic_statistics_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"

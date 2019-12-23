@@ -12,10 +12,10 @@ import android.widget.TextView;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.adapters.FoundListAdapter;
 import com.gee12.mytetroid.data.FoundType;
 import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
-import com.gee12.mytetroid.views.FoundListAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;

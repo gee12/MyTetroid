@@ -232,4 +232,5 @@
     <string name="recod_edit_mode">Edit mode</string>
     <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="title_record_save">Save</string>
+    <string name="writing_here">Start writing here...</string>
 </resources>

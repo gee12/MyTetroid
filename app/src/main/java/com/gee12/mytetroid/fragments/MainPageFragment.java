@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -10,22 +11,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.adapters.FilesListAdapter;
+import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.gee12.mytetroid.views.FilesListAdapter;
-import com.gee12.mytetroid.views.RecordsListAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -245,10 +248,28 @@ public class MainPageFragment extends TetroidFragment {
         int nextViewId = (curRecordViewId == RECORD_VIEW_VIEWER)
                 ? RECORD_VIEW_EDITOR : RECORD_VIEW_VIEWER;
         showCurRecord(nextViewId);
+
         if (curRecordViewId == RECORD_VIEW_VIEWER) {
 //            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
             ViewUtils.hideKeyboard(getContext(), getView());
         }
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) fabRecordModes.getLayoutParams();
+        // bottom margin
+        final int defMargin = 12;
+        int bottomMargin = (curRecordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
+        layoutParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
+        // horiz align
+        int newAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
+        int oldAlign = RelativeLayout.ALIGN_PARENT_LEFT;
+        if (curRecordViewId == RECORD_VIEW_EDITOR) {
+            newAlign = RelativeLayout.ALIGN_PARENT_LEFT;
+            oldAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
+        }
+        layoutParams.addRule(newAlign);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            layoutParams.removeRule(oldAlign);
+        }
+
         miRecordSave.setVisible(curRecordViewId == RECORD_VIEW_EDITOR || curRecordViewId == RECORD_VIEW_HTML);
         miRecordHtml.setVisible(curRecordViewId == RECORD_VIEW_EDITOR);
     }
@@ -433,10 +454,20 @@ public class MainPageFragment extends TetroidFragment {
         }
     };
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
+    public void onCreateOptionsMenu(@NonNull Menu menu) {
+        this.miCurNode = menu.findItem(R.id.action_cur_node);
+        this.miCurRecord = menu.findItem(R.id.action_cur_record);
+        this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
+        this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
+        this.miRecordSave = menu.findItem(R.id.action_record_save);
+        this.miRecordHtml = menu.findItem(R.id.action_record_html);
+    }
+
+//    @Override
+//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean onOptionsItemSelected(int menuId) {
+//        int id = item.getItemId();
+        switch (menuId) {
             case R.id.action_cur_record:
                 showCurRecord();
                 return true;
@@ -453,16 +484,8 @@ public class MainPageFragment extends TetroidFragment {
                 showCurRecord(RECORD_VIEW_HTML);
                 return true;
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void onCreateOptionsMenu(Menu menu) {
-        this.miCurNode = menu.findItem(R.id.action_cur_node);
-        this.miCurRecord = menu.findItem(R.id.action_cur_record);
-        this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
-        this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
-        this.miRecordSave = menu.findItem(R.id.action_record_save);
-        this.miRecordHtml = menu.findItem(R.id.action_record_html);
+//        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     /**
@@ -486,7 +509,7 @@ public class MainPageFragment extends TetroidFragment {
      * @return
      */
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case MENU_ITEM_ID_OPEN_RECORD:

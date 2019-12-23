@@ -49,6 +49,7 @@ public class RecordEditorView extends RecordView {
 
     private void initView() {
         this.editor =  findViewById(R.id.editor);
+//        ViewUtils.disableCopyAndPaste(editor);
 
         findViewById(R.id.action_h1).setOnClickListener(new OnClickListener() {
             @Override

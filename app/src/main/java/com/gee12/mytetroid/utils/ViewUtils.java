@@ -2,9 +2,14 @@ package com.gee12.mytetroid.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.ActionMode;
+import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+
 
 public class ViewUtils {
 
@@ -30,10 +35,51 @@ public class ViewUtils {
         return result;
     }
 
+    /**
+     *
+     * @param context
+     * @param view
+     */
     public static void hideKeyboard(Context context, View view) {
         if (context == null || view == null)
             return;
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    /**
+     *
+     * @param editText
+     */
+    public static void disableCopyAndPaste(EditText editText) {
+        if (editText == null)
+            return;
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            editText.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                public void onCreateContextMenu(ContextMenu menu, View v,
+                                                ContextMenu.ContextMenuInfo menuInfo) {
+                    menu.clear();
+                }
+            });
+        } else {
+            editText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+
+                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                public void onDestroyActionMode(ActionMode mode) {
+                }
+
+                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                    return false;
+                }
+
+                public boolean onActionItemClicked(ActionMode mode,
+                                                   MenuItem item) {
+                    return false;
+                }
+            });
+        }
     }
 }

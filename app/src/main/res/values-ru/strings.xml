@@ -193,4 +193,5 @@
     <string name="recod_edit_mode">Режим редактирования</string>
     <string name="record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
+    <string name="writing_here">Пишите здесь...</string>
 </resources>

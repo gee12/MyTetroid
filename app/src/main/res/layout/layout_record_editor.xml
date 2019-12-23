@@ -17,21 +17,21 @@
 
     <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:scrollbars="vertical"
         android:layout_marginBottom="40dp"
         android:layout_alignParentTop="true"
-        android:layout_height="match_parent"
         >
 
         <com.github.irshulx.Editor
-            android:layout_width="match_parent"
             android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:render_type="Editor"
-            app:placeholder="Start writing here..."
+            app:placeholder="@string/writing_here"
             android:paddingTop="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:layout_height="match_parent"
             android:paddingBottom="100dp">
 
         </com.github.irshulx.Editor>

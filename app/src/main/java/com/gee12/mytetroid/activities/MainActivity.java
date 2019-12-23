@@ -28,6 +28,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -42,6 +43,9 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.adapters.MainPagerAdapter;
+import com.gee12.mytetroid.adapters.NodesListAdapter;
+import com.gee12.mytetroid.adapters.TagsListAdapter;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.FoundType;
@@ -56,11 +60,8 @@ import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
-import com.gee12.mytetroid.views.MainPagerAdapter;
 import com.gee12.mytetroid.views.MainViewPager;
-import com.gee12.mytetroid.views.NodesListAdapter;
 import com.gee12.mytetroid.views.SearchViewListener;
-import com.gee12.mytetroid.views.TagsListAdapter;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
@@ -1253,6 +1254,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         this.miStorageInfo = menu.findItem(R.id.action_storage_info);
         this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(miRecordsSearchView);
+
+        if(menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder)menu;
+            m.setOptionalIconsVisible(true);
+        }
         //
         this.isStarted = true;
         return true;
@@ -1297,6 +1303,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case R.id.action_about_app:
                 showActivity(this, AboutActivity.class);
                 return true;
+            default:
+                if (viewPagerAdapter.getMainFragment().onOptionsItemSelected(id))
+                    return true;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views;
+package com.gee12.mytetroid.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -115,19 +115,17 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             }
         });
         // стрелка раскрытия/закрытия ветки
+        int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
                     R.drawable.ic_arrow_up : R.drawable.ic_arrow_down);
-                    ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams())
-                            .setMargins(20 * node.getLevel(),0,60,0);
-
+            rightMargin = 60;
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);
-            ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams())
-                    .setMargins(20 * node.getLevel(),0,0,0);
-
         }
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.headerView.getLayoutParams();
+        layoutParams.setMargins(20 * node.getLevel(),0,rightMargin,0);
 
         return convertView;
     }
