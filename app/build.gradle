@@ -59,9 +59,6 @@ dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
-//    implementation('com.github.irshulx:laser-native-editor:3.0.4') {
-//        exclude group: 'org.jetbrains', module: 'annotations'
-//    }
     implementation(project(path: ':laser-native-editor')) {
         exclude group: 'org.jetbrains', module: 'annotations'
     }

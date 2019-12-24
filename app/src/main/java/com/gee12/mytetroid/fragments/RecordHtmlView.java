@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.utils.ViewUtils;
 
 public class RecordHtmlView extends RecordView {
 
@@ -38,7 +37,7 @@ public class RecordHtmlView extends RecordView {
 
     private void initView() {
         this.etHtml = findViewById(R.id.edit_text_html);
-        ViewUtils.disableCopyAndPaste(etHtml);
+//        ViewUtils.disableCopyAndPaste(etHtml);
     }
 
     @Override

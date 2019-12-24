@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -124,7 +125,6 @@ public class MainPageFragment extends TetroidFragment {
             @Override
             public void onClick(View view) {
                 switchRecordView();
-                switchRecordViewButton(fabRecordModes, curRecordViewId);
             }
         });
         fabRecordModes.setAlpha(0.5f);
@@ -168,7 +168,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     public void onSettingsInited() {
         this.curRecordViewId = getDefaultRecordViewId();
-        switchRecordViewButton(fabRecordModes, curRecordViewId);
+//        updateFab(curRecordViewId);
     }
 
     /**
@@ -245,23 +245,32 @@ public class MainPageFragment extends TetroidFragment {
         // сохраняем внесенные изменения в текст
         saveCurRecord();
         // переключаем
-        int nextViewId = (curRecordViewId == RECORD_VIEW_VIEWER)
-                ? RECORD_VIEW_EDITOR : RECORD_VIEW_VIEWER;
+        int nextViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
+                ? RECORD_VIEW_VIEWER : RECORD_VIEW_EDITOR;
         showCurRecord(nextViewId);
+    }
 
-        if (curRecordViewId == RECORD_VIEW_VIEWER) {
+    private void updateRecordView(int recordViewId) {
+        if (recordViewId == RECORD_VIEW_VIEWER) {
 //            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
             ViewUtils.hideKeyboard(getContext(), getView());
         }
+        updateFab(recordViewId);
+
+        miRecordSave.setVisible(recordViewId != RECORD_VIEW_VIEWER);
+        miRecordHtml.setVisible(recordViewId == RECORD_VIEW_EDITOR);
+    }
+
+    private void updateFab(int recordViewId) {
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) fabRecordModes.getLayoutParams();
         // bottom margin
         final int defMargin = 12;
-        int bottomMargin = (curRecordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
+        int bottomMargin = (recordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
         layoutParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
         // horiz align
         int newAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
         int oldAlign = RelativeLayout.ALIGN_PARENT_LEFT;
-        if (curRecordViewId == RECORD_VIEW_EDITOR) {
+        if (recordViewId != RECORD_VIEW_VIEWER) {
             newAlign = RelativeLayout.ALIGN_PARENT_LEFT;
             oldAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
         }
@@ -269,9 +278,14 @@ public class MainPageFragment extends TetroidFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             layoutParams.removeRule(oldAlign);
         }
-
-        miRecordSave.setVisible(curRecordViewId == RECORD_VIEW_EDITOR || curRecordViewId == RECORD_VIEW_HTML);
-        miRecordHtml.setVisible(curRecordViewId == RECORD_VIEW_EDITOR);
+        int imageId = (recordViewId == RECORD_VIEW_EDITOR)
+                ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit;
+        fabRecordModes.setImageResource(imageId);
+        int colorId = (recordViewId == RECORD_VIEW_EDITOR)
+                ? R.color.colorKhaki : R.color.colorGreen;
+//        fabRecordModes.setBackgroundColor(getContext().getColor(colorId));
+        fabRecordModes.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorId)));
+//        fabRecordModes.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
     }
 
     private void saveCurRecord() {
@@ -282,12 +296,6 @@ public class MainPageFragment extends TetroidFragment {
                 DataManager.saveRecordHtmlText(curRecord, htmlText);
             }
         }
-    }
-
-    private static void switchRecordViewButton(FloatingActionButton fab, int recordViewId) {
-        int imageId = (recordViewId == RECORD_VIEW_VIEWER)
-                ? android.R.drawable.ic_menu_edit : android.R.drawable.ic_menu_view;
-        fab.setImageResource(imageId);
     }
 
     /**
@@ -322,6 +330,7 @@ public class MainPageFragment extends TetroidFragment {
         RecordView view = getCurRecordView();
         if (view != null) {
             view.openRecord(record);
+            updateRecordView(curRecordViewId);
             showView(MAIN_VIEW_RECORD_TEXT);
         } else {
             LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
