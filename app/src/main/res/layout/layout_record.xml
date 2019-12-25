@@ -32,7 +32,23 @@
     </ViewFlipper>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_record_view_switcher"
+        android:id="@+id/button_record_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin"
+        app:fabSize="mini"
+        android:src="@android:drawable/ic_menu_view"
+        app:backgroundTint="@color/colorYellow_50"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_record_right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -44,7 +60,7 @@
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
         app:fabSize="mini"
-        android:src="@android:drawable/ic_menu_edit"
-        app:backgroundTint="#4B4"/>
+        android:src="@drawable/ic_code_24dp"
+        app:backgroundTint="@color/colorBlue_50"/>
 
 </RelativeLayout>

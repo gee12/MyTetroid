@@ -4,53 +4,38 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <HorizontalScrollView android:id="@+id/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#e6e6e6"
-        android:layout_alignParentBottom="true"
-        android:scrollbars="none">
-
-        <include layout="@layout/editor_toolbar_linearlayout_horizontal" />
-
-    </HorizontalScrollView>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"
-        android:layout_marginBottom="40dp"
+        android:layout_paddingBottom="40dp"
         android:layout_alignParentTop="true"
         >
 
         <com.github.irshulx.Editor
             android:id="@+id/editor"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             app:render_type="Editor"
             app:placeholder="@string/writing_here"
             android:paddingTop="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingBottom="100dp">
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp">
 
         </com.github.irshulx.Editor>
 
     </ScrollView>
 
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/button_view_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentRight="true"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginStart="@dimen/fab_margin"-->
-<!--        android:layout_marginLeft="@dimen/fab_margin"-->
-<!--        android:layout_marginTop="@dimen/fab_margin"-->
-<!--        android:layout_marginEnd="@dimen/fab_margin"-->
-<!--        android:layout_marginRight="@dimen/fab_margin"-->
-<!--        android:layout_marginBottom="@dimen/fab_margin"-->
-<!--        android:src="@android:drawable/ic_menu_view"-->
-<!--        app:backgroundTint="#4B4"/>-->
+    <HorizontalScrollView android:id="@+id/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#40009688"
+        android:layout_alignParentBottom="true"
+        android:scrollbars="none">
+
+        <include layout="@layout/editor_toolbar_linearlayout_horizontal" />
+
+    </HorizontalScrollView>
 
 </RelativeLayout>

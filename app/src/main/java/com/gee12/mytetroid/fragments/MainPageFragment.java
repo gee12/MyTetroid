@@ -2,7 +2,6 @@ package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -67,7 +66,8 @@ public class MainPageFragment extends TetroidFragment {
     private MenuItem miCurRecordFolder;
     private MenuItem miRecordSave;
     private MenuItem miRecordHtml;
-    private FloatingActionButton fabRecordModes;
+    private FloatingActionButton fabRecordViewLeft;
+    private FloatingActionButton fabRecordViewRight;
 
     private int curMainViewId;
     private int lastViewId;
@@ -120,14 +120,21 @@ public class MainPageFragment extends TetroidFragment {
 //        this.recordEditor = view.findViewById(R.id.record_editor_view);
 //        recordEditor.setGestureDetector(gestureDetector);
         this.vfRecord = view.findViewById(R.id.view_flipper_record);
-        this.fabRecordModes = view.findViewById(R.id.button_record_view_switcher);
-        fabRecordModes.setOnClickListener(new View.OnClickListener() {
+        this.fabRecordViewLeft = view.findViewById(R.id.button_record_left);
+        fabRecordViewLeft.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchRecordView();
+                switchRecordView(view);
             }
         });
-        fabRecordModes.setAlpha(0.5f);
+//        fabRecordViewEdit.setAlpha(0.5f);
+        this.fabRecordViewRight = view.findViewById(R.id.button_record_right);
+        fabRecordViewRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchRecordView(view);
+            }
+        });
 
         this.curMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
@@ -241,14 +248,23 @@ public class MainPageFragment extends TetroidFragment {
     }
 
 
-    private void switchRecordView() {
+    private void switchRecordView(View view) {
+        int recordViewId;
+        if (view == fabRecordViewLeft) {
+            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
+                    ? RECORD_VIEW_VIEWER : RECORD_VIEW_EDITOR;
+        } else {
+            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
+                    ? RECORD_VIEW_HTML : RECORD_VIEW_EDITOR;
+        }
         // сохраняем внесенные изменения в текст
         saveCurRecord();
         // переключаем
-        int nextViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
-                ? RECORD_VIEW_VIEWER : RECORD_VIEW_EDITOR;
-        showCurRecord(nextViewId);
+        showCurRecord(recordViewId);
     }
+
+//    private void showRecordView(int recordViewId) {
+//    }
 
     private void updateRecordView(int recordViewId) {
         if (recordViewId == RECORD_VIEW_VIEWER) {
@@ -262,30 +278,25 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     private void updateFab(int recordViewId) {
-        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) fabRecordModes.getLayoutParams();
+        RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) fabRecordViewLeft.getLayoutParams();
+        RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) fabRecordViewRight.getLayoutParams();
         // bottom margin
         final int defMargin = 12;
         int bottomMargin = (recordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
-        layoutParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-        // horiz align
-        int newAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
-        int oldAlign = RelativeLayout.ALIGN_PARENT_LEFT;
-        if (recordViewId != RECORD_VIEW_VIEWER) {
-            newAlign = RelativeLayout.ALIGN_PARENT_LEFT;
-            oldAlign = RelativeLayout.ALIGN_PARENT_RIGHT;
-        }
-        layoutParams.addRule(newAlign);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            layoutParams.removeRule(oldAlign);
-        }
-        int imageId = (recordViewId == RECORD_VIEW_EDITOR)
-                ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit;
-        fabRecordModes.setImageResource(imageId);
-        int colorId = (recordViewId == RECORD_VIEW_EDITOR)
-                ? R.color.colorKhaki : R.color.colorGreen;
-//        fabRecordModes.setBackgroundColor(getContext().getColor(colorId));
-        fabRecordModes.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(colorId)));
-//        fabRecordModes.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
+        leftParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
+        rightParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
+
+        fabRecordViewLeft.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
+                ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit);
+        fabRecordViewRight.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
+                ? R.drawable.ic_code_24dp : android.R.drawable.ic_menu_edit);
+        fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
+                getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
+                ? R.color.colorYellow_50 : R.color.colorGreen_50)));
+        fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
+                getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
+                        ? R.color.colorBlue_50 : R.color.colorGreen_50)));
+//        fabRecordViewEdit.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
     }
 
     private void saveCurRecord() {
