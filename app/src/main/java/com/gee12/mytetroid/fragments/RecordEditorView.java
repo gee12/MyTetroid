@@ -229,6 +229,8 @@ public class RecordEditorView extends RecordView {
                 startActivity(intent);
             }
         });*/
+
+        editor.clearFocus();
     }
 
     @Override

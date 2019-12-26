@@ -193,6 +193,8 @@ public class MainPageFragment extends TetroidFragment {
             this.lastViewId = curMainViewId;
         int whichChild = viewId;
         String title = null;
+        boolean isShowRecordViewerMenus = (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT
+                || curRecordViewId == RECORD_VIEW_VIEWER);
         switch (viewId) {
             // для "очистки" активности выводим пустой список записей
             case MainPageFragment.MAIN_VIEW_NONE:
@@ -201,10 +203,10 @@ public class MainPageFragment extends TetroidFragment {
                 whichChild = MAIN_VIEW_NODE_RECORDS;
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
-                miAttachedFiles.setVisible(true);
+                miAttachedFiles.setVisible(isShowRecordViewerMenus);
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                miCurNode.setVisible(true);
-                miCurRecordFolder.setVisible(true);
+                miCurNode.setVisible(isShowRecordViewerMenus);
+                miCurRecordFolder.setVisible(isShowRecordViewerMenus);
                 if (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT)
                     miCurRecord.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
@@ -278,24 +280,34 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     private void updateFab(int recordViewId) {
-        RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) fabRecordViewLeft.getLayoutParams();
-        RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) fabRecordViewRight.getLayoutParams();
         // bottom margin
         final int defMargin = 12;
         int bottomMargin = (recordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
-        leftParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-        rightParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
+        if (recordViewId == RECORD_VIEW_VIEWER) {
+            fabRecordViewLeft.hide();
+        } else {
+            fabRecordViewLeft.show();
+            RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) fabRecordViewLeft.getLayoutParams();
+            leftParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
+            fabRecordViewLeft.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
+                    ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit);
+            fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
+                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
+                            ? R.color.colorYellow_50 : R.color.colorGreen_50)));
+        }
+        if (recordViewId == RECORD_VIEW_HTML) {
+            fabRecordViewRight.hide();
+        } else {
+            fabRecordViewRight.show();
+            RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) fabRecordViewRight.getLayoutParams();
+            rightParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
 
-        fabRecordViewLeft.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-                ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit);
-        fabRecordViewRight.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-                ? R.drawable.ic_code_24dp : android.R.drawable.ic_menu_edit);
-        fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
-                getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-                ? R.color.colorYellow_50 : R.color.colorGreen_50)));
-        fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
-                getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-                        ? R.color.colorBlue_50 : R.color.colorGreen_50)));
+            fabRecordViewRight.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
+                    ? R.drawable.ic_code_24dp : android.R.drawable.ic_menu_edit);
+            fabRecordViewRight.setBackgroundTintList(ColorStateList.valueOf(
+                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
+                            ? R.color.colorBlue_50 : R.color.colorGreen_50)));
+        }
 //        fabRecordViewEdit.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
     }
 
@@ -341,8 +353,8 @@ public class MainPageFragment extends TetroidFragment {
         RecordView view = getCurRecordView();
         if (view != null) {
             view.openRecord(record);
-            updateRecordView(curRecordViewId);
             showView(MAIN_VIEW_RECORD_TEXT);
+            updateRecordView(curRecordViewId);
         } else {
             LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
