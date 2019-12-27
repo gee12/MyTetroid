@@ -270,7 +270,6 @@ public class MainPageFragment extends TetroidFragment {
 
     private void updateRecordView(int recordViewId) {
         if (recordViewId == RECORD_VIEW_VIEWER) {
-//            hideKeyboard(getContext(), getView().getRootView().getWindowToken());
             ViewUtils.hideKeyboard(getContext(), getView());
         }
         updateFab(recordViewId);

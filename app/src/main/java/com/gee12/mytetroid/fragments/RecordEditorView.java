@@ -230,7 +230,6 @@ public class RecordEditorView extends RecordView {
             }
         });*/
 
-        editor.clearFocus();
     }
 
     @Override
@@ -257,6 +256,7 @@ public class RecordEditorView extends RecordView {
         } catch (Exception ex) {
             LogManager.addLog("Ошибка отображения записи", ex, Toast.LENGTH_LONG);
         }
+//            editor.clearFocus();
     }
 
     @Override

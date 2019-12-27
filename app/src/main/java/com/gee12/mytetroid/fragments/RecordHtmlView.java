@@ -3,6 +3,8 @@ package com.gee12.mytetroid.fragments;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import androidx.annotation.Nullable;
@@ -38,7 +40,28 @@ public class RecordHtmlView extends RecordView {
     private void initView() {
         this.etHtml = findViewById(R.id.edit_text_html);
 //        ViewUtils.disableCopyAndPaste(etHtml);
+        etHtml.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                etHtml.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(etHtml, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            }
+        });
+        etHtml.requestFocus();
     }
+
+    public void setFocus(EditText view) {
+        view.requestFocus();
+        InputMethodManager mgr = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        mgr.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+//        view.setSelection(view.getText().length());
+    }
+
 
     @Override
     protected int getViewId() {
