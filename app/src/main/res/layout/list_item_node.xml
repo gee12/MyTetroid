@@ -52,7 +52,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_width="40dp"
-        android:layout_height="24dp"
+        android:layout_height="36dp"
         android:src="@drawable/ic_arrow_down"
         android:scaleType="center"
         android:background="@color/colorMoreLightText"

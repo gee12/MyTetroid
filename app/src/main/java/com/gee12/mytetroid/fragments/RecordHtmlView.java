@@ -40,19 +40,27 @@ public class RecordHtmlView extends RecordView {
     private void initView() {
         this.etHtml = findViewById(R.id.edit_text_html);
 //        ViewUtils.disableCopyAndPaste(etHtml);
+//        etHtml.requestFocus();
+
         etHtml.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                etHtml.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.showSoftInput(etHtml, InputMethodManager.SHOW_IMPLICIT);
-                    }
-                });
+//                if (!hasFocus) {
+//                    etHtml.clearFocus();
+//                } else {
+//                    etHtml.post(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            etHtml.requestFocus();
+//                            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//                            imm.showSoftInput(etHtml, InputMethodManager.SHOW_IMPLICIT);
+//                        }
+//                    });
+//                }
+                mainView.setKeyboard(hasFocus);
             }
         });
-        etHtml.requestFocus();
+//        getDialog().getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     public void setFocus(EditText view) {

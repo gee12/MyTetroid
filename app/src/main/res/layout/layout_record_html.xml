@@ -20,7 +20,9 @@
             android:cursorVisible="true"
             android:focusable="true"
             android:focusableInTouchMode="true"
-            />
+            >
+<!--            <requestFocus />-->
+        </EditText>
 
     </ScrollView>
 

@@ -28,7 +28,6 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.utils.ViewUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -213,6 +212,7 @@ public class MainPageFragment extends TetroidFragment {
                 break;
         }
         mainView.updateMainToolbar(viewId, title);
+        mainView.updateMenuItems(viewId);
         mainView.checkKeepScreenOn(viewId);
         this.curMainViewId = viewId;
         vfMain.setDisplayedChild(whichChild-1);
@@ -270,7 +270,7 @@ public class MainPageFragment extends TetroidFragment {
 
     private void updateRecordView(int recordViewId) {
         if (recordViewId == RECORD_VIEW_VIEWER) {
-            ViewUtils.hideKeyboard(getContext(), getView());
+//            ViewUtils.hideKeyboard(getContext(), getView());
         }
         updateFab(recordViewId);
 
@@ -373,26 +373,6 @@ public class MainPageFragment extends TetroidFragment {
             LogManager.addLog(getString(R.string.incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             return getContext().getString(R.string.def_date_format_string);
         }
-    }
-
-//    private void switchViewEditMode() {
-//        if (editMode)
-//            viewCurRecord();
-//        else
-//            editCurRecord();
-//        editMode = !editMode;
-//    }
-
-    private void viewCurRecord() {
-//        recordEditor.setVisibility(View.GONE);
-//        recordWebView.setVisibility(View.VISIBLE);
-//        recordFieldsLayout.setVisibility(View.VISIBLE);
-    }
-
-    private void editCurRecord() {
-//        recordWebView.setVisibility(View.GONE);
-//        recordFieldsLayout.setVisibility(View.GONE);
-//        recordEditor.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -558,7 +538,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Обработчик нажатия кнопки Назад
+     * Обработчик нажатия кнопки Back
      */
     public boolean onBackPressed() {
         boolean res = false;
@@ -576,27 +556,6 @@ public class MainPageFragment extends TetroidFragment {
                     showView(MAIN_VIEW_NONE);
             }
         }
-        /*if (curView == MAIN_VIEW_RECORD_TEXT) {
-            res = true;
-            // смотрим какая страница была перед этим
-            if (lastViewId == MAIN_VIEW_NODE_RECORDS)
-                showView(MAIN_VIEW_NODE_RECORDS);
-            else if (lastViewId == MAIN_VIEW_TAG_RECORDS)
-                showView(MAIN_VIEW_TAG_RECORDS);
-            else
-                showView(MAIN_VIEW_NONE);
-        } else if (curView == MAIN_VIEW_RECORD_FILES) {
-            res = true;
-            // смотрим какая страница была перед этим
-            if (lastViewId == MAIN_VIEW_RECORD_TEXT)
-                showView(MAIN_VIEW_RECORD_TEXT);
-            else if (lastViewId == MAIN_VIEW_NODE_RECORDS)
-                showView(MAIN_VIEW_NODE_RECORDS);
-            else if (lastViewId == MAIN_VIEW_TAG_RECORDS)
-                showView(MAIN_VIEW_TAG_RECORDS);
-            else
-                showView(MAIN_VIEW_NONE);
-        }*/
         return res;
     }
 

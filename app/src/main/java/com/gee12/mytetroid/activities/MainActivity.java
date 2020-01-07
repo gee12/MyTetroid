@@ -74,6 +74,8 @@ import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
+import static com.gee12.mytetroid.fragments.MainPageFragment.MAIN_VIEW_RECORD_TEXT;
+
 //import android.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
@@ -889,7 +891,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                             viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
                         break;*/
-                        case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
+                        case MAIN_VIEW_RECORD_TEXT:
                             // ?
                             break;
                     }
@@ -981,6 +983,26 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
         miRecordsSearchView.setVisible(isVisible);
+    }
+
+    /**
+     * Управление видимостью пунктов меню в зависимости от отображаемой вьюшки
+     * @param viewId
+     */
+    @Override
+    public void updateMenuItems(int viewId) {
+        boolean visible = (viewId != MAIN_VIEW_RECORD_TEXT);
+        miGlobalSearch.setVisible(visible);
+        miStorageSync.setVisible(visible);
+        miStorageInfo.setVisible(visible);
+    }
+
+    public void setKeyboard(boolean isShow) {
+        if (isShow) {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        } else {
+            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
@@ -1122,7 +1144,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 searchInRecordFiles(query);
                 break;
-            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
+            case MAIN_VIEW_RECORD_TEXT:
                 searchInRecordText(query);
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
@@ -1207,7 +1229,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     @Override
     public void checkKeepScreenOn(int curViewId) {
-        setKeepScreenOn(curViewId == MainPageFragment.MAIN_VIEW_RECORD_TEXT
+        setKeepScreenOn(curViewId == MAIN_VIEW_RECORD_TEXT
             && SettingsManager.isKeepScreenOn());
     }
 

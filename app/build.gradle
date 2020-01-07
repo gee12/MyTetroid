@@ -55,11 +55,12 @@ dependencies {
     //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
     //    compile 'net.rdrei.android.dirchooser:library:3.2@aar'
-    implementation 'lib.kashif:folderpicker:2.4'
+//    implementation 'lib.kashif:folderpicker:2.4'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation(project(path: ':laser-native-editor')) {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
+    implementation(project(path: ':folder-picker'))
 }

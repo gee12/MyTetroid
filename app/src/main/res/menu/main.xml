@@ -67,7 +67,7 @@
         android:title="@string/title_storage_sync"
         android:enabled="false"
         android:visible="false"
-        android:icon="@android:drawable/stat_notify_sync"
+        android:icon="@drawable/ic_sync_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_storage_info"

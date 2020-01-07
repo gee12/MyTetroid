@@ -11,6 +11,7 @@ public interface IMainView extends Parcelable {
     void openFolder(String pathUri);
     void openFile(TetroidFile file);
     void updateMainToolbar(int viewId, String title);
+    void updateMenuItems(int viewId);
     void openFoundObject(ITetroidObject found);
     void openMainPage();
     void closeFoundFragment();
@@ -19,4 +20,5 @@ public interface IMainView extends Parcelable {
     void checkKeepScreenOn(int curViewId);
     void openRecord(TetroidRecord record);
     boolean isFullscreen();
+    void setKeyboard(boolean isShow);
 }

@@ -1,3 +1,5 @@
 include ':app'
 include ':laser-native-editor'
 project(':laser-native-editor').projectDir = new File(settingsDir, '../../Android-WYSIWYG-Editor/laser-native-editor')
+include ':folder-picker'
+project(':folder-picker').projectDir = new File(settingsDir, '../../Android-Folder-Picker/folderpicker')
