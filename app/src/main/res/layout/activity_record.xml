@@ -166,28 +166,37 @@
         </net.cachapa.expandablelayout.ExpandableLayout>
     </RelativeLayout>
 
-    <com.gee12.mytetroid.views.TetroidWebView
+<!--    <com.gee12.mytetroid.views.TetroidWebView-->
+    <com.lumyjuwon.richwysiwygeditor.RichWysiwyg
         android:id="@+id/web_view_record_text"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layout_record_fields"
         android:textIsSelectable="true"
-        android:layout_margin="2dp"
+        android:layout_margin="0dp"
         android:background="@android:color/transparent"/>
 
-<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--        android:id="@+id/button_edit_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentRight="true"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginStart="@dimen/fab_margin"-->
-<!--        android:layout_marginLeft="@dimen/fab_margin"-->
-<!--        android:layout_marginTop="@dimen/fab_margin"-->
-<!--        android:layout_marginEnd="@dimen/fab_margin"-->
-<!--        android:layout_marginRight="@dimen/fab_margin"-->
-<!--        android:layout_marginBottom="@dimen/fab_margin"-->
-<!--        android:src="@android:drawable/ic_menu_edit"-->
-<!--        app:backgroundTint="#4B4"/>-->
+<!--    <ScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+
+        <EditText
+            android:id="@+id/edit_text_html"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="0dp"
+            android:paddingLeft="0dp"
+            android:paddingRight="0dp"
+            android:textSize="13sp"
+            android:inputType="textMultiLine"
+            android:textIsSelectable="true"
+            android:cursorVisible="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            >
+        </EditText>
+
+<!--    </ScrollView>-->
 
 </RelativeLayout>

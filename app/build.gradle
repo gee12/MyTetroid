@@ -5,6 +5,9 @@ android {
         debug {
             storeFile file("external/debug.keystore")
         }
+//        freeDebug {
+//            storeFile file("external/freedebug.keystore")
+//        }
     }
     compileSdkVersion 28
     defaultConfig {
@@ -32,6 +35,7 @@ android {
     productFlavors {
         free {
             dimension = 'default'
+//            signingConfig signingConfigs.freeDebug
 //            applicationIdSuffix = '.free'
 //            resValue "string", "app_name", "MyTetroid Free"
 //            buildConfigField "String", "BUILD_VARIANT", "\"free\""
@@ -39,8 +43,13 @@ android {
         pro {
             dimension = 'default'
             applicationIdSuffix = '.pro'
+//            signingConfig signingConfigs.debug
 //            buildConfigField "String", "BUILD_VARIANT", "\"pro\""
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -59,8 +68,10 @@ dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
-    implementation(project(path: ':laser-native-editor')) {
-        exclude group: 'org.jetbrains', module: 'annotations'
-    }
+//    implementation(project(path: ':wysiwyg-editor')) {
+//        exclude group: 'org.jetbrains', module: 'annotations'
+//    }
+    implementation(project(path: ':wysiwyg-editor'))
+//    implementation 'com.github.lumyjuwon:Android-Rich-Wysiwyg-Editor:1.0.0'
     implementation(project(path: ':folder-picker'))
 }

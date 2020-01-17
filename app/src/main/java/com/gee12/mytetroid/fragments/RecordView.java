@@ -86,7 +86,7 @@ public abstract class RecordView extends FrameLayout implements View.OnTouchList
             return null;
         }
         recordExt.setTextHtml(text);
-        recordExt.setTagsHtml(record.getTagsLinksString());
+        recordExt.setTagsHtml(record.createTagsLinksString());
         return recordExt;
     }
 

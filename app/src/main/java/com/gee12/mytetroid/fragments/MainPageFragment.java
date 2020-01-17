@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -28,7 +26,6 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidFile;
 import com.gee12.mytetroid.data.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -42,11 +39,6 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_TAG_RECORDS = 4;
 //    public static final int VIEW_FOUND_RECORDS = 5;
 
-    public static final int RECORD_VIEW_NONE = -1;
-    public static final int RECORD_VIEW_VIEWER = 0;
-    public static final int RECORD_VIEW_EDITOR = 1;
-    public static final int RECORD_VIEW_HTML = 2;
-
     public static final int MENU_ITEM_ID_OPEN_RECORD = 1;
     public static final int MENU_ITEM_ID_SHOW_FILES = 2;
     public static final int MENU_ITEM_ID_OPEN_RECORD_FOLDER = 3;
@@ -56,17 +48,12 @@ public class MainPageFragment extends TetroidFragment {
     private ListView lvFiles;
     private TextView tvRecordsEmpty;
     private TextView tvFilesEmpty;
-    private ViewFlipper vfRecord;
 //    private RecordViewerView recordViewer;
 //    private RecordEditorView recordEditor;
     private MenuItem miCurNode;
     private MenuItem miCurRecord;
     private MenuItem miAttachedFiles;
     private MenuItem miCurRecordFolder;
-    private MenuItem miRecordSave;
-    private MenuItem miRecordHtml;
-    private FloatingActionButton fabRecordViewLeft;
-    private FloatingActionButton fabRecordViewRight;
 
     private int curMainViewId;
     private int lastViewId;
@@ -75,7 +62,6 @@ public class MainPageFragment extends TetroidFragment {
 //    private TetroidRecord prevRecord;
     private TetroidRecord curRecord;
 
-    private int curRecordViewId;
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
@@ -113,47 +99,14 @@ public class MainPageFragment extends TetroidFragment {
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvFiles.setEmptyView(tvFilesEmpty);
 
-//        this.vfRecord = view.findViewById(R.id.view_flipper);
-//        this.recordViewer = view.findViewById(R.id.record_viewer_view);
-//        recordViewer.setGestureDetector(gestureDetector);
-//        this.recordEditor = view.findViewById(R.id.record_editor_view);
-//        recordEditor.setGestureDetector(gestureDetector);
-        this.vfRecord = view.findViewById(R.id.view_flipper_record);
-        this.fabRecordViewLeft = view.findViewById(R.id.button_record_left);
-        fabRecordViewLeft.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchRecordView(view);
-            }
-        });
-//        fabRecordViewEdit.setAlpha(0.5f);
-        this.fabRecordViewRight = view.findViewById(R.id.button_record_right);
-        fabRecordViewRight.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchRecordView(view);
-            }
-        });
-
         this.curMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
         // mainView уже должен быть установлен
-        initRecordViews();
+//        initRecordViews();
         // можно загружать настройки и хранилище
         mainView.onMainPageCreated();
 
         return view;
-    }
-
-    private void initRecordViews() {
-        for(int i = 0; i < vfRecord.getChildCount(); i++) {
-            RecordView view = (RecordView)vfRecord.getChildAt(i);
-            if (view != null) {
-                view.init(mainView, gestureDetector);
-            } else {
-                LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            }
-        }
     }
 
     public void initListAdapters(Context context) {
@@ -173,7 +126,7 @@ public class MainPageFragment extends TetroidFragment {
      * Вызывается после инициализации настроек.
      */
     public void onSettingsInited() {
-        this.curRecordViewId = getDefaultRecordViewId();
+//        this.curRecordViewId = getDefaultRecordViewId();
 //        updateFab(curRecordViewId);
     }
 
@@ -249,76 +202,6 @@ public class MainPageFragment extends TetroidFragment {
         lvRecords.setAdapter(recordsListAdapter);
     }
 
-
-    private void switchRecordView(View view) {
-        int recordViewId;
-        if (view == fabRecordViewLeft) {
-            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
-                    ? RECORD_VIEW_VIEWER : RECORD_VIEW_EDITOR;
-        } else {
-            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
-                    ? RECORD_VIEW_HTML : RECORD_VIEW_EDITOR;
-        }
-        // сохраняем внесенные изменения в текст
-        saveCurRecord();
-        // переключаем
-        showCurRecord(recordViewId);
-    }
-
-//    private void showRecordView(int recordViewId) {
-//    }
-
-    private void updateRecordView(int recordViewId) {
-        if (recordViewId == RECORD_VIEW_VIEWER) {
-//            ViewUtils.hideKeyboard(getContext(), getView());
-        }
-        updateFab(recordViewId);
-
-        miRecordSave.setVisible(recordViewId != RECORD_VIEW_VIEWER);
-        miRecordHtml.setVisible(recordViewId == RECORD_VIEW_EDITOR);
-    }
-
-    private void updateFab(int recordViewId) {
-        // bottom margin
-        final int defMargin = 12;
-        int bottomMargin = (recordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
-        if (recordViewId == RECORD_VIEW_VIEWER) {
-            fabRecordViewLeft.hide();
-        } else {
-            fabRecordViewLeft.show();
-            RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) fabRecordViewLeft.getLayoutParams();
-            leftParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-            fabRecordViewLeft.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-                    ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit);
-            fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
-                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-                            ? R.color.colorYellow_50 : R.color.colorGreen_50)));
-        }
-        if (recordViewId == RECORD_VIEW_HTML) {
-            fabRecordViewRight.hide();
-        } else {
-            fabRecordViewRight.show();
-            RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) fabRecordViewRight.getLayoutParams();
-            rightParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-
-            fabRecordViewRight.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-                    ? R.drawable.ic_code_24dp : android.R.drawable.ic_menu_edit);
-            fabRecordViewRight.setBackgroundTintList(ColorStateList.valueOf(
-                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-                            ? R.color.colorBlue_50 : R.color.colorGreen_50)));
-        }
-//        fabRecordViewEdit.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
-    }
-
-    private void saveCurRecord() {
-        if (curRecordViewId == RECORD_VIEW_EDITOR || curRecordViewId == RECORD_VIEW_HTML) {
-            RecordView view = getCurRecordView();
-            if (view != null) {
-                String htmlText = view.getRecordHtml();
-                DataManager.saveRecordHtmlText(curRecord, htmlText);
-            }
-        }
-    }
 
     /**
      * Отображение записи
@@ -470,8 +353,8 @@ public class MainPageFragment extends TetroidFragment {
         this.miCurRecord = menu.findItem(R.id.action_cur_record);
         this.miAttachedFiles = menu.findItem(R.id.action_attached_files);
         this.miCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
-        this.miRecordSave = menu.findItem(R.id.action_record_save);
-        this.miRecordHtml = menu.findItem(R.id.action_record_html);
+//        this.miRecordSave = menu.findItem(R.id.action_record_save);
+//        this.miRecordHtml = menu.findItem(R.id.action_record_html);
     }
 
 //    @Override
@@ -488,12 +371,12 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_cur_record_folder:
                 openRecordFolder();
                 return true;
-            case R.id.action_record_save:
-                saveCurRecord();
-                return true;
-            case R.id.action_record_html:
-                showCurRecord(RECORD_VIEW_HTML);
-                return true;
+//            case R.id.action_record_save:
+//                saveCurRecord();
+//                return true;
+//            case R.id.action_record_html:
+//                showCurRecord(RECORD_VIEW_HTML);
+//                return true;
         }
 //        return super.onOptionsItemSelected(item);
         return false;
@@ -577,17 +460,6 @@ public class MainPageFragment extends TetroidFragment {
 
     public int getLastViewId() {
         return lastViewId;
-    }
-
-    public RecordView getCurRecordView() {
-        int count = vfRecord.getChildCount();
-        return (curRecordViewId >= 0 && count > 0 && curRecordViewId < count)
-                ? (RecordView)vfRecord.getChildAt(curRecordViewId)
-                : null;
-    }
-
-    private int getDefaultRecordViewId() {
-        return (SettingsManager.isRecordEditMode()) ? RECORD_VIEW_EDITOR : RECORD_VIEW_VIEWER;
     }
 
     @Override

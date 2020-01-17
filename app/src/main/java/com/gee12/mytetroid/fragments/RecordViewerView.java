@@ -22,7 +22,7 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidRecord;
-import com.gee12.mytetroid.views.TetroidWebView;
+import com.lumyjuwon.richwysiwygeditor.RichWysiwyg;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -39,7 +39,8 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
-    private TetroidWebView recordWebView;
+//    private TetroidWebView recordWebView;
+    private RichWysiwyg recordWebView;
 
     public RecordViewerView(Context context) {
         super(context);
@@ -69,8 +70,8 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
         this.recordWebView = view.findViewById(R.id.web_view_record_text);
         // обработка нажатия на тексте записи
         recordWebView.setOnTouchListener(this);
-        recordWebView.getSettings().setBuiltInZoomControls(true);
-        recordWebView.getSettings().setDisplayZoomControls(false);
+        recordWebView.getEditor().getSettings().setBuiltInZoomControls(true);
+        recordWebView.getEditor().getSettings().setDisplayZoomControls(false);
         this.recordFieldsLayout = view.findViewById(R.id.layout_record_fields);
 //        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
         this.wvRecordTags =  view.findViewById(R.id.web_view_record_tags);
@@ -100,19 +101,11 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
         this.tbRecordFieldsExpander =  view.findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener(this);
 
-
-//        FloatingActionButton fab = view.findViewById(R.id.button_edit_record);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//            }
-//        });
     }
 
     @Override
     protected int getViewId() {
-        return R.layout.layout_record_viewer;
+        return R.layout.activity_record;
     }
 
 //    @Override
@@ -147,10 +140,10 @@ public class RecordViewerView extends RecordView implements CompoundButton.OnChe
             tvRecordDate.setText(recordExt.getRecord().getCreatedString(getContext().getString(R.string.full_date_format_string)));
 
         // текст
-        recordWebView.loadDataWithBaseURL(DataManager.getRecordDirUri(recordExt.getRecord()),
+        recordWebView.getEditor().loadDataWithBaseURL(DataManager.getRecordDirUri(recordExt.getRecord()),
                 recordExt.getTextHtml(), "text/html", "UTF-8", null);
     //            recordWebView.loadUrl(recordContentUrl);
-        recordWebView.setWebViewClient(new WebViewClient() {
+        recordWebView.getEditor().setWebViewClient(new WebViewClient() {
 
     //            @Override
     //            public void onPageFinished(WebView view, String url) {

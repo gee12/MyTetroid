@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_search_records"
-        android:title="@string/title_search_records"
-        android:icon="@drawable/ic_search_24dp"
-        app:showAsAction="always"
-        app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
         android:id="@+id/action_cur_node"
         android:orderInCategory="70"
         android:title="@string/title_cur_node"
         android:visible="false"
         android:icon="@drawable/ic_show_node_24dp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_cur_record"
-        android:orderInCategory="80"
-        android:title="@string/title_cur_record"
-        android:visible="false"
-        android:icon="@drawable/ic_record_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_attached_files"
@@ -48,40 +36,18 @@
         android:visible="false"
         android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="always" />
-<!--    <item-->
-<!--        android:id="@+id/action_record_html"-->
-<!--        android:orderInCategory="95"-->
-<!--        android:title="@string/title_record_html"-->
-<!--        android:visible="false"-->
-<!--        android:icon="@drawable/ic_code_24dp"-->
-<!--        app:showAsAction="ifRoom" />-->
+    <item
+        android:id="@+id/action_record_html"
+        android:orderInCategory="95"
+        android:title="@string/title_record_html"
+        android:visible="false"
+        android:icon="@drawable/ic_code_24dp"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"
         android:icon="@drawable/ic_fullscreen_24dp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_global_search"
-        android:orderInCategory="200"
-        android:title="@string/title_global_search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:enabled="false"
-        app:showAsAction="never|collapseActionView" />
-    <item
-        android:id="@+id/action_storage_sync"
-        android:orderInCategory="230"
-        android:title="@string/title_storage_sync"
-        android:enabled="false"
-        android:visible="false"
-        android:icon="@drawable/ic_sync_24dp"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_storage_info"
-        android:orderInCategory="250"
-        android:title="@string/title_storage_info"
-        android:enabled="false"
-        android:icon="@drawable/ic_statistics_24dp"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"
