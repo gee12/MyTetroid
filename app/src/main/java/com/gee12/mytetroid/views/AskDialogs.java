@@ -73,7 +73,7 @@ public class AskDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showReloadStorageDialog(Context context, final IApplyCancelResult applyHandler) {
+    public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -82,9 +82,9 @@ public class AskDialogs {
                     case DialogInterface.BUTTON_POSITIVE:
                         applyHandler.onApply();
                         break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        applyHandler.onCancel();
-                        break;
+//                    case DialogInterface.BUTTON_NEGATIVE:
+//                        applyHandler.onCancel();
+//                        break;
                 }
             }
         };

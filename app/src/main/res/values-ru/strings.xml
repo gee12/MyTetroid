@@ -194,4 +194,6 @@
     <string name="record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
     <string name="writing_here">Пишите здесь...</string>
+    <string name="not_found_record">Не найдена запись с id=</string>
+    <string name="not_transferred_record_id">Не передан Id записи</string>
 </resources>

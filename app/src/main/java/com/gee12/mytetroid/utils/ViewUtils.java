@@ -2,13 +2,14 @@ package com.gee12.mytetroid.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.view.ActionMode;
-import android.view.ContextMenu;
-import android.view.Menu;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 
 
 public class ViewUtils {
@@ -62,38 +63,51 @@ public class ViewUtils {
     }
 
     /**
-     *
-     * @param editText
+     * Установка полноэкранного режима.
+     * @param isFullscreen Если true, то toolbar исчезает и в опциях SystemUiVisibility устанавливаются нужные флаги
+     *                     для полноэкранного режима, иначе все флаги сбрасываются.
      */
-    public static void disableCopyAndPaste(EditText editText) {
-        if (editText == null)
-            return;
-        if (android.os.Build.VERSION.SDK_INT < 11) {
-            editText.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                public void onCreateContextMenu(ContextMenu menu, View v,
-                                                ContextMenu.ContextMenuInfo menuInfo) {
-                    menu.clear();
-                }
-            });
-        } else {
-            editText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+    public static void setFullscreen(AppCompatActivity activity, boolean isFullscreen) {
+//        this.isFullscreen = isFullscreen;
 
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                public void onDestroyActionMode(ActionMode mode) {
-                }
-
-                public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    return false;
-                }
-
-                public boolean onActionItemClicked(ActionMode mode,
-                                                   MenuItem item) {
-                    return false;
-                }
-            });
+        // StatusBar
+        View decorView = activity.getWindow().getDecorView();
+        int visibility = (isFullscreen)
+                ? View.SYSTEM_UI_FLAG_IMMERSIVE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                : 0;
+        decorView.setSystemUiVisibility(
+                visibility);
+        // ToolBar
+        try {
+            ActionBar actionBar = activity.getSupportActionBar();
+            if (actionBar != null) {
+                if (isFullscreen)
+                    actionBar.hide();
+                else
+                    actionBar.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        // панель с полями записи
+//        viewPagerAdapter.getMainFragment().setFullscreen(isFullscreen);
     }
+
+    /**
+     *
+     * @param context
+     * @param cls
+     * @param bundle
+     */
+    public static void startActivity(Context context, Class<?> cls, Bundle bundle) {
+        Intent intent = new Intent(context, cls);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        context.startActivity(intent);
+    }
+
 }

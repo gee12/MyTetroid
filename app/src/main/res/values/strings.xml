@@ -233,4 +233,6 @@
     <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="title_record_save">Save</string>
     <string name="writing_here">Start writing here...</string>
+    <string name="not_found_record">Not found record with id=</string>
+    <string name="not_transferred_record_id">Record Id not passed</string>
 </resources>

@@ -4,61 +4,82 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
+import com.gee12.mytetroid.DoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidRecord;
-import com.lumyjuwon.richwysiwygeditor.RichWysiwyg;
+import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.views.AskDialogs;
+import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
+import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class RecordActivity extends AppCompatActivity implements View.OnTouchListener {
+public class RecordActivity extends AppCompatActivity implements View.OnTouchListener, EditableWebView.OnUrlLoadListener {
+
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
+    public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
 
 //    public static final int RECORD_VIEW_NONE = -1;
-//    public static final int RECORD_VIEW_VIEWER = 0;
-//    public static final int RECORD_VIEW_EDITOR = 1;
-//    public static final int RECORD_VIEW_HTML = 2;
+    public static final int MODE_VIEW = 1;
+    public static final int MODE_EDIT = 2;
+    public static final int MODE_HTML = 3;
 
     protected GestureDetectorCompat gestureDetector;
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
-    private ToggleButton tbRecordFieldsExpander;
-    //    private TextView tvRecordTags;
     private WebView wvRecordTags;
+    private EditText etHtml;
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
-    //    private TetroidWebView recordWebView;
-    private RichWysiwyg recordWebView;
+    //    private TetroidWebView editor;
+    private WysiwygEditor editor;
+    private MenuItem miRecordView;
     private MenuItem miRecordEdit;
     private MenuItem miRecordSave;
     private MenuItem miRecordHtml;
+//    private MenuItem miCurNode;
+//    private MenuItem miAttachedFiles;
+//    private MenuItem miCurRecordFolder;
 //    private ViewFlipper vfRecord;
 //    private FloatingActionButton fabRecordViewLeft;
 //    private FloatingActionButton fabRecordViewRight;
-    private int curRecordViewId;
+//    private int curRecordViewId;
     private TetroidRecord record;
+    private int curMode;
+    private int lastMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,103 +91,61 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
         String recordId = getIntent().getStringExtra(EXTRA_RECORD_ID);
         if (recordId == null) {
-
+            LogManager.addLog(getString(R.string.not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
+        // получаем запись
         this.record = DataManager.getRecord(recordId);
         if (record == null) {
-
+            LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
+        } else {
+            setTitle(record.getName());
+            toolbar.setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
-        openRecord(record);
-//        TetroidRecordExt ext = readRecord(this, record);
 
-        // текст записи
-        this.recordWebView = findViewById(R.id.web_view_record_text);
-        // обработка нажатия на тексте записи
-        recordWebView.setOnTouchListener(this);
-        recordWebView.getEditor().getSettings().setBuiltInZoomControls(true);
-        recordWebView.getEditor().getSettings().setDisplayZoomControls(false);
+        this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
+
+        this.editor = findViewById(R.id.web_view_record_text);
+        editor.setOnTouchListener(this);
+        editor.getWebView().getSettings().setBuiltInZoomControls(true);
+        editor.getWebView().getSettings().setDisplayZoomControls(false);
+
         this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
-//        this.tvRecordTags =  view.findViewById(R.id.text_view_record_tags);
         this.wvRecordTags = findViewById(R.id.web_view_record_tags);
         wvRecordTags.setBackgroundColor(Color.TRANSPARENT);
         wvRecordTags.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                String decodedUrl;
-                // декодируем url
-                try {
-                    decodedUrl = URLDecoder.decode(url, "UTF-8");
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                    LogManager.addLog("Ошибка декодирования url: " + url, ex);
-                    return true;
-                }
-                // избавляемся от приставки "tag:"
-                String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
-                openTag(RecordActivity.this, tagName);
+                onTagUrlLoad(url);
                 return true;
             }
         });
-        this.tvRecordAuthor =  findViewById(R.id.text_view_record_author);
-        this.tvRecordUrl =  findViewById(R.id.text_view_record_url);
-        this.tvRecordDate =  findViewById(R.id.text_view_record_date);
-        this.expRecordFieldsLayout =  findViewById(R.id.layout_expander);
-        this.tbRecordFieldsExpander =  findViewById(R.id.toggle_button_expander);
-        tbRecordFieldsExpander.setOnCheckedChangeListener(this);
+        this.tvRecordAuthor = findViewById(R.id.text_view_record_author);
+        this.tvRecordUrl = findViewById(R.id.text_view_record_url);
+        this.tvRecordDate = findViewById(R.id.text_view_record_date);
+        this.expRecordFieldsLayout = findViewById(R.id.layout_expander);
+        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
+        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> expRecordFieldsLayout.toggle());
 
+        this.etHtml = findViewById(R.id.edit_text_html);
 
-//        this.recordViewer = view.findViewById(R.id.record_viewer_view);
-//        recordViewer.setGestureDetector(gestureDetector);
-//        this.recordEditor = view.findViewById(R.id.record_editor_view);
-//        recordEditor.setGestureDetector(gestureDetector);
-
-//        this.vfRecord = view.findViewById(R.id.view_flipper_record);
-//        this.fabRecordViewLeft = view.findViewById(R.id.button_record_left);
-//        fabRecordViewLeft.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                switchRecordView(view);
-//            }
-//        });
-////        fabRecordViewEdit.setAlpha(0.5f);
-//        this.fabRecordViewRight = view.findViewById(R.id.button_record_right);
-//        fabRecordViewRight.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                switchRecordView(view);
-//            }
-//        });
-
+        openRecord(record);
     }
 
-//    private void initRecordViews() {
-//        for(int i = 0; i < vfRecord.getChildCount(); i++) {
-//            RecordView view = (RecordView)vfRecord.getChildAt(i);
-//            if (view != null) {
-//                view.init(mainView, gestureDetector);
-//            } else {
-//                LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-//            }
-//        }
-//    }
-
-//    public void openRecord(final TetroidRecord record) {
-//        this.recordExt = readRecord(getContext(), record);
-//        if (recordExt == null) {
-//            return;
-//        }
-//        openRecord();
-//        setFullscreen(mainView.isFullscreen());
-//    }
-
+    private void onMenuLoaded() {
+        // режим по-умолчанию
+//        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+        int mode = MODE_EDIT;
+        switchMode(mode);
+    }
 
     /**
      * Отображение записи
      */
     public void openRecord(TetroidRecord record) {
         int id = R.id.label_record_tags;
+        // метки
         String tagsHtml = TetroidRecord.createTagsLinksString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
@@ -178,7 +157,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, id);
         expRecordFieldsLayout.setLayoutParams(params);
-
+        // поля
         tvRecordAuthor.setText(record.getAuthor());
         tvRecordUrl.setText(record.getUrl());
         if (record.getCreated() != null)
@@ -187,28 +166,76 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         // текст
         String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
 
-        recordWebView.getEditor().clearAndFocusEditor();
-        recordWebView.getEditor().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+//        editor.getWebView().clearAndFocusEditor();
+//        editor.getWebView().setHtml(textHtml);
+        EditableWebView webView = editor.getWebView();
+        webView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 textHtml, "text/html", "UTF-8", null);
-//        recordWebView.getEditor().setHtml(textHtml);
-        //            recordWebView.loadUrl(recordContentUrl);
-        recordWebView.getEditor().setWebViewClient(new WebViewClient() {
 
-            //            @Override
-            //            public void onPageFinished(WebView view, String url) {
-            //                showView(MAIN_VIEW_RECORD_TEXT);
-            //            }
+//        editor.getWebView().getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setDomStorageEnabled(true);
 
+        byte[] buffer = null;
+        try {
+            InputStream input = getAssets().open("editor.js");
+            buffer = new byte[input.available()];
+            input.read(buffer);
+            input.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        final String js = "javascript:" + new String(buffer);
+
+        webView.setOnInitialLoadListener(new EditableWebView.AfterInitialLoadListener() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                onUrlClick(url);
-                return true;
+            public void onAfterInitialLoad(boolean isReady) {
+                if (Build.VERSION.SDK_INT >= 19) {
+                    webView.evaluateJavascript(js, new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String s) {
+                        }
+                    });
+                } else {
+                    webView.loadUrl(js);
+                }
             }
         });
+        webView.setOnUrlLoadListener(this);
 
+        workWithJavascript();
     }
 
-    private void onUrlClick(String url) {
+    void workWithJavascript() {
+        EditableWebView webView = editor.getWebView();
+
+        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
+
+        WebViewClient BrowserHandler = new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                view.loadUrl("javascript:window.test.onPageLoaded(document.body.innerHTML);void(0);");
+            }
+        };
+    }
+
+    final class IJavascriptHandler {
+
+        IJavascriptHandler() {
+        }
+
+        @JavascriptInterface
+        public void onPageLoaded(String html) {
+            etHtml.setText(html);
+        }
+    }
+
+    /**
+     * Открытие ссылки в тексте.
+     * @param url
+     */
+    @Override
+    public void onUrlLoad(String url) {
         if (url.startsWith("mytetra")) {
             // обрабатываем внутреннюю ссылку
             String id = url.substring(url.lastIndexOf('/')+1);
@@ -217,7 +244,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             // !!
             // вот тут пока неясно что делать потом с командой Back, например.
 //            mainView.openRecord(recordExt);
-            openAnotherRecord(this, record);
+            openRecord(this, record);
             // return super.shouldOverrideUrlLoading(view, request);
         } else {
             try {
@@ -229,135 +256,158 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         }
     }
 
-    public static void openAnotherRecord(Context context, TetroidRecord record) {
+    /**
+     * Открытие метки по ссылке.
+     * @param url
+     */
+    private void onTagUrlLoad(String url) {
+        String decodedUrl;
+        // декодируем url
+        try {
+            decodedUrl = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            LogManager.addLog("Ошибка декодирования url: " + url, ex);
+            return;
+        }
+        // избавляемся от приставки "tag:"
+        String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
+        openTag(RecordActivity.this, tagName);
+    }
+
+    public static void openRecord(Context context, TetroidRecord record) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_RECORD_ID, record.getId());
-        startActivity(context, RecordActivity.class, bundle);
+        ViewUtils.startActivity(context, RecordActivity.class, bundle);
     }
 
 
     public static void openTag(Context context, String tagName) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
-        startActivity(context, MainActivity.class, bundle);
-    }
-
-    public static void startActivity(Context context, Class<?> cls, Bundle bundle) {
-        Intent intent = new Intent(context, cls);
-        context.startActivity(intent, bundle);
+        ViewUtils.startActivity(context, MainActivity.class, bundle);
     }
 
     public void setRecordFieldsVisibility(boolean isVisible) {
         recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
-
-//    /**
-//     * Чтение записи.
-//     * @param record Запись
-//     */
-//    public static TetroidRecordExt readRecord(Context context, final TetroidRecord record) {
-//        if (record == null)
-//            return null;
-//        TetroidRecordExt recordExt = new TetroidRecordExt(record);
-//
-//        LogManager.addLog(context.getString(R.string.record_file_reading) + record.getId());
-//        String text = DataManager.getRecordHtmlTextDecrypted(record);
-//        if (text == null) {
-//            LogManager.addLog(context.getString(R.string.error_record_reading), Toast.LENGTH_LONG);
-//            return null;
-//        }
-//        recordExt.setTextHtml(text);
-//        recordExt.setTagsHtml(TetroidRecord.createTagsLinksString(record));
-//        return recordExt;
-//    }
-
-
-
-//    private void switchRecordView(View view) {
-//        int recordViewId;
-//        if (view == fabRecordViewLeft) {
-//            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
-//                    ? RECORD_VIEW_VIEWER : RECORD_VIEW_EDITOR;
-//        } else {
-//            recordViewId = (curRecordViewId == RECORD_VIEW_EDITOR)
-//                    ? RECORD_VIEW_HTML : RECORD_VIEW_EDITOR;
-//        }
-//        // сохраняем внесенные изменения в текст
-//        saveCurRecord();
-//        // переключаем
-//        showCurRecord(recordViewId);
-//    }
-
-//    private void showRecordView(int recordViewId) {
-//    }
-
-//    private void updateRecordView(int recordViewId) {
-//        if (recordViewId == RECORD_VIEW_VIEWER) {
-////            ViewUtils.hideKeyboard(getContext(), getView());
-//        }
-//        updateFab(recordViewId);
-//
-//        miRecordSave.setVisible(recordViewId != RECORD_VIEW_VIEWER);
-//        miRecordHtml.setVisible(recordViewId == RECORD_VIEW_EDITOR);
-//    }
-
-//    private void updateFab(int recordViewId) {
-//        // bottom margin
-//        final int defMargin = 12;
-//        int bottomMargin = (recordViewId == RECORD_VIEW_EDITOR) ? 56 : defMargin;
-//        if (recordViewId == RECORD_VIEW_VIEWER) {
-//            fabRecordViewLeft.hide();
-//        } else {
-//            fabRecordViewLeft.show();
-//            RelativeLayout.LayoutParams leftParams = (RelativeLayout.LayoutParams) fabRecordViewLeft.getLayoutParams();
-//            leftParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-//            fabRecordViewLeft.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-//                    ? android.R.drawable.ic_menu_view : android.R.drawable.ic_menu_edit);
-//            fabRecordViewLeft.setBackgroundTintList(ColorStateList.valueOf(
-//                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-//                            ? R.color.colorYellow_50 : R.color.colorGreen_50)));
-//        }
-//        if (recordViewId == RECORD_VIEW_HTML) {
-//            fabRecordViewRight.hide();
-//        } else {
-//            fabRecordViewRight.show();
-//            RelativeLayout.LayoutParams rightParams = (RelativeLayout.LayoutParams) fabRecordViewRight.getLayoutParams();
-//            rightParams.setMargins(defMargin, defMargin, defMargin, bottomMargin);
-//
-//            fabRecordViewRight.setImageResource((recordViewId == RECORD_VIEW_EDITOR)
-//                    ? R.drawable.ic_code_24dp : android.R.drawable.ic_menu_edit);
-//            fabRecordViewRight.setBackgroundTintList(ColorStateList.valueOf(
-//                    getResources().getColor((recordViewId == RECORD_VIEW_EDITOR)
-//                            ? R.color.colorBlue_50 : R.color.colorGreen_50)));
-//        }
-////        fabRecordViewEdit.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), colorId)));
-//    }
-
-//    private void saveCurRecord() {
-//        if (curRecordViewId == RECORD_VIEW_EDITOR || curRecordViewId == RECORD_VIEW_HTML) {
-//            RecordView view = getCurRecordView();
-//            if (view != null) {
-//                saveRecord();
-//            }
-//        }
-//    }
+    private void onSaveRecord() {
+        if (curMode == MODE_EDIT || curMode == MODE_HTML) {
+            saveRecord();
+        }
+    }
 
     private void saveRecord() {
-        String htmlText = recordWebView.getEditor().getHtml();
+        String htmlText = editor.getWebView().getHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
 
-//    public RecordView getCurRecordView() {
-//        int count = vfRecord.getChildCount();
-//        return (curRecordViewId >= 0 && count > 0 && curRecordViewId < count)
-//                ? (RecordView)vfRecord.getChildAt(curRecordViewId)
-//                : null;
-//    }
+    /**
+     * Поиск по тексту записи.
+     * @param query
+     * @param record
+     */
+    private void searchInText(String query, TetroidRecord record) {
+        //
+        // TODO: реализовать поиск по тексту записи
+        //
+        LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
+    }
 
-//    private int getDefaultRecordViewId() {
-//        return (SettingsManager.isRecordEditMode()) ? RECORD_VIEW_EDITOR : RECORD_VIEW_VIEWER;
-//    }
+    /**
+     * Переключение режима отображения содержимого записи.
+     * @param mode
+     */
+    private void switchMode(int mode) {
+        onSaveRecord();
+        this.lastMode = curMode;
+        this.curMode = mode;
+        switch (mode) {
+            case MODE_VIEW : {
+                editor.setVisibility(View.VISIBLE);
+                editor.setToolBarVisibility(false);
+                etHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(true);
+                miRecordView.setVisible(false);
+                miRecordEdit.setVisible(true);
+                miRecordHtml.setVisible(true);
+                miRecordSave.setVisible(false);
+                editor.setEditMode(false);
+            } break;
+            case MODE_EDIT : {
+                editor.setVisibility(View.VISIBLE);
+                editor.setToolBarVisibility(true);
+                etHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(false);
+                miRecordView.setVisible(true);
+                miRecordEdit.setVisible(false);
+                miRecordHtml.setVisible(true);
+                miRecordSave.setVisible(true);
+                editor.setEditMode(true);
+            } break;
+            case MODE_HTML : {
+                editor.setVisibility(View.GONE);
+                String htmlText = editor.getHtml();
+                etHtml.setText(htmlText);
+                etHtml.setVisibility(View.VISIBLE);
+                setRecordFieldsVisibility(false);
+                miRecordView.setVisible(false);
+                miRecordEdit.setVisible(true);
+                miRecordHtml.setVisible(false);
+                miRecordSave.setVisible(true);
+            } break;
+        }
+    }
+
+    private void reinitStorage() {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(EXTRA_IS_RELOAD_STORAGE, true);
+        ViewUtils.startActivity(this, MainActivity.class, bundle);
+        finish();
+    }
+
+    private void setKeepScreenOn(boolean keepScreenOn) {
+        if (keepScreenOn)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    public void setFullscreen(boolean isFullscreen) {
+        ViewUtils.setFullscreen(this, isFullscreen);
+        setRecordFieldsVisibility(!isFullscreen);
+    }
+
+    /**
+     * Сохранение записи при любом скрытии активности.
+     */
+    @Override
+    public void onPause() {
+        onSaveRecord();
+        super.onPause();
+    }
+
+    /**
+     * Обработка возвращаемого результата других активностей.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+            // перезагружаем хранилище, если изменили путь
+            if (SettingsManager.isAskReloadStorage) {
+                SettingsManager.isAskReloadStorage = false;
+                AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
+            }
+            // не гасим экран, если установили опцию
+            setKeepScreenOn(SettingsManager.isKeepScreenOn());
+        }
+    }
 
     /**
      * Обработчик создания системного меню.
@@ -367,10 +417,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.record, menu);
+        this.miRecordView = menu.findItem(R.id.action_record_view);
         this.miRecordEdit = menu.findItem(R.id.action_record_edit);
         this.miRecordSave = menu.findItem(R.id.action_record_save);
         this.miRecordHtml = menu.findItem(R.id.action_record_html);
-
+        onMenuLoaded();
         return true;
     }
 
@@ -383,23 +434,59 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_record_edit:
+            case R.id.action_record_view:
+                switchMode(MODE_VIEW);
                 return true;
-            case R.id.action_record_save:
+            case R.id.action_record_edit:
+                switchMode(MODE_EDIT);
                 return true;
             case R.id.action_record_html:
+                switchMode(MODE_HTML);
+                return true;
+            case R.id.action_record_save:
+                saveRecord();
+                return true;
+
+            case R.id.action_cur_node:
+
+                return true;
+            case R.id.action_attached_files:
+
+                return true;
+            case R.id.action_cur_record_folder:
+
+                return true;
+            case R.id.action_fullscreen:
+                setFullscreen(!SettingsManager.IsFullScreen);
+                return true;
+            case R.id.action_settings:
+                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
+                return true;
+            case R.id.action_storage_info:
+                ViewUtils.startActivity(this, InfoActivity.class, null);
+                return true;
+            case R.id.action_about_app:
+                ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    public void showActivityForResult(Class<?> cls, int requestCode) {
+        Intent intent = new Intent(this, cls);
+        startActivityForResult(intent, requestCode);
+    }
 
     /**
-     *
-     * @param detector
+     * Обработчик нажатия кнопки Назад.
      */
-    public void setGestureDetector(GestureDetectorCompat detector) {
-        this.gestureDetector = detector;
+    @Override
+    public void onBackPressed() {
+        if (lastMode > 0) {
+            switchMode(lastMode);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -411,8 +498,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (gestureDetector != null)
-            gestureDetector.onTouchEvent(event);
+        gestureDetector.onTouchEvent(event);
         return false;
     }
+
 }

@@ -19,6 +19,7 @@ public class SettingsManager {
     @ColorInt
     public static int HighlightAttachColorCache;
     public static String DateFormatStringCache;
+    public static boolean IsFullScreen;
 
     public static void init(Context ctx) {
         SettingsManager.context = ctx;

@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
@@ -39,6 +37,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
+import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.DoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -74,16 +74,15 @@ import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 
-import static com.gee12.mytetroid.fragments.MainPageFragment.MAIN_VIEW_RECORD_TEXT;
-
 //import android.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
-    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 3;
-    public static final int REQUEST_CODE_SYNC_STORAGE = 4;
+    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
+    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
+    public static final int REQUEST_CODE_SYNC_STORAGE = 5;
     public static final int REQUEST_CODE_PERMISSION_READ = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
@@ -101,8 +100,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private TextView tvViewType;
     private TextView tvNodesEmpty;
     private TextView tvTagsEmpty;
-    private View vNodesHeader;
-    private View vTagsHeader;
     private android.widget.SearchView nodesSearchView;
     private android.widget.SearchView tagsSearchView;
     private boolean isRecordsFiltered;
@@ -118,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private MainPagerAdapter viewPagerAdapter;
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
-    private boolean isFullscreen;
+//    private boolean isFullscreen;
     private boolean isStarted;
     private boolean isLoadStorageAfterSync;
     private TetroidFile tempOpenableFile;
@@ -154,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         drawerToggle.syncState();
 
         // обработчик нажатия на экране
-        this.gestureDetector = new GestureDetectorCompat(this, new MyGestureListener());
+        this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
         // обработчик нажатия на экране, когда ветка не выбрана
         drawerLayout.setOnTouchListener(this);
 
@@ -204,13 +201,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         this.tvProgress = findViewById(R.id.progress_text);
 
         NavigationView nodesNavView = drawerLayout.findViewById(R.id.nav_view_left);
-        this.vNodesHeader = nodesNavView.getHeaderView(0);
+        View vNodesHeader = nodesNavView.getHeaderView(0);
         this.nodesSearchView = vNodesHeader.findViewById(R.id.search_view_nodes);
 //        this.tvNodesHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         initNodesView(nodesSearchView, vNodesHeader);
 
         NavigationView tagsNavView = drawerLayout.findViewById(R.id.nav_view_right);
-        this.vTagsHeader = tagsNavView.getHeaderView(0);
+        View vTagsHeader = tagsNavView.getHeaderView(0);
         this.tagsSearchView = vTagsHeader.findViewById(R.id.search_view_tags);
 //        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         initTagsView(vTagsHeader);
@@ -664,7 +661,8 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 
     @Override
     public void openRecord(TetroidRecord record) {
-        viewPagerAdapter.getMainFragment().showRecord(record);
+//        viewPagerAdapter.getMainFragment().showRecord(record);
+        RecordActivity.openRecord(this, record);
     }
 
     /**
@@ -891,9 +889,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                             viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
                         break;*/
-                        case MAIN_VIEW_RECORD_TEXT:
+                   /*  case MAIN_VIEW_RECORD_TEXT:
                             // ?
-                            break;
+                            break;*/
                     }
                 }
                 MainActivity.this.isRecordsFiltered = false;
@@ -985,17 +983,17 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         miRecordsSearchView.setVisible(isVisible);
     }
 
-    /**
-     * Управление видимостью пунктов меню в зависимости от отображаемой вьюшки
-     * @param viewId
-     */
-    @Override
-    public void updateMenuItems(int viewId) {
-        boolean visible = (viewId != MAIN_VIEW_RECORD_TEXT);
-        miGlobalSearch.setVisible(visible);
-        miStorageSync.setVisible(visible);
-        miStorageInfo.setVisible(visible);
-    }
+//    /**
+//     * Управление видимостью пунктов меню в зависимости от отображаемой вьюшки
+//     * @param viewId
+//     */
+//    @Override
+//    public void updateMenuItems(int viewId) {
+//        boolean visible = (viewId != MAIN_VIEW_RECORD_TEXT);
+//        miGlobalSearch.setVisible(visible);
+//        miStorageSync.setVisible(visible);
+//        miStorageInfo.setVisible(visible);
+//    }
 
     public void setKeyboard(boolean isShow) {
         if (isShow) {
@@ -1012,6 +1010,12 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         titleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
+    /**
+     * Обработка возвращаемого результата других активностей.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1020,20 +1024,15 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             // перезагружаем хранилище, если изменили путь
             if (SettingsManager.isAskReloadStorage) {
                 SettingsManager.isAskReloadStorage = false;
-                AskDialogs.showReloadStorageDialog(this, new AskDialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        reinitStorage();
-                    }
-                    @Override
-                    public void onCancel() {
-                    }
-                });
+                AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
             }
-            // не гасим экран, если установили опцию
-            checkKeepScreenOn(viewPagerAdapter.getMainFragment().getCurMainViewId());
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
+        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
+            boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
+            if (isReloadStorage) {
+                reinitStorage();
+            }
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
@@ -1144,9 +1143,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 searchInRecordFiles(query);
                 break;
-            case MAIN_VIEW_RECORD_TEXT:
+/*            case MAIN_VIEW_RECORD_TEXT:
                 searchInRecordText(query);
-                break;
+                break;*/
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
 //                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
 //                if (viewId != lastVIewId)
@@ -1206,39 +1205,20 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         }
     }
 
-    private void searchInRecordText(String query) {
-        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
-        if (curRecord != null) {
-            searchInText(query, curRecord);
-        } else {
-            LogManager.addLog(getString(R.string.cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-        }
-    }
+//    private void searchInRecordText(String query) {
+//        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
+//        if (curRecord != null) {
+//            searchInText(query, curRecord);
+//        } else {
+//            LogManager.addLog(getString(R.string.cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//        }
+//    }
 
-    /**
-     * Поиск по тексту записи.
-     * @param query
-     * @param record
-     */
-    private void searchInText(String query, TetroidRecord record) {
-        //
-        // TODO: реализовать поиск по тексту записи
-        //
-        LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
-    }
-
-    @Override
-    public void checkKeepScreenOn(int curViewId) {
-        setKeepScreenOn(curViewId == MAIN_VIEW_RECORD_TEXT
-            && SettingsManager.isKeepScreenOn());
-    }
-
-    private void setKeepScreenOn(boolean keepScreenOn) {
-        if (keepScreenOn)
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        else
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
+//    @Override
+//    public void checkKeepScreenOn(int curViewId) {
+//        setKeepScreenOn(curViewId == MAIN_VIEW_RECORD_TEXT
+//            && SettingsManager.isKeepScreenOn());
+//    }
 
     /**
      * Обработчик нажатия кнопки Назад.
@@ -1308,7 +1288,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //                viewPagerAdapter.getMainFragment().openRecordFolder();
 //                return true;
             case R.id.action_fullscreen:
-                toggleFullscreen();
+                App.toggleFullscreen(MainActivity.this);
                 return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
@@ -1320,64 +1300,16 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
                 startStorageSync(SettingsManager.getStoragePath());
                 return true;
             case R.id.action_storage_info:
-                showActivity(this, InfoActivity.class);
+                ViewUtils.startActivity(this, InfoActivity.class, null);
                 return true;
             case R.id.action_about_app:
-                showActivity(this, AboutActivity.class);
+                ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             default:
                 if (viewPagerAdapter.getMainFragment().onOptionsItemSelected(id))
                     return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Переключатель полноэкранного режима.
-     */
-    @Override
-    public void toggleFullscreen() {
-        setFullscreen(!isFullscreen);
-    }
-
-    /**
-     * Установка полноэкранного режима.
-     * @param isFullscreen Если true, то toolbar исчезает и в опциях SystemUiVisibility устанавливаются нужные флаги
-     *                     для полноэкранного режима, иначе все флаги сбрасываются.
-     */
-    private void setFullscreen(boolean isFullscreen) {
-        this.isFullscreen = isFullscreen;
-
-        // StatusBar
-        View decorView = getWindow().getDecorView();
-        int visibility = (isFullscreen)
-                ? View.SYSTEM_UI_FLAG_IMMERSIVE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                : 0;
-        decorView.setSystemUiVisibility(
-                visibility);
-        // ToolBar
-        try {
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                if (isFullscreen)
-                    actionBar.hide();
-                else
-                    actionBar.show();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // панель с полями записи
-        viewPagerAdapter.getMainFragment().setFullscreen(isFullscreen);
-    }
-
-    @Override
-    public boolean isFullscreen() {
-        return isFullscreen;
     }
 
     /**
@@ -1407,17 +1339,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     private void onExit() {
-        AskDialogs.showExitDialog(this, new AskDialogs.IApplyResult() {
-            @Override
-            public void onApply() {
-                finish();
-            }
-        });
-    }
-
-    public static void showActivity(Context context, Class<?> cls) {
-        Intent intent = new Intent(context, cls);
-        context.startActivity(intent);
+        AskDialogs.showExitDialog(this, () -> finish());
     }
 
     private void showGlobalSearchActivity() {
@@ -1532,23 +1454,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
             viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
             setFoundPageVisibility(true);
             viewPager.setCurrent(MainViewPager.PAGE_FOUND);
-        }
-    }
-
-    /**
-     * Обработчик двойного нажатия на экране.
-     */
-    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            toggleFullscreen();
-            return true;
-        }
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return false;
         }
     }
 

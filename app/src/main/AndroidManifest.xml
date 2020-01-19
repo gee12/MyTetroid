@@ -53,6 +53,11 @@
             android:authorities="com.gee12.MySuggestionProvider" />
 
         <activity
+            android:name=".activities.RecordActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_settings"
             android:parentActivityName=".activities.MainActivity"

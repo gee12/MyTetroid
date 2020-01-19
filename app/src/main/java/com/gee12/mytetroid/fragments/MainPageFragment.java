@@ -34,9 +34,9 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_GLOBAL_FOUND = -1;
     public static final int MAIN_VIEW_NONE = 0;
     public static final int MAIN_VIEW_NODE_RECORDS = 1;
-    public static final int MAIN_VIEW_RECORD_TEXT = 2;
-    public static final int MAIN_VIEW_RECORD_FILES = 3;
-    public static final int MAIN_VIEW_TAG_RECORDS = 4;
+//    public static final int MAIN_VIEW_RECORD_TEXT = 2;
+    public static final int MAIN_VIEW_RECORD_FILES = 2;
+    public static final int MAIN_VIEW_TAG_RECORDS = 3;
 //    public static final int VIEW_FOUND_RECORDS = 5;
 
     public static final int MENU_ITEM_ID_OPEN_RECORD = 1;
@@ -145,8 +145,8 @@ public class MainPageFragment extends TetroidFragment {
             this.lastViewId = curMainViewId;
         int whichChild = viewId;
         String title = null;
-        boolean isShowRecordViewerMenus = (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT
-                || curRecordViewId == RECORD_VIEW_VIEWER);
+//        boolean isShowRecordViewerMenus = (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT
+//                || curRecordViewId == RECORD_VIEW_VIEWER);
         switch (viewId) {
             // для "очистки" активности выводим пустой список записей
             case MainPageFragment.MAIN_VIEW_NONE:
@@ -154,19 +154,19 @@ public class MainPageFragment extends TetroidFragment {
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
                 whichChild = MAIN_VIEW_NODE_RECORDS;
                 break;
-            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
-                miAttachedFiles.setVisible(isShowRecordViewerMenus);
+//            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
+//                miAttachedFiles.setVisible(isShowRecordViewerMenus);
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                miCurNode.setVisible(isShowRecordViewerMenus);
-                miCurRecordFolder.setVisible(isShowRecordViewerMenus);
-                if (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT)
+                miCurNode.setVisible(true);
+                miCurRecordFolder.setVisible(true);
+//                if (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT)
                     miCurRecord.setVisible(true);
                 title = ((curRecord != null) ? curRecord.getName() : "");
                 break;
         }
         mainView.updateMainToolbar(viewId, title);
-        mainView.updateMenuItems(viewId);
-        mainView.checkKeepScreenOn(viewId);
+//        mainView.updateMenuItems(viewId);
+//        mainView.checkKeepScreenOn(viewId);
         this.curMainViewId = viewId;
         vfMain.setDisplayedChild(whichChild-1);
     }
@@ -178,7 +178,7 @@ public class MainPageFragment extends TetroidFragment {
         String title = null;
         int restoredViewId = curMainViewId;
         switch (restoredViewId) {
-            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
+//            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 title = ((curRecord != null) ? curRecord.getName() : "");
             break;
@@ -209,38 +209,17 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void showRecord(int position) {
         TetroidRecord record = (TetroidRecord) recordsListAdapter.getItem(position);
-        showRecord(record, getDefaultRecordViewId());
-    }
-
-    public void showCurRecord(int recordViewId) {
-        showRecord(curRecord, recordViewId);
+        showRecord(record);
     }
 
     public void showCurRecord() {
-        showRecord(curRecord, getDefaultRecordViewId());
+        showRecord(curRecord);
     }
 
     public void showRecord(TetroidRecord record) {
-        showRecord(record, getDefaultRecordViewId());
+        mainView.openRecord(record);
     }
 
-    /**
-     * Непосредственное отображение записи в нужном режиме.
-     * @param record
-     */
-    public void showRecord(TetroidRecord record, int recordViewId) {
-        this.curRecord = record;
-        this.curRecordViewId = recordViewId;
-        vfRecord.setDisplayedChild(recordViewId);
-        RecordView view = getCurRecordView();
-        if (view != null) {
-            view.openRecord(record);
-            showView(MAIN_VIEW_RECORD_TEXT);
-            updateRecordView(curRecordViewId);
-        } else {
-            LogManager.addLog(getString(R.string.not_found_child_in_viewflipper), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-        }
-    }
 
     /**
      * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
@@ -312,41 +291,26 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
-    public void setFullscreen(boolean isFullscreen) {
-        RecordView view = getCurRecordView();
-        if (view != null)
-            view.setFullscreen(isFullscreen);
-    }
+//    public void setFullscreen(boolean isFullscreen) {
+//        RecordView view = getCurRecordView();
+//        if (view != null)
+//            view.setFullscreen(isFullscreen);
+//    }
 
     /**
      * Обработчик клика на записи
      */
-    private AdapterView.OnItemClickListener onRecordClicklistener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            showRecord(position);
-        }
-    };
+    private AdapterView.OnItemClickListener onRecordClicklistener = (parent, view, position, id) -> showRecord(position);
 
     /**
      * Обработчик клика на иконке прикрепленных файлов записи
      */
-    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = new RecordsListAdapter.OnRecordAttachmentClickListener() {
-        @Override
-        public void onClick(TetroidRecord record) {
-            showRecordFiles(record);
-        }
-    };
+    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordFiles(record);
 
     /**
      * Обработчик клика на прикрепленном файле
      */
-    private AdapterView.OnItemClickListener onFileClicklistener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            openFile(position);
-        }
-    };
+    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
 
     public void onCreateOptionsMenu(@NonNull Menu menu) {
         this.miCurNode = menu.findItem(R.id.action_cur_node);
@@ -426,13 +390,13 @@ public class MainPageFragment extends TetroidFragment {
     public boolean onBackPressed() {
         boolean res = false;
         int curView = vfMain.getDisplayedChild() + 1;
-        if (curView == MAIN_VIEW_RECORD_TEXT || curView == MAIN_VIEW_RECORD_FILES) {
+        if (/*curView == MAIN_VIEW_RECORD_TEXT || */curView == MAIN_VIEW_RECORD_FILES) {
             res = true;
             switch (lastViewId) {
                 case MAIN_VIEW_NODE_RECORDS:
                 case MAIN_VIEW_TAG_RECORDS:
 //                case VIEW_FOUND_RECORDS:
-                case MAIN_VIEW_RECORD_TEXT: // если curView=MAIN_VIEW_RECORD_FILES
+//                case MAIN_VIEW_RECORD_TEXT: // если curView=MAIN_VIEW_RECORD_FILES
                     showView(lastViewId);
                     break;
                 default:
