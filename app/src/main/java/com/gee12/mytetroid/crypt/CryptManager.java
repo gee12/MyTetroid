@@ -5,9 +5,9 @@ import android.widget.Toast;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.ITagsParseHandler;
-import com.gee12.mytetroid.data.TetroidFile;
-import com.gee12.mytetroid.data.TetroidNode;
-import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;

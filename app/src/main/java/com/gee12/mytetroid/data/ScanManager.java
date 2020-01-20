@@ -3,6 +3,12 @@ package com.gee12.mytetroid.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

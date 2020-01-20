@@ -3,6 +3,11 @@ package com.gee12.mytetroid.data;
 import android.text.TextUtils;
 import android.util.Xml;
 
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.model.Version;
 import com.gee12.mytetroid.utils.Utils;
 
 import org.jsoup.internal.StringUtil;
@@ -45,7 +50,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-    private TreeMap<String,TetroidTag> tagsMap;
+    private TreeMap<String, TetroidTag> tagsMap;
     protected List<TetroidTag> tagsList;
 
     /**
@@ -94,7 +99,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         } finally {
             in.close();
             this.tagsList = new ArrayList<>(tagsMap.values());
-//            this.tagsMap = null;
         }
     }
 
@@ -244,8 +248,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     }
 
     protected void parseTags(TetroidRecord record) {
-//        if (!record.isNonCryptedOrDecrypted())
-//            return;
         String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TAGS_SEPARATOR)) {

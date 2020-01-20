@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidNode;
+import com.gee12.mytetroid.model.TetroidNode;
 
 import java.util.List;
 

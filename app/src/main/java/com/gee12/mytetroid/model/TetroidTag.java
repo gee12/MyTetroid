@@ -1,4 +1,6 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.model;
+
+import com.gee12.mytetroid.data.ITetroidObject;
 
 import java.util.List;
 

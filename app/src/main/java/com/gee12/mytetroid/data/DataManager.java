@@ -17,6 +17,10 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import org.jsoup.Jsoup;

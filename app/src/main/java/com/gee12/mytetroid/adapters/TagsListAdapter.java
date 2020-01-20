@@ -8,8 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidRecord;
-import com.gee12.mytetroid.data.TetroidTag;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
 
 import java.util.List;
 

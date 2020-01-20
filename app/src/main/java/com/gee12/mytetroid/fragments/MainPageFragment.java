@@ -23,8 +23,8 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.TetroidFile;
-import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.util.List;

@@ -30,7 +30,7 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
@@ -38,12 +38,11 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class RecordActivity extends AppCompatActivity implements View.OnTouchListener, EditableWebView.OnUrlLoadListener {
+public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
+        EditableWebView.IUrlLoadListener, WysiwygEditor.IEditorListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
@@ -129,13 +128,13 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
         this.etHtml = findViewById(R.id.edit_text_html);
 
-        openRecord(record);
     }
 
     private void onMenuLoaded() {
+        openRecord(record);
         // режим по-умолчанию
-//        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
-        int mode = MODE_EDIT;
+        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+//        int mode = MODE_EDIT;
         switchMode(mode);
     }
 
@@ -167,48 +166,34 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
 //        editor.getWebView().clearAndFocusEditor();
 //        editor.getWebView().setHtml(textHtml);
+        editor.loadDataWithBaseURL(DataManager.getRecordDirUri(record), textHtml);
+
         EditableWebView webView = editor.getWebView();
-        webView.loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                textHtml, "text/html", "UTF-8", null);
-
 //        editor.getWebView().getSettings().setAllowFileAccessFromFileURLs(true);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
+//        webView.getSettings().setDomStorageEnabled(true);
 
-        byte[] buffer = null;
-        try {
-            InputStream input = getAssets().open("editor.js");
-            buffer = new byte[input.available()];
-            input.read(buffer);
-            input.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        final String js = "javascript:" + new String(buffer);
-        final String js2 = "javascript:document.designMode=\"on\";";
+//        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
 
-        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
-
-        webView.setOnInitialLoadListener(new EditableWebView.AfterInitialLoadListener() {
-            @Override
-            public void onAfterInitialLoad(boolean isReady) {
-                if (Build.VERSION.SDK_INT >= 19) {
-                    webView.evaluateJavascript(js2, s -> {
-                    });
-                    webView.evaluateJavascript(js, s -> {
-                    });
-                } else {
-                    webView.loadUrl(js2);
-                    webView.loadUrl(js);
-                }
-            }
-        });
+//        webView.setOnInitialLoadListener(new EditableWebView.IAfterInitialLoadListener() {
+//            @Override
+//            public void onAfterInitialLoad(boolean isReady) {
+//                if (Build.VERSION.SDK_INT >= 19) {
+////                    webView.evaluateJavascript(js2, s -> {
+////                    });
+//                    webView.evaluateJavascript(js, s -> {
+//                    });
+//                } else {
+////                    webView.loadUrl(js2);
+//                    webView.loadUrl(js);
+//                }
+//            }
+//        });
         webView.setOnUrlLoadListener(this);
 
-        workWithJavascript();
+//        workWithJavascript();
     }
 
-    void workWithJavascript() {
+//    void workWithJavascript() {
 //        EditableWebView webView = editor.getWebView();
 //
 //        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
@@ -219,12 +204,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //                view.loadUrl("javascript:window.test.onPageLoaded(document.body.innerHTML);void(0);");
 //            }
 //        };
-    }
+//    }
 
     final class IJavascriptHandler {
 
-        IJavascriptHandler() {
-        }
+        IJavascriptHandler() { }
 
         @JavascriptInterface
         public void onPageLoaded(String html) {
@@ -243,16 +227,12 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         }
     }
 
-    public void getAllHtml() {
-        // '<!DOCTYPE HTML>' + '\n' + document.documentElement.outerHTML
-    }
-
     /**
      * Открытие ссылки в тексте.
      * @param url
      */
     @Override
-    public void onUrlLoad(String url) {
+    public boolean onUrlLoad(String url) {
         if (url.startsWith("mytetra")) {
             // обрабатываем внутреннюю ссылку
             String id = url.substring(url.lastIndexOf('/')+1);
@@ -271,6 +251,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 LogManager.addLog(ex);
             }
         }
+        return true;
     }
 
     /**
@@ -316,7 +297,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     private void saveRecord() {
-        String htmlText = editor.getWebView().getHtml();
+        String htmlText = editor.getWebView().getDocumentHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
 
@@ -365,8 +346,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
-                String htmlText = editor.getHtml();
+                String htmlText = editor.getWebView().getEditableHtml();
                 etHtml.setText(htmlText);
+//                editor.getWebView().makeHtmlRequest();
                 etHtml.setVisibility(View.VISIBLE);
                 setRecordFieldsVisibility(false);
                 miRecordView.setVisible(false);
@@ -394,6 +376,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     public void setFullscreen(boolean isFullscreen) {
         ViewUtils.setFullscreen(this, isFullscreen);
         setRecordFieldsVisibility(!isFullscreen);
+    }
+
+    @Override
+    public void onGetHtml(String html) {
+        etHtml.setText(html);
     }
 
     /**

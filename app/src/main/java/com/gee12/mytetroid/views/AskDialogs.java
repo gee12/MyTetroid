@@ -7,7 +7,7 @@ import android.text.InputType;
 import android.widget.EditText;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidNode;
+import com.gee12.mytetroid.model.TetroidNode;
 
 public class AskDialogs {
 

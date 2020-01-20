@@ -1,9 +1,10 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.model;
 
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import java.util.ArrayList;

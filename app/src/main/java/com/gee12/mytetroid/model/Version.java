@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.model;
 
 public class Version {
     int major;

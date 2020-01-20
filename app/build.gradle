@@ -71,7 +71,9 @@ dependencies {
 //    implementation(project(path: ':wysiwyg-editor')) {
 //        exclude group: 'org.jetbrains', module: 'annotations'
 //    }
-    implementation(project(path: ':wysiwyg-editor'))
+    implementation(project(path: ':wysiwyg-editor')){
+        exclude group: 'org.jetbrains', module: 'annotations'
+    }
 //    implementation 'com.github.lumyjuwon:Android-Rich-Wysiwyg-Editor:1.0.0'
     implementation(project(path: ':folder-picker'))
 }
