@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -186,17 +185,20 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             e.printStackTrace();
         }
         final String js = "javascript:" + new String(buffer);
+        final String js2 = "javascript:document.designMode=\"on\";";
+
+        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
 
         webView.setOnInitialLoadListener(new EditableWebView.AfterInitialLoadListener() {
             @Override
             public void onAfterInitialLoad(boolean isReady) {
                 if (Build.VERSION.SDK_INT >= 19) {
-                    webView.evaluateJavascript(js, new ValueCallback<String>() {
-                        @Override
-                        public void onReceiveValue(String s) {
-                        }
+                    webView.evaluateJavascript(js2, s -> {
+                    });
+                    webView.evaluateJavascript(js, s -> {
                     });
                 } else {
+                    webView.loadUrl(js2);
                     webView.loadUrl(js);
                 }
             }
@@ -207,16 +209,16 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     void workWithJavascript() {
-        EditableWebView webView = editor.getWebView();
-
-        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
-
-        WebViewClient BrowserHandler = new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                view.loadUrl("javascript:window.test.onPageLoaded(document.body.innerHTML);void(0);");
-            }
-        };
+//        EditableWebView webView = editor.getWebView();
+//
+//        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
+//
+//        WebViewClient BrowserHandler = new WebViewClient() {
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                view.loadUrl("javascript:window.test.onPageLoaded(document.body.innerHTML);void(0);");
+//            }
+//        };
     }
 
     final class IJavascriptHandler {
@@ -228,6 +230,21 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         public void onPageLoaded(String html) {
             etHtml.setText(html);
         }
+    }
+
+    private void updateHtmlText() {
+        EditableWebView webView = editor.getWebView();
+        final String js3 = "javascript:window.test.onPageLoaded(document.body.outerHTML);void(0);";
+        if (Build.VERSION.SDK_INT >= 19) {
+            webView.evaluateJavascript(js3, s -> {
+            });
+        } else {
+            webView.loadUrl(js3);
+        }
+    }
+
+    public void getAllHtml() {
+        // '<!DOCTYPE HTML>' + '\n' + document.documentElement.outerHTML
     }
 
     /**
