@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,7 +11,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -42,7 +40,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
-        EditableWebView.IUrlLoadListener, WysiwygEditor.IEditorListener {
+        EditableWebView.IUrlLoadListener, EditableWebView.IPageLoadListener, WysiwygEditor.IEditorListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
@@ -132,10 +130,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
     private void onMenuLoaded() {
         openRecord(record);
-        // режим по-умолчанию
-        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
-//        int mode = MODE_EDIT;
-        switchMode(mode);
     }
 
     /**
@@ -174,9 +168,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
 //        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
 
-//        webView.setOnInitialLoadListener(new EditableWebView.IAfterInitialLoadListener() {
+//        webView.setOnInitialLoadListener(new EditableWebView.IPageLoadListener() {
 //            @Override
-//            public void onAfterInitialLoad(boolean isReady) {
+//            public void onPageLoad(boolean isReady) {
 //                if (Build.VERSION.SDK_INT >= 19) {
 ////                    webView.evaluateJavascript(js2, s -> {
 ////                    });
@@ -201,32 +195,19 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //        WebViewClient BrowserHandler = new WebViewClient() {
 //            @Override
 //            public void onPageFinished(WebView view, String url) {
-//                view.loadUrl("javascript:window.test.onPageLoaded(document.body.innerHTML);void(0);");
+//                view.loadUrl("javascript:window.test.onPageLoad(document.body.innerHTML);void(0);");
 //            }
 //        };
 //    }
 
-    final class IJavascriptHandler {
 
-        IJavascriptHandler() { }
-
-        @JavascriptInterface
-        public void onPageLoaded(String html) {
-            etHtml.setText(html);
-        }
+    @Override
+    public void onPageLoad(boolean isReady) {
+        // режим по-умолчанию
+        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+//        int mode = MODE_EDIT;
+        switchMode(mode);
     }
-
-    private void updateHtmlText() {
-        EditableWebView webView = editor.getWebView();
-        final String js3 = "javascript:window.test.onPageLoaded(document.body.outerHTML);void(0);";
-        if (Build.VERSION.SDK_INT >= 19) {
-            webView.evaluateJavascript(js3, s -> {
-            });
-        } else {
-            webView.loadUrl(js3);
-        }
-    }
-
     /**
      * Открытие ссылки в тексте.
      * @param url
@@ -297,6 +278,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     private void saveRecord() {
+//        if (BuildConfig.DEBUG)
+//            return;
         String htmlText = editor.getWebView().getDocumentHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
@@ -505,5 +488,4 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         gestureDetector.onTouchEvent(event);
         return false;
     }
-
 }

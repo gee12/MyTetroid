@@ -218,6 +218,7 @@
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:cursorVisible="true"
+                android:visibility="gone"
                 />
 
 
