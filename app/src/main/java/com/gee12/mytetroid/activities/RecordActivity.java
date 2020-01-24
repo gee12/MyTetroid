@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.DoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -182,6 +183,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //                }
 //            }
 //        });
+        webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
 
 //        workWithJavascript();
@@ -278,8 +280,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     private void saveRecord() {
-//        if (BuildConfig.DEBUG)
-//            return;
+        if (BuildConfig.DEBUG)
+            return;
         String htmlText = editor.getWebView().getDocumentHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
@@ -359,6 +361,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     public void setFullscreen(boolean isFullscreen) {
         ViewUtils.setFullscreen(this, isFullscreen);
         setRecordFieldsVisibility(!isFullscreen);
+    }
+
+    public void openRecordFolder() {
+        DataManager.openFolder(this, DataManager.getRecordDirUri(record));
     }
 
     @Override
@@ -441,7 +447,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
                 return true;
             case R.id.action_cur_record_folder:
-
+                openRecordFolder();
                 return true;
             case R.id.action_fullscreen:
                 setFullscreen(!SettingsManager.IsFullScreen);
@@ -469,11 +475,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      */
     @Override
     public void onBackPressed() {
-        if (lastMode > 0) {
-            switchMode(lastMode);
-        } else {
+//        if (lastMode > 0) {
+//            switchMode(lastMode);
+//        } else {
             super.onBackPressed();
-        }
+//        }
     }
 
     /**

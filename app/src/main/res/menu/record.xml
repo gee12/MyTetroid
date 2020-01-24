@@ -47,7 +47,7 @@
         android:id="@+id/action_cur_record_folder"
         android:orderInCategory="70"
         android:title="@string/open_record_folder"
-        android:visible="false"
+        android:visible="true"
         android:icon="@drawable/ic_folder24dp"
         app:showAsAction="never" />
     <item
