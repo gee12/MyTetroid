@@ -23,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.DoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -105,8 +104,12 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
         this.editor = findViewById(R.id.web_view_record_text);
         editor.setOnTouchListener(this);
-        editor.getWebView().getSettings().setBuiltInZoomControls(true);
-        editor.getWebView().getSettings().setDisplayZoomControls(false);
+        EditableWebView webView = editor.getWebView();
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setDisplayZoomControls(false);
+//        editor.getWebView().getSettings().setAllowFileAccessFromFileURLs(true);
+        webView.setOnPageLoadListener(this);
+        webView.setOnUrlLoadListener(this);
 
         this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
         this.wvRecordTags = findViewById(R.id.web_view_record_tags);
@@ -126,8 +129,46 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> expRecordFieldsLayout.toggle());
 
         this.etHtml = findViewById(R.id.edit_text_html);
-
+//        etHtml.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (hasFocus)
+//                    Keyboard.showKeyboard(v);
+//            }
+//        });
+//        etHtml.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                Keyboard.showKeyboard(v);
+//                return false;
+//            }
+//        });
     }
+
+//    private Runnable mShowImeRunnable = new Runnable() {
+//        public void run() {
+//            InputMethodManager imm = (InputMethodManager) getContext()
+//                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+//
+//            if (imm != null) {
+//                imm.showSoftInput(editText, 0);
+//            }
+//        }
+//    };
+//
+//    private void setImeVisibility(final boolean visible) {
+//        if (visible) {
+//            post(mShowImeRunnable);
+//        } else {
+//            removeCallbacks(mShowImeRunnable);
+//            InputMethodManager imm = (InputMethodManager) getContext()
+//                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+//
+//            if (imm != null) {
+//                imm.hideSoftInputFromWindow(getWindowToken(), 0);
+//            }
+//        }
+//    }
 
     private void onMenuLoaded() {
         openRecord(record);
@@ -155,53 +196,19 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         tvRecordUrl.setText(record.getUrl());
         if (record.getCreated() != null)
             tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
-
         // текст
-        String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
-
-//        editor.getWebView().clearAndFocusEditor();
-//        editor.getWebView().setHtml(textHtml);
-        editor.loadDataWithBaseURL(DataManager.getRecordDirUri(record), textHtml);
-
-        EditableWebView webView = editor.getWebView();
-//        editor.getWebView().getSettings().setAllowFileAccessFromFileURLs(true);
-//        webView.getSettings().setDomStorageEnabled(true);
-
-//        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
-
-//        webView.setOnInitialLoadListener(new EditableWebView.IPageLoadListener() {
-//            @Override
-//            public void onPageLoad(boolean isReady) {
-//                if (Build.VERSION.SDK_INT >= 19) {
-////                    webView.evaluateJavascript(js2, s -> {
-////                    });
-//                    webView.evaluateJavascript(js, s -> {
-//                    });
-//                } else {
-////                    webView.loadUrl(js2);
-//                    webView.loadUrl(js);
-//                }
-//            }
-//        });
-        webView.setOnPageLoadListener(this);
-        webView.setOnUrlLoadListener(this);
-
-//        workWithJavascript();
+        loadRecordHtml(record);
     }
 
-//    void workWithJavascript() {
-//        EditableWebView webView = editor.getWebView();
-//
-//        webView.addJavascriptInterface(new IJavascriptHandler(), "test");
-//
-//        WebViewClient BrowserHandler = new WebViewClient() {
-//            @Override
-//            public void onPageFinished(WebView view, String url) {
-//                view.loadUrl("javascript:window.test.onPageLoad(document.body.innerHTML);void(0);");
-//            }
-//        };
-//    }
-
+    /**
+     * Загрузка html-кода из файла записи в WebView.
+     * @param record
+     */
+    private void loadRecordHtml(TetroidRecord record) {
+        String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
+//        editor.getWebView().clearAndFocusEditor();
+        editor.loadDataWithBaseURL(DataManager.getRecordDirUri(record), textHtml);
+    }
 
     @Override
     public void onPageLoad(boolean isReady) {
@@ -273,15 +280,18 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
-    private void onSaveRecord() {
+    private void beforeModeSwitch() {
         if (curMode == MODE_EDIT || curMode == MODE_HTML) {
             saveRecord();
+        }
+        if (curMode == MODE_HTML) {
+            loadRecordHtml(record);
         }
     }
 
     private void saveRecord() {
-        if (BuildConfig.DEBUG)
-            return;
+//        if (BuildConfig.DEBUG)
+//            return;
         String htmlText = editor.getWebView().getDocumentHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
@@ -303,7 +313,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      * @param mode
      */
     private void switchMode(int mode) {
-        onSaveRecord();
+        beforeModeSwitch();
         this.lastMode = curMode;
         this.curMode = mode;
         switch (mode) {
@@ -335,6 +345,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 etHtml.setText(htmlText);
 //                editor.getWebView().makeHtmlRequest();
                 etHtml.setVisibility(View.VISIBLE);
+                etHtml.requestFocus();
                 setRecordFieldsVisibility(false);
                 miRecordView.setVisible(false);
                 miRecordEdit.setVisible(true);
@@ -377,7 +388,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      */
     @Override
     public void onPause() {
-        onSaveRecord();
+        beforeModeSwitch();
         super.onPause();
     }
 

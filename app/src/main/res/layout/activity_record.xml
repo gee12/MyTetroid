@@ -210,17 +210,18 @@
                 android:layout_marginRight="5dp"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
+                android:scrollbars="vertical"
                 android:gravity="top"
                 android:textSize="13sp"
-                android:inputType="textMultiLine"
-                android:scrollbars="vertical"
-                android:textIsSelectable="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:cursorVisible="true"
                 android:visibility="gone"
                 />
 
+<!--        android:inputType="textMultiLine"-->
+
+<!--        android:textIsSelectable="true"-->
+<!--        android:focusable="true"-->
+<!--        android:focusableInTouchMode="true"-->
+<!--        android:cursorVisible="true"-->
 
         <!--    </ScrollView>-->
 
