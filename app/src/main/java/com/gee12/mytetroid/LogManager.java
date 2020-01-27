@@ -5,6 +5,8 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gee12.mytetroid.views.Message;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

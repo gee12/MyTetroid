@@ -31,6 +31,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.TetroidEditor;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
@@ -47,7 +48,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
 
-//    public static final int RECORD_VIEW_NONE = -1;
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
@@ -60,8 +60,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
     private TextView tvRecordDate;
-    //    private TetroidWebView editor;
-    private WysiwygEditor editor;
+    private TetroidEditor editor;
     private MenuItem miRecordView;
     private MenuItem miRecordEdit;
     private MenuItem miRecordSave;
@@ -69,13 +68,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //    private MenuItem miCurNode;
 //    private MenuItem miAttachedFiles;
 //    private MenuItem miCurRecordFolder;
-//    private ViewFlipper vfRecord;
-//    private FloatingActionButton fabRecordViewLeft;
-//    private FloatingActionButton fabRecordViewRight;
-//    private int curRecordViewId;
     private TetroidRecord record;
     private int curMode;
-    private int lastMode;
+//    private int lastMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +102,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         EditableWebView webView = editor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
-//        editor.getWebView().getSettings().setAllowFileAccessFromFileURLs(true);
         webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
 
@@ -129,46 +123,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> expRecordFieldsLayout.toggle());
 
         this.etHtml = findViewById(R.id.edit_text_html);
-//        etHtml.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (hasFocus)
-//                    Keyboard.showKeyboard(v);
-//            }
-//        });
-//        etHtml.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Keyboard.showKeyboard(v);
-//                return false;
-//            }
-//        });
-    }
 
-//    private Runnable mShowImeRunnable = new Runnable() {
-//        public void run() {
-//            InputMethodManager imm = (InputMethodManager) getContext()
-//                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-//
-//            if (imm != null) {
-//                imm.showSoftInput(editText, 0);
-//            }
-//        }
-//    };
-//
-//    private void setImeVisibility(final boolean visible) {
-//        if (visible) {
-//            post(mShowImeRunnable);
-//        } else {
-//            removeCallbacks(mShowImeRunnable);
-//            InputMethodManager imm = (InputMethodManager) getContext()
-//                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-//
-//            if (imm != null) {
-//                imm.hideSoftInputFromWindow(getWindowToken(), 0);
-//            }
-//        }
-//    }
+    }
 
     private void onMenuLoaded() {
         openRecord(record);
@@ -197,25 +153,36 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         if (record.getCreated() != null)
             tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
         // текст
-        loadRecordHtml(record);
+        loadRecordText(record);
     }
 
     /**
      * Загрузка html-кода из файла записи в WebView.
      * @param record
      */
-    private void loadRecordHtml(TetroidRecord record) {
+    private void loadRecordText(TetroidRecord record) {
         String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
 //        editor.getWebView().clearAndFocusEditor();
         editor.loadDataWithBaseURL(DataManager.getRecordDirUri(record), textHtml);
+//        editor.getWebView().reload();
     }
 
+    boolean isFirstLoad = true;
+
     @Override
-    public void onPageLoad(boolean isReady) {
-        // режим по-умолчанию
-        int mode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
-//        int mode = MODE_EDIT;
-        switchMode(mode);
+    public void onPageLoaded(boolean isReady) {
+//        if (isFirstLoad) {
+            // режим по-умолчанию
+//            int mode = (isFirstLoad)
+//                    ? (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW
+//                    : curMode;
+        if (isFirstLoad) {
+            switchMode((SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW);
+        } else {
+            switchViews(curMode);
+        }
+        isFirstLoad = false;
+//        }
     }
     /**
      * Открытие ссылки в тексте.
@@ -280,19 +247,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
-    private void beforeModeSwitch() {
-        if (curMode == MODE_EDIT || curMode == MODE_HTML) {
-            saveRecord();
-        }
-        if (curMode == MODE_HTML) {
-            loadRecordHtml(record);
-        }
-    }
-
     private void saveRecord() {
 //        if (BuildConfig.DEBUG)
 //            return;
-        String htmlText = editor.getWebView().getDocumentHtml();
+        String htmlText = (curMode == MODE_HTML)
+                ? editor.getDocumentHtml(etHtml.getText().toString()) : editor.getDocumentHtml();
         DataManager.saveRecordHtmlText(record, htmlText);
     }
 
@@ -310,13 +269,39 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 
     /**
      * Переключение режима отображения содержимого записи.
-     * @param mode
+     * @param newMode
      */
-    private void switchMode(int mode) {
-        beforeModeSwitch();
-        this.lastMode = curMode;
-        this.curMode = mode;
-        switch (mode) {
+    private void switchMode(int newMode) {
+//        switchMode(newMode, false);
+//    }
+//
+//    private void switchMode(int newMode, boolean isCallback) {
+//        if (!isCallback) {
+        int oldMode = curMode;
+        // сохраняем
+        onSaveRecord(oldMode);
+        // перезагружаем текст записи в webView, если меняли вручную html
+        if (oldMode == MODE_HTML) {
+            loadRecordText(record);
+        }
+        // переключаем элементы интерфейса, только если не редактировали только что html,
+        // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
+        // на событии onPageLoaded())
+        if (oldMode != MODE_HTML) {
+            switchViews(newMode);
+        }
+//        this.lastMode = curMode;
+        this.curMode = newMode;
+    }
+
+    private void onSaveRecord(int mode) {
+        if (mode == MODE_EDIT || mode == MODE_HTML) {
+            saveRecord();
+        }
+    }
+
+    private void switchViews(int newMode) {
+        switch (newMode) {
             case MODE_VIEW : {
                 editor.setVisibility(View.VISIBLE);
                 editor.setToolBarVisibility(false);
@@ -388,7 +373,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      */
     @Override
     public void onPause() {
-        beforeModeSwitch();
+        onSaveRecord(curMode);
         super.onPause();
     }
 

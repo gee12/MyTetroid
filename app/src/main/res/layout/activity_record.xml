@@ -186,8 +186,7 @@
             </net.cachapa.expandablelayout.ExpandableLayout>
         </RelativeLayout>
 
-    <!--    <com.gee12.mytetroid.views.TetroidWebView-->
-        <com.lumyjuwon.richwysiwygeditor.WysiwygEditor
+        <com.gee12.mytetroid.views.TetroidEditor
             android:id="@+id/web_view_record_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -211,12 +210,11 @@
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:scrollbars="vertical"
+                android:inputType="textMultiLine"
                 android:gravity="top"
                 android:textSize="13sp"
                 android:visibility="gone"
                 />
-
-<!--        android:inputType="textMultiLine"-->
 
 <!--        android:textIsSelectable="true"-->
 <!--        android:focusable="true"-->

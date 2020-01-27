@@ -14,10 +14,10 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.ScanManager;
+import com.gee12.mytetroid.views.Message;
 
 public class SearchActivity extends AppCompatActivity {
 

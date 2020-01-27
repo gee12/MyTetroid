@@ -6,12 +6,11 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
-public class MainViewPager extends ViewPager /*implements View.OnTouchListener*/ {
+public class MainViewPager extends ViewPager {
 
     public static int PAGE_MAIN = 0;
     public static int PAGE_FOUND = 1;
 
-//    protected GestureDetectorCompat gestureDetector;
     private boolean isSwipeEnabled;
 
     public MainViewPager(Context context, AttributeSet attrs) {
@@ -34,28 +33,6 @@ public class MainViewPager extends ViewPager /*implements View.OnTouchListener*/
         }
         return false;
     }
-
-//    /**
-//     * Переопределяем обработчик нажатия на экране
-//     * для обработки перехода в полноэкранный режим.
-//     * @param v
-//     * @param event
-//     * @return
-//     */
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        if (gestureDetector != null)
-//            gestureDetector.onTouchEvent(event);
-//        return false;
-//    }
-
-//    /**
-//     *
-//     * @param detector
-//     */
-//    public void setGestureDetector(GestureDetectorCompat detector) {
-//        this.gestureDetector = detector;
-//    }
 
     /**
      * On/off swipe
