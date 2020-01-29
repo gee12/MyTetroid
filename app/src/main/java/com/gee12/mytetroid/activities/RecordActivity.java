@@ -15,6 +15,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -56,6 +57,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
     private WebView wvRecordTags;
+    private ScrollView scrollViewHtml;
     private EditText etHtml;
     private TextView tvRecordAuthor;
     private TextView tvRecordUrl;
@@ -98,6 +100,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
 
         this.editor = findViewById(R.id.web_view_record_text);
+        editor.setToolBarVisibility(false);
         editor.setOnTouchListener(this);
         EditableWebView webView = editor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
@@ -121,9 +124,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         this.expRecordFieldsLayout = findViewById(R.id.layout_expander);
         ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
         tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> expRecordFieldsLayout.toggle());
+        setRecordFieldsVisibility(false);
 
+        this.scrollViewHtml = findViewById(R.id.scroll_html);
         this.etHtml = findViewById(R.id.edit_text_html);
-
     }
 
     private void onMenuLoaded() {
@@ -305,7 +309,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             case MODE_VIEW : {
                 editor.setVisibility(View.VISIBLE);
                 editor.setToolBarVisibility(false);
-                etHtml.setVisibility(View.GONE);
+                scrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(true);
                 miRecordView.setVisible(false);
                 miRecordEdit.setVisible(true);
@@ -316,7 +320,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             case MODE_EDIT : {
                 editor.setVisibility(View.VISIBLE);
                 editor.setToolBarVisibility(true);
-                etHtml.setVisibility(View.GONE);
+                scrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(false);
                 miRecordView.setVisible(true);
                 miRecordEdit.setVisible(false);
@@ -329,7 +333,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 String htmlText = editor.getWebView().getEditableHtml();
                 etHtml.setText(htmlText);
 //                editor.getWebView().makeHtmlRequest();
-                etHtml.setVisibility(View.VISIBLE);
+                scrollViewHtml.setVisibility(View.VISIBLE);
                 etHtml.requestFocus();
                 setRecordFieldsVisibility(false);
                 miRecordView.setVisible(false);

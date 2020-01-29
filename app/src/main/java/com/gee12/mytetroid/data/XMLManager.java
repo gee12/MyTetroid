@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.text.TextUtils;
 import android.util.Xml;
 
+import com.gee12.mytetroid.AppDebug;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -145,6 +146,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             String tagName = parser.getName();
             if (tagName.equals("node")) {
                 nodes.add(readNode(parser, 0));
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    break;
+                }
             } else {
                 skip(parser);
             }
@@ -181,6 +186,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             if (tagName.equals("recordtable")) {
                 // записи
                 records = readRecords(parser, node);
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    break;
+                }
             } else if (tagName.equals("node")) {
                 // вложенная ветка
                 subNodes.add(readNode(parser, depthLevel+1));
@@ -228,7 +237,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             String tagName = parser.getName();
             if (tagName.equals("record")) {
                 TetroidRecord record = readRecord(parser, node);
-                records.add(record);
+                if (record != null) {
+                    records.add(record);
+                }
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    return records;
+                }
             } else {
                 skip(parser);
             }
@@ -282,6 +297,20 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("record")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
+            //
+            if (crypt && !AppDebug.isLoadCryptedRecords()) {
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() != XmlPullParser.START_TAG) {
+                        continue;
+                    }
+                    tagName = parser.getName();
+                    if (tagName.equals("files")) {
+                        skip(parser);
+                    }
+                }
+                parser.require(XmlPullParser.END_TAG, ns, "record");
+                return null;
+            }
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             tags = parser.getAttributeValue(ns, "tags");
