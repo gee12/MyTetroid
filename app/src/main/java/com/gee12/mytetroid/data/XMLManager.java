@@ -145,7 +145,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                nodes.add(readNode(parser, 0));
+                TetroidNode node = readNode(parser, 0);
+                if (node != null) {
+                    nodes.add(node);
+                }
                 //
                 if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
                     break;
@@ -167,6 +170,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
+            //
+            if (crypt && !AppDebug.isLoadCryptedRecords()) {
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG) {
+                        skip(parser);
+                    }
+                }
+                return null;
+            }
             // наличие зашифрованных веток
             if (crypt && !isExistCryptedNodes)
                 isExistCryptedNodes = true;
@@ -300,11 +312,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             //
             if (crypt && !AppDebug.isLoadCryptedRecords()) {
                 while (parser.next() != XmlPullParser.END_TAG) {
-                    if (parser.getEventType() != XmlPullParser.START_TAG) {
-                        continue;
-                    }
-                    tagName = parser.getName();
-                    if (tagName.equals("files")) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG) {
                         skip(parser);
                     }
                 }

@@ -36,6 +36,7 @@
             android:paddingTop="0dp"
             android:paddingBottom="0dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            android:visibility="gone"
             android:textColor="@color/colorMoreLightText">
 
             <TextView
@@ -200,6 +201,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
+            android:visibility="gone"
             android:layout_alignParentBottom="true">
 
             <EditText
@@ -214,7 +216,6 @@
                 android:inputType="textMultiLine"
                 android:gravity="top"
                 android:textSize="13sp"
-                android:visibility="visible"
                 />
 
 <!--        android:textIsSelectable="true"-->

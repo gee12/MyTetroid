@@ -34,7 +34,6 @@ import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
-import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -42,7 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
-        EditableWebView.IUrlLoadListener, EditableWebView.IPageLoadListener, WysiwygEditor.IEditorListener {
+        EditableWebView.IPageLoadListener, EditableWebView.IUrlLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
@@ -72,7 +71,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //    private MenuItem miCurRecordFolder;
     private TetroidRecord record;
     private int curMode;
-//    private int lastMode;
+    private boolean isFirstLoad = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,10 +102,11 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         this.editor = findViewById(R.id.web_view_record_text);
         editor.setToolBarVisibility(false);
         editor.setOnTouchListener(this);
+        editor.setOnPageLoadListener(this);
         EditableWebView webView = editor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
-        webView.setOnPageLoadListener(this);
+//        webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
 
         this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
@@ -167,26 +168,23 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     private void loadRecordText(TetroidRecord record) {
         String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
 //        editor.getWebView().clearAndFocusEditor();
-        editor.loadDataWithBaseURL(DataManager.getRecordDirUri(record), textHtml);
-//        editor.getWebView().reload();
+        editor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+                textHtml, "text/html", "UTF-8", null);
     }
 
-    boolean isFirstLoad = true;
+    @Override
+    public void onPageStartLoading() {
+
+    }
 
     @Override
-    public void onPageLoaded(boolean isReady) {
-//        if (isFirstLoad) {
-            // режим по-умолчанию
-//            int mode = (isFirstLoad)
-//                    ? (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW
-//                    : curMode;
+    public void onPageLoaded() {
         if (isFirstLoad) {
             switchMode((SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW);
         } else {
             switchViews(curMode);
         }
-        isFirstLoad = false;
-//        }
+        this.isFirstLoad = false;
     }
     /**
      * Открытие ссылки в тексте.
@@ -203,7 +201,6 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             // вот тут пока неясно что делать потом с командой Back, например.
 //            mainView.openRecord(recordExt);
             openRecord(this, record);
-            // return super.shouldOverrideUrlLoading(view, request);
         } else {
             try {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -316,6 +313,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(false);
                 editor.setEditMode(false);
+                ViewUtils.hideKeyboard(this, getWindow().getDecorView());
             } break;
             case MODE_EDIT : {
                 editor.setVisibility(View.VISIBLE);
@@ -367,10 +365,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         DataManager.openFolder(this, DataManager.getRecordDirUri(record));
     }
 
-    @Override
-    public void onGetHtml(String html) {
-        etHtml.setText(html);
-    }
+//    @Override
+//    public void onGetHtml(String html) {
+//        etHtml.setText(html);
+//    }
 
     /**
      * Сохранение записи при любом скрытии активности.

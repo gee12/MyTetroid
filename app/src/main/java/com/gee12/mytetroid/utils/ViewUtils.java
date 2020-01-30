@@ -42,11 +42,14 @@ public class ViewUtils {
      * @param view
      */
     public static void showKeyboard(Context context, View view) {
-        if (context == null || view == null)
+        if (context == null)
             return;
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        if (view != null)
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        else
+            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
     }
 
     /**
@@ -55,11 +58,14 @@ public class ViewUtils {
      * @param view
      */
     public static void hideKeyboard(Context context, View view) {
-        if (context == null || view == null)
+        if (context == null)
             return;
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if (view != null)
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        else
+            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 
     /**
