@@ -28,7 +28,7 @@ public class TetroidEditor extends WysiwygEditor {
         super(context, attrs, defStyleAttr);
     }
 
-    public String getDocumentHtml(String bodyHtml) {
+    public static String getDocumentHtml(String bodyHtml) {
         StringBuilder sb = new StringBuilder(3);
         sb.append(HTML_START_WITH);
         sb.append(bodyHtml);

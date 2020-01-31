@@ -41,7 +41,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
-        EditableWebView.IPageLoadListener, EditableWebView.IUrlLoadListener {
+        EditableWebView.IPageLoadListener, EditableWebView.IUrlLoadListener, EditableWebView.IHtmlReceiveListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
@@ -108,6 +108,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         webView.getSettings().setDisplayZoomControls(false);
 //        webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
+        webView.setOnHtmlReceiveListener(this);
 
         this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
         this.wvRecordTags = findViewById(R.id.web_view_record_tags);
@@ -328,9 +329,9 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
-                String htmlText = editor.getWebView().getEditableHtml();
-                etHtml.setText(htmlText);
-//                editor.getWebView().makeHtmlRequest();
+//                String htmlText = editor.getWebView().getEditableHtml();
+//                etHtml.setText(htmlText);
+                editor.getWebView().makeEditableHtmlRequest();
                 scrollViewHtml.setVisibility(View.VISIBLE);
                 etHtml.requestFocus();
                 setRecordFieldsVisibility(false);
@@ -365,10 +366,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         DataManager.openFolder(this, DataManager.getRecordDirUri(record));
     }
 
-//    @Override
-//    public void onGetHtml(String html) {
-//        etHtml.setText(html);
-//    }
+    @Override
+    public void onReceiveEditableHtml(String htmlText) {
+        etHtml.setText(htmlText);
+    }
 
     /**
      * Сохранение записи при любом скрытии активности.
