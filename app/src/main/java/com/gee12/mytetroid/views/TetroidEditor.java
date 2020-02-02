@@ -5,7 +5,11 @@ import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 
+import com.gee12.htmlwysiwygeditor.ActionButton;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TetroidEditor extends WysiwygEditor {
 
@@ -27,6 +31,45 @@ public class TetroidEditor extends WysiwygEditor {
     public TetroidEditor(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
+    public List<ActionButton> getActionButtons() {
+        List<ActionButton> buttons = new ArrayList<>();
+        for (int i = 0; i < layoutButtons.getChildCount(); i++) {
+            ActionButton button = (ActionButton) layoutButtons.getChildAt(i);
+            buttons.add(button);
+        }
+        return buttons;
+    }
+
+    /**
+     * Отображение команд панели инструментов исходя из настроек приложения.
+     */
+//    @Override
+//    protected void initToolbar() {
+//
+//        // TODO: реализовать хранение параметров команд в базе данных
+//        List<EditorAction> actions = new ArrayList<>();//Database.getEditorActions();
+//
+//        this.actionButtons = new HashMap<>();
+//        for (int i = 0; i < layoutButtons.getChildCount(); i++) {
+//            ActionButton button = (ActionButton) layoutButtons.getChildAt(i);
+//            initActionButton(button);
+//            EditorAction dbAction = actions.get(i);
+//            if (dbAction == null)
+//                continue;
+//            // отображение
+//            if (!dbAction.isEnabled()) {
+//                button.setVisibility(GONE);
+////                layoutButtons.removeView(button);
+//            } else {
+//                // сортировка
+//                if (button.getType() != dbAction.getType()) {
+//                    layoutButtons.removeView(button);
+//                    layoutButtons.addView(button, dbAction.getOrder());
+//                }
+//            }
+//        }
+//    }
 
     public static String getDocumentHtml(String bodyHtml) {
         StringBuilder sb = new StringBuilder(3);

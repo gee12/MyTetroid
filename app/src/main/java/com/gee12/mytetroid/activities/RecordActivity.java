@@ -41,7 +41,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
-        EditableWebView.IPageLoadListener, EditableWebView.IUrlLoadListener, EditableWebView.IHtmlReceiveListener {
+        EditableWebView.IPageLoadListener, EditableWebView.ILinkLoadListener, EditableWebView.IHtmlReceiveListener,
+        EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
@@ -109,6 +110,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
 //        webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
+        webView.setYoutubeLoadLinkListener(this);
 
         this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
         this.wvRecordTags = findViewById(R.id.web_view_record_tags);
@@ -192,25 +194,34 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
      * @param url
      */
     @Override
-    public boolean onUrlLoad(String url) {
+    public boolean onLinkLoad(String url) {
+        // удаляем BaseUrl из строки адреса
+        String baseUrl = editor.getWebView().getUrl();
+        if (url.startsWith(baseUrl)) {
+            url = url.replace(baseUrl, "");
+        }
+
         if (url.startsWith("mytetra")) {
             // обрабатываем внутреннюю ссылку
             String id = url.substring(url.lastIndexOf('/')+1);
             TetroidRecord record = DataManager.getRecord(id);
-
-            // !!
-            // вот тут пока неясно что делать потом с командой Back, например.
-//            mainView.openRecord(recordExt);
             openRecord(this, record);
         } else {
+            // обрабатываем внешнюю ссылку
             try {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 startActivity(browserIntent);
             } catch (Exception ex) {
-                LogManager.addLog(ex);
+                LogManager.addLog(ex, Toast.LENGTH_LONG);
             }
         }
         return true;
+    }
+
+    @Override
+    public void onYoutubeLinkLoad(String videoId) {
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId));
+        startActivity(webIntent);
     }
 
     /**
