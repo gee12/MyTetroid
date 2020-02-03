@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">MyTetroid</string>
+    <string name="app_name">MyTetroid</string>
     <string name="main_header_title" translatable="false">MyTetroid Free</string>
 </resources>

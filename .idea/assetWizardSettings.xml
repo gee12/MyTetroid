@@ -215,7 +215,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_sync_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_insert_link_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -225,9 +225,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="b8bcbf" />
-                            <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_sync_24dp" />
+                            <entry key="outputName" value="ic_insert_link_black" />
                             <entry key="sourceFile" value="$USER_HOME$/C:\Users\Ivan\D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
                           </map>
                         </option>

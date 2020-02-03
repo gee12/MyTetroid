@@ -196,4 +196,5 @@
     <string name="writing_here">Пишите здесь...</string>
     <string name="not_found_record">Не найдена запись с id=</string>
     <string name="not_transferred_record_id">Не передан Id записи</string>
+    <string name="app_name" translatable="false">MyTetroid</string>
 </resources>

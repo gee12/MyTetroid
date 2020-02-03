@@ -44,10 +44,11 @@ public class TetroidEditor extends WysiwygEditor {
     /**
      * Отображение команд панели инструментов исходя из настроек приложения.
      */
-//    @Override
-//    protected void initToolbar() {
-//
-//        // TODO: реализовать хранение параметров команд в базе данных
+    @Override
+    protected void initToolbar() {
+        super.initToolbar();
+
+        // TODO: реализовать хранение параметров команд в базе данных
 //        List<EditorAction> actions = new ArrayList<>();//Database.getEditorActions();
 //
 //        this.actionButtons = new HashMap<>();
@@ -69,7 +70,7 @@ public class TetroidEditor extends WysiwygEditor {
 //                }
 //            }
 //        }
-//    }
+    }
 
     public static String getDocumentHtml(String bodyHtml) {
         StringBuilder sb = new StringBuilder(3);

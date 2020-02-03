@@ -189,6 +189,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
         }
         this.isFirstLoad = false;
     }
+
     /**
      * Открытие ссылки в тексте.
      * @param url
