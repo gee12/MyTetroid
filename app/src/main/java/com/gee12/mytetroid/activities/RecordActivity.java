@@ -183,8 +183,10 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     @Override
     public void onPageLoaded() {
         if (isFirstLoad) {
+            // переключаем views и делаем другие обработки
             switchMode((SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW);
         } else {
+            // переключаем только views
             switchViews(curMode);
         }
         this.isFirstLoad = false;
@@ -338,6 +340,8 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(true);
                 editor.setEditMode(true);
+//                ViewUtils.showKeyboard(this, getWindow().getDecorView());
+                editor.getWebView().focusEditor();
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);

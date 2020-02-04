@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 import androidx.annotation.Nullable;
 
 import com.gee12.htmlwysiwygeditor.ActionButton;
+import com.gee12.htmlwysiwygeditor.ActionType;
+import com.gee12.mytetroid.App;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import java.util.ArrayList;
@@ -70,6 +72,16 @@ public class TetroidEditor extends WysiwygEditor {
 //                }
 //            }
 //        }
+    }
+
+    @Override
+
+    protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
+        super.initActionButton(button, type, isCheckable, isPopup);
+        //
+        if (!App.isFullVersion() && !type.isFree()) {
+            button.setEnabled(false);
+        }
     }
 
     public static String getDocumentHtml(String bodyHtml) {
