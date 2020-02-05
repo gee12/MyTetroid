@@ -6,10 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
-    tools:openDrawer="start">
+    tools:openDrawer="start"
+    tools:context=".activities.MainActivity">
 
     <include
-        layout="@layout/app_bar_main"
+        layout="@layout/layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

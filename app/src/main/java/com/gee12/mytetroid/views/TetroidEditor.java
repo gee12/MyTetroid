@@ -2,6 +2,7 @@ package com.gee12.mytetroid.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 
@@ -37,8 +38,10 @@ public class TetroidEditor extends WysiwygEditor {
     public List<ActionButton> getActionButtons() {
         List<ActionButton> buttons = new ArrayList<>();
         for (int i = 0; i < layoutButtons.getChildCount(); i++) {
-            ActionButton button = (ActionButton) layoutButtons.getChildAt(i);
-            buttons.add(button);
+            View view = layoutButtons.getChildAt(i);
+            if (view instanceof ActionButton) {
+                buttons.add((ActionButton) view);
+            }
         }
         return buttons;
     }

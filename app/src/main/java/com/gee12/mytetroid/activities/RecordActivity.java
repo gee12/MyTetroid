@@ -20,8 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.DoubleTapListener;
@@ -40,7 +38,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class RecordActivity extends AppCompatActivity implements View.OnTouchListener,
+public class RecordActivity extends TetroidActivity implements View.OnTouchListener,
         EditableWebView.IPageLoadListener, EditableWebView.ILinkLoadListener, EditableWebView.IHtmlReceiveListener,
         EditableWebView.IYoutubeLinkLoadListener {
 
@@ -75,13 +73,17 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
     private boolean isFirstLoad = true;
 
 
+    public RecordActivity() {
+        super(R.layout.activity_record);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        setContentView(R.layout.activity_record);
+//        Toolbar toolbar = findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String recordId = getIntent().getStringExtra(EXTRA_RECORD_ID);
         if (recordId == null) {
@@ -95,7 +97,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
             return;
         } else {
             setTitle(record.getName());
-            toolbar.setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
+//            setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
 
         this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
@@ -328,6 +330,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(false);
                 editor.setEditMode(false);
+                setSubtitle("ПРОСМОТР");
                 ViewUtils.hideKeyboard(this, getWindow().getDecorView());
             } break;
             case MODE_EDIT : {
@@ -340,6 +343,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(true);
                 editor.setEditMode(true);
+                setSubtitle("РЕДАКТОР");
 //                ViewUtils.showKeyboard(this, getWindow().getDecorView());
                 editor.getWebView().focusEditor();
             } break;
@@ -355,6 +359,7 @@ public class RecordActivity extends AppCompatActivity implements View.OnTouchLis
                 miRecordEdit.setVisible(true);
                 miRecordHtml.setVisible(false);
                 miRecordSave.setVisible(true);
+                setSubtitle("HTML-КОД");
             } break;
         }
     }

@@ -25,10 +25,8 @@ import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GestureDetectorCompat;
@@ -76,7 +74,7 @@ import pl.openrnd.multilevellistview.OnItemClickListener;
 
 //import android.widget.SearchView;
 
-public class MainActivity extends AppCompatActivity implements IMainView, View.OnTouchListener {
+public class MainActivity extends TetroidActivity implements IMainView, View.OnTouchListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
@@ -96,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private TetroidTag curTag;
     private LinearLayout layoutProgress;
     private TextView tvProgress;
-    private TextView tvAppTitle;
-    private TextView tvViewType;
     private TextView tvNodesEmpty;
     private TextView tvTagsEmpty;
     private android.widget.SearchView nodesSearchView;
@@ -121,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     private TetroidFile tempOpenableFile;
 
     public MainActivity() {
+        super(R.layout.activity_main);
     }
 
     public MainActivity(Parcel in) {
@@ -129,16 +126,13 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        setContentView(R.layout.activity_main);
 
         // выдвигающиеся панели
         this.drawerLayout = findViewById(R.id.drawer_layout1);
         // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+                this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
@@ -182,9 +176,9 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 //        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
-
-        this.tvAppTitle = toolbar.findViewById(R.id.text_view_app_title);
-        this.tvViewType = toolbar.findViewById(R.id.text_view_view_type);
+//
+//        this.tvTitle = mToolbar.findViewById(R.id.text_view_app_title);
+//        this.tvSubtitle = mToolbar.findViewById(R.id.text_view_view_type);
 
         // список веток
         nodesListView = findViewById(R.id.nodes_list_view);
@@ -637,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
-    @Override
+//    @Override
     public void openTag(String tagName) {
         TetroidTag tag = DataManager.getTag(tagName);
         showTag(tag);
@@ -954,15 +948,6 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
     }
 
     /**
-     * Установка заголовка активности.
-     * @param title
-     */
-    @Override
-    public void setTitle(CharSequence title) {
-        tvAppTitle.setText(title);
-    }
-
-    /**
      * Установка заголовка типа активности.
      * @param viewId
      */
@@ -971,11 +956,11 @@ public class MainActivity extends AppCompatActivity implements IMainView, View.O
         // преобразуем идентификатор view в индекс заголовка
         int titleId = viewId - 1;
         if (titleId >= 0 && titleId < titles.length) {
-            tvViewType.setVisibility(View.VISIBLE);
-            tvViewType.setText(titles[titleId]);
+            tvSubtitle.setVisibility(View.VISIBLE);
+            tvSubtitle.setText(titles[titleId]);
         }
         else if (titleId < 0) {
-            tvViewType.setVisibility(View.GONE);
+            tvSubtitle.setVisibility(View.GONE);
         }
     }
 

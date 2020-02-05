@@ -215,7 +215,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_format_quote_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_format_italic_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -225,8 +225,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_formula_black" />
+                            <entry key="outputName" value="ic_italic" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>

@@ -70,7 +70,7 @@ public class ViewUtils {
 
     /**
      * Установка полноэкранного режима.
-     * @param isFullscreen Если true, то toolbar исчезает и в опциях SystemUiVisibility устанавливаются нужные флаги
+     * @param isFullscreen Если true, то mToolbar исчезает и в опциях SystemUiVisibility устанавливаются нужные флаги
      *                     для полноэкранного режима, иначе все флаги сбрасываются.
      */
     public static void setFullscreen(AppCompatActivity activity, boolean isFullscreen) {
