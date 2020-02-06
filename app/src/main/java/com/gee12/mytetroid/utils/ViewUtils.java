@@ -108,12 +108,39 @@ public class ViewUtils {
      * @param cls
      * @param bundle
      */
-    public static void startActivity(Context context, Class<?> cls, Bundle bundle) {
+    public static void startActivity(Context context, Class<?> cls, Bundle bundle, String action, int flags) {
         Intent intent = new Intent(context, cls);
         if (bundle != null) {
             intent.putExtras(bundle);
         }
+        if (action != null) {
+            intent.setAction(action);
+        }
+        if (flags != 0) {
+            intent.setFlags(flags);
+        }
         context.startActivity(intent);
+    }
+
+    public static void startActivity(Context context, Class<?> cls, Bundle bundle) {
+        startActivity(context, cls, bundle, null, 0);
+    }
+
+    /**
+     *
+     * @param context
+     * @param cls
+     * @param bundle
+     */
+    public static Intent createIntent(Context context, Class<?> cls, Bundle bundle, String action) {
+        Intent intent = new Intent(context, cls);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        if (action != null) {
+            intent.setAction(action);
+        }
+        return intent;
     }
 
 }

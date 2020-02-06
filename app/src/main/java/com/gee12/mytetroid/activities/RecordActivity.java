@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.activities;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -50,6 +50,9 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
+    public static final String ACTION_REINIT_STORAGE = "ACTION_REINIT_STORAGE";
+//    public static final String ACTION_OPEN_RECORD = "ACTION_OPEN_RECORD";
+    public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
 
     protected GestureDetectorCompat gestureDetector;
     private RelativeLayout recordFieldsLayout;
@@ -248,18 +251,30 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
         openTag(RecordActivity.this, tagName);
     }
 
-    public static void openRecord(Context context, TetroidRecord record) {
+    public static void openRecord(Activity activity, TetroidRecord record) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_RECORD_ID, record.getId());
-        ViewUtils.startActivity(context, RecordActivity.class, bundle);
+//        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_OPEN_RECORD, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        ViewUtils.startActivity(activity, RecordActivity.class, bundle);
+        if (activity.getClass().getSimpleName().equals(RecordActivity.class.getSimpleName())) {
+            activity.finish();
+        }
     }
 
-
-    public static void openTag(Context context, String tagName) {
+    public static void openTag(Activity activity, String tagName) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
-        ViewUtils.startActivity(context, MainActivity.class, bundle);
+        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        ViewUtils.startActivity(context, MainActivity.class, bundle);
+        activity.finish();
     }
+
+//    public static void openTag(Activity activity, String tagName) {
+//        Bundle bundle = new Bundle();
+//        bundle.putString(EXTRA_TAG_NAME, tagName);
+////        ViewUtils.startActivity(context, MainActivity.class, bundle);
+//        activity.startActivity(ViewUtils.createIntent(activity, MainActivity.class, bundle));
+//    }
 
     public void setRecordFieldsVisibility(boolean isVisible) {
         recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
@@ -345,7 +360,8 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
                 editor.setEditMode(true);
                 setSubtitle("РЕДАКТОР");
 //                ViewUtils.showKeyboard(this, getWindow().getDecorView());
-                editor.getWebView().focusEditor();
+//                editor.getWebView().focusEditor();
+                editor.getWebView().requestFocus();
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
@@ -367,7 +383,8 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
     private void reinitStorage() {
         Bundle bundle = new Bundle();
         bundle.putBoolean(EXTRA_IS_RELOAD_STORAGE, true);
-        ViewUtils.startActivity(this, MainActivity.class, bundle);
+        ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        setResult(0, ViewUtils.createIntent(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE));
         finish();
     }
 

@@ -78,9 +78,11 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
-    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
+//    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
     public static final int REQUEST_CODE_SYNC_STORAGE = 5;
+    public static final int REQUEST_CODE_SHOW_TAG = 6;
+
     public static final int REQUEST_CODE_PERMISSION_READ = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
@@ -624,6 +626,9 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
 
     //    private void showTag(String tag) {
     private void showTag(TetroidTag tag) {
+        if (tag == null) {
+            LogManager.addLog("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
         this.curNode = null;
         this.curTag = tag;
         LogManager.addLog(getString(R.string.open_tag_records) + tag);
@@ -632,10 +637,10 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
     }
 
 //    @Override
-    public void openTag(String tagName) {
-        TetroidTag tag = DataManager.getTag(tagName);
-        showTag(tag);
-    }
+//    public void openTag(String tagName) {
+//        TetroidTag tag = DataManager.getTag(tagName);
+//        showTag(tag);
+//    }
 
     private void showRecords(List<TetroidRecord> records, int viewId) {
         showRecords(records, viewId, false);
@@ -980,14 +985,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
 //        miStorageInfo.setVisible(visible);
 //    }
 
-    public void setKeyboard(boolean isShow) {
-        if (isShow) {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        } else {
-            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        }
-    }
-
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible)
             viewPager.setCurrent(MainViewPager.PAGE_MAIN);
@@ -1013,11 +1010,11 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
-        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
+        /*} else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
             if (isReloadStorage) {
                 reinitStorage();
-            }
+            }*/
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
@@ -1102,6 +1099,15 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchInMainPage(query);
+        } else if (RecordActivity.ACTION_REINIT_STORAGE.equals(intent.getAction())) {
+            boolean isReloadStorage = intent.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
+            if (isReloadStorage) {
+                reinitStorage();
+            }
+        } else if (RecordActivity.ACTION_SHOW_TAG.equals(intent.getAction())) {
+            String tagName = intent.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
+            TetroidTag tag = DataManager.getTag(tagName);
+            showTag(tag);
         }
         super.onNewIntent(intent);
     }
