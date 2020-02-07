@@ -346,7 +346,7 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
                 miRecordSave.setVisible(false);
                 editor.setEditMode(false);
                 setSubtitle("ПРОСМОТР");
-                ViewUtils.hideKeyboard(this, getWindow().getDecorView());
+                ViewUtils.hideKeyboard(this, editor.getWebView());
             } break;
             case MODE_EDIT : {
                 editor.setVisibility(View.VISIBLE);
@@ -359,9 +359,8 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
                 miRecordSave.setVisible(true);
                 editor.setEditMode(true);
                 setSubtitle("РЕДАКТОР");
-//                ViewUtils.showKeyboard(this, getWindow().getDecorView());
-//                editor.getWebView().focusEditor();
-                editor.getWebView().requestFocus();
+                editor.getWebView().focusEditor();
+                ViewUtils.showKeyboard(this, editor.getWebView());
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
