@@ -364,9 +364,9 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
-//                String htmlText = editor.getWebView().getEditableHtml();
-//                etHtml.setText(htmlText);
-                editor.getWebView().makeEditableHtmlRequest();
+                String htmlText = editor.getWebView().getEditableHtml();
+                etHtml.setText(htmlText);
+//                editor.getWebView().makeEditableHtmlRequest();
                 scrollViewHtml.setVisibility(View.VISIBLE);
                 etHtml.requestFocus();
                 setRecordFieldsVisibility(false);
