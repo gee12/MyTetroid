@@ -305,11 +305,6 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
      * @param newMode
      */
     private void switchMode(int newMode) {
-//        switchMode(newMode, false);
-//    }
-//
-//    private void switchMode(int newMode, boolean isCallback) {
-//        if (!isCallback) {
         int oldMode = curMode;
         // сохраняем
         onSaveRecord(oldMode);
@@ -323,7 +318,6 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
         if (oldMode != MODE_HTML) {
             switchViews(newMode);
         }
-//        this.lastMode = curMode;
         this.curMode = newMode;
     }
 
