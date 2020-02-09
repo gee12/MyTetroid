@@ -28,15 +28,17 @@
     * использование временного каталога для расшифровки файлов
     * запись логов в файл
     * полноэкранный режим
-    * отмена отключения экрана при просмотре записи (режим чтения)
-    * отправка команды синхронизации сторонним приложениям
+    * отмена отключения экрана при просмотре записи
+    * отправка команды синхронизации сторонним приложениям (частично)
+
+Для проверки работы приложения можно использовать [тестовое хранилище](https://github.com/gee12/MyTetraTestData).
 
 **Синхронизация хранилища**
 
 Начиная с версии 1.14 возможен вызов стороннего приложения для синхронизации хранилища. Это удобно, например, когда нужно автоматически обновить данные перед их загрузкой, или сохранить изменения при выходе из приложения. Но функционал ПРИЕМА команд синхронизации (запроса) нужно реализовывать в каждом конкретном приложении-синхронизаторе отдельно.
 
 На данный момент прием команд на синхронизацию от MyTetroid поддерживается в:
-* git-клиенте [MGit](https://play.google.com/store/apps/details?id=com.manichord.mgit) (пока в [моем форке](https://github.com/gee12/MGit/tree/make-ext-command), но ожидается pull request в основную ветку приложения). Кому нужен скомпиллированный apk с изменениями, пока они не внесены в официальную версию, пишите в комментариях.
+* git-клиенте [MGit](https://play.google.com/store/apps/details?id=com.manichord.mgit) (пока в [моем форке](https://github.com/gee12/MGit/tree/make-ext-command), но ожидается pull request в основную ветку приложения). Кому нужен скомпиллированный apk с нововведением, пока оно не внесено в официальную версию, его можно скачать [отсюда](https://yadi.sk/d/F7aNnR-7Ta495w).
 
 Планируется поддержка в:
 * клиенте [NextCloud](https://play.google.com/store/apps/details?id=com.nextcloud.client) ([github](https://github.com/nextcloud/android))
@@ -44,19 +46,29 @@
 
 С официальными клиентами облаков, такими как Google Drive, Яндекс.Диск, Dropbox и прочими, ничего не выйдет, т.к. они закрыты (так что при их использовании запускайте синхронизацию "вручную").
 
-**Планируется реализовать:**
-* поиск по тексту записи как в браузере (с навигацией по найденным совпадениям)
-* функционал использования сразу нескольких баз и переключения между ними
-* ну и конечно же возможность РЕДАКТИРОВАНИЯ записей
-* в т.ч. визуальный WYSIWYG редактор
+**Разрабатывается в данный момент:**
+* изменение текста записи в WYSIWYG-редакторе кода html
 
-**Возможно будет реализовано:**
-* возможность сохранения прикрепленных файлов в новом расположении (Сохранить как..)
-* регулируемый перечень отображаемых полей записей в списке (теги, автор, url, дата создания и др.)
-* выбор активной в прошлый раз ветки
-* список авторов (наподобие списка веток и меток)
-* ввод ПИН-кода для доступа к сохраненному хешу пароля как компромисс между вводом пароля каждый раз и использованием его сохраненного кэша (опционально)
+
+**Использовались сторонние библиотеки:**
+* Многоуровневый список веток - [open-rnd/android-multi-level-listview](https://github.com/open-rnd/android-multi-level-listview)
+* FolderPicker - [kashifo/android-folder-picker-library](https://github.com/kashifo/android-folder-picker-library) (мой [форк](https://github.com/gee12/android-folder-picker-library))
+* ColorPicker - [yukuku/ambilwarna](https://github.com/yukuku/ambilwarna)
+* Чтение SVG-иконок веток - [thinkingcow/svg-android-2](https://github.com/thinkingcow/svg-android-2) (мой [форк](https://github.com/gee12/svg-android-2))
+* Парсинг html - [jsoup](https://github.com/jhy/jsoup)
+* WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
+* TextViewUndoRedo - [from google](https://issuetracker.google.com/issues/36913735#c123)
 
 
 ***Более подробное описание проекта:*** *https://gee12.space/mytetroid*<br>
 ***Оригинальный проект MyTetra:*** *https://webhamster.ru/site/page/index/articles/projectcode/105*
+
+
+## Лицензия
+```
+GNU General Public License v3.0
+
+Permissions of this strong copyleft license are conditioned on making available complete source code 
+of licensed works and modifications, which include larger works using a licensed work, under the same license. 
+Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
+```
