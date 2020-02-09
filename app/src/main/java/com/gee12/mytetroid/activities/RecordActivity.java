@@ -107,7 +107,8 @@ public class RecordActivity extends TetroidActivity implements
 
         this.editor = findViewById(R.id.web_view_record_text);
         editor.setToolBarVisibility(false);
-        editor.setOnTouchListener(this);
+//        editor.setOnTouchListener(this);
+        editor.getWebView().setOnTouchListener(this);
         editor.setOnPageLoadListener(this);
         EditableWebView webView = editor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
@@ -166,15 +167,20 @@ public class RecordActivity extends TetroidActivity implements
         if (record.getCreated() != null)
             tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
         // текст
-        loadRecordText(record);
+        loadRecordText(record, false);
     }
 
     /**
-     * Загрузка html-кода из файла записи в WebView.
+     * Загрузка html-кода записи в WebView.
      * @param record
      */
-    private void loadRecordText(TetroidRecord record) {
-        String textHtml = DataManager.getRecordHtmlTextDecrypted(record);
+    private void loadRecordText(TetroidRecord record, boolean fromHtmlEditor) {
+        // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
+        // и не используется авто-сохранение изменений, то загружаем html-код из редактора
+        // 2) если нет, то загружаем html-код из файла записи
+        String textHtml = (fromHtmlEditor && !SettingsManager.isRecordAutoSave())
+                ? etHtml.getText().toString()
+                : DataManager.getRecordHtmlTextDecrypted(record);
 //        editor.getWebView().clearAndFocusEditor();
         editor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 textHtml, "text/html", "UTF-8", null);
@@ -336,7 +342,7 @@ public class RecordActivity extends TetroidActivity implements
         onSaveRecord(oldMode, newMode);
         // перезагружаем текст записи в webView, если меняли вручную html
         if (oldMode == MODE_HTML) {
-            loadRecordText(record);
+            loadRecordText(record, true);
         }
         // переключаем элементы интерфейса, только если не редактировали только что html,
         // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
@@ -354,9 +360,10 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void onSaveRecord(int oldMode, int newMode) {
         if (SettingsManager.isRecordAutoSave()) {
-            if (oldMode == MODE_EDIT || oldMode == MODE_HTML)
+            if (oldMode == MODE_EDIT || oldMode == MODE_HTML) {
                 saveRecord();
-        } else {
+            }
+        } /*else {
             if (newMode == MODE_VIEW && oldMode != 0) {
                 AskDialogs.showSaveDialog(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
                     @Override
@@ -369,7 +376,7 @@ public class RecordActivity extends TetroidActivity implements
                     }
                 });
             }
-        }
+        }*/
     }
 
     /**
