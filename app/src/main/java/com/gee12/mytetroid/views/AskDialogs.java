@@ -111,11 +111,13 @@ public class AskDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showSaveDialog(Context context, final IApplyResult applyHandler) {
+    public static void showSaveDialog(Context context, final IApplyCancelResult applyHandler) {
 
         DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 applyHandler.onApply();
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                applyHandler.onCancel();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);

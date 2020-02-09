@@ -251,6 +251,11 @@ public class RecordActivity extends TetroidActivity implements
         openTag(RecordActivity.this, tagName);
     }
 
+    /**
+     * FIXME:
+     * @param activity
+     * @param record
+     */
     public static void openRecord(Activity activity, TetroidRecord record) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_RECORD_ID, record.getId());
@@ -261,9 +266,16 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    /**
+     * FIXME:
+     * @param activity
+     * @param tagName
+     */
     public static void openTag(Activity activity, String tagName) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
+        // Action = android.intent.action.MAIN
+        // Categories[0] = android.intent.category.LAUNCHER
         ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //        ViewUtils.startActivity(context, MainActivity.class, bundle);
         activity.finish();
@@ -345,8 +357,17 @@ public class RecordActivity extends TetroidActivity implements
             if (oldMode == MODE_EDIT || oldMode == MODE_HTML)
                 saveRecord();
         } else {
-            if (newMode == MODE_VIEW) {
-                AskDialogs.showSaveDialog(RecordActivity.this, () -> saveRecord());
+            if (newMode == MODE_VIEW && oldMode != 0) {
+                AskDialogs.showSaveDialog(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
+                    @Override
+                    public void onApply() {
+                        saveRecord();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                });
             }
         }
     }
@@ -354,16 +375,29 @@ public class RecordActivity extends TetroidActivity implements
     /**
      * Сохранение изменений при скрытии или выходе из активности.
      * @param curMode
-     * @param isAsk
+     * @param isAskAndExit
      */
-    private void onSaveRecord(int curMode, boolean isAsk) {
+    private boolean onSaveRecord(int curMode, boolean isAskAndExit) {
         if (curMode == MODE_EDIT || curMode == MODE_HTML) {
             if (SettingsManager.isRecordAutoSave()) {
                 saveRecord();
-            } else if (isAsk) {
-                AskDialogs.showSaveDialog(RecordActivity.this, () -> saveRecord());
+            } else if (isAskAndExit) {
+                AskDialogs.showSaveDialog(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
+                    @Override
+                    public void onApply() {
+                        saveRecord();
+                        finish();
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        finish();
+                    }
+                });
+                return true;
             }
         }
+        return false;
     }
 
     private void switchViews(int newMode) {
@@ -530,8 +564,7 @@ public class RecordActivity extends TetroidActivity implements
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             case android.R.id.home:
-                onSaveRecord(curMode, true);
-                return false;
+                return onSaveRecord(curMode, true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -546,12 +579,9 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
-        onSaveRecord(curMode, true);
-//        if (lastMode > 0) {
-//            switchMode(lastMode);
-//        } else {
+        if (!onSaveRecord(curMode, true)) {
             super.onBackPressed();
-//        }
+        }
     }
 
 }
