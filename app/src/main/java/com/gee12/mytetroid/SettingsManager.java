@@ -238,6 +238,15 @@ public class SettingsManager {
     }
 
     /**
+     * Сохранять изменения записи автоматически?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isRecordAutoSave() {
+        return getBoolean(R.string.pref_key_is_record_auto_save, true);
+    }
+
+    /**
      * Писать логи в файл
      * По-умолчанию - нет
      * @return

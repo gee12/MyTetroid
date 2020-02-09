@@ -235,4 +235,8 @@
     <string name="writing_here">Start writing here...</string>
     <string name="not_found_record">Not found record with id=</string>
     <string name="not_transferred_record_id">Record Id not passed</string>
+    <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>
+    <string name="pref_category_edit">Edit</string>
+    <string name="record_auto_save">Save automatically</string>
+    <string name="record_auto_save_summ">Save record changes automatically when editing is completed</string>
 </resources>

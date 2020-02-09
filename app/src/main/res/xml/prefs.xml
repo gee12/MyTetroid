@@ -86,6 +86,22 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_edit_mode"
+            android:title="@string/recod_edit_mode"
+            android:summary="@string/record_edit_mode_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_auto_save"
+            android:title="@string/record_auto_save"
+            android:summary="@string/record_auto_save_summ"
+            android:defaultValue="true" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">
 
         <CheckBoxPreference
@@ -117,12 +133,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_record_edit_mode"
-            android:title="@string/recod_edit_mode"
-            android:summary="@string/record_edit_mode_summ"
-            android:defaultValue="false" />
 
         <!--<CheckBoxPreference-->
             <!--android:visibility="gone"-->

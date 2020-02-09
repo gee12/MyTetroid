@@ -37,18 +37,12 @@ public class AskDialogs {
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton(R.string.answer_ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                passResult.applyPass(input.getText().toString(), node);
-            }
+        builder.setPositiveButton(R.string.answer_ok, (dialog, which) -> {
+            passResult.applyPass(input.getText().toString(), node);
         });
-        builder.setNegativeButton(R.string.answer_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                passResult.cancelPass();
-            }
+        builder.setNegativeButton(R.string.answer_cancel, (dialog, which) -> {
+            dialog.cancel();
+            passResult.cancelPass();
         });
 
         builder.show();
@@ -57,14 +51,11 @@ public class AskDialogs {
     public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName,
                         final TetroidNode node, final IPassCheckResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        applyHandler.onApply(node);
-                        break;
-                }
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    applyHandler.onApply(node);
+                    break;
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -75,17 +66,14 @@ public class AskDialogs {
 
     public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        applyHandler.onApply();
-                        break;
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    applyHandler.onApply();
+                    break;
 //                    case DialogInterface.BUTTON_NEGATIVE:
 //                        applyHandler.onCancel();
 //                        break;
-                }
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -96,12 +84,9 @@ public class AskDialogs {
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                }
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -113,14 +98,11 @@ public class AskDialogs {
 
     public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                    applyHandler.onCancel();
-                }
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                applyHandler.onCancel();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -129,14 +111,24 @@ public class AskDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
+    public static void showSaveDialog(Context context, final IApplyResult applyHandler) {
+
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Сохранить запись?")
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    }
+
     public static void showExitDialog(Context context, final IApplyResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                }
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);

@@ -9,11 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 /**
  * Обработчик двойного нажатия на экране.
  */
-public class DoubleTapListener extends GestureDetector.SimpleOnGestureListener {
+public class ActivityDoubleTapListener extends GestureDetector.SimpleOnGestureListener {
 
     private AppCompatActivity activity;
 
-    public DoubleTapListener(AppCompatActivity activity) {
+    public ActivityDoubleTapListener(AppCompatActivity activity) {
         this.activity = activity;
     }
 

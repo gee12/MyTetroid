@@ -13,7 +13,6 @@ import android.os.Parcel;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -29,14 +28,12 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.DoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -74,7 +71,7 @@ import pl.openrnd.multilevellistview.OnItemClickListener;
 
 //import android.widget.SearchView;
 
-public class MainActivity extends TetroidActivity implements IMainView, View.OnTouchListener {
+public class MainActivity extends TetroidActivity implements IMainView {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
@@ -106,14 +103,12 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
     private MenuItem miGlobalSearch;
     private MenuItem miStorageSync;
     private MenuItem miStorageInfo;
-    private GestureDetectorCompat gestureDetector;
     private boolean isAlreadyTryDecrypt;
     private boolean isStorageLoaded;
 
     private MainPagerAdapter viewPagerAdapter;
     private MainViewPager viewPager;
     private PagerTabStrip titleStrip;
-//    private boolean isFullscreen;
     private boolean isStarted;
     private boolean isLoadStorageAfterSync;
     private TetroidFile tempOpenableFile;
@@ -146,8 +141,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
-        // обработчик нажатия на экране
-        this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
         // обработчик нажатия на экране, когда ветка не выбрана
         drawerLayout.setOnTouchListener(this);
 
@@ -178,9 +171,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 //        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
-//
-//        this.tvTitle = mToolbar.findViewById(R.id.text_view_app_title);
-//        this.tvSubtitle = mToolbar.findViewById(R.id.text_view_view_type);
 
         // список веток
         nodesListView = findViewById(R.id.nodes_list_view);
@@ -660,7 +650,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
 
     @Override
     public void openRecord(TetroidRecord record) {
-//        viewPagerAdapter.getMainFragment().showRecord(record);
         RecordActivity.openRecord(this, record);
     }
 
@@ -691,11 +680,8 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
     /**
      * Обработчик клика на заголовке ветки с подветками.
      */
-    NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
-        @Override
-        public void onClick(TetroidNode node) {
-            showNode(node);
-        }
+    NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = node -> {
+        showNode(node);
     };
 
     /**
@@ -730,11 +716,8 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
     /**
      * Обработчик клика на метке.
      */
-    private AdapterView.OnItemClickListener onTagClicklistener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            showTagRecords(position);
-        }
+    private AdapterView.OnItemClickListener onTagClicklistener = (parent, view, position, id) -> {
+        showTagRecords(position);
     };
 
     /**
@@ -888,9 +871,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
                             viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
                         break;*/
-                   /*  case MAIN_VIEW_RECORD_TEXT:
-                            // ?
-                            break;*/
                     }
                 }
                 MainActivity.this.isRecordsFiltered = false;
@@ -911,8 +891,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
             updateMainToolbar(MainPageFragment.MAIN_VIEW_GLOBAL_FOUND, null);
         }
     }
-
-//    String recordsSearchQuery;
 
     /**
      *
@@ -972,18 +950,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
     public void setRecordsSearchViewVisibility(boolean isVisible) {
         miRecordsSearchView.setVisible(isVisible);
     }
-
-//    /**
-//     * Управление видимостью пунктов меню в зависимости от отображаемой вьюшки
-//     * @param viewId
-//     */
-//    @Override
-//    public void updateMenuItems(int viewId) {
-//        boolean visible = (viewId != MAIN_VIEW_RECORD_TEXT);
-//        miGlobalSearch.setVisible(visible);
-//        miStorageSync.setVisible(visible);
-//        miStorageInfo.setVisible(visible);
-//    }
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible)
@@ -1134,9 +1100,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 searchInRecordFiles(query);
                 break;
-/*            case MAIN_VIEW_RECORD_TEXT:
-                searchInRecordText(query);
-                break;*/
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
 //                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
 //                if (viewId != lastVIewId)
@@ -1196,21 +1159,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
         }
     }
 
-//    private void searchInRecordText(String query) {
-//        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
-//        if (curRecord != null) {
-//            searchInText(query, curRecord);
-//        } else {
-//            LogManager.addLog(getString(R.string.cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-//        }
-//    }
-
-//    @Override
-//    public void checkKeepScreenOn(int curViewId) {
-//        setKeepScreenOn(curViewId == MAIN_VIEW_RECORD_TEXT
-//            && SettingsManager.isKeepScreenOn());
-//    }
-
     /**
      * Обработчик нажатия кнопки Назад.
      */
@@ -1269,15 +1217,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
             case R.id.action_cur_node:
                 showNode(curNode);
                 return true;
-//            case R.id.action_cur_record:
-//                viewPagerAdapter.getMainFragment().showCurRecord();
-//                return true;
-//            case R.id.action_attached_files:
-//                viewPagerAdapter.getMainFragment().showCurRecordFiles();
-//                return true;
-//            case R.id.action_cur_record_folder:
-//                viewPagerAdapter.getMainFragment().openRecordFolder();
-//                return true;
             case R.id.action_fullscreen:
                 App.toggleFullscreen(MainActivity.this);
                 return true;
@@ -1301,32 +1240,6 @@ public class MainActivity extends TetroidActivity implements IMainView, View.OnT
                     return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * Переопределяем обработчик нажатия на экране
-     * для обработки перехода в полноэеранный режим.
-     * @param v
-     * @param event
-     * @return
-     */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return false;
-    }
-
-    /**
-     * Если потеряли фокус на активности, то выходим их полноэкранного режима
-     * (например, при нажатии на "физическую" кнопку вызова меню).
-     * @param hasFocus
-     */
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (!hasFocus) {
-//            setFullscreen(false);
-        }
     }
 
     private void onExit() {

@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -22,7 +21,7 @@ import android.widget.ToggleButton;
 
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.DoubleTapListener;
+import com.gee12.mytetroid.ActivityDoubleTapListener;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -38,8 +37,10 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-public class RecordActivity extends TetroidActivity implements View.OnTouchListener,
-        EditableWebView.IPageLoadListener, EditableWebView.ILinkLoadListener, EditableWebView.IHtmlReceiveListener,
+public class RecordActivity extends TetroidActivity implements
+        EditableWebView.IPageLoadListener,
+        EditableWebView.ILinkLoadListener,
+        EditableWebView.IHtmlReceiveListener,
         EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
@@ -54,7 +55,6 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
 //    public static final String ACTION_OPEN_RECORD = "ACTION_OPEN_RECORD";
     public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
 
-    protected GestureDetectorCompat gestureDetector;
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
     private WebView wvRecordTags;
@@ -103,7 +103,7 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
 //            setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
 
-        this.gestureDetector = new GestureDetectorCompat(this, new DoubleTapListener(this));
+        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
 
         this.editor = findViewById(R.id.web_view_record_text);
         editor.setToolBarVisibility(false);
@@ -269,6 +269,20 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
         activity.finish();
     }
 
+    /**
+     * TODO:
+     */
+    public void showCurNode() {
+
+    }
+
+    /**
+     * TODO:
+     */
+    public void showRecordFiles() {
+
+    }
+
 //    public static void openTag(Activity activity, String tagName) {
 //        Bundle bundle = new Bundle();
 //        bundle.putString(EXTRA_TAG_NAME, tagName);
@@ -307,7 +321,7 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
     private void switchMode(int newMode) {
         int oldMode = curMode;
         // сохраняем
-        onSaveRecord(oldMode);
+        onSaveRecord(oldMode, newMode);
         // перезагружаем текст записи в webView, если меняли вручную html
         if (oldMode == MODE_HTML) {
             loadRecordText(record);
@@ -321,9 +335,34 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
         this.curMode = newMode;
     }
 
-    private void onSaveRecord(int mode) {
-        if (mode == MODE_EDIT || mode == MODE_HTML) {
-            saveRecord();
+    /**
+     * Сохранение изменений при смене режима.
+     * @param oldMode
+     * @param newMode
+     */
+    private void onSaveRecord(int oldMode, int newMode) {
+        if (SettingsManager.isRecordAutoSave()) {
+            if (oldMode == MODE_EDIT || oldMode == MODE_HTML)
+                saveRecord();
+        } else {
+            if (newMode == MODE_VIEW) {
+                AskDialogs.showSaveDialog(RecordActivity.this, () -> saveRecord());
+            }
+        }
+    }
+
+    /**
+     * Сохранение изменений при скрытии или выходе из активности.
+     * @param curMode
+     * @param isAsk
+     */
+    private void onSaveRecord(int curMode, boolean isAsk) {
+        if (curMode == MODE_EDIT || curMode == MODE_HTML) {
+            if (SettingsManager.isRecordAutoSave()) {
+                saveRecord();
+            } else if (isAsk) {
+                AskDialogs.showSaveDialog(RecordActivity.this, () -> saveRecord());
+            }
         }
     }
 
@@ -407,7 +446,7 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
      */
     @Override
     public void onPause() {
-        onSaveRecord(curMode);
+        onSaveRecord(curMode, false);
         super.onPause();
     }
 
@@ -469,12 +508,11 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
             case R.id.action_record_save:
                 saveRecord();
                 return true;
-
             case R.id.action_cur_node:
-
+                showCurNode();
                 return true;
             case R.id.action_attached_files:
-
+                showRecordFiles();
                 return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
@@ -491,6 +529,9 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
             case R.id.action_about_app:
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
+            case android.R.id.home:
+                onSaveRecord(curMode, true);
+                return false;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -505,6 +546,7 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
      */
     @Override
     public void onBackPressed() {
+        onSaveRecord(curMode, true);
 //        if (lastMode > 0) {
 //            switchMode(lastMode);
 //        } else {
@@ -512,16 +554,4 @@ public class RecordActivity extends TetroidActivity implements View.OnTouchListe
 //        }
     }
 
-    /**
-     * Переопределяем обработчик нажатия на экране
-     * для обработки перехода в полноэкранный режим.
-     * @param v
-     * @param event
-     * @return
-     */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return false;
-    }
 }
