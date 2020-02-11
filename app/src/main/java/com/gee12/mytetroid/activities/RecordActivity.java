@@ -315,9 +315,12 @@ public class RecordActivity extends TetroidActivity implements
     private void saveRecord() {
 //        if (BuildConfig.DEBUG)
 //            return;
+        LogManager.addLog("Сохранение текста записи id=" + record.getId(), LogManager.Types.INFO);
         String htmlText = (curMode == MODE_HTML)
                 ? editor.getDocumentHtml(etHtml.getText().toString()) : editor.getDocumentHtml();
-        DataManager.saveRecordHtmlText(record, htmlText);
+        if (!DataManager.saveRecordHtmlText(record, htmlText)) {
+            LogManager.addLog("Не удается сохранить запись (подробнее в логах)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
     }
 
     /**
