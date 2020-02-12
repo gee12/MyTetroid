@@ -242,4 +242,5 @@
     <string name="record_subtitle_view">VIEWER</string>
     <string name="record_subtitle_edit">EDITOR</string>
     <string name="record_subtitle_html">HTML</string>
+    <string name="editing_crypted_records">Editing encrypted records is not yet supported.</string>
 </resources>

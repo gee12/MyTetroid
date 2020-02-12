@@ -344,7 +344,7 @@ public class RecordActivity extends TetroidActivity implements
     private void switchMode(int newMode) {
         //
         if (newMode != MODE_VIEW && IS_EDIT_CRYPTED_RECORDS) {
-            Message.show(this, "Редактирование зашифрованных записей пока не поддерживается", Toast.LENGTH_LONG);
+            Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
             return;
         }
         int oldMode = curMode;

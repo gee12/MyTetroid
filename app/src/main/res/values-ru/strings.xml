@@ -203,4 +203,5 @@
     <string name="record_subtitle_view">ПРОСМОТР</string>
     <string name="record_subtitle_edit">РЕДАКТОР</string>
     <string name="record_subtitle_html">HTML-КОД</string>
+    <string name="editing_crypted_records">Редактирование зашифрованных записей пока не поддерживается</string>
 </resources>
