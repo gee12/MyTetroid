@@ -2,7 +2,7 @@
 <resources>
     <string name="title_settings">Настройки</string>
     <string name="records_is_missing">Записей нет</string>
-    <string name="select_the_node">Выберите ветку..</string>
+    <string name="select_the_node">Выберите ветку…</string>
     <string name="files_is_missing">Прикрепленных файлов нет</string>
     <string name="pref_category_srorage">Хранилище</string>
     <string name="pref_storage_path">Путь к хранилищу</string>
@@ -81,15 +81,15 @@
     <string name="is_confirm_app_exit">Подтверждать выход</string>
     <string name="is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
     <string name="file_is_missing">Файл отсутствует&#160;</string>
-    <string name="storage_loading">Загрузка хранилища..</string>
-    <string name="global_searching">Глобальный поиск..</string>
+    <string name="storage_loading">Загрузка хранилища…</string>
+    <string name="global_searching">Глобальный поиск…</string>
     <string name="start_storage_loading">Начало загрузки хранилища:</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
-    <string name="records_in_node_not_found">По запросу \"%s\" в ветке [%s] не найдено записей..</string>
-    <string name="records_in_tag_not_found">По запросу \"%s\" в записях метки [%s] не найдено записей..</string>
-    <string name="files_not_found">По запросу \"%s\" не найдено файлов..</string>
+    <string name="records_in_node_not_found">По запросу \"%s\" в ветке [%s] не найдено записей…</string>
+    <string name="records_in_tag_not_found">По запросу \"%s\" в записях метки [%s] не найдено записей…</string>
+    <string name="files_not_found">По запросу \"%s\" не найдено файлов…</string>
     <string name="search_records_in_node_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
     <string name="search_records_in_tag_by_query">Поиск в записях метки [%s] по запросу "%s"</string>
     <string name="search_files_by_query">Поиск файлов в записи [%s] по запросу "%s"</string>
@@ -98,10 +98,10 @@
     <string name="nodes_search_hint">Поиск по веткам</string>
     <string name="nodes_header">ВЕТКИ</string>
     <string name="nodes_is_missing">Ветки отсутствуют</string>
-    <string name="nodes_not_found">По запросу \"%s\" не найдено веток..</string>
-    <string name="search_nodes_by_query">Поиск веток по запросу "%s"..</string>
-    <string name="tags_not_found">По запросу \"%s\" не найдено меток..</string>
-    <string name="search_tags_by_query">Поиск меток по запросу "%s"..</string>
+    <string name="nodes_not_found">По запросу \"%s\" не найдено веток…</string>
+    <string name="search_nodes_by_query">Поиск веток по запросу "%s"…</string>
+    <string name="tags_not_found">По запросу \"%s\" не найдено меток…</string>
+    <string name="search_tags_by_query">Поиск меток по запросу "%s"…</string>
     <string name="title_global_search">Глобальный поиск</string>
     <string name="search_hint_input_query">Введите запрос</string>
     <string name="search_search_in">Искать по:</string>
@@ -115,13 +115,13 @@
     <string name="search_other_options">Другие параметры:</string>
     <string name="found_mask">Найдено: %d</string>
     <string name="records_search_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
-    <string name="global_search_not_found">По запросу \"%s\" ничего не найдено..</string>
-    <string name="global_search_not_found_in_node">По запросу \"%s\" в ветке \"%s\" ничего не найдено..</string>
+    <string name="global_search_not_found">По запросу \"%s\" ничего не найдено…</string>
+    <string name="global_search_not_found_in_node">По запросу \"%s\" в ветке \"%s\" ничего не найдено…</string>
     <string name="show_node_records">Записи ветки</string>
     <string name="search_submit_title">Начать поиск</string>
     <string name="enter_query">Введите запрос для поиска</string>
     <string name="global_search_results">Результаты поиска</string>
-    <string name="global_search_return_null">В процессе поиска что-то пошло не так..</string>
+    <string name="global_search_return_null">В процессе поиска что-то пошло не так…</string>
     <string name="cur_node_is_not_selected">Текущая ветка не выбрана</string>
     <!--<string name="title_activity_found">Найдено</string>-->
     <string name="global_search_in_cur_node">В текущей ветке</string>
@@ -193,11 +193,14 @@
     <string name="recod_edit_mode">Режим редактирования</string>
     <string name="record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
-    <string name="writing_here">Пишите здесь...</string>
+    <string name="writing_here">Пишите здесь…</string>
     <string name="not_found_record">Не найдена запись с id=</string>
     <string name="not_transferred_record_id">Не передан Id записи</string>
     <string name="app_name" translatable="false">MyTetroid</string>
     <string name="pref_category_edit">Редактирование</string>
     <string name="record_auto_save">Сохранять автоматически</string>
     <string name="record_auto_save_summ">Сохранять изменения записи автоматически при завершении редактирования</string>
+    <string name="record_subtitle_view">ПРОСМОТР</string>
+    <string name="record_subtitle_edit">РЕДАКТОР</string>
+    <string name="record_subtitle_html">HTML-КОД</string>
 </resources>

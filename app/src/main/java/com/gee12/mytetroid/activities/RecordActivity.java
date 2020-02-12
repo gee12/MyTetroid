@@ -29,6 +29,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
@@ -47,6 +48,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
+    public static final boolean IS_EDIT_CRYPTED_RECORDS = false;
 
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
@@ -195,7 +197,7 @@ public class RecordActivity extends TetroidActivity implements
     public void onPageLoaded() {
         if (isFirstLoad) {
             // переключаем views и делаем другие обработки
-            switchMode((SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW);
+            switchMode((SettingsManager.isRecordEditMode() && IS_EDIT_CRYPTED_RECORDS) ? MODE_EDIT : MODE_VIEW);
         } else {
             // переключаем только views
             switchViews(curMode);
@@ -340,6 +342,11 @@ public class RecordActivity extends TetroidActivity implements
      * @param newMode
      */
     private void switchMode(int newMode) {
+        //
+        if (newMode != MODE_VIEW && IS_EDIT_CRYPTED_RECORDS) {
+            Message.show(this, "Редактирование зашифрованных записей пока не поддерживается", Toast.LENGTH_LONG);
+            return;
+        }
         int oldMode = curMode;
         // сохраняем
         onSaveRecord(oldMode, newMode);
@@ -422,7 +429,7 @@ public class RecordActivity extends TetroidActivity implements
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(false);
                 editor.setEditMode(false);
-                setSubtitle("ПРОСМОТР");
+                setSubtitle(getString(R.string.record_subtitle_view));
                 ViewUtils.hideKeyboard(this, editor.getWebView());
             } break;
             case MODE_EDIT : {
@@ -435,7 +442,7 @@ public class RecordActivity extends TetroidActivity implements
                 miRecordHtml.setVisible(true);
                 miRecordSave.setVisible(true);
                 editor.setEditMode(true);
-                setSubtitle("РЕДАКТОР");
+                setSubtitle(getString(R.string.record_subtitle_edit));
                 editor.getWebView().focusEditor();
                 ViewUtils.showKeyboard(this, editor.getWebView());
             } break;
@@ -451,7 +458,7 @@ public class RecordActivity extends TetroidActivity implements
                 miRecordEdit.setVisible(true);
                 miRecordHtml.setVisible(false);
                 miRecordSave.setVisible(true);
-                setSubtitle("HTML-КОД");
+                setSubtitle(getString(R.string.record_subtitle_html));
             } break;
         }
     }
