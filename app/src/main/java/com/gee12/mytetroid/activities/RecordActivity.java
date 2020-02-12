@@ -45,6 +45,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
+    public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
@@ -53,9 +54,12 @@ public class RecordActivity extends TetroidActivity implements
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
-    public static final String ACTION_REINIT_STORAGE = "ACTION_REINIT_STORAGE";
+//    public static final String ACTION_REINIT_STORAGE = "ACTION_REINIT_STORAGE";
 //    public static final String ACTION_OPEN_RECORD = "ACTION_OPEN_RECORD";
-    public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
+//    public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
+    public static final int ACTION_REINIT_STORAGE = 1;
+    public static final int ACTION_OPEN_RECORD = 2;
+    public static final int ACTION_SHOW_TAG = 3;
 
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
@@ -221,7 +225,7 @@ public class RecordActivity extends TetroidActivity implements
             // обрабатываем внутреннюю ссылку
             String id = url.substring(url.lastIndexOf('/')+1);
             TetroidRecord record = DataManager.getRecord(id);
-            openRecord(this, record);
+            openAnotherRecord(record);
         } else {
             // обрабатываем внешнюю ссылку
             try {
@@ -256,37 +260,45 @@ public class RecordActivity extends TetroidActivity implements
         }
         // избавляемся от приставки "tag:"
         String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
-        openTag(RecordActivity.this, tagName);
+        openTag(tagName);
     }
 
     /**
      * FIXME:
-     * @param activity
      * @param record
      */
-    public static void openRecord(Activity activity, TetroidRecord record) {
+    public void openAnotherRecord(TetroidRecord record) {
         Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_ACTION_ID, ACTION_OPEN_RECORD);
         bundle.putString(EXTRA_RECORD_ID, record.getId());
 //        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_OPEN_RECORD, Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        ViewUtils.startActivity(activity, RecordActivity.class, bundle);
-        if (activity.getClass().getSimpleName().equals(RecordActivity.class.getSimpleName())) {
-            activity.finish();
-        }
+//        ViewUtils.startActivity(activity, RecordActivity.class, bundle);
+        // если открываем запись из той же активности RecordActivity, то нужно ее закрыть
+//        if (activity.getClass().getSimpleName().equals(RecordActivity.class.getSimpleName())) {
+//            activity.finish();
+//        }
+//        Intent intent = new Intent();
+//        intent.putExtras(bundle);
+//        activity.startActivityForResult(intent, REQUEST_CODE_RECORD_ACTIVITY);
+//        ViewUtils.startActivity(activity, RecordActivity.class, bundle, MainActivity.REQUEST_CODE_RECORD_ACTIVITY);
+//        setResult(Activity.RESULT_OK, intent);
+//        finish();
+        finishWithResult(bundle);
     }
 
     /**
-     * FIXME:
-     * @param activity
+     * Открытие записей метки в главной активности.
      * @param tagName
      */
-    public static void openTag(Activity activity, String tagName) {
+    public void openTag(String tagName) {
         Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_ACTION_ID, ACTION_SHOW_TAG);
         bundle.putString(EXTRA_TAG_NAME, tagName);
         // Action = android.intent.action.MAIN
         // Categories[0] = android.intent.category.LAUNCHER
-        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP, null);
 //        ViewUtils.startActivity(context, MainActivity.class, bundle);
-        activity.finish();
+        finishWithResult(bundle);
     }
 
     /**
@@ -463,11 +475,25 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    /**
+     * Перезагрузка хранилища в главной активности.
+     */
     private void reinitStorage() {
         Bundle bundle = new Bundle();
-        bundle.putBoolean(EXTRA_IS_RELOAD_STORAGE, true);
-        ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE, Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        bundle.putInt(EXTRA_ACTION_ID, ACTION_REINIT_STORAGE);
+//        ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE, Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //        setResult(0, ViewUtils.createIntent(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE));
+        finishWithResult(bundle);
+    }
+
+    /**
+     * Формирование результата активности и ее закрытие.
+     * @param bundle
+     */
+    private void finishWithResult(Bundle bundle) {
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        setResult(Activity.RESULT_OK, intent);
         finish();
     }
 

@@ -75,7 +75,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
-//    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
+    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
     public static final int REQUEST_CODE_SYNC_STORAGE = 5;
     public static final int REQUEST_CODE_SHOW_TAG = 6;
@@ -650,8 +650,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void openRecord(TetroidRecord record) {
-        RecordActivity.openRecord(this, record);
+        openRecord(record.getId());
     }
+
+    public void openRecord(String recordId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(RecordActivity.EXTRA_RECORD_ID, recordId);
+//        Intent intent = new Intent(activity, RecordActivity.class);
+//        intent.putExtras(bundle);
+//        activity.startActivityForResult(intent, REQUEST_CODE_RECORD_ACTIVITY);
+        ViewUtils.startActivity(this, RecordActivity.class, bundle, REQUEST_CODE_RECORD_ACTIVITY);
+    }
+
 
     /**
      * Отрытие прикрепленного файла.
@@ -976,20 +986,46 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
-        /*} else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
-            boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
-            if (isReloadStorage) {
-                reinitStorage();
-            }*/
+        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
+            int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
+            onRecordActivityResult(data, actionId);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
-
         } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
             initOrSyncStorage(folderFullName);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
+        }
+    }
+
+    /**
+     * Обработка возвращаемого результата активности записи.
+     * @param data
+     * @param actionId
+     */
+    private void onRecordActivityResult(Intent data, int actionId) {
+        switch (actionId) {
+            case RecordActivity.ACTION_REINIT_STORAGE:
+                boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
+                if (isReloadStorage) {
+                    reinitStorage();
+                }
+                break;
+            case RecordActivity.ACTION_OPEN_RECORD:
+                String recordId = data.getStringExtra(RecordActivity.EXTRA_RECORD_ID);
+                if (recordId != null) {
+                    openRecord(recordId);
+                }
+                break;
+            case RecordActivity.ACTION_SHOW_TAG:
+                String tagName = data.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
+                TetroidTag tag = DataManager.getTag(tagName);
+                if (tag != null) {
+                    showTag(tag);
+                }
+                break;
         }
     }
 
@@ -1065,7 +1101,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchInMainPage(query);
-        } else if (RecordActivity.ACTION_REINIT_STORAGE.equals(intent.getAction())) {
+        } /*else if (RecordActivity.ACTION_REINIT_STORAGE.equals(intent.getAction())) {
             boolean isReloadStorage = intent.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
             if (isReloadStorage) {
                 reinitStorage();
@@ -1074,7 +1110,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String tagName = intent.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
             TetroidTag tag = DataManager.getTag(tagName);
             showTag(tag);
-        }
+        }*/
         super.onNewIntent(intent);
     }
 

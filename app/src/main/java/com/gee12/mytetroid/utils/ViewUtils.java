@@ -104,12 +104,12 @@ public class ViewUtils {
 
     /**
      *
-     * @param context
+     * @param activity
      * @param cls
      * @param bundle
      */
-    public static void startActivity(Context context, Class<?> cls, Bundle bundle, String action, int flags) {
-        Intent intent = new Intent(context, cls);
+    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle, String action, int flags, Integer requestCode) {
+        Intent intent = new Intent(activity, cls);
         if (bundle != null) {
             intent.putExtras(bundle);
         }
@@ -119,11 +119,18 @@ public class ViewUtils {
         if (flags != 0) {
             intent.setFlags(flags);
         }
-        context.startActivity(intent);
+        if (requestCode == null)
+            activity.startActivity(intent);
+        else
+            activity.startActivityForResult(intent, requestCode);
     }
 
-    public static void startActivity(Context context, Class<?> cls, Bundle bundle) {
-        startActivity(context, cls, bundle, null, 0);
+    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle, int requestCode) {
+        startActivity(activity, cls, bundle, null, 0, requestCode);
+    }
+
+    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle) {
+        startActivity(activity, cls, bundle, null, 0, null);
     }
 
     /**
