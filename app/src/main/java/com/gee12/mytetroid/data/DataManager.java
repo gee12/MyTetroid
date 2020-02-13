@@ -22,6 +22,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.internal.StringUtil;
@@ -174,6 +175,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static String getRecordTextUri(@NonNull TetroidRecord record) {
+        if (record == null) {
+            LogManager.emptyParams("openFolder()");
+            return null;
+        }
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
@@ -203,6 +208,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
+        if (record == null) {
+            LogManager.emptyParams("openFolder()");
+            return null;
+        }
         String path = getStoragePathBase() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
 //        String pathUri = null;
@@ -241,6 +250,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static boolean saveRecordHtmlText(@NonNull TetroidRecord record, String htmlText) {
+        if (record == null) {
+            LogManager.emptyParams("saveRecordHtmlText()");
+            return false;
+        }
         String path = getStoragePathBase() + File.separator
                 + record.getDirName() + File.separator + record.getFileName();
         Uri uri;
@@ -340,13 +353,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Открытие файла записи сторонным приложением.
+     * Открытие файла записи сторонним приложением.
      * @param context
      * @param file
      * @return
      */
     @RequiresPermission(WRITE_EXTERNAL_STORAGE)
     public static boolean openFile(Context context, @NonNull TetroidFile file) {
+        if (context == null || file == null) {
+            LogManager.emptyParams("openFile()");
+            return false;
+        }
         TetroidRecord record = file.getRecord();
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtWithComma(fileDisplayName);
@@ -443,7 +460,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
+    /**
+     * Открытие каталога записи.
+     * @param context
+     * @param pathUri
+     * @return
+     */
     public static boolean openFolder(Context context, String pathUri){
+        if (context == null || pathUri == null) {
+            LogManager.emptyParams("openFolder()");
+            return false;
+        }
         Uri uri = Uri.parse(pathUri);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(uri, "resource/folder");
@@ -481,12 +508,16 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static String getFileSize(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
+        if (context == null || record == null || file == null) {
+            LogManager.emptyParams("getFileSize()");
+            return null;
+        }
         String ext = FileUtils.getExtWithComma(file.getName());
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
         long size;
         try {
-            size = new File(fullFileName).length() / 1024;
+            size = new File(fullFileName).length();
         } catch (SecurityException ex) {
             LogManager.addLog(context.getString(R.string.denied_read_file_access) + fullFileName, ex);
             return null;
@@ -494,13 +525,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.addLog(context.getString(R.string.get_file_size_error) + fullFileName, ex);
             return null;
         }
-        if (size == 0) {
-            return null;
-        } else if (size >= 1024) {
-            return (size / 1024) + context.getString(R.string.m_bytes);
-        } else {
-            return size + context.getString(R.string.k_bytes);
-        }
+        return Utils.sizeToString(context, size);
     }
 
     public static List<TetroidNode> getRootNodes() {

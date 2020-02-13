@@ -71,7 +71,7 @@ public class SettingsManager {
 
 //    public static void setIsLoadLastStoragePath(boolean value) {
 //        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(context.getString(R.string.pref_key_is_load_last_storage_path), value);
+//        editor.putBoolean(context.sizeToString(R.string.pref_key_is_load_last_storage_path), value);
 //        editor.apply();
 //    }
 

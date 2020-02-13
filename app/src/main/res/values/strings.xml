@@ -64,6 +64,7 @@
     <string name="rate_app">Rate app</string>
     <string name="version_label">Version</string>
     <string name="password_is_incorrect">Password is incorrect</string>
+    <string name="g_bytes">Gb</string>
     <string name="m_bytes">Mb</string>
     <string name="k_bytes">Kb</string>
     <string name="show_record_content">Open record</string>

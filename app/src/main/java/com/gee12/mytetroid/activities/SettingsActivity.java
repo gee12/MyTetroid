@@ -155,7 +155,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 // удаляем хэш пароля, если сняли галку
                 SettingsManager.setMiddlePassHash(null);
             }
-//        } else if (key.equals(getString(R.string.pref_key_record_fields_cols))) {
+//        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {
 //            // меняем список полей для отображения
 
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {

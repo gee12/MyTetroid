@@ -86,7 +86,7 @@ public class UriUtil {
         if (!supportsStorageFramework()) { return false; }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
-//        return prefs.getBoolean(ctx.getString(R.string.saf_key), ctx.getResources().getBoolean(R.bool.saf_default));
+//        return prefs.getBoolean(ctx.sizeToString(R.string.saf_key), ctx.getResources().getBoolean(R.bool.saf_default));
         return true;
     }
 

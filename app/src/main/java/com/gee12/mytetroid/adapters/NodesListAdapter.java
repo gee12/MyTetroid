@@ -14,6 +14,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
 import java.util.List;
+import java.util.Locale;
 
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListAdapter;
@@ -37,7 +38,6 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         ImageView iconView;
         TextView nameView;
         TextView recordsCountView;
-//        LinearLayout arrowParentView;
         ImageView arrowView;
         ConstraintLayout headerView;
     }
@@ -98,7 +98,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // имя
         viewHolder.nameView.setText(node.getCryptedName());
         // количество записей в ветке
-            viewHolder.recordsCountView.setText(String.format("[%d]", node.getRecordsCount()));
+            viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
