@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -26,6 +25,8 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
@@ -45,7 +46,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-    public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
+//    public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
@@ -57,9 +58,12 @@ public class RecordActivity extends TetroidActivity implements
 //    public static final String ACTION_REINIT_STORAGE = "ACTION_REINIT_STORAGE";
 //    public static final String ACTION_OPEN_RECORD = "ACTION_OPEN_RECORD";
 //    public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
-    public static final int ACTION_REINIT_STORAGE = 1;
-    public static final int ACTION_OPEN_RECORD = 2;
-    public static final int ACTION_SHOW_TAG = 3;
+//    public static final int ACTION_REINIT_STORAGE = 1;
+//    public static final int ACTION_OPEN_RECORD = 2;
+//    public static final int ACTION_SHOW_TAG = 3;
+    public static final int RESULT_REINIT_STORAGE = 1;
+    public static final int RESULT_OPEN_RECORD = 2;
+    public static final int RESULT_SHOW_TAG = 3;
 
     private RelativeLayout recordFieldsLayout;
     private ExpandableLayout expRecordFieldsLayout;
@@ -201,7 +205,15 @@ public class RecordActivity extends TetroidActivity implements
     public void onPageLoaded() {
         if (isFirstLoad) {
             // переключаем views и делаем другие обработки
-            switchMode((SettingsManager.isRecordEditMode() && IS_EDIT_CRYPTED_RECORDS) ? MODE_EDIT : MODE_VIEW);
+            int defMode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+
+            // FIXME: реализовать сохранение зашифрованных записей
+            if (record.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
+                Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
+                defMode = MODE_VIEW;
+            }
+
+            switchMode(defMode);
         } else {
             // переключаем только views
             switchViews(curMode);
@@ -221,11 +233,34 @@ public class RecordActivity extends TetroidActivity implements
             url = url.replace(baseUrl, "");
         }
 
-        if (url.startsWith("mytetra")) {
+        /*if (url.startsWith(DataManager.MYTETRA_PREFIX)) {
             // обрабатываем внутреннюю ссылку
-            String id = url.substring(url.lastIndexOf('/')+1);
-            TetroidRecord record = DataManager.getRecord(id);
-            openAnotherRecord(record);
+            if (url.startsWith(DataManager.MYTETRA_RECORD_PREFIX)) {
+                // ссылка на запись типа "mytetra://note/1581762186rr4m8ttsgb"
+//            String recordId = url.substring(url.lastIndexOf('/')+1);
+                String recordId = url.replace(DataManager.MYTETRA_RECORD_PREFIX, "");
+                TetroidRecord record = DataManager.getRecord(recordId);
+                if (record != null) {
+                    openAnotherRecord(record);
+                } else {
+                    LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                }
+            }
+        }*/
+        TetroidObject obj;
+        if ((obj = TetroidObject.parseUrl(url)) != null) {
+            switch (obj.getType()) {
+                case FoundType.TYPE_RECORD: {
+                    TetroidRecord record = DataManager.getRecord(obj.getId());
+                    if (record != null) {
+                        openAnotherRecord(record);
+                    } else {
+                        LogManager.addLog(getString(R.string.not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    }
+                    break;
+
+                }
+            }
         } else {
             // обрабатываем внешнюю ссылку
             try {
@@ -268,8 +303,10 @@ public class RecordActivity extends TetroidActivity implements
      * @param record
      */
     public void openAnotherRecord(TetroidRecord record) {
+        if (record == null)
+            return;
         Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_ACTION_ID, ACTION_OPEN_RECORD);
+//        bundle.putInt(EXTRA_ACTION_ID, ACTION_OPEN_RECORD);
         bundle.putString(EXTRA_RECORD_ID, record.getId());
 //        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_OPEN_RECORD, Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //        ViewUtils.startActivity(activity, RecordActivity.class, bundle);
@@ -283,7 +320,7 @@ public class RecordActivity extends TetroidActivity implements
 //        ViewUtils.startActivity(activity, RecordActivity.class, bundle, MainActivity.REQUEST_CODE_RECORD_ACTIVITY);
 //        setResult(Activity.RESULT_OK, intent);
 //        finish();
-        finishWithResult(bundle);
+        finishWithResult(RESULT_OPEN_RECORD, bundle);
     }
 
     /**
@@ -292,13 +329,13 @@ public class RecordActivity extends TetroidActivity implements
      */
     public void openTag(String tagName) {
         Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_ACTION_ID, ACTION_SHOW_TAG);
+//        bundle.putInt(EXTRA_ACTION_ID, ACTION_SHOW_TAG);
         bundle.putString(EXTRA_TAG_NAME, tagName);
         // Action = android.intent.action.MAIN
         // Categories[0] = android.intent.category.LAUNCHER
 //        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP, null);
 //        ViewUtils.startActivity(context, MainActivity.class, bundle);
-        finishWithResult(bundle);
+        finishWithResult(RESULT_SHOW_TAG, bundle);
     }
 
     /**
@@ -354,11 +391,13 @@ public class RecordActivity extends TetroidActivity implements
      * @param newMode
      */
     private void switchMode(int newMode) {
-        //
-        if (newMode != MODE_VIEW && IS_EDIT_CRYPTED_RECORDS) {
+
+        // FIXME: реализовать сохранение зашифрованных записей
+        if (record.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
             Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
             return;
         }
+
         int oldMode = curMode;
         // сохраняем
         onSaveRecord(oldMode, newMode);
@@ -456,7 +495,7 @@ public class RecordActivity extends TetroidActivity implements
                 editor.setEditMode(true);
                 setSubtitle(getString(R.string.record_subtitle_edit));
                 editor.getWebView().focusEditor();
-                ViewUtils.showKeyboard(this, editor.getWebView());
+//                ViewUtils.showKeyboard(this, editor.getWebView());
             } break;
             case MODE_HTML : {
                 editor.setVisibility(View.GONE);
@@ -479,21 +518,23 @@ public class RecordActivity extends TetroidActivity implements
      * Перезагрузка хранилища в главной активности.
      */
     private void reinitStorage() {
-        Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_ACTION_ID, ACTION_REINIT_STORAGE);
+//        Bundle bundle = new Bundle();
+//        bundle.putInt(EXTRA_ACTION_ID, ACTION_REINIT_STORAGE);
 //        ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE, Intent.FLAG_ACTIVITY_SINGLE_TOP);
 //        setResult(0, ViewUtils.createIntent(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE));
-        finishWithResult(bundle);
+        finishWithResult(RESULT_REINIT_STORAGE, null);
     }
 
     /**
      * Формирование результата активности и ее закрытие.
      * @param bundle
      */
-    private void finishWithResult(Bundle bundle) {
+    private void finishWithResult(int resCode, Bundle bundle) {
         Intent intent = new Intent();
-        intent.putExtras(bundle);
-        setResult(Activity.RESULT_OK, intent);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        setResult(resCode, intent);
         finish();
     }
 

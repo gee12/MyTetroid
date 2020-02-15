@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.model;
 
-import com.gee12.mytetroid.data.ITetroidObject;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;

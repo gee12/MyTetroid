@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.model;
 
 /**
  * Общий интерфейс для объектов всех типов в хранилище.

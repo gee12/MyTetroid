@@ -1,10 +1,9 @@
 package com.gee12.mytetroid.model;
 
-import com.gee12.mytetroid.data.ITetroidObject;
-
 import java.util.List;
 
 public class TetroidTag implements ITetroidObject { //implements Map.Entry<String, List<TetroidRecord>> {
+
     private String name;
     private List<TetroidRecord> records;
 

@@ -43,11 +43,11 @@ import com.gee12.mytetroid.adapters.NodesListAdapter;
 import com.gee12.mytetroid.adapters.TagsListAdapter;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -935,16 +935,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showRecordsSearch = false;
         }
         setTitle(title);
-        setViewTypeTitle(viewId);
+        setSubtitle(viewId);
         setRecordsSearchViewVisibility(showRecordsSearch);
 //        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
     }
 
     /**
-     * Установка заголовка типа активности.
+     * Установка подзаголовка активности, указывающим на тип отображаемого объекта.
      * @param viewId
      */
-    private void setViewTypeTitle(int viewId) {
+    private void setSubtitle(int viewId) {
         String[] titles = getResources().getStringArray(R.array.view_type_titles);
         // преобразуем идентификатор view в индекс заголовка
         int titleId = viewId - 1;
@@ -986,9 +986,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
-        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY && resultCode == RESULT_OK) {
-            int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
-            onRecordActivityResult(data, actionId);
+        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY /*&& resultCode == RESULT_OK*/) {
+//            int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
+            onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
@@ -1003,23 +1003,23 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Обработка возвращаемого результата активности записи.
      * @param data
-     * @param actionId
+     * @param resCode
      */
-    private void onRecordActivityResult(Intent data, int actionId) {
-        switch (actionId) {
-            case RecordActivity.ACTION_REINIT_STORAGE:
+    private void onRecordActivityResult(int resCode, Intent data) {
+        switch (resCode) {
+            case RecordActivity.RESULT_REINIT_STORAGE:
                 boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
                 if (isReloadStorage) {
                     reinitStorage();
                 }
                 break;
-            case RecordActivity.ACTION_OPEN_RECORD:
+            case RecordActivity.RESULT_OPEN_RECORD:
                 String recordId = data.getStringExtra(RecordActivity.EXTRA_RECORD_ID);
                 if (recordId != null) {
                     openRecord(recordId);
                 }
                 break;
-            case RecordActivity.ACTION_SHOW_TAG:
+            case RecordActivity.RESULT_SHOW_TAG:
                 String tagName = data.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
                 TetroidTag tag = DataManager.getTag(tagName);
                 if (tag != null) {
@@ -1101,16 +1101,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchInMainPage(query);
-        } /*else if (RecordActivity.ACTION_REINIT_STORAGE.equals(intent.getAction())) {
-            boolean isReloadStorage = intent.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
-            if (isReloadStorage) {
-                reinitStorage();
-            }
-        } else if (RecordActivity.ACTION_SHOW_TAG.equals(intent.getAction())) {
-            String tagName = intent.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
-            TetroidTag tag = DataManager.getTag(tagName);
-            showTag(tag);
-        }*/
+        }
         super.onNewIntent(intent);
     }
 

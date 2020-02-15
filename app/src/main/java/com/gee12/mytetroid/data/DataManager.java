@@ -323,6 +323,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
+        if (id == null)
+            return null;
         for (TetroidNode node : nodes) {
 //            if (getNodeInHierarchy(node, id) != null)
 //                return node;
@@ -338,6 +340,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String id) {
+        if (id == null)
+            return null;
         for (TetroidNode node : nodes) {
             for (TetroidRecord record : node.getRecords()) {
                 if (id.equals(record.getId()))

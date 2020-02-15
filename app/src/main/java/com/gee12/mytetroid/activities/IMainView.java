@@ -2,7 +2,7 @@ package com.gee12.mytetroid.activities;
 
 import android.os.Parcelable;
 
-import com.gee12.mytetroid.data.ITetroidObject;
+import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 

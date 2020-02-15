@@ -13,9 +13,9 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.adapters.FoundListAdapter;
-import com.gee12.mytetroid.data.ITetroidObject;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.ITetroidObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;

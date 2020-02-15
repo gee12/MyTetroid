@@ -6,14 +6,15 @@ import com.gee12.mytetroid.R;
 
 public class FoundType {
 
-    public static final int TYPES_COUNT = 7;
-    public static final int TYPE_RECORD = 0;
-    public static final int TYPE_RECORD_TEXT = 1;
-    public static final int TYPE_AUTHOR = 2;
-    public static final int TYPE_URL = 3;
-    public static final int TYPE_FILE = 4;
-    public static final int TYPE_TAG = 5;
-    public static final int TYPE_NODE = 6;
+    public static final int TYPES_COUNT = 8;
+    public static final int TYPE_NONE = 0;
+    public static final int TYPE_RECORD = 1;
+    public static final int TYPE_RECORD_TEXT = 2;
+    public static final int TYPE_AUTHOR = 3;
+    public static final int TYPE_URL = 4;
+    public static final int TYPE_FILE = 5;
+    public static final int TYPE_TAG = 6;
+    public static final int TYPE_NODE = 7;
 
     private int type;
 
@@ -35,7 +36,8 @@ public class FoundType {
     }
 
     /**
-     * Формирование строки по типам объекта.
+     * Формирование строки в виде перечисления типов объекта, хранящихся в битах переменной type.
+     * Формат: "тип1, тип2, .., типN"
      * @param context
      * @return
      */
@@ -47,7 +49,8 @@ public class FoundType {
             if ((type & (1 << i)) > 0) {
                 if (!isFirst)
                     sb.append(", ");
-                sb.append(foundTypes[i]);
+                // уменьшаем на 1, т.к. пропускаем тип NONE
+                sb.append(foundTypes[i - 1]);
                 isFirst = false;
             }
         return sb.toString();
