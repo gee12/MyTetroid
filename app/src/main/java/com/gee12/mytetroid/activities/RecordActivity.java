@@ -249,8 +249,10 @@ public class RecordActivity extends TetroidActivity implements
         }*/
         TetroidObject obj;
         if ((obj = TetroidObject.parseUrl(url)) != null) {
+            // обрабатываем внутреннюю ссылку
             switch (obj.getType()) {
                 case FoundType.TYPE_RECORD: {
+                    // ссылка на запись
                     TetroidRecord record = DataManager.getRecord(obj.getId());
                     if (record != null) {
                         openAnotherRecord(record);

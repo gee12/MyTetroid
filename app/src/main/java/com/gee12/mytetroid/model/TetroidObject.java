@@ -2,7 +2,7 @@ package com.gee12.mytetroid.model;
 
 public class TetroidObject implements ITetroidObject {
 
-    public static final String MYTETRA_PREFIX = "mytetra";
+    public static final String MYTETRA_PREFIX = "mytetra:";
     public static final String MYTETRA_RECORD_PREFIX = MYTETRA_PREFIX + "//note/";
     public static final String MYTETRA_NODE_PREFIX = MYTETRA_PREFIX + "//branch/";
     public static final String MYTETRA_TAG_PREFIX = MYTETRA_PREFIX + "//tag/";
@@ -43,16 +43,16 @@ public class TetroidObject implements ITetroidObject {
             String id = "";
             // ссылка на запись типа "mytetra://<type>/<id>"
             if (url.startsWith(MYTETRA_RECORD_PREFIX)) {
-                id = parseId(MYTETRA_RECORD_PREFIX, url);
+                id = parseId(url, MYTETRA_RECORD_PREFIX);
                 type = FoundType.TYPE_RECORD;
             } else if (url.startsWith(MYTETRA_NODE_PREFIX)) {
-                id = parseId(MYTETRA_NODE_PREFIX, url);
+                id = parseId(url, MYTETRA_NODE_PREFIX);
                 type = FoundType.TYPE_NODE;
             } else if (url.startsWith(MYTETRA_TAG_PREFIX)) {
-                id = parseId(MYTETRA_TAG_PREFIX, url);
+                id = parseId(url, MYTETRA_TAG_PREFIX);
                 type = FoundType.TYPE_TAG;
             } else if (url.startsWith(MYTETRA_FILE_PREFIX)) {
-                id = parseId(MYTETRA_FILE_PREFIX, url);
+                id = parseId(url, MYTETRA_FILE_PREFIX);
                 type = FoundType.TYPE_FILE;
             }
 
