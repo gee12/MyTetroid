@@ -986,7 +986,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
-        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
+        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY && resultCode == RESULT_OK) {
             int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
             onRecordActivityResult(data, actionId);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
