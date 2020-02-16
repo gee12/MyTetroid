@@ -18,9 +18,13 @@ public class TetroidEditor extends WysiwygEditor {
 
     public static final String HTML_START_WITH =
             "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n" +
-                    "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n" +
+                    "<html><head>" +
+                    "<meta name=\"qrichtext\" content=\"1\" />" +
+                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />" +
+                    "<style type=\"text/css\">\n" +
                     "p, li { white-space: pre-wrap; }\n" +
-                    "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">";
+                    "</style></head>" +
+                    "<body style=\" font-family:'DejaVu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">";
     public static final String HTML_END_WITH = "</body></html>";
 
     public TetroidEditor(Context context) {

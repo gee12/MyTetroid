@@ -98,7 +98,7 @@
             android:key="@string/pref_key_is_record_auto_save"
             android:title="@string/record_auto_save"
             android:summary="@string/record_auto_save_summ"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
 
     </PreferenceCategory>
 

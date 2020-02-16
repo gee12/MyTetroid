@@ -243,7 +243,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isRecordAutoSave() {
-        return getBoolean(R.string.pref_key_is_record_auto_save, true);
+        return getBoolean(R.string.pref_key_is_record_auto_save, false);
     }
 
     /**
