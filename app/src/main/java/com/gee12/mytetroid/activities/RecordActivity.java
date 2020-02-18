@@ -46,7 +46,6 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-//    public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
@@ -55,12 +54,6 @@ public class RecordActivity extends TetroidActivity implements
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
-//    public static final String ACTION_REINIT_STORAGE = "ACTION_REINIT_STORAGE";
-//    public static final String ACTION_OPEN_RECORD = "ACTION_OPEN_RECORD";
-//    public static final String ACTION_SHOW_TAG = "ACTION_SHOW_TAG";
-//    public static final int ACTION_REINIT_STORAGE = 1;
-//    public static final int ACTION_OPEN_RECORD = 2;
-//    public static final int ACTION_SHOW_TAG = 3;
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_SHOW_TAG = 3;
@@ -93,10 +86,6 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_record);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String recordId = getIntent().getStringExtra(EXTRA_RECORD_ID);
         if (recordId == null) {
@@ -233,20 +222,6 @@ public class RecordActivity extends TetroidActivity implements
             url = url.replace(baseUrl, "");
         }
 
-        /*if (url.startsWith(DataManager.MYTETRA_PREFIX)) {
-            // обрабатываем внутреннюю ссылку
-            if (url.startsWith(DataManager.MYTETRA_RECORD_PREFIX)) {
-                // ссылка на запись типа "mytetra://note/1581762186rr4m8ttsgb"
-//            String recordId = url.substring(url.lastIndexOf('/')+1);
-                String recordId = url.replace(DataManager.MYTETRA_RECORD_PREFIX, "");
-                TetroidRecord record = DataManager.getRecord(recordId);
-                if (record != null) {
-                    openAnotherRecord(record);
-                } else {
-                    LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.WARNING, Toast.LENGTH_LONG);
-                }
-            }
-        }*/
         TetroidObject obj;
         if ((obj = TetroidObject.parseUrl(url)) != null) {
             // обрабатываем внутреннюю ссылку
@@ -292,7 +267,7 @@ public class RecordActivity extends TetroidActivity implements
             decodedUrl = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
-            LogManager.addLog("Ошибка декодирования url: " + url, ex);
+            LogManager.addLog(getString(R.string.url_decode_error) + url, ex);
             return;
         }
         // избавляемся от приставки "tag:"
@@ -308,20 +283,7 @@ public class RecordActivity extends TetroidActivity implements
         if (record == null)
             return;
         Bundle bundle = new Bundle();
-//        bundle.putInt(EXTRA_ACTION_ID, ACTION_OPEN_RECORD);
         bundle.putString(EXTRA_RECORD_ID, record.getId());
-//        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_OPEN_RECORD, Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//        ViewUtils.startActivity(activity, RecordActivity.class, bundle);
-        // если открываем запись из той же активности RecordActivity, то нужно ее закрыть
-//        if (activity.getClass().getSimpleName().equals(RecordActivity.class.getSimpleName())) {
-//            activity.finish();
-//        }
-//        Intent intent = new Intent();
-//        intent.putExtras(bundle);
-//        activity.startActivityForResult(intent, REQUEST_CODE_RECORD_ACTIVITY);
-//        ViewUtils.startActivity(activity, RecordActivity.class, bundle, MainActivity.REQUEST_CODE_RECORD_ACTIVITY);
-//        setResult(Activity.RESULT_OK, intent);
-//        finish();
         finishWithResult(RESULT_OPEN_RECORD, bundle);
     }
 
@@ -331,12 +293,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     public void openTag(String tagName) {
         Bundle bundle = new Bundle();
-//        bundle.putInt(EXTRA_ACTION_ID, ACTION_SHOW_TAG);
         bundle.putString(EXTRA_TAG_NAME, tagName);
-        // Action = android.intent.action.MAIN
-        // Categories[0] = android.intent.category.LAUNCHER
-//        ViewUtils.startActivity(activity, MainActivity.class, bundle, ACTION_SHOW_TAG, Intent.FLAG_ACTIVITY_SINGLE_TOP, null);
-//        ViewUtils.startActivity(context, MainActivity.class, bundle);
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
 
@@ -354,13 +311,6 @@ public class RecordActivity extends TetroidActivity implements
 
     }
 
-//    public static void openTag(Activity activity, String tagName) {
-//        Bundle bundle = new Bundle();
-//        bundle.putString(EXTRA_TAG_NAME, tagName);
-////        ViewUtils.startActivity(context, MainActivity.class, bundle);
-//        activity.startActivity(ViewUtils.createIntent(activity, MainActivity.class, bundle));
-//    }
-
     public void setRecordFieldsVisibility(boolean isVisible) {
         recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
@@ -368,11 +318,13 @@ public class RecordActivity extends TetroidActivity implements
     private void saveRecord() {
 //        if (BuildConfig.DEBUG)
 //            return;
-        LogManager.addLog("Сохранение текста записи id=" + record.getId(), LogManager.Types.INFO);
+        LogManager.addLog(getString(R.string.before_record_save) + record.getId(), LogManager.Types.INFO);
         String htmlText = (curMode == MODE_HTML)
                 ? editor.getDocumentHtml(etHtml.getText().toString()) : editor.getDocumentHtml();
-        if (!DataManager.saveRecordHtmlText(record, htmlText)) {
-            LogManager.addLog("Не удается сохранить запись (подробнее в логах)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        if (DataManager.saveRecordHtmlText(record, htmlText)) {
+            LogManager.addLog(getString(R.string.record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.addLog(getString(R.string.record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 

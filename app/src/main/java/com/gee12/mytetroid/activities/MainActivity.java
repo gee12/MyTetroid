@@ -78,7 +78,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
     public static final int REQUEST_CODE_SYNC_STORAGE = 5;
-    public static final int REQUEST_CODE_SHOW_TAG = 6;
 
     public static final int REQUEST_CODE_PERMISSION_READ = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE = 2;
@@ -123,7 +122,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
 
         // выдвигающиеся панели
         this.drawerLayout = findViewById(R.id.drawer_layout);
