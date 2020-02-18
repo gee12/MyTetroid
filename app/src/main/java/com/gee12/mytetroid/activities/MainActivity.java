@@ -126,7 +126,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        setContentView(R.layout.activity_main);
 
         // выдвигающиеся панели
-        this.drawerLayout = findViewById(R.id.drawer_layout1);
+        this.drawerLayout = findViewById(R.id.drawer_layout);
         // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
                 this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
