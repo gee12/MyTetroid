@@ -324,6 +324,8 @@ public class RecordActivity extends TetroidActivity implements
         if (DataManager.saveRecordHtmlText(record, htmlText)) {
             LogManager.addLog(getString(R.string.record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
+            // сбрасываем флаг редактирования записи
+            editor.setIsEdited(false);
             LogManager.addLog(getString(R.string.record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
@@ -375,6 +377,9 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void onSaveRecord(int oldMode, int newMode) {
         if (SettingsManager.isRecordAutoSave()) {
+
+            // TODO: заменить проверку режима на editor.isEdited()
+
             if (oldMode == MODE_EDIT || oldMode == MODE_HTML) {
                 saveRecord();
             }
@@ -398,9 +403,15 @@ public class RecordActivity extends TetroidActivity implements
      * Сохранение изменений при скрытии или выходе из активности.
      * @param curMode
      * @param isAskAndExit
+     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
+     * действие нужно прервать, чтобы дождаться результата из диалога
      */
     private boolean onSaveRecord(int curMode, boolean isAskAndExit) {
-        if (curMode == MODE_EDIT || curMode == MODE_HTML) {
+
+        // TODO: заменить проверку режима на editor.isEdited()
+
+        if (curMode == MODE_EDIT || curMode == MODE_HTML
+                || curMode == MODE_VIEW && editor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 saveRecord();
             } else if (isAskAndExit) {
@@ -464,6 +475,10 @@ public class RecordActivity extends TetroidActivity implements
                 miRecordHtml.setVisible(false);
                 miRecordSave.setVisible(true);
                 setSubtitle(getString(R.string.record_subtitle_html));
+
+                // FIXME: заменить на обработку события onTextChanged
+                editor.setIsEdited(true);
+
             } break;
         }
     }
