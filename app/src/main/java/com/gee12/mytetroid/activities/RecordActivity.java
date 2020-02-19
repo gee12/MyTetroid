@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,25 +60,25 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_SHOW_TAG = 3;
 
-    private RelativeLayout recordFieldsLayout;
-    private ExpandableLayout expRecordFieldsLayout;
-    private WebView wvRecordTags;
-    private ScrollView scrollViewHtml;
-    private EditText etHtml;
-    private TextView tvRecordAuthor;
-    private TextView tvRecordUrl;
-    private TextView tvRecordDate;
-    private TetroidEditor editor;
-    private MenuItem miRecordView;
-    private MenuItem miRecordEdit;
-    private MenuItem miRecordSave;
-    private MenuItem miRecordHtml;
+    private RelativeLayout mRecordFieldsLayout;
+    private ExpandableLayout mExpRecordFieldsLayout;
+    private WebView mWebViewTags;
+    private ScrollView mScrollViewHtml;
+    private EditText mEditTextHtml;
+    private TextView mTvRecordAuthor;
+    private TextView mTvRecordUrl;
+    private TextView mTvRecordDate;
+    private TetroidEditor mEditor;
+    private MenuItem mMenuItemView;
+    private MenuItem mMenuItemEdit;
+    private MenuItem mMenuItemSave;
+    private MenuItem mMenuItemHtml;
 //    private MenuItem miCurNode;
 //    private MenuItem miAttachedFiles;
 //    private MenuItem miCurRecordFolder;
-    private TetroidRecord record;
-    private int curMode;
-    private boolean isFirstLoad = true;
+    private TetroidRecord mRecord;
+    private int mCurMode;
+    private boolean mIsFirstLoad = true;
 
 
     public RecordActivity() {
@@ -93,23 +95,23 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
         // получаем запись
-        this.record = DataManager.getRecord(recordId);
-        if (record == null) {
+        this.mRecord = DataManager.getRecord(recordId);
+        if (mRecord == null) {
             LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         } else {
-            setTitle(record.getName());
+            setTitle(mRecord.getName());
 //            setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
 
         this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
 
-        this.editor = findViewById(R.id.web_view_record_text);
-        editor.setToolBarVisibility(false);
-//        editor.setOnTouchListener(this);
-        editor.getWebView().setOnTouchListener(this);
-        editor.setOnPageLoadListener(this);
-        EditableWebView webView = editor.getWebView();
+        this.mEditor = findViewById(R.id.web_view_record_text);
+        mEditor.setToolBarVisibility(false);
+//        mEditor.setOnTouchListener(this);
+        mEditor.getWebView().setOnTouchListener(this);
+        mEditor.setOnPageLoadListener(this);
+        EditableWebView webView = mEditor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
 //        webView.setOnPageLoadListener(this);
@@ -117,30 +119,31 @@ public class RecordActivity extends TetroidActivity implements
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
 
-        this.recordFieldsLayout = findViewById(R.id.layout_record_fields);
-        this.wvRecordTags = findViewById(R.id.web_view_record_tags);
-        wvRecordTags.setBackgroundColor(Color.TRANSPARENT);
-        wvRecordTags.setWebViewClient(new WebViewClient() {
+        this.mRecordFieldsLayout = findViewById(R.id.layout_record_fields);
+        this.mWebViewTags = findViewById(R.id.web_view_record_tags);
+        mWebViewTags.setBackgroundColor(Color.TRANSPARENT);
+        mWebViewTags.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 onTagUrlLoad(url);
                 return true;
             }
         });
-        this.tvRecordAuthor = findViewById(R.id.text_view_record_author);
-        this.tvRecordUrl = findViewById(R.id.text_view_record_url);
-        this.tvRecordDate = findViewById(R.id.text_view_record_date);
-        this.expRecordFieldsLayout = findViewById(R.id.layout_expander);
+        this.mTvRecordAuthor = findViewById(R.id.text_view_record_author);
+        this.mTvRecordUrl = findViewById(R.id.text_view_record_url);
+        this.mTvRecordDate = findViewById(R.id.text_view_record_date);
+        this.mExpRecordFieldsLayout = findViewById(R.id.layout_expander);
         ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
-        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> expRecordFieldsLayout.toggle());
+        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mExpRecordFieldsLayout.toggle());
         setRecordFieldsVisibility(false);
 
-        this.scrollViewHtml = findViewById(R.id.scroll_html);
-        this.etHtml = findViewById(R.id.edit_text_html);
+        this.mScrollViewHtml = findViewById(R.id.scroll_html);
+        this.mEditTextHtml = findViewById(R.id.edit_text_html);
+        mEditTextHtml.addTextChangedListener(mHtmlWatcher);
     }
 
     private void onMenuLoaded() {
-        openRecord(record);
+        openRecord(mRecord);
     }
 
     /**
@@ -152,19 +155,19 @@ public class RecordActivity extends TetroidActivity implements
         String tagsHtml = TetroidRecord.createTagsLinksString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
-            wvRecordTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
+            mWebViewTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
             id = R.id.web_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующую панель
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, id);
-        expRecordFieldsLayout.setLayoutParams(params);
+        mExpRecordFieldsLayout.setLayoutParams(params);
         // поля
-        tvRecordAuthor.setText(record.getAuthor());
-        tvRecordUrl.setText(record.getUrl());
+        mTvRecordAuthor.setText(record.getAuthor());
+        mTvRecordUrl.setText(record.getUrl());
         if (record.getCreated() != null)
-            tvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+            mTvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
         // текст
         loadRecordText(record, false);
     }
@@ -178,10 +181,10 @@ public class RecordActivity extends TetroidActivity implements
         // и не используется авто-сохранение изменений, то загружаем html-код из редактора
         // 2) если нет, то загружаем html-код из файла записи
         String textHtml = (fromHtmlEditor && !SettingsManager.isRecordAutoSave())
-                ? etHtml.getText().toString()
+                ? mEditTextHtml.getText().toString()
                 : DataManager.getRecordHtmlTextDecrypted(record);
-//        editor.getWebView().clearAndFocusEditor();
-        editor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+//        mEditor.getWebView().clearAndFocusEditor();
+        mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 textHtml, "text/html", "UTF-8", null);
     }
 
@@ -192,12 +195,12 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onPageLoaded() {
-        if (isFirstLoad) {
+        if (mIsFirstLoad) {
             // переключаем views и делаем другие обработки
             int defMode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
 
             // FIXME: реализовать сохранение зашифрованных записей
-            if (record.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
+            if (mRecord.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
                 Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
                 defMode = MODE_VIEW;
             }
@@ -205,9 +208,9 @@ public class RecordActivity extends TetroidActivity implements
             switchMode(defMode);
         } else {
             // переключаем только views
-            switchViews(curMode);
+            switchViews(mCurMode);
         }
-        this.isFirstLoad = false;
+        this.mIsFirstLoad = false;
     }
 
     /**
@@ -217,7 +220,7 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public boolean onLinkLoad(String url) {
         // удаляем BaseUrl из строки адреса
-        String baseUrl = editor.getWebView().getUrl();
+        String baseUrl = mEditor.getWebView().getUrl();
         if (url.startsWith(baseUrl)) {
             url = url.replace(baseUrl, "");
         }
@@ -312,20 +315,20 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     public void setRecordFieldsVisibility(boolean isVisible) {
-        recordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        mRecordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
     private void saveRecord() {
 //        if (BuildConfig.DEBUG)
 //            return;
-        LogManager.addLog(getString(R.string.before_record_save) + record.getId(), LogManager.Types.INFO);
-        String htmlText = (curMode == MODE_HTML)
-                ? editor.getDocumentHtml(etHtml.getText().toString()) : editor.getDocumentHtml();
-        if (DataManager.saveRecordHtmlText(record, htmlText)) {
+        LogManager.addLog(getString(R.string.before_record_save) + mRecord.getId(), LogManager.Types.INFO);
+        String htmlText = (mCurMode == MODE_HTML)
+                ? mEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
+        if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
             LogManager.addLog(getString(R.string.record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             // сбрасываем флаг редактирования записи
-            editor.setIsEdited(false);
+            mEditor.setIsEdited(false);
             LogManager.addLog(getString(R.string.record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
@@ -349,17 +352,17 @@ public class RecordActivity extends TetroidActivity implements
     private void switchMode(int newMode) {
 
         // FIXME: реализовать сохранение зашифрованных записей
-        if (record.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
+        if (mRecord.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
             Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
             return;
         }
 
-        int oldMode = curMode;
+        int oldMode = mCurMode;
         // сохраняем
         onSaveRecord(oldMode, newMode);
         // перезагружаем текст записи в webView, если меняли вручную html
         if (oldMode == MODE_HTML) {
-            loadRecordText(record, true);
+            loadRecordText(mRecord, true);
         }
         // переключаем элементы интерфейса, только если не редактировали только что html,
         // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
@@ -367,7 +370,7 @@ public class RecordActivity extends TetroidActivity implements
         if (oldMode != MODE_HTML) {
             switchViews(newMode);
         }
-        this.curMode = newMode;
+        this.mCurMode = newMode;
     }
 
     /**
@@ -378,7 +381,7 @@ public class RecordActivity extends TetroidActivity implements
     private void onSaveRecord(int oldMode, int newMode) {
         if (SettingsManager.isRecordAutoSave()) {
 
-            // TODO: заменить проверку режима на editor.isEdited()
+            // TODO: заменить проверку режима на mEditor.isEdited()
 
             if (oldMode == MODE_EDIT || oldMode == MODE_HTML) {
                 saveRecord();
@@ -408,10 +411,10 @@ public class RecordActivity extends TetroidActivity implements
      */
     private boolean onSaveRecord(int curMode, boolean isAskAndExit) {
 
-        // TODO: заменить проверку режима на editor.isEdited()
+        // TODO: заменить проверку режима на mEditor.isEdited()
 
         if (curMode == MODE_EDIT || curMode == MODE_HTML
-                || curMode == MODE_VIEW && editor.isEdited()) {
+                || curMode == MODE_VIEW && mEditor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 saveRecord();
             } else if (isAskAndExit) {
@@ -436,49 +439,45 @@ public class RecordActivity extends TetroidActivity implements
     private void switchViews(int newMode) {
         switch (newMode) {
             case MODE_VIEW : {
-                editor.setVisibility(View.VISIBLE);
-                editor.setToolBarVisibility(false);
-                scrollViewHtml.setVisibility(View.GONE);
+                mEditor.setVisibility(View.VISIBLE);
+                mEditor.setToolBarVisibility(false);
+                mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(true);
-                miRecordView.setVisible(false);
-                miRecordEdit.setVisible(true);
-                miRecordHtml.setVisible(true);
-                miRecordSave.setVisible(false);
-                editor.setEditMode(false);
+                mMenuItemView.setVisible(false);
+                mMenuItemEdit.setVisible(true);
+                mMenuItemHtml.setVisible(true);
+                mMenuItemSave.setVisible(false);
+                mEditor.setEditMode(false);
                 setSubtitle(getString(R.string.record_subtitle_view));
-                ViewUtils.hideKeyboard(this, editor.getWebView());
+                ViewUtils.hideKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_EDIT : {
-                editor.setVisibility(View.VISIBLE);
-                editor.setToolBarVisibility(true);
-                scrollViewHtml.setVisibility(View.GONE);
+                mEditor.setVisibility(View.VISIBLE);
+                mEditor.setToolBarVisibility(true);
+                mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(false);
-                miRecordView.setVisible(true);
-                miRecordEdit.setVisible(false);
-                miRecordHtml.setVisible(true);
-                miRecordSave.setVisible(true);
-                editor.setEditMode(true);
+                mMenuItemView.setVisible(true);
+                mMenuItemEdit.setVisible(false);
+                mMenuItemHtml.setVisible(true);
+                mMenuItemSave.setVisible(true);
+                mEditor.setEditMode(true);
                 setSubtitle(getString(R.string.record_subtitle_edit));
-                editor.getWebView().focusEditor();
-//                ViewUtils.showKeyboard(this, editor.getWebView());
+                mEditor.getWebView().focusEditor();
+//                ViewUtils.showKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_HTML : {
-                editor.setVisibility(View.GONE);
-                String htmlText = editor.getWebView().getEditableHtml();
-                etHtml.setText(htmlText);
-//                editor.getWebView().makeEditableHtmlRequest();
-                scrollViewHtml.setVisibility(View.VISIBLE);
-                etHtml.requestFocus();
+                mEditor.setVisibility(View.GONE);
+                String htmlText = mEditor.getWebView().getEditableHtml();
+                mEditTextHtml.setText(htmlText);
+//                mEditor.getWebView().makeEditableHtmlRequest();
+                mScrollViewHtml.setVisibility(View.VISIBLE);
+                mEditTextHtml.requestFocus();
                 setRecordFieldsVisibility(false);
-                miRecordView.setVisible(false);
-                miRecordEdit.setVisible(true);
-                miRecordHtml.setVisible(false);
-                miRecordSave.setVisible(true);
+                mMenuItemView.setVisible(false);
+                mMenuItemEdit.setVisible(true);
+                mMenuItemHtml.setVisible(false);
+                mMenuItemSave.setVisible(true);
                 setSubtitle(getString(R.string.record_subtitle_html));
-
-                // FIXME: заменить на обработку события onTextChanged
-                editor.setIsEdited();
-
             } break;
         }
     }
@@ -520,12 +519,12 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     public void openRecordFolder() {
-        DataManager.openFolder(this, DataManager.getRecordDirUri(record));
+        DataManager.openFolder(this, DataManager.getRecordDirUri(mRecord));
     }
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-        etHtml.setText(htmlText);
+        mEditTextHtml.setText(htmlText);
     }
 
     /**
@@ -533,7 +532,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onPause() {
-        onSaveRecord(curMode, false);
+        onSaveRecord(mCurMode, false);
         super.onPause();
     }
 
@@ -566,10 +565,10 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.record, menu);
-        this.miRecordView = menu.findItem(R.id.action_record_view);
-        this.miRecordEdit = menu.findItem(R.id.action_record_edit);
-        this.miRecordSave = menu.findItem(R.id.action_record_save);
-        this.miRecordHtml = menu.findItem(R.id.action_record_html);
+        this.mMenuItemView = menu.findItem(R.id.action_record_view);
+        this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
+        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
+        this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
         onMenuLoaded();
         return true;
     }
@@ -617,7 +616,7 @@ public class RecordActivity extends TetroidActivity implements
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             case android.R.id.home:
-                return onSaveRecord(curMode, true);
+                return onSaveRecord(mCurMode, true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -632,9 +631,25 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
-        if (!onSaveRecord(curMode, true)) {
+        if (!onSaveRecord(mCurMode, true)) {
             super.onBackPressed();
         }
     }
 
+    private TextWatcher mHtmlWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            mEditor.setIsEdited();
+        }
+    };
 }
