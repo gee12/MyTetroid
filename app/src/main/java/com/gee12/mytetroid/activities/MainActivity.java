@@ -79,8 +79,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
     public static final int REQUEST_CODE_SYNC_STORAGE = 5;
 
-    public static final int REQUEST_CODE_PERMISSION_READ = 1;
-    public static final int REQUEST_CODE_PERMISSION_WRITE = 2;
+    public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
+    public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
 
     private DrawerLayout drawerLayout;
@@ -110,7 +110,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private PagerTabStrip titleStrip;
     private boolean isStarted;
     private boolean isLoadStorageAfterSync;
-    private TetroidFile tempOpenableFile;
+    private TetroidFile tempFileToOpen;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -217,7 +217,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.isAlreadyTryDecrypt = false;
         String storagePath = SettingsManager.getStoragePath();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT >= 16) {
             if (!checkReadExtStoragePermission()) {
                 return;
             }
@@ -240,16 +240,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Предоставление разрешения для чтения с внешней памяти.
+     * Предоставление разрешения на запись во внешнюю память.
      * @return
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private boolean checkReadExtStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_CODE_PERMISSION_READ);
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_PERMISSION_WRITE_STORAGE);
             return false;
         }
         return true;
@@ -612,15 +612,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         showTag(tag);
     }
 
-    //    private void showTag(String tag) {
     private void showTag(TetroidTag tag) {
         if (tag == null) {
             LogManager.addLog("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return;
         }
         this.curNode = null;
         this.curTag = tag;
         LogManager.addLog(getString(R.string.open_tag_records) + tag);
-//        showRecords(DataManager.getTagsHashMap().get(tag).getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
@@ -654,9 +653,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openRecord(String recordId) {
         Bundle bundle = new Bundle();
         bundle.putString(RecordActivity.EXTRA_RECORD_ID, recordId);
-//        Intent intent = new Intent(activity, RecordActivity.class);
-//        intent.putExtras(bundle);
-//        activity.startActivityForResult(intent, REQUEST_CODE_RECORD_ACTIVITY);
         ViewUtils.startActivity(this, RecordActivity.class, bundle, REQUEST_CODE_RECORD_ACTIVITY);
     }
 
@@ -665,18 +661,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Отрытие прикрепленного файла.
      * Если файл нужно расшифровать во временные каталог, спрашиваем разрешение
      * на запись во внешнее хранилище.
+     *
+     * FIXME: Разрешение WRITE_EXTERNAL_STORAGE уже просить не нужно, т.к. оно запрашивается при запуске
+     *
      * @param file
      */
     @Override
     public void openFile(TetroidFile file) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
             if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
                 && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                this.tempOpenableFile = file;
+                this.tempFileToOpen = file;
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_PERMISSION_WRITE);
+                        REQUEST_CODE_PERMISSION_WRITE_TEMP);
                 return;
             }
         }
@@ -1072,16 +1071,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         boolean permGranted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         switch (requestCode) {
-            case REQUEST_CODE_PERMISSION_READ: {
+            case REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     startInitStorage();
                 } else {
                     LogManager.addLog(R.string.missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }
             } break;
-            case REQUEST_CODE_PERMISSION_WRITE: {
+            case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
-                    openFile(tempOpenableFile);
+                    openFile(tempFileToOpen);
                 } else {
                     LogManager.addLog(R.string.missing_write_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }

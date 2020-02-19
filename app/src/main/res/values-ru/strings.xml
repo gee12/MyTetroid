@@ -84,7 +84,7 @@
     <string name="file_is_missing">Файл отсутствует&#160;</string>
     <string name="storage_loading">Загрузка хранилища…</string>
     <string name="global_searching">Глобальный поиск…</string>
-    <string name="start_storage_loading">Начало загрузки хранилища:</string>
+    <string name="start_storage_loading">Начало загрузки хранилища:&#160;</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="title_search_records">Поиск по записям</string>
     <string name="records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>

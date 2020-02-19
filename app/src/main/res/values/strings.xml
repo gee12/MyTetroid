@@ -219,7 +219,7 @@
     <string name="start_storage_sync">Start storage sync. Command:&#160;</string>
     <string name="get_file_size_error">Error getting file size:&#160;</string>
     <string name="denied_read_file_access">Denied read access to the file:&#160;</string>
-    <string name="file_sharing_error">File sharing error:</string>
+    <string name="file_sharing_error">File sharing error:&#160;</string>
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
     <string name="ask_before_sync">Ask before starting</string>
     <string name="ask_before_sync_summ">Show confirmation of synchronization start</string>
