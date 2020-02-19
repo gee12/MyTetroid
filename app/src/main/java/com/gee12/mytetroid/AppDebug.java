@@ -10,7 +10,7 @@ public class AppDebug {
     }
 
     public static boolean isLoadCryptedRecords() {
-        return (BuildConfig.DEBUG && IS_LOAD_CRYPTED_RECORDS);
+        return (!BuildConfig.DEBUG || IS_LOAD_CRYPTED_RECORDS);
     }
 
 }
