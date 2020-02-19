@@ -26,7 +26,6 @@
     <string name="title_pass_input">Введите пароль</string>
     <string name="answer_ok">Ок</string>
     <string name="answer_cancel">Отмена</string>
-    <string name="site_url">gee12.space</string>
     <string name="missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
     <string name="missing_write_ext_storage_permissions">Недостаточно прав для записи во внешнее файловое хранилище</string>
     <string name="empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
@@ -45,7 +44,7 @@
     <string name="license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
     <string name="rate_app">Оценить приложение</string>
     <string name="version_label">Версия</string>
-    <string name="project_url"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>gee12.space/mytetroid</a>]]></string>
+    <string name="project_url"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="password_is_incorrect">Введен неверный пароль</string>
     <string name="g_bytes">Гб</string>
     <string name="m_bytes">Мб</string>

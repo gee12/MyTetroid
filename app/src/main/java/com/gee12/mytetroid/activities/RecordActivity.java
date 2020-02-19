@@ -477,7 +477,7 @@ public class RecordActivity extends TetroidActivity implements
                 setSubtitle(getString(R.string.record_subtitle_html));
 
                 // FIXME: заменить на обработку события onTextChanged
-                editor.setIsEdited(true);
+                editor.setIsEdited();
 
             } break;
         }

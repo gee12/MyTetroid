@@ -5,14 +5,14 @@
         android:id="@+id/action_record_view"
         android:orderInCategory="10"
         android:title="Просмотр"
-        android:visible="true"
+        android:visible="false"
         android:icon="@android:drawable/ic_menu_view"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_edit"
         android:orderInCategory="20"
         android:title="Редактирование"
-        android:visible="true"
+        android:visible="false"
         android:icon="@android:drawable/ic_menu_edit"
         app:showAsAction="always" />
     <item
