@@ -247,4 +247,5 @@
     <string name="before_record_save">Saving record with id=</string>
     <string name="record_saved">Record saved</string>
     <string name="record_save_error">Unable to save the record (more in the logs)</string>
+    <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 </resources>

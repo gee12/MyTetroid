@@ -38,6 +38,10 @@ public class AboutActivity extends AppCompatActivity {
         tvUrl.setText(Html.fromHtml(getString(R.string.project_url)));
         tvUrl.setMovementMethod(LinkMovementMethod.getInstance());
 
+        TextView tvPolicy = findViewById(R.id.text_view_policy);
+        tvPolicy.setText(Html.fromHtml(getString(R.string.policy_link)));
+        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
+
         Button bRateApp = findViewById(R.id.button_rate_app);
         bRateApp.setOnClickListener(new View.OnClickListener() {
             @Override

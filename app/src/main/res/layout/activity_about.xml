@@ -100,11 +100,21 @@
             android:textColorLink="@color/colorBlueDark"
             android:focusable="true" />
 
+        <TextView
+            android:id="@+id/text_view_policy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_view_url"
+            android:paddingTop="10dp"
+            android:text="@string/policy_link"
+            android:textColorLink="@color/colorBlueDark"
+            android:focusable="true" />
+
         <Button
             android:id="@+id/button_rate_app"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/text_view_url"
+            android:layout_below="@+id/text_view_policy"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
             android:padding="20dp"
