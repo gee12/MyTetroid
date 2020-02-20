@@ -248,4 +248,5 @@
     <string name="record_saved">Record saved</string>
     <string name="record_save_error">Unable to save the record (more in the logs)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
+    <string name="wrong_tag_link_format">Wrong tag link format</string>
 </resources>

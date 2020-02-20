@@ -30,6 +30,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.Message;
@@ -152,7 +153,7 @@ public class RecordActivity extends TetroidActivity implements
     public void openRecord(TetroidRecord record) {
         int id = R.id.label_record_tags;
         // метки
-        String tagsHtml = TetroidRecord.createTagsLinksString(record);
+        String tagsHtml = TetroidTag.createTagsLinksString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
             mWebViewTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
@@ -273,9 +274,13 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.addLog(getString(R.string.url_decode_error) + url, ex);
             return;
         }
-        // избавляемся от приставки "tag:"
-        String tagName = decodedUrl.substring(TetroidRecord.TAG_LINKS_PREF.length());
-        openTag(tagName);
+        if (decodedUrl.startsWith(TetroidTag.TAG_LINKS_PREF)) {
+            // избавляемся от приставки "tag:"
+            String tagName = decodedUrl.substring(TetroidTag.TAG_LINKS_PREF.length());
+            openTag(tagName);
+        } else {
+            LogManager.addLog(getString(R.string.wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+        }
     }
 
     /**

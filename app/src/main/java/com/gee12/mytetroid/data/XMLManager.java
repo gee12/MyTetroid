@@ -218,7 +218,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
         //else if (!crypt) {
         if (node.isNonCryptedOrDecrypted()) {
-            // парсим метки
+            // парсим метки, если запись не зашифрована
             parseNodeTags(node);
         }
 
@@ -263,19 +263,25 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return records;
     }
 
+    /**
+     * Разбираем метки у незашифрованных записей ветки.
+     * @param node
+     */
     protected void parseNodeTags(TetroidNode node) {
-        for(TetroidRecord record : node.getRecords()) {
-            parseTags(record);
+        for (TetroidRecord record : node.getRecords()) {
+            parseRecordTags(record, record.getTagsString());
         }
     }
 
+    /**
+     * Разбираем строку с метками записи и добавляем метки в запись и в коллекцию.
+     * @param record
+     * @param tagsString Строка с метками (не зашифрована).
+     *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
+     */
     @Override
-    public void parseRecordTags(TetroidRecord record) {
-        parseTags(record);
-    }
-
-    protected void parseTags(TetroidRecord record) {
-        String tagsString = record.getTagsString();
+    public void parseRecordTags(TetroidRecord record, String tagsString) {
+//        String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
                 TetroidTag tag;

@@ -32,6 +32,7 @@ public class CryptManager {
     private static int[] cryptKey;
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
     private static ITagsParseHandler tagsParser;
+
     /**
      * Для будущего сохранения в настройках.
      * Если поставили галку "Сохранять хеш пароля локально" уже после того,
@@ -180,7 +181,7 @@ public class CryptManager {
         res = res & (temp != null);
         if (temp != null) {
             record.setTagsString(temp);
-            tagsParser.parseRecordTags(record);
+            tagsParser.parseRecordTags(record, temp);
         }
 //        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
         temp = CryptManager.decryptBase64(cryptKey, record.getAuthor());

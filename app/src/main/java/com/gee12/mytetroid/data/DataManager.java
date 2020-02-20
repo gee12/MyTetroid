@@ -30,6 +30,7 @@ import org.jsoup.internal.StringUtil;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -176,7 +177,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static String getRecordTextUri(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("openFolder()");
+            LogManager.emptyParams("DataManager.openFolder()");
             return null;
         }
         String path = null;
@@ -203,13 +204,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Получение содержимого записи в виде голого html.
+     * Получение содержимого записи в виде "голого" html.
      * @param record
      * @return
      */
     public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("openFolder()");
+            LogManager.emptyParams("DataManager.openFolder()");
             return null;
         }
         String path = getStoragePathBase() + File.separator
@@ -249,9 +250,15 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return res;
     }
 
+    /**
+     * Сохранение содержимого записи в файл.
+     * @param record
+     * @param htmlText
+     * @return
+     */
     public static boolean saveRecordHtmlText(@NonNull TetroidRecord record, String htmlText) {
         if (record == null) {
-            LogManager.emptyParams("saveRecordHtmlText()");
+            LogManager.emptyParams("DataManager.saveRecordHtmlText()");
             return false;
         }
         String path = getStoragePathBase() + File.separator
@@ -290,6 +297,63 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return text;
     }
 
+    /**
+     * Генерация идентификатора для объектов хранилища.
+     *
+     * TODO: глянуть формирование ID в MyTetra
+     *
+     * @return
+     */
+    public static String createId() {
+        return "";
+    }
+
+    /**
+     * Генерация уникального идентификатора для объектов хранилища.
+     * @param fieldName
+     * @return
+     */
+    public static String createUniqueId(int fieldName) {
+        String id;
+        do {
+            id = createId();
+        } while (getRecordInHierarchy(getRootNodes(), id, new TetroidRecordComparator(fieldName)) != null);
+        return id;
+    }
+
+    /**
+     * Создание записи (пустую без текста).
+     * @param name
+     * @param tagsString
+     * @param author
+     * @param url
+     * @param node
+     * @return
+     */
+    public static TetroidRecord createRecord(String name, String tagsString, String author, String url, TetroidNode node) {
+        if (node == null) {
+            LogManager.emptyParams("DataManager.createRecord()");
+            return null;
+        }
+        boolean crypted = node.isCrypted();
+        // генерируем уникальные идентификаторы
+        String id = createUniqueId(TetroidRecord.FIELD_ID);
+        String folderName = createUniqueId(TetroidRecord.FIELD_DIR_NAME);
+
+        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), folderName, TetroidRecord.DEF_FILE_NAME, node);
+        record.setName((crypted) ? CryptManager.cryptText(name) : name);
+        record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
+        record.setTagsString((crypted) ? CryptManager.cryptText(tagsString) : tagsString);
+        record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
+        // добавляем метки в запись и в коллекцию
+        instance.parseRecordTags(record, tagsString);
+        // TODO: создаем каталог
+
+        // TODO: добавляем запись в mytetra.xml
+
+        return record;
+    }
+
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;
     }
@@ -311,7 +375,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidRecord getRecord(String id) {
-        return getRecordInHierarchy(instance.rootNodesList, id);
+//        return getRecordInHierarchy(instance.rootNodesList, id);
+        return getRecordInHierarchy(instance.rootNodesList, id, new TetroidRecordComparator(TetroidRecord.FIELD_ID));
     }
 
     public static TetroidTag getTag(String tagName) {
@@ -339,16 +404,33 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return null;
     }
 
-    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String id) {
-        if (id == null)
+//    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String id) {
+//        if (id == null)
+//            return null;
+//        for (TetroidNode node : nodes) {
+//            for (TetroidRecord record : node.getRecords()) {
+//                if (id.equals(record.getId()))
+//                    return record;
+//            }
+//            if (node.isExpandable()) {
+//                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), id);
+//                if (found != null)
+//                    return found;
+//            }
+//        }
+//        return null;
+//    }
+
+    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {
+        if (comparator == null)
             return null;
         for (TetroidNode node : nodes) {
             for (TetroidRecord record : node.getRecords()) {
-                if (id.equals(record.getId()))
+                if (comparator.compare(fieldValue, record))
                     return record;
             }
             if (node.isExpandable()) {
-                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), id);
+                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), fieldValue, comparator);
                 if (found != null)
                     return found;
             }
@@ -365,7 +447,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     @RequiresPermission(WRITE_EXTERNAL_STORAGE)
     public static boolean openFile(Context context, @NonNull TetroidFile file) {
         if (context == null || file == null) {
-            LogManager.emptyParams("openFile()");
+            LogManager.emptyParams("DataManager.openFile()");
             return false;
         }
         TetroidRecord record = file.getRecord();
@@ -472,7 +554,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean openFolder(Context context, String pathUri){
         if (context == null || pathUri == null) {
-            LogManager.emptyParams("openFolder()");
+            LogManager.emptyParams("DataManager.openFolder()");
             return false;
         }
         Uri uri = Uri.parse(pathUri);
@@ -513,7 +595,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static String getFileSize(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
         if (context == null || record == null || file == null) {
-            LogManager.emptyParams("getFileSize()");
+            LogManager.emptyParams("DataManager.getFileSize()");
             return null;
         }
         String ext = FileUtils.getExtWithComma(file.getName());

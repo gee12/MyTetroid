@@ -7,7 +7,9 @@ import java.util.List;
 
 public class TetroidRecord implements ITetroidObject {
 
-    public static final String TAG_LINKS_PREF = "tag:";
+    public static int FIELD_ID = 1;
+    public static int FIELD_DIR_NAME = 2;
+    public static final String DEF_FILE_NAME = "text.html";
 
     private String id;
     private TetroidNode node;
@@ -41,6 +43,17 @@ public class TetroidRecord implements ITetroidObject {
         this.node = node;
     }
 
+    public TetroidRecord(boolean isCrypted, String id, Date created, String dirName, String fileName, TetroidNode node) {
+        this.isCrypted = isCrypted;
+        this.id = id;
+        this.created = created;
+        this.dirName = dirName;
+        this.fileName = fileName;
+        this.node = node;
+        this.files = new ArrayList<>();
+        this.tags = new ArrayList<>();
+    }
+
     @Override
     public String getId() {
         return id;
@@ -62,29 +75,6 @@ public class TetroidRecord implements ITetroidObject {
 
     public String getTagsString() {
         return tagsString;
-    }
-
-    /**
-     * Формирование списка меток в виде html-кода.
-     * @return
-     */
-    public static String createTagsLinksString(TetroidRecord record) {
-        StringBuilder sb = new StringBuilder();
-        int size = record.getTags().size();
-        if (size == 0) {
-            return null;
-        }
-        // #a4a4e4 - это colorLightLabelText
-        sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;\">");
-        for (TetroidTag tag : record.getTags()) {
-            // #303F9F - это colorBlueDark
-            sb.append("<a href=\"").append(TAG_LINKS_PREF).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
-                    append(tag.getName()).append("</a>");
-            if (--size > 0)
-                sb.append(", ");
-        }
-        sb.append("</body>");
-        return sb.toString();
     }
 
     public String getAuthor() {
@@ -183,4 +173,5 @@ public class TetroidRecord implements ITetroidObject {
     public void setFiles(List<TetroidFile> files) {
         this.files = files;
     }
+
 }

@@ -209,4 +209,5 @@
     <string name="record_saved">Запись сохранена</string>
     <string name="record_save_error">Не удается сохранить запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
+    <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
 </resources>
