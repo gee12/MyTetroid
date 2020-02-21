@@ -34,12 +34,20 @@
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
                 android:text="@string/select_the_node" />
-        </RelativeLayout>
 
-<!--        <include-->
-<!--            layout="@layout/layout_record"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent" />-->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/button_add_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/fab_margin"
+                app:fabSize="mini"
+                android:src="@android:drawable/ic_menu_add"
+                app:backgroundTint="@color/colorGreen_50"
+                />
+
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -60,6 +68,18 @@
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
                 android:text="@string/files_is_missing" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/button_add_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_margin="@dimen/fab_margin"
+                app:fabSize="mini"
+                android:src="@android:drawable/ic_menu_add"
+                app:backgroundTint="@color/colorGreen_50"
+                />
 
         </RelativeLayout>
 

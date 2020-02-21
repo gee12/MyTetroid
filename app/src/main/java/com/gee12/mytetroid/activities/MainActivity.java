@@ -83,34 +83,34 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
 
-    private DrawerLayout drawerLayout;
-    private MultiLevelListView nodesListView;
-    private NodesListAdapter nodesListAdapter;
-    private TagsListAdapter tagsListAdapter;
-    private ListView tagsListView;
-    private TetroidNode curNode;
-    private TetroidTag curTag;
-    private LinearLayout layoutProgress;
-    private TextView tvProgress;
-    private TextView tvNodesEmpty;
-    private TextView tvTagsEmpty;
-    private android.widget.SearchView nodesSearchView;
-    private android.widget.SearchView tagsSearchView;
-    private boolean isRecordsFiltered;
-    private SearchView recordsSearchView;
-    private MenuItem miRecordsSearchView;
-    private MenuItem miGlobalSearch;
-    private MenuItem miStorageSync;
-    private MenuItem miStorageInfo;
-    private boolean isAlreadyTryDecrypt;
-    private boolean isStorageLoaded;
+    private DrawerLayout mDrawerLayout;
+    private MultiLevelListView mListViewNodes;
+    private NodesListAdapter mListAdapterNodes;
+    private ListView mListViewTags;
+    private TagsListAdapter mListAdapterTags;
+    private TetroidNode mCurNode;
+    private TetroidTag mCurTag;
+    private LinearLayout mLayoutProgress;
+    private TextView mTextViewProgress;
+    private TextView mTextViewNodesEmpty;
+    private TextView mTextViewTagsEmpty;
+    private android.widget.SearchView mSearchViewNodes;
+    private android.widget.SearchView mSearchViewTags;
+    private boolean mIsRecordsFiltered;
+    private SearchView mSearchViewRecords;
+    private MenuItem mMenuItemSearchViewRecords;
+    private MenuItem mMenuItemGlobalSearch;
+    private MenuItem mMenuItemStorageSync;
+    private MenuItem mMenuItemStorageInfo;
+    private boolean mIsAlreadyTryDecrypt;
+    private boolean mIsStorageLoaded;
 
-    private MainPagerAdapter viewPagerAdapter;
-    private MainViewPager viewPager;
-    private PagerTabStrip titleStrip;
-    private boolean isStarted;
-    private boolean isLoadStorageAfterSync;
-    private TetroidFile tempFileToOpen;
+    private MainPagerAdapter mViewPagerAdapter;
+    private MainViewPager mViewPager;
+    private PagerTabStrip mTitleStrip;
+    private boolean mIsStarted;
+    private boolean mIsLoadStorageAfterSync;
+    private TetroidFile mTempFileToOpen;
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -124,10 +124,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onCreate(savedInstanceState);
 
         // выдвигающиеся панели
-        this.drawerLayout = findViewById(R.id.drawer_layout);
+        this.mDrawerLayout = findViewById(R.id.drawer_layout);
         // задаем кнопку (стрелку) управления шторкой
         ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
-                this, drawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
@@ -136,28 +136,28 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                closeNodesSearchView();
             }
         };
-        drawerLayout.addDrawerListener(drawerToggle);
+        mDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
 
         // обработчик нажатия на экране, когда ветка не выбрана
-        drawerLayout.setOnTouchListener(this);
+        mDrawerLayout.setOnTouchListener(this);
 
         // страницы (главная и найдено)
-        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
-        this.viewPager = findViewById(R.id.view_pager);
-        viewPager.setAdapter(viewPagerAdapter);
-//        viewPager.setGestureDetector(gestureDetector);
+        this.mViewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
+        this.mViewPager = findViewById(R.id.view_pager);
+        mViewPager.setAdapter(mViewPagerAdapter);
+//        mViewPager.setGestureDetector(gestureDetector);
 
-        this.titleStrip = viewPager.findViewById(R.id.pager_title_strip);
+        this.mTitleStrip = mViewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
 
             @Override
             public void onPageSelected(int i) {
-                if (isStarted)
+                if (mIsStarted)
                     changeToolBarByPage(i);
             }
 
@@ -167,32 +167,32 @@ public class MainActivity extends TetroidActivity implements IMainView {
         });
 
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-//        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-//        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
+//        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+//        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         // список веток
-        nodesListView = findViewById(R.id.nodes_list_view);
-        nodesListView.setOnItemClickListener(onNodeClickListener);
-        this.tvNodesEmpty = findViewById(R.id.nodes_text_view_empty);
-//        nodesListView.setEmptyView(tvNodesEmpty);
+        mListViewNodes = findViewById(R.id.nodes_list_view);
+        mListViewNodes.setOnItemClickListener(onNodeClickListener);
+        this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
+//        mListViewNodes.setEmptyView(mTextViewNodesEmpty);
         // список меток
-        this.tagsListView = findViewById(R.id.tags_list_view);
-        tagsListView.setOnItemClickListener(onTagClicklistener);
-        this.tvTagsEmpty = findViewById(R.id.tags_text_view_empty);
-        tagsListView.setEmptyView(tvTagsEmpty);
+        this.mListViewTags = findViewById(R.id.tags_list_view);
+        mListViewTags.setOnItemClickListener(onTagClicklistener);
+        this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
+        mListViewTags.setEmptyView(mTextViewTagsEmpty);
 
-        this.layoutProgress = findViewById(R.id.layout_progress);
-        this.tvProgress = findViewById(R.id.progress_text);
+        this.mLayoutProgress = findViewById(R.id.layout_progress);
+        this.mTextViewProgress = findViewById(R.id.progress_text);
 
-        NavigationView nodesNavView = drawerLayout.findViewById(R.id.nav_view_left);
+        NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
         View vNodesHeader = nodesNavView.getHeaderView(0);
-        this.nodesSearchView = vNodesHeader.findViewById(R.id.search_view_nodes);
+        this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
 //        this.tvNodesHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
-        initNodesView(nodesSearchView, vNodesHeader);
+        initNodesView(mSearchViewNodes, vNodesHeader);
 
-        NavigationView tagsNavView = drawerLayout.findViewById(R.id.nav_view_right);
+        NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
-        this.tagsSearchView = vTagsHeader.findViewById(R.id.search_view_tags);
+        this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
 //        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         initTagsView(vTagsHeader);
 
@@ -202,7 +202,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void onMainPageCreated() {
         // инициализация
         SettingsManager.init(this);
-        viewPagerAdapter.getMainFragment().onSettingsInited();
+        mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
@@ -213,8 +213,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Начало загрузки хранилища.
      */
     private void startInitStorage() {
-        this.isStorageLoaded = false;
-        this.isAlreadyTryDecrypt = false;
+        this.mIsStorageLoaded = false;
+        this.mIsAlreadyTryDecrypt = false;
         String storagePath = SettingsManager.getStoragePath();
 
         if (Build.VERSION.SDK_INT >= 16) {
@@ -235,7 +235,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void reinitStorage() {
         closeFoundFragment();
-        viewPagerAdapter.getMainFragment().clearView();
+        mViewPagerAdapter.getMainFragment().clearView();
         startInitStorage();
     }
 
@@ -266,7 +266,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 AskDialogs.showSyncRequestDialog(this, new AskDialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
-                        MainActivity.this.isLoadStorageAfterSync = true;
+                        MainActivity.this.mIsLoadStorageAfterSync = true;
                         startStorageSync(storagePath);
                     }
 
@@ -276,7 +276,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
                 });
             } else {
-                this.isLoadStorageAfterSync = true;
+                this.mIsLoadStorageAfterSync = true;
                 startStorageSync(storagePath);
             }
         } else {
@@ -310,7 +310,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         final String storagePath = SettingsManager.getStoragePath();
         if (res) {
             LogManager.addLog(R.string.sync_successful, Toast.LENGTH_SHORT);
-            if (isLoadStorageAfterSync)
+            if (mIsLoadStorageAfterSync)
                 initStorage(storagePath);
             else {
                 AskDialogs.showSyncDoneDialog(this, true, new AskDialogs.IApplyResult() {
@@ -322,7 +322,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         } else {
             LogManager.addLog(getString(R.string.sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            if (isLoadStorageAfterSync) {
+            if (mIsLoadStorageAfterSync) {
                 AskDialogs.showSyncDoneDialog(this, false, new AskDialogs.IApplyResult() {
                     @Override
                     public void onApply() {
@@ -331,7 +331,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 });
             }
         }
-        this.isLoadStorageAfterSync = false;
+        this.mIsLoadStorageAfterSync = false;
     }
 
     /**
@@ -341,7 +341,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initStorage(String storagePath) {
         if (DataManager.init(this, storagePath)) {
             LogManager.addLog(getString(R.string.storage_settings_inited) + storagePath);
-            drawerLayout.openDrawer(Gravity.LEFT);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
@@ -371,7 +371,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             LogManager.addLog(getString(R.string.failed_storage_init) + DataManager.getStoragePath(),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            drawerLayout.openDrawer(Gravity.LEFT);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
         }
     }
@@ -394,8 +394,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     decryptStorage(middlePassHash, true, node);
                 } else {
                     LogManager.addLog(R.string.wrong_saved_pass, Toast.LENGTH_LONG);
-                    if (!isAlreadyTryDecrypt) {
-                        isAlreadyTryDecrypt = true;
+                    if (!mIsAlreadyTryDecrypt) {
+                        mIsAlreadyTryDecrypt = true;
                         initStorage(node, false);
                     }
                 }
@@ -460,8 +460,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // и пароль не сохраняли, то нужно его спросить.
                 // Но если пароль вводить отказались, то просто грузим хранилище как есть
                 // (только в первый раз, затем перезагружать не нужно)
-                if (!isAlreadyTryDecrypt && !isStorageLoaded) {
-                    isAlreadyTryDecrypt = true;
+                if (!mIsAlreadyTryDecrypt && !mIsStorageLoaded) {
+                    mIsAlreadyTryDecrypt = true;
                     initStorage(node, false);
                 }
             }
@@ -499,8 +499,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                                 : getString(R.string.for_more_info_enable_log)),
                         Toast.LENGTH_LONG);
             }
-            nodesListAdapter.notifyDataSetChanged();
-            tagsListAdapter.setDataItems(DataManager.getTags());
+            mListAdapterNodes.notifyDataSetChanged();
+            mListAdapterTags.setDataItems(DataManager.getTags());
 
             if (node != null)
                 showNode(node);
@@ -526,38 +526,38 @@ public class MainActivity extends TetroidActivity implements IMainView {
         List<TetroidNode> rootNodes = DataManager.getRootNodes();
         if (res && rootNodes != null) {
             // список веток
-            this.nodesListAdapter = new NodesListAdapter(this, onNodeHeaderClickListener);
-            nodesListView.setAdapter(nodesListAdapter);
-            nodesListAdapter.setDataItems(rootNodes);
+            this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
+            mListViewNodes.setAdapter(mListAdapterNodes);
+            mListAdapterNodes.setDataItems(rootNodes);
             boolean isEmpty = DataManager.getRootNodes().isEmpty();
             if (!isEmpty) {
                 // списки записей, файлов
-                viewPagerAdapter.getMainFragment().initListAdapters(this);
+                mViewPagerAdapter.getMainFragment().initListAdapters(this);
 
                 // список меток
-                this.tagsListAdapter = new TagsListAdapter(this, DataManager.getTags());
-                tagsListView.setAdapter(tagsListAdapter);
-                tvTagsEmpty.setText(R.string.tags_is_missing);
+                this.mListAdapterTags = new TagsListAdapter(this, DataManager.getTags());
+                mListViewTags.setAdapter(mListAdapterTags);
+                mTextViewTagsEmpty.setText(R.string.tags_is_missing);
             }
-            setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.nodes_is_missing);
+            setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.nodes_is_missing);
         } else {
-            setListEmptyViewState(tvNodesEmpty, true, R.string.storage_load_error);
+            setListEmptyViewState(mTextViewNodesEmpty, true, R.string.storage_load_error);
         }
         setMenuItemsAvailable(res);
     }
 
     private void setMenuItemsVisible() {
-        ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
+        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
     }
 
     private void setMenuItemsAvailable(boolean isAvailable) {
         int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
-        nodesSearchView.setVisibility(vis);
-        tagsSearchView.setVisibility(vis);
-        ViewUtils.setEnabledIfNotNull(miGlobalSearch, isAvailable);
-        ViewUtils.setEnabledIfNotNull(miStorageSync, isAvailable);
-        ViewUtils.setEnabledIfNotNull(miStorageInfo, isAvailable);
-        ViewUtils.setEnabledIfNotNull(miRecordsSearchView, isAvailable);
+        mSearchViewNodes.setVisibility(vis);
+        mSearchViewTags.setVisibility(vis);
+        ViewUtils.setEnabledIfNotNull(mMenuItemGlobalSearch, isAvailable);
+        ViewUtils.setEnabledIfNotNull(mMenuItemStorageSync, isAvailable);
+        ViewUtils.setEnabledIfNotNull(mMenuItemStorageInfo, isAvailable);
+        ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
     }
 
     /**
@@ -588,17 +588,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         LogManager.addLog(getString(R.string.open_node_records) + node.getId());
         // сбрасываем фильтрацию при открытии ветки
-        if (isRecordsFiltered && !recordsSearchView.isIconified()) {
+        if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
             // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
             // полного списка записей в его обработчике с помощью проверки isNodeOpening
             this.isNodeOpening = true;
-//          recordsSearchView.onActionViewCollapsed();
-            recordsSearchView.setQuery("", false);
-            recordsSearchView.setIconified(true);
+//          mSearchViewRecords.onActionViewCollapsed();
+            mSearchViewRecords.setQuery("", false);
+            mSearchViewRecords.setIconified(true);
             this.isNodeOpening = false;
         }
-        this.curNode = node;
+        this.mCurNode = node;
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
     }
 
@@ -607,8 +607,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param position Индекс метки в списке
      */
     private void showTagRecords(int position) {
-//        String tag = (String)tagsListAdapter.getItem(position);
-        TetroidTag tag = (TetroidTag) tagsListAdapter.getItem(position);
+//        String tag = (String)mListAdapterTags.getItem(position);
+        TetroidTag tag = (TetroidTag) mListAdapterTags.getItem(position);
         showTag(tag);
     }
 
@@ -617,8 +617,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.addLog("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
-        this.curNode = null;
-        this.curTag = tag;
+        this.mCurNode = null;
+        this.mCurTag = tag;
         LogManager.addLog(getString(R.string.open_tag_records) + tag);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
@@ -634,10 +634,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void showRecords(List<TetroidRecord> records, int viewId, boolean isFiltered) {
-        this.isRecordsFiltered = isFiltered;
-        drawerLayout.closeDrawers();
-        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
-        viewPagerAdapter.getMainFragment().showRecords(records, viewId);
+        this.mIsRecordsFiltered = isFiltered;
+        mDrawerLayout.closeDrawers();
+        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        mViewPagerAdapter.getMainFragment().showRecords(records, viewId);
     }
 
     @Override
@@ -672,7 +672,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
             if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
                 && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                this.tempFileToOpen = file;
+                this.mTempFileToOpen = file;
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_CODE_PERMISSION_WRITE_TEMP);
@@ -756,11 +756,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //            }
 //        });
 
-        new SearchViewListener(nodesSearchView) {
+        new SearchViewListener(mSearchViewNodes) {
             @Override
             public void OnClose() {
-                nodesListAdapter.setDataItems(DataManager.getRootNodes());
-                setListEmptyViewState(tvNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
+                mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+                setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
                 ivIcon.setVisibility(View.VISIBLE);
             }
@@ -782,8 +782,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
-        nodesListAdapter.setDataItems(found);
-        setListEmptyViewState(tvNodesEmpty, found.isEmpty(),
+        mListAdapterNodes.setDataItems(found);
+        setListEmptyViewState(mTextViewNodesEmpty, found.isEmpty(),
                 String.format(getString(R.string.nodes_not_found), query));
     }
 
@@ -808,7 +808,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void initTagsView(View tagsHeader) {
         final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
-        new SearchViewListener(tagsSearchView) {
+        new SearchViewListener(mSearchViewTags) {
             @Override
             public void OnClose() {
                 searchInTags(null, false);
@@ -835,9 +835,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             tags = DataManager.getTags();
         }
-        tagsListAdapter.setDataItems(tags);
+        mListAdapterTags.setDataItems(tags);
         if (tags.isEmpty())
-            tvTagsEmpty.setText((isSearch)
+            mTextViewTagsEmpty.setText((isSearch)
                     ? String.format(getString(R.string.tags_not_found), query)
                     : getString(R.string.tags_is_missing));
     }
@@ -848,39 +848,39 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param menuItem
      */
     private void initRecordsSearchView(MenuItem menuItem) {
-        this.recordsSearchView = (SearchView) menuItem.getActionView();
+        this.mSearchViewRecords = (SearchView) menuItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        recordsSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        recordsSearchView.setIconifiedByDefault(true);
+        mSearchViewRecords.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchViewRecords.setIconifiedByDefault(true);
 
-        recordsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+        mSearchViewRecords.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
                 // "сбрасываем" фильтрацию, но не для только что открытых веток
                 // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
                 // что приводит к повторному открытию списка записей)
                 if (!isNodeOpening) {
-                    switch (viewPagerAdapter.getMainFragment().getCurMainViewId()) {
+                    switch (mViewPagerAdapter.getMainFragment().getmCurMainViewId()) {
                         case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-                            if (curNode != null) {
-                                showRecords(curNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+                            if (mCurNode != null) {
+                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
                             }
                             break;
                         case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-                            if (curTag != null) {
-                                showRecords(curTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+                            if (mCurTag != null) {
+                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
                             }
                             break;
                         // пока по файлам не ищем
                    /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
+                        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getmCurRecord();
                         if (curRecord != null) {
-                            viewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
+                            mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
                         break;*/
                     }
                 }
-                MainActivity.this.isRecordsFiltered = false;
+                MainActivity.this.mIsRecordsFiltered = false;
                 return false;
             }
         });
@@ -892,7 +892,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void changeToolBarByPage(int curPage) {
         if (curPage == MainViewPager.PAGE_MAIN) {
-            viewPagerAdapter.getMainFragment().restoreLastMainToolbarState();
+            mViewPagerAdapter.getMainFragment().restoreLastMainToolbarState();
             setRecordsSearchViewVisibility(true);
         } else {
             updateMainToolbar(MainPageFragment.MAIN_VIEW_GLOBAL_FOUND, null);
@@ -917,11 +917,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-                title = ((curNode != null) ? curNode.getName() : "");
+                title = ((mCurNode != null) ? mCurNode.getName() : "");
                 showRecordsSearch = true;
                 break;
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-                title = ((curTag != null) ? curTag.getName() : "");
+                title = ((mCurTag != null) ? mCurTag.getName() : "");
                 showRecordsSearch = true;
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
@@ -955,14 +955,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
-        miRecordsSearchView.setVisible(isVisible);
+        mMenuItemSearchViewRecords.setVisible(isVisible);
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible)
-            viewPager.setCurrent(MainViewPager.PAGE_MAIN);
-        viewPager.setPagingEnabled(isVisible);
-        titleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+            mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        mViewPager.setPagingEnabled(isVisible);
+        mTitleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -982,7 +982,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
             }
             // скрываем пункт меню Синхронизация, если отключили
-            ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
+            ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY /*&& resultCode == RESULT_OK*/) {
 //            int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
             onRecordActivityResult(resultCode, data);
@@ -1045,7 +1045,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 openRecord((TetroidRecord)found);
                 break;
             case FoundType.TYPE_FILE:
-                viewPagerAdapter.getMainFragment().showRecordFiles(((TetroidFile)found).getRecord());
+                mViewPagerAdapter.getMainFragment().showRecordFiles(((TetroidFile)found).getRecord());
                 break;
             case FoundType.TYPE_NODE:
                 showNode((TetroidNode)found);
@@ -1054,7 +1054,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showTag((TetroidTag)found);
                 break;
         }
-        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
 
     @Override
@@ -1064,7 +1064,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void openMainPage() {
-        viewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
 
     @Override
@@ -1080,7 +1080,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } break;
             case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
-                    openFile(tempFileToOpen);
+                    openFile(mTempFileToOpen);
                 } else {
                     LogManager.addLog(R.string.missing_write_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }
@@ -1108,7 +1108,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void searchInMainPage(String query) {
         TetroidSuggestionProvider.SaveRecentQuery(this, query);
-        searchInMainPage(query, viewPagerAdapter.getMainFragment().getCurMainViewId());
+        searchInMainPage(query, mViewPagerAdapter.getMainFragment().getmCurMainViewId());
     }
 
     private void searchInMainPage(String query, int viewId) {
@@ -1125,7 +1125,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 searchInRecordFiles(query);
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
-//                int lastVIewId = viewPagerAdapter.getMainFragment().getLastViewId();
+//                int lastVIewId = mViewPagerAdapter.getMainFragment().getmLastViewId();
 //                if (viewId != lastVIewId)
 //                    searchInMainPage(query, lastVIewId);
 //                break;
@@ -1133,16 +1133,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInNodeRecords(String query) {
-        if (curNode != null) {
-            searchInRecords(query, curNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+        if (mCurNode != null) {
+            searchInRecords(query, mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
         } else {
             LogManager.addLog(R.string.records_search_select_node, Toast.LENGTH_LONG);
         }
     }
 
     private void searchInTagRecords(String query) {
-        if (curTag != null) {
-            searchInRecords(query, curTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+        if (mCurTag != null) {
+            searchInRecords(query, mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
         } else {
             LogManager.addLog(R.string.records_search_select_tag, Toast.LENGTH_LONG);
         }
@@ -1150,22 +1150,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void searchInRecords(String query, List<TetroidRecord> records, int viewId) {
         String log = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
-                ? String.format(getString(R.string.search_records_in_node_by_query), curNode.getName(), query)
-                : String.format(getString(R.string.search_records_in_tag_by_query), curTag.getName(), query);
+                ? String.format(getString(R.string.search_records_in_node_by_query), mCurNode.getName(), query)
+                : String.format(getString(R.string.search_records_in_tag_by_query), mCurTag.getName(), query);
         LogManager.addLog(log);
         List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
 //        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
         showRecords(found, viewId, true);
         if (found.isEmpty()) {
             String emptyText = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
-                    ? String.format(getString(R.string.records_in_node_not_found), query, curNode.getName())
-                    : String.format(getString(R.string.records_in_tag_not_found), query, curTag.getName());
-            viewPagerAdapter.getMainFragment().setRecordsEmptyViewText(emptyText);
+                    ? String.format(getString(R.string.records_in_node_not_found), query, mCurNode.getName())
+                    : String.format(getString(R.string.records_in_tag_not_found), query, mCurTag.getName());
+            mViewPagerAdapter.getMainFragment().setRecordsEmptyViewText(emptyText);
         }
     }
 
     private void searchInRecordFiles(String query) {
-        TetroidRecord curRecord = viewPagerAdapter.getMainFragment().getCurRecord();
+        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getmCurRecord();
         if (curRecord != null) {
             searchInFiles(query, curRecord);
         } else {
@@ -1176,9 +1176,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
-        viewPagerAdapter.getMainFragment().showRecordFiles(found, record);
+        mViewPagerAdapter.getMainFragment().showRecordFiles(found, record);
         if (found.isEmpty()) {
-            viewPagerAdapter.getMainFragment().setFilesEmptyViewText(
+            mViewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.files_not_found), query));
         }
     }
@@ -1188,14 +1188,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-            drawerLayout.closeDrawer(GravityCompat.END);
-        } else if (viewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
-                && !viewPagerAdapter.getMainFragment().onBackPressed()
-            || viewPager.getCurrentItem() == MainViewPager.PAGE_FOUND
-                && !viewPagerAdapter.getFoundFragment().onBackPressed()) {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+            mDrawerLayout.closeDrawer(GravityCompat.END);
+        } else if (mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
+                && !mViewPagerAdapter.getMainFragment().onBackPressed()
+            || mViewPager.getCurrentItem() == MainViewPager.PAGE_FOUND
+                && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
             if (SettingsManager.isConfirmAppExit()) {
                 onExit();
             } else {
@@ -1212,20 +1212,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        viewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
-        this.miGlobalSearch = menu.findItem(R.id.action_global_search);
-        this.miStorageSync = menu.findItem(R.id.action_storage_sync);
-        ViewUtils.setVisibleIfNotNull(miStorageSync, SettingsManager.isSyncStorage());
-        this.miStorageInfo = menu.findItem(R.id.action_storage_info);
-        this.miRecordsSearchView = menu.findItem(R.id.action_search_records);
-        initRecordsSearchView(miRecordsSearchView);
+        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+        this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
+        this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
+        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
+        this.mMenuItemStorageInfo = menu.findItem(R.id.action_storage_info);
+        this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
+        initRecordsSearchView(mMenuItemSearchViewRecords);
 
         if(menu instanceof MenuBuilder){
             MenuBuilder m = (MenuBuilder)menu;
             m.setOptionalIconsVisible(true);
         }
         //
-        this.isStarted = true;
+        this.mIsStarted = true;
         return true;
     }
 
@@ -1239,7 +1239,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_cur_node:
-                showNode(curNode);
+                showNode(mCurNode);
                 return true;
             case R.id.action_fullscreen:
                 App.toggleFullscreen(MainActivity.this);
@@ -1260,7 +1260,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             default:
-                if (viewPagerAdapter.getMainFragment().onOptionsItemSelected(id))
+                if (mViewPagerAdapter.getMainFragment().onOptionsItemSelected(id))
                     return true;
         }
         return super.onOptionsItemSelected(item);
@@ -1272,7 +1272,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showGlobalSearchActivity() {
         Intent intent = new Intent(this, SearchActivity.class);
-        intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (curNode != null));
+        intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
         startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
     }
 
@@ -1299,9 +1299,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            tvProgress.setText(R.string.storage_loading);
-            layoutProgress.setVisibility(View.VISIBLE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mTextViewProgress.setText(R.string.storage_loading);
+            mLayoutProgress.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -1313,11 +1313,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected void onPostExecute(Boolean res) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            drawerLayout.openDrawer(Gravity.LEFT);
-            layoutProgress.setVisibility(View.INVISIBLE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+            mLayoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
-                MainActivity.this.isStorageLoaded = true;
+                MainActivity.this.mIsStorageLoaded = true;
                 LogManager.addLog(getString(R.string.storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.failed_storage_load) + DataManager.getStoragePath(),
@@ -1347,9 +1347,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            tvProgress.setText(R.string.global_searching);
-            layoutProgress.setVisibility(View.VISIBLE);
+//            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mTextViewProgress.setText(R.string.global_searching);
+            mLayoutProgress.setVisibility(View.VISIBLE);
 
             LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
         }
@@ -1357,15 +1357,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected HashMap<ITetroidObject, FoundType> doInBackground(Void... voids /*ScanManager... scans*/) {
 //            ScanManager scan = scans[0];
-            return scan.globalSearch(curNode);
+            return scan.globalSearch(mCurNode);
         }
 
         @Override
         protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-//            drawerLayout.openDrawer(Gravity.LEFT);
-            layoutProgress.setVisibility(View.INVISIBLE);
+//            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+//            mDrawerLayout.openDrawer(Gravity.LEFT);
+            mLayoutProgress.setVisibility(View.INVISIBLE);
             if (found == null) {
                 LogManager.addLog(getString(R.string.global_search_return_null), Toast.LENGTH_SHORT);
                 return;
@@ -1378,10 +1378,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 LogManager.addLog(R.string.found_crypted_nodes, Toast.LENGTH_SHORT);
             }
             LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
-            viewPagerAdapter.getFoundFragment().setFounds(found, scan);
-            viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
+            mViewPagerAdapter.getFoundFragment().setFounds(found, scan);
+            mViewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
             setFoundPageVisibility(true);
-            viewPager.setCurrent(MainViewPager.PAGE_FOUND);
+            mViewPager.setCurrent(MainViewPager.PAGE_FOUND);
         }
     }
 
