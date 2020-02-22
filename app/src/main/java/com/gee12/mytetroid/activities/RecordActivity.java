@@ -207,11 +207,12 @@ public class RecordActivity extends TetroidActivity implements
             }
 
             switchMode(defMode);
+
+            this.mIsFirstLoad = false;
         } else {
             // переключаем только views
             switchViews(mCurMode);
         }
-        this.mIsFirstLoad = false;
     }
 
     /**
@@ -654,7 +655,9 @@ public class RecordActivity extends TetroidActivity implements
 
         @Override
         public void afterTextChanged(Editable s) {
-            mEditor.setIsEdited();
+            if (mCurMode == MODE_HTML) {
+                mEditor.setIsEdited();
+            }
         }
     };
 }
