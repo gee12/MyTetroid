@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.model;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class TetroidTag implements ITetroidObject {
@@ -94,4 +95,25 @@ public class TetroidTag implements ITetroidObject {
 //        return (getKey()==null ? 0 : getKey().hashCode()) ^
 //                (getValue()==null ? 0 : getValue().hashCode());
 //    }
+
+    /**
+     * Функция сравнения меток.
+     */
+    public static class TagsComparator implements Comparator<String> {
+
+        @Override
+        public int compare(String o1, String o2) {
+            if (o1 == o2) {
+                return 0;
+            }
+            if (o1 == null) {
+                return -1;
+            }
+            if (o2 == null) {
+                return 1;
+            }
+            return o1.toLowerCase().compareTo(o2.toLowerCase());
+        }
+    }
+
 }

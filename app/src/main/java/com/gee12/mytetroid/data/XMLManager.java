@@ -18,7 +18,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
@@ -79,7 +78,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
         this.rootNodesList = new ArrayList<>();
-        this.tagsMap = new TreeMap<>(tagsComparator);
+        this.tagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
         this.nodesCount = 0;
         this.cryptedNodesCount = 0;
         this.recordsCount = 0;
@@ -427,12 +426,24 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return new TetroidFile(id, fileName, type, record);
     }
 
+//    /**
+//     * Добавление записи в указанную ветку в файл mytetra.xml.
+//     * @param record
+//     * @param node
+//     * @return
+//     */
+//    public boolean addRecord(TetroidRecord record, TetroidNode node) {
+//        return false;
+//    }
+
     /**
-     *
-     * @param record
+     * Запись структуры хранилища в файл mytetra.xml.
      * @return
      */
-    public boolean addRecord(TetroidRecord record) {
+    public static boolean save() {
+
+        
+
         return false;
     }
 
@@ -440,7 +451,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * This is how it works:
      * - It throws an exception if the current event isn't a START_TAG.
      * - It consumes the START_TAG, and all events up to and including the matching END_TAG.
-     * - To make sure that it stops at the correct END_TAG and not at the first tag it encounters after the original START_TAG, it keeps track of the nesting depth.
+     * - To make sure that it stops at the correct END_TAG and not at the first tag it encounters
+     * after the original START_TAG, it keeps track of the nesting depth.
      * @param parser
      * @throws XmlPullParserException
      * @throws IOException
@@ -461,25 +473,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
     }
-
-    /**
-     * Функция сравнения меток.
-     */
-    private Comparator<String> tagsComparator = new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 == null) {
-                return -1;
-            }
-            if (o2 == null) {
-                return 1;
-            }
-            return o1.toLowerCase().compareTo(o2.toLowerCase());
-        }
-    };
 
     public Version getFormatVersion() {
         return formatVersion;
