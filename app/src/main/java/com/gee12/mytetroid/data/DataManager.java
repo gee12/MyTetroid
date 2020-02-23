@@ -81,7 +81,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     private static DataManager instance;
 
     /**
-     *
+     * Загрузка параметров из файла database.ini и инициализация переменных.
      * @param storagePath
      * @return
      */
@@ -101,7 +101,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     *
+     * Загрузка хранилища из файла mytetra.xml.
      * @param isDecrypt Расшифровывать ли ветки
      * @return
      */
@@ -117,12 +117,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
             res = instance.parse(fis, decryptHandler);
 
-            if (BuildConfig.DEBUG) {
+//            if (BuildConfig.DEBUG) {
 //                TestData.addNodes(instance.rootNodesList, 100, 100);
-            }
+//            }
 
         } catch (Exception ex) {
-            // ошибка загрузки xml
             LogManager.addLog(ex);
         }
         return res;
@@ -134,7 +133,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * From IDecryptHandler
+     * Обработчик события IDecryptHandler, возникающее при необходимости расшифровать ветку.
      * @param node
      */
     @Override
@@ -147,6 +146,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return CryptManager.decryptNode(node, false, this);
     }
 
+    /**
+     * Проверка введенного пароля с сохраненным хэшем.
+     * @param pass
+     * @return
+     * @throws EmptyFieldException
+     */
     public static boolean checkPass(String pass) throws EmptyFieldException {
         // нужно также обработать варианты, когда эти поля пустые (!)
         // ...
@@ -162,6 +167,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return CryptManager.checkPass(pass, salt, checkhash);
     }
 
+    /**
+     * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
+     * @param passHash
+     * @return
+     * @throws EmptyFieldException
+     */
     public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
         String checkdata = databaseINI.get(INI_MIDDLE_HASH_CHECK_DATA);
         if (TextUtils.isEmpty(checkdata) || QUOTES_PARAM_STRING.equals(checkdata)) {
@@ -197,6 +208,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return (path != null) ? "file:///" + path : null;
     }
 
+    /**
+     * Обработчик события, когда необходимо загрузить иконку ветки.
+     * @param node
+     */
     @Override
     public void loadIcon(@NonNull TetroidNode node) {
         if (node.isNonCryptedOrDecrypted())
@@ -204,7 +219,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Получение содержимого записи в виде "голого" html.
+     * Получение содержимого записи в виде "сырого" html.
      * @param record
      * @return
      */
@@ -322,7 +337,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Создание записи (пустую без текста).
+     * Создание записи (пустую без текста):
+     * 1) создание каталога для записи
+     * 2) добавление в структуру mytetra.xml
      * @param name
      * @param tagsString
      * @param author
@@ -335,21 +352,40 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.createRecord()");
             return null;
         }
+        LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
+
         boolean crypted = node.isCrypted();
         // генерируем уникальные идентификаторы
         String id = createUniqueId(TetroidRecord.FIELD_ID);
-        String folderName = createUniqueId(TetroidRecord.FIELD_DIR_NAME);
+        String dirName = createUniqueId(TetroidRecord.FIELD_DIR_NAME);
 
-        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), folderName, TetroidRecord.DEF_FILE_NAME, node);
+        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         record.setName((crypted) ? CryptManager.cryptText(name) : name);
         record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
         record.setTagsString((crypted) ? CryptManager.cryptText(tagsString) : tagsString);
         record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
         // добавляем метки в запись и в коллекцию
         instance.parseRecordTags(record, tagsString);
-        // TODO: создаем каталог
+        // создаем каталог
+        String path = getStoragePathBase() + File.separator + record.getDirName();
+        Uri uri;
+        try {
+            uri = Uri.parse(path);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + path, ex);
+            return null;
+        }
+        File folder = new File(uri.getPath());
+        if (!folder.mkdir()) {
+            LogManager.addLog(context.getString(R.string.error_create_record_folder) + path, LogManager.Types.ERROR);
+        }
 
         // TODO: добавляем запись в mytetra.xml
+        try {
+            instance.addRecord(record);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_add_record), ex);
+        }
 
         return record;
     }

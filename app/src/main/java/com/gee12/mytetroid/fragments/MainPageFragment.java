@@ -24,6 +24,7 @@ import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.AddRecordDialog;
@@ -52,7 +53,7 @@ public class MainPageFragment extends TetroidFragment {
     private TextView mTextViewFilesEmpty;
     private MenuItem mMenuItemCurNode;
     private MenuItem mMenuItemCurRecord;
-    private MenuItem mMenuItemAttachedFiles;
+//    private MenuItem mMenuItemAttachedFiles;
     private MenuItem mMenuItemCurRecordFolder;
     private FloatingActionButton mButtonAddRecord;
     private FloatingActionButton mButtonAddFile;
@@ -62,6 +63,7 @@ public class MainPageFragment extends TetroidFragment {
     private RecordsListAdapter mListAdapterRecords;
     private FilesListAdapter mListAdapterFiles;
     private TetroidRecord mCurRecord;
+    private TetroidNode mCurNode;
 
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
@@ -101,6 +103,7 @@ public class MainPageFragment extends TetroidFragment {
         mListViewFiles.setEmptyView(mTextViewFilesEmpty);
 
         this.mButtonAddRecord = view.findViewById(R.id.button_add_record);
+//        mButtonAddRecord.setAlpha(0.1f);
         mButtonAddRecord.setOnClickListener(v -> createRecord());
         this.mButtonAddFile = view.findViewById(R.id.button_add_file);
         mButtonAddRecord.setOnClickListener(v -> createFile());
@@ -141,10 +144,12 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showView(int viewId) {
-        mMenuItemAttachedFiles.setVisible(false);
+//        mMenuItemAttachedFiles.setVisible(false);
         mMenuItemCurNode.setVisible(false);
         mMenuItemCurRecord.setVisible(false);
         mMenuItemCurRecordFolder.setVisible(false);
+        mButtonAddRecord.hide();
+        mButtonAddFile.hide();
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
         if (viewId != mCurMainViewId)
@@ -160,6 +165,9 @@ public class MainPageFragment extends TetroidFragment {
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
                 whichChild = MAIN_VIEW_NODE_RECORDS;
                 break;
+            case MAIN_VIEW_NODE_RECORDS:
+                mButtonAddRecord.show();
+                break;
 //            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
 //                mMenuItemAttachedFiles.setVisible(isShowRecordViewerMenus);
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
@@ -167,6 +175,7 @@ public class MainPageFragment extends TetroidFragment {
                 mMenuItemCurRecordFolder.setVisible(true);
 //                if (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT)
                     mMenuItemCurRecord.setVisible(true);
+                mButtonAddFile.show();
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
         }
@@ -232,7 +241,12 @@ public class MainPageFragment extends TetroidFragment {
         AddRecordDialog.createTextSizeDialog(getContext(), null, new AddRecordDialog.INewRecordResult() {
             @Override
             public void onApply(String name, String tags, String author, String url) {
-                TetroidRecord record = DataManager.createRecord(name, tags, author, url, ?);
+                TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
+                if (record != null) {
+                    showRecord(record);
+                } else {
+                    LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
             }
         });
     }
@@ -273,9 +287,9 @@ public class MainPageFragment extends TetroidFragment {
         showRecordFiles(record.getAttachedFiles(), record);
     }
 
-    public void showCurRecordFiles() {
-        showRecordFiles(mCurRecord);
-    }
+//    public void showCurRecordFiles() {
+//        showRecordFiles(mCurRecord);
+//    }
 
     public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
         showView(MAIN_VIEW_RECORD_FILES);
@@ -338,7 +352,7 @@ public class MainPageFragment extends TetroidFragment {
     public void onCreateOptionsMenu(@NonNull Menu menu) {
         this.mMenuItemCurNode = menu.findItem(R.id.action_cur_node);
         this.mMenuItemCurRecord = menu.findItem(R.id.action_cur_record);
-        this.mMenuItemAttachedFiles = menu.findItem(R.id.action_attached_files);
+//        this.mMenuItemAttachedFiles = menu.findItem(R.id.action_attached_files);
         this.mMenuItemCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
 //        this.miRecordSave = menu.findItem(R.id.action_record_save);
 //        this.miRecordHtml = menu.findItem(R.id.action_record_html);
@@ -352,9 +366,9 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_cur_record:
                 showCurRecord();
                 return true;
-            case R.id.action_attached_files:
-                showCurRecordFiles();
-                return true;
+//            case R.id.action_attached_files:
+//                showCurRecordFiles();
+//                return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
                 return true;
@@ -437,15 +451,19 @@ public class MainPageFragment extends TetroidFragment {
         mTextViewFilesEmpty.setText(s);
     }
 
-    public TetroidRecord getmCurRecord() {
+    public void setCurNode(TetroidNode curNode) {
+        this.mCurNode = curNode;
+    }
+
+    public TetroidRecord getCurRecord() {
         return mCurRecord;
     }
 
-    public int getmCurMainViewId() {
+    public int getCurMainViewId() {
         return mCurMainViewId;
     }
 
-    public int getmLastViewId() {
+    public int getLastViewId() {
         return mLastViewId;
     }
 

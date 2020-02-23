@@ -130,7 +130,7 @@
     <string name="global_search_by_node_result">Результаты поиска по ветке \"%s\"</string>
     <string name="title_cur_node">Ветка записи</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
-    <string name="title_cur_record">Текст записи</string>
+    <string name="title_cur_record">Открыть запись</string>
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
     <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
@@ -158,6 +158,9 @@
     <string name="error_read_record_file">Ошибка чтения файла записи:&#160;</string>
     <string name="error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
     <string name="error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
+    <string name="error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
+    <string name="error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
+    <string name="error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="missing_file">Отсутствует файл&#160;</string>
     <string name="open_node_records">Открытие записей ветки: id=</string>
     <string name="title_storage_sync">Синхронизация</string>
@@ -208,6 +211,8 @@
     <string name="before_record_save">Сохранение текста записи id=</string>
     <string name="record_saved">Запись сохранена</string>
     <string name="record_save_error">Не удается сохранить запись (подробнее в логах)</string>
+    <string name="record_create_error">Не удается создать запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
+    <string name="start_record_creating">Начало создания записи</string>
 </resources>

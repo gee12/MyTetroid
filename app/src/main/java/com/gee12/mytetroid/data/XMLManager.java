@@ -301,6 +301,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
     }
 
+    /**
+     *
+     * @param parser
+     * @param node
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private TetroidRecord readRecord(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
@@ -366,6 +374,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return record;
     }
 
+    /**
+     *
+     * @param parser
+     * @param record
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private List<TetroidFile> readFiles(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
         List<TetroidFile> files = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, ns, "files");
@@ -383,6 +399,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return files;
     }
 
+    /**
+     *
+     * @param parser
+     * @param record
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private TetroidFile readFile(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
         String id = null;
         String fileName = null;
@@ -401,6 +425,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         this.filesCount++;
 
         return new TetroidFile(id, fileName, type, record);
+    }
+
+    /**
+     *
+     * @param record
+     * @return
+     */
+    public boolean addRecord(TetroidRecord record) {
+        return false;
     }
 
     /**

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_search_records"
+    <item
+        android:id="@+id/action_search_records"
         android:title="@string/title_search_records"
         android:icon="@drawable/ic_search_24dp"
         app:showAsAction="always"
@@ -34,13 +35,13 @@
         android:visible="false"
         android:icon="@drawable/ic_record_24dp"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_attached_files"
-        android:orderInCategory="90"
-        android:title="@string/title_attached_files"
-        android:visible="false"
-        android:icon="@drawable/ic_attachment"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/action_attached_files"-->
+<!--        android:orderInCategory="90"-->
+<!--        android:title="@string/title_attached_files"-->
+<!--        android:visible="false"-->
+<!--        android:icon="@drawable/ic_attachment"-->
+<!--        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_cur_record_folder"
         android:orderInCategory="90"

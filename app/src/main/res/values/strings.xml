@@ -163,7 +163,7 @@
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
     <string name="title_cur_node">Record node</string>
     <string name="title_attached_files">Attached files</string>
-    <string name="title_cur_record">Record text</string>
+    <string name="title_cur_record">Open record</string>
     <string name="title_fullscreen">Fullscreen</string>
     <string name="incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="cur_record_is_not_set">Current record is not set</string>
@@ -191,6 +191,9 @@
     <string name="error_read_record_file">Error reading record file:&#160;</string>
     <string name="error_decrypt_record_file">Error decrypting record file:&#160;</string>
     <string name="error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
+    <string name="error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
+    <string name="error_add_record">Error add record to mytetra.xml</string>
+    <string name="error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="missing_file">Missing file&#160;</string>
     <string name="open_node_records">Open node records: id=</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
@@ -247,6 +250,8 @@
     <string name="before_record_save">Saving record with id=</string>
     <string name="record_saved">Record saved</string>
     <string name="record_save_error">Unable to save the record (more in the logs)</string>
+    <string name="record_create_error">Unable to create the record (more in the logs)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
     <string name="wrong_tag_link_format">Wrong tag link format</string>
+    <string name="start_record_creating">Start record creating</string>
 </resources>

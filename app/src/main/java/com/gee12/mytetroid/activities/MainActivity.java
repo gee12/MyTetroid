@@ -599,6 +599,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             this.isNodeOpening = false;
         }
         this.mCurNode = node;
+        mViewPagerAdapter.getMainFragment().setCurNode(node);
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
     }
 
@@ -860,7 +861,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
                 // что приводит к повторному открытию списка записей)
                 if (!isNodeOpening) {
-                    switch (mViewPagerAdapter.getMainFragment().getmCurMainViewId()) {
+                    switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
                         case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
                             if (mCurNode != null) {
                                 showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
@@ -873,7 +874,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             break;
                         // пока по файлам не ищем
                    /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getmCurRecord();
+                        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
                         if (curRecord != null) {
                             mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                         }
@@ -1108,7 +1109,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void searchInMainPage(String query) {
         TetroidSuggestionProvider.SaveRecentQuery(this, query);
-        searchInMainPage(query, mViewPagerAdapter.getMainFragment().getmCurMainViewId());
+        searchInMainPage(query, mViewPagerAdapter.getMainFragment().getCurMainViewId());
     }
 
     private void searchInMainPage(String query, int viewId) {
@@ -1125,7 +1126,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 searchInRecordFiles(query);
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
-//                int lastVIewId = mViewPagerAdapter.getMainFragment().getmLastViewId();
+//                int lastVIewId = mViewPagerAdapter.getMainFragment().getLastViewId();
 //                if (viewId != lastVIewId)
 //                    searchInMainPage(query, lastVIewId);
 //                break;
@@ -1165,7 +1166,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInRecordFiles(String query) {
-        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getmCurRecord();
+        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
         if (curRecord != null) {
             searchInFiles(query, curRecord);
         } else {
