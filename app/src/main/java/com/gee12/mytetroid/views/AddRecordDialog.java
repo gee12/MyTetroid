@@ -74,12 +74,7 @@ public class AddRecordDialog {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (TextUtils.isEmpty(s)) {
-                    okButton.setEnabled(false);
-                } else {
-                    int size = Integer.parseInt(etName.getText().toString());
-                    okButton.setEnabled(size >= 1 && size <= 7);
-                }
+                okButton.setEnabled(!TextUtils.isEmpty(s));
             }
         });
     }

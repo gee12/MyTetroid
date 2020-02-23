@@ -14,7 +14,9 @@ import com.gee12.mytetroid.utils.Utils;
 import org.jsoup.internal.StringUtil;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -69,8 +71,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected int maxDepthLevel;
 
     /**
-     * Чтение хранилища.
-     * @param in Файл mytetra.xml
+     * Чтение хранилища из xml-файла.
+     * @param in
      * @return Иерархический список веток с записями и документами
      * @throws XmlPullParserException
      * @throws IOException
@@ -437,13 +439,37 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 //    }
 
     /**
-     * Запись структуры хранилища в файл mytetra.xml.
+     * Запись структуры хранилища в xml-файл.
+     * @param fos
      * @return
      */
-    public static boolean save() {
+    public boolean save(FileOutputStream fos) throws IOException {
+        XmlSerializer serializer = Xml.newSerializer();
+        try {
+            serializer.setOutput(fos, "UTF-8");
+            // header
+            serializer.startDocument("UTF-8", true);
+            serializer.docdecl("mytetradoc");
+            // root
+            serializer.startTag(ns, "root");
+            // format
+            serializer.startTag(ns, "format");
+            serializer.attribute(ns, "version", String.valueOf(formatVersion.getMajor()));
+            serializer.attribute(ns, "subversion", String.valueOf(formatVersion.getMinor()));
+            serializer.endTag(ns, "format");
+            // content
+            serializer.startTag(ns, "content");
 
-        
+            // TODO: цикл по веткам и т.д.
 
+
+            serializer.endTag(ns, "content");
+            serializer.endTag(ns, "root");
+            serializer.endDocument();
+            fos.flush();
+        } finally {
+            fos.close();
+        }
         return false;
     }
 

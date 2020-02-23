@@ -17,6 +17,7 @@ import android.widget.ViewFlipper;
 import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -238,6 +239,10 @@ public class MainPageFragment extends TetroidFragment {
      *
      */
     public void createRecord() {
+        if (!BuildConfig.DEBUG) {
+            LogManager.addLog("Not implemented yet..");
+            return;
+        }
         AddRecordDialog.createTextSizeDialog(getContext(), null, new AddRecordDialog.INewRecordResult() {
             @Override
             public void onApply(String name, String tags, String author, String url) {
@@ -314,7 +319,10 @@ public class MainPageFragment extends TetroidFragment {
      *
      */
     public void createFile() {
-
+        if (!BuildConfig.DEBUG) {
+            LogManager.addLog("Not implemented yet..");
+            return;
+        }
     }
 
     private void openRecordFolder(int position) {

@@ -29,6 +29,7 @@ import org.jsoup.internal.StringUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -381,14 +382,32 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
 
         // TODO: добавляем запись в mytetra.xml
-        try {
-            instance.addRecord(record);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.error_add_record), ex);
-        }
+//        try {
+//            instance.addRecord(record);
+//        } catch (Exception ex) {
+//            LogManager.addLog(context.getString(R.string.error_add_record), ex);
+//        }
+        saveStorage();
 
         return record;
     }
+
+    /**
+     * Сохранение хранилища в файл mytetra.xml.
+     * @return
+     */
+    public static boolean saveStorage() {
+        boolean res = false;
+        String path = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+        try {
+            FileOutputStream fos = new FileOutputStream(path, false);
+            res = instance.save(fos);
+        } catch (Exception ex) {
+            LogManager.addLog(ex);
+        }
+        return res;
+    }
+
 
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;
