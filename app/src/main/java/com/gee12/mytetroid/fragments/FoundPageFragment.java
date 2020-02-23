@@ -65,12 +65,7 @@ public class FoundPageFragment extends TetroidFragment {
 
 
         FloatingActionButton fab = rootView.findViewById(R.id.button_close);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mainView.closeFoundFragment();
-            }
-        });
+        fab.setOnClickListener(view -> mainView.closeFoundFragment());
         fab.setAlpha(0.5f);
 
         return rootView;

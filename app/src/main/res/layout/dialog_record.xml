@@ -13,7 +13,7 @@
     <EditText
         android:id="@+id/edit_text_name"
         android:inputType="text"
-        style="@style/DialogLabels">
+        style="@style/DialogTextEdit">
 
         <requestFocus/>
 
@@ -26,7 +26,7 @@
     <EditText
         android:id="@+id/edit_text_author"
         android:inputType="text"
-        style="@style/DialogLabels"/>
+        style="@style/DialogTextEdit"/>
 
     <TextView
         android:text="Url:"
@@ -34,8 +34,8 @@
 
     <EditText
         android:id="@+id/edit_text_url"
-        android:inputType="text"
-        style="@style/DialogLabels"/>
+        android:inputType="textUri"
+        style="@style/DialogTextEdit"/>
 
     <TextView
         android:text="Метки:"
@@ -44,6 +44,6 @@
     <EditText
         android:id="@+id/edit_text_tags"
         android:inputType="text"
-        style="@style/DialogLabels"/>
+        style="@style/DialogTextEdit"/>
 
 </LinearLayout>

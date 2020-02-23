@@ -10,6 +10,7 @@ import android.view.MenuItem;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
@@ -80,28 +81,37 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             }
         });
 
-        String storagePath = SettingsManager.getStoragePath();
-        if (!StringUtil.isBlank(storagePath)) {
-            Preference pref = findPreference(getString(R.string.pref_key_storage_path));
-            pref.setSummary(storagePath);
-        }
+//        String storagePath = SettingsManager.getStoragePath();
+//        if (!StringUtil.isBlank(storagePath)) {
+//            storageFolderPicker.setSummary(storagePath);
+//        }
+        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
 
-        String tempPath = SettingsManager.getTempPath();
-        if (!StringUtil.isBlank(tempPath)) {
-            Preference pref = findPreference(getString(R.string.pref_key_temp_path));
-            pref.setSummary(tempPath);
-        }
+//        String tempPath = SettingsManager.getTempPath();
+//        if (!StringUtil.isBlank(tempPath)) {
+//            tempFolderPicker.setSummary(tempPath);
+//        }
+        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTempPath());
 
-        String syncCommand = SettingsManager.getSyncCommand();
-        if (!StringUtil.isBlank(syncCommand)) {
-            Preference pref = findPreference(getString(R.string.pref_key_sync_command));
-            pref.setSummary(syncCommand);
-        }
+//        String syncCommand = SettingsManager.getSyncCommand();
+//        if (!StringUtil.isBlank(syncCommand)) {
+//            Preference pref = findPreference(getString(R.string.pref_key_sync_command));
+//            pref.setSummary(syncCommand);
+//        }
+        updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
 
-        String logPath = SettingsManager.getLogPath();
-        if (!StringUtil.isBlank(logPath)) {
-            Preference pref = findPreference(getString(R.string.pref_key_log_path));
-            pref.setSummary(logPath);
+//        String logPath = SettingsManager.getLogPath();
+//        if (!StringUtil.isBlank(logPath)) {
+//            logFolderPicker.setSummary(logPath);
+//        }
+        updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
+    }
+
+    private void updateSummary(@StringRes int keyStringRes, String value) {
+        if (!StringUtil.isBlank(value)) {
+            Preference pref = findPreference(getString(keyStringRes));
+            if (pref != null)
+                pref.setSummary(value);
         }
     }
 
@@ -121,11 +131,16 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 SettingsManager.isAskReloadStorage = true;
             }
             SettingsManager.setStoragePath(folderFullName);
-        } else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
+            updateSummary(R.string.pref_key_storage_path, folderFullName);
+        }
+        else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
             SettingsManager.setTempPath(folderFullName);
-        } else if (requestCode == REQUEST_CODE_OPEN_LOG_PATH) {
+            updateSummary(R.string.pref_key_temp_path, folderFullName);
+        }
+        else if (requestCode == REQUEST_CODE_OPEN_LOG_PATH) {
             SettingsManager.setLogPath(folderFullName);
             LogManager.setLogPath(folderFullName);
+            updateSummary(R.string.pref_key_log_path, folderFullName);
         }
     }
 
@@ -138,7 +153,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_storage_path))) {
+        /*if (key.equals(getString(R.string.pref_key_storage_path))) {
             // вызывается, когда задаем
             // удаляем хэш пароля, если поменяли хранилище
 //            String newStoragePath = SettingsManager.getStoragePath();
@@ -146,7 +161,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //                SettingsManager.setMiddlePassHash(null);
 //            }
 
-        } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+        } else*/ if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             if (SettingsManager.isSaveMiddlePassHashLocal()) {
                 // сохраняем хеш пароля локально в настройках
                 SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());
@@ -171,6 +186,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
+        } else if (key.equals(getString(R.string.pref_key_sync_command))) {
+            updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         }
     }
 

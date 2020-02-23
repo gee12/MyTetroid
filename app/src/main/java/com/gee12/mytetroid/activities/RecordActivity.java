@@ -387,9 +387,9 @@ public class RecordActivity extends TetroidActivity implements
     private void onSaveRecord(int oldMode, int newMode) {
         if (SettingsManager.isRecordAutoSave()) {
 
-            // TODO: заменить проверку режима на mEditor.isEdited()
-
-            if (oldMode == MODE_EDIT || oldMode == MODE_HTML) {
+            // заменил проверку режима на mEditor.isEdited()
+//            if (oldMode == MODE_EDIT || oldMode == MODE_HTML) {
+            if (mEditor.isEdited()) {
                 saveRecord();
             }
         } /*else {
@@ -417,10 +417,11 @@ public class RecordActivity extends TetroidActivity implements
      */
     private boolean onSaveRecord(int curMode, boolean isAskAndExit) {
 
-        // TODO: заменить проверку режима на mEditor.isEdited()
+        // заменил проверку режима на mEditor.isEdited()
+        /*curMode == MODE_EDIT || curMode == MODE_HTML
+                        || curMode == MODE_VIEW &&*/
 
-        if (curMode == MODE_EDIT || curMode == MODE_HTML
-                || curMode == MODE_VIEW && mEditor.isEdited()) {
+        if (mEditor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 saveRecord();
             } else if (isAskAndExit) {

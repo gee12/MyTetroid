@@ -107,7 +107,7 @@ public class MainPageFragment extends TetroidFragment {
 //        mButtonAddRecord.setAlpha(0.1f);
         mButtonAddRecord.setOnClickListener(v -> createRecord());
         this.mButtonAddFile = view.findViewById(R.id.button_add_file);
-        mButtonAddRecord.setOnClickListener(v -> createFile());
+        mButtonAddFile.setOnClickListener(v -> createFile());
 
         this.mCurMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
