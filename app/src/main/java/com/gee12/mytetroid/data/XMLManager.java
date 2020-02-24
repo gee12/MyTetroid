@@ -478,20 +478,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         for (TetroidNode node : nodes) {
             serializer.startTag(ns, "node");
 
-            //
             boolean crypted = node.isCrypted();
-            try {
+            addAttribute(serializer, "crypt", (crypted) ? "1" : "");
+            addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
+            addAttribute(serializer, "id", node.getId());
+            addCryptAttribute(serializer, "name", node.getName(), crypted);
 
-                addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
-                addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
-                addAttribute(serializer, "id", node.getId());
-                addCryptAttribute(serializer, "name", node.getName(), crypted);
-            } catch(Exception ex) {
-                ex.printStackTrace();
-            }
 
             if (node.getRecordsCount() > 0) {
-//                saveRecords(serializer, node.getRecords());
+                saveRecords(serializer, node.getRecords());
             }
             if (node.getSubNodesCount() > 0) {
                 saveNodes(serializer, node.getSubNodes());
@@ -512,7 +507,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         for (TetroidRecord record : records) {
             serializer.startTag(ns, "record");
 
-            //
             boolean crypted = record.isCrypted();
             addAttribute(serializer, "id", record.getId());
             addCryptAttribute(serializer, "name", record.getName(), crypted);
@@ -522,7 +516,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
             addAttribute(serializer, "dir", record.getDirName());
             addAttribute(serializer, "file", record.getFileName());
-            addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
+            if (crypted)
+                addAttribute(serializer, "crypt", "1");
 
             if (record.getAttachedFilesCount() > 0) {
                 saveFiles(serializer, record.getAttachedFiles());
@@ -544,12 +539,12 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         for (TetroidFile file : files) {
             serializer.startTag(ns, "file");
 
-            //
             boolean crypted = file.isCrypted();
             addAttribute(serializer, "id", file.getId());
             addCryptAttribute(serializer, "fileName", file.getName(), crypted);
             addAttribute(serializer, "type", file.getFileType());
-            addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
+            if (crypted)
+                addAttribute(serializer, "crypt", "1");
 
             serializer.endTag(ns, "file");
         }

@@ -248,10 +248,7 @@ public class MainPageFragment extends TetroidFragment {
             public void onApply(String name, String tags, String author, String url) {
                 TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
                 if (record != null) {
-
-                    // FIXME: не обновляет
-                    mListViewRecords.invalidate();
-
+                    mListAdapterRecords.notifyDataSetInvalidated();
                     showRecord(record);
                 } else {
                     LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
