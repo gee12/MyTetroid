@@ -12,29 +12,29 @@ import com.gee12.mytetroid.adapters.MainPagerAdapter;
 
 public abstract class TetroidFragment extends Fragment implements View.OnTouchListener {
 
-    protected GestureDetectorCompat gestureDetector;
-    protected IMainView mainView;
-    protected String titleMask;
+    protected GestureDetectorCompat mGestureDetector;
+    protected IMainView mMainView;
+    protected String mTitleMask;
 
     public TetroidFragment() {}
 
     public TetroidFragment(GestureDetectorCompat detector) {
-        this.gestureDetector = detector;
+        this.mGestureDetector = detector;
     }
 
     public void setTitleMask(String titleMask) {
-        this.titleMask = titleMask;
+        this.mTitleMask = titleMask;
     }
 
     public abstract String getTitle();
 
     public void setMainView(IMainView main) {
-        this.mainView = main;
+        this.mMainView = main;
     }
 
     public void setMainView(Bundle arguments) {
         if (arguments != null) {
-            this.mainView = arguments.getParcelable(MainPagerAdapter.KEY_MAIN_VIEW);
+            this.mMainView = arguments.getParcelable(MainPagerAdapter.KEY_MAIN_VIEW);
         }
     }
 
@@ -43,7 +43,7 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
      * @param detector
      */
     public void setGestureDetector(GestureDetectorCompat detector) {
-        this.gestureDetector = detector;
+        this.mGestureDetector = detector;
     }
 
     /**
@@ -55,8 +55,8 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
      */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (gestureDetector != null)
-            gestureDetector.onTouchEvent(event);
+        if (mGestureDetector != null)
+            mGestureDetector.onTouchEvent(event);
         return false;
     }
 }

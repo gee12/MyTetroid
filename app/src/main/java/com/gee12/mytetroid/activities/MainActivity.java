@@ -63,6 +63,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -146,7 +147,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mViewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
         this.mViewPager = findViewById(R.id.view_pager);
         mViewPager.setAdapter(mViewPagerAdapter);
-//        mViewPager.setGestureDetector(gestureDetector);
+//        mViewPager.setGestureDetector(mGestureDetector);
 
         this.mTitleStrip = mViewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
@@ -609,7 +610,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void showTagRecords(int position) {
 //        String tag = (String)mListAdapterTags.getItem(position);
-        TetroidTag tag = (TetroidTag) mListAdapterTags.getItem(position);
+//        TetroidTag tag = (TetroidTag) mListAdapterTags.getItem(position);
+        TetroidTag tag = mListAdapterTags.getItem(position).getValue();
         showTag(tag);
     }
 
@@ -649,6 +651,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void openRecord(TetroidRecord record) {
         openRecord(record.getId());
+    }
+
+    @Override
+    public void updateTags() {
+        mListAdapterTags.setDataItems(DataManager.getTags());
+//        mListAdapterTags.notifyDataSetInvalidated();
     }
 
     public void openRecord(String recordId) {
@@ -829,7 +837,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInTags(String query, boolean isSearch) {
-        List<TetroidTag> tags;
+//        List<TetroidTag> tags;
+        Map<String,TetroidTag> tags;
         if (isSearch) {
             LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
@@ -1022,6 +1031,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 TetroidTag tag = DataManager.getTag(tagName);
                 if (tag != null) {
                     showTag(tag);
+                } else {
+                    LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName), LogManager.Types.WARNING);
                 }
                 break;
         }

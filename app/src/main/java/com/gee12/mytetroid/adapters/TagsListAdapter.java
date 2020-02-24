@@ -11,7 +11,9 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class TagsListAdapter extends BaseAdapter {
 
@@ -27,27 +29,27 @@ public class TagsListAdapter extends BaseAdapter {
     private LayoutInflater inflater;
 //    private TreeMap<String, List<TetroidRecord>> dataHashMap;
 //    private TreeMap<String, TetroidTag> dataHashMap;
-    private List<TetroidTag> data;
+    private ArrayList mData;
 //    private Object[] keySet;
     private Context context;
 
-//    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> data) {
-//    public TagsListAdapter(Context context, TreeMap<String, TetroidTag> data) {
-    public TagsListAdapter(Context context, List<TetroidTag> data) {
+//    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> mData) {
+//    public TagsListAdapter(Context context, TreeMap<String, TetroidTag> mData) {
+    public TagsListAdapter(Context context, Map<String,TetroidTag> data) {
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        this.dataHashMap = data;
-//        this.data = new ArrayList<>(data.values());
-        this.data = data;
+//        this.dataHashMap = mData;
+//        this.mData = new ArrayList<>(mData.values());
+        this.mData = new ArrayList<>(data.entrySet());
 //        this.keySet = dataHashMap.keySet().toArray();
     }
 
-//    public void setDataItems(TreeMap<String, List<TetroidRecord>> data) {
-//    public void setDataItems(TreeMap<String, TetroidTag> data) {
-    public void setDataItems(List<TetroidTag> data) {
-//        this.dataHashMap = data;
-//        this.data = new ArrayList<>(data.values());
-        this.data = data;
+//    public void setDataItems(TreeMap<String, List<TetroidRecord>> mData) {
+//    public void setDataItems(TreeMap<String, TetroidTag> mData) {
+    public void setDataItems(Map<String,TetroidTag> data) {
+//        this.dataHashMap = mData;
+//        this.mData = new ArrayList<>(mData.values());
+        this.mData = new ArrayList<>(data.entrySet());
 //        onDataSetChanged();
         notifyDataSetChanged();
     }
@@ -60,19 +62,19 @@ public class TagsListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return data.size();
+        return mData.size();
     }
 
     @Override
-    public Object getItem(int position) {
+    public Map.Entry<String, TetroidTag> getItem(int position) {
 //        return keySet[position];
-        return data.get(position);
+        return (Map.Entry) mData.get(position);
     }
 
     @Override
     public long getItemId(int position) {
 //        return keySet[position].hashCode();
-        return data.get(position).hashCode();
+        return mData.get(position).hashCode();
     }
 
     @Override
@@ -91,13 +93,13 @@ public class TagsListAdapter extends BaseAdapter {
 
 //        Object key = keySet[position];
 //        final List<TetroidRecord> records = dataHashMap.get(key).getRecords();
-        TetroidTag tag = data.get(position);
-        final List<TetroidRecord> records = tag.getRecords();
+        Map.Entry<String, TetroidTag> item = getItem(position);
+        final List<TetroidRecord> records = item.getValue().getRecords();
         // номер строки
 //        viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла
 //        viewHolder.nameView.setText((String)key);
-        viewHolder.nameView.setText(tag.getName());
+        viewHolder.nameView.setText(item.getValue().getName());
         // размер файла
         viewHolder.recordsCountView.setText(String.format("[%d]", records.size()));
 

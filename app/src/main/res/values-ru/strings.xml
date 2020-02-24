@@ -217,4 +217,5 @@
     <string name="start_record_creating">Начало создания записи</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="error_creating_record_file">Ошибка создания файла записи</string>
+    <string name="tag_not_found">Не найдена метка [%s]..</string>
 </resources>

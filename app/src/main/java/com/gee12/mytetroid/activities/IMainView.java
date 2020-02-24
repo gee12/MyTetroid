@@ -16,4 +16,5 @@ public interface IMainView extends Parcelable {
     void openMainPage();
     void closeFoundFragment();
     void openRecord(TetroidRecord record);
+    void updateTags();
 }

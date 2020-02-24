@@ -31,8 +31,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -436,8 +438,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         boolean res = false;
         String path = instance.storagePath + File.separator + MYTETRA_XML_FILE;
 
-        if (BuildConfig.DEBUG)
-            path += "_test";
+//        if (BuildConfig.DEBUG)
+//            path += "_test";
 
         try {
             FileOutputStream fos = new FileOutputStream(path, false);
@@ -475,9 +477,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static TetroidTag getTag(String tagName) {
-        for (TetroidTag tag : getTags()) {
-            if (tag.getName().contentEquals(tagName))
-                return tag;
+//        for (TetroidTag tag : getTags()) {
+        for (Map.Entry<String,TetroidTag> tag : getTags().entrySet()) {
+//            if (tag.getValue().getName().contentEquals(tagName))
+            if (tag.getKey().contentEquals(tagName))
+                return tag.getValue();
         }
         return null;
     }
@@ -713,8 +717,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return instance.rootNodesList;
     }
 
-    public static List<TetroidTag> getTags() {
-        return instance.tagsList;
+    public static Map<String,TetroidTag> getTags() {
+//        return instance.tagsList;
+        return instance.tagsMap;
+    }
+
+    public static Collection<TetroidTag> getTagsValues() {
+//        return instance.tagsList;
+        return instance.tagsMap.values();
     }
 
     public static boolean isNodesExist() {

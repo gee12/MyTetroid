@@ -13,6 +13,7 @@ import com.gee12.mytetroid.model.TetroidTag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -307,6 +308,18 @@ public class ScanManager implements Parcelable {
         for (TetroidTag tag : tags) {
             if (tag.getName().matches(regex)) {
                 found.add(tag);
+            }
+        }
+        return found;
+    }
+
+    public static Map<String,TetroidTag> searchInTags(Map<String,TetroidTag> tags, String query) {
+        Map<String,TetroidTag> found = new HashMap<>();
+        String regex = buildRegex(query);
+        for (Map.Entry<String,TetroidTag> tag : tags.entrySet()) {
+//            if (tag.getValue().getName().matches(regex)) {
+            if (tag.getKey().matches(regex)) {
+                found.put(tag.getKey(), tag.getValue());
             }
         }
         return found;

@@ -65,7 +65,7 @@ public class FoundPageFragment extends TetroidFragment {
 
 
         FloatingActionButton fab = rootView.findViewById(R.id.button_close);
-        fab.setOnClickListener(view -> mainView.closeFoundFragment());
+        fab.setOnClickListener(view -> mMainView.closeFoundFragment());
         fab.setAlpha(0.5f);
 
         return rootView;
@@ -88,7 +88,7 @@ public class FoundPageFragment extends TetroidFragment {
 
     private void openFoundObject(int position) {
         ITetroidObject found = (ITetroidObject) listAdapter.getItem(position);
-        mainView.openFoundObject(found);
+        mMainView.openFoundObject(found);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class FoundPageFragment extends TetroidFragment {
      * Обработчик нажатия кнопки Назад
      */
     public boolean onBackPressed() {
-        mainView.openMainPage();
+        mMainView.openMainPage();
         return true;
     }
 

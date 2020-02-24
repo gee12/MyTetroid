@@ -53,8 +53,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-    private TreeMap<String, TetroidTag> tagsMap;
-    protected List<TetroidTag> tagsList;
+    protected TreeMap<String, TetroidTag> tagsMap;
+//    protected List<TetroidTag> tagsList;
 
     /**
      * Статистические данные.
@@ -101,7 +101,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             return readRoot(parser);
         } finally {
             in.close();
-            this.tagsList = new ArrayList<>(tagsMap.values());
+//            this.tagsList = new ArrayList<>(tagsMap.values());
         }
     }
 

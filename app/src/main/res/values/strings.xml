@@ -256,4 +256,5 @@
     <string name="start_record_creating">Start record creating</string>
     <string name="crypted_node_name">Closed</string>
     <string name="error_creating_record_file">Error creating record file</string>
+    <string name="tag_not_found">Tag [%s] not found..</string>
 </resources>

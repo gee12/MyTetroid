@@ -111,10 +111,10 @@ public class MainPageFragment extends TetroidFragment {
 
         this.mCurMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
-        // mainView уже должен быть установлен
+        // mMainView уже должен быть установлен
 //        initRecordViews();
         // можно загружать настройки и хранилище
-        mainView.onMainPageCreated();
+        mMainView.onMainPageCreated();
 
         return view;
     }
@@ -180,9 +180,9 @@ public class MainPageFragment extends TetroidFragment {
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
         }
-        mainView.updateMainToolbar(viewId, title);
-//        mainView.updateMenuItems(viewId);
-//        mainView.checkKeepScreenOn(viewId);
+        mMainView.updateMainToolbar(viewId, title);
+//        mMainView.updateMenuItems(viewId);
+//        mMainView.checkKeepScreenOn(viewId);
         this.mCurMainViewId = viewId;
         mViewFlipperfMain.setDisplayedChild(whichChild-1);
     }
@@ -199,7 +199,7 @@ public class MainPageFragment extends TetroidFragment {
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
             break;
         }
-        mainView.updateMainToolbar(restoredViewId, title);
+        mMainView.updateMainToolbar(restoredViewId, title);
     }
 
     public void clearView() {
@@ -232,21 +232,22 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     public void showRecord(TetroidRecord record) {
-        mainView.openRecord(record);
+        mMainView.openRecord(record);
     }
 
     /**
      *
      */
     public void createRecord() {
-        if (!BuildConfig.DEBUG) {
-            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            return;
-        }
+//        if (!BuildConfig.DEBUG) {
+//            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            return;
+//        }
         AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
             if (record != null) {
                 mListAdapterRecords.notifyDataSetInvalidated();
+                mMainView.updateTags();
                 showRecord(record);
             } else {
                 LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -310,7 +311,7 @@ public class MainPageFragment extends TetroidFragment {
             return;
         }
         TetroidFile file = mCurRecord.getAttachedFiles().get(position);
-        mainView.openFile(file);
+        mMainView.openFile(file);
     }
 
     /**
@@ -325,12 +326,12 @@ public class MainPageFragment extends TetroidFragment {
 
     private void openRecordFolder(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        mainView.openFolder(DataManager.getRecordDirUri(record));
+        mMainView.openFolder(DataManager.getRecordDirUri(record));
     }
 
     public void openRecordFolder() {
         if (mCurRecord != null) {
-            mainView.openFolder(DataManager.getRecordDirUri(mCurRecord));
+            mMainView.openFolder(DataManager.getRecordDirUri(mCurRecord));
         }
     }
 
