@@ -33,11 +33,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class DataManager extends XMLManager implements IDecryptHandler {
 
+    public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
     public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
     public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
@@ -314,27 +316,34 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Генерация идентификатора для объектов хранилища.
-     *
-     * TODO: глянуть формирование ID в MyTetra
-     *
+     * Генерация уникального идентификатора для объектов хранилища.
      * @return
      */
-    public static String createId() {
-        return "";
+    public static String createUniqueId() {
+        StringBuilder sb = new StringBuilder();
+        // 10 цифр количества (милли)секунд с эпохи UNIX
+        String seconds = String.valueOf(System.currentTimeMillis());
+        int length = seconds.length();
+        if (length > 10) {
+            sb.append(seconds.substring(0, 10));
+        } else if (length < 10) {
+            sb.append(seconds);
+            for (int i = 0; i < 10 - length; i++){
+                sb.append('0');
+            }
+        }
+        // 10 случайных символов
+        Random rand = new Random();
+        for (int i = 0; i < 10; i++){
+            int randIndex = Math.abs(rand.nextInt()) % ID_SYMBOLS.length();
+            sb.append(ID_SYMBOLS.charAt(randIndex));
+        }
+
+        return sb.toString();
     }
 
-    /**
-     * Генерация уникального идентификатора для объектов хранилища.
-     * @param fieldName
-     * @return
-     */
-    public static String createUniqueId(int fieldName) {
-        String id;
-        do {
-            id = createId();
-        } while (getRecordInHierarchy(getRootNodes(), id, new TetroidRecordComparator(fieldName)) != null);
-        return id;
+    public static String createUniqueImageName() {
+        return "image" + createUniqueId() + ".png";
     }
 
     /**
@@ -357,8 +366,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         boolean crypted = node.isCrypted();
         // генерируем уникальные идентификаторы
-        String id = createUniqueId(TetroidRecord.FIELD_ID);
-        String dirName = createUniqueId(TetroidRecord.FIELD_DIR_NAME);
+        String id = createUniqueId();
+        String dirName = createUniqueId();
 
 //        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
 //        record.setName((crypted) ? CryptManager.cryptText(name) : name);
@@ -371,8 +380,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //        record.setAuthor(author);
 //        record.setTagsString(tagsString);
 //        record.setUrl(url);
-        // добавляем метки в запись и в коллекцию
-        instance.parseRecordTags(record, tagsString);
         // создаем каталог
         String path = getStoragePathBase() + File.separator + record.getDirName();
         Uri uri;
@@ -387,13 +394,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.addLog(context.getString(R.string.error_create_record_folder) + path, LogManager.Types.ERROR);
         }
 
-        // TODO: добавляем запись в mytetra.xml
-//        try {
-//            instance.addRecord(record);
-//        } catch (Exception ex) {
-//            LogManager.addLog(context.getString(R.string.error_add_record), ex);
-//        }
-        saveStorage();
+        if (saveStorage()) {
+            // добавляем запись в ветку (и соответственно, в коллекцию)
+            node.addRecord(record);
+            // добавляем метки в запись и в коллекцию
+            instance.parseRecordTags(record, tagsString);
+        } else {
+            return null;
+        }
 
         return record;
     }
@@ -405,6 +413,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static boolean saveStorage() {
         boolean res = false;
         String path = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+
+        if (BuildConfig.DEBUG)
+            path += "_test";
+
         try {
             FileOutputStream fos = new FileOutputStream(path, false);
             res = instance.save(fos);

@@ -441,14 +441,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         try {
             serializer.setOutput(fos, "UTF-8");
             // header
-            serializer.startDocument("UTF-8", true);
-            serializer.docdecl("mytetradoc");
+            serializer.startDocument("UTF-8", null);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            serializer.docdecl(" mytetradoc");
             // root
             serializer.startTag(ns, "root");
             // format
             serializer.startTag(ns, "format");
-            serializer.attribute(ns, "version", String.valueOf(formatVersion.getMajor()));
-            serializer.attribute(ns, "subversion", String.valueOf(formatVersion.getMinor()));
+            addAttribute(serializer, "version", String.valueOf(formatVersion.getMajor()));
+            addAttribute(serializer, "subversion", String.valueOf(formatVersion.getMinor()));
             serializer.endTag(ns, "format");
             // content
             serializer.startTag(ns, "content");
@@ -459,7 +460,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             serializer.endTag(ns, "content");
             serializer.endTag(ns, "root");
             serializer.endDocument();
-            fos.flush();
+            serializer.flush();
             return true;
         } finally {
             fos.close();
@@ -479,13 +480,18 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             //
             boolean crypted = node.isCrypted();
-            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
-            serializer.attribute(ns, "icon", cryptValue(crypted, node.getIconName()));
-            serializer.attribute(ns, "id", node.getId());
-            serializer.attribute(ns, "name", cryptValue(crypted, node.getName()));
+            try {
+
+                addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
+                addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
+                addAttribute(serializer, "id", node.getId());
+                addCryptAttribute(serializer, "name", node.getName(), crypted);
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
 
             if (node.getRecordsCount() > 0) {
-                saveRecords(serializer, node.getRecords());
+//                saveRecords(serializer, node.getRecords());
             }
             if (node.getSubNodesCount() > 0) {
                 saveNodes(serializer, node.getSubNodes());
@@ -508,15 +514,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             //
             boolean crypted = record.isCrypted();
-            serializer.attribute(ns, "id", record.getId());
-            serializer.attribute(ns, "name", cryptValue(crypted, record.getName()));
-            serializer.attribute(ns, "author", cryptValue(crypted, record.getAuthor()));
-            serializer.attribute(ns, "url", cryptValue(crypted, record.getUrl()));
-            serializer.attribute(ns, "tags", cryptValue(crypted, record.getTagsString()));
-            serializer.attribute(ns, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
-            serializer.attribute(ns, "dir", record.getDirName());
-            serializer.attribute(ns, "file", record.getFileName());
-            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
+            addAttribute(serializer, "id", record.getId());
+            addCryptAttribute(serializer, "name", record.getName(), crypted);
+            addCryptAttribute(serializer, "author", record.getAuthor(), crypted);
+            addCryptAttribute(serializer, "url", record.getUrl(), crypted);
+            addCryptAttribute(serializer, "tags", record.getTagsString(), crypted);
+            addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
+            addAttribute(serializer, "dir", record.getDirName());
+            addAttribute(serializer, "file", record.getFileName());
+            addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
 
             if (record.getAttachedFilesCount() > 0) {
                 saveFiles(serializer, record.getAttachedFiles());
@@ -540,14 +546,24 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             //
             boolean crypted = file.isCrypted();
-            serializer.attribute(ns, "id", file.getId());
-            serializer.attribute(ns, "fileName", cryptValue(crypted, file.getName()));
-            serializer.attribute(ns, "type", file.getFileType());
-            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
+            addAttribute(serializer, "id", file.getId());
+            addCryptAttribute(serializer, "fileName", file.getName(), crypted);
+            addAttribute(serializer, "type", file.getFileType());
+            addAttribute(serializer, "crypt", (crypted) ? "1" : "0");
 
             serializer.endTag(ns, "file");
         }
         serializer.endTag(ns, "files");
+    }
+
+    private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
+        if (value == null)
+            value = "";
+        serializer.attribute(ns, name, value);
+    }
+
+    private void addCryptAttribute(XmlSerializer serializer, String name, String value, boolean crypted) throws IOException {
+        addAttribute(serializer, name, cryptValue(crypted, value));
     }
 
     private String cryptValue(boolean crypted, String value) {

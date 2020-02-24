@@ -401,11 +401,14 @@ public class CryptManager {
 //    }
 
     /**
-     * TODO: реализовать шифровку данных.
+     * TODO: реализовать шифрование данных.
      * @param text
      * @return
      */
     public static String cryptText(String text) {
+        if (text == null)
+            return null;
+
 
         return text;
     }

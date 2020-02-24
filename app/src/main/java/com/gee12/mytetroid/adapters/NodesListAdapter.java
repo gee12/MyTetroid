@@ -110,12 +110,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
-        viewHolder.headerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onNodeHeaderClickListener.onClick(node);
-            }
-        });
+        viewHolder.headerView.setOnClickListener(v -> onNodeHeaderClickListener.onClick(node));
         // стрелка раскрытия/закрытия ветки
         int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {

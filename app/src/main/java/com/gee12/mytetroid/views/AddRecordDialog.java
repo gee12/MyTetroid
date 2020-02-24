@@ -10,9 +10,12 @@ import android.widget.EditText;
 import androidx.appcompat.app.AlertDialog;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
+
+import java.util.Random;
 
 public class AddRecordDialog {
 
@@ -33,6 +36,15 @@ public class AddRecordDialog {
         EditText etUrl = builder.getView().findViewById(R.id.edit_text_url);
         EditText etTags = builder.getView().findViewById(R.id.edit_text_tags);
 
+        if (BuildConfig.DEBUG && record == null) {
+            Random rand = new Random();
+            int num = Math.abs(rand.nextInt());
+            etName.setText("record " + num);
+            etAuthor.setText("author " + num);
+            etUrl.setText("http://url" + num + ".com");
+            etTags.setText("tag " + num + ", tag2 " + num);
+        }
+
         if (record != null) {
             etName.setText(record.getName());
             etName.setSelection(0, etName.getText().length());
@@ -45,9 +57,9 @@ public class AddRecordDialog {
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString(),
+                    etTags.getText().toString(),
                     etAuthor.getText().toString(),
-                    etUrl.getText().toString(),
-                    etTags.getText().toString());
+                    etUrl.getText().toString());
         }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();
@@ -57,8 +69,10 @@ public class AddRecordDialog {
             final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
-            }
                 Keyboard.showKeyboard(etName);
+            }
+            etName.setSelection(etName.getText().length());
+//            Keyboard.showKeyboard(etName);
 //            Keyboard.showKeyboard(builder.getView());
         });
         dialog.show();

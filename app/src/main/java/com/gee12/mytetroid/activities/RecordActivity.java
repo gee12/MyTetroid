@@ -99,6 +99,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mRecord = DataManager.getRecord(recordId);
         if (mRecord == null) {
             LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            finish();
             return;
         } else {
             setTitle(mRecord.getName());
@@ -151,6 +152,8 @@ public class RecordActivity extends TetroidActivity implements
      * Отображение записи
      */
     public void openRecord(TetroidRecord record) {
+        if (record == null)
+            return;
         int id = R.id.label_record_tags;
         // метки
         String tagsHtml = TetroidTag.createTagsLinksString(record);
