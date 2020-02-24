@@ -243,16 +243,13 @@ public class MainPageFragment extends TetroidFragment {
             LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
             return;
         }
-        AddRecordDialog.createTextSizeDialog(getContext(), null, new AddRecordDialog.INewRecordResult() {
-            @Override
-            public void onApply(String name, String tags, String author, String url) {
-                TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
-                if (record != null) {
-                    mListAdapterRecords.notifyDataSetInvalidated();
-                    showRecord(record);
-                } else {
-                    LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-                }
+        AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
+            TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
+            if (record != null) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+                showRecord(record);
+            } else {
+                LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
     }
