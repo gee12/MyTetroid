@@ -96,7 +96,8 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.iconView.setVisibility(View.GONE);
         }
         // имя
-        viewHolder.nameView.setText(node.getCryptedName());
+        String cryptedName = context.getString(R.string.crypted_node_name);
+        viewHolder.nameView.setText(node.getCryptedName(cryptedName));
         // количество записей в ветке
             viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {

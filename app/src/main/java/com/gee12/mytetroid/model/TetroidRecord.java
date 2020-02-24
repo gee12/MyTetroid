@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TetroidRecord implements ITetroidObject {
+public class TetroidRecord extends TetroidObject {
 
     public static int FIELD_ID = 1;
     public static int FIELD_DIR_NAME = 2;
     public static final String DEF_FILE_NAME = "text.html";
 
-    private String id;
+//    private String id;
     private TetroidNode node;
-    private String name;
+//    private String name;
     private String tagsString;
     private String author;
     private String url;
     private Date created;
-    private boolean isCrypted;
+//    private boolean isCrypted;
 
     private String dirName;
     private String fileName;
@@ -27,11 +27,12 @@ public class TetroidRecord implements ITetroidObject {
 
     private boolean isDecrypted;
 
-    public TetroidRecord(boolean crypt, String id, String name, String tagsString, String author, String url,
+    public TetroidRecord(boolean isCrypted, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, TetroidNode node) {
-        this.isCrypted = crypt;
-        this.id = id;
-        this.name = name;
+        super(FoundType.TYPE_RECORD, isCrypted, id, name);
+//        this.isCrypted = isCrypted;
+//        this.id = id;
+//        this.name = name;
         this.tagsString = tagsString;
         this.author = author;
         this.url = url;
@@ -43,35 +44,36 @@ public class TetroidRecord implements ITetroidObject {
         this.node = node;
     }
 
-    public TetroidRecord(boolean isCrypted, String id, Date created, String dirName, String fileName, TetroidNode node) {
-        this.isCrypted = isCrypted;
-        this.id = id;
-        this.created = created;
-        this.dirName = dirName;
-        this.fileName = fileName;
-        this.node = node;
-        this.files = new ArrayList<>();
-        this.tags = new ArrayList<>();
-    }
+//    public TetroidRecord(boolean isCrypted, String id, Date created, String dirName, String fileName, TetroidNode node) {
+//        super(FoundType.TYPE_RECORD, id, name, isCrypted);
+//        this.isCrypted = isCrypted;
+//        this.id = id;
+//        this.created = created;
+//        this.dirName = dirName;
+//        this.fileName = fileName;
+//        this.node = node;
+//        this.files = new ArrayList<>();
+//        this.tags = new ArrayList<>();
+//    }
 
-    @Override
-    public String getId() {
-        return id;
-    }
+//    @Override
+//    public String getId() {
+//        return id;
+//    }
 
     public TetroidNode getNode() {
         return node;
     }
 
-    @Override
-    public int getType() {
-        return FoundType.TYPE_RECORD;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public int getType() {
+//        return FoundType.TYPE_RECORD;
+//    }
+//
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
     public String getTagsString() {
         return tagsString;
@@ -110,9 +112,9 @@ public class TetroidRecord implements ITetroidObject {
         return files.size();
     }
 
-    public boolean isCrypted() {
-        return isCrypted;
-    }
+//    public boolean isCrypted() {
+//        return isCrypted;
+//    }
 
     public List<TetroidTag> getTags() {
         return tags;
@@ -130,9 +132,9 @@ public class TetroidRecord implements ITetroidObject {
         return isDecrypted;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     public void setTagsString(String tagsString) {
         this.tagsString = tagsString;

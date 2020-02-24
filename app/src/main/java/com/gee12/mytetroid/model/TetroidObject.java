@@ -11,10 +11,18 @@ public class TetroidObject implements ITetroidObject {
     protected int type = FoundType.TYPE_NONE;
     protected String id;
     protected String name;
+    protected boolean isCrypted;
 
     public TetroidObject(int type, String id) {
         this.type = type;
         this.id = id;
+    }
+
+    public TetroidObject(int type, boolean isCrypted, String id, String name) {
+        this.type = type;
+        this.isCrypted = isCrypted;
+        this.id = id;
+        this.name = name;
     }
 
     @Override
@@ -30,6 +38,15 @@ public class TetroidObject implements ITetroidObject {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean isCrypted() {
+        return isCrypted;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**

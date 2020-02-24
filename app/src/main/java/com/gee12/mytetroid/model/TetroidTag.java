@@ -3,35 +3,37 @@ package com.gee12.mytetroid.model;
 import java.util.Comparator;
 import java.util.List;
 
-public class TetroidTag implements ITetroidObject {
+public class TetroidTag extends TetroidObject {
 
     public static final String TAG_LINKS_PREF = "tag:"; //implements Map.Entry<String, List<TetroidRecord>> {
 
-    private String name;
+//    private String name;
     private List<TetroidRecord> records;
 
     public TetroidTag(String name, List<TetroidRecord> records) {
-        this.name = name;
+        super(FoundType.TYPE_TAG, false, "", name);
+//        this.name = name;
         this.records = records;
     }
 
-    @Override
-    public String getId() {
-        return "";
-    }
-
-    @Override
-    public int getType() {
-        return FoundType.TYPE_TAG;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public String getId() {
+//        return "";
+//    }
+//
+//    @Override
+//    public int getType() {
+//        return FoundType.TYPE_TAG;
+//    }
+//
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
     public void addRecord(TetroidRecord record) {
-        records.add(record);
+        if (records != null)
+            records.add(record);
     }
 
     public List<TetroidRecord> getRecords() {
@@ -39,7 +41,7 @@ public class TetroidTag implements ITetroidObject {
     }
 
     public TetroidRecord getRecord(int index) {
-        return records.get(index);
+        return (records != null) ? records.get(index) : null;
     }
 
     /**
@@ -47,6 +49,8 @@ public class TetroidTag implements ITetroidObject {
      * @return
      */
     public static String createTagsLinksString(TetroidRecord record) {
+        if (record == null)
+            return null;
         StringBuilder sb = new StringBuilder();
         int size = record.getTags().size();
         if (size == 0) {

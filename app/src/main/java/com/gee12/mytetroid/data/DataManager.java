@@ -360,11 +360,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String id = createUniqueId(TetroidRecord.FIELD_ID);
         String dirName = createUniqueId(TetroidRecord.FIELD_DIR_NAME);
 
-        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
-        record.setName((crypted) ? CryptManager.cryptText(name) : name);
-        record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
-        record.setTagsString((crypted) ? CryptManager.cryptText(tagsString) : tagsString);
-        record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
+//        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
+//        record.setName((crypted) ? CryptManager.cryptText(name) : name);
+//        record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
+//        record.setTagsString((crypted) ? CryptManager.cryptText(tagsString) : tagsString);
+//        record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
+        TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
+                new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
+//        record.setName(name);
+//        record.setAuthor(author);
+//        record.setTagsString(tagsString);
+//        record.setUrl(url);
         // добавляем метки в запись и в коллекцию
         instance.parseRecordTags(record, tagsString);
         // создаем каталог

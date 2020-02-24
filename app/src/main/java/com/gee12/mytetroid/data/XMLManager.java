@@ -4,6 +4,7 @@ import android.text.TextUtils;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -409,6 +410,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @throws IOException
      */
     private TetroidFile readFile(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
+        boolean crypt = false;
         String id = null;
         String fileName = null;
         String type = null;
@@ -418,6 +420,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             id = parser.getAttributeValue(ns, "id");
             fileName = parser.getAttributeValue(ns, "fileName");
             type = parser.getAttributeValue(ns, "type");
+            crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
         }
         // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
         parser.nextTag();
@@ -425,18 +428,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
         this.filesCount++;
 
-        return new TetroidFile(id, fileName, type, record);
+        return new TetroidFile(crypt, id, fileName, type, record);
     }
-
-//    /**
-//     * Добавление записи в указанную ветку в файл mytetra.xml.
-//     * @param record
-//     * @param node
-//     * @return
-//     */
-//    public boolean addRecord(TetroidRecord record, TetroidNode node) {
-//        return false;
-//    }
 
     /**
      * Запись структуры хранилища в xml-файл.
@@ -460,17 +453,105 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             // content
             serializer.startTag(ns, "content");
 
-            // TODO: цикл по веткам и т.д.
-
+            //
+            saveNodes(serializer, rootNodesList);
 
             serializer.endTag(ns, "content");
             serializer.endTag(ns, "root");
             serializer.endDocument();
             fos.flush();
+            return true;
         } finally {
             fos.close();
         }
-        return false;
+    }
+
+    /**
+     * Сохранение структуры подветок ветки.
+     * @param serializer
+     * @param nodes
+     * @throws IOException
+     */
+    protected void saveNodes(XmlSerializer serializer, List<TetroidNode> nodes) throws IOException {
+
+        for (TetroidNode node : nodes) {
+            serializer.startTag(ns, "node");
+
+            //
+            boolean crypted = node.isCrypted();
+            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
+            serializer.attribute(ns, "icon", cryptValue(crypted, node.getIconName()));
+            serializer.attribute(ns, "id", node.getId());
+            serializer.attribute(ns, "name", cryptValue(crypted, node.getName()));
+
+            if (node.getRecordsCount() > 0) {
+                saveRecords(serializer, node.getRecords());
+            }
+            if (node.getSubNodesCount() > 0) {
+                saveNodes(serializer, node.getSubNodes());
+            }
+            serializer.endTag(ns, "node");
+        }
+    }
+
+    /**
+     * Сохранение структуры записей ветки.
+     * @param serializer
+     * @param records
+     * @throws IOException
+     */
+    protected void saveRecords(XmlSerializer serializer, List<TetroidRecord> records) throws IOException {
+
+        serializer.startTag(ns, "recordtable");
+        for (TetroidRecord record : records) {
+            serializer.startTag(ns, "record");
+
+            //
+            boolean crypted = record.isCrypted();
+            serializer.attribute(ns, "id", record.getId());
+            serializer.attribute(ns, "name", cryptValue(crypted, record.getName()));
+            serializer.attribute(ns, "author", cryptValue(crypted, record.getAuthor()));
+            serializer.attribute(ns, "url", cryptValue(crypted, record.getUrl()));
+            serializer.attribute(ns, "tags", cryptValue(crypted, record.getTagsString()));
+            serializer.attribute(ns, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
+            serializer.attribute(ns, "dir", record.getDirName());
+            serializer.attribute(ns, "file", record.getFileName());
+            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
+
+            if (record.getAttachedFilesCount() > 0) {
+                saveFiles(serializer, record.getAttachedFiles());
+            }
+            serializer.endTag(ns, "record");
+        }
+        serializer.endTag(ns, "recordtable");
+    }
+
+    /**
+     * Сохранение структуры прикрепленных файлов записи.
+     * @param serializer
+     * @param files
+     * @throws IOException
+     */
+    protected void saveFiles(XmlSerializer serializer, List<TetroidFile> files) throws IOException {
+
+        serializer.startTag(ns, "files");
+        for (TetroidFile file : files) {
+            serializer.startTag(ns, "file");
+
+            //
+            boolean crypted = file.isCrypted();
+            serializer.attribute(ns, "id", file.getId());
+            serializer.attribute(ns, "fileName", cryptValue(crypted, file.getName()));
+            serializer.attribute(ns, "type", file.getFileType());
+            serializer.attribute(ns, "crypt", (crypted) ? "1" : "0");
+
+            serializer.endTag(ns, "file");
+        }
+        serializer.endTag(ns, "files");
+    }
+
+    private String cryptValue(boolean crypted, String value) {
+        return (crypted) ? CryptManager.cryptText(value) : value;
     }
 
     /**

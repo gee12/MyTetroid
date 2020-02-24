@@ -215,4 +215,5 @@
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="start_record_creating">Начало создания записи</string>
+    <string name="crypted_node_name">Закрыто</string>
 </resources>

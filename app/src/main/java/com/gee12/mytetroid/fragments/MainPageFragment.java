@@ -240,7 +240,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     public void createRecord() {
         if (!BuildConfig.DEBUG) {
-            LogManager.addLog("Not implemented yet..");
+            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
             return;
         }
         AddRecordDialog.createTextSizeDialog(getContext(), null, new AddRecordDialog.INewRecordResult() {
@@ -320,7 +320,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     public void createFile() {
         if (!BuildConfig.DEBUG) {
-            LogManager.addLog("Not implemented yet..");
+            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
             return;
         }
     }

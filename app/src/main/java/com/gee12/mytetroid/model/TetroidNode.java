@@ -9,30 +9,32 @@ import com.gee12.mytetroid.utils.FileUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TetroidNode implements ITetroidObject {
-    private String id;
-    private String name;
+public class TetroidNode extends TetroidObject {
+//    private String id;
+//    private String name;
     private int level;
     private List<TetroidNode> subNodes;
     private List<TetroidRecord> records;
     private Drawable icon;
     private String iconName;
-    private boolean isCrypted;
+//    private boolean isCrypted;
 
     private boolean isDecrypted;
 
-    public TetroidNode(boolean crypt, String id, String name, String iconName, int level) {
-        this.id = id;
-        this.name = name;
+    public TetroidNode(boolean isCrypted, String id, String name, String iconName, int level) {
+        super(FoundType.TYPE_NODE, isCrypted, id, name);
+//        this.id = id;
+//        this.name = name;
 //        setIcon(iconFullName);
         this.iconName = iconName;
-        this.isCrypted = crypt;
+//        this.isCrypted = isCrypted;
 //        this.subNodes = subNodes;
 //        this.records = records;
         this.level = level;
     }
 
     public TetroidNode(String id, String name, int level) {
+        super(FoundType.TYPE_NODE, false, id, name);
         this.id = id;
         this.name = name;
         this.iconName = null;
@@ -41,20 +43,20 @@ public class TetroidNode implements ITetroidObject {
         this.records = new ArrayList<>();
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public int getType() {
-        return FoundType.TYPE_NODE;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
+//    @Override
+//    public String getId() {
+//        return id;
+//    }
+//
+//    @Override
+//    public int getType() {
+//        return FoundType.TYPE_NODE;
+//    }
+//
+//    @Override
+//    public String getName() {
+//        return name;
+//    }
 
 //    public Uri getIconUri() {
 //        return iconUri;
@@ -92,8 +94,8 @@ public class TetroidNode implements ITetroidObject {
         return iconName;
     }
 
-    public String getCryptedName() {
-        return (!isCrypted || isDecrypted) ? name : "Закрыто";
+    public String getCryptedName(String cryptedName) {
+        return (!isCrypted || isDecrypted) ? name : cryptedName;
     }
 
     public int getLevel() {
@@ -116,9 +118,9 @@ public class TetroidNode implements ITetroidObject {
         return records.size();
     }
 
-    public boolean isCrypted() {
-        return isCrypted;
-    }
+//    public boolean isCrypted() {
+//        return isCrypted;
+//    }
 
     /**
      * Получение признака, что запись не зашифрована.
@@ -126,10 +128,6 @@ public class TetroidNode implements ITetroidObject {
      */
     public boolean isNonCryptedOrDecrypted() {
         return (!isCrypted || isDecrypted);
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setIconName(String iconName) {

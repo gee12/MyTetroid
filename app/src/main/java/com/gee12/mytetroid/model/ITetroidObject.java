@@ -22,4 +22,10 @@ public interface ITetroidObject {
      * @return
      */
     String getId();
+
+    /**
+     * Зашифрован?
+     * @return
+     */
+    boolean isCrypted();
 }
