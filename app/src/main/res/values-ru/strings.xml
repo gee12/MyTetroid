@@ -216,4 +216,5 @@
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="start_record_creating">Начало создания записи</string>
     <string name="crypted_node_name">Закрыто</string>
+    <string name="error_creating_record_file">Ошибка создания файла записи</string>
 </resources>

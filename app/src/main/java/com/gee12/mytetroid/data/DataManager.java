@@ -376,18 +376,36 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //        record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
         TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
+        record.setIsNew(true);
+        record.setDecrypted(true);
         // создаем каталог записи
-        String path = getStoragePathBase() + File.separator + record.getDirName();
-        Uri uri;
+        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        Uri dirUri;
         try {
-            uri = Uri.parse(path);
+            dirUri = Uri.parse(dirPath);
         } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + path, ex);
+            LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + dirPath, ex);
             return null;
         }
-        File folder = new File(uri.getPath());
+        File folder = new File(dirUri.getPath());
         if (!folder.mkdir()) {
-            LogManager.addLog(context.getString(R.string.error_create_record_folder) + path, LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.error_create_record_folder) + dirPath, LogManager.Types.ERROR);
+        }
+        // создаем файл записи (пустой)
+        String filePath = dirPath + File.separator + record.getFileName();
+        Uri fileUri;
+        try {
+            fileUri = Uri.parse(filePath);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_generate_record_file_path) + filePath, ex);
+            return null;
+        }
+        File file = new File(fileUri.getPath());
+        try {
+            file.createNewFile();
+        } catch (IOException ex) {
+            LogManager.addLog(context.getString(R.string.error_creating_record_file) + filePath, ex);
+            return null;
         }
 
         // добавляем запись в ветку (и соответственно, в коллекцию)
@@ -399,6 +417,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         } else {
             // удаляем запись из ветки
             node.getRecords().remove(record);
+            // удаляем файл записи
+            file.delete();
             // удаляем каталог записи (пустой)
             folder.delete();
 

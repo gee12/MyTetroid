@@ -12,7 +12,7 @@
 
     <EditText
         android:id="@+id/edit_text_name"
-        android:inputType="text"
+        android:inputType="text|textCapSentences"
         style="@style/DialogTextEdit">
 
         <requestFocus/>
@@ -25,7 +25,7 @@
 
     <EditText
         android:id="@+id/edit_text_author"
-        android:inputType="text"
+        android:inputType="text|textCapWords"
         style="@style/DialogTextEdit"/>
 
     <TextView

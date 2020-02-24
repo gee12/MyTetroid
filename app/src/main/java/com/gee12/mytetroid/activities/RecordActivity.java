@@ -116,7 +116,6 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView webView = mEditor.getWebView();
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
-//        webView.setOnPageLoadListener(this);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
@@ -192,16 +191,25 @@ public class RecordActivity extends TetroidActivity implements
                 textHtml, "text/html", "UTF-8", null);
     }
 
+    /**
+     * Событие запуска загрузки страницы.
+     */
     @Override
     public void onPageStartLoading() {
 
     }
 
+    /**
+     * Событие окончания загрузки страницы.
+     */
     @Override
     public void onPageLoaded() {
         if (mIsFirstLoad) {
             // переключаем views и делаем другие обработки
-            int defMode = (SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+            int defMode = (mRecord.isNew() || SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+
+            // сбрасываем флаг, т.к. уже им воспользовались
+            mRecord.setIsNew(false);
 
             // FIXME: реализовать сохранение зашифрованных записей
             if (mRecord.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
@@ -288,7 +296,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * FIXME:
+     * Открытие другой записи по внутренней ссылке.
      * @param record
      */
     public void openAnotherRecord(TetroidRecord record) {
@@ -335,9 +343,9 @@ public class RecordActivity extends TetroidActivity implements
                 ? mEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
             LogManager.addLog(getString(R.string.record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-        } else {
-            // сбрасываем флаг редактирования записи
+            // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
+        } else {
             LogManager.addLog(getString(R.string.record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }

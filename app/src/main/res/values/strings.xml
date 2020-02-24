@@ -255,4 +255,5 @@
     <string name="wrong_tag_link_format">Wrong tag link format</string>
     <string name="start_record_creating">Start record creating</string>
     <string name="crypted_node_name">Closed</string>
+    <string name="error_creating_record_file">Error creating record file</string>
 </resources>

@@ -11,14 +11,12 @@ public class TetroidRecord extends TetroidObject {
     public static int FIELD_DIR_NAME = 2;
     public static final String DEF_FILE_NAME = "text.html";
 
-//    private String id;
     private TetroidNode node;
-//    private String name;
     private String tagsString;
     private String author;
     private String url;
     private Date created;
-//    private boolean isCrypted;
+    protected boolean isNew;
 
     private String dirName;
     private String fileName;
@@ -30,9 +28,6 @@ public class TetroidRecord extends TetroidObject {
     public TetroidRecord(boolean isCrypted, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, TetroidNode node) {
         super(FoundType.TYPE_RECORD, isCrypted, id, name);
-//        this.isCrypted = isCrypted;
-//        this.id = id;
-//        this.name = name;
         this.tagsString = tagsString;
         this.author = author;
         this.url = url;
@@ -42,6 +37,7 @@ public class TetroidRecord extends TetroidObject {
         this.files = new ArrayList<>();
         this.tags = new ArrayList<>();
         this.node = node;
+        this.isNew = false;
     }
 
 //    public TetroidRecord(boolean isCrypted, String id, Date created, String dirName, String fileName, TetroidNode node) {
@@ -56,24 +52,9 @@ public class TetroidRecord extends TetroidObject {
 //        this.tags = new ArrayList<>();
 //    }
 
-//    @Override
-//    public String getId() {
-//        return id;
-//    }
-
     public TetroidNode getNode() {
         return node;
     }
-
-//    @Override
-//    public int getType() {
-//        return FoundType.TYPE_RECORD;
-//    }
-//
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
 
     public String getTagsString() {
         return tagsString;
@@ -112,10 +93,6 @@ public class TetroidRecord extends TetroidObject {
         return files.size();
     }
 
-//    public boolean isCrypted() {
-//        return isCrypted;
-//    }
-
     public List<TetroidTag> getTags() {
         return tags;
     }
@@ -131,10 +108,6 @@ public class TetroidRecord extends TetroidObject {
     public boolean isDecrypted() {
         return isDecrypted;
     }
-
-//    public void setName(String name) {
-//        this.name = name;
-//    }
 
     public void setTagsString(String tagsString) {
         this.tagsString = tagsString;
@@ -176,4 +149,11 @@ public class TetroidRecord extends TetroidObject {
         this.files = files;
     }
 
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setIsNew(boolean isNew) {
+        this.isNew = isNew;
+    }
 }
