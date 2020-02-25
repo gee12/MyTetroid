@@ -42,7 +42,7 @@ public class AddRecordDialog {
             etName.setText("record " + num);
             etAuthor.setText("author " + num);
             etUrl.setText("http://url" + num + ".com");
-            etTags.setText("tag " + num + ", tag2 " + num);
+            etTags.setText("new record , tag " + num);
         }
 
         if (record != null) {

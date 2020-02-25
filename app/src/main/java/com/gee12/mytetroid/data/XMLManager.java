@@ -443,6 +443,12 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             // header
             serializer.startDocument("UTF-8", null);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            // попытка изменить установить размер отступа
+//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-indentation", " ");
+//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-line-separator", "\n");
+            // исправлем отступ на следующую строку
+            serializer.flush();
+            fos.write("\n".getBytes());
             serializer.docdecl(" mytetradoc");
             // root
             serializer.startTag(ns, "root");
@@ -453,11 +459,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             serializer.endTag(ns, "format");
             // content
             serializer.startTag(ns, "content");
-
-            //
             saveNodes(serializer, rootNodesList);
-
             serializer.endTag(ns, "content");
+
             serializer.endTag(ns, "root");
             serializer.endDocument();
             serializer.flush();
@@ -480,7 +484,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = node.isCrypted();
             addAttribute(serializer, "crypt", (crypted) ? "1" : "");
-            addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
+            if (!TextUtils.isEmpty(node.getIconName()))
+                addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
             addAttribute(serializer, "id", node.getId());
             addCryptAttribute(serializer, "name", node.getName(), crypted);
 
