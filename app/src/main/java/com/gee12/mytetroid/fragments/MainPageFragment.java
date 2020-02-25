@@ -236,13 +236,16 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     *
+     * Создание новой записи.
      */
     public void createRecord() {
-//        if (!BuildConfig.DEBUG) {
-//            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
-//            return;
-//        }
+
+        // TODO: реализовать добавление записей в зашифрованных ветках
+        if (mCurNode.isCrypted()) {
+            LogManager.addLog(getString(R.string.debug_new_crypted_record), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            return;
+        }
+
         AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
             if (record != null) {
@@ -272,7 +275,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Отображение списка прикрепленных файлов
+     * Отображение списка прикрепленных файлов.
      * @param position Индекс записи в списке записей ветки
      */
     private void showRecordFiles(int position) {
@@ -281,7 +284,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Отображение списка прикрепленных файлов
+     * Отображение списка прикрепленных файлов.
      * @param record Запись
      */
     public void showRecordFiles(TetroidRecord record) {
@@ -315,13 +318,16 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     *
+     * Прикрепление нового файла к записи.
      */
     public void createFile() {
+
+        // TODO:
         if (!BuildConfig.DEBUG) {
-            LogManager.addLog("Not implemented yet..", LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.debug_not_implemented_yet), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             return;
         }
+
     }
 
     private void openRecordFolder(int position) {

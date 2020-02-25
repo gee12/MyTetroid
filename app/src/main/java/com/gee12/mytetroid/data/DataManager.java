@@ -366,11 +366,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
 
-        boolean crypted = node.isCrypted();
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
         String dirName = createUniqueId();
 
+        boolean crypted = node.isCrypted();
 //        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
 //        record.setName((crypted) ? CryptManager.cryptText(name) : name);
 //        record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
@@ -379,7 +379,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         record.setIsNew(true);
-        record.setDecrypted(true);
+        if (crypted) {
+            record.setDecrypted(true);
+        }
         // создаем каталог записи
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
         Uri dirUri;

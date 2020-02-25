@@ -257,4 +257,6 @@
     <string name="crypted_node_name">Closed</string>
     <string name="error_creating_record_file">Error creating record file</string>
     <string name="tag_not_found">Tag [%s] not found..</string>
+    <string name="debug_new_crypted_record">Creating records in crypted nodes not implemented yet..</string>
+    <string name="debug_not_implemented_yet">Not implemented yet..</string>
 </resources>

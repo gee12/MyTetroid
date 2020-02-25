@@ -218,4 +218,6 @@
     <string name="crypted_node_name">Закрыто</string>
     <string name="error_creating_record_file">Ошибка создания файла записи</string>
     <string name="tag_not_found">Не найдена метка [%s]..</string>
+    <string name="debug_new_crypted_record">Создание записей в зашифрованных ветках еще не реализовано..</string>
+    <string name="debug_not_implemented_yet">Еще не реализовано..</string>
 </resources>
