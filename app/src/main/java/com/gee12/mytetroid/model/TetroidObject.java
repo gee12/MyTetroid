@@ -12,6 +12,8 @@ public class TetroidObject implements ITetroidObject {
     protected String id;
     protected String name;
     protected boolean isCrypted;
+    protected boolean isDecrypted;
+
 
     public TetroidObject(int type, String id) {
         this.type = type;
@@ -45,8 +47,24 @@ public class TetroidObject implements ITetroidObject {
         return isCrypted;
     }
 
+    public boolean isDecrypted() {
+        return isDecrypted;
+    }
+
+    /**
+     * Получение признака, что запись не зашифрована.
+     * @return True, если не зашифровано (crypt=0), или уже расшифровано.
+     */
+    public boolean isNonCryptedOrDecrypted() {
+        return (!isCrypted || isDecrypted);
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDecrypted(boolean decrypted) {
+        isDecrypted = decrypted;
     }
 
     /**

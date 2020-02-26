@@ -7,6 +7,7 @@ import com.gee12.mytetroid.AppDebug;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.model.Version;
@@ -485,10 +486,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             boolean crypted = node.isCrypted();
             addAttribute(serializer, "crypt", (crypted) ? "1" : "");
             if (!TextUtils.isEmpty(node.getIconName()))
-                addCryptAttribute(serializer, "icon", node.getIconName(), crypted);
+                addCryptAttribute(serializer, node, "icon", node.getIconName());
             addAttribute(serializer, "id", node.getId());
-            addCryptAttribute(serializer, "name", node.getName(), crypted);
-
+            addCryptAttribute(serializer, node, "name", node.getName());
 
             if (node.getRecordsCount() > 0) {
                 saveRecords(serializer, node.getRecords());
@@ -514,10 +514,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = record.isCrypted();
             addAttribute(serializer, "id", record.getId());
-            addCryptAttribute(serializer, "name", record.getName(), crypted);
-            addCryptAttribute(serializer, "author", record.getAuthor(), crypted);
-            addCryptAttribute(serializer, "url", record.getUrl(), crypted);
-            addCryptAttribute(serializer, "tags", record.getTagsString(), crypted);
+            addCryptAttribute(serializer, record, "name", record.getName());
+            addCryptAttribute(serializer, record, "author", record.getAuthor());
+            addCryptAttribute(serializer, record, "url", record.getUrl());
+            addCryptAttribute(serializer, record, "tags", record.getTagsString());
             addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
             addAttribute(serializer, "dir", record.getDirName());
             addAttribute(serializer, "file", record.getFileName());
@@ -546,7 +546,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = file.isCrypted();
             addAttribute(serializer, "id", file.getId());
-            addCryptAttribute(serializer, "fileName", file.getName(), crypted);
+            addCryptAttribute(serializer, file, "fileName", file.getName());
             addAttribute(serializer, "type", file.getFileType());
             if (crypted)
                 addAttribute(serializer, "crypt", "1");
@@ -562,12 +562,12 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         serializer.attribute(ns, name, value);
     }
 
-    private void addCryptAttribute(XmlSerializer serializer, String name, String value, boolean crypted) throws IOException {
-        addAttribute(serializer, name, cryptValue(crypted, value));
+    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
+        addAttribute(serializer, name, cryptValue(obj.isCrypted() && obj.isDecrypted(), value));
     }
 
-    private String cryptValue(boolean crypted, String value) {
-        return (crypted) ? CryptManager.cryptText(value) : value;
+    private String cryptValue(boolean needEncrypt, String value) {
+        return (needEncrypt) ? CryptManager.encryptTextBase64(value) : value;
     }
 
     /**

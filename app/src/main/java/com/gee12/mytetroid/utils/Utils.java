@@ -12,7 +12,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class Utils {
@@ -94,6 +96,21 @@ public class Utils {
         int[] res = new int[ba.length];
         for (int i = 0; i < ba.length; i ++) {
             res[i] = 0x000000FF & ba[i];
+        }
+        return res;
+    }
+
+    /**
+     *
+     * @param ba
+     * @return
+     */
+    public static List<Integer> toUnsigned2(byte[] ba) {
+        if (ba == null)
+            return null;
+        List<Integer> res = new ArrayList<>(ba.length);
+        for (int i = 0; i < ba.length; i ++) {
+            res.add(i, 0x000000FF & ba[i]);
         }
         return res;
     }

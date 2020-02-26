@@ -10,24 +10,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TetroidNode extends TetroidObject {
-//    private String id;
-//    private String name;
     private int level;
     private List<TetroidNode> subNodes;
     private List<TetroidRecord> records;
     private Drawable icon;
     private String iconName;
-//    private boolean isCrypted;
-
-    private boolean isDecrypted;
 
     public TetroidNode(boolean isCrypted, String id, String name, String iconName, int level) {
         super(FoundType.TYPE_NODE, isCrypted, id, name);
-//        this.id = id;
-//        this.name = name;
 //        setIcon(iconFullName);
         this.iconName = iconName;
-//        this.isCrypted = isCrypted;
 //        this.subNodes = subNodes;
 //        this.records = records;
         this.level = level;
@@ -42,21 +34,6 @@ public class TetroidNode extends TetroidObject {
         this.subNodes = new ArrayList<>();
         this.records = new ArrayList<>();
     }
-
-//    @Override
-//    public String getId() {
-//        return id;
-//    }
-//
-//    @Override
-//    public int getType() {
-//        return FoundType.TYPE_NODE;
-//    }
-//
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
 
 //    public Uri getIconUri() {
 //        return iconUri;
@@ -122,20 +99,8 @@ public class TetroidNode extends TetroidObject {
 //        return isCrypted;
 //    }
 
-    /**
-     * Получение признака, что запись не зашифрована.
-     * @return True, если не зашифровано (crypt=0), или уже расшифровано.
-     */
-    public boolean isNonCryptedOrDecrypted() {
-        return (!isCrypted || isDecrypted);
-    }
-
     public void setIconName(String iconName) {
         this.iconName = iconName;
-    }
-
-    public void setDecrypted(boolean decrypted) {
-        isDecrypted = decrypted;
     }
 
     public void setSubNodes(List<TetroidNode> subNodes) {

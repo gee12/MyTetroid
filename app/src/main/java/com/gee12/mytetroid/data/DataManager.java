@@ -200,10 +200,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = SettingsManager.getTempPath()+"/"+record.getDirName()+File.separator+record.getFileName();
+                path = SettingsManager.getTempPath()+File.separator+record.getDirName()
+                        +File.separator+record.getFileName();
             }
         } else {
-            path = SettingsManager.getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()+File.separator+record.getFileName();
+            path = SettingsManager.getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()
+                    +File.separator+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -292,7 +294,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         String resText = htmlText;
         if (record.isCrypted()) {
-            resText = CryptManager.cryptText(htmlText);
+            resText = CryptManager.encryptTextBase64(htmlText);
         }
         try {
             FileUtils.writeFile(uri, resText);
@@ -372,10 +374,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         boolean crypted = node.isCrypted();
 //        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
-//        record.setName((crypted) ? CryptManager.cryptText(name) : name);
-//        record.setAuthor((crypted) ? CryptManager.cryptText(author) : author);
-//        record.setTagsString((crypted) ? CryptManager.cryptText(tagsString) : tagsString);
-//        record.setUrl((crypted) ? CryptManager.cryptText(url) : url);
+//        record.setName((crypted) ? CryptManager.encryptText(name) : name);
+//        record.setAuthor((crypted) ? CryptManager.encryptText(author) : author);
+//        record.setTagsString((crypted) ? CryptManager.encryptText(tagsString) : tagsString);
+//        record.setUrl((crypted) ? CryptManager.encryptText(url) : url);
         TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         record.setIsNew(true);
