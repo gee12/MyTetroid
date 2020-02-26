@@ -63,6 +63,8 @@ public class CryptManager {
      * @return
      */
     public static boolean checkPass(String pass, String salt, String checkHash) {
+        if (salt == null || checkHash == null)
+            return false;
         byte[] saltSigned = Base64.decode(salt.toCharArray());
         byte[] checkHashSigned = Base64.decode(checkHash.toCharArray());
         // получим хэш пароля и соли
@@ -103,6 +105,8 @@ public class CryptManager {
     }
 
     public static boolean decryptNode(TetroidNode node, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
+        if (node == null)
+            return false;
         boolean res;
         // расшифровываем поля
         res = decryptNodeFields(node);
@@ -359,7 +363,7 @@ public class CryptManager {
      * @param line Строка в base64
      */
     public static String decryptBase64(int[] key, String line) {
-        if (line.length() == 0) {
+        if (line == null || line.length() == 0) {
             return "";
         }
         byte[] bytes = Base64.decode(line.toCharArray());

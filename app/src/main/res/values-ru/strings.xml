@@ -206,7 +206,7 @@
     <string name="record_subtitle_view">ПРОСМОТР</string>
     <string name="record_subtitle_edit">РЕДАКТОР</string>
     <string name="record_subtitle_html">HTML-КОД</string>
-    <string name="editing_crypted_records">Редактирование зашифрованных записей пока не поддерживается</string>
+    <string name="editing_crypted_records">Редактирование зашифрованных записей пока не реализовано..</string>
     <string name="url_decode_error">Ошибка декодирования url:&#160;</string>
     <string name="before_record_save">Сохранение текста записи id=</string>
     <string name="record_saved">Запись сохранена</string>

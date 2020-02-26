@@ -437,7 +437,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static boolean saveStorage() {
-        boolean res = false;
         String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE;
         String tempPath = destPath + "_tmp";
 
@@ -456,14 +455,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 if (!from.renameTo(to)) {
                     LogManager.addLog(String.format(context.getString(R.string.dailed_rename_file), tempPath, destPath), LogManager.Types.ERROR);
                     return false;
-                } else {
-                    res = true;
                 }
+                return true;
             }
         } catch (Exception ex) {
             LogManager.addLog(ex);
         }
-        return res;
+        return false;
     }
 
 

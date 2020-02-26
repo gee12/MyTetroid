@@ -245,7 +245,7 @@
     <string name="record_subtitle_view">VIEWER</string>
     <string name="record_subtitle_edit">EDITOR</string>
     <string name="record_subtitle_html">HTML</string>
-    <string name="editing_crypted_records">Editing encrypted records is not yet supported.</string>
+    <string name="editing_crypted_records">Editing encrypted records is not implemented yet..</string>
     <string name="url_decode_error">Url decoding error:&#160;</string>
     <string name="before_record_save">Saving record with id=</string>
     <string name="record_saved">Record saved</string>
