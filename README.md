@@ -52,9 +52,10 @@
 
 **Использовались сторонние библиотеки:**
 * Многоуровневый список веток - [open-rnd/android-multi-level-listview](https://github.com/open-rnd/android-multi-level-listview)
-* FolderPicker - [kashifo/android-folder-picker-library](https://github.com/kashifo/android-folder-picker-library) (мой [форк](https://github.com/gee12/android-folder-picker-library))
-* ColorPicker - [yukuku/ambilwarna](https://github.com/yukuku/ambilwarna)
-* Чтение SVG-иконок веток - [thinkingcow/svg-android-2](https://github.com/thinkingcow/svg-android-2) (мой [форк](https://github.com/gee12/svg-android-2))
+* Разворачиваемая панель - [cachapa/ExpandableLayout](https://github.com/cachapa/ExpandableLayout)
+* Выбор каталога (FolderPicker) - [kashifo/android-folder-picker-library](https://github.com/kashifo/android-folder-picker-library) (мой [форк](https://github.com/gee12/android-folder-picker-library))
+* Выбор цвета (ColorPicker) - [yukuku/ambilwarna](https://github.com/yukuku/ambilwarna)
+* Чтение SVG-картинок - [thinkingcow/svg-android-2](https://github.com/thinkingcow/svg-android-2) (мой [форк](https://github.com/gee12/svg-android-2))
 * Парсинг html - [jsoup](https://github.com/jhy/jsoup)
 * WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
 * TextViewUndoRedo - [from google](https://issuetracker.google.com/issues/36913735#c123)
