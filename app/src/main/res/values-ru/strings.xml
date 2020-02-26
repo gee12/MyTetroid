@@ -220,4 +220,7 @@
     <string name="tag_not_found">Не найдена метка [%s]..</string>
     <string name="debug_new_crypted_record">Создание записей в зашифрованных ветках еще не реализовано..</string>
     <string name="debug_not_implemented_yet">Еще не реализовано..</string>
+    <string name="saving_mytetra_xml">Сохранение файла mytetra.xml</string>
+    <string name="failed_delete_file">Не удалось удалить файл:&#160;</string>
+    <string name="dailed_rename_file">Не удалось переименовать файл из %s в %s</string>
 </resources>

@@ -438,14 +438,28 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean saveStorage() {
         boolean res = false;
-        String path = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+        String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+        String tempPath = destPath + "_tmp";
 
-//        if (BuildConfig.DEBUG)
-//            path += "_test";
-
+        LogManager.addLog(context.getString(R.string.saving_mytetra_xml), LogManager.Types.INFO);
         try {
-            FileOutputStream fos = new FileOutputStream(path, false);
-            res = instance.save(fos);
+            FileOutputStream fos = new FileOutputStream(tempPath, false);
+            if (instance.save(fos)) {
+                // удаляем старую версию файла mytetra.xml
+                File to = new File(destPath);
+                if (!to.delete()) {
+                    LogManager.addLog(context.getString(R.string.failed_delete_file) + destPath, LogManager.Types.ERROR);
+                    return false;
+                }
+                // задаем правильное имя актуальной версии файла mytetra.xml
+                File from = new File(tempPath);
+                if (!from.renameTo(to)) {
+                    LogManager.addLog(String.format(context.getString(R.string.dailed_rename_file), tempPath, destPath), LogManager.Types.ERROR);
+                    return false;
+                } else {
+                    res = true;
+                }
+            }
         } catch (Exception ex) {
             LogManager.addLog(ex);
         }
