@@ -292,12 +292,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.addLog(context.getString(R.string.error_generate_record_file_path) + path, ex);
             return false;
         }
-        String resText = htmlText;
-        if (record.isCrypted()) {
-            resText = CryptManager.encryptTextBase64(htmlText);
-        }
         try {
-            FileUtils.writeFile(uri, resText);
+            if (record.isCrypted()) {
+                byte[] res = CryptManager.encryptTextBytes(htmlText);
+                FileUtils.writeFile(uri, res);
+            } else {
+                FileUtils.writeFile(uri, htmlText);
+            }
         } catch (IOException ex) {
             LogManager.addLog(context.getString(R.string.error_write_to_record_file) + path, ex);
             return false;

@@ -33,7 +33,6 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
-import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
@@ -208,14 +207,13 @@ public class RecordActivity extends TetroidActivity implements
             // переключаем views и делаем другие обработки
             int defMode = (mRecord.isNew() || SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
 
-            // сбрасываем флаг, т.к. уже им воспользовались
+            // сбрасываем флаг, т.к. им уже воспользовались
             mRecord.setIsNew(false);
 
-            // FIXME: реализовать сохранение зашифрованных записей
-            if (mRecord.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
-                Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
-                defMode = MODE_VIEW;
-            }
+//            if (mRecord.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
+//                Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
+//                defMode = MODE_VIEW;
+//            }
 
             switchMode(defMode);
 
@@ -368,11 +366,10 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void switchMode(int newMode) {
 
-        // FIXME: реализовать сохранение зашифрованных записей
-        if (mRecord.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
-            Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
-            return;
-        }
+//        if (mRecord.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
+//            Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
+//            return;
+//        }
 
         int oldMode = mCurMode;
         // сохраняем

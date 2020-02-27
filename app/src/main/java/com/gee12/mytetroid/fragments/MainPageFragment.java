@@ -240,11 +240,10 @@ public class MainPageFragment extends TetroidFragment {
      */
     public void createRecord() {
 
-        // TODO: реализовать добавление записей в зашифрованных ветках
-        if (mCurNode.isCrypted()) {
-            LogManager.addLog(getString(R.string.debug_new_crypted_record), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            return;
-        }
+//        if (mCurNode.isCrypted()) {
+//            LogManager.addLog(getString(R.string.debug_new_crypted_record), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            return;
+//        }
 
         AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);

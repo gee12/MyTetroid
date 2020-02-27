@@ -72,7 +72,7 @@ public class FileUtils {
     }
 
     /**
-     *
+     * Чтение файла.
      * @param fileUri
      * @return
      * @throws IOException
@@ -89,7 +89,7 @@ public class FileUtils {
     }
 
     /**
-     * TODO: Запись файла.
+     * Запись файла.
      * @param fileUri
      * @param text
      * @return
@@ -98,9 +98,22 @@ public class FileUtils {
     public static boolean writeFile(Uri fileUri, String text) throws IOException {
         if (fileUri == null || text == null)
             return false;
+        return writeFile(fileUri, text.getBytes());
+    }
+
+    /**
+     * Запись файла.
+     * @param fileUri
+     * @param bytes
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeFile(Uri fileUri, byte[] bytes) throws IOException {
+        if (fileUri == null || bytes == null)
+            return false;
         File file = new File(fileUri.getPath());
         DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
-        dos.write(text.getBytes());
+        dos.write(bytes);
         dos.flush();
         dos.close();
         return true;

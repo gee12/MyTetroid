@@ -30,6 +30,7 @@ public class CryptManager {
 
     private static RC5Simple rc5 = new RC5Simple();
     private static int[] cryptKey;
+    private static Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
     private static ITagsParseHandler tagsParser;
 
@@ -99,11 +100,30 @@ public class CryptManager {
     public static String encryptTextBase64(String text) {
         if (text == null)
             return null;
-        byte[] out = encrypt(cryptKey, text.getBytes(Charset.forName("UTF-8")));
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
         if (out != null)
-//            return new String(out);
             return Base64.encodeToString(out, false);
         return null;
+    }
+
+    public static byte[] encryptTextBase64Bytes(String text) {
+        if (text == null)
+            return null;
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
+        if (out != null)
+            return Base64.encodeToByte(out, true);
+        return null;
+    }
+
+    public static byte[] encryptTextBytes(String text) {
+        if (text == null)
+            return null;
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
+        return out;
+    }
+
+    public static byte[] encryptBytes(byte[] bytes) {
+        return encrypt(cryptKey, bytes);
     }
 
     public static byte[] encrypt(int[] key, byte[] bytes) {
@@ -202,26 +222,22 @@ public class CryptManager {
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
         boolean res;
-//        record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
         String temp = CryptManager.decryptBase64(cryptKey, record.getName());
         res = (temp != null);
         if (res) {
             record.setName(temp);
         }
-//        record.setTagsString(CryptManager.decryptBase64(cryptKey, record.getTagsString()));
         temp = CryptManager.decryptBase64(cryptKey, record.getTagsString());
         res = res & (temp != null);
         if (temp != null) {
             record.setTagsString(temp);
             tagsParser.parseRecordTags(record, temp);
         }
-//        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
         temp = CryptManager.decryptBase64(cryptKey, record.getAuthor());
         res = res & (temp != null);
         if (temp != null) {
             record.setAuthor(temp);
         }
-//        record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
         temp = CryptManager.decryptBase64(cryptKey, record.getUrl());
         res = res & (temp != null);
         if (temp != null) {
@@ -237,7 +253,6 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptFileName(TetroidFile file) {
-//        file.setName(CryptManager.decryptBase64(cryptKey, file.getName()));
         String temp = CryptManager.decryptBase64(cryptKey, file.getName());
         boolean res = (temp != null);
         if (res) {
@@ -263,6 +278,19 @@ public class CryptManager {
      */
     public static byte[] decryptBytes(byte[] bytes) {
         return decrypt(cryptKey, bytes);
+    }
+
+
+    /**
+     * TODO: Реализовать
+     * @param srcFile
+     * @param destFile
+     * @return
+     * @throws IOException
+     */
+    public static boolean encryptFile(File srcFile, File destFile) throws IOException {
+
+        return false;
     }
 
     /**
@@ -307,7 +335,6 @@ public class CryptManager {
         String res =  null;
         try {
             byte[] passHashSigned = calculateMiddleHash(pass);
-//            byte[] passHash = Utils.toUnsigned(passHashSigned);
             res = Base64.encodeToString(passHashSigned, false);
         } catch (Exception e) {
             addLog(e);
@@ -409,19 +436,6 @@ public class CryptManager {
         }
         return res;
     }
-
-//    public static String decryptString(int[] key, byte[] bytes) {
-//        if (bytes == null)
-//            return null;
-//        String res = null;
-//        rc5.setKey(key);
-//        try {
-//            res = rc5.decryptString(bytes);
-//        } catch (Exception e) {
-//            addLog(e);
-//        }
-//        return res;
-//    }
 
     public static byte[] decodeBase64(String s) {
         try {

@@ -12,7 +12,7 @@ import java.util.Random;
  * Источник:
  * https://github.com/xintrea/mytetra_dev/blob/experimental/app/src/libraries/crypt/RC5Simple.cpp
  *
- * Требуется оптимизация:
+ * Требуется оптимизация расшифровки:
  * - в Java нет беззнаковых типов, поэтому операции сложения/вычитания с переменными типа boolean
  * без операции расширения типа (в int, например) выполняются неверно. Выход:
  *     1) делать расширение типа в операциях "на лету" (при чем оно и так делается неявно в int
@@ -22,7 +22,8 @@ import java.util.Random;
  * Сейчас используется вариант 2, что, по идее, не оптимально.
  * - полученный в результате расшифровки массив нужно обрезать вначале и в конце,
  * чтобы оставить только данные. В Java это можно сделать с помощью Arrays.copyOfRange,
- * но при больших массивах (~20Мб) приложение может упасть из-за OutOfMemoryError. Выход:
+ * но при больших массивах (~20Мб) приложение может упасть из-за OutOfMemoryError.
+ * Выход:
  *     1) по ходу расшифровки (поблочно) результат записывать в файл. Но (!) это вариант
  *     подходит для расшифровки прикрепленных файлов, но не подходит для расшифровки записей.
  *     Т.к. временный файл неуместно сохранять в каталог записи, а если сохранять отдельно, то
@@ -70,7 +71,7 @@ public class RC5Simple {
     private int mErrorCode;
 
     /**
-     *
+     * Default constructor.
      */
     public RC5Simple() {
         // Set magic constants
@@ -84,7 +85,7 @@ public class RC5Simple {
     }
 
     /**
-     * Setup secret mKey
+     * Setup secret mKey.
      * @param key secret input mKey[RC5_B]
      */
     private void setup(int[] key) {
@@ -111,7 +112,7 @@ public class RC5Simple {
 
 
     /**
-     * Set secret mKey
+     * Set secret mKey.
      * @param key
      */
     public void setKey(int[] key) {
@@ -127,11 +128,11 @@ public class RC5Simple {
     }
 
     /**
-     * Encrypt data block
+     * Encrypt data block.
      * @param ct input data
      * @param pt encrypt data
      */
-    private void encryptBlock(long[] ct, long[] pt) {
+    private void encryptBlock(long[] pt, long[] ct) {
         long a = pt[0]+ mRC5_s[0];
         long b = pt[1]+ mRC5_s[1];
 
@@ -145,7 +146,7 @@ public class RC5Simple {
     }
 
     /**
-     * Decrypt data block
+     * Decrypt data block.
      * @param ct input data
      * @param pt decrypt data
      */
@@ -163,7 +164,7 @@ public class RC5Simple {
     }
 
     /**
-     * Encrypt data
+     * Encrypt data.
      * @param inSigned
      * @return
      */
@@ -189,17 +190,9 @@ public class RC5Simple {
         List<Integer> in = new ArrayList<>();
 
         // Block with data size
-//        int[] dataSize = new int[RC5_BLOCK_LEN];
         for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-//            dataSize[i] = getByteFromWord(inSize, i);
-            in.add(i, getByteFromInt(inSize, i));
+            in.add(i, getByteFromWord(inSize, i));
         }
-
-        // Insert data size to begin data
-        //in.insert( in.begin(), RC5_BLOCK_LEN, 0);
-//        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-//            in.add(dataSize[i]);
-//        }
 
         // Add firsted random data
         int firstRandomDataBlocks = 0;
@@ -210,15 +203,12 @@ public class RC5Simple {
 
         if (firstRandomDataBlocks > 0) {
             for (int n = 1; n <= firstRandomDataBlocks; n++) {
-                //in.insert( in.begin(), RC5_BLOCK_LEN, 0);
                 for (int i = 0; i < RC5_BLOCK_LEN; i++) {
                     in.add(i, rand(0, 0xFF));
                 }
             }
         }
 
-        // FIXME: объединение inList + in
-//        in += Utils.toUnsigned(inSigned)
         in.addAll(inUnsigned);
 
         // Align end of data to block size
@@ -232,13 +222,11 @@ public class RC5Simple {
         }
 
         // Create and fill cell in output vector
-
         int notCryptDataSize = 0;
         byte[] out = null;
 
         if (mFormatVersion == RC5_FORMAT_VERSION_1) {
             // In format version 1 save only IV as open data in block 0
-            //out.resize(in.size()+RC5_BLOCK_LEN, 0);
             notCryptDataSize = RC5_BLOCK_LEN;
             out = new byte[in.size() + notCryptDataSize];
 
@@ -246,10 +234,8 @@ public class RC5Simple {
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
                 out[i] = (byte)iv[i];
             }
-
         } else if (mFormatVersion >= RC5_FORMAT_VERSION_2) {
             // In format version 2 or higth save format header (block 0) and IV (block 1)
-            //out.resize(in.size()+RC5_BLOCK_LEN*2, 0);
             notCryptDataSize = RC5_BLOCK_LEN * 2;
             out = new byte[in.size() + notCryptDataSize];
 
@@ -312,12 +298,11 @@ public class RC5Simple {
 
             block++;
         }
-
         return out;
     }
 
     /**
-     * Decrypt data
+     * Decrypt data.
      * @param inSigned
      * @return
      */
@@ -389,15 +374,14 @@ public class RC5Simple {
 
         // Get IV
         int[] iv = new int[ RC5_BLOCK_LEN];
-        for (int i = 0; i < RC5_BLOCK_LEN; i++)
+        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
             iv[i] = in[i + ivShift];
+        }
 
         // Set secret mKey for decryptBase64
         setup(mKey);
 
         // Cleaning output vector
-//        int[] out = new int[inSize];
-//        byte[] out = new byte[inSize];
         byte[] out = null;
 
         // Decode by blocks from started data block
@@ -408,8 +392,6 @@ public class RC5Simple {
 
             long[] pt = new long[RC5_WORDS_IN_BLOCK];
             long[] ct = new long[RC5_WORDS_IN_BLOCK];
-
-//            addDebugLog(String.format("Block num %d, shift %d", block, shift));
 
             pt[0] = getWordFromByte(in[shift], in[shift + 1], in[shift + 2], in[shift + 3]);
             pt[1] = getWordFromByte(in[shift + RC5_WORD_LEN], in[shift + RC5_WORD_LEN + 1],
@@ -431,8 +413,9 @@ public class RC5Simple {
             }
 
             // Un XOR
-            for (int i = 0; i < RC5_BLOCK_LEN; i++)
+            for (int i = 0; i < RC5_BLOCK_LEN; i++) {
                 ct_part[i] ^= iv[i];
+            }
 
             if (block == blockWithDataSize) {
                 dataSize = (int)getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
@@ -449,65 +432,23 @@ public class RC5Simple {
             }
 
             // Generate next IV for Cipher Block Chaining (CBC)
-            for (int i = 0; i < RC5_BLOCK_LEN; i++)
+            for (int i = 0; i < RC5_BLOCK_LEN; i++) {
                 iv[i] = in[shift + i];
+            }
 
             if (block >= firstDataBlock + removeBlocksFromOutput) {
                 // Save decryptBase64 data
                 int curBlockLen = ((inSize - shift) <= RC5_BLOCK_LEN && dataSize % RC5_BLOCK_LEN != 0)
                         ? dataSize % RC5_BLOCK_LEN : RC5_BLOCK_LEN;
                 for (int i = 0; i < curBlockLen; i++) {
-//                out[shift - (firstDataBlock * RC5_BLOCK_LEN) + i] = ct_part[i];
                     out[(block - (firstDataBlock + removeBlocksFromOutput)) * RC5_BLOCK_LEN + i] = (byte) ct_part[i];
                 }
             }
 
             block++;
         }
-
-        // Cleaning IV
-//        for (int i = 0; i < RC5_BLOCK_LEN; i++)
-//            iv[i] = 0;
-
-//        out.erase(out.begin(), out.begin() + removeBlocksFromOutput * RC5_BLOCK_LEN);
-
-        // Remove from output a last byte with random byte for aligning
-//        if (out.size() > dataSize)
-//            out.erase(out.begin() + dataSize, out.end());
-
-//        int size = (out.length > dataSize) ? (int)dataSize : out.length;
-//        int from = outHelper.removeBlocksFromOutput * RC5_BLOCK_LEN;
-//        out = Arrays.copyOfRange(out, from , from  + size);
-
-//        return new DecryptOutHelper(out, (int)dataSize, removeBlocksFromOutput);
         return out;
     }
-
-
-    /*
-    inline unsigned char RC5Simple::RC5_GetByteFromInt(unsigned int w, int n)
-    {
-     unsigned char b=0;
-
-     switch (n) {
-       case 0:
-           b=(w & 0x000000FF);
-           break;
-       case 1:
-           b=(w & 0x0000FF00) >> 8;
-           break;
-       case 2:
-           b=(w & 0x00FF0000) >> 16;
-           break;
-       case 3:
-           b=(w & 0xFF000000) >> 24;
-     }
-
-     // RC5_LOG(( "GetByteFromWord(%.8X, %d)=%.2X\n", w, n, b ));
-
-     return b;
-    }*/
-
 
     /**
      * Rotation operators
@@ -533,24 +474,23 @@ public class RC5Simple {
 //        return ((byte) (w >> (n * 8) & 0xff));
 //    }
 
-
-    private int getByteFromInt(long w, int n) {
-        int b = 0;
-        switch (n) {
-            case 0:
-                b = (int) (w & 0x000000FF);
-                break;
-            case 1:
-                b = (int) (w & 0x0000FF00) >> 8;
-                break;
-            case 2:
-                b = (int) (w & 0x00FF0000) >> 16;
-                break;
-            case 3:
-                b = (int) (w & 0xFF000000) >> 24;
-        }
-        return b;
-    }
+//    private int getByteFromInt(long w, int n) {
+//        int b = 0;
+//        switch (n) {
+//            case 0:
+//                b = (int) (w & 0x000000FF);
+//                break;
+//            case 1:
+//                b = (int) (w & 0x0000FF00) >> 8;
+//                break;
+//            case 2:
+//                b = (int) (w & 0x00FF0000) >> 16;
+//                break;
+//            case 3:
+//                b = (int) (w & 0xFF000000) >> 24;
+//        }
+//        return b;
+//    }
 
     public static int getByteFromWord(long w, int n) {
         return ((int) (w >> (n * 8) & 0xffL));
