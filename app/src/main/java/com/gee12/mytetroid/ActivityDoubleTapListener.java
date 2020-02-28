@@ -4,22 +4,25 @@ package com.gee12.mytetroid;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 /**
  * Обработчик двойного нажатия на экране.
  */
 public class ActivityDoubleTapListener extends GestureDetector.SimpleOnGestureListener {
 
-    private AppCompatActivity activity;
+    public interface IHandler {
+        void onDoubleTap();
+    }
 
-    public ActivityDoubleTapListener(AppCompatActivity activity) {
-        this.activity = activity;
+    private IHandler handler;
+
+    public ActivityDoubleTapListener(IHandler handler) {
+        this.handler = handler;
     }
 
     @Override
     public boolean onDoubleTap(MotionEvent e) {
-        App.toggleFullscreen(activity);
+        if (handler != null)
+            handler.onDoubleTap();
         return true;
     }
 

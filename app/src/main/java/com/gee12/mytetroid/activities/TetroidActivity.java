@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.ActivityDoubleTapListener;
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 
 public class TetroidActivity extends AppCompatActivity implements View.OnTouchListener {
@@ -40,7 +41,7 @@ public class TetroidActivity extends AppCompatActivity implements View.OnTouchLi
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // обработчик нажатия на экране
-        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
+        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this::toggleFullscreen));
 
         this.tvTitle = mToolbar.findViewById(R.id.text_view_title);
         this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
@@ -76,6 +77,10 @@ public class TetroidActivity extends AppCompatActivity implements View.OnTouchLi
 //            setFullscreen(false);
 //        }
 //    }
+
+    public boolean toggleFullscreen() {
+        return App.toggleFullscreen(this);
+    }
 
     /**
      * Переопределяем обработчик нажатия на экране

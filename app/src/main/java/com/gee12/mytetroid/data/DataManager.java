@@ -363,7 +363,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @return
      */
     public static TetroidRecord createRecord(String name, String tagsString, String author, String url, TetroidNode node) {
-        if (node == null) {
+        if (node == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.createRecord()");
             return null;
         }

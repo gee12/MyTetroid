@@ -16,11 +16,14 @@ public class App {
 
     /**
      * Переключатель полноэкранного режима.
+     * @param activity
+     * @return текущий режим
      */
-    public static void toggleFullscreen(AppCompatActivity activity) {
+    public static boolean toggleFullscreen(AppCompatActivity activity) {
         boolean newValue = !SettingsManager.IsFullScreen;
         SettingsManager.IsFullScreen = newValue;
         ViewUtils.setFullscreen(activity, newValue);
+        return newValue;
     }
 
 }
