@@ -213,9 +213,12 @@
     <string name="record_saved">Запись сохранена</string>
     <string name="record_save_error">Не удается сохранить запись (подробнее в логах)</string>
     <string name="record_create_error">Не удается создать запись (подробнее в логах)</string>
+    <string name="record_edit_fields_error">Не удается отредактировать свойства запись (подробнее в логах)</string>
+    <string name="record_delete_error">Не удается удалить запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="start_record_creating">Начало создания записи</string>
+    <string name="start_record_fields_editing">Начало изменения свойств записи</string>
     <string name="start_record_deleting">Начало удаления записи</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="error_creating_record_file">Ошибка создания файла записи</string>
@@ -230,4 +233,5 @@
     <string name="menu_item_delete">Удалить</string>
     <string name="cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="menu_item_edit_record_fields">Редактировать свойства</string>
 </resources>

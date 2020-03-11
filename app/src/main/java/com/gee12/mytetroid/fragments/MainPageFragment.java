@@ -46,7 +46,8 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MENU_ITEM_ID_OPEN_RECORD = 1;
     public static final int MENU_ITEM_ID_SHOW_FILES = 2;
     public static final int MENU_ITEM_ID_OPEN_RECORD_FOLDER = 3;
-    public static final int MENU_ITEM_ID_DELETE_RECORD = 4;
+    public static final int MENU_ITEM_ID_EDIT_FIELDS = 4;
+    public static final int MENU_ITEM_ID_DELETE_RECORD = 5;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -330,6 +331,10 @@ public class MainPageFragment extends TetroidFragment {
 
     }
 
+    /**
+     * Открытие каталога записи.
+     * @param position
+     */
     private void openRecordFolder(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
         mMainView.openFolder(DataManager.getRecordDirUri(record));
@@ -341,9 +346,35 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    /**
+     * Редактирование свойств записи.
+     * @param position
+     */
+    private void editRecordFields(int position) {
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+
+        AddRecordDialog.createTextSizeDialog(getContext(), record, (name, tags, author, url) -> {
+            if (DataManager.editRecordFields(record, name, tags, author, url)) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+                mMainView.updateTags();
+            } else {
+                LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
+    }
+
+    /**
+     * Удаление записи.
+     * @param position
+     */
     private void deleteRecord(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        DataManager.deleteRecord(record);
+        if (DataManager.deleteRecord(record)) {
+            mListAdapterRecords.getDataSet().remove(record);
+            mListAdapterRecords.notifyDataSetChanged();
+        } else {
+            LogManager.addLog(getString(R.string.record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
     }
 
     /**
@@ -408,6 +439,7 @@ public class MainPageFragment extends TetroidFragment {
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD, Menu.NONE, R.string.show_record_content);
         menu.add(Menu.NONE, MENU_ITEM_ID_SHOW_FILES, Menu.NONE, R.string.show_attached_files);
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD_FOLDER, Menu.NONE, R.string.open_record_folder);
+        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.menu_item_edit_record_fields);
         menu.add(Menu.NONE, MENU_ITEM_ID_DELETE_RECORD, Menu.NONE, R.string.menu_item_delete);
     }
 
@@ -428,6 +460,9 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case MENU_ITEM_ID_OPEN_RECORD_FOLDER:
                 openRecordFolder(info.position);
+                return true;
+            case MENU_ITEM_ID_EDIT_FIELDS:
+                editRecordFields(info.position);
                 return true;
             case MENU_ITEM_ID_DELETE_RECORD:
                 deleteRecord(info.position);

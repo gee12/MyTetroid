@@ -436,10 +436,30 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
-     * Удаление записи.
+     * Изменение свойств записи.
      * @param record
+     * @param name
+     * @param tagsString
+     * @param author
+     * @param url
      * @return
      */
+    public static boolean editRecordFields(TetroidRecord record, String name, String tagsString, String author, String url) {
+        if (record == null || TextUtils.isEmpty(name)) {
+            LogManager.emptyParams("DataManager.createRecord()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
+
+
+        return true;
+    }
+
+        /**
+         * Удаление записи.
+         * @param record
+         * @return
+         */
     public static boolean deleteRecord(TetroidRecord record) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");

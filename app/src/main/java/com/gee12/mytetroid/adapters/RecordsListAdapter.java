@@ -134,4 +134,8 @@ public class RecordsListAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    public List<TetroidRecord> getDataSet() {
+        return dataSet;
+    }
 }
