@@ -417,22 +417,73 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // добавляем запись в ветку (и соответственно, в коллекцию)
         node.addRecord(record);
-
+        // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
             // добавляем метки в запись и в коллекцию
             instance.parseRecordTags(record, tagsString);
         } else {
+            LogManager.addLog(context.getString(R.string.cancel_record_creating), LogManager.Types.ERROR);
             // удаляем запись из ветки
             node.getRecords().remove(record);
             // удаляем файл записи
             file.delete();
             // удаляем каталог записи (пустой)
             folder.delete();
-
             return null;
         }
 
         return record;
+    }
+
+    /**
+     * Удаление записи.
+     * @param record
+     * @return
+     */
+    public static boolean deleteRecord(TetroidRecord record) {
+        if (record == null) {
+            LogManager.emptyParams("DataManager.deleteRecord()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.start_record_deleting), LogManager.Types.INFO);
+
+        // удаляем запись из ветки (и соответственно, из коллекции)
+        TetroidNode node = record.getNode();
+        if (node != null) {
+            if (!node.getRecords().remove(record)) {
+                LogManager.addLog(context.getString(R.string.not_found_record_in_node), LogManager.Types.ERROR);
+                return false;
+            }
+        } else {
+            LogManager.addLog(context.getString(R.string.record_not_have_node), LogManager.Types.ERROR);
+            return false;
+        }
+
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            // перезагружаем список меток
+            deleteRecordTags(record);
+        } else {
+            LogManager.addLog(context.getString(R.string.cancel_record_deleting), LogManager.Types.ERROR);
+            return false;
+        }
+
+        // удаляем каталог записи
+        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        Uri dirUri;
+        try {
+            dirUri = Uri.parse(dirPath);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + dirPath, ex);
+            return false;
+        }
+        File folder = new File(dirUri.getPath());
+        if (!FileUtils.deleteRecursive(folder)) {
+            LogManager.addLog(context.getString(R.string.error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -467,6 +518,26 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return false;
     }
 
+    /**
+     * Удаление меток записи из списка.
+     * @param record
+     */
+    public static void deleteRecordTags(TetroidRecord record) {
+        if (!record.getTags().isEmpty()) {
+            for (TetroidTag tag : record.getTags()) {
+                TetroidTag foundedTag = getTag(tag.getName());
+                if (foundedTag != null) {
+                    if (foundedTag.getRecords().size() > 1) {
+                        // удаляем запись из метки
+                        foundedTag.getRecords().remove(record);
+                    } else {
+                        // удаляем саму метку из списка
+                        getTags().remove(foundedTag.getName());
+                    }
+                }
+            }
+        }
+    }
 
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;

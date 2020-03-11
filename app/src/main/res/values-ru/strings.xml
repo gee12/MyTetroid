@@ -160,6 +160,7 @@
     <string name="error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
     <string name="error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
+    <string name="error_delete_record_folder">Ошибка удаления каталога записи:&#160;</string>
     <string name="error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="missing_file">Отсутствует файл&#160;</string>
     <string name="open_node_records">Открытие записей ветки: id=</string>
@@ -215,6 +216,7 @@
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="start_record_creating">Начало создания записи</string>
+    <string name="start_record_deleting">Начало удаления записи</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="error_creating_record_file">Ошибка создания файла записи</string>
     <string name="tag_not_found">Не найдена метка [%s]..</string>
@@ -223,4 +225,9 @@
     <string name="saving_mytetra_xml">Сохранение файла mytetra.xml</string>
     <string name="failed_delete_file">Не удалось удалить файл:&#160;</string>
     <string name="dailed_rename_file">Не удалось переименовать файл из %s в %s</string>
+    <string name="record_not_have_node">У записи не указана ветка</string>
+    <string name="not_found_record_in_node">Не найдена запись в списке записей ветки</string>
+    <string name="menu_item_delete">Удалить</string>
+    <string name="cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
 </resources>

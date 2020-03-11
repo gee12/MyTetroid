@@ -46,6 +46,7 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MENU_ITEM_ID_OPEN_RECORD = 1;
     public static final int MENU_ITEM_ID_SHOW_FILES = 2;
     public static final int MENU_ITEM_ID_OPEN_RECORD_FOLDER = 3;
+    public static final int MENU_ITEM_ID_DELETE_RECORD = 4;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -340,11 +341,10 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
-//    public void setFullscreen(boolean isFullscreen) {
-//        RecordView view = getCurRecordView();
-//        if (view != null)
-//            view.setFullscreen(isFullscreen);
-//    }
+    private void deleteRecord(int position) {
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+        DataManager.deleteRecord(record);
+    }
 
     /**
      * Обработчик клика на записи
@@ -408,6 +408,7 @@ public class MainPageFragment extends TetroidFragment {
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD, Menu.NONE, R.string.show_record_content);
         menu.add(Menu.NONE, MENU_ITEM_ID_SHOW_FILES, Menu.NONE, R.string.show_attached_files);
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD_FOLDER, Menu.NONE, R.string.open_record_folder);
+        menu.add(Menu.NONE, MENU_ITEM_ID_DELETE_RECORD, Menu.NONE, R.string.menu_item_delete);
     }
 
     /**
@@ -427,6 +428,9 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case MENU_ITEM_ID_OPEN_RECORD_FOLDER:
                 openRecordFolder(info.position);
+                return true;
+            case MENU_ITEM_ID_DELETE_RECORD:
+                deleteRecord(info.position);
                 return true;
             default:
                 return super.onContextItemSelected(item);

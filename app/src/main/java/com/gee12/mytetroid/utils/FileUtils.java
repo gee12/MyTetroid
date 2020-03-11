@@ -120,6 +120,19 @@ public class FileUtils {
     }
 
     /**
+     * Удаление файла или каталога с файлами/подкаталогами.
+     * @param fileOrDirectory
+     */
+    public static boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                if (!deleteRecursive(child))
+                    return false;
+
+        return fileOrDirectory.delete();
+    }
+
+    /**
      * Получение расширения файла с точкой.
      * @param fileFullName
      * @return Расширение файла с точкой, или пустую строку, если расширение отсутствует.
