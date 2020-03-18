@@ -461,6 +461,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
+            instance.deleteRecordTags(record);
             // добавляем метки в запись и в коллекцию
             instance.parseRecordTags(record, tagsString);
         } else {
@@ -472,11 +473,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
-        /**
-         * Удаление записи.
-         * @param record
-         * @return
-         */
+    /**
+     * Удаление записи.
+     * @param record
+     * @return
+     */
     public static boolean deleteRecord(TetroidRecord record) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
@@ -598,8 +599,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                         foundedTag.getRecords().remove(record);
                     } else {
                         // удаляем саму метку из списка
-                        getTags().remove(foundedTag.getName());
+                        tagsMap.remove(foundedTag.getName());
+                        this.uniqueTagsCount--;
                     }
+                    this.tagsCount--;
                 }
             }
         }
