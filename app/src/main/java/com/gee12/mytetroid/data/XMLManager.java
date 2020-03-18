@@ -32,11 +32,6 @@ import java.util.TreeMap;
 public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
     /**
-     * Запятая или запятая с пробелами
-     */
-    private static final String TAGS_SEPARATOR = "\\s*,\\s*";
-
-    /**
      *
      */
     private static final String ns = null;
@@ -55,7 +50,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      *
      */
     protected TreeMap<String, TetroidTag> tagsMap;
-//    protected List<TetroidTag> tagsList;
 
     /**
      * Статистические данные.
@@ -102,7 +96,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             return readRoot(parser);
         } finally {
             in.close();
-//            this.tagsList = new ArrayList<>(tagsMap.values());
         }
     }
 
@@ -282,27 +275,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @param tagsString Строка с метками (не зашифрована).
      *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
      */
-    @Override
-    public void parseRecordTags(TetroidRecord record, String tagsString) {
-//        String tagsString = record.getTagsString();
-        if (!TextUtils.isEmpty(tagsString)) {
-            for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
-                TetroidTag tag;
-                if (tagsMap.containsKey(tagName)) {
-                    tag = tagsMap.get(tagName);
-                    tag.addRecord(record);
-                } else {
-                    List<TetroidRecord> tagRecords = new ArrayList<>();
-                    tagRecords.add(record);
-                    tag = new TetroidTag(tagName, tagRecords);
-                    tagsMap.put(tagName, tag);
-                    this.uniqueTagsCount++;
-                }
-                this.tagsCount++;
-                record.addTag(tag);
-            }
-        }
-    }
+    public abstract void parseRecordTags(TetroidRecord record, String tagsString);
+
+    /**
+     * Удаление меток записи из списка.
+     * @param record
+     */
+    public abstract void deleteRecordTags(TetroidRecord record);
 
     /**
      *

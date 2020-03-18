@@ -231,7 +231,7 @@
     <string name="error_record_reading">Record reading error</string>
     <string name="not_found_child_in_viewflipper">Not found child in ViewFliper</string>
     <string name="error_write_to_record_file">Error write to the record file:&#160;</string>
-    <string name="title_record_html">Record html</string>
+    <string name="title_record_html">html-code</string>
     <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
     <string name="recod_edit_mode">Edit mode</string>
     <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>

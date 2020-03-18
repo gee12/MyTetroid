@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -47,6 +48,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
     public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
     public static final String INI_CRYPT_MODE = "crypt_mode";
+
+    /**
+     * Разделитель меток - запятая или запятая с пробелами.
+     */
+    private static final String TAGS_SEPARATOR = "\\s*,\\s*";
+
 
     //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
@@ -374,11 +381,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         String dirName = createUniqueId();
 
         boolean crypted = node.isCrypted();
-//        TetroidRecord record = new TetroidRecord(crypted, id, new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
-//        record.setName((crypted) ? CryptManager.encryptText(name) : name);
-//        record.setAuthor((crypted) ? CryptManager.encryptText(author) : author);
-//        record.setTagsString((crypted) ? CryptManager.encryptText(tagsString) : tagsString);
-//        record.setUrl((crypted) ? CryptManager.encryptText(url) : url);
         TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         record.setIsNew(true);
@@ -451,6 +453,21 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
 
+//        boolean crypted = record.isCrypted();
+        record.setName(name);
+        record.setAuthor(author);
+        record.setTagsString(tagsString);
+        record.setUrl(url);
+
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            // добавляем метки в запись и в коллекцию
+            instance.parseRecordTags(record, tagsString);
+        } else {
+            LogManager.addLog(context.getString(R.string.cancel_record_creating), LogManager.Types.ERROR);
+            return false;
+        }
+
 
         return true;
     }
@@ -482,7 +499,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
             // перезагружаем список меток
-            deleteRecordTags(record);
+            instance.deleteRecordTags(record);
         } else {
             LogManager.addLog(context.getString(R.string.cancel_record_deleting), LogManager.Types.ERROR);
             return false;
@@ -539,10 +556,39 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
+     * Разбираем строку с метками записи и добавляем метки в запись и в коллекцию.
+     * @param record
+     * @param tagsString Строка с метками (не зашифрована).
+     *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
+     */
+    @Override
+    public void parseRecordTags(TetroidRecord record, String tagsString) {
+//        String tagsString = record.getTagsString();
+        if (!TextUtils.isEmpty(tagsString)) {
+            for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
+                TetroidTag tag;
+                if (tagsMap.containsKey(tagName)) {
+                    tag = tagsMap.get(tagName);
+                    tag.addRecord(record);
+                } else {
+                    List<TetroidRecord> tagRecords = new ArrayList<>();
+                    tagRecords.add(record);
+                    tag = new TetroidTag(tagName, tagRecords);
+                    tagsMap.put(tagName, tag);
+                    this.uniqueTagsCount++;
+                }
+                this.tagsCount++;
+                record.addTag(tag);
+            }
+        }
+    }
+
+    /**
      * Удаление меток записи из списка.
      * @param record
      */
-    public static void deleteRecordTags(TetroidRecord record) {
+    @Override
+    public void deleteRecordTags(TetroidRecord record) {
         if (!record.getTags().isEmpty()) {
             for (TetroidTag tag : record.getTags()) {
                 TetroidTag foundedTag = getTag(tag.getName());

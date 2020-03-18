@@ -193,7 +193,7 @@
     <string name="error_record_reading">Ошибка чтения записи</string>
     <string name="not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
     <string name="error_write_to_record_file">Ошибка записи в файл:&#160;</string>
-    <string name="title_record_html">Html записи</string>
+    <string name="title_record_html">html-код</string>
     <string name="recod_edit_mode">Режим редактирования</string>
     <string name="record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
