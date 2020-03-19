@@ -372,6 +372,7 @@ public class MainPageFragment extends TetroidFragment {
         if (DataManager.deleteRecord(record)) {
             mListAdapterRecords.getDataSet().remove(record);
             mListAdapterRecords.notifyDataSetChanged();
+            mMainView.updateTags();
         } else {
             LogManager.addLog(getString(R.string.record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }

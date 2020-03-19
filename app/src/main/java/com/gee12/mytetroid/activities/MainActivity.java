@@ -656,7 +656,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void updateTags() {
         mListAdapterTags.setDataItems(DataManager.getTags());
-//        mListAdapterTags.notifyDataSetInvalidated();
     }
 
     public void openRecord(String recordId) {

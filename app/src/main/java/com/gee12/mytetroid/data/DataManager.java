@@ -509,6 +509,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
+            instance.recordsCount--;
+            if (isCrypted())
+                instance.cryptedRecordsCount--;
+            if (!StringUtil.isBlank(record.getAuthor()))
+                instance.authorsCount--;
+            if (record.getAttachedFilesCount() > 0)
+                instance.authorsCount -= record.getAttachedFilesCount();
             // перезагружаем список меток
             instance.deleteRecordTags(record);
         } else {
@@ -614,6 +621,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                     this.tagsCount--;
                 }
             }
+            record.getTags().clear();
         }
     }
 
