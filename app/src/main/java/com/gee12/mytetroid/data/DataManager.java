@@ -433,7 +433,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             folder.delete();
             return null;
         }
-
         return record;
     }
 
@@ -453,7 +452,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
 
-//        boolean crypted = record.isCrypted();
+        String oldName = record.getName();
+        String oldAuthor = record.getAuthor();
+        String oldTagsString = record.getTagsString();
+        String oldUrl = record.getUrl();
+        // обновляем поля
         record.setName(name);
         record.setAuthor(author);
         record.setTagsString(tagsString);
@@ -461,15 +464,22 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            instance.deleteRecordTags(record);
-            // добавляем метки в запись и в коллекцию
-            instance.parseRecordTags(record, tagsString);
+            if (oldTagsString == null && tagsString != null
+                    || oldTagsString != null && !oldTagsString.equals(tagsString)) {
+                // удаляем старые метки
+                instance.deleteRecordTags(record);
+                // добавляем новые метки
+                instance.parseRecordTags(record, tagsString);
+            }
         } else {
             LogManager.addLog(context.getString(R.string.cancel_record_creating), LogManager.Types.ERROR);
+            // возвращаем изменения
+            record.setName(oldName);
+            record.setAuthor(oldAuthor);
+            record.setTagsString(oldTagsString);
+            record.setUrl(oldUrl);
             return false;
         }
-
-
         return true;
     }
 
@@ -520,7 +530,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.addLog(context.getString(R.string.error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
             return false;
         }
-
         return true;
     }
 
