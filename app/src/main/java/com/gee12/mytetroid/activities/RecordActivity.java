@@ -18,7 +18,6 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -31,6 +30,7 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
@@ -57,14 +57,15 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_SHOW_TAG = 3;
 
-    private RelativeLayout mRecordFieldsLayout;
-    private ExpandableLayout mExpRecordFieldsLayout;
+//    private RelativeLayout mFieldsLayout;
+    private ExpandableLayout mFieldsExpanderLayout;
+    private FloatingActionButton mFabFieldsToggle;
     private WebView mWebViewTags;
     private ScrollView mScrollViewHtml;
     private EditText mEditTextHtml;
-    private TextView mTvRecordAuthor;
-    private TextView mTvRecordUrl;
-    private TextView mTvRecordDate;
+    private TextView mTvAuthor;
+    private TextView mTvUrl;
+    private TextView mTvDate;
     private TetroidEditor mEditor;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
@@ -116,7 +117,7 @@ public class RecordActivity extends TetroidActivity implements
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
 
-        this.mRecordFieldsLayout = findViewById(R.id.layout_record_fields);
+//        this.mFieldsLayout = findViewById(R.id.layout_record_fields);
         this.mWebViewTags = findViewById(R.id.web_view_record_tags);
         mWebViewTags.setBackgroundColor(Color.TRANSPARENT);
         mWebViewTags.setWebViewClient(new WebViewClient() {
@@ -126,12 +127,14 @@ public class RecordActivity extends TetroidActivity implements
                 return true;
             }
         });
-        this.mTvRecordAuthor = findViewById(R.id.text_view_record_author);
-        this.mTvRecordUrl = findViewById(R.id.text_view_record_url);
-        this.mTvRecordDate = findViewById(R.id.text_view_record_date);
-        this.mExpRecordFieldsLayout = findViewById(R.id.layout_expander);
-        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
-        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mExpRecordFieldsLayout.toggle());
+        this.mTvAuthor = findViewById(R.id.text_view_record_author);
+        this.mTvUrl = findViewById(R.id.text_view_record_url);
+        this.mTvDate = findViewById(R.id.text_view_record_date);
+        this.mFieldsExpanderLayout = findViewById(R.id.layout_fields_expander);
+//        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
+//        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mFieldsExpanderLayout.toggle());
+        this.mFabFieldsToggle = findViewById(R.id.button_toggle_fields);
+        mFabFieldsToggle.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
 
         this.mScrollViewHtml = findViewById(R.id.scroll_html);
@@ -158,16 +161,24 @@ public class RecordActivity extends TetroidActivity implements
             mWebViewTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
             id = R.id.web_view_record_tags;
         }
-        // указываем относительно чего теперь выравнивать следующую панель
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+        // указываем относительно чего теперь выравнивать следующее за метками поле
+        // (т.к. метки - многострочный элемент)
+        TextView tvLabelAuthor = findViewById(R.id.label_record_author);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.BELOW, id);
-        mExpRecordFieldsLayout.setLayoutParams(params);
+        tvLabelAuthor.setLayoutParams(params);
+
+        RelativeLayout.LayoutParams params2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params2.addRule(RelativeLayout.BELOW, id);
+        params2.addRule(RelativeLayout.RIGHT_OF, R.id.label_record_author);
+        mTvAuthor.setLayoutParams(params2);
         // поля
-        mTvRecordAuthor.setText(record.getAuthor());
-        mTvRecordUrl.setText(record.getUrl());
+        mTvAuthor.setText(record.getAuthor());
+        mTvUrl.setText(record.getUrl());
         if (record.getCreated() != null)
-            mTvRecordDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+            mTvDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
         // текст
         loadRecordText(record, false);
     }
@@ -338,8 +349,24 @@ public class RecordActivity extends TetroidActivity implements
 
     }
 
+    private void toggleRecordFieldsVisibility() {
+        mFieldsExpanderLayout.toggle();
+        if (mFieldsExpanderLayout.isExpanded()) {
+            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_up);
+        } else {
+            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_down);
+        }
+    }
+
     private void setRecordFieldsVisibility(boolean isVisible) {
-        mRecordFieldsLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+//        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        if (isVisible) {
+            mFieldsExpanderLayout.setVisibility(View.VISIBLE);
+            mFabFieldsToggle.show();
+        } else {
+            mFieldsExpanderLayout.setVisibility(View.GONE);
+            mFabFieldsToggle.hide();
+        }
     }
 
     private void saveRecord() {
@@ -529,7 +556,7 @@ public class RecordActivity extends TetroidActivity implements
     public boolean toggleFullscreen() {
         boolean isFullscreen = super.toggleFullscreen();
         if (mCurMode == MODE_VIEW) {
-            setRecordFieldsVisibility(!isFullscreen);
+//            setRecordFieldsVisibility(!isFullscreen);
         }
         return isFullscreen;
     }

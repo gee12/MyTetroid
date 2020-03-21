@@ -17,173 +17,129 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
-            android:id="@+id/layout_record_fields"
+        <net.cachapa.expandablelayout.ExpandableLayout
+            android:id="@+id/layout_fields_expander"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="@drawable/side_nav_bar"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            android:visibility="gone"
-            android:textColor="@color/colorMoreLightText">
+            app:el_duration="300"
+            app:el_expanded="false"
+            app:el_parallax="0.5">
 
-            <TextView
-                android:id="@+id/label_record_tags"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="3dp"
-                android:text="@string/record_tags_label"
-                android:textColor="@color/colorLightLabelText"/>
-
-            <!--  <TextView
-                  android:id="@+id/text_view_record_tags"
-                  android:layout_toRightOf="@id/label_record_tags"
-                  android:layout_toEndOf="@id/label_record_tags"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:paddingLeft="3dp"
-                  android:paddingRight="3dp"
-                  android:paddingTop="8dp"
-                  android:paddingBottom="3dp"
-                  android:layout_marginRight="36dp"
-                  android:layout_marginEnd="36dp"/>-->
-
-            <WebView
-                android:id="@+id/web_view_record_tags"
-                android:layout_toRightOf="@id/label_record_tags"
-                android:layout_toEndOf="@id/label_record_tags"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textIsSelectable="false"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="3dp"
-                android:layout_marginRight="36dp"
-                android:layout_marginEnd="36dp"
-                android:minHeight="50dp"
-                android:background="@android:color/transparent"
-                tools:ignore="WebViewLayout" />
+                android:padding="8dp"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark"
+                android:background="@drawable/side_nav_bar"
+                android:textColor="@color/colorMoreLightText">
 
-            <ToggleButton
-                android:id="@+id/toggle_button_expander"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentRight="true"
-                android:textColorLink="@android:color/transparent"
-                android:background="@drawable/toggle_selector"
-                android:checked="false"
-                android:textOn=""
-                android:textOff=""/>
+                <TextView
+                    android:id="@+id/label_record_tags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:text="@string/record_tags_label"
+                    android:textColor="@color/colorLightLabelText"/>
 
-            <net.cachapa.expandablelayout.ExpandableLayout
-                android:id="@+id/layout_expander"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/label_record_tags"
-                app:el_duration="300"
-                app:el_expanded="false"
-                app:el_parallax="0.5">
-                <!--            android:layout_below="@id/text_view_record_tags"-->
-
-                <RelativeLayout
+                <WebView
+                    android:id="@+id/web_view_record_tags"
+                    android:layout_toRightOf="@id/label_record_tags"
+                    android:layout_toEndOf="@id/label_record_tags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:textColor="@color/colorMoreLightText">
+                    android:textIsSelectable="false"
+                    android:layout_marginLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:paddingTop="0dp"
+                    android:paddingBottom="0dp"
+                    android:background="@android:color/transparent"
+                    tools:ignore="WebViewLayout" />
+<!--                android:layout_marginRight="36dp"-->
+<!--                android:layout_marginEnd="36dp"-->
 
-                    <TextView
-                        android:id="@+id/label_record_author"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="0dp"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="2dp"
-                        android:paddingBottom="2dp"
-                        android:text="@string/record_author_label"
-                        android:layout_alignParentStart="true"
-                        android:textColor="@color/colorLightLabelText" />
+                <TextView
+                    android:id="@+id/label_record_author"
+                    android:layout_below="@id/web_view_record_tags"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="@string/record_author_label"
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/colorLightLabelText" />
 
-                    <TextView
-                        android:id="@+id/text_view_record_author"
-                        android:layout_alignParentTop="true"
-                        android:layout_toRightOf="@id/label_record_author"
-                        android:layout_toEndOf="@id/label_record_author"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="0dp"
-                        android:paddingLeft="2dp"
-                        android:paddingRight="2dp"
-                        android:paddingBottom="2dp" />
+                <TextView
+                    android:id="@+id/text_view_record_author"
+                    android:layout_below="@id/web_view_record_tags"
+                    android:layout_toRightOf="@id/label_record_author"
+                    android:layout_toEndOf="@id/label_record_author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/record_author_label"
+                    android:padding="2dp" />
 
-                    <TextView
-                        android:id="@+id/label_record_url"
-                        android:layout_below="@id/text_view_record_author"
-                        android:layout_alignParentLeft="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:text="@string/record_uri_label"
-                        android:layout_alignParentStart="true"
-                        android:textColor="@color/colorLightLabelText" />
+                <TextView
+                    android:id="@+id/label_record_url"
+                    android:layout_below="@id/text_view_record_author"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="@string/record_uri_label"
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/colorLightLabelText" />
 
-                    <TextView
-                        android:id="@+id/text_view_record_url"
-                        android:layout_below="@id/text_view_record_author"
-                        android:layout_toRightOf="@id/label_record_url"
-                        android:layout_toEndOf="@id/label_record_url"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="bottom"
-                        android:autoLink="web"
-                        android:textColorLink="@color/colorBlueDark"
-                        android:padding="2dp"/>
+                <TextView
+                    android:id="@+id/text_view_record_url"
+                    android:layout_below="@id/text_view_record_author"
+                    android:layout_toRightOf="@id/label_record_url"
+                    android:layout_toEndOf="@id/label_record_url"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:autoLink="web"
+                    android:textColorLink="@color/colorBlueDark"
+                    android:padding="2dp"/>
 
-                    <TextView
-                        android:id="@+id/label_record_date"
-                        android:layout_below="@id/text_view_record_url"
-                        android:layout_alignParentLeft="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:padding="2dp"
-                        android:text="@string/record_date_label"
-                        android:layout_alignParentStart="true"
-                        android:textColor="@color/colorLightLabelText" />
+                <TextView
+                    android:id="@+id/label_record_date"
+                    android:layout_below="@id/text_view_record_url"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="@string/record_date_label"
+                    android:textColor="@color/colorLightLabelText" />
 
-                    <TextView
-                        android:id="@+id/text_view_record_date"
-                        android:layout_below="@id/text_view_record_url"
-                        android:layout_toRightOf="@id/label_record_date"
-                        android:layout_toEndOf="@id/label_record_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingLeft="3dp"
-                        android:paddingRight="3dp"
-                        android:paddingTop="3dp"
-                        android:paddingBottom="8dp" />
+                <TextView
+                    android:id="@+id/text_view_record_date"
+                    android:layout_below="@id/text_view_record_url"
+                    android:layout_toRightOf="@id/label_record_date"
+                    android:layout_toEndOf="@id/label_record_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="0dp" />
 
-                </RelativeLayout>
+            </RelativeLayout>
 
-            </net.cachapa.expandablelayout.ExpandableLayout>
-        </RelativeLayout>
+        </net.cachapa.expandablelayout.ExpandableLayout>
 
         <com.gee12.mytetroid.views.TetroidEditor
             android:id="@+id/web_view_record_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/layout_record_fields"
+            android:layout_below="@id/layout_fields_expander"
             android:textIsSelectable="true"
             android:layout_margin="0dp"
             android:background="@android:color/transparent"/>
@@ -194,8 +150,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
-            android:visibility="gone"
-            >
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/edit_text_html"
@@ -218,6 +173,16 @@
 <!--        android:cursorVisible="true"-->
 
             </ScrollView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_toggle_fields"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false"
+            android:src="@drawable/ic_arrow_drop_down"
+            app:backgroundTint="@color/colorAccent_50"
+            android:layout_margin="3dp"
+            app:fabSize="mini"
+            style="@style/FloatingButtons"/>
 
     </RelativeLayout>
 

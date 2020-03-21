@@ -57,7 +57,7 @@ public class TetroidTag extends TetroidObject {
             return null;
         }
         // #a4a4e4 - это colorLightLabelText
-        sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;\">");
+        sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;margin:0px;\">");
         for (TetroidTag tag : record.getTags()) {
             // #303F9F - это colorBlueDark
             sb.append("<a href=\"").append(TAG_LINKS_PREF).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
