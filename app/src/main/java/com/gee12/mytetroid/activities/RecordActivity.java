@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.views.AddRecordDialog;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,6 +58,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_SHOW_TAG = 3;
+    public static final int RESULT_FIELDS_EDITED = 4;
 
 //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
@@ -66,6 +69,7 @@ public class RecordActivity extends TetroidActivity implements
     private TextView mTvAuthor;
     private TextView mTvUrl;
     private TextView mTvDate;
+    private ImageButton mButtonFieldsEdit;
     private TetroidEditor mEditor;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
@@ -77,6 +81,7 @@ public class RecordActivity extends TetroidActivity implements
     private TetroidRecord mRecord;
     private int mCurMode;
     private boolean mIsFirstLoad = true;
+    private boolean mIsFieldsEdited;
 
 
     public RecordActivity() {
@@ -137,6 +142,9 @@ public class RecordActivity extends TetroidActivity implements
         mFabFieldsToggle.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
 
+        this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
+        mButtonFieldsEdit.setOnClickListener(v -> editFields());
+
         this.mScrollViewHtml = findViewById(R.id.scroll_html);
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
@@ -153,9 +161,21 @@ public class RecordActivity extends TetroidActivity implements
     public void openRecord(TetroidRecord record) {
         if (record == null)
             return;
+        loadFields(record);
+        // текст
+        loadRecordText(record, false);
+    }
+
+    /**
+     * Отображние свойств записи.
+     * @param record
+     */
+    private void loadFields(TetroidRecord record) {
+        if (record == null)
+            return;
         int id = R.id.label_record_tags;
         // метки
-        String tagsHtml = TetroidTag.createTagsLinksString(record);
+        String tagsHtml = TetroidTag.createTagsHtmlString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
             mWebViewTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
@@ -179,8 +199,6 @@ public class RecordActivity extends TetroidActivity implements
         mTvUrl.setText(record.getUrl());
         if (record.getCreated() != null)
             mTvDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
-        // текст
-        loadRecordText(record, false);
     }
 
     /**
@@ -532,19 +550,6 @@ public class RecordActivity extends TetroidActivity implements
         finishWithResult(RESULT_REINIT_STORAGE, null);
     }
 
-    /**
-     * Формирование результата активности и ее закрытие.
-     * @param bundle
-     */
-    private void finishWithResult(int resCode, Bundle bundle) {
-        Intent intent = new Intent();
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        setResult(resCode, intent);
-        finish();
-    }
-
     private void setKeepScreenOn(boolean keepScreenOn) {
         if (keepScreenOn)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -568,6 +573,42 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onReceiveEditableHtml(String htmlText) {
         mEditTextHtml.setText(htmlText);
+    }
+
+    private void editFields() {
+
+        AddRecordDialog.createTextSizeDialog(this, mRecord, (name, tags, author, url) -> {
+            if (DataManager.editRecordFields(mRecord, name, tags, author, url)) {
+                this.mIsFieldsEdited = true;
+                setTitle(mRecord.getName());
+                loadFields(mRecord);
+            } else {
+                LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
+    }
+
+    /**
+     * Формирование результата активности и ее закрытие.
+     * @param bundle
+     */
+    private void finishWithResult(int resCode, Bundle bundle) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        setResult(resCode, intent);
+        finish();
+    }
+
+    /**
+     * Формирование результата активности в виде указания родительской активности
+     * обновить список записей и меток.
+     */
+    private void setResultFieldsEdited() {
+        if (mIsFieldsEdited) {
+            setResult(RESULT_FIELDS_EDITED);
+        }
     }
 
     /**
@@ -659,7 +700,12 @@ public class RecordActivity extends TetroidActivity implements
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             case android.R.id.home:
-                return onSaveRecord(true, null);
+                boolean res = onSaveRecord(true, null);
+                if (!res) {
+                    // указываем родительской активности, что нужно обновить список записей
+                    setResultFieldsEdited();
+                }
+                return res;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -675,6 +721,8 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onBackPressed() {
         if (!onSaveRecord(true, null)) {
+            // указываем родительской активности, что нужно обновить список записей
+            setResultFieldsEdited();
             super.onBackPressed();
         }
     }

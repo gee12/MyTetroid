@@ -1034,6 +1034,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName), LogManager.Types.WARNING);
                 }
                 break;
+            case RecordActivity.RESULT_FIELDS_EDITED:
+                mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
+                break;
         }
     }
 

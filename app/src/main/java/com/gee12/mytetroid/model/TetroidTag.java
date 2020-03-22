@@ -48,7 +48,7 @@ public class TetroidTag extends TetroidObject {
      * Формирование списка меток в виде html-кода.
      * @return
      */
-    public static String createTagsLinksString(TetroidRecord record) {
+    public static String createTagsHtmlString(TetroidRecord record) {
         if (record == null)
             return null;
         StringBuilder sb = new StringBuilder();

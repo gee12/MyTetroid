@@ -355,12 +355,19 @@ public class MainPageFragment extends TetroidFragment {
 
         AddRecordDialog.createTextSizeDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
-                mListAdapterRecords.notifyDataSetInvalidated();
-                mMainView.updateTags();
+                onRecordFieldsUpdated();
             } else {
                 LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
+    }
+
+    /**
+     * Обновление списка записей и меток после изменения свойств записи.
+     */
+    public void onRecordFieldsUpdated() {
+        mListAdapterRecords.notifyDataSetInvalidated();
+        mMainView.updateTags();
     }
 
     /**
