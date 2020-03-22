@@ -233,5 +233,7 @@
     <string name="menu_item_delete">Удалить</string>
     <string name="cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
-    <string name="menu_item_edit_record_fields">Редактировать свойства</string>
+    <string name="title_edit_record_fields">Редактировать свойства</string>
+    <string name="edit_mode">Редактирование</string>
+    <string name="view_mode">Просмотр</string>
 </resources>

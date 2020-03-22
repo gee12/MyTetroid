@@ -56,7 +56,6 @@ public class MainPageFragment extends TetroidFragment {
     private TextView mTextViewFilesEmpty;
     private MenuItem mMenuItemCurNode;
     private MenuItem mMenuItemCurRecord;
-//    private MenuItem mMenuItemAttachedFiles;
     private MenuItem mMenuItemCurRecordFolder;
     private FloatingActionButton mButtonAddRecord;
     private FloatingActionButton mButtonAddFile;
@@ -147,7 +146,6 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showView(int viewId) {
-//        mMenuItemAttachedFiles.setVisible(false);
         mMenuItemCurNode.setVisible(false);
         mMenuItemCurRecord.setVisible(false);
         mMenuItemCurRecordFolder.setVisible(false);
@@ -159,8 +157,6 @@ public class MainPageFragment extends TetroidFragment {
             this.mLastViewId = mCurMainViewId;
         int whichChild = viewId;
         String title = null;
-//        boolean isShowRecordViewerMenus = (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT
-//                || curRecordViewId == RECORD_VIEW_VIEWER);
         switch (viewId) {
             // для "очистки" активности выводим пустой список записей
             case MainPageFragment.MAIN_VIEW_NONE:
@@ -171,13 +167,10 @@ public class MainPageFragment extends TetroidFragment {
             case MAIN_VIEW_NODE_RECORDS:
                 mButtonAddRecord.show();
                 break;
-//            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
-//                mMenuItemAttachedFiles.setVisible(isShowRecordViewerMenus);
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 mMenuItemCurNode.setVisible(true);
                 mMenuItemCurRecordFolder.setVisible(true);
-//                if (viewId != MainPageFragment.MAIN_VIEW_RECORD_TEXT)
-                    mMenuItemCurRecord.setVisible(true);
+                mMenuItemCurRecord.setVisible(true);
                 mButtonAddFile.show();
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
@@ -196,7 +189,6 @@ public class MainPageFragment extends TetroidFragment {
         String title = null;
         int restoredViewId = mCurMainViewId;
         switch (restoredViewId) {
-//            case MainPageFragment.MAIN_VIEW_RECORD_TEXT:
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
             break;
@@ -241,12 +233,6 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-
-//        if (mCurNode.isCrypted()) {
-//            LogManager.addLog(getString(R.string.debug_new_crypted_record), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-//            return;
-//        }
-
         AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
             if (record != null) {
@@ -294,10 +280,6 @@ public class MainPageFragment extends TetroidFragment {
         this.mCurRecord = record;
         showRecordFiles(record.getAttachedFiles(), record);
     }
-
-//    public void showCurRecordFiles() {
-//        showRecordFiles(mCurRecord);
-//    }
 
     public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
         showView(MAIN_VIEW_RECORD_FILES);
@@ -403,34 +385,18 @@ public class MainPageFragment extends TetroidFragment {
     public void onCreateOptionsMenu(@NonNull Menu menu) {
         this.mMenuItemCurNode = menu.findItem(R.id.action_cur_node);
         this.mMenuItemCurRecord = menu.findItem(R.id.action_cur_record);
-//        this.mMenuItemAttachedFiles = menu.findItem(R.id.action_attached_files);
         this.mMenuItemCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
-//        this.miRecordSave = menu.findItem(R.id.action_record_save);
-//        this.miRecordHtml = menu.findItem(R.id.action_record_html);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     public boolean onOptionsItemSelected(int menuId) {
-//        int id = item.getItemId();
         switch (menuId) {
             case R.id.action_cur_record:
                 showCurRecord();
                 return true;
-//            case R.id.action_attached_files:
-//                showCurRecordFiles();
-//                return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
                 return true;
-//            case R.id.action_record_save:
-//                saveCurRecord();
-//                return true;
-//            case R.id.action_record_html:
-//                showCurRecord(RECORD_VIEW_HTML);
-//                return true;
         }
-//        return super.onOptionsItemSelected(item);
         return false;
     }
 
@@ -447,7 +413,7 @@ public class MainPageFragment extends TetroidFragment {
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD, Menu.NONE, R.string.show_record_content);
         menu.add(Menu.NONE, MENU_ITEM_ID_SHOW_FILES, Menu.NONE, R.string.show_attached_files);
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD_FOLDER, Menu.NONE, R.string.open_record_folder);
-        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.menu_item_edit_record_fields);
+        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.title_edit_record_fields);
         menu.add(Menu.NONE, MENU_ITEM_ID_DELETE_RECORD, Menu.NONE, R.string.menu_item_delete);
     }
 
@@ -486,13 +452,12 @@ public class MainPageFragment extends TetroidFragment {
     public boolean onBackPressed() {
         boolean res = false;
         int curView = mViewFlipperfMain.getDisplayedChild() + 1;
-        if (/*curView == MAIN_VIEW_RECORD_TEXT || */curView == MAIN_VIEW_RECORD_FILES) {
+        if (curView == MAIN_VIEW_RECORD_FILES) {
             res = true;
             switch (mLastViewId) {
                 case MAIN_VIEW_NODE_RECORDS:
                 case MAIN_VIEW_TAG_RECORDS:
 //                case VIEW_FOUND_RECORDS:
-//                case MAIN_VIEW_RECORD_TEXT: // если curView=MAIN_VIEW_RECORD_FILES
                     showView(mLastViewId);
                     break;
                 default:

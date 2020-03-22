@@ -4,14 +4,14 @@
     <item
         android:id="@+id/action_record_view"
         android:orderInCategory="10"
-        android:title="Просмотр"
+        android:title="@string/view_mode"
         android:visible="false"
         android:icon="@android:drawable/ic_menu_view"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_edit"
         android:orderInCategory="20"
-        android:title="Редактирование"
+        android:title="@string/edit_mode"
         android:visible="false"
         android:icon="@android:drawable/ic_menu_edit"
         app:showAsAction="always" />
@@ -26,9 +26,14 @@
         android:id="@+id/action_record_save"
         android:orderInCategory="40"
         android:title="@string/title_record_save"
-        android:visible="false"
         android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_record_edit_fields"
+        android:orderInCategory="45"
+        android:title="@string/title_edit_record_fields"
+        android:icon="@android:drawable/ic_menu_set_as"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_cur_node"
         android:orderInCategory="50"
@@ -56,13 +61,13 @@
         android:title="@string/title_fullscreen"
         android:icon="@drawable/ic_fullscreen_24dp"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_storage_info"
-        android:orderInCategory="250"
-        android:title="@string/title_storage_info"
-        android:enabled="false"
-        android:icon="@drawable/ic_statistics_24dp"
-        app:showAsAction="never" />
+<!--    <item-->
+<!--        android:id="@+id/action_storage_info"-->
+<!--        android:orderInCategory="250"-->
+<!--        android:title="@string/title_storage_info"-->
+<!--        android:enabled="false"-->
+<!--        android:icon="@drawable/ic_statistics_24dp"-->
+<!--        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"

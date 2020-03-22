@@ -1012,10 +1012,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param resCode
      */
     private void onRecordActivityResult(int resCode, Intent data) {
+        if (data == null) {
+            return;
+        }
+        // обновляем списки, если редактировали свойства записи
+        if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
+            mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
+        }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
-                boolean isReloadStorage = data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false);
-                if (isReloadStorage) {
+                if (data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
                     reinitStorage();
                 }
                 break;
@@ -1034,9 +1040,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName), LogManager.Types.WARNING);
                 }
                 break;
-            case RecordActivity.RESULT_FIELDS_EDITED:
-                mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
-                break;
+//            case RecordActivity.RESULT_FIELDS_EDITED:
+//                mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
+//                break;
         }
     }
 

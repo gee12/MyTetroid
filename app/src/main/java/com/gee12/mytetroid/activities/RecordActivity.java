@@ -50,7 +50,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
-    public static final boolean IS_EDIT_CRYPTED_RECORDS = false;
+    public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
 
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
@@ -58,7 +58,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_SHOW_TAG = 3;
-    public static final int RESULT_FIELDS_EDITED = 4;
+//    public static final int RESULT_FIELDS_EDITED = 4;
 
 //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
@@ -73,7 +73,7 @@ public class RecordActivity extends TetroidActivity implements
     private TetroidEditor mEditor;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
-    private MenuItem mMenuItemSave;
+//    private MenuItem mMenuItemSave;
     private MenuItem mMenuItemHtml;
 //    private MenuItem miCurNode;
 //    private MenuItem miAttachedFiles;
@@ -178,7 +178,7 @@ public class RecordActivity extends TetroidActivity implements
         String tagsHtml = TetroidTag.createTagsHtmlString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
-            mWebViewTags.loadData(tagsHtml, "text/html; charset=UTF-8", null);
+            mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
             id = R.id.web_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующее за метками поле
@@ -338,6 +338,9 @@ public class RecordActivity extends TetroidActivity implements
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_RECORD_ID, record.getId());
+        if (mIsFieldsEdited) {
+            bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
+        }
         finishWithResult(RESULT_OPEN_RECORD, bundle);
     }
 
@@ -350,6 +353,9 @@ public class RecordActivity extends TetroidActivity implements
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
+        if (mIsFieldsEdited) {
+            bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
+        }
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
 
@@ -484,15 +490,25 @@ public class RecordActivity extends TetroidActivity implements
         return false;
     }
 
+    /**
+     *
+     * @param obj
+     */
     public void onAfterSaving(Object obj) {
-        if (obj == null)
+        if (obj == null) {
+            setResultFieldsEdited();
             finish();
-        else if (obj instanceof TetroidRecord)
+        } else if (obj instanceof TetroidRecord) {
             openAnotherRecord((TetroidRecord) obj, false);
-        else if (obj instanceof String)
+        } else if (obj instanceof String) {
             openTag((String) obj, false);
+        }
     }
 
+    /**
+     *
+     * @param newMode
+     */
     private void switchViews(int newMode) {
         switch (newMode) {
             case MODE_VIEW : {
@@ -503,7 +519,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(true);
-                mMenuItemSave.setVisible(false);
+//                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
                 setSubtitle(getString(R.string.record_subtitle_view));
                 ViewUtils.hideKeyboard(this, mEditor.getWebView());
@@ -516,7 +532,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(true);
                 mMenuItemEdit.setVisible(false);
                 mMenuItemHtml.setVisible(true);
-                mMenuItemSave.setVisible(true);
+//                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
                 setSubtitle(getString(R.string.record_subtitle_edit));
                 mEditor.getWebView().focusEditor();
@@ -533,7 +549,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(false);
-                mMenuItemSave.setVisible(true);
+//                mMenuItemSave.setVisible(true);
                 setSubtitle(getString(R.string.record_subtitle_html));
             } break;
         }
@@ -576,7 +592,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void editFields() {
-
         AddRecordDialog.createTextSizeDialog(this, mRecord, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(mRecord, name, tags, author, url)) {
                 this.mIsFieldsEdited = true;
@@ -602,12 +617,16 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Формирование результата активности в виде указания родительской активности
+     * Формирование результата активности в виде указания для родительской активности
      * обновить список записей и меток.
      */
     private void setResultFieldsEdited() {
         if (mIsFieldsEdited) {
-            setResult(RESULT_FIELDS_EDITED);
+            if (mIsFieldsEdited) {
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
+                setResult(RESULT_OK, intent);
+            }
         }
     }
 
@@ -651,7 +670,7 @@ public class RecordActivity extends TetroidActivity implements
         getMenuInflater().inflate(R.menu.record, menu);
         this.mMenuItemView = menu.findItem(R.id.action_record_view);
         this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
-        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
+//        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
         onMenuLoaded();
         return true;
@@ -677,6 +696,9 @@ public class RecordActivity extends TetroidActivity implements
                 return true;
             case R.id.action_record_save:
                 saveRecord();
+                return true;
+            case R.id.action_record_edit_fields:
+                editFields();
                 return true;
             case R.id.action_cur_node:
                 showCurNode();
