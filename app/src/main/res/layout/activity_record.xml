@@ -131,6 +131,17 @@
                     android:paddingTop="3dp"
                     android:paddingBottom="0dp" />
 
+                <ImageButton
+                    android:id="@+id/button_edit_fields"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:src="@android:drawable/ic_menu_edit"
+                    />
+
             </RelativeLayout>
 
         </net.cachapa.expandablelayout.ExpandableLayout>
