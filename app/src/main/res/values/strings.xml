@@ -278,4 +278,13 @@
     <string name="record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
     <string name="record_deleted">Record deleted</string>
+    <string name="show_node">Show node</string>
+    <string name="rename_node">Rename</string>
+    <string name="set_node_icon">Icon</string>
+    <string name="encrypt_node">Encrypt</string>
+    <string name="decrypt_node">Decrypt</string>
+    <string name="expand_node">Expand</string>
+    <string name="collapse_node">Collapse</string>
+    <string name="create_subnode">Create subnode</string>
+    <string name="delete_node">Delete</string>
 </resources>

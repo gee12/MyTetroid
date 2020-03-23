@@ -420,7 +420,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Обработчик создания контекстного меню при долгом тапе на записи
+     * Обработчик создания контекстного меню при долгом тапе на записи.
      * @param menu
      * @param v
      * @param menuInfo

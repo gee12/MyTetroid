@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,6 +70,7 @@ import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
 import pl.openrnd.multilevellistview.OnItemClickListener;
+import pl.openrnd.multilevellistview.OnItemLongClickListener;
 
 //import android.widget.SearchView;
 
@@ -83,6 +85,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
+    private static final int MENU_ITEM_ID_OPEN_NODE = 1;
+    private static final int MENU_ITEM_ID_RENAME = 2;
+    private static final int MENU_ITEM_ID_SET_ICON = 3;
+    private static final int MENU_ITEM_ID_ENCRYPT = 4;
+    private static final int MENU_ITEM_ID_DECRYPT = 5;
+    private static final int MENU_ITEM_ID_EXPAND = 6;
+    private static final int MENU_ITEM_ID_COLLAPSE = 7;
+    private static final int MENU_ITEM_ID_CREATE_SUBNODE = 8;
+    private static final int MENU_ITEM_ID_DELETE = 9;
+
 
     private DrawerLayout mDrawerLayout;
     private MultiLevelListView mListViewNodes;
@@ -174,6 +186,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // список веток
         mListViewNodes = findViewById(R.id.nodes_list_view);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
+        mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
+        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
 //        mListViewNodes.setEmptyView(mTextViewNodesEmpty);
         // список меток
@@ -705,7 +719,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private OnItemClickListener onNodeClickListener = new OnItemClickListener() {
 
         /**
-         * Клик на конечной ветке
+         * Клик на конечной ветке.
          */
         @Override
         public void onItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
@@ -713,7 +727,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         /**
-         * Клик на родительской ветке
+         * Клик на родительской ветке.
          */
         @Override
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
@@ -725,6 +739,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // как остановить дальнейшее выполнение, чтобы не стабатывал Expander?
 //                return;
             }
+        }
+    };
+
+    /**
+     * Обработчик долгого клика на ветках.
+     */
+    private OnItemLongClickListener onNodeLongClickListener = new OnItemLongClickListener() {
+
+        @Override
+        public void onItemLongClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
+
         }
     };
 
@@ -972,6 +997,27 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
         mViewPager.setPagingEnabled(isVisible);
         mTitleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Обработчик создания контекстного меню при долгом тапе на ветке.
+     * @param menu
+     * @param v
+     * @param menuInfo
+     */
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_NODE, Menu.NONE, getString(R.string.show_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_RENAME, Menu.NONE, getString(R.string.rename_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_SET_ICON, Menu.NONE, getString(R.string.set_node_icon));
+        menu.add(Menu.NONE, MENU_ITEM_ID_ENCRYPT, Menu.NONE, getString(R.string.encrypt_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_DECRYPT, Menu.NONE, getString(R.string.decrypt_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_EXPAND, Menu.NONE, getString(R.string.expand_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_COLLAPSE, Menu.NONE, getString(R.string.collapse_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_CREATE_SUBNODE, Menu.NONE, getString(R.string.create_subnode));
+        menu.add(Menu.NONE, MENU_ITEM_ID_DELETE, Menu.NONE, getString(R.string.delete_node));
     }
 
     /**

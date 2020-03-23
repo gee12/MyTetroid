@@ -239,4 +239,13 @@
     <string name="record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
     <string name="record_deleted">Запись удалена</string>
+    <string name="show_node">Открыть ветку</string>
+    <string name="rename_node">Переименовать</string>
+    <string name="set_node_icon">Иконка</string>
+    <string name="encrypt_node">Зашифровать</string>
+    <string name="decrypt_node">Расшифровать</string>
+    <string name="expand_node">Развернуть</string>
+    <string name="collapse_node">Свернуть</string>
+    <string name="create_subnode">Добавить подветку</string>
+    <string name="delete_node">Удалить</string>
 </resources>

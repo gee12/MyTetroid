@@ -59,7 +59,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.2.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
+//    implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
@@ -67,4 +67,5 @@ dependencies {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
     implementation(project(path: ':folder-picker'))
+    implementation(project(path: ':multi-listview'))
 }
