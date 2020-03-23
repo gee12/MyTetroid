@@ -236,4 +236,7 @@
     <string name="title_edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
+    <string name="record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
+    <string name="record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
+    <string name="record_deleted">Запись удалена</string>
 </resources>

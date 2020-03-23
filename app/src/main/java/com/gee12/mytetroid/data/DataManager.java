@@ -486,25 +486,46 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      * Удаление записи.
      * @param record
-     * @return
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
      */
-    public static boolean deleteRecord(TetroidRecord record) {
+    public static int deleteRecord(TetroidRecord record, boolean withoutDir) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
-            return false;
+            return 0;
         }
         LogManager.addLog(context.getString(R.string.start_record_deleting), LogManager.Types.INFO);
+
+        String dirPath = null;
+        File folder = null;
+        // удаляем каталог записи
+        if (!withoutDir) {
+            dirPath = getStoragePathBase() + File.separator + record.getDirName();
+            Uri dirUri;
+            try {
+                dirUri = Uri.parse(dirPath);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + dirPath, ex);
+                return 0;
+            }
+            folder = new File(dirUri.getPath());
+            if (!folder.exists()) {
+                LogManager.addLog(context.getString(R.string.record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
+                return -1;
+            }
+        }
 
         // удаляем запись из ветки (и соответственно, из коллекции)
         TetroidNode node = record.getNode();
         if (node != null) {
             if (!node.getRecords().remove(record)) {
                 LogManager.addLog(context.getString(R.string.not_found_record_in_node), LogManager.Types.ERROR);
-                return false;
+                return 0;
             }
         } else {
             LogManager.addLog(context.getString(R.string.record_not_have_node), LogManager.Types.ERROR);
-            return false;
+            return 0;
         }
 
         // перезаписываем структуру хранилища в файл
@@ -520,24 +541,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             instance.deleteRecordTags(record);
         } else {
             LogManager.addLog(context.getString(R.string.cancel_record_deleting), LogManager.Types.ERROR);
-            return false;
+            return 0;
         }
 
         // удаляем каталог записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        Uri dirUri;
-        try {
-            dirUri = Uri.parse(dirPath);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.error_generate_record_folder_path) + dirPath, ex);
-            return false;
+        if (!withoutDir) {
+            if (!FileUtils.deleteRecursive(folder)) {
+                LogManager.addLog(context.getString(R.string.error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+                return 0;
+            }
         }
-        File folder = new File(dirUri.getPath());
-        if (!FileUtils.deleteRecursive(folder)) {
-            LogManager.addLog(context.getString(R.string.error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
-            return false;
-        }
-        return true;
+        return 1;
     }
 
     /**

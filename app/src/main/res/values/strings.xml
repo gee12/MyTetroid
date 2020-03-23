@@ -275,4 +275,7 @@
     <string name="title_edit_record_fields">Edit properties</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
+    <string name="record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
+    <string name="record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
+    <string name="record_deleted">Record deleted</string>
 </resources>

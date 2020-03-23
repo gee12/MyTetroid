@@ -138,4 +138,17 @@ public class AskDialogs {
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
+
+    public static void deleteRecordWithoutDir(Context context, final IApplyResult applyHandler) {
+
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(R.string.record_delete_without_dir)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    }
 }

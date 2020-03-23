@@ -29,6 +29,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.AddRecordDialog;
+import com.gee12.mytetroid.views.AskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -358,10 +359,28 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void deleteRecord(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        if (DataManager.deleteRecord(record)) {
+        int res = DataManager.deleteRecord(record, false);
+        if (res == -1) {
+            AskDialogs.deleteRecordWithoutDir(getContext(), () -> {
+                int res1 = DataManager.deleteRecord(record, true);
+                onDeleteRecordResult(record, res1);
+            });
+        } else {
+            onDeleteRecordResult(record, res);
+        }
+    }
+
+    /**
+     * Обработка результата удаления записи.
+     * @param record
+     * @param res
+     */
+    private void onDeleteRecordResult(TetroidRecord record, int res) {
+        if (res > 0) {
             mListAdapterRecords.getDataSet().remove(record);
             mListAdapterRecords.notifyDataSetChanged();
             mMainView.updateTags();
+            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
