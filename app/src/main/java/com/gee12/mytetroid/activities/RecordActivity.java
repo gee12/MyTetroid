@@ -318,9 +318,9 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.addLog(getString(R.string.url_decode_error) + url, ex);
             return;
         }
-        if (decodedUrl.startsWith(TetroidTag.TAG_LINKS_PREF)) {
+        if (decodedUrl.startsWith(TetroidTag.LINKS_PREFIX)) {
             // избавляемся от приставки "tag:"
-            String tagName = decodedUrl.substring(TetroidTag.TAG_LINKS_PREF.length());
+            String tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length());
             openTag(tagName, true);
         } else {
             LogManager.addLog(getString(R.string.wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);

@@ -86,14 +86,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
     private static final int MENU_ITEM_ID_OPEN_NODE = 1;
-    private static final int MENU_ITEM_ID_RENAME = 2;
-    private static final int MENU_ITEM_ID_SET_ICON = 3;
-    private static final int MENU_ITEM_ID_ENCRYPT = 4;
-    private static final int MENU_ITEM_ID_DECRYPT = 5;
-    private static final int MENU_ITEM_ID_EXPAND = 6;
-    private static final int MENU_ITEM_ID_COLLAPSE = 7;
-    private static final int MENU_ITEM_ID_CREATE_SUBNODE = 8;
-    private static final int MENU_ITEM_ID_DELETE = 9;
+    private static final int MENU_ITEM_ID_ADD_SUBNODE = 2;
+    private static final int MENU_ITEM_ID_NODE_RENAME = 3;
+    private static final int MENU_ITEM_ID_NODE_SET_ICON = 4;
+    private static final int MENU_ITEM_ID_NODE_ENCRYPT = 5;
+    private static final int MENU_ITEM_ID_NODE_DECRYPT = 6;
+    private static final int MENU_ITEM_ID_NODE_EXPAND = 7;
+    private static final int MENU_ITEM_ID_NODE_COLLAPSE = 8;
+    private static final int MENU_ITEM_ID_CREATE_SUBNODE = 9;
+    private static final int MENU_ITEM_ID_NODE_MOVE_UP = 10;
+    private static final int MENU_ITEM_ID_NODE_MOVE_DOWN = 11;
+    private static final int MENU_ITEM_ID_NODE_DELETE = 12;
+    private static final int MENU_ITEM_ID_NODE_COPY_LINK = 13;
 
 
     private DrawerLayout mDrawerLayout;
@@ -1010,14 +1014,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_NODE, Menu.NONE, getString(R.string.show_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_RENAME, Menu.NONE, getString(R.string.rename_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_SET_ICON, Menu.NONE, getString(R.string.set_node_icon));
-        menu.add(Menu.NONE, MENU_ITEM_ID_ENCRYPT, Menu.NONE, getString(R.string.encrypt_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_DECRYPT, Menu.NONE, getString(R.string.decrypt_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_EXPAND, Menu.NONE, getString(R.string.expand_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_COLLAPSE, Menu.NONE, getString(R.string.collapse_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_ADD_SUBNODE, Menu.NONE,getString(R.string.create_subnode));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_RENAME, Menu.NONE, getString(R.string.rename_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_SET_ICON, Menu.NONE, getString(R.string.set_node_icon));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_COPY_LINK, Menu.NONE, getString(R.string.copy_link));
+//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_ENCRYPT, Menu.NONE, getString(R.string.encrypt_node));
+//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_DECRYPT, Menu.NONE, getString(R.string.decrypt_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_EXPAND, Menu.NONE, getString(R.string.expand_node_subnodes));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_COLLAPSE, Menu.NONE, getString(R.string.collapse_node_subnodes));
         menu.add(Menu.NONE, MENU_ITEM_ID_CREATE_SUBNODE, Menu.NONE, getString(R.string.create_subnode));
-        menu.add(Menu.NONE, MENU_ITEM_ID_DELETE, Menu.NONE, getString(R.string.delete_node));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_MOVE_UP, Menu.NONE, getString(R.string.move_up));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_MOVE_DOWN, Menu.NONE, getString(R.string.move_down));
+        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_DELETE, Menu.NONE, getString(R.string.delete_node));
     }
 
     /**

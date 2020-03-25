@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TetroidNode extends TetroidObject {
+
+    public static final String PREFIX = "branch";
+
     private int level;
     private List<TetroidNode> subNodes;
     private List<TetroidRecord> records;
@@ -125,4 +128,8 @@ public class TetroidNode extends TetroidObject {
         return !subNodes.isEmpty() /*&& isNonCryptedOrDecrypted()*/;
     }
 
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
 }

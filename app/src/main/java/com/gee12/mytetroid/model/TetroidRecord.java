@@ -7,6 +7,8 @@ import java.util.List;
 
 public class TetroidRecord extends TetroidObject {
 
+    public static final String PREFIX = "note";
+
     public static int FIELD_ID = 1;
     public static int FIELD_DIR_NAME = 2;
     public static final String DEF_FILE_NAME = "text.html";
@@ -145,5 +147,10 @@ public class TetroidRecord extends TetroidObject {
 
     public void setIsNew(boolean isNew) {
         this.isNew = isNew;
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
     }
 }

@@ -1,12 +1,17 @@
 package com.gee12.mytetroid.model;
 
+import java.util.Locale;
+
+/**
+ * Объект хранилища.
+ */
 public class TetroidObject implements ITetroidObject {
 
-    public static final String MYTETRA_PREFIX = "mytetra:";
-    public static final String MYTETRA_RECORD_PREFIX = MYTETRA_PREFIX + "//note/";
-    public static final String MYTETRA_NODE_PREFIX = MYTETRA_PREFIX + "//branch/";
-    public static final String MYTETRA_TAG_PREFIX = MYTETRA_PREFIX + "//tag/";
-    public static final String MYTETRA_FILE_PREFIX = MYTETRA_PREFIX + "//file/";
+    public static final String MYTETRA_LINK_PREFIX = "mytetra:";
+//    public static final String MYTETRA_RECORD_PREFIX = MYTETRA_LINK_PREFIX + "//note/";
+//    public static final String MYTETRA_NODE_PREFIX = MYTETRA_LINK_PREFIX + "//branch/";
+//    public static final String MYTETRA_TAG_PREFIX = MYTETRA_LINK_PREFIX + "//tag/";
+//    public static final String MYTETRA_FILE_PREFIX = MYTETRA_LINK_PREFIX + "//file/";
 
     protected int type = FoundType.TYPE_NONE;
     protected String id;
@@ -51,6 +56,10 @@ public class TetroidObject implements ITetroidObject {
         return isDecrypted;
     }
 
+    public String getPrefix() {
+        return "";
+    }
+
     /**
      * Получение признака, что запись не зашифрована.
      * @return True, если не зашифровано (crypt=0), или уже расшифровано.
@@ -68,29 +77,34 @@ public class TetroidObject implements ITetroidObject {
     }
 
     /**
-     *
+     * Формирование ссылки на объект хранилища.
+     * @return
+     */
+    public String createUrl() {
+        return String.format(Locale.getDefault(), "%s//%s/%s", MYTETRA_LINK_PREFIX, getPrefix(), id);
+    }
+
+    /**
+     * Получение объекта хранилища по ссылке.
      * @param url
      * @return
      */
     public static TetroidObject parseUrl(String url) {
-        if (url.startsWith(MYTETRA_PREFIX)) {
+        if (url == null)
+            return null;
+        if (url.startsWith(MYTETRA_LINK_PREFIX)) {
             int type = FoundType.TYPE_NONE;
             String id = "";
             // ссылка на запись типа "mytetra://<type>/<id>"
-            if (url.startsWith(MYTETRA_RECORD_PREFIX)) {
-                id = parseId(url, MYTETRA_RECORD_PREFIX);
+            if ((id = parseId(url, TetroidRecord.PREFIX)) != null) {
                 type = FoundType.TYPE_RECORD;
-            } else if (url.startsWith(MYTETRA_NODE_PREFIX)) {
-                id = parseId(url, MYTETRA_NODE_PREFIX);
+            } else if ((id = parseId(url, TetroidNode.PREFIX)) != null) {
                 type = FoundType.TYPE_NODE;
-            } else if (url.startsWith(MYTETRA_TAG_PREFIX)) {
-                id = parseId(url, MYTETRA_TAG_PREFIX);
+            } else if ((id = parseId(url, TetroidTag.PREFIX)) != null) {
                 type = FoundType.TYPE_TAG;
-            } else if (url.startsWith(MYTETRA_FILE_PREFIX)) {
-                id = parseId(url, MYTETRA_FILE_PREFIX);
+            } else if ((id = parseId(url, TetroidFile.PREFIX)) != null) {
                 type = FoundType.TYPE_FILE;
             }
-
             return new TetroidObject(type, id);
         }
         return null;
@@ -103,12 +117,15 @@ public class TetroidObject implements ITetroidObject {
      * @return
      */
     public static String parseId(String url, String prefix) {
+        String start = String.format(Locale.getDefault(), "%s//%s/", MYTETRA_LINK_PREFIX, prefix);
+        if (url.startsWith(start)) {
 //        String id = url.substring(url.lastIndexOf('/')+1);
-        String id = url.replace(prefix, "");
 
-        // TODO: Обрезать лишние символы вконце ? (н-р, символы '/' и т.д.)
+            // TODO: Обрезать лишние символы вконце ? (н-р, символы '/' и т.д.)
 
-        return id;
+            return url.replace(start, "");
+        }
+        return null;
     }
 
 }

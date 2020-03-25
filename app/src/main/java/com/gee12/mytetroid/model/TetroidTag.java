@@ -5,7 +5,8 @@ import java.util.List;
 
 public class TetroidTag extends TetroidObject {
 
-    public static final String TAG_LINKS_PREF = "tag:"; //implements Map.Entry<String, List<TetroidRecord>> {
+    public static final String PREFIX = "tag";
+    public static final String LINKS_PREFIX = PREFIX + ":"; //implements Map.Entry<String, List<TetroidRecord>> {
 
 //    private String name;
     private List<TetroidRecord> records;
@@ -60,7 +61,7 @@ public class TetroidTag extends TetroidObject {
         sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;margin:0px;\">");
         for (TetroidTag tag : record.getTags()) {
             // #303F9F - это colorBlueDark
-            sb.append("<a href=\"").append(TAG_LINKS_PREF).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
+            sb.append("<a href=\"").append(LINKS_PREFIX).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
                     append(tag.getName()).append("</a>");
             if (--size > 0)
                 sb.append(", ");
@@ -120,4 +121,8 @@ public class TetroidTag extends TetroidObject {
         }
     }
 
+    @Override
+    public String getPrefix() {
+        return PREFIX;
+    }
 }

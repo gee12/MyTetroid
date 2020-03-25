@@ -48,7 +48,10 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MENU_ITEM_ID_SHOW_FILES = 2;
     public static final int MENU_ITEM_ID_OPEN_RECORD_FOLDER = 3;
     public static final int MENU_ITEM_ID_EDIT_FIELDS = 4;
-    public static final int MENU_ITEM_ID_DELETE_RECORD = 5;
+    public static final int MENU_ITEM_ID_RECORD_COPY_LINK = 5;
+    public static final int MENU_ITEM_ID_RECORD_MOVE_UP = 6;
+    public static final int MENU_ITEM_ID_RECORD_MOVE_DOWN = 7;
+    public static final int MENU_ITEM_ID_DELETE_RECORD = 8;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -353,6 +356,15 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateTags();
     }
 
+    private void copyRecordLink(int position) {
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+        if (record != null) {
+            Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), record.createUrl());
+        } else {
+            LogManager.addLog(getString(R.string.get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
     /**
      * Удаление записи.
      * @param position
@@ -432,7 +444,10 @@ public class MainPageFragment extends TetroidFragment {
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD, Menu.NONE, R.string.show_record_content);
         menu.add(Menu.NONE, MENU_ITEM_ID_SHOW_FILES, Menu.NONE, R.string.show_attached_files);
         menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD_FOLDER, Menu.NONE, R.string.open_record_folder);
-        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.title_edit_record_fields);
+        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.edit_record_fields);
+        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_COPY_LINK, Menu.NONE, R.string.copy_link);
+        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_MOVE_UP, Menu.NONE, getString(R.string.move_up));
+        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_MOVE_DOWN, Menu.NONE, getString(R.string.move_down));
         menu.add(Menu.NONE, MENU_ITEM_ID_DELETE_RECORD, Menu.NONE, R.string.menu_item_delete);
     }
 
@@ -456,6 +471,9 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case MENU_ITEM_ID_EDIT_FIELDS:
                 editRecordFields(info.position);
+                return true;
+            case MENU_ITEM_ID_RECORD_COPY_LINK:
+                copyRecordLink(info.position);
                 return true;
             case MENU_ITEM_ID_DELETE_RECORD:
                 deleteRecord(info.position);

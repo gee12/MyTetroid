@@ -272,7 +272,7 @@
     <string name="menu_item_delete">Remove</string>
     <string name="cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>
     <string name="cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>
-    <string name="title_edit_record_fields">Edit properties</string>
+    <string name="edit_record_fields">Edit properties</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
     <string name="record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
@@ -283,8 +283,13 @@
     <string name="set_node_icon">Icon</string>
     <string name="encrypt_node">Encrypt</string>
     <string name="decrypt_node">Decrypt</string>
-    <string name="expand_node">Expand</string>
-    <string name="collapse_node">Collapse</string>
+    <string name="expand_node_subnodes">Expand all subnodes</string>
+    <string name="collapse_node_subnodes">Collapse all subnodes</string>
     <string name="create_subnode">Create subnode</string>
     <string name="delete_node">Delete</string>
+    <string name="move_up">Переместить вверх</string>
+    <string name="move_down">Переместить вниз</string>
+    <string name="copy_link">Копировать ссылку</string>
+    <string name="get_item_is_null">Unable to get current list item</string>
+    <string name="link_to_record">Link to MyTetroid record</string>
 </resources>

@@ -31,7 +31,7 @@
     <item
         android:id="@+id/action_record_edit_fields"
         android:orderInCategory="45"
-        android:title="@string/title_edit_record_fields"
+        android:title="@string/edit_record_fields"
         android:icon="@android:drawable/ic_menu_set_as"
         app:showAsAction="never" />
     <item

@@ -233,7 +233,7 @@
     <string name="menu_item_delete">Удалить</string>
     <string name="cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
-    <string name="title_edit_record_fields">Редактировать свойства</string>
+    <string name="edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
     <string name="record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
@@ -244,8 +244,13 @@
     <string name="set_node_icon">Иконка</string>
     <string name="encrypt_node">Зашифровать</string>
     <string name="decrypt_node">Расшифровать</string>
-    <string name="expand_node">Развернуть</string>
-    <string name="collapse_node">Свернуть</string>
+    <string name="expand_node_subnodes">Развернуть все подветки</string>
+    <string name="collapse_node_subnodes">Свернуть все подветки</string>
     <string name="create_subnode">Добавить подветку</string>
     <string name="delete_node">Удалить</string>
+    <string name="move_up">Переместить вверх</string>
+    <string name="move_down">Переместить вниз</string>
+    <string name="copy_link">Копировать ссылку</string>
+    <string name="get_item_is_null">Не удается получить текущий элемент списка</string>
+    <string name="link_to_record">Ссылка на запись MyTetroid</string>
 </resources>
