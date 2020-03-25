@@ -28,8 +28,8 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.AddRecordDialog;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.RecordFieldsDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -237,7 +237,7 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        AddRecordDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
+        RecordFieldsDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
             if (record != null) {
                 mListAdapterRecords.notifyDataSetInvalidated();
@@ -339,7 +339,7 @@ public class MainPageFragment extends TetroidFragment {
     private void editRecordFields(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
 
-        AddRecordDialog.createTextSizeDialog(getContext(), record, (name, tags, author, url) -> {
+        RecordFieldsDialog.createTextSizeDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
             } else {

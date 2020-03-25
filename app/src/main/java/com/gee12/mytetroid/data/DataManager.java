@@ -358,6 +358,35 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return "image" + createUniqueId() + ".png";
     }
 
+
+    /**
+     * Изменение свойств ветки.
+     * @param node
+     * @param name
+     * @return
+     */
+    public static boolean editNodeFields(TetroidNode node, String name) {
+        if (node == null || TextUtils.isEmpty(name)) {
+            LogManager.emptyParams("DataManager.editNodeFields()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.start_node_changing), LogManager.Types.INFO);
+
+        String oldName = node.getName();
+        // обновляем поля
+        node.setName(name);
+
+        // перезаписываем структуру хранилища в файл
+        if (!saveStorage()) {
+            LogManager.addLog(context.getString(R.string.cancel_node_changing), LogManager.Types.ERROR);
+            // возвращаем изменения
+            node.setName(oldName);
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      * Создание записи (пустую без текста):
      * 1) создание каталога для записи
@@ -447,10 +476,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean editRecordFields(TetroidRecord record, String name, String tagsString, String author, String url) {
         if (record == null || TextUtils.isEmpty(name)) {
-            LogManager.emptyParams("DataManager.createRecord()");
+            LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.start_record_creating), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.start_record_changing), LogManager.Types.INFO);
 
         String oldName = record.getName();
         String oldAuthor = record.getAuthor();
@@ -472,7 +501,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 instance.parseRecordTags(record, tagsString);
             }
         } else {
-            LogManager.addLog(context.getString(R.string.cancel_record_creating), LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.cancel_record_changing), LogManager.Types.ERROR);
             // возвращаем изменения
             record.setName(oldName);
             record.setAuthor(oldAuthor);

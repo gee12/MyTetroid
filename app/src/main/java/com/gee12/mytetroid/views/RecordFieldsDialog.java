@@ -17,9 +17,9 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
 
 import java.util.Random;
 
-public class AddRecordDialog {
+public class RecordFieldsDialog {
 
-    public interface INewRecordResult {
+    public interface IRecordFieldsResult {
         void onApply(String name, String tags, String author, String url);
     }
 
@@ -28,7 +28,7 @@ public class AddRecordDialog {
      * @param context
      * @param handler
      */
-    public static void createTextSizeDialog(Context context, TetroidRecord record, INewRecordResult handler) {
+    public static void createTextSizeDialog(Context context, TetroidRecord record, IRecordFieldsResult handler) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);

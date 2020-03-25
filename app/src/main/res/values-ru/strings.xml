@@ -217,7 +217,9 @@
     <string name="record_delete_error">Не удается удалить запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
+    <string name="start_node_changing">Начало редактирования свойств ветки</string>
     <string name="start_record_creating">Начало создания записи</string>
+    <string name="start_record_changing">Начало редактирования свойств записи</string>
     <string name="start_record_fields_editing">Начало изменения свойств записи</string>
     <string name="start_record_deleting">Начало удаления записи</string>
     <string name="crypted_node_name">Закрыто</string>
@@ -231,7 +233,9 @@
     <string name="record_not_have_node">У записи не указана ветка</string>
     <string name="not_found_record_in_node">Не найдена запись в списке записей ветки</string>
     <string name="menu_item_delete">Удалить</string>
+    <string name="cancel_node_changing">Отмена редактирования свойств ветки, т.к. не удалось сохранить mytetra.xml</string>
     <string name="cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="cancel_record_changing">Отмена редактирования свойств записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>

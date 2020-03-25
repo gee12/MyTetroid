@@ -58,6 +58,7 @@ import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainViewPager;
+import com.gee12.mytetroid.views.NodeFieldsDialog;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.google.android.material.navigation.NavigationView;
 
@@ -594,13 +595,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение записей ветки.
-     * @param position
+     * @param node
      */
-    private void showNode(int position) {
-        TetroidNode node = mListAdapterNodes.getItem(position);
-        showNode(node);
-    }
-
     private void showNode(TetroidNode node) {
         if (node == null)
             return;
@@ -1008,13 +1004,28 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Копирование ссылки на ветку в буфер обмена.
      */
-    private void copyNodeLink(int position) {
-        TetroidNode node = mListAdapterNodes.getItem(position);
+    private void copyNodeLink(TetroidNode node) {
         if (node != null) {
             Utils.writeToClipboard(this, getString(R.string.link_to_node), node.createUrl());
         } else {
             LogManager.addLog(getString(R.string.get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
+    }
+
+    /**
+     * Переименование ветки.
+     * @param node
+     */
+    private void renameNode(TetroidNode node) {
+        NodeFieldsDialog.createTextSizeDialog(this, node, (name) -> {
+            if (DataManager.editNodeFields(node, name)) {
+                setTitle(name);
+                // TODO: обновить список
+                mListAdapterNodes.notifyDataSetChanged();
+            } else {
+                LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
     }
 
     /**
@@ -1049,18 +1060,25 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        TetroidNode node = mListAdapterNodes.getItem(info.position);
+        if (node == null) {
+            LogManager.addLog(getString(R.string.get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return true;
+        }
+
         switch (item.getItemId()) {
             case MENU_ITEM_ID_OPEN_NODE:
-                showNode(info.position);
+                showNode(node);
                 return true;
             case MENU_ITEM_ID_CREATE_SUBNODE:
                 return true;
             case MENU_ITEM_ID_NODE_RENAME:
+                renameNode(node);
                 return true;
             case MENU_ITEM_ID_NODE_SET_ICON:
                 return true;
             case MENU_ITEM_ID_NODE_COPY_LINK:
-                copyNodeLink(info.position);
+                copyNodeLink(node);
                 return true;
             case MENU_ITEM_ID_NODE_ENCRYPT:
                 return true;

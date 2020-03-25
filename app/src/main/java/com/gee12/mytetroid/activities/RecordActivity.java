@@ -29,8 +29,8 @@ import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.gee12.mytetroid.views.AddRecordDialog;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.RecordFieldsDialog;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
@@ -592,10 +592,10 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void editFields() {
-        AddRecordDialog.createTextSizeDialog(this, mRecord, (name, tags, author, url) -> {
+        RecordFieldsDialog.createTextSizeDialog(this, mRecord, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(mRecord, name, tags, author, url)) {
                 this.mIsFieldsEdited = true;
-                setTitle(mRecord.getName());
+                setTitle(name);
                 loadFields(mRecord);
             } else {
                 LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
