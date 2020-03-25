@@ -253,4 +253,5 @@
     <string name="copy_link">Копировать ссылку</string>
     <string name="get_item_is_null">Не удается получить текущий элемент списка</string>
     <string name="link_to_record">Ссылка на запись MyTetroid</string>
+    <string name="link_to_node">Ссылка на ветку MyTetroid</string>
 </resources>

@@ -356,6 +356,10 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateTags();
     }
 
+    /**
+     * Копирование ссылки на запись в буфер обмена.
+     * @param position
+     */
     private void copyRecordLink(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
         if (record != null) {
@@ -452,7 +456,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Обработчик выбора пунктов контекстного меню записи
+     * Обработчик выбора пунктов контекстного меню записи.
      * @param item
      * @return
      */
@@ -474,6 +478,10 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case MENU_ITEM_ID_RECORD_COPY_LINK:
                 copyRecordLink(info.position);
+                return true;
+            case MENU_ITEM_ID_RECORD_MOVE_UP:
+                return true;
+            case MENU_ITEM_ID_RECORD_MOVE_DOWN:
                 return true;
             case MENU_ITEM_ID_DELETE_RECORD:
                 deleteRecord(info.position);
