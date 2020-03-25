@@ -28,8 +28,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.AskDialogs;
-import com.gee12.mytetroid.views.RecordFieldsDialog;
+import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -237,7 +236,7 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        RecordFieldsDialog.createTextSizeDialog(getContext(), null, (name, tags, author, url) -> {
+        RecordAskDialogs.createRecordFieldsDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
             if (record != null) {
                 mListAdapterRecords.notifyDataSetInvalidated();
@@ -339,7 +338,7 @@ public class MainPageFragment extends TetroidFragment {
     private void editRecordFields(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
 
-        RecordFieldsDialog.createTextSizeDialog(getContext(), record, (name, tags, author, url) -> {
+        RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
             } else {
@@ -375,15 +374,17 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void deleteRecord(int position) {
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        int res = DataManager.deleteRecord(record, false);
-        if (res == -1) {
-            AskDialogs.deleteRecordWithoutDir(getContext(), () -> {
-                int res1 = DataManager.deleteRecord(record, true);
-                onDeleteRecordResult(record, res1);
-            });
-        } else {
-            onDeleteRecordResult(record, res);
-        }
+        RecordAskDialogs.deleteRecord(getContext(), () -> {
+            int res = DataManager.deleteRecord(record, false);
+            if (res == -1) {
+                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteRecord(record, true);
+                    onDeleteRecordResult(record, res1);
+                });
+            } else {
+                onDeleteRecordResult(record, res);
+            }
+        });
     }
 
     /**

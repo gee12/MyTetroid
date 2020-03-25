@@ -217,7 +217,9 @@
     <string name="record_delete_error">Не удается удалить запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="wrong_tag_link_format">Неверный формат ссылки на метку</string>
+    <string name="start_node_creating">Начало создания ветки</string>
     <string name="start_node_changing">Начало редактирования свойств ветки</string>
+    <string name="start_node_deleting">Начало удаления ветки</string>
     <string name="start_record_creating">Начало создания записи</string>
     <string name="start_record_changing">Начало редактирования свойств записи</string>
     <string name="start_record_fields_editing">Начало изменения свойств записи</string>
@@ -240,7 +242,9 @@
     <string name="edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
+    <string name="node_delete">Удалить ветку ?</string>
     <string name="record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
+    <string name="record_delete">Удалить запись ?</string>
     <string name="record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
     <string name="record_deleted">Запись удалена</string>
     <string name="show_node">Открыть ветку</string>
@@ -258,4 +262,6 @@
     <string name="get_item_is_null">Не удается получить текущий элемент списка</string>
     <string name="link_to_record">Ссылка на запись MyTetroid</string>
     <string name="link_to_node">Ссылка на ветку MyTetroid</string>
+    <string name="save_record">Сохранить запись?</string>
+    <string name="not_found_node">Не удалось найти ветку в коллекции</string>
 </resources>

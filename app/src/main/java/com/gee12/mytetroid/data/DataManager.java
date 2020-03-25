@@ -388,6 +388,59 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
 
     /**
+     * Удаление ветки.
+     * @param node
+     * @return
+     */
+    public static boolean deleteNode(TetroidNode node) {
+        if (node == null) {
+            LogManager.emptyParams("DataManager.deleteNode()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.start_node_deleting), LogManager.Types.INFO);
+
+        // удаляем ветку из коллекции
+        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
+            LogManager.addLog(context.getString(R.string.not_found_node), LogManager.Types.ERROR);
+            return false;
+        }
+
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+
+            // FIXME: пересчитать ветки заново
+
+            instance.nodesCount--;
+            instance.cryptedNodesCount--;
+            instance.authorsCount--;
+            instance.filesCount--;
+
+            // FIXME: перезагружаем список меток
+
+        } else {
+            LogManager.addLog(context.getString(R.string.cancel_record_deleting), LogManager.Types.ERROR);
+            return false;
+        }
+        return true;
+    }
+
+
+    public static boolean deleteNodeInHierarchy(List<TetroidNode> nodes, TetroidNode nodeToDelete) {
+        if (nodeToDelete == null)
+            return false;
+        for (TetroidNode node : nodes) {
+            if (nodeToDelete.equals(node)) {
+                return nodes.remove(nodeToDelete);
+            } else if (node.isExpandable()) {
+                if (deleteNodeInHierarchy(node.getSubNodes(), nodeToDelete))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Создание записи (пустую без текста):
      * 1) создание каталога для записи
      * 2) добавление в структуру mytetra.xml
@@ -565,7 +618,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             if (!StringUtil.isBlank(record.getAuthor()))
                 instance.authorsCount--;
             if (record.getAttachedFilesCount() > 0)
-                instance.authorsCount -= record.getAttachedFilesCount();
+                instance.filesCount -= record.getAttachedFilesCount();
             // перезагружаем список меток
             instance.deleteRecordTags(record);
         } else {

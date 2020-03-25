@@ -30,7 +30,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
-import com.gee12.mytetroid.views.RecordFieldsDialog;
+import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
@@ -472,7 +472,7 @@ public class RecordActivity extends TetroidActivity implements
                 saveRecord();
             } else if (showAskDialog) {
                 // спрашиваем о сохранении, если нужно
-                AskDialogs.showSaveDialog(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
+                RecordAskDialogs.saveRecord(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         saveRecord();
@@ -592,7 +592,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void editFields() {
-        RecordFieldsDialog.createTextSizeDialog(this, mRecord, (name, tags, author, url) -> {
+        RecordAskDialogs.createRecordFieldsDialog(this, mRecord, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(mRecord, name, tags, author, url)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);

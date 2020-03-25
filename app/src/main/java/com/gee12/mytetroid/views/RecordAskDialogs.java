@@ -12,40 +12,54 @@ import androidx.appcompat.app.AlertDialog;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
 
 import java.util.Random;
 
-public class NodeFieldsDialog {
+public class RecordAskDialogs {
 
-    public interface INodeFieldsResult {
-        void onApply(String name);
+    public interface IRecordFieldsResult {
+        void onApply(String name, String tags, String author, String url);
     }
 
     /**
-     * Диалог создания/изменения ветки.
+     * Диалог создания/изменения записи.
      * @param context
      * @param handler
      */
-    public static void createTextSizeDialog(Context context, TetroidNode node, INodeFieldsResult handler) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
+    public static void createRecordFieldsDialog(Context context, TetroidRecord record, IRecordFieldsResult handler) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
+        EditText etAuthor = builder.getView().findViewById(R.id.edit_text_author);
+        EditText etUrl = builder.getView().findViewById(R.id.edit_text_url);
+        EditText etTags = builder.getView().findViewById(R.id.edit_text_tags);
 
-        if (BuildConfig.DEBUG && node == null) {
+        if (BuildConfig.DEBUG && record == null) {
             Random rand = new Random();
             int num = Math.abs(rand.nextInt());
-            etName.setText("node " + num);
+            etName.setText("record " + num);
+            etAuthor.setText("author " + num);
+            etUrl.setText("http://url" + num + ".com");
+            etTags.setText("new record , tag " + num);
         }
 
-        if (node != null) {
-            etName.setText(node.getName());
+        if (record != null) {
+            etName.setText(record.getName());
             etName.setSelection(0, etName.getText().length());
+            etAuthor.setText(record.getAuthor());
+            etUrl.setText(record.getUrl());
+//            String tagsString = Jsoup.parse(record.getTagsString()).toString();
+            String tagsString = record.getTagsString();
+            etTags.setText(tagsString);
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            handler.onApply(etName.getText().toString());
+            handler.onApply(etName.getText().toString(),
+                    etTags.getText().toString(),
+                    etAuthor.getText().toString(),
+                    etUrl.getText().toString());
         }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();
@@ -77,5 +91,17 @@ public class NodeFieldsDialog {
                 okButton.setEnabled(!TextUtils.isEmpty(s));
             }
         });
+    }
+
+    public static void saveRecord(Context context, final AskDialogs.IApplyCancelResult applyHandler) {
+        AskDialogs.showYesNoDialog(context, applyHandler, R.string.save_record);
+    }
+
+    public static void deleteRecord(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.record_delete);
+    }
+
+    public static void deleteRecordWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.record_delete_without_dir);
     }
 }

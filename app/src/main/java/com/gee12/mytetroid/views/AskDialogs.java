@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.text.InputType;
 import android.widget.EditText;
 
+import androidx.annotation.StringRes;
+
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
@@ -65,90 +67,59 @@ public class AskDialogs {
     }
 
     public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    applyHandler.onApply();
-                    break;
-//                    case DialogInterface.BUTTON_NEGATIVE:
-//                        applyHandler.onCancel();
-//                        break;
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.storage_path_was_changed)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        AskDialogs.showYesDialog(context, applyHandler, R.string.storage_path_was_changed);
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         int mesRes = (isSyncSuccess) ? R.string.sync_success_dialog_request : R.string.sync_failed_dialog_request;
-        builder.setMessage(mesRes)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        AskDialogs.showYesDialog(context, applyHandler, mesRes);
     }
 
     public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                applyHandler.onCancel();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(context.getString(R.string.start_sync_dialog_title))
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
-    }
-
-    public static void showSaveDialog(Context context, final IApplyCancelResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                applyHandler.onCancel();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage("Сохранить запись?")
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        AskDialogs.showYesNoDialog(context, applyHandler, R.string.start_sync_dialog_title);
     }
 
     public static void showExitDialog(Context context, final IApplyResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.exit_from_app)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        AskDialogs.showYesDialog(context, applyHandler, R.string.exit_from_app);
     }
 
-    public static void deleteRecordWithoutDir(Context context, final IApplyResult applyHandler) {
+    /**
+     *
+     * @param context
+     * @param applyHandler
+     * @param messageRes
+     */
+    public static void showYesNoDialog(Context context, final IApplyCancelResult applyHandler, @StringRes int messageRes) {
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                applyHandler.onCancel();
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(messageRes)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
 
+    }
+
+    /**
+     *
+     * @param context
+     * @param applyHandler
+     * @param messageRes
+     */
+    public static void showYesDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
         DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 applyHandler.onApply();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.record_delete_without_dir)
+        builder.setMessage(messageRes)
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+
     }
 }

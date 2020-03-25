@@ -58,7 +58,7 @@ import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainViewPager;
-import com.gee12.mytetroid.views.NodeFieldsDialog;
+import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.google.android.material.navigation.NavigationView;
 
@@ -1017,13 +1017,29 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void renameNode(TetroidNode node) {
-        NodeFieldsDialog.createTextSizeDialog(this, node, (name) -> {
+        NodeAskDialogs.createTextSizeDialog(this, node, (name) -> {
             if (DataManager.editNodeFields(node, name)) {
                 setTitle(name);
                 // TODO: обновить список
                 mListAdapterNodes.notifyDataSetChanged();
             } else {
                 LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
+    }
+
+    /**
+     * Удаление ветки.
+     * @param node
+     */
+    private void deleteNode(TetroidNode node) {
+        NodeAskDialogs.deleteNode(this, () -> {
+            if (DataManager.deleteNode(node)) {
+
+                // TODO: заново загружать хранилище ?
+
+            } else {
+
             }
         });
     }

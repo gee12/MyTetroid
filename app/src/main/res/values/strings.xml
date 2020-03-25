@@ -256,7 +256,9 @@
     <string name="record_delete_error">Unable to delete the record (more in the logs)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
     <string name="wrong_tag_link_format">Wrong tag link format</string>
+    <string name="start_node_creating">Start node creating</string>
     <string name="start_node_changing">Start node fields changing</string>
+    <string name="start_node_deleting">Start node deleting</string>
     <string name="start_record_creating">Start record creating</string>
     <string name="start_record_changing">Start record fields changing</string>
     <string name="start_record_fields_editing">Start record fields editing</string>
@@ -277,9 +279,11 @@
     <string name="cancel_record_changing">Cancel record fields changing, as failed to save mytetra.xml</string>
     <string name="cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>
     <string name="edit_record_fields">Edit properties</string>
-    <string name="edit_mode">Редактирование</string>
-    <string name="view_mode">Просмотр</string>
+    <string name="edit_mode">Editing</string>
+    <string name="view_mode">Viewing</string>
+    <string name="node_delete">Delete node ?</string>
     <string name="record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
+    <string name="record_delete">Delete record ?</string>
     <string name="record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
     <string name="record_deleted">Record deleted</string>
     <string name="show_node">Show node</string>
@@ -291,10 +295,12 @@
     <string name="collapse_node_subnodes">Collapse all subnodes</string>
     <string name="create_subnode">Create subnode</string>
     <string name="delete_node">Delete</string>
-    <string name="move_up">Переместить вверх</string>
-    <string name="move_down">Переместить вниз</string>
-    <string name="copy_link">Копировать ссылку</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
+    <string name="copy_link">Copy link</string>
     <string name="get_item_is_null">Unable to get current list item</string>
     <string name="link_to_record">Link to MyTetroid record</string>
     <string name="link_to_node">Link to MyTetroid node</string>
+    <string name="save_record">Save record ?</string>
+    <string name="not_found_node">Node is not found..</string>
 </resources>
