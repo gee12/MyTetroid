@@ -896,36 +896,33 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mSearchViewRecords.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchViewRecords.setIconifiedByDefault(true);
 
-        mSearchViewRecords.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                // "сбрасываем" фильтрацию, но не для только что открытых веток
-                // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
-                // что приводит к повторному открытию списка записей)
-                if (!isNodeOpening) {
-                    switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
-                        case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-                            if (mCurNode != null) {
-                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
-                            }
-                            break;
-                        case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-                            if (mCurTag != null) {
-                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
-                            }
-                            break;
-                        // пока по файлам не ищем
-                   /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                        TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
-                        if (curRecord != null) {
-                            mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
+        mSearchViewRecords.setOnCloseListener(() -> {
+            // "сбрасываем" фильтрацию, но не для только что открытых веток
+            // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
+            // что приводит к повторному открытию списка записей)
+            if (!isNodeOpening) {
+                switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
+                    case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
+                        if (mCurNode != null) {
+                            showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
                         }
-                        break;*/
+                        break;
+                    case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
+                        if (mCurTag != null) {
+                            showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+                        }
+                        break;
+                    // пока по файлам не ищем
+               /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
+                    TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
+                    if (curRecord != null) {
+                        mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                     }
+                    break;*/
                 }
-                MainActivity.this.mIsRecordsFiltered = false;
-                return false;
             }
+            MainActivity.this.mIsRecordsFiltered = false;
+            return false;
         });
     }
 
@@ -1012,9 +1009,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Копирование ссылки на ветку в буфер обмена.
      */
     private void copyNodeLink(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterNodes.getItem(position);
-        if (record != null) {
-            Utils.writeToClipboard(this, getString(R.string.link_to_node), record.createUrl());
+        TetroidNode node = mListAdapterNodes.getItem(position);
+        if (node != null) {
+            Utils.writeToClipboard(this, getString(R.string.link_to_node), node.createUrl());
         } else {
             LogManager.addLog(getString(R.string.get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }

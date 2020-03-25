@@ -126,4 +126,8 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
         return convertView;
     }
+
+    public TetroidNode getItem(int position) {
+        return (TetroidNode) getListView().getAdapter().getItem(position);
+    }
 }
