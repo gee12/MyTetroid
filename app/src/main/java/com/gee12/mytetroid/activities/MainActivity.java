@@ -13,6 +13,7 @@ import android.os.Parcel;
 import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -87,19 +88,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
-    private static final int MENU_ITEM_ID_OPEN_NODE = 1;
-    private static final int MENU_ITEM_ID_CREATE_SUBNODE = 2;
-    private static final int MENU_ITEM_ID_NODE_RENAME = 3;
-    private static final int MENU_ITEM_ID_NODE_SET_ICON = 4;
-    private static final int MENU_ITEM_ID_NODE_ENCRYPT = 5;
-    private static final int MENU_ITEM_ID_NODE_DECRYPT = 6;
-    private static final int MENU_ITEM_ID_NODE_EXPAND = 7;
-    private static final int MENU_ITEM_ID_NODE_COLLAPSE = 8;
-    private static final int MENU_ITEM_ID_NODE_MOVE_UP = 9;
-    private static final int MENU_ITEM_ID_NODE_MOVE_DOWN = 10;
-    private static final int MENU_ITEM_ID_NODE_DELETE = 11;
-    private static final int MENU_ITEM_ID_NODE_COPY_LINK = 12;
-
 
     private DrawerLayout mDrawerLayout;
     private MultiLevelListView mListViewNodes;
@@ -189,7 +177,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         // список веток
-        mListViewNodes = findViewById(R.id.nodes_list_view);
+        mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
         registerForContextMenu(mListViewNodes.getListView());
@@ -1058,18 +1046,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_NODE, Menu.NONE, getString(R.string.show_node));
-        menu.add(Menu.NONE, MENU_ITEM_ID_CREATE_SUBNODE, Menu.NONE, getString(R.string.create_subnode));
-        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_RENAME, Menu.NONE, getString(R.string.rename_node));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_SET_ICON, Menu.NONE, getString(R.string.set_node_icon));
-        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_COPY_LINK, Menu.NONE, getString(R.string.copy_link));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_ENCRYPT, Menu.NONE, getString(R.string.encrypt_node));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_DECRYPT, Menu.NONE, getString(R.string.decrypt_node));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_EXPAND, Menu.NONE, getString(R.string.expand_node_subnodes));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_COLLAPSE, Menu.NONE, getString(R.string.collapse_node_subnodes));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_MOVE_UP, Menu.NONE, getString(R.string.move_up));
-//        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_MOVE_DOWN, Menu.NONE, getString(R.string.move_down));
-        menu.add(Menu.NONE, MENU_ITEM_ID_NODE_DELETE, Menu.NONE, getString(R.string.delete_node));
+        if (v.getId() == R.id.list_view_nodes) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.node_context, menu);
+        }
     }
 
     /**
@@ -1080,39 +1060,40 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        if (info.targetView.getParent() != mListViewNodes)
+            return false;
         TetroidNode node = mListAdapterNodes.getItem(info.position);
         if (node == null) {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return true;
         }
-
         switch (item.getItemId()) {
-            case MENU_ITEM_ID_OPEN_NODE:
+            case R.id.action_open_node:
                 showNode(node);
                 return true;
-            case MENU_ITEM_ID_CREATE_SUBNODE:
+            case R.id.action_create_subnode:
                 return true;
-            case MENU_ITEM_ID_NODE_RENAME:
+            case R.id.action_rename_node:
                 renameNode(node);
                 return true;
-            case MENU_ITEM_ID_NODE_SET_ICON:
+            case R.id.action_node_icon:
                 return true;
-            case MENU_ITEM_ID_NODE_COPY_LINK:
+            case R.id.action_copy_link:
                 copyNodeLink(node);
                 return true;
-            case MENU_ITEM_ID_NODE_ENCRYPT:
+            case R.id.action_encrypt_node:
                 return true;
-            case MENU_ITEM_ID_NODE_DECRYPT:
+            case R.id.action_decrypt_node:
                 return true;
-            case MENU_ITEM_ID_NODE_EXPAND:
+            case R.id.action_expand_node:
                 return true;
-            case MENU_ITEM_ID_NODE_COLLAPSE:
+            case R.id.action_collapse_node:
                 return true;
-            case MENU_ITEM_ID_NODE_MOVE_UP:
+            case R.id.action_move_up:
                 return true;
-            case MENU_ITEM_ID_NODE_MOVE_DOWN:
+            case R.id.action_move_down:
                 return true;
-            case MENU_ITEM_ID_NODE_DELETE:
+            case R.id.action_delete:
                 return true;
             default:
                 return super.onContextItemSelected(item);

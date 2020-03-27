@@ -24,7 +24,7 @@
         app:headerLayout="@layout/nav_view_header_left">
 
         <pl.openrnd.multilevellistview.MultiLevelListView
-            android:id="@+id/nodes_list_view"
+            android:id="@+id/list_view_nodes"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/nav_header_height"

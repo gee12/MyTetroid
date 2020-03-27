@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,15 +43,6 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_RECORD_FILES = 2;
     public static final int MAIN_VIEW_TAG_RECORDS = 3;
 //    public static final int VIEW_FOUND_RECORDS = 5;
-
-    public static final int MENU_ITEM_ID_OPEN_RECORD = 1;
-    public static final int MENU_ITEM_ID_SHOW_FILES = 2;
-    public static final int MENU_ITEM_ID_OPEN_RECORD_FOLDER = 3;
-    public static final int MENU_ITEM_ID_EDIT_FIELDS = 4;
-    public static final int MENU_ITEM_ID_RECORD_COPY_LINK = 5;
-    public static final int MENU_ITEM_ID_RECORD_MOVE_UP = 6;
-    public static final int MENU_ITEM_ID_RECORD_MOVE_DOWN = 7;
-    public static final int MENU_ITEM_ID_DELETE_RECORD = 8;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -318,10 +310,9 @@ public class MainPageFragment extends TetroidFragment {
 
     /**
      * Открытие каталога записи.
-     * @param position
+     * @param record
      */
-    private void openRecordFolder(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+    private void openRecordFolder(TetroidRecord record) {
         mMainView.openFolder(DataManager.getRecordDirUri(record));
     }
 
@@ -333,11 +324,9 @@ public class MainPageFragment extends TetroidFragment {
 
     /**
      * Редактирование свойств записи.
-     * @param position
+     * @param record
      */
-    private void editRecordFields(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-
+    private void editRecordFields(TetroidRecord record) {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
@@ -357,10 +346,9 @@ public class MainPageFragment extends TetroidFragment {
 
     /**
      * Копирование ссылки на запись в буфер обмена.
-     * @param position
+     * @param record
      */
-    private void copyRecordLink(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+    private void copyRecordLink(TetroidRecord record) {
         if (record != null) {
             Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), record.createUrl());
         } else {
@@ -370,10 +358,9 @@ public class MainPageFragment extends TetroidFragment {
 
     /**
      * Удаление записи.
-     * @param position
+     * @param record
      */
-    private void deleteRecord(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
+    private void deleteRecord(TetroidRecord record) {
         RecordAskDialogs.deleteRecord(getContext(), () -> {
             int res = DataManager.deleteRecord(record, false);
             if (res == -1) {
@@ -446,14 +433,10 @@ public class MainPageFragment extends TetroidFragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD, Menu.NONE, R.string.show_record_content);
-        menu.add(Menu.NONE, MENU_ITEM_ID_SHOW_FILES, Menu.NONE, R.string.show_attached_files);
-        menu.add(Menu.NONE, MENU_ITEM_ID_OPEN_RECORD_FOLDER, Menu.NONE, R.string.open_record_folder);
-        menu.add(Menu.NONE, MENU_ITEM_ID_EDIT_FIELDS, Menu.NONE, R.string.edit_record_fields);
-        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_COPY_LINK, Menu.NONE, R.string.copy_link);
-        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_MOVE_UP, Menu.NONE, getString(R.string.move_up));
-        menu.add(Menu.NONE, MENU_ITEM_ID_RECORD_MOVE_DOWN, Menu.NONE, getString(R.string.move_down));
-        menu.add(Menu.NONE, MENU_ITEM_ID_DELETE_RECORD, Menu.NONE, R.string.menu_item_delete);
+        if (v.getId() == R.id.list_view_records) {
+            MenuInflater inflater = getActivity().getMenuInflater();
+            inflater.inflate(R.menu.record_context, menu);
+        }
     }
 
     /**
@@ -464,28 +447,35 @@ public class MainPageFragment extends TetroidFragment {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        if (info.targetView.getParent() != mListViewRecords)
+            return false;
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(info.position);
+        if (record == null) {
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return true;
+        }
         switch (item.getItemId()) {
-            case MENU_ITEM_ID_OPEN_RECORD:
-                showRecord(info.position);
+            case R.id.action_open_record:
+                showRecord(record);
                 return true;
-            case MENU_ITEM_ID_SHOW_FILES:
-                showRecordFiles(info.position);
+            case R.id.action_attached_files:
+                showRecordFiles(record);
                 return true;
-            case MENU_ITEM_ID_OPEN_RECORD_FOLDER:
-                openRecordFolder(info.position);
+            case R.id.action_open_record_folder:
+                openRecordFolder(record);
                 return true;
-            case MENU_ITEM_ID_EDIT_FIELDS:
-                editRecordFields(info.position);
+            case R.id.action_record_edit_fields:
+                editRecordFields(record);
                 return true;
-            case MENU_ITEM_ID_RECORD_COPY_LINK:
-                copyRecordLink(info.position);
+            case R.id.action_copy_link:
+                copyRecordLink(record);
                 return true;
-            case MENU_ITEM_ID_RECORD_MOVE_UP:
+            case R.id.action_move_up:
                 return true;
-            case MENU_ITEM_ID_RECORD_MOVE_DOWN:
+            case R.id.action_move_down:
                 return true;
-            case MENU_ITEM_ID_DELETE_RECORD:
-                deleteRecord(info.position);
+            case R.id.action_delete:
+                deleteRecord(record);
                 return true;
             default:
                 return super.onContextItemSelected(item);
