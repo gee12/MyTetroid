@@ -243,7 +243,7 @@ public class MainPageFragment extends TetroidFragment {
                 mMainView.updateTags();
                 showRecord(record);
             } else {
-                LogManager.addLog(getString(R.string.record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.addLog(getString(R.string.log_record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
     }
@@ -259,7 +259,7 @@ public class MainPageFragment extends TetroidFragment {
         if (Utils.checkDateFormatString(dateFormatString)) {
             return dateFormatString;
         } else {
-            LogManager.addLog(getString(R.string.incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             return getContext().getString(R.string.def_date_format_string);
         }
     }
@@ -296,7 +296,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void openFile(int position) {
         if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp()) {
-            LogManager.addLog(R.string.viewing_decrypted_not_possible, Toast.LENGTH_LONG);
+            LogManager.addLog(R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
             return;
         }
         TetroidFile file = mCurRecord.getAttachedFiles().get(position);
@@ -342,7 +342,7 @@ public class MainPageFragment extends TetroidFragment {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
             } else {
-                LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
     }
@@ -364,7 +364,7 @@ public class MainPageFragment extends TetroidFragment {
         if (record != null) {
             Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), record.createUrl());
         } else {
-            LogManager.addLog(getString(R.string.get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -399,7 +399,7 @@ public class MainPageFragment extends TetroidFragment {
             mMainView.updateTags();
             LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
-            LogManager.addLog(getString(R.string.record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 

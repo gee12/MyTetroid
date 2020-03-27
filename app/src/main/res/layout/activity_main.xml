@@ -77,7 +77,7 @@
                 android:layout_centerVertical="true"
                 android:textAlignment="center"
                 android:padding="@dimen/tv_empty_padding"
-                android:text="@string/tags_is_missing" />
+                android:text="@string/log_tags_is_missing" />
 
         </RelativeLayout>
 

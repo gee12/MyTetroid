@@ -94,13 +94,13 @@ public class RecordActivity extends TetroidActivity implements
 
         String recordId = getIntent().getStringExtra(EXTRA_RECORD_ID);
         if (recordId == null) {
-            LogManager.addLog(getString(R.string.not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
         // получаем запись
         this.mRecord = DataManager.getRecord(recordId);
         if (mRecord == null) {
-            LogManager.addLog(getString(R.string.not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             finish();
             return;
         } else {
@@ -161,6 +161,7 @@ public class RecordActivity extends TetroidActivity implements
     public void openRecord(TetroidRecord record) {
         if (record == null)
             return;
+        LogManager.addLog(getString(R.string.log_record_loading) + record.getId(), LogManager.Types.INFO);
         loadFields(record);
         // текст
         loadRecordText(record, false);
@@ -237,11 +238,6 @@ public class RecordActivity extends TetroidActivity implements
             // сбрасываем флаг, т.к. им уже воспользовались
             mRecord.setIsNew(false);
 
-//            if (mRecord.isCrypted() && defMode == MODE_EDIT && !IS_EDIT_CRYPTED_RECORDS) {
-//                Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
-//                defMode = MODE_VIEW;
-//            }
-
             switchMode(defMode);
 
             this.mIsFirstLoad = false;
@@ -273,7 +269,7 @@ public class RecordActivity extends TetroidActivity implements
                     if (record != null) {
                         openAnotherRecord(record, true);
                     } else {
-                        LogManager.addLog(getString(R.string.not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.addLog(getString(R.string.log_not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
 
@@ -323,7 +319,7 @@ public class RecordActivity extends TetroidActivity implements
             String tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length());
             openTag(tagName, true);
         } else {
-            LogManager.addLog(getString(R.string.wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
     }
 
@@ -394,17 +390,15 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void saveRecord() {
-//        if (BuildConfig.DEBUG)
-//            return;
-        LogManager.addLog(getString(R.string.before_record_save) + mRecord.getId(), LogManager.Types.INFO);
+        LogManager.addLog(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
                 ? mEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
-            LogManager.addLog(getString(R.string.record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
         } else {
-            LogManager.addLog(getString(R.string.record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -425,12 +419,6 @@ public class RecordActivity extends TetroidActivity implements
      * @param newMode
      */
     private void switchMode(int newMode) {
-
-//        if (mRecord.isCrypted() && newMode != MODE_VIEW && !IS_EDIT_CRYPTED_RECORDS) {
-//            Message.show(this, getString(R.string.editing_crypted_records), Toast.LENGTH_LONG);
-//            return;
-//        }
-
         int oldMode = mCurMode;
         // сохраняем
         onSaveRecord();
@@ -598,7 +586,7 @@ public class RecordActivity extends TetroidActivity implements
                 setTitle(name);
                 loadFields(mRecord);
             } else {
-                LogManager.addLog(getString(R.string.record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
     }

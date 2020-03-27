@@ -61,7 +61,7 @@ public class AskDialogs {
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(String.format(context.getString(R.string.empty_middle_hash_check_data_field), fieldName))
+        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
@@ -71,7 +71,7 @@ public class AskDialogs {
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
-        int mesRes = (isSyncSuccess) ? R.string.sync_success_dialog_request : R.string.sync_failed_dialog_request;
+        int mesRes = (isSyncSuccess) ? R.string.log_sync_success_dialog_request : R.string.log_sync_failed_dialog_request;
         AskDialogs.showYesDialog(context, applyHandler, mesRes);
     }
 

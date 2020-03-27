@@ -102,6 +102,6 @@ public class RecordAskDialogs {
     }
 
     public static void deleteRecordWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.record_delete_without_dir);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
     }
 }
