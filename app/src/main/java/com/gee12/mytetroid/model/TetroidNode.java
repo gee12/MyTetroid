@@ -18,6 +18,7 @@ public class TetroidNode extends TetroidObject {
     private List<TetroidRecord> records;
     private Drawable icon;
     private String iconName;
+    private TetroidNode parentNode;
 
     public TetroidNode(boolean isCrypted, String id, String name, String iconName, int level) {
         super(FoundType.TYPE_NODE, isCrypted, id, name);
@@ -122,6 +123,14 @@ public class TetroidNode extends TetroidObject {
     public void addRecord(TetroidRecord record) {
         record.setNode(this);
         records.add(record);
+    }
+
+    public void setParentNode(TetroidNode parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    public TetroidNode getParentNode() {
+        return parentNode;
     }
 
     public boolean isExpandable() {

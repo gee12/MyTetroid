@@ -141,7 +141,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                TetroidNode node = readNode(parser, 0);
+                TetroidNode node = readNode(parser, 0, null);
                 if (node != null) {
                     nodes.add(node);
                 }
@@ -157,7 +157,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return true;
     }
 
-    private TetroidNode readNode(XmlPullParser parser, int depthLevel) throws XmlPullParserException, IOException {
+    private TetroidNode readNode(XmlPullParser parser, int depthLevel, TetroidNode parentNode) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
@@ -183,6 +183,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             iconPath = parser.getAttributeValue(ns, "icon");
         }
         TetroidNode node = new TetroidNode(crypt, id, name, iconPath, depthLevel);
+        node.setParentNode(parentNode);
 
         List<TetroidNode> subNodes = new ArrayList<>();
         List<TetroidRecord> records = new ArrayList<>();
@@ -200,7 +201,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 }
             } else if (tagName.equals("node")) {
                 // вложенная ветка
-                subNodes.add(readNode(parser, depthLevel+1));
+                subNodes.add(readNode(parser, depthLevel+1, node));
             } else {
                 skip(parser);
             }

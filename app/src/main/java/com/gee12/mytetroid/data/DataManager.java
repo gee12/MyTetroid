@@ -360,7 +360,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
 
-    public static boolean moveRecord(List list, int pos, boolean isUp) {
+    /**
+     * Поменять местами 2 объекта хранилища в списке.
+     * @param list
+     * @param pos
+     * @param isUp
+     * @return
+     */
+    public static boolean swapTetroidObjects(List list, int pos, boolean isUp) {
         if (list == null)
             return false;
         boolean isSwapped = false;
@@ -420,7 +427,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         LogManager.addLog(context.getString(R.string.log_start_node_deleting), LogManager.Types.INFO);
 
         // удаляем ветку из коллекции
-        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
+//        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
+        TetroidNode parentNode = node.getParentNode();
+        if (parentNode == null || parentNode.getSubNodesCount() <= 0 || !parentNode.getSubNodes().remove(node)) {
             LogManager.addLog(context.getString(R.string.log_not_found_node), LogManager.Types.ERROR);
             return false;
         }
@@ -506,6 +515,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     /**
      * Удаление ветки из дерева.
+     * Устарело, т.к. сейчас используется поле parentNode.
      * @param nodes
      * @param nodeToDelete
      * @return

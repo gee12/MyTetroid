@@ -1049,6 +1049,23 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Перемещение ветки вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
+    private void moveNode(TetroidNode node, boolean isUp) {
+        if (node == null)
+            return;
+        TetroidNode parentNode = node.getParentNode();
+        if (parentNode != null && parentNode.getSubNodesCount() > 0) {
+            int pos = parentNode.getSubNodes().indexOf(node);
+            if (DataManager.swapTetroidObjects(parentNode.getSubNodes(), pos, isUp)) {
+                mListAdapterNodes.notifyDataSetChanged();
+            }
+        }
+    }
+
+    /**
      * Отображение всплывающего (контексного) меню ветки.
      *
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
@@ -1084,8 +1101,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 case R.id.action_collapse_node:
                     return true;
                 case R.id.action_move_up:
+                    moveNode(node, true);
                     return true;
                 case R.id.action_move_down:
+                    moveNode(node, false);
                     return true;
                 case R.id.action_delete:
                     deleteNode(node);

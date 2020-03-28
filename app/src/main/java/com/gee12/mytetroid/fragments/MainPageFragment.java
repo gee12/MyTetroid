@@ -396,7 +396,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param isUp
      */
     private void moveRecord(int pos, boolean isUp) {
-        if (DataManager.moveRecord(mListAdapterRecords.getDataSet(), pos, isUp)) {
+        if (DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp)) {
             mListAdapterRecords.notifyDataSetChanged();
         }
     }
