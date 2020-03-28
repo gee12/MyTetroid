@@ -14,6 +14,12 @@
         android:icon="@drawable/ic_create_node"
         app:showAsAction="ifRoom|withText" />
     <item
+        android:id="@+id/action_create_node"
+        android:orderInCategory="20"
+        android:title="@string/create_node"
+        android:icon="@drawable/ic_create_node"
+        app:showAsAction="ifRoom|withText" />
+    <item
         android:id="@+id/action_rename_node"
         android:orderInCategory="30"
         android:title="@string/rename_node"

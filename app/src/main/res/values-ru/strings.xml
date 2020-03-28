@@ -255,6 +255,7 @@
     <string name="expand_node_subnodes">Развернуть все подветки</string>
     <string name="collapse_node_subnodes">Свернуть все подветки</string>
     <string name="create_subnode">Добавить подветку</string>
+    <string name="create_node">Добавить ветку рядом</string>
     <string name="delete_node">Удалить</string>
     <string name="move_up">Переместить вверх</string>
     <string name="move_down">Переместить вниз</string>

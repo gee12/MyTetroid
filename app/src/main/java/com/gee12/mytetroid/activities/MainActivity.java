@@ -1007,11 +1007,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param parentNode Родительская ветка
      * @param pos Позиция в списке родительской ветки.
      */
-    private void createNode(TetroidNode parentNode, int pos) {
+    private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         NodeAskDialogs.createNodeDialog(this, null, (name) -> {
-            TetroidNode node = DataManager.createNode(name, parentNode);
+            TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
+            TetroidNode node = DataManager.createNode(name, trueParentNode);
             if (node != null) {
-                if (!mListAdapterNodes.addItem(node, pos)) {
+                if (!mListAdapterNodes.addItem(node, pos, isSubNode)) {
                     LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
@@ -1150,7 +1151,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     showNode(node);
                     return true;
                 case R.id.action_create_subnode:
-                    createNode(node, pos);
+                    createNode(node, pos, true);
+                    return true;
+                case R.id.action_create_node:
+                    createNode(node, pos, false);
                     return true;
                 case R.id.action_rename_node:
                     renameNode(node);
@@ -1188,71 +1192,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         menuHelper.setForceShowIcon(true);
         menuHelper.show();
     }
-
-    /**
-     * Обработчик создания контекстного меню при долгом тапе на ветке.
-     * @param menu
-     * @param v
-     * @param menuInfo
-     */
-//    @Override
-//    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-//        super.onCreateContextMenu(menu, v, menuInfo);
-//
-//        if (v.getId() == R.id.list_view_nodes) {
-//            MenuInflater inflater = getMenuInflater();
-//            inflater.inflate(R.menu.node_context, menu);
-//        }
-//    }
-
-    /**
-     * Обработчик выбора пунктов контекстного меню ветки.
-     * @param item
-     * @return
-     */
-//    @Override
-//    public boolean onContextItemSelected(@NonNull MenuItem item) {
-//        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-//        if (info.targetView.getParent() != mListViewNodes)
-//            return false;
-//        TetroidNode node = mListAdapterNodes.getItem(info.position);
-//        if (node == null) {
-//            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-//            return true;
-//        }
-//        switch (item.getItemId()) {
-//            case R.id.action_open_node:
-//                showNode(node);
-//                return true;
-//            case R.id.action_create_subnode:
-//                return true;
-//            case R.id.action_rename_node:
-//                renameNode(node);
-//                return true;
-//            case R.id.action_node_icon:
-//                return true;
-//            case R.id.action_copy_link:
-//                copyNodeLink(node);
-//                return true;
-//            case R.id.action_encrypt_node:
-//                return true;
-//            case R.id.action_decrypt_node:
-//                return true;
-//            case R.id.action_expand_node:
-//                return true;
-//            case R.id.action_collapse_node:
-//                return true;
-//            case R.id.action_move_up:
-//                return true;
-//            case R.id.action_move_down:
-//                return true;
-//            case R.id.action_delete:
-//                deleteNode(node);
-//                return true;
-//            default:
-//                return super.onContextItemSelected(item);
-//        }
-//    }
 
     /**
      * Обработка возвращаемого результата других активностей.

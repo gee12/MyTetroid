@@ -294,6 +294,7 @@
     <string name="expand_node_subnodes">Expand all subnodes</string>
     <string name="collapse_node_subnodes">Collapse all subnodes</string>
     <string name="create_subnode">Create subnode</string>
+    <string name="create_node">Create node nearly</string>
     <string name="delete_node">Delete</string>
     <string name="move_up">Move up</string>
     <string name="move_down">Move down</string>
