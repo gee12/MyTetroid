@@ -237,7 +237,7 @@
     <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="title_record_save">Save</string>
     <string name="writing_here">Start writing here…</string>
-    <string name="log_not_found_node">Not found node with id=</string>
+    <string name="log_not_found_node_id">Not found node with id=</string>
     <string name="log_not_found_record">Not found record with id=</string>
     <string name="log_not_transferred_record_id">Record Id not passed</string>
     <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>
@@ -304,7 +304,6 @@
     <string name="link_to_record">Link to MyTetroid record</string>
     <string name="link_to_node">Link to MyTetroid node</string>
     <string name="save_record">Save record ?</string>
-    <string name="log_not_found_node">Node is not found..</string>
     <string name="log_record_loading">Record loading id=</string>
     <string name="log_node_delete_error">Unable to delete the node (more in the logs)</string>
     <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>

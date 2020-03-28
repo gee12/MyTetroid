@@ -466,7 +466,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
         List<TetroidNode> subNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : getRootNodes();
         if (!subNodes.remove(node)) {
-            LogManager.addLog(context.getString(R.string.log_not_found_node), LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.log_not_found_node_id) + node.getId(), LogManager.Types.ERROR);
             return false;
         }
 

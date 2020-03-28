@@ -589,7 +589,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (node != null) {
             showNode(node);
         } else {
-            LogManager.addLog(getString(R.string.log_not_found_node) + nodeId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_not_found_node_id) + nodeId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 

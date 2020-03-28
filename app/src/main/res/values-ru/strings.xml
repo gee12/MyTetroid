@@ -198,7 +198,7 @@
     <string name="record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
     <string name="writing_here">Пишите здесь…</string>
-    <string name="log_not_found_node">Не найдена ветка с id=</string>
+    <string name="log_not_found_node_id">Не найдена ветка с id=</string>
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
     <string name="app_name" translatable="false">MyTetroid</string>
@@ -265,7 +265,6 @@
     <string name="link_to_record">Ссылка на запись MyTetroid</string>
     <string name="link_to_node">Ссылка на ветку MyTetroid</string>
     <string name="save_record">Сохранить запись?</string>
-    <string name="log_not_found_node">Не удалось найти ветку в коллекции</string>
     <string name="log_record_loading">Загрузка записи id=</string>
     <string name="log_node_delete_error">Не удалось удалить ветку (подробнее в логах)</string>
     <string name="log_node_delete_list_error">Ветка удалена из хранилища, но произогла ошибка удаления ветки из списка</string>

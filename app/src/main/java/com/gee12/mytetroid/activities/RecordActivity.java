@@ -279,7 +279,7 @@ public class RecordActivity extends TetroidActivity implements
                     if (node != null) {
                         openAnotherNode(node, true);
                     } else {
-                        LogManager.addLog(getString(R.string.log_not_found_node) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.addLog(getString(R.string.log_not_found_node_id) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
                 case FoundType.TYPE_TAG:
@@ -509,6 +509,8 @@ public class RecordActivity extends TetroidActivity implements
             finish();
         } else if (obj instanceof TetroidRecord) {
             openAnotherRecord((TetroidRecord) obj, false);
+        } else if (obj instanceof TetroidNode) {
+            openAnotherNode((TetroidNode) obj, false);
         } else if (obj instanceof String) {
             openTag((String) obj, false);
         }
