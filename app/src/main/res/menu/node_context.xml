@@ -5,60 +5,70 @@
         android:id="@+id/action_open_node"
         android:orderInCategory="10"
         android:title="@string/show_node"
+        android:icon="@drawable/ic_open_node"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_create_subnode"
         android:orderInCategory="20"
         android:title="@string/create_subnode"
+        android:icon="@drawable/ic_create_node"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_rename_node"
         android:orderInCategory="30"
         android:title="@string/rename_node"
+        android:icon="@drawable/ic_edit_node"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_node_icon"
         android:orderInCategory="40"
         android:title="@string/set_node_icon"
+        android:icon="@drawable/ic_node_icon"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_copy_link"
-        android:orderInCategory="40"
+        android:orderInCategory="50"
         android:title="@string/copy_link"
+        android:icon="@drawable/ic_link"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_expand_node"
+        android:orderInCategory="80"
+        android:title="@string/expand_node_subnodes"
+        android:icon="@drawable/ic_arrow_down"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_collapse_node"
+        android:orderInCategory="90"
+        android:title="@string/collapse_node_subnodes"
+        android:icon="@drawable/ic_arrow_up"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_move_up"
+        android:orderInCategory="100"
+        android:title="@string/move_up"
+        android:icon="@drawable/ic_move_up"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_move_down"
+        android:orderInCategory="110"
+        android:title="@string/move_down"
+        android:icon="@drawable/ic_move_down"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_encrypt_node"
-        android:orderInCategory="50"
+        android:orderInCategory="60"
         android:title="@string/encrypt_node"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_decrypt_node"
-        android:orderInCategory="60"
+        android:orderInCategory="70"
         android:title="@string/decrypt_node"
         app:showAsAction="ifRoom|withText" />
     <item
-        android:id="@+id/action_expand_node"
-        android:orderInCategory="60"
-        android:title="@string/expand_node_subnodes"
-        app:showAsAction="ifRoom|withText" />
-    <item
-        android:id="@+id/action_collapse_node"
-        android:orderInCategory="50"
-        android:title="@string/collapse_node_subnodes"
-        app:showAsAction="ifRoom|withText" />
-    <item
-        android:id="@+id/action_move_up"
-        android:orderInCategory="50"
-        android:title="@string/move_up"
-        app:showAsAction="ifRoom|withText" />
-    <item
-        android:id="@+id/action_move_down"
-        android:orderInCategory="60"
-        android:title="@string/move_down"
-        app:showAsAction="ifRoom|withText" />
-    <item
         android:id="@+id/action_delete"
-        android:orderInCategory="70"
+        android:orderInCategory="120"
         android:title="@string/menu_item_delete"
+        android:icon="@drawable/ic_delete"
         app:showAsAction="ifRoom|withText" />
 </menu>

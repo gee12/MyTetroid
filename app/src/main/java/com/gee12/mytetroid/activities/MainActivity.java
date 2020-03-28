@@ -10,10 +10,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -24,10 +22,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -702,9 +701,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Обработчик клика на заголовке ветки с подветками.
      */
-    NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = node -> {
-        showNode(node);
+    NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
+        @Override
+        public void onClick(TetroidNode node) {
+            showNode(node);
+        }
+
+        @Override
+        public boolean onLongClick(View view, TetroidNode node) {
+            showPopupMenu(view, node);
+            return true;
+        }
     };
+
 
     /**
      * Обработчик клика на "конечной" ветке (без подветок).
@@ -738,12 +747,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Обработчик долгого клика на ветках.
      */
-    private OnItemLongClickListener onNodeLongClickListener = new OnItemLongClickListener() {
-
-        @Override
-        public void onItemLongClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
-
+    private OnItemLongClickListener onNodeLongClickListener = (parent, view, item, itemInfo) -> {
+        if (parent != mListViewNodes)
+            return;
+        TetroidNode node = (TetroidNode) item;
+        if (node == null) {
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return;
         }
+        showPopupMenu(view, node);
     };
 
     /**
@@ -1037,69 +1049,121 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Отображение всплывающего (контексного) меню ветки.
+     *
+     * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
+     *
+     * @param v
+     * @param node
+     */
+    private void showPopupMenu(View v, TetroidNode node) {
+        PopupMenu popupMenu = new PopupMenu(this, v, Gravity.CENTER);
+        popupMenu.inflate(R.menu.node_context);
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_open_node:
+                    showNode(node);
+                    return true;
+                case R.id.action_create_subnode:
+                    return true;
+                case R.id.action_rename_node:
+                    renameNode(node);
+                    return true;
+                case R.id.action_node_icon:
+                    return true;
+                case R.id.action_copy_link:
+                    copyNodeLink(node);
+                    return true;
+                case R.id.action_encrypt_node:
+                    return true;
+                case R.id.action_decrypt_node:
+                    return true;
+                case R.id.action_expand_node:
+                    return true;
+                case R.id.action_collapse_node:
+                    return true;
+                case R.id.action_move_up:
+                    return true;
+                case R.id.action_move_down:
+                    return true;
+                case R.id.action_delete:
+                    deleteNode(node);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        // для отображения иконок
+        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) popupMenu.getMenu(), v);
+        menuHelper.setForceShowIcon(true);
+        menuHelper.show();
+    }
+
+    /**
      * Обработчик создания контекстного меню при долгом тапе на ветке.
      * @param menu
      * @param v
      * @param menuInfo
      */
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        if (v.getId() == R.id.list_view_nodes) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.node_context, menu);
-        }
-    }
+//    @Override
+//    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+//        super.onCreateContextMenu(menu, v, menuInfo);
+//
+//        if (v.getId() == R.id.list_view_nodes) {
+//            MenuInflater inflater = getMenuInflater();
+//            inflater.inflate(R.menu.node_context, menu);
+//        }
+//    }
 
     /**
      * Обработчик выбора пунктов контекстного меню ветки.
      * @param item
      * @return
      */
-    @Override
-    public boolean onContextItemSelected(@NonNull MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        if (info.targetView.getParent() != mListViewNodes)
-            return false;
-        TetroidNode node = mListAdapterNodes.getItem(info.position);
-        if (node == null) {
-            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            return true;
-        }
-        switch (item.getItemId()) {
-            case R.id.action_open_node:
-                showNode(node);
-                return true;
-            case R.id.action_create_subnode:
-                return true;
-            case R.id.action_rename_node:
-                renameNode(node);
-                return true;
-            case R.id.action_node_icon:
-                return true;
-            case R.id.action_copy_link:
-                copyNodeLink(node);
-                return true;
-            case R.id.action_encrypt_node:
-                return true;
-            case R.id.action_decrypt_node:
-                return true;
-            case R.id.action_expand_node:
-                return true;
-            case R.id.action_collapse_node:
-                return true;
-            case R.id.action_move_up:
-                return true;
-            case R.id.action_move_down:
-                return true;
-            case R.id.action_delete:
-                deleteNode(node);
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onContextItemSelected(@NonNull MenuItem item) {
+//        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+//        if (info.targetView.getParent() != mListViewNodes)
+//            return false;
+//        TetroidNode node = mListAdapterNodes.getItem(info.position);
+//        if (node == null) {
+//            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            return true;
+//        }
+//        switch (item.getItemId()) {
+//            case R.id.action_open_node:
+//                showNode(node);
+//                return true;
+//            case R.id.action_create_subnode:
+//                return true;
+//            case R.id.action_rename_node:
+//                renameNode(node);
+//                return true;
+//            case R.id.action_node_icon:
+//                return true;
+//            case R.id.action_copy_link:
+//                copyNodeLink(node);
+//                return true;
+//            case R.id.action_encrypt_node:
+//                return true;
+//            case R.id.action_decrypt_node:
+//                return true;
+//            case R.id.action_expand_node:
+//                return true;
+//            case R.id.action_collapse_node:
+//                return true;
+//            case R.id.action_move_up:
+//                return true;
+//            case R.id.action_move_down:
+//                return true;
+//            case R.id.action_delete:
+//                deleteNode(node);
+//                return true;
+//            default:
+//                return super.onContextItemSelected(item);
+//        }
+//    }
 
     /**
      * Обработка возвращаемого результата других активностей.

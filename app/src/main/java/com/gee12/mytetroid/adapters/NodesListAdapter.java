@@ -24,11 +24,18 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     public interface OnNodeHeaderClickListener {
 
         /**
-         * Вызывается при клике на имени ветки
+         * Обработчик клика на имени ветки.
          *
          * @param node Объект ветки
          */
         void onClick(TetroidNode node);
+
+        /**
+         * Обработчик долгого клика на имени ветки.
+         * @param view
+         * @param node
+         */
+        boolean onLongClick(View view, TetroidNode node);
     }
 
     /**
@@ -78,6 +85,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         } else {
             viewHolder = (NodeViewHolder) convertView.getTag();
         }
+        final View view = convertView;
 
         final TetroidNode node = (TetroidNode) object;
         // иконка
@@ -111,6 +119,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
         viewHolder.headerView.setOnClickListener(v -> onNodeHeaderClickListener.onClick(node));
+        viewHolder.headerView.setOnLongClickListener(v -> onNodeHeaderClickListener.onLongClick(view, node));
         // стрелка раскрытия/закрытия ветки
         int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {

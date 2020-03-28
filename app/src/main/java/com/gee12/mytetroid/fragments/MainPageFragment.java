@@ -390,6 +390,11 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    /**
+     * Перемещение записи вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
     private void moveRecord(int pos, boolean isUp) {
         if (DataManager.moveRecord(mListAdapterRecords.getDataSet(), pos, isUp)) {
             mListAdapterRecords.notifyDataSetChanged();
