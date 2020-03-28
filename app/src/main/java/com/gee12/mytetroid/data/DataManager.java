@@ -387,6 +387,42 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
+     * Создание ветки.
+     * @param name
+     * @param parentNode
+     * @return
+     */
+    public static TetroidNode createNode(String name, TetroidNode parentNode) {
+        if (TextUtils.isEmpty(name)) {
+            LogManager.emptyParams("DataManager.createNode()");
+            return null;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_node_creating), LogManager.Types.INFO);
+
+        // генерируем уникальные идентификаторы
+        String id = createUniqueId();
+
+        boolean crypted = (parentNode != null && parentNode.isCrypted());
+        int level = (parentNode != null) ? parentNode.getLevel() + 1 : 0;
+        TetroidNode node = new TetroidNode(crypted, id, name, null, level);
+        node.setParentNode(parentNode);
+        if (crypted) {
+            node.setDecrypted(true);
+        }
+        // добавляем запись в родительскую ветку (и соответственно, в коллекцию), если она задана
+        List<TetroidNode> list = (parentNode != null) ? parentNode.getSubNodes() : getRootNodes();
+        list.add(node);
+        // перезаписываем структуру хранилища в файл
+        if (!saveStorage()) {
+            LogManager.addLog(context.getString(R.string.log_cancel_node_creating), LogManager.Types.ERROR);
+            // удаляем запись из коллекции
+            list.remove(node);
+            return null;
+        }
+        return node;
+    }
+
+    /**
      * Изменение свойств ветки.
      * @param node
      * @param name

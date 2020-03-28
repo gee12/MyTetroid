@@ -273,6 +273,7 @@
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="menu_item_delete">Remove</string>
+    <string name="log_cancel_node_creating">Cancel node creating, as failed to save mytetra.xml</string>
     <string name="log_cancel_node_changing">Cancel node fields changing, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_changing">Cancel record fields changing, as failed to save mytetra.xml</string>
@@ -308,4 +309,6 @@
     <string name="log_node_move_error">Unable to move the node (more in the logs)</string>
     <string name="log_node_move_list_error">The node was moved, but an error occurred while updating the list. Reboot storage</string>
     <string name="log_record_move_error">Unable to move the record (more in the logs)</string>
+    <string name="log_create_node_error">Unable to create the record (more in the logs)</string>
+    <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
 </resources>

@@ -234,6 +234,7 @@
     <string name="log_record_not_have_node">У записи не указана ветка</string>
     <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
     <string name="menu_item_delete">Удалить</string>
+    <string name="log_cancel_node_creating">Отмена создания ветки, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_node_changing">Отмена редактирования свойств ветки, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_changing">Отмена редактирования свойств записи, т.к. не удалось сохранить mytetra.xml</string>
@@ -264,9 +265,11 @@
     <string name="save_record">Сохранить запись?</string>
     <string name="log_not_found_node">Не удалось найти ветку в коллекции</string>
     <string name="log_record_loading">Загрузка записи id=</string>
-    <string name="log_node_delete_error">Не удается удалить ветку (подробнее в логах)</string>
+    <string name="log_node_delete_error">Не удалось удалить ветку (подробнее в логах)</string>
     <string name="log_node_delete_list_error">Ветка удалена из хранилища, но произогла ошибка удаления ветки из списка</string>
-    <string name="log_node_move_error">Не удается переместить ветку (подробнее в логах)</string>
-    <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище.</string>
-    <string name="log_record_move_error">Не удается переместить запись (подробнее в логах)</string>
+    <string name="log_node_move_error">Не удалось переместить ветку (подробнее в логах)</string>
+    <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
+    <string name="log_record_move_error">Не удалось переместить запись (подробнее в логах)</string>
+    <string name="log_create_node_error">Не удалось создать ветку (подробнее в логах)</string>
+    <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
 </resources>

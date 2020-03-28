@@ -28,7 +28,7 @@ public class NodeAskDialogs {
      * @param context
      * @param handler
      */
-    public static void createTextSizeDialog(Context context, TetroidNode node, INodeFieldsResult handler) {
+    public static void createNodeDialog(Context context, TetroidNode node, INodeFieldsResult handler) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);

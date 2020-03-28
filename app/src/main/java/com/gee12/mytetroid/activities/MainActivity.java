@@ -1003,6 +1003,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Создание ветки.
+     * @param parentNode Родительская ветка
+     * @param pos Позиция в списке родительской ветки.
+     */
+    private void createNode(TetroidNode parentNode, int pos) {
+        NodeAskDialogs.createNodeDialog(this, null, (name) -> {
+            TetroidNode node = DataManager.createNode(name, parentNode);
+            if (node != null) {
+                if (!mListAdapterNodes.addItem(node, pos)) {
+                    LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
+            } else {
+                LogManager.addLog(getString(R.string.log_create_node_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
+    }
+
+    /**
      * Копирование ссылки на ветку в буфер обмена.
      */
     private void copyNodeLink(TetroidNode node) {
@@ -1018,7 +1036,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void renameNode(TetroidNode node) {
-        NodeAskDialogs.createTextSizeDialog(this, node, (name) -> {
+        NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (DataManager.editNodeFields(node, name)) {
                 mListAdapterNodes.notifyDataSetChanged();
                 if (mCurNode == node) {
@@ -1110,6 +1128,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void collapseSubNodes(int pos) {
 
+        // TODO: реализовать
+
     }
 
     /**
@@ -1130,6 +1150,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     showNode(node);
                     return true;
                 case R.id.action_create_subnode:
+                    createNode(node, pos);
                     return true;
                 case R.id.action_rename_node:
                     renameNode(node);
