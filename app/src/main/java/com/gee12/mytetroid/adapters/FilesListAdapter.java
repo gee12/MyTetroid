@@ -84,7 +84,7 @@ public class FilesListAdapter extends BaseAdapter {
             viewHolder.sizeView.setText(fileSize);
         } else {
             ImageView icon = convertView.findViewById(R.id.file_view_icon);
-            icon.setImageResource(R.drawable.ic_file_missing_24dp);
+            icon.setImageResource(R.drawable.ic_file_missing);
             viewHolder.sizeView.setText(R.string.file_is_missing);
         }
 

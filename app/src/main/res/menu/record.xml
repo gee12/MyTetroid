@@ -39,7 +39,7 @@
         android:orderInCategory="50"
         android:title="@string/title_cur_node"
         android:visible="false"
-        android:icon="@drawable/ic_show_node_24dp"
+        android:icon="@drawable/ic_show_node"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_attached_files"
@@ -53,20 +53,20 @@
         android:orderInCategory="70"
         android:title="@string/open_record_folder"
         android:visible="true"
-        android:icon="@drawable/ic_folder24dp"
+        android:icon="@drawable/ic_folder"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"
-        android:icon="@drawable/ic_fullscreen_24dp"
+        android:icon="@drawable/ic_fullscreen"
         app:showAsAction="never" />
 <!--    <item-->
 <!--        android:id="@+id/action_storage_info"-->
 <!--        android:orderInCategory="250"-->
 <!--        android:title="@string/title_storage_info"-->
 <!--        android:enabled="false"-->
-<!--        android:icon="@drawable/ic_statistics_24dp"-->
+<!--        android:icon="@drawable/ic_statistics"-->
 <!--        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_settings"

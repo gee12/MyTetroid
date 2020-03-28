@@ -32,6 +32,7 @@ import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment {
@@ -390,6 +391,20 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    private void moveRecord(int pos, boolean isUp) {
+        if (isUp) {
+            if (pos > 0) {
+                Collections.swap(mListAdapterRecords.getDataSet(), pos-1, pos);
+                mListAdapterRecords.notifyDataSetChanged();
+            }
+        } else {
+            if (pos < mListAdapterRecords.getDataSet().size()) {
+                Collections.swap(mListAdapterRecords.getDataSet(), pos, pos+1);
+                mListAdapterRecords.notifyDataSetChanged();
+            }
+        }
+    }
+
     /**
      * Обработчик клика на записи
      */
@@ -471,8 +486,10 @@ public class MainPageFragment extends TetroidFragment {
                 copyRecordLink(record);
                 return true;
             case R.id.action_move_up:
+                moveRecord(info.position, true);
                 return true;
             case R.id.action_move_down:
+                moveRecord(info.position, false);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);
