@@ -35,7 +35,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
          * @param view
          * @param node
          */
-        boolean onLongClick(View view, TetroidNode node);
+        boolean onLongClick(View view, TetroidNode node, int pos);
     }
 
     /**
@@ -71,7 +71,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     }
 
     @Override
-    protected View getViewForObject(Object object, View convertView, ItemInfo itemInfo) {
+    protected View getViewForObject(Object object, View convertView, ItemInfo itemInfo, int pos) {
         NodeViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new NodeViewHolder();
@@ -119,7 +119,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
         viewHolder.headerView.setOnClickListener(v -> onNodeHeaderClickListener.onClick(node));
-        viewHolder.headerView.setOnLongClickListener(v -> onNodeHeaderClickListener.onLongClick(view, node));
+        viewHolder.headerView.setOnLongClickListener(v -> onNodeHeaderClickListener.onLongClick(view, node, pos));
         // стрелка раскрытия/закрытия ветки
         int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
@@ -139,4 +139,5 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     public TetroidNode getItem(int position) {
         return (TetroidNode) getListView().getAdapter().getItem(position);
     }
+
 }

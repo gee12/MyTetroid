@@ -708,8 +708,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         @Override
-        public boolean onLongClick(View view, TetroidNode node) {
-            showPopupMenu(view, node);
+        public boolean onLongClick(View view, TetroidNode node, int pos) {
+            showPopupMenu(view, node, pos);
             return true;
         }
     };
@@ -747,7 +747,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Обработчик долгого клика на ветках.
      */
-    private OnItemLongClickListener onNodeLongClickListener = (parent, view, item, itemInfo) -> {
+    private OnItemLongClickListener onNodeLongClickListener = (parent, view, item, itemInfo, pos) -> {
         if (parent != mListViewNodes)
             return;
         TetroidNode node = (TetroidNode) item;
@@ -755,7 +755,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
-        showPopupMenu(view, node);
+        showPopupMenu(view, node, pos);
     };
 
     /**
@@ -1050,17 +1050,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Перемещение ветки вверх/вниз по списку.
-     * @param pos
+     * @param node
+     * @param pos Позиция элемента в списке
      * @param isUp
      */
-    private void moveNode(TetroidNode node, boolean isUp) {
+    private void moveNode(TetroidNode node, int pos, boolean isUp) {
         if (node == null)
             return;
         TetroidNode parentNode = node.getParentNode();
-        if (parentNode != null && parentNode.getSubNodesCount() > 0) {
-            int pos = parentNode.getSubNodes().indexOf(node);
-            if (DataManager.swapTetroidObjects(parentNode.getSubNodes(), pos, isUp)) {
-                mListAdapterNodes.notifyDataSetChanged();
+        List<TetroidNode> subNodes = (parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes();
+        if (subNodes.size() > 0) {
+            int posInNode = subNodes.indexOf(node);
+            if (DataManager.swapTetroidObjects(subNodes, posInNode, isUp)) {
+                // обновляем элементы внутри списка
+                mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1);
             }
         }
     }
@@ -1073,7 +1076,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param v
      * @param node
      */
-    private void showPopupMenu(View v, TetroidNode node) {
+    private void showPopupMenu(View v, TetroidNode node, int pos) {
         PopupMenu popupMenu = new PopupMenu(this, v, Gravity.CENTER);
         popupMenu.inflate(R.menu.node_context);
 
@@ -1101,10 +1104,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 case R.id.action_collapse_node:
                     return true;
                 case R.id.action_move_up:
-                    moveNode(node, true);
+                    moveNode(node, pos, true);
                     return true;
                 case R.id.action_move_down:
-                    moveNode(node, false);
+                    moveNode(node, pos, false);
                     return true;
                 case R.id.action_delete:
                     deleteNode(node);
