@@ -25,6 +25,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
@@ -47,7 +48,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-    public static final String EXTRA_RECORD_ID = "EXTRA_RECORD_ID";
+    public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
     public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
@@ -57,7 +58,8 @@ public class RecordActivity extends TetroidActivity implements
     public static final int MODE_HTML = 3;
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
-    public static final int RESULT_SHOW_TAG = 3;
+    public static final int RESULT_OPEN_NODE = 3;
+    public static final int RESULT_SHOW_TAG = 4;
 //    public static final int RESULT_FIELDS_EDITED = 4;
 
 //    private RelativeLayout mFieldsLayout;
@@ -92,7 +94,7 @@ public class RecordActivity extends TetroidActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String recordId = getIntent().getStringExtra(EXTRA_RECORD_ID);
+        String recordId = getIntent().getStringExtra(EXTRA_OBJECT_ID);
         if (recordId == null) {
             LogManager.addLog(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
@@ -264,7 +266,6 @@ public class RecordActivity extends TetroidActivity implements
             // обрабатываем внутреннюю ссылку
             switch (obj.getType()) {
                 case FoundType.TYPE_RECORD: {
-                    // ссылка на запись
                     TetroidRecord record = DataManager.getRecord(obj.getId());
                     if (record != null) {
                         openAnotherRecord(record, true);
@@ -272,9 +273,15 @@ public class RecordActivity extends TetroidActivity implements
                         LogManager.addLog(getString(R.string.log_not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
-
                 }
                 case FoundType.TYPE_NODE:
+                    TetroidNode node = DataManager.getNode(obj.getId());
+                    if (node != null) {
+                        openAnotherNode(node, true);
+                    } else {
+                        LogManager.addLog(getString(R.string.log_not_found_node) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    }
+                    break;
                 case FoundType.TYPE_TAG:
                 case FoundType.TYPE_AUTHOR:
                 case FoundType.TYPE_FILE:
@@ -333,11 +340,25 @@ public class RecordActivity extends TetroidActivity implements
         if (onSaveRecord(isAskForSave, record))
             return;
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_RECORD_ID, record.getId());
+        bundle.putString(EXTRA_OBJECT_ID, record.getId());
         if (mIsFieldsEdited) {
             bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
         }
         finishWithResult(RESULT_OPEN_RECORD, bundle);
+    }
+
+    /**
+     * Открытие другой ветки по внутренней ссылке.
+     * @param node
+     */
+    private void openAnotherNode(TetroidNode node, boolean isAskForSave) {
+        if (node == null)
+            return;
+        if (onSaveRecord(isAskForSave, node))
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_OBJECT_ID, node.getId());
+        finishWithResult(RESULT_OPEN_NODE, bundle);
     }
 
     /**

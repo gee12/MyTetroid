@@ -234,6 +234,7 @@ public class MainPageFragment extends TetroidFragment {
             if (record != null) {
                 mListAdapterRecords.notifyDataSetInvalidated();
                 mMainView.updateTags();
+                mMainView.updateNodes();
                 showRecord(record);
             } else {
                 LogManager.addLog(getString(R.string.log_record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -385,6 +386,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.getDataSet().remove(record);
             mListAdapterRecords.notifyDataSetChanged();
             mMainView.updateTags();
+            mMainView.updateNodes();
             LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);

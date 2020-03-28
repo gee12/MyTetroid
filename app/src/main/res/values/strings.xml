@@ -237,6 +237,7 @@
     <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="title_record_save">Save</string>
     <string name="writing_here">Start writing here…</string>
+    <string name="log_not_found_node">Not found node with id=</string>
     <string name="log_not_found_record">Not found record with id=</string>
     <string name="log_not_transferred_record_id">Record Id not passed</string>
     <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>

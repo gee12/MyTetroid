@@ -117,6 +117,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsStarted;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
+    boolean isNodeOpening = false;
+
 
     public MainActivity() {
         super(R.layout.activity_main);
@@ -578,8 +580,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
     }
 
-
-    boolean isNodeOpening = false;
+    /**
+     * Отображение записей ветки по Id.
+     * @param nodeId
+     */
+    public void showNode(String nodeId) {
+        TetroidNode node = DataManager.getNode(nodeId);
+        if (node != null) {
+            showNode(node);
+        } else {
+            LogManager.addLog(getString(R.string.log_not_found_node) + nodeId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
 
     /**
      * Отображение записей ветки.
@@ -665,9 +677,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListAdapterTags.setDataItems(DataManager.getTags());
     }
 
+    @Override
+    public void updateNodes() {
+        mListAdapterNodes.notifyDataSetChanged();
+    }
+
     public void openRecord(String recordId) {
         Bundle bundle = new Bundle();
-        bundle.putString(RecordActivity.EXTRA_RECORD_ID, recordId);
+        bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
         ViewUtils.startActivity(this, RecordActivity.class, bundle, REQUEST_CODE_RECORD_ACTIVITY);
     }
 
@@ -1245,9 +1262,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
             case RecordActivity.RESULT_OPEN_RECORD:
-                String recordId = data.getStringExtra(RecordActivity.EXTRA_RECORD_ID);
+                String recordId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (recordId != null) {
                     openRecord(recordId);
+                }
+                break;
+            case RecordActivity.RESULT_OPEN_NODE:
+                String nodeId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
+                if (nodeId != null) {
+                    showNode(nodeId);
                 }
                 break;
             case RecordActivity.RESULT_SHOW_TAG:
