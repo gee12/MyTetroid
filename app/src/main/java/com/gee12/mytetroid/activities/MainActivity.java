@@ -1034,14 +1034,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void deleteNode(TetroidNode node, int pos) {
+        if (node == null)
+            return;
         NodeAskDialogs.deleteNode(this, () -> {
             if (DataManager.deleteNode(node)) {
-//                mListAdapterNodes.notifyDataSetChanged();
+                // удаляем элемент внутри списка
                 if (!mListAdapterNodes.deleteItem(pos)) {
                     LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
                 // убираем список записей удаляемой ветки
-                if (mCurNode == node) {
+                if (mCurNode == node || isNodeInNode(mCurNode, node)) {
                     mViewPagerAdapter.getMainFragment().clearView();
                     this.mCurNode = null;
                 }
@@ -1049,6 +1051,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 LogManager.addLog(getString(R.string.log_node_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
+    }
+
+    /**
+     * Проверка содержится ли ветка node в ветке nodeAsParent.
+     * @param node
+     * @param nodeAsParent
+     * @return
+     */
+    public static boolean isNodeInNode(TetroidNode node, TetroidNode nodeAsParent) {
+        if (node == null || nodeAsParent == null)
+            return false;
+        if (node.getParentNode() != null) {
+            if (node.getParentNode().equals(nodeAsParent))
+                return true;
+            else
+                return isNodeInNode(node.getParentNode(), nodeAsParent);
+        }
+        return false;
     }
 
     /**

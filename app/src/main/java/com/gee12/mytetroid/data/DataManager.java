@@ -428,8 +428,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // удаляем ветку из коллекции
 //        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
-        TetroidNode parentNode = node.getParentNode();
-        if (parentNode == null || parentNode.getSubNodesCount() <= 0 || !parentNode.getSubNodes().remove(node)) {
+        List<TetroidNode> subNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : getRootNodes();
+        if (!subNodes.remove(node)) {
             LogManager.addLog(context.getString(R.string.log_not_found_node), LogManager.Types.ERROR);
             return false;
         }

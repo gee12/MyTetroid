@@ -111,8 +111,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
-        }
-        else {
+        } else {
 //            viewHolder.recordsCountView.setVisibility(View.GONE);
             viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
         }

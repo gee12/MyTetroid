@@ -194,9 +194,10 @@ public class MainPageFragment extends TetroidFragment {
     public void clearView() {
         showView(MAIN_VIEW_NONE);
         this.mCurRecord = null;
-        mTextViewRecordsEmpty.setText(R.string.select_the_node);
+        this.mCurNode = null;
         mListViewRecords.setAdapter(null);
         mListViewFiles.setAdapter(null);
+        mTextViewRecordsEmpty.setText(R.string.select_the_node);
     }
 
     public void showRecords(List<TetroidRecord> records, int viewId) {
