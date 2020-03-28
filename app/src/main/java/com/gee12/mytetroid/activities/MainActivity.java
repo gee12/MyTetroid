@@ -1033,17 +1033,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Удаление ветки.
      * @param node
      */
-    private void deleteNode(TetroidNode node) {
+    private void deleteNode(TetroidNode node, int pos) {
         NodeAskDialogs.deleteNode(this, () -> {
             if (DataManager.deleteNode(node)) {
-                mListAdapterNodes.notifyDataSetChanged();
+//                mListAdapterNodes.notifyDataSetChanged();
+                if (!mListAdapterNodes.deleteItem(pos)) {
+                    LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
                 // убираем список записей удаляемой ветки
                 if (mCurNode == node) {
                     mViewPagerAdapter.getMainFragment().clearView();
                     this.mCurNode = null;
                 }
             } else {
-
+                LogManager.addLog(getString(R.string.log_node_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
     }
@@ -1062,8 +1065,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (subNodes.size() > 0) {
             int posInNode = subNodes.indexOf(node);
             if (DataManager.swapTetroidObjects(subNodes, posInNode, isUp)) {
-                // обновляем элементы внутри списка
-                mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1);
+                // меняем местами элементы внутри списка
+                if (!mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
+                    LogManager.addLog(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
+            } else {
+                LogManager.addLog(getString(R.string.log_node_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         }
     }
@@ -1110,7 +1117,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     moveNode(node, pos, false);
                     return true;
                 case R.id.action_delete:
-                    deleteNode(node);
+                    deleteNode(node, pos);
                     return true;
                 default:
                     return false;

@@ -398,6 +398,8 @@ public class MainPageFragment extends TetroidFragment {
     private void moveRecord(int pos, boolean isUp) {
         if (DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp)) {
             mListAdapterRecords.notifyDataSetChanged();
+        } else {
+            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 

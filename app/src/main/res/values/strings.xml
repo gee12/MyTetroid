@@ -303,4 +303,9 @@
     <string name="save_record">Save record ?</string>
     <string name="log_not_found_node">Node is not found..</string>
     <string name="log_record_loading">Record loading id=</string>
+    <string name="log_node_delete_error">Unable to delete the node (more in the logs)</string>
+    <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
+    <string name="log_node_move_error">Unable to move the node (more in the logs)</string>
+    <string name="log_node_move_list_error">The node was moved, but an error occurred while updating the list. Reboot storage</string>
+    <string name="log_record_move_error">Unable to move the record (more in the logs)</string>
 </resources>

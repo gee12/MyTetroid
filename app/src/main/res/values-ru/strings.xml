@@ -213,7 +213,7 @@
     <string name="log_record_saved">Запись сохранена</string>
     <string name="log_record_save_error">Не удается сохранить запись (подробнее в логах)</string>
     <string name="log_record_create_error">Не удается создать запись (подробнее в логах)</string>
-    <string name="log_record_edit_fields_error">Не удается отредактировать свойства запись (подробнее в логах)</string>
+    <string name="log_record_edit_fields_error">Не удается отредактировать свойства записи (подробнее в логах)</string>
     <string name="log_record_delete_error">Не удается удалить запись (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
@@ -264,4 +264,9 @@
     <string name="save_record">Сохранить запись?</string>
     <string name="log_not_found_node">Не удалось найти ветку в коллекции</string>
     <string name="log_record_loading">Загрузка записи id=</string>
+    <string name="log_node_delete_error">Не удается удалить ветку (подробнее в логах)</string>
+    <string name="log_node_delete_list_error">Ветка удалена из хранилища, но произогла ошибка удаления ветки из списка</string>
+    <string name="log_node_move_error">Не удается переместить ветку (подробнее в логах)</string>
+    <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище.</string>
+    <string name="log_record_move_error">Не удается переместить запись (подробнее в логах)</string>
 </resources>
