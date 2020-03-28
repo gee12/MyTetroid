@@ -248,7 +248,7 @@
     <string name="record_deleted">Запись удалена</string>
     <string name="show_node">Открыть ветку</string>
     <string name="rename_node">Переименовать</string>
-    <string name="set_node_icon">Иконка</string>
+    <string name="set_node_icon">Задать иконку</string>
     <string name="encrypt_node">Зашифровать</string>
     <string name="decrypt_node">Расшифровать</string>
     <string name="expand_node_subnodes">Развернуть все подветки</string>

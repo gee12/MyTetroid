@@ -287,7 +287,7 @@
     <string name="record_deleted">Record deleted</string>
     <string name="show_node">Show node</string>
     <string name="rename_node">Rename</string>
-    <string name="set_node_icon">Icon</string>
+    <string name="set_node_icon">Set icon</string>
     <string name="encrypt_node">Encrypt</string>
     <string name="decrypt_node">Decrypt</string>
     <string name="expand_node_subnodes">Expand all subnodes</string>

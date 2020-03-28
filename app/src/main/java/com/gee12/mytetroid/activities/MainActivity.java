@@ -71,6 +71,7 @@ import java.util.Map;
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
 import pl.openrnd.multilevellistview.MultiLevelListView;
+import pl.openrnd.multilevellistview.NestType;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 import pl.openrnd.multilevellistview.OnItemLongClickListener;
 
@@ -1096,6 +1097,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Развернуть все подветки у ветки.
+     * @param pos
+     */
+    private void expandSubNodes(int pos) {
+        mListAdapterNodes.extendNodeSubnodes(pos, NestType.MULTIPLE);
+    }
+
+    /**
+     * Свернуть все подветки у ветки.
+     * @param pos
+     */
+    private void collapseSubNodes(int pos) {
+
+    }
+
+    /**
      * Отображение всплывающего (контексного) меню ветки.
      *
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
@@ -1127,8 +1144,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 case R.id.action_decrypt_node:
                     return true;
                 case R.id.action_expand_node:
+                    expandSubNodes(pos);
                     return true;
                 case R.id.action_collapse_node:
+                    collapseSubNodes(pos);
                     return true;
                 case R.id.action_move_up:
                     moveNode(node, pos, true);
