@@ -1094,6 +1094,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_move_down:
                 return true;
             case R.id.action_delete:
+                deleteNode(node);
                 return true;
             default:
                 return super.onContextItemSelected(item);

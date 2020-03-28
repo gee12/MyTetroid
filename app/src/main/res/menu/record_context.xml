@@ -7,7 +7,7 @@
         android:title="@string/show_record_content"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_show_files"
+        android:id="@+id/action_attached_files"
         android:orderInCategory="20"
         android:title="@string/show_attached_files"
         app:showAsAction="ifRoom|withText" />

@@ -407,13 +407,12 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            instance.deleteNodeCounters(node);
-            instance.deleteNodeTags(node);
             // необходим обход всего дерева веток для пересчета следующих счетчиков:
             instance.maxSubnodesCount = -1;
             instance.maxDepthLevel = -1;
             instance.uniqueTagsCount = -1;
-
+            // удаление всех объектов ветки рекурсивно
+            instance.deleteNodeRecursively(node);
         } else {
             LogManager.addLog(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
             return false;
@@ -425,7 +424,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * Удаление счетчиков метки.
      * @param node
      */
-    public void deleteNodeCounters(TetroidNode node) {
+    public void deleteNodeRecursively(TetroidNode node) {
         if (node == null)
             return;
         nodesCount--;
@@ -448,14 +447,41 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                 if (record.getAttachedFilesCount() > 0) {
                     filesCount -= record.getAttachedFilesCount();
                 }
-//                if (record.getTags().size() > 0) {
-//                    instance.tagsCount -= record.getTags().size();
-//                }
+                deleteRecordTags(record);
+                deleteRecordFolder(record);
             }
         }
         for (TetroidNode subNode : node.getSubNodes()) {
-            deleteNodeCounters(subNode);
+            deleteNodeRecursively(subNode);
         }
+    }
+
+    /**
+     * Удаление каталога записи.
+     * @param record
+     * @return
+     */
+    public boolean deleteRecordFolder(TetroidRecord record) {
+        // проверяем существование каталога
+        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        Uri dirUri;
+        try {
+            dirUri = Uri.parse(dirPath);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
+            return false;
+        }
+        File folder = new File(dirUri.getPath());
+        if (!folder.exists()) {
+            LogManager.addLog(context.getString(R.string.log_record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
+            return false;
+        }
+        // удаляем каталог
+        if (!FileUtils.deleteRecursive(folder)) {
+            LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -619,7 +645,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         String dirPath = null;
         File folder = null;
-        // удаляем каталог записи
+        // проверяем существование каталога записи
         if (!withoutDir) {
             dirPath = getStoragePathBase() + File.separator + record.getDirName();
             Uri dirUri;
@@ -740,18 +766,18 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * Удаление меток записей ветки (рекурсивно) из списка.
      * @param node
      */
-    public void deleteNodeTags(TetroidNode node) {
-        if (node == null)
-            return;
-        if (recordsCount > 0) {
-            for (TetroidRecord record : node.getRecords()) {
-                deleteRecordTags(record);
-            }
-        }
-        for (TetroidNode subNode : node.getSubNodes()) {
-            deleteNodeTags(subNode);
-        }
-    }
+//    public void deleteNodeTags(TetroidNode node) {
+//        if (node == null)
+//            return;
+//        if (recordsCount > 0) {
+//            for (TetroidRecord record : node.getRecords()) {
+//                deleteRecordTags(record);
+//            }
+//        }
+//        for (TetroidNode subNode : node.getSubNodes()) {
+//            deleteNodeTags(subNode);
+//        }
+//    }
 
     /**
      * Удаление меток записи из списка.
