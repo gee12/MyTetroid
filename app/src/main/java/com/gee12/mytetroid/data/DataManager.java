@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -358,6 +359,25 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return "image" + createUniqueId() + ".png";
     }
 
+
+    public static boolean moveRecord(List list, int pos, boolean isUp) {
+        if (list == null)
+            return false;
+        boolean isSwapped = false;
+        if (isUp) {
+            if (pos > 0) {
+                Collections.swap(list, pos-1, pos);
+                isSwapped = true;
+            }
+        } else {
+            if (pos < list.size() - 1) {
+                Collections.swap(list, pos, pos+1);
+                isSwapped = true;
+            }
+        }
+        // перезаписываем файл структуры хранилища
+        return isSwapped && saveStorage();
+    }
 
     /**
      * Изменение свойств ветки.
