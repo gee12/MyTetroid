@@ -99,11 +99,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private boolean readRoot(XmlPullParser parser) throws XmlPullParserException, IOException {
         boolean res = false;
         parser.require(XmlPullParser.START_TAG, ns, "root");
         while (parser.next() != XmlPullParser.END_TAG) {
-//        while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
@@ -117,6 +123,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return res;
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private Version readFormatVersion(XmlPullParser parser) throws XmlPullParserException, IOException {
         int version = 0;
         int subversion = 0;
@@ -132,10 +145,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return new Version(version, subversion);
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "content");
-        TetroidNode rootNode = new TetroidNode("", "", 0);
+        TetroidNode rootNode = new TetroidNode("", "", -1);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -159,7 +179,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return true;
     }
 
-    private TetroidNode readNode(XmlPullParser parser, int depthLevel, TetroidNode parentNode) throws XmlPullParserException, IOException {
+    /**
+     *
+     * @param parser
+     * @param depthLevel
+     * @param parentNode
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    private TetroidNode readNode(XmlPullParser parser, int depthLevel, TetroidNode parentNode)
+            throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
@@ -238,6 +268,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return node;
     }
 
+    /**
+     *
+     * @param parser
+     * @param node
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private List<TetroidRecord> readRecords(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         List<TetroidRecord> records = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, ns, "recordtable");
