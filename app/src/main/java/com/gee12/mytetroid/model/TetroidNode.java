@@ -88,7 +88,7 @@ public class TetroidNode extends TetroidObject {
     }
 
     public int getSubNodesCount() {
-        return subNodes.size();
+        return (subNodes != null) ? subNodes.size() : 0;
     }
 
     public List<TetroidRecord> getRecords() {
@@ -96,7 +96,7 @@ public class TetroidNode extends TetroidObject {
     }
 
     public int getRecordsCount() {
-        return records.size();
+        return (records != null) ? records.size() : 0;
     }
 
 //    public boolean isCrypted() {
@@ -134,7 +134,7 @@ public class TetroidNode extends TetroidObject {
     }
 
     public boolean isExpandable() {
-        return !subNodes.isEmpty() /*&& isNonCryptedOrDecrypted()*/;
+        return (subNodes != null && !subNodes.isEmpty()) /*&& isNonCryptedOrDecrypted()*/;
     }
 
     @Override

@@ -1029,7 +1029,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
             TetroidNode node = DataManager.createNode(name, trueParentNode);
             if (node != null) {
-                if (!mListAdapterNodes.addItem(node, pos, isSubNode)) {
+                if (!mListAdapterNodes.addItem(pos, isSubNode)) {
                     LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {

@@ -71,6 +71,11 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     }
 
     @Override
+    protected Object getParent(Object object) {
+        return ((TetroidNode)object).getParentNode();
+    }
+
+    @Override
     protected View getViewForObject(Object object, View convertView, ItemInfo itemInfo, int pos) {
         NodeViewHolder viewHolder;
         if (convertView == null) {

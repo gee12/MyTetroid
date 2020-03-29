@@ -406,6 +406,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         int level = (parentNode != null) ? parentNode.getLevel() + 1 : 0;
         TetroidNode node = new TetroidNode(crypted, id, name, null, level);
         node.setParentNode(parentNode);
+        node.setRecords(new ArrayList<>());
+        node.setSubNodes(new ArrayList<>());
         if (crypted) {
             node.setDecrypted(true);
         }

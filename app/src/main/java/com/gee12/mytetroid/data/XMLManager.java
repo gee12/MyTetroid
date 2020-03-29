@@ -135,13 +135,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "content");
+        TetroidNode rootNode = new TetroidNode("", "", 0);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                TetroidNode node = readNode(parser, 0, null);
+                TetroidNode node = readNode(parser, 0, rootNode);
                 if (node != null) {
                     nodes.add(node);
                 }
@@ -153,6 +154,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 skip(parser);
             }
         }
+        rootNode.setSubNodes(nodes);
         this.rootNodesList = nodes;
         return true;
     }
