@@ -22,7 +22,7 @@
     <item
         android:id="@+id/action_rename_node"
         android:orderInCategory="30"
-        android:title="@string/rename_node"
+        android:title="@string/rename"
         android:icon="@drawable/ic_edit_node"
         app:showAsAction="ifRoom|withText" />
     <item

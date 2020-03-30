@@ -8,7 +8,6 @@ public class TetroidTag extends TetroidObject {
     public static final String PREFIX = "tag";
     public static final String LINKS_PREFIX = PREFIX + ":"; //implements Map.Entry<String, List<TetroidRecord>> {
 
-//    private String name;
     private List<TetroidRecord> records;
 
     public TetroidTag(String name, List<TetroidRecord> records) {
@@ -16,21 +15,6 @@ public class TetroidTag extends TetroidObject {
 //        this.name = name;
         this.records = records;
     }
-
-//    @Override
-//    public String getId() {
-//        return "";
-//    }
-//
-//    @Override
-//    public int getType() {
-//        return FoundType.TYPE_TAG;
-//    }
-//
-//    @Override
-//    public String getName() {
-//        return name;
-//    }
 
     public void addRecord(TetroidRecord record) {
         if (records != null)
@@ -119,6 +103,16 @@ public class TetroidTag extends TetroidObject {
             }
             return o1.toLowerCase().compareTo(o2.toLowerCase());
         }
+    }
+
+
+    /**
+     * Формирование ссылки на объект хранилища.
+     * @return
+     */
+    @Override
+    public String createUrl() {
+        return createUrl(name);
     }
 
     @Override

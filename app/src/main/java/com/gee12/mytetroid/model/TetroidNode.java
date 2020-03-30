@@ -99,10 +99,6 @@ public class TetroidNode extends TetroidObject {
         return (records != null) ? records.size() : 0;
     }
 
-//    public boolean isCrypted() {
-//        return isCrypted;
-//    }
-
     public void setIconName(String iconName) {
         this.iconName = iconName;
     }

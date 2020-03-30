@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -291,8 +292,25 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.saveRecordHtmlText()");
             return false;
         }
-        String path = getStoragePathBase() + File.separator
-                + record.getDirName() + File.separator + record.getFileName();
+        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        File dir = new File(dirPath);
+        try {
+            if (!dir.exists()) {
+                LogManager.addLog(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath),
+                        LogManager.Types.WARNING);
+                if (dir.mkdirs()) {
+                    LogManager.addLog(context.getString(R.string.log_record_dir_created), LogManager.Types.INFO);
+                } else {
+                    LogManager.addLog(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR);
+                    return false;
+                }
+            }
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_check_record_dir_error), LogManager.Types.ERROR);
+            return false;
+        }
+
+        String path = dirPath + File.separator + record.getFileName();
         Uri uri;
         try {
             uri = Uri.parse(path);
@@ -987,7 +1005,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             return false;
         }
         //
-        LogManager.addLog(context.getString(R.string.open_file) + fullFileName);
+        LogManager.addLog(context.getString(R.string.log_open_file) + fullFileName);
         if (srcFile.exists()) {
             // если запись зашифрована
             if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {

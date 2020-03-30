@@ -179,17 +179,17 @@
     <string name="log_sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
     <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>
     <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>
-    <string name="open_file">Открытие файла:&#160;</string>
+    <string name="log_open_file">Открытие файла:&#160;</string>
     <string name="open_with">Открыть с помощью</string>
-    <string name="open_tag_records">Открытие записей метки::&#160;</string>
-    <string name="start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
+    <string name="log_open_tag_records">Открытие записей метки:&#160;</string>
+    <string name="log_start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
     <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
     <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
     <string name="log_file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>
     <string name="ask_before_sync">Спрашивать перед запуском</string>
     <string name="ask_before_sync_summ">Выводить подтверждение запуска синхронизации</string>
     <string name="start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
-    <string name="record_file_reading">Чтение файла записи: id=</string>
+    <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>
     <string name="log_not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
     <string name="log_error_write_to_record_file">Ошибка записи в файл:&#160;</string>
@@ -249,7 +249,7 @@
     <string name="log_record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
     <string name="record_deleted">Запись удалена</string>
     <string name="show_node">Открыть ветку</string>
-    <string name="rename_node">Переименовать</string>
+    <string name="rename">Переименовать</string>
     <string name="set_node_icon">Задать иконку</string>
     <string name="encrypt_node">Зашифровать</string>
     <string name="decrypt_node">Расшифровать</string>
@@ -264,6 +264,7 @@
     <string name="log_get_item_is_null">Не удается получить текущий элемент списка</string>
     <string name="link_to_record">Ссылка на запись MyTetroid</string>
     <string name="link_to_node">Ссылка на ветку MyTetroid</string>
+    <string name="link_to_tag">Ссылка на метку MyTetroid</string>
     <string name="save_record">Сохранить запись?</string>
     <string name="log_record_loading">Загрузка записи id=</string>
     <string name="log_node_delete_error">Не удалось удалить ветку (подробнее в логах)</string>
@@ -273,4 +274,10 @@
     <string name="log_record_move_error">Не удалось переместить запись (подробнее в логах)</string>
     <string name="log_create_node_error">Не удалось создать ветку (подробнее в логах)</string>
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
+    <string name="open_tag_records">Открыть записи метки</string>
+    <string name="link_was_copied">Ссылка скопирована:&#160;</string>
+    <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
+    <string name="log_record_dir_created">Создан каталог записи</string>
+    <string name="log_create_record_dir_error">Не удалось создать каталог</string>
+    <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
 </resources>

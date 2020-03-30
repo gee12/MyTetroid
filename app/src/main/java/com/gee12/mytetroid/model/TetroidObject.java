@@ -81,7 +81,11 @@ public class TetroidObject implements ITetroidObject {
      * @return
      */
     public String createUrl() {
-        return String.format(Locale.getDefault(), "%s//%s/%s", MYTETRA_LINK_PREFIX, getPrefix(), id);
+        return createUrl(id);
+    }
+
+    public String createUrl(String uniqueField) {
+        return String.format(Locale.getDefault(), "%s//%s/%s", MYTETRA_LINK_PREFIX, getPrefix(), uniqueField);
     }
 
     /**

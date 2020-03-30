@@ -352,7 +352,9 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void copyRecordLink(TetroidRecord record) {
         if (record != null) {
-            Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), record.createUrl());
+            String url = record.createUrl();
+            Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), url);
+            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }

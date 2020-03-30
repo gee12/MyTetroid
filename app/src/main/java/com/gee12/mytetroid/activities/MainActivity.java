@@ -188,6 +188,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // список меток
         this.mListViewTags = findViewById(R.id.tags_list_view);
         mListViewTags.setOnItemClickListener(onTagClicklistener);
+        mListViewTags.setOnItemLongClickListener(onTagLongClicklistener);
         this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
         mListViewTags.setEmptyView(mTextViewTagsEmpty);
 
@@ -302,7 +303,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         String command = SettingsManager.getSyncCommand();
         Intent intent = SyncManager.createCommandSender(this, storagePath, command);
 
-        LogManager.addLog(getString(R.string.start_storage_sync) + command);
+        LogManager.addLog(getString(R.string.log_start_storage_sync) + command);
         if (!SettingsManager.isNotRememberSyncApp()) {
             // использовать стандартный механизм запоминания используемого приложения
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
@@ -641,7 +642,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         this.mCurNode = null;
         this.mCurTag = tag;
-        LogManager.addLog(getString(R.string.open_tag_records) + tag);
+        LogManager.addLog(getString(R.string.log_open_tag_records) + tag);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
@@ -727,7 +728,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         public boolean onLongClick(View view, TetroidNode node, int pos) {
-            showPopupMenu(view, node, pos);
+            showNodePopupMenu(view, node, pos);
             return true;
         }
     };
@@ -773,7 +774,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
-        showPopupMenu(view, node, pos);
+        showNodePopupMenu(view, node, pos);
     };
 
     /**
@@ -781,6 +782,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private AdapterView.OnItemClickListener onTagClicklistener = (parent, view, position, id) -> {
         showTagRecords(position);
+    };
+
+    /**
+     * Обработчик долгого клика на метке.
+     */
+    private AdapterView.OnItemLongClickListener onTagLongClicklistener = (parent, view, position, id) -> {
+        Map.Entry<String, TetroidTag> tagEntry = mListAdapterTags.getItem(position);
+        if (tagEntry != null) {
+            showTagPopupMenu(view, tagEntry.getValue());
+        }
+        return true;
     };
 
     /**
@@ -1043,7 +1055,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void copyNodeLink(TetroidNode node) {
         if (node != null) {
-            Utils.writeToClipboard(this, getString(R.string.link_to_node), node.createUrl());
+            String url = node.createUrl();
+            Utils.writeToClipboard(this, getString(R.string.link_to_node), url);
+            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Копирование ссылки на метку в буфер обмена.
+     */
+    private void copyTagLink(TetroidTag tag) {
+        if (tag != null) {
+            String url = tag.createUrl();
+            Utils.writeToClipboard(this, getString(R.string.link_to_tag), url);
+            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
@@ -1158,8 +1185,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param v
      * @param node
      */
-    private void showPopupMenu(View v, TetroidNode node, int pos) {
-        PopupMenu popupMenu = new PopupMenu(this, v, Gravity.CENTER);
+    private void showNodePopupMenu(View v, TetroidNode node, int pos) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.node_context);
 
         popupMenu.setOnMenuItemClickListener(item -> {
@@ -1199,6 +1226,39 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return true;
                 case R.id.action_delete:
                     deleteNode(node, pos);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        // для отображения иконок
+        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) popupMenu.getMenu(), v);
+        menuHelper.setForceShowIcon(true);
+        menuHelper.show();
+    }
+
+    /**
+     * Отображение всплывающего (контексного) меню метки.
+     *
+     * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
+     *
+     * @param v
+     * @param tag
+     */
+    private void showTagPopupMenu(View v, TetroidTag tag) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.inflate(R.menu.tag_context);
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_open_tag:
+                    showTag(tag);
+                    return true;
+//                case R.id.action_rename_tag:
+//                    renameTag(tag);
+//                    return true;
+                case R.id.action_copy_link:
+                    copyTagLink(tag);
                     return true;
                 default:
                     return false;

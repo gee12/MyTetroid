@@ -216,10 +216,10 @@
     <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
     <string name="pref_is_not_remember_sync_app">Do not remember application</string>
     <string name="pref_is_not_remember_sync_app_summ">Do not use the standard mechanism for remembering the last used application for sync</string>
-    <string name="open_file">Open file:&#160;</string>
+    <string name="log_open_file">Open file:&#160;</string>
     <string name="open_with">Open with</string>
-    <string name="open_tag_records">Open tag records:&#160;</string>
-    <string name="start_storage_sync">Start storage sync. Command:&#160;</string>
+    <string name="log_open_tag_records">Open tag records:&#160;</string>
+    <string name="log_start_storage_sync">Start storage sync. Command:&#160;</string>
     <string name="log_get_file_size_error">Error getting file size:&#160;</string>
     <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
     <string name="log_file_sharing_error">File sharing error:&#160;</string>
@@ -227,7 +227,7 @@
     <string name="ask_before_sync">Ask before starting</string>
     <string name="ask_before_sync_summ">Show confirmation of synchronization start</string>
     <string name="start_sync_dialog_title">Start storage sync?</string>
-    <string name="record_file_reading">Record file reading: id=</string>
+    <string name="log_record_file_reading">Record file reading: id=</string>
     <string name="log_error_record_reading">Record reading error</string>
     <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>
     <string name="log_error_write_to_record_file">Error write to the record file:&#160;</string>
@@ -288,7 +288,7 @@
     <string name="log_record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
     <string name="record_deleted">Record deleted</string>
     <string name="show_node">Show node</string>
-    <string name="rename_node">Rename</string>
+    <string name="rename">Rename</string>
     <string name="set_node_icon">Set icon</string>
     <string name="encrypt_node">Encrypt</string>
     <string name="decrypt_node">Decrypt</string>
@@ -303,6 +303,7 @@
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="link_to_record">Link to MyTetroid record</string>
     <string name="link_to_node">Link to MyTetroid node</string>
+    <string name="link_to_tag">Link to MyTetroid tag</string>
     <string name="save_record">Save record ?</string>
     <string name="log_record_loading">Record loading id=</string>
     <string name="log_node_delete_error">Unable to delete the node (more in the logs)</string>
@@ -312,4 +313,10 @@
     <string name="log_record_move_error">Unable to move the record (more in the logs)</string>
     <string name="log_create_node_error">Unable to create the record (more in the logs)</string>
     <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
+    <string name="open_tag_records">Open tag records</string>
+    <string name="link_was_copied">Link was copied:&#160;</string>
+    <string name="log_create_record_dir">Record directory \"%s\" is absent. Creating..</string>
+    <string name="log_record_dir_created">Record directory was created</string>
+    <string name="log_create_record_dir_error">Record directory creating failed</string>
+    <string name="log_check_record_dir_error">Record directory checking failed</string>
 </resources>

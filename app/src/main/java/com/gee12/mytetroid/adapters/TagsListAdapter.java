@@ -13,6 +13,7 @@ import com.gee12.mytetroid.model.TetroidTag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TagsListAdapter extends BaseAdapter {
@@ -101,7 +102,7 @@ public class TagsListAdapter extends BaseAdapter {
 //        viewHolder.nameView.setText((String)key);
         viewHolder.nameView.setText(item.getValue().getName());
         // размер файла
-        viewHolder.recordsCountView.setText(String.format("[%d]", records.size()));
+        viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", records.size()));
 
         return convertView;
     }
