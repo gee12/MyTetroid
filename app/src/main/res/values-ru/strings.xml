@@ -281,4 +281,7 @@
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
     <string name="tag_name_is_empty">Имя метки пусто</string>
+    <string name="node_was_renamed">Ветка переименована</string>
+    <string name="node_was_deleted">Ветка удалена</string>
+    <string name="node_was_moved">Ветка перемещена</string>
 </resources>

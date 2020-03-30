@@ -320,4 +320,7 @@
     <string name="log_create_record_dir_error">Record directory creating failed</string>
     <string name="log_check_record_dir_error">Record directory checking failed</string>
     <string name="tag_name_is_empty">Tag name is empty</string>
+    <string name="node_was_renamed">The node was renamed</string>
+    <string name="node_was_deleted">The node was deleted</string>
+    <string name="node_was_moved">The node was moved</string>
 </resources>

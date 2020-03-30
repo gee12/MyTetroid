@@ -1083,6 +1083,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void renameNode(TetroidNode node) {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (DataManager.editNodeFields(node, name)) {
+                LogManager.addLog(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 mListAdapterNodes.notifyDataSetChanged();
                 if (mCurNode == node) {
                     setTitle(name);
@@ -1103,7 +1104,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NodeAskDialogs.deleteNode(this, () -> {
             if (DataManager.deleteNode(node)) {
                 // удаляем элемент внутри списка
-                if (!mListAdapterNodes.deleteItem(pos)) {
+                if (mListAdapterNodes.deleteItem(pos)) {
+                    LogManager.addLog(getString(R.string.node_was_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                } else {
                     LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
                 // убираем список записей удаляемой ветки
@@ -1150,7 +1153,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             int posInNode = subNodes.indexOf(node);
             if (DataManager.swapTetroidObjects(subNodes, posInNode, isUp)) {
                 // меняем местами элементы внутри списка
-                if (!mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
+                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
+                    LogManager.addLog(getString(R.string.node_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                } else {
                     LogManager.addLog(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
