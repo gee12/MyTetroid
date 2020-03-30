@@ -100,13 +100,13 @@ public class TetroidObject implements ITetroidObject {
             int type = FoundType.TYPE_NONE;
             String id = "";
             // ссылка на запись типа "mytetra://<type>/<id>"
-            if ((id = parseId(url, TetroidRecord.PREFIX)) != null) {
+            if ((id = parseUniqueField(url, TetroidRecord.PREFIX)) != null) {
                 type = FoundType.TYPE_RECORD;
-            } else if ((id = parseId(url, TetroidNode.PREFIX)) != null) {
+            } else if ((id = parseUniqueField(url, TetroidNode.PREFIX)) != null) {
                 type = FoundType.TYPE_NODE;
-            } else if ((id = parseId(url, TetroidTag.PREFIX)) != null) {
+            } else if ((id = parseUniqueField(url, TetroidTag.PREFIX)) != null) {
                 type = FoundType.TYPE_TAG;
-            } else if ((id = parseId(url, TetroidFile.PREFIX)) != null) {
+            } else if ((id = parseUniqueField(url, TetroidFile.PREFIX)) != null) {
                 type = FoundType.TYPE_FILE;
             }
             return new TetroidObject(type, id);
@@ -115,12 +115,12 @@ public class TetroidObject implements ITetroidObject {
     }
 
     /**
-     * Получение id объекта хранилища из url, зная его префикс (тип объекта)
+     * Получение идентификатор объекта (id или имя, если метка) из url, зная его префикс (тип объекта)
      * @param url
      * @param prefix
      * @return
      */
-    public static String parseId(String url, String prefix) {
+    public static String parseUniqueField(String url, String prefix) {
         String start = String.format(Locale.getDefault(), "%s//%s/", MYTETRA_LINK_PREFIX, prefix);
         if (url.startsWith(start)) {
 //        String id = url.substring(url.lastIndexOf('/')+1);

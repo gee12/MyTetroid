@@ -319,4 +319,5 @@
     <string name="log_record_dir_created">Record directory was created</string>
     <string name="log_create_record_dir_error">Record directory creating failed</string>
     <string name="log_check_record_dir_error">Record directory checking failed</string>
+    <string name="tag_name_is_empty">Tag name is empty</string>
 </resources>

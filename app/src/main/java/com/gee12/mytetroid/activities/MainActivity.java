@@ -1339,12 +1339,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (tag != null) {
                     showTag(tag);
                 } else {
-                    LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName), LogManager.Types.WARNING);
+                    LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName),
+                            LogManager.Types.WARNING, Toast.LENGTH_LONG);
                 }
                 break;
-//            case RecordActivity.RESULT_FIELDS_EDITED:
-//                mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
-//                break;
         }
     }
 

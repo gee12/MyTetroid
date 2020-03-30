@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -283,6 +284,13 @@ public class RecordActivity extends TetroidActivity implements
                     }
                     break;
                 case FoundType.TYPE_TAG:
+                    String tag = obj.getId();
+                    if (!TextUtils.isEmpty(tag)) {
+                        openTag(tag, true);
+                    } else {
+                        LogManager.addLog(getString(R.string.tag_name_is_empty), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    }
+                    break;
                 case FoundType.TYPE_AUTHOR:
                 case FoundType.TYPE_FILE:
                     break;

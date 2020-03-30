@@ -280,4 +280,5 @@
     <string name="log_record_dir_created">Создан каталог записи</string>
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
+    <string name="tag_name_is_empty">Имя метки пусто</string>
 </resources>
