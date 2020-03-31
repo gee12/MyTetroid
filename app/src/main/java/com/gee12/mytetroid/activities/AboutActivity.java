@@ -15,7 +15,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.utils.Utils;
 
 public class AboutActivity extends AppCompatActivity {
 
@@ -37,6 +37,10 @@ public class AboutActivity extends AppCompatActivity {
         TextView tvUrl = findViewById(R.id.text_view_url);
         tvUrl.setText(Html.fromHtml(getString(R.string.project_url)));
         tvUrl.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView tvPolicy = findViewById(R.id.text_view_policy);
+        tvPolicy.setText(Html.fromHtml(getString(R.string.policy_link)));
+        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
 
         Button bRateApp = findViewById(R.id.button_rate_app);
         bRateApp.setOnClickListener(new View.OnClickListener() {

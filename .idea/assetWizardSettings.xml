@@ -24,6 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="opacityPercent" value="80" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -35,7 +36,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/navigation/ic_arrow_drop_up_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/editor/ic_format_clear_black_24dp.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -47,6 +48,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="opacityPercent" value="80" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
@@ -57,9 +59,11 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_arrow_drop_up" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="$PROJECT_DIR$/../link_remove.png" />
+                                      <entry key="outputName" value="ic_link_remove_black" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="555555" />
+                                      <entry key="themeColor" value="000000" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -110,8 +114,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="76b778" />
-                                      <entry key="foregroundImage" value="C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
+                                      <entry key="foregroundImage" value="$USER_HOME$/C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -150,7 +153,7 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
+                                      <entry key="imageAsset" value="$USER_HOME$/C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -212,7 +215,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_search_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_label_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -222,11 +225,10 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
+                            <entry key="color" value="878787" />
                             <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_search_24dp" />
-                            <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="$USER_HOME$/C:\Users\Ivan\D:\GoogleDrive\MyTetraData\icons\Flat\color_icons8_flat_about.svg" />
+                            <entry key="outputName" value="ic_label" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>
                       </PersistentState>

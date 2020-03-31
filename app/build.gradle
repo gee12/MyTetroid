@@ -5,14 +5,17 @@ android {
         debug {
             storeFile file("external/debug.keystore")
         }
+//        freeDebug {
+//            storeFile file("external/freedebug.keystore")
+//        }
     }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.gee12.mytetroid"
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 28
-        versionCode 16
-        versionName "1.14"
+        versionCode 22
+        versionName "2.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 //    defaultConfig.applicationId = "com.gee12.mytetroid"
@@ -32,6 +35,7 @@ android {
     productFlavors {
         free {
             dimension = 'default'
+//            signingConfig signingConfigs.freeDebug
 //            applicationIdSuffix = '.free'
 //            resValue "string", "app_name", "MyTetroid Free"
 //            buildConfigField "String", "BUILD_VARIANT", "\"free\""
@@ -39,26 +43,29 @@ android {
         pro {
             dimension = 'default'
             applicationIdSuffix = '.pro'
+//            signingConfig signingConfigs.debug
 //            buildConfigField "String", "BUILD_VARIANT", "\"pro\""
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.0.0-beta01'
+    implementation 'com.google.android.material:material:1.2.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    //testImplementation 'junit:junit:4.12'
-    //androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    //androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    // многоуровневый список веток
-    implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
-    //    compile 'net.rdrei.android.dirchooser:library:3.2@aar'
-    implementation 'lib.kashif:folderpicker:2.4'
-    // ColorPicker в настройках
+//    implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
-    // для парсинга html
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation(project(path: ':wysiwyg-editor')){
+        exclude group: 'org.jetbrains', module: 'annotations'
+    }
+    implementation(project(path: ':folder-picker'))
+    implementation(project(path: ':multi-listview'))
 }

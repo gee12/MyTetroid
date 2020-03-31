@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:text="Название:"
+        style="@style/DialogLabels"/>
+
+    <EditText
+        android:id="@+id/edit_text_name"
+        android:inputType="text|textCapSentences"
+        style="@style/DialogTextEdit">
+
+        <requestFocus/>
+
+    </EditText>
+
+    <TextView
+        android:text="Автор:"
+        style="@style/DialogLabels"/>
+
+    <EditText
+        android:id="@+id/edit_text_author"
+        android:inputType="text|textCapWords"
+        style="@style/DialogTextEdit"/>
+
+    <TextView
+        android:text="Url:"
+        style="@style/DialogLabels"/>
+
+    <EditText
+        android:id="@+id/edit_text_url"
+        android:inputType="textUri"
+        style="@style/DialogTextEdit"/>
+
+    <TextView
+        android:text="Метки:"
+        style="@style/DialogLabels"/>
+
+    <EditText
+        android:id="@+id/edit_text_tags"
+        android:inputType="text"
+        style="@style/DialogTextEdit"/>
+
+</LinearLayout>

@@ -10,9 +10,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.EditText;
 
-import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.utils.Utils;
 
 public class DateTimeFormatPreference extends DialogPreference {
 

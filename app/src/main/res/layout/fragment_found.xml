@@ -2,7 +2,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!--android:id="@+id/layout_found"-->
 
     <ListView
         android:id="@+id/list_view_found"
@@ -22,17 +21,9 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginLeft="@dimen/fab_margin"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginRight="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/fab_margin"
+        app:fabSize="mini"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:backgroundTint="#BBB"/>
+        app:backgroundTint="#BBB"
+        style="@style/FloatingButtons"/>
 
 </RelativeLayout>

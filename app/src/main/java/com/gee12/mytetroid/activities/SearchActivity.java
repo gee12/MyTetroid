@@ -14,10 +14,10 @@ import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.gee12.mytetroid.Message;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.ScanManager;
+import com.gee12.mytetroid.views.Message;
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -156,7 +156,7 @@ public class SearchActivity extends AppCompatActivity {
                 Message.show(this, getString(R.string.enter_query));
             } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.global_search_in_cur_node))
                 && !isCurNodeNotNull) {
-                Message.show(this, getString(R.string.cur_node_is_not_selected));
+                Message.show(this, getString(R.string.log_cur_node_is_not_selected));
             } else {
                 startSearch();
             }

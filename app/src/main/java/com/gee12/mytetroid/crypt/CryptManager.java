@@ -3,12 +3,12 @@ package com.gee12.mytetroid.crypt;
 import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.Utils;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.ITagsParseHandler;
-import com.gee12.mytetroid.data.TetroidFile;
-import com.gee12.mytetroid.data.TetroidNode;
-import com.gee12.mytetroid.data.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -30,8 +30,10 @@ public class CryptManager {
 
     private static RC5Simple rc5 = new RC5Simple();
     private static int[] cryptKey;
+    private static Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
     private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
     private static ITagsParseHandler tagsParser;
+
     /**
      * Для будущего сохранения в настройках.
      * Если поставили галку "Сохранять хеш пароля локально" уже после того,
@@ -62,8 +64,10 @@ public class CryptManager {
      * @return
      */
     public static boolean checkPass(String pass, String salt, String checkHash) {
-        byte[] saltSigned = Base64.decode(salt.toCharArray());
-        byte[] checkHashSigned = Base64.decode(checkHash.toCharArray());
+        if (salt == null || checkHash == null)
+            return false;
+        byte[] saltSigned = decodeBase64(salt);
+        byte[] checkHashSigned = decodeBase64(checkHash);
         // получим хэш пароля и соли
         byte[] passHash = null;
         try {
@@ -82,10 +86,57 @@ public class CryptManager {
      */
     public static boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
-        byte[] checDataSigned = Base64.decode(checkData.toCharArray());
+        byte[] checDataSigned = decodeBase64(checkData);
         String line = decryptString(key, checDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
+    }
+
+    /**
+     * Шифрование строки.
+     * @param text
+     * @return
+     */
+    public static String encryptTextBase64(String text) {
+        if (text == null)
+            return null;
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
+        if (out != null)
+            return Base64.encodeToString(out, false);
+        return null;
+    }
+
+    public static byte[] encryptTextBase64Bytes(String text) {
+        if (text == null)
+            return null;
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
+        if (out != null)
+            return Base64.encodeToByte(out, true);
+        return null;
+    }
+
+    public static byte[] encryptTextBytes(String text) {
+        if (text == null)
+            return null;
+        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
+        return out;
+    }
+
+    public static byte[] encryptBytes(byte[] bytes) {
+        return encrypt(cryptKey, bytes);
+    }
+
+    public static byte[] encrypt(int[] key, byte[] bytes) {
+        if (bytes == null)
+            return null;
+        byte[] res = null;
+        rc5.setKey(key);
+        try {
+            res = rc5.encrypt(bytes);
+        } catch (Exception e) {
+            addLog(e);
+        }
+        return res;
     }
 
     public static boolean decryptAll(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
@@ -102,6 +153,8 @@ public class CryptManager {
     }
 
     public static boolean decryptNode(TetroidNode node, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
+        if (node == null)
+            return false;
         boolean res;
         // расшифровываем поля
         res = decryptNodeFields(node);
@@ -169,26 +222,22 @@ public class CryptManager {
      */
     public static boolean decryptRecordFields(TetroidRecord record) {
         boolean res;
-//        record.setName(CryptManager.decryptBase64(cryptKey, record.getName()));
         String temp = CryptManager.decryptBase64(cryptKey, record.getName());
         res = (temp != null);
         if (res) {
             record.setName(temp);
         }
-//        record.setTagsString(CryptManager.decryptBase64(cryptKey, record.getTagsString()));
         temp = CryptManager.decryptBase64(cryptKey, record.getTagsString());
         res = res & (temp != null);
         if (temp != null) {
             record.setTagsString(temp);
-            tagsParser.parseRecordTags(record);
+            tagsParser.parseRecordTags(record, temp);
         }
-//        record.setAuthor(CryptManager.decryptBase64(cryptKey, record.getAuthor()));
         temp = CryptManager.decryptBase64(cryptKey, record.getAuthor());
         res = res & (temp != null);
         if (temp != null) {
             record.setAuthor(temp);
         }
-//        record.setUrl(CryptManager.decryptBase64(cryptKey, record.getUrl()));
         temp = CryptManager.decryptBase64(cryptKey, record.getUrl());
         res = res & (temp != null);
         if (temp != null) {
@@ -204,17 +253,17 @@ public class CryptManager {
      * @return
      */
     public static boolean decryptFileName(TetroidFile file) {
-//        file.setName(CryptManager.decryptBase64(cryptKey, file.getName()));
         String temp = CryptManager.decryptBase64(cryptKey, file.getName());
         boolean res = (temp != null);
         if (res) {
             file.setName(temp);
         }
+        file.setDecrypted(res);
         return res;
     }
 
     /**
-     * Расшифровка текста
+     * Расшифровка текста.
      * @param text
      * @return
      */
@@ -223,7 +272,7 @@ public class CryptManager {
     }
 
     /**
-     * Расшифровка массива байт
+     * Расшифровка массива байт.
      * @param bytes
      * @return
      */
@@ -231,10 +280,23 @@ public class CryptManager {
         return decrypt(cryptKey, bytes);
     }
 
+
     /**
-     * Расшифровка файла
+     * TODO: Реализовать
+     * @param srcFile
+     * @param destFile
+     * @return
+     * @throws IOException
+     */
+    public static boolean encryptFile(File srcFile, File destFile) throws IOException {
+
+        return false;
+    }
+
+    /**
+     * Расшифровка файла.
      *
-     * Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком
+     * TODO: Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком.
      *
      * @param srcFile
      * @param destFile
@@ -265,7 +327,7 @@ public class CryptManager {
     }
 
     /**
-     * Создание хэша пароля для сохранения в файле
+     * Создание хэша пароля для сохранения в файле.
      * @param pass
      * @return
      */
@@ -273,7 +335,6 @@ public class CryptManager {
         String res =  null;
         try {
             byte[] passHashSigned = calculateMiddleHash(pass);
-//            byte[] passHash = Utils.toUnsigned(passHashSigned);
             res = Base64.encodeToString(passHashSigned, false);
         } catch (Exception e) {
             addLog(e);
@@ -315,7 +376,7 @@ public class CryptManager {
     private static int[] middlePassHashToKey(String passHash) {
         int[] res = null;
         try {
-            byte[] passHashSigned = Base64.decode(passHash.toCharArray());
+            byte[] passHashSigned = decodeBase64(passHash);
             // преобразуем к MD5 виду
             byte[] keySigned = Utils.toMD5(passHashSigned);
             res = Utils.toUnsigned(keySigned);
@@ -343,25 +404,15 @@ public class CryptManager {
         return PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
     }
 
-
-    /**
-     * Шифрование исходной строки в base64
-     * @param key
-     * @param line Исходня строка
-     */
-    public static String encrypt(int[] key, String line) {
-        return null;
-    }
-
     /**
      * Расшифровка строки в base64
      * @param line Строка в base64
      */
     public static String decryptBase64(int[] key, String line) {
-        if (line.length() == 0) {
+        if (line == null || line.length() == 0) {
             return "";
         }
-        byte[] bytes = Base64.decode(line.toCharArray());
+        byte[] bytes = decodeBase64(line);
         return decryptString(key, bytes);
     }
 
@@ -380,24 +431,20 @@ public class CryptManager {
         rc5.setKey(key);
         try {
             res = rc5.decrypt(bytes);
-        } catch (Exception e) {
-            addLog(e);
+        } catch (Exception ex) {
+            addLog(ex);
         }
         return res;
     }
 
-//    public static String decryptString(int[] key, byte[] bytes) {
-//        if (bytes == null)
-//            return null;
-//        String res = null;
-//        rc5.setKey(key);
-//        try {
-//            res = rc5.decryptString(bytes);
-//        } catch (Exception e) {
-//            addLog(e);
-//        }
-//        return res;
-//    }
+    public static byte[] decodeBase64(String s) {
+        try {
+            return Base64.decode(s.toCharArray());
+        } catch (Exception ex) {
+            addLog(ex);
+        }
+        return null;
+    }
 
     static void setCryptKey(int[] key) {
         CryptManager.cryptKey = key;

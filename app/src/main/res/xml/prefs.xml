@@ -86,7 +86,29 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_edit_mode"
+            android:title="@string/recod_edit_mode"
+            android:summary="@string/record_edit_mode_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_auto_save"
+            android:title="@string/record_auto_save"
+            android:summary="@string/record_auto_save_summ"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_keep_screen_on"
+            android:title="@string/pref_keep_screen_on"
+            android:summary="@string/pref_keep_screen_on_summ"
+            android:defaultValue="false" />
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_highlight_attach"
@@ -99,15 +121,6 @@
             android:key="@string/pref_key_highlight_attach_color"
             android:title="@string/pref_highlight_attach_color"
             android:defaultValue="@color/colorHighlight" />
-        <!--android:defaultValue="0xffA0FFA0"-->
-
-        <!--<EditTextPreference-->
-            <!--android:key="@string/pref_key_date_format_string"-->
-            <!--android:dialogTitle="@string/pref_date_format_string"-->
-            <!--android:title="@string/pref_date_format_string"-->
-            <!--android:summary="@string/pref_date_format_string_summ"-->
-            <!--android:inputType="text"-->
-            <!--android:defaultValue="@string/def_date_format_string" />-->
 
         <com.gee12.mytetroid.views.DateTimeFormatPreference
             android:key="@string/pref_key_date_format_string"
@@ -116,12 +129,6 @@
             android:summary="@string/pref_date_format_string_summ"
             android:inputType="text"
             android:defaultValue="@string/def_date_format_string" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_keep_screen_on"
-            android:title="@string/pref_keep_screen_on"
-            android:summary="@string/pref_keep_screen_on_summ"
-            android:defaultValue="false" />
 
     </PreferenceCategory>
 

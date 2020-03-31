@@ -6,8 +6,10 @@ import android.content.DialogInterface;
 import android.text.InputType;
 import android.widget.EditText;
 
+import androidx.annotation.StringRes;
+
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.TetroidNode;
+import com.gee12.mytetroid.model.TetroidNode;
 
 public class AskDialogs {
 
@@ -37,18 +39,12 @@ public class AskDialogs {
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton(R.string.answer_ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                passResult.applyPass(input.getText().toString(), node);
-            }
+        builder.setPositiveButton(R.string.answer_ok, (dialog, which) -> {
+            passResult.applyPass(input.getText().toString(), node);
         });
-        builder.setNegativeButton(R.string.answer_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                passResult.cancelPass();
-            }
+        builder.setNegativeButton(R.string.answer_cancel, (dialog, which) -> {
+            dialog.cancel();
+            passResult.cancelPass();
         });
 
         builder.show();
@@ -57,91 +53,73 @@ public class AskDialogs {
     public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName,
                         final TetroidNode node, final IPassCheckResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        applyHandler.onApply(node);
-                        break;
-                }
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    applyHandler.onApply(node);
+                    break;
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(String.format(context.getString(R.string.empty_middle_hash_check_data_field), fieldName))
+        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
-    public static void showReloadStorageDialog(Context context, final IApplyCancelResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        applyHandler.onApply();
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        applyHandler.onCancel();
-                        break;
-                }
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.storage_path_was_changed)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+    public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.storage_path_was_changed);
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                }
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        int mesRes = (isSyncSuccess) ? R.string.sync_success_dialog_request : R.string.sync_failed_dialog_request;
-        builder.setMessage(mesRes)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        int mesRes = (isSyncSuccess) ? R.string.log_sync_success_dialog_request : R.string.log_sync_failed_dialog_request;
+        AskDialogs.showYesDialog(context, applyHandler, mesRes);
     }
 
     public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
-
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                    applyHandler.onCancel();
-                }
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(context.getString(R.string.start_sync_dialog_title))
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+        AskDialogs.showYesNoDialog(context, applyHandler, R.string.start_sync_dialog_title);
     }
 
     public static void showExitDialog(Context context, final IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.exit_from_app);
+    }
 
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (which == DialogInterface.BUTTON_POSITIVE) {
-                    applyHandler.onApply();
-                }
+    /**
+     *
+     * @param context
+     * @param applyHandler
+     * @param messageRes
+     */
+    public static void showYesNoDialog(Context context, final IApplyCancelResult applyHandler, @StringRes int messageRes) {
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                applyHandler.onCancel();
             }
         };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(R.string.exit_from_app)
+        builder.setMessage(messageRes)
                 .setPositiveButton(R.string.answer_yes, dialogClickListener)
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+
+    }
+
+    /**
+     *
+     * @param context
+     * @param applyHandler
+     * @param messageRes
+     */
+    public static void showYesDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                applyHandler.onApply();
+            }
+        };
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(messageRes)
+                .setPositiveButton(R.string.answer_yes, dialogClickListener)
+                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+
     }
 }

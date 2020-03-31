@@ -1,9 +1,12 @@
 package com.gee12.mytetroid;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.gee12.mytetroid.views.Message;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -117,6 +120,22 @@ public class LogManager {
     private static String createMessage(String s) {
         return String.format("%s - %s", DateFormat.format("yyyy.MM.dd HH:mm:ss",
                 Calendar.getInstance().getTime()), s);
+    }
+
+    /**
+     * Сообщение о параметре=null
+     * @param methodName
+     */
+    public static void emptyParams(String methodName) {
+        String start = (!TextUtils.isEmpty(methodName)) ? methodName + ": " : "";
+        addLog(start + "Some required parameter(s) is null", LogManager.Types.WARNING);
+    }
+
+    /**
+     * Сообщение о параметре context=null
+     */
+    public static void emptyContextLog() {
+        addLog("Parameter <context> is null", LogManager.Types.WARNING);
     }
 
     /**

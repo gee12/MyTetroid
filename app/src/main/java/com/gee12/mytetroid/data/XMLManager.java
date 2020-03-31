@@ -3,16 +3,25 @@ package com.gee12.mytetroid.data;
 import android.text.TextUtils;
 import android.util.Xml;
 
-import com.gee12.mytetroid.Utils;
+import com.gee12.mytetroid.AppDebug;
+import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidObject;
+import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.model.Version;
+import com.gee12.mytetroid.utils.Utils;
 
 import org.jsoup.internal.StringUtil;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
@@ -21,11 +30,6 @@ import java.util.TreeMap;
  *
  */
 public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
-
-    /**
-     * Запятая или запятая с пробелами
-     */
-    private static final String TAGS_SEPARATOR = "\\s*,\\s*";
 
     /**
      *
@@ -45,8 +49,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     /**
      *
      */
-    private TreeMap<String,TetroidTag> tagsMap;
-    protected List<TetroidTag> tagsList;
+    protected TreeMap<String, TetroidTag> tagsMap;
 
     /**
      * Статистические данные.
@@ -64,8 +67,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected int maxDepthLevel;
 
     /**
-     * Чтение хранилища.
-     * @param in Файл mytetra.xml
+     * Чтение хранилища из xml-файла.
+     * @param in
      * @return Иерархический список веток с записями и документами
      * @throws XmlPullParserException
      * @throws IOException
@@ -73,7 +76,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
         this.decryptCallback = decryptHandler;
         this.rootNodesList = new ArrayList<>();
-        this.tagsMap = new TreeMap<>(tagsComparator);
+        this.tagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
         this.nodesCount = 0;
         this.cryptedNodesCount = 0;
         this.recordsCount = 0;
@@ -93,16 +96,20 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             return readRoot(parser);
         } finally {
             in.close();
-            this.tagsList = new ArrayList<>(tagsMap.values());
-//            this.tagsMap = null;
         }
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private boolean readRoot(XmlPullParser parser) throws XmlPullParserException, IOException {
         boolean res = false;
         parser.require(XmlPullParser.START_TAG, ns, "root");
         while (parser.next() != XmlPullParser.END_TAG) {
-//        while (parser.next() != XmlPullParser.END_DOCUMENT) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
@@ -116,6 +123,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return res;
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private Version readFormatVersion(XmlPullParser parser) throws XmlPullParserException, IOException {
         int version = 0;
         int subversion = 0;
@@ -131,25 +145,51 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return new Version(version, subversion);
     }
 
+    /**
+     *
+     * @param parser
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "content");
+        TetroidNode rootNode = new TetroidNode("", "", -1);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                nodes.add(readNode(parser, 0));
+                TetroidNode node = readNode(parser, 0, rootNode);
+                if (node != null) {
+                    nodes.add(node);
+                }
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    break;
+                }
             } else {
                 skip(parser);
             }
         }
+        rootNode.setSubNodes(nodes);
         this.rootNodesList = nodes;
         return true;
     }
 
-    private TetroidNode readNode(XmlPullParser parser, int depthLevel) throws XmlPullParserException, IOException {
+    /**
+     *
+     * @param parser
+     * @param depthLevel
+     * @param parentNode
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    private TetroidNode readNode(XmlPullParser parser, int depthLevel, TetroidNode parentNode)
+            throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
@@ -158,6 +198,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
+            //
+            if (crypt && !AppDebug.isLoadCryptedRecords()) {
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG) {
+                        skip(parser);
+                    }
+                }
+                return null;
+            }
             // наличие зашифрованных веток
             if (crypt && !isExistCryptedNodes)
                 isExistCryptedNodes = true;
@@ -166,6 +215,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             iconPath = parser.getAttributeValue(ns, "icon");
         }
         TetroidNode node = new TetroidNode(crypt, id, name, iconPath, depthLevel);
+        node.setParentNode(parentNode);
 
         List<TetroidNode> subNodes = new ArrayList<>();
         List<TetroidRecord> records = new ArrayList<>();
@@ -177,9 +227,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             if (tagName.equals("recordtable")) {
                 // записи
                 records = readRecords(parser, node);
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    break;
+                }
             } else if (tagName.equals("node")) {
                 // вложенная ветка
-                subNodes.add(readNode(parser, depthLevel+1));
+                subNodes.add(readNode(parser, depthLevel+1, node));
             } else {
                 skip(parser);
             }
@@ -193,7 +247,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
         //else if (!crypt) {
         if (node.isNonCryptedOrDecrypted()) {
-            // парсим метки
+            // парсим метки, если запись не зашифрована
             parseNodeTags(node);
         }
 
@@ -214,6 +268,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return node;
     }
 
+    /**
+     *
+     * @param parser
+     * @param node
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private List<TetroidRecord> readRecords(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         List<TetroidRecord> records = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, ns, "recordtable");
@@ -224,7 +286,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             String tagName = parser.getName();
             if (tagName.equals("record")) {
                 TetroidRecord record = readRecord(parser, node);
-                records.add(record);
+                if (record != null) {
+                    records.add(record);
+                }
+                //
+                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                    return records;
+                }
             } else {
                 skip(parser);
             }
@@ -232,40 +300,38 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return records;
     }
 
+    /**
+     * Разбираем метки у незашифрованных записей ветки.
+     * @param node
+     */
     protected void parseNodeTags(TetroidNode node) {
-        for(TetroidRecord record : node.getRecords()) {
-            parseTags(record);
+        for (TetroidRecord record : node.getRecords()) {
+            parseRecordTags(record, record.getTagsString());
         }
     }
 
-    @Override
-    public void parseRecordTags(TetroidRecord record) {
-        parseTags(record);
-    }
+    /**
+     * Разбираем строку с метками записи и добавляем метки в запись и в коллекцию.
+     * @param record
+     * @param tagsString Строка с метками (не зашифрована).
+     *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
+     */
+    public abstract void parseRecordTags(TetroidRecord record, String tagsString);
 
-    protected void parseTags(TetroidRecord record) {
-//        if (!record.isNonCryptedOrDecrypted())
-//            return;
-        String tagsString = record.getTagsString();
-        if (!TextUtils.isEmpty(tagsString)) {
-            for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
-                TetroidTag tag;
-                if (tagsMap.containsKey(tagName)) {
-                    tag = tagsMap.get(tagName);
-                    tag.addRecord(record);
-                } else {
-                    List<TetroidRecord> tagRecords = new ArrayList<>();
-                    tagRecords.add(record);
-                    tag = new TetroidTag(tagName, tagRecords);
-                    tagsMap.put(tagName, tag);
-                    this.uniqueTagsCount++;
-                }
-                this.tagsCount++;
-                record.addTag(tag);
-            }
-        }
-    }
+    /**
+     * Удаление меток записи из списка.
+     * @param record
+     */
+    public abstract void deleteRecordTags(TetroidRecord record);
 
+    /**
+     *
+     * @param parser
+     * @param node
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private TetroidRecord readRecord(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
@@ -280,6 +346,16 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("record")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
+            //
+            if (crypt && !AppDebug.isLoadCryptedRecords()) {
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG) {
+                        skip(parser);
+                    }
+                }
+                parser.require(XmlPullParser.END_TAG, ns, "record");
+                return null;
+            }
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             tags = parser.getAttributeValue(ns, "tags");
@@ -321,6 +397,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return record;
     }
 
+    /**
+     *
+     * @param parser
+     * @param record
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private List<TetroidFile> readFiles(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
         List<TetroidFile> files = new ArrayList<>();
         parser.require(XmlPullParser.START_TAG, ns, "files");
@@ -338,7 +422,16 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return files;
     }
 
+    /**
+     *
+     * @param parser
+     * @param record
+     * @return
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     private TetroidFile readFile(XmlPullParser parser, TetroidRecord record) throws XmlPullParserException, IOException {
+        boolean crypt = false;
         String id = null;
         String fileName = null;
         String type = null;
@@ -348,6 +441,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             id = parser.getAttributeValue(ns, "id");
             fileName = parser.getAttributeValue(ns, "fileName");
             type = parser.getAttributeValue(ns, "type");
+            crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
         }
         // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
         parser.nextTag();
@@ -355,14 +449,153 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
         this.filesCount++;
 
-        return new TetroidFile(id, fileName, type, record);
+        return new TetroidFile(crypt, id, fileName, type, record);
+    }
+
+    /**
+     * Запись структуры хранилища в xml-файл.
+     * @param fos
+     * @return
+     */
+    public boolean save(FileOutputStream fos) throws IOException {
+        XmlSerializer serializer = Xml.newSerializer();
+        try {
+            serializer.setOutput(fos, "UTF-8");
+            // header
+            serializer.startDocument("UTF-8", null);
+            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+            // попытка изменить установить размер отступа
+//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-indentation", " ");
+//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-line-separator", "\n");
+            // исправлем отступ на следующую строку
+            serializer.flush();
+            fos.write("\n".getBytes());
+            serializer.docdecl(" mytetradoc");
+            // root
+            serializer.startTag(ns, "root");
+            // format
+            serializer.startTag(ns, "format");
+            addAttribute(serializer, "version", String.valueOf(formatVersion.getMajor()));
+            addAttribute(serializer, "subversion", String.valueOf(formatVersion.getMinor()));
+            serializer.endTag(ns, "format");
+            // content
+            serializer.startTag(ns, "content");
+            saveNodes(serializer, rootNodesList);
+            serializer.endTag(ns, "content");
+
+            serializer.endTag(ns, "root");
+            serializer.endDocument();
+            serializer.flush();
+            return true;
+        } finally {
+            fos.close();
+        }
+    }
+
+    /**
+     * Сохранение структуры подветок ветки.
+     * @param serializer
+     * @param nodes
+     * @throws IOException
+     */
+    protected void saveNodes(XmlSerializer serializer, List<TetroidNode> nodes) throws IOException {
+
+        for (TetroidNode node : nodes) {
+            serializer.startTag(ns, "node");
+
+            boolean crypted = node.isCrypted();
+            addAttribute(serializer, "crypt", (crypted) ? "1" : "");
+            if (!TextUtils.isEmpty(node.getIconName()))
+                addCryptAttribute(serializer, node, "icon", node.getIconName());
+            addAttribute(serializer, "id", node.getId());
+            addCryptAttribute(serializer, node, "name", node.getName());
+
+            if (node.getRecordsCount() > 0) {
+                saveRecords(serializer, node.getRecords());
+            }
+            if (node.getSubNodesCount() > 0) {
+                saveNodes(serializer, node.getSubNodes());
+            }
+            serializer.endTag(ns, "node");
+        }
+    }
+
+    /**
+     * Сохранение структуры записей ветки.
+     * @param serializer
+     * @param records
+     * @throws IOException
+     */
+    protected void saveRecords(XmlSerializer serializer, List<TetroidRecord> records) throws IOException {
+
+        serializer.startTag(ns, "recordtable");
+        for (TetroidRecord record : records) {
+            serializer.startTag(ns, "record");
+
+            boolean crypted = record.isCrypted();
+            addAttribute(serializer, "id", record.getId());
+            addCryptAttribute(serializer, record, "name", record.getName());
+            addCryptAttribute(serializer, record, "author", record.getAuthor());
+            addCryptAttribute(serializer, record, "url", record.getUrl());
+            addCryptAttribute(serializer, record, "tags", record.getTagsString());
+            addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
+            addAttribute(serializer, "dir", record.getDirName());
+            addAttribute(serializer, "file", record.getFileName());
+            if (crypted)
+                addAttribute(serializer, "crypt", "1");
+
+            if (record.getAttachedFilesCount() > 0) {
+                saveFiles(serializer, record.getAttachedFiles());
+            }
+            serializer.endTag(ns, "record");
+        }
+        serializer.endTag(ns, "recordtable");
+    }
+
+    /**
+     * Сохранение структуры прикрепленных файлов записи.
+     * @param serializer
+     * @param files
+     * @throws IOException
+     */
+    protected void saveFiles(XmlSerializer serializer, List<TetroidFile> files) throws IOException {
+
+        serializer.startTag(ns, "files");
+        for (TetroidFile file : files) {
+            serializer.startTag(ns, "file");
+
+            boolean crypted = file.isCrypted();
+            addAttribute(serializer, "id", file.getId());
+            addCryptAttribute(serializer, file, "fileName", file.getName());
+            addAttribute(serializer, "type", file.getFileType());
+            if (crypted)
+                addAttribute(serializer, "crypt", "1");
+
+            serializer.endTag(ns, "file");
+        }
+        serializer.endTag(ns, "files");
+    }
+
+    private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
+        if (value == null)
+            value = "";
+        serializer.attribute(ns, name, value);
+    }
+
+    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
+        addAttribute(serializer, name, cryptValue(obj.isCrypted() && obj.isDecrypted(), value));
+    }
+
+    private String cryptValue(boolean needEncrypt, String value) {
+        return (needEncrypt) ? CryptManager.encryptTextBase64(value) : value;
     }
 
     /**
      * This is how it works:
      * - It throws an exception if the current event isn't a START_TAG.
      * - It consumes the START_TAG, and all events up to and including the matching END_TAG.
-     * - To make sure that it stops at the correct END_TAG and not at the first tag it encounters after the original START_TAG, it keeps track of the nesting depth.
+     * - To make sure that it stops at the correct END_TAG and not at the first tag it encounters
+     * after the original START_TAG, it keeps track of the nesting depth.
      * @param parser
      * @throws XmlPullParserException
      * @throws IOException
@@ -383,25 +616,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
     }
-
-    /**
-     * Функция сравнения меток.
-     */
-    private Comparator<String> tagsComparator = new Comparator<String>() {
-        @Override
-        public int compare(String o1, String o2) {
-            if (o1 == o2) {
-                return 0;
-            }
-            if (o1 == null) {
-                return -1;
-            }
-            if (o2 == null) {
-                return 1;
-            }
-            return o1.toLowerCase().compareTo(o2.toLowerCase());
-        }
-    };
 
     public Version getFormatVersion() {
         return formatVersion;

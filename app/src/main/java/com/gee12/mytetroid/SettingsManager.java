@@ -7,6 +7,8 @@ import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
 
+import com.gee12.mytetroid.utils.FileUtils;
+
 public class SettingsManager {
 
     private static SharedPreferences settings;
@@ -17,6 +19,7 @@ public class SettingsManager {
     @ColorInt
     public static int HighlightAttachColorCache;
     public static String DateFormatStringCache;
+    public static boolean IsFullScreen;
 
     public static void init(Context ctx) {
         SettingsManager.context = ctx;
@@ -68,7 +71,7 @@ public class SettingsManager {
 
 //    public static void setIsLoadLastStoragePath(boolean value) {
 //        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(context.getString(R.string.pref_key_is_load_last_storage_path), value);
+//        editor.putBoolean(context.sizeToString(R.string.pref_key_is_load_last_storage_path), value);
 //        editor.apply();
 //    }
 
@@ -223,6 +226,24 @@ public class SettingsManager {
     public static String getDateFormatString() {
         return getString(R.string.pref_key_date_format_string,
                 context.getString(R.string.def_date_format_string));
+    }
+
+    /**
+     * Открывать записи сразу в режиме редактирования?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isRecordEditMode() {
+        return getBoolean(R.string.pref_key_is_record_edit_mode, false);
+    }
+
+    /**
+     * Сохранять изменения записи автоматически?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isRecordAutoSave() {
+        return getBoolean(R.string.pref_key_is_record_auto_save, false);
     }
 
     /**
@@ -388,12 +409,16 @@ public class SettingsManager {
     }
 
     private static void setBoolean(int prefKeyStringRes, boolean value) {
+        if (settings == null)
+            return;
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(context.getString(prefKeyStringRes), value);
         editor.apply();
     }
 
     private static void setString(int prefKeyStringRes, String value) {
+        if (settings == null)
+            return;
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(context.getString(prefKeyStringRes), value);
         editor.apply();
@@ -406,6 +431,8 @@ public class SettingsManager {
      * @return
      */
     private static boolean getBoolean(int prefKeyStringRes, final boolean defValue) {
+        if (settings == null)
+            return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
         }
@@ -419,6 +446,8 @@ public class SettingsManager {
      * @return
      */
     private static String getString(int prefKeyStringRes, final String defValue) {
+        if (settings == null)
+            return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getString(context.getString(prefKeyStringRes), defValue);
         }

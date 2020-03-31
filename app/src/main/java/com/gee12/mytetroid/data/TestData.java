@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.model.TetroidNode;
+
 import java.util.List;
 import java.util.Random;
 
