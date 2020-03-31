@@ -325,4 +325,5 @@
     <string name="node_was_moved">The node was moved</string>
     <string name="node_was_created">The node was created</string>
     <string name="record_was_moved">The record was moved</string>
+    <string name="link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
 </resources>

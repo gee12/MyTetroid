@@ -286,4 +286,5 @@
     <string name="node_was_moved">Ветка перемещена</string>
     <string name="node_was_created">Ветка создана</string>
     <string name="record_was_moved">Запись перемещена</string>
+    <string name="link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
 </resources>

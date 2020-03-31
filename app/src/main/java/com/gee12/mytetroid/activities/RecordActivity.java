@@ -256,9 +256,14 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public boolean onLinkLoad(String url) {
-        // удаляем BaseUrl из строки адреса
-        String baseUrl = mEditor.getWebView().getUrl();
-        if (url.startsWith(baseUrl)) {
+        // раскодируем url, т.к. он может содержать кириллицу
+        try {
+            url = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+        }
+        // удаляем baseUrl из строки адреса
+        String baseUrl = mEditor.getWebView().getBaseUrl();
+        if (baseUrl != null && url.startsWith(baseUrl)) {
             url = url.replace(baseUrl, "");
         }
 
@@ -294,6 +299,8 @@ public class RecordActivity extends TetroidActivity implements
                 case FoundType.TYPE_AUTHOR:
                 case FoundType.TYPE_FILE:
                     break;
+                default:
+                    LogManager.addLog(getString(R.string.link_to_obj_parsing_error), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
         } else {
             // обрабатываем внешнюю ссылку
