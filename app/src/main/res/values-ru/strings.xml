@@ -284,4 +284,6 @@
     <string name="node_was_renamed">Ветка переименована</string>
     <string name="node_was_deleted">Ветка удалена</string>
     <string name="node_was_moved">Ветка перемещена</string>
+    <string name="node_was_created">Ветка создана</string>
+    <string name="record_was_moved">Запись перемещена</string>
 </resources>

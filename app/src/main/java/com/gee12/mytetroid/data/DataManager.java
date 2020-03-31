@@ -383,11 +383,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      * @param list
      * @param pos
      * @param isUp
-     * @return
+     * @return 1 - успешно
+     *         0 - перемещение невозможно (пограничный элемент)
+     *        -1 - ошибка
      */
-    public static boolean swapTetroidObjects(List list, int pos, boolean isUp) {
+    public static int swapTetroidObjects(List list, int pos, boolean isUp) {
         if (list == null)
-            return false;
+            return -1;
         boolean isSwapped = false;
         if (isUp) {
             if (pos > 0) {
@@ -401,7 +403,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             }
         }
         // перезаписываем файл структуры хранилища
-        return isSwapped && saveStorage();
+        if (isSwapped) {
+            return (saveStorage()) ? 1 : -1;
+        }
+        return 0;
     }
 
     /**

@@ -1041,7 +1041,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
             TetroidNode node = DataManager.createNode(name, trueParentNode);
             if (node != null) {
-                if (!mListAdapterNodes.addItem(pos, isSubNode)) {
+                if (mListAdapterNodes.addItem(pos, isSubNode)) {
+                    LogManager.addLog(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                } else {
                     LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
@@ -1151,14 +1153,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
         List<TetroidNode> subNodes = (parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes();
         if (subNodes.size() > 0) {
             int posInNode = subNodes.indexOf(node);
-            if (DataManager.swapTetroidObjects(subNodes, posInNode, isUp)) {
+            int res = DataManager.swapTetroidObjects(subNodes, posInNode, isUp);
+            if (res > 0) {
                 // меняем местами элементы внутри списка
                 if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
                     LogManager.addLog(getString(R.string.node_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 } else {
                     LogManager.addLog(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
-            } else {
+            } else if (res < 0) {
                 LogManager.addLog(getString(R.string.log_node_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         }
@@ -1191,7 +1194,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void showNodePopupMenu(View v, TetroidNode node, int pos) {
-        PopupMenu popupMenu = new PopupMenu(this, v);
+        PopupMenu popupMenu = new PopupMenu(this, v); //, Gravity.CENTER_HORIZONTAL);
         popupMenu.inflate(R.menu.node_context);
 
         popupMenu.setOnMenuItemClickListener(item -> {

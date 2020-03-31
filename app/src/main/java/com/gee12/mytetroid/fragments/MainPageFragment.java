@@ -401,9 +401,11 @@ public class MainPageFragment extends TetroidFragment {
      * @param isUp
      */
     private void moveRecord(int pos, boolean isUp) {
-        if (DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp)) {
+        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
+        if (res > 0) {
             mListAdapterRecords.notifyDataSetChanged();
-        } else {
+            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else if (res < 0) {
             LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }

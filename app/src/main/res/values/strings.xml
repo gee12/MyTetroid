@@ -323,4 +323,6 @@
     <string name="node_was_renamed">The node was renamed</string>
     <string name="node_was_deleted">The node was deleted</string>
     <string name="node_was_moved">The node was moved</string>
+    <string name="node_was_created">The node was created</string>
+    <string name="record_was_moved">The record was moved</string>
 </resources>
