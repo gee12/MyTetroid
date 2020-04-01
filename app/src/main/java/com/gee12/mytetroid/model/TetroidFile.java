@@ -3,6 +3,7 @@ package com.gee12.mytetroid.model;
 public class TetroidFile extends TetroidObject {
 
     public static final String PREFIX = "file";
+    public static final String DEF_FILE_TYPE = "file";
 
 //    private String id;
 //    private String name;

@@ -300,7 +300,7 @@ public class RecordActivity extends TetroidActivity implements
                 case FoundType.TYPE_FILE:
                     break;
                 default:
-                    LogManager.addLog(getString(R.string.link_to_obj_parsing_error), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.addLog(getString(R.string.log_link_to_obj_parsing_error), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
         } else {
             // обрабатываем внешнюю ссылку

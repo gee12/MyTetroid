@@ -282,15 +282,33 @@ public class CryptManager {
 
 
     /**
-     * TODO: Реализовать
+     * Побайтовая зашифровка файла.
      * @param srcFile
      * @param destFile
      * @return
      * @throws IOException
      */
     public static boolean encryptFile(File srcFile, File destFile) throws IOException {
+        if (srcFile == null || destFile == null)
+            return false;
+        try (FileInputStream fis = new FileInputStream(srcFile);
+             FileOutputStream fos = new FileOutputStream(destFile)) {
 
-        return false;
+            byte[] buffer = new byte[1024];
+            byte[] res = null;
+            int length;
+            rc5.setKey(cryptKey);
+            while ((length = fis.read(buffer)) > 0) {
+                try {
+                    res = rc5.encrypt(buffer);
+                } catch (Exception e) {
+                    addLog(e);
+                    return false;
+                }
+                fos.write(res, 0, length);
+            }
+        }
+        return true;
     }
 
     /**

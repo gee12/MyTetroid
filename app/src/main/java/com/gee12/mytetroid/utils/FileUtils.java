@@ -120,6 +120,34 @@ public class FileUtils {
     }
 
     /**
+     * Побайтовое копирование файла.
+     * @param srcFileUri
+     * @param destFileUri
+     * @return
+     * @throws IOException
+     */
+    public static boolean copyFile(Uri srcFileUri, Uri destFileUri) throws IOException {
+        if (srcFileUri == null || destFileUri == null)
+            return false;
+        return copyFile(new File(srcFileUri.getPath()), new File(destFileUri.getPath()));
+    }
+
+    public static boolean copyFile(File srcFile, File destFile) throws IOException {
+        if (srcFile == null || destFile == null)
+            return false;
+        try (FileInputStream fis = new FileInputStream(srcFile);
+             FileOutputStream fos = new FileOutputStream(destFile)) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+        }
+        return true;
+    }
+
+    /**
      * Удаление файла или каталога с файлами/подкаталогами.
      * @param fileOrDirectory
      */
@@ -131,6 +159,8 @@ public class FileUtils {
 
         return fileOrDirectory.delete();
     }
+
+
 
     /**
      * Получение расширения файла с точкой.

@@ -54,6 +54,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
@@ -84,6 +85,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
     public static final int REQUEST_CODE_SYNC_STORAGE = 5;
+    public static final int REQUEST_CODE_FILE_PICKER = 6;
 
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
@@ -1279,6 +1281,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     *
+     */
+    @Override
+    public void chooseFile() {
+        Intent intent = new Intent(this, FolderPicker.class);
+        intent.putExtra("title", "Select file to upload");
+        intent.putExtra("location", FileUtils.getExtPublicDocumentsDir());
+        intent.putExtra("pickFiles", true);
+        startActivityForResult(intent, REQUEST_CODE_FILE_PICKER);
+    }
+
+    /**
      * Обработка возвращаемого результата других активностей.
      * @param requestCode
      * @param resultCode
@@ -1307,7 +1321,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             initOrSyncStorage(folderFullName);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
+        } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
+
+            String fileLocation = data.getStringExtra("data");
+            mViewPagerAdapter.getMainFragment().attachFile(fileLocation);
         }
+
     }
 
     /**

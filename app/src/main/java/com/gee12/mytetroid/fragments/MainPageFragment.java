@@ -18,7 +18,6 @@ import android.widget.ViewFlipper;
 import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -42,7 +41,7 @@ public class MainPageFragment extends TetroidFragment {
 //    public static final int MAIN_VIEW_RECORD_TEXT = 2;
     public static final int MAIN_VIEW_RECORD_FILES = 2;
     public static final int MAIN_VIEW_TAG_RECORDS = 3;
-//    public static final int VIEW_FOUND_RECORDS = 5;
+    //    public static final int VIEW_FOUND_RECORDS = 5;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -103,7 +102,7 @@ public class MainPageFragment extends TetroidFragment {
 //        mButtonAddRecord.setAlpha(0.1f);
         mButtonAddRecord.setOnClickListener(v -> createRecord());
         this.mButtonAddFile = view.findViewById(R.id.button_add_file);
-        mButtonAddFile.setOnClickListener(v -> createFile());
+        mButtonAddFile.setOnClickListener(v -> attachFile());
 
         this.mCurMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
@@ -191,6 +190,9 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateMainToolbar(restoredViewId, title);
     }
 
+    /**
+     * Возврат фрагмента в первоначальное состояние.
+     */
     public void clearView() {
         showView(MAIN_VIEW_NONE);
         this.mCurRecord = null;
@@ -200,6 +202,11 @@ public class MainPageFragment extends TetroidFragment {
         mTextViewRecordsEmpty.setText(R.string.select_the_node);
     }
 
+    /**
+     * Отображение списка записей.
+     * @param records
+     * @param viewId
+     */
     public void showRecords(List<TetroidRecord> records, int viewId) {
         String dateTimeFormat = checkDateFormatString();
         showView(viewId);
@@ -260,15 +267,6 @@ public class MainPageFragment extends TetroidFragment {
 
     /**
      * Отображение списка прикрепленных файлов.
-     * @param position Индекс записи в списке записей ветки
-     */
-    private void showRecordFiles(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        showRecordFiles(record);
-    }
-
-    /**
-     * Отображение списка прикрепленных файлов.
      * @param record Запись
      */
     public void showRecordFiles(TetroidRecord record) {
@@ -298,16 +296,24 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Прикрепление нового файла к записи.
+     * Выбор файла для прикрепления к записи.
      */
-    public void createFile() {
+    public void attachFile() {
+        mMainView.chooseFile();
+    }
 
-        // TODO:
-        if (!BuildConfig.DEBUG) {
-            LogManager.addLog(getString(R.string.debug_not_implemented_yet), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            return;
+    /**
+     * Прикрепление выбранного файла к записи.
+     * @param fullName
+     */
+    public void attachFile(String fullName) {
+        TetroidFile file = DataManager.attachFile(fullName, mCurRecord);
+        if (file != null) {
+            mListAdapterFiles.notifyDataSetInvalidated();
+            LogManager.addLog(getString(R.string.log_file_was_attached), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.addLog(getString(R.string.log_file_attaching_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
-
     }
 
     /**
@@ -332,6 +338,7 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
+                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }

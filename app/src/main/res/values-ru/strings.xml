@@ -159,10 +159,10 @@
     <string name="log_error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
     <string name="log_error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="log_error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
+    <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
     <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
     <string name="log_error_delete_record_folder">Ошибка удаления каталога записи:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
-    <string name="missing_file">Отсутствует файл&#160;</string>
     <string name="log_open_node_records">Открытие записей ветки: id=</string>
     <string name="title_storage_sync">Синхронизация</string>
     <string name="pref_category_sync">Синхронизация</string>
@@ -225,6 +225,7 @@
     <string name="log_start_record_changing">Начало редактирования свойств записи</string>
     <string name="log_start_record_fields_editing">Начало изменения свойств записи</string>
     <string name="log_start_record_deleting">Начало удаления записи</string>
+    <string name="log_start_file_attaching">Начало прикрепления файла к записи</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="tag_not_found">Не найдена метка [%s]..</string>
@@ -286,5 +287,12 @@
     <string name="node_was_moved">Ветка перемещена</string>
     <string name="node_was_created">Ветка создана</string>
     <string name="record_was_moved">Запись перемещена</string>
-    <string name="link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
+    <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
+    <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
+    <string name="log_file_checking_error">Ошибка проверки существования файла:&#160;</string>
+    <string name="log_error_encrypt_file">Ошибка копирования и зашифровки файла из [%s] в [%s]</string>
+    <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>
+    <string name="log_file_attaching_error">Не удается прикрепить файл к записи (подробнее в логах)</string>
+    <string name="log_record_fields_edited">Свойства записи изменены</string>
+    <string name="log_file_was_attached">Файл прикреплен</string>
 </resources>
