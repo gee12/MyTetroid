@@ -28,6 +28,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.FileAskDialogs;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -418,6 +419,41 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+
+    /**
+     * Удаление прикрепленного файла.
+     * @param file
+     */
+    private void deleteFile(TetroidFile file) {
+        FileAskDialogs.deleteFile(getContext(), () -> {
+            int res = DataManager.deleteFile(file, false);
+            if (res == -1) {
+                FileAskDialogs.deleteFileWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
+                });
+            } else {
+                onDeleteFileResult(file, res);
+            }
+        });
+    }
+
+    /**
+     * Обработка результата удаления файла.
+     * @param file
+     * @param res
+     */
+    private void onDeleteFileResult(TetroidFile  file, int res) {
+        if (res > 0) {
+            mListAdapterFiles.getDataSet().remove(file);
+            mListAdapterFiles.notifyDataSetChanged();
+            LogManager.addLog(getString(R.string.file_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.addLog(getString(R.string.log_file_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+
     /**
      * Обработчик клика на записи
      */
@@ -555,9 +591,7 @@ public class MainPageFragment extends TetroidFragment {
 
                 return true;
             case R.id.action_delete:
-
-                // TODO:
-
+                deleteFile(file);
                 return true;
             default:
                 return false;

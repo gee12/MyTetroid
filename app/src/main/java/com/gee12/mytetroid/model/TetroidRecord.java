@@ -137,7 +137,7 @@ public class TetroidRecord extends TetroidObject {
         tags.add(tag);
     }
 
-    public void setFiles(List<TetroidFile> files) {
+    public void setAttachedFiles(List<TetroidFile> files) {
         this.files = files;
     }
 

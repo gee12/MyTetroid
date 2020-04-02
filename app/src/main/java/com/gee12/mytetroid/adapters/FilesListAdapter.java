@@ -90,4 +90,8 @@ public class FilesListAdapter extends BaseAdapter {
 
         return convertView;
     }
+
+    public List<TetroidFile> getDataSet() {
+        return dataSet;
+    }
 }

@@ -386,7 +386,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
         if (files != null) {
-            record.setFiles(files);
+            record.setAttachedFiles(files);
         }
         parser.require(XmlPullParser.END_TAG, ns, "record");
 

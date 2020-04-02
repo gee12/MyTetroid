@@ -162,6 +162,7 @@
     <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
     <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
     <string name="log_error_delete_record_folder">Ошибка удаления каталога записи:&#160;</string>
+    <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node_records">Открытие записей ветки: id=</string>
     <string name="title_storage_sync">Синхронизация</string>
@@ -216,6 +217,7 @@
     <string name="log_record_create_error">Не удается создать запись (подробнее в логах)</string>
     <string name="log_record_edit_fields_error">Не удается отредактировать свойства записи (подробнее в логах)</string>
     <string name="log_record_delete_error">Не удается удалить запись (подробнее в логах)</string>
+    <string name="log_file_delete_error">Не удается удалить файл (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="log_start_node_creating">Начало создания ветки</string>
@@ -226,6 +228,7 @@
     <string name="log_start_record_fields_editing">Начало изменения свойств записи</string>
     <string name="log_start_record_deleting">Начало удаления записи</string>
     <string name="log_start_file_attaching">Начало прикрепления файла к записи</string>
+    <string name="log_start_file_deleting">Начало удаления прикрепленного файла</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="tag_not_found">Не найдена метка [%s]..</string>
@@ -241,14 +244,17 @@
     <string name="log_cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_changing">Отмена редактирования свойств записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="log_cancel_file_deleting">Отмена удаления прикрепленного файла, т.к. не удалось сохранить mytetra.xml</string>
     <string name="edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
     <string name="node_delete">Удалить ветку ?</string>
+    <string name="file_delete">Удалить файл ?</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="record_delete">Удалить запись ?</string>
     <string name="log_record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
     <string name="record_deleted">Запись удалена</string>
+    <string name="file_deleted">Файл удален</string>
     <string name="show_node">Открыть ветку</string>
     <string name="rename">Переименовать</string>
     <string name="set_node_icon">Задать иконку</string>
@@ -296,4 +302,6 @@
     <string name="log_record_fields_edited">Свойства записи изменены</string>
     <string name="log_file_was_attached">Файл прикреплен</string>
     <string name="open_file">Открыть файл</string>
+    <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
+    <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
 </resources>
