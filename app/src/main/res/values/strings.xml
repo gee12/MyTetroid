@@ -334,4 +334,5 @@
     <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
     <string name="log_record_fields_edited">Свойства записи изменены</string>
     <string name="log_file_was_attached">File was attached</string>
+    <string name="open_file">Open file</string>
 </resources>

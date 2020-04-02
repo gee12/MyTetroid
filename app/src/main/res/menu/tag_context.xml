@@ -8,10 +8,10 @@
         android:icon="@drawable/ic_tag"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_rename_tag"
+        android:id="@+id/action_rename"
         android:orderInCategory="20"
         android:title="@string/rename"
-        android:icon="@drawable/ic_edit_node"
+        android:icon="@drawable/ic_edit"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item

@@ -295,4 +295,5 @@
     <string name="log_file_attaching_error">Не удается прикрепить файл к записи (подробнее в логах)</string>
     <string name="log_record_fields_edited">Свойства записи изменены</string>
     <string name="log_file_was_attached">Файл прикреплен</string>
+    <string name="open_file">Открыть файл</string>
 </resources>

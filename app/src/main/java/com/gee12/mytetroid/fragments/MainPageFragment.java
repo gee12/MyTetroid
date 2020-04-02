@@ -97,6 +97,7 @@ public class MainPageFragment extends TetroidFragment {
         mListViewFiles.setOnItemClickListener(onFileClicklistener);
         this.mTextViewFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         mListViewFiles.setEmptyView(mTextViewFilesEmpty);
+        registerForContextMenu(mListViewFiles);
 
         this.mButtonAddRecord = view.findViewById(R.id.button_add_record);
 //        mButtonAddRecord.setAlpha(0.1f);
@@ -460,9 +461,12 @@ public class MainPageFragment extends TetroidFragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        if (v.getId() == R.id.list_view_records) {
-            MenuInflater inflater = getActivity().getMenuInflater();
+        int viewId = v.getId();
+        MenuInflater inflater = getActivity().getMenuInflater();
+        if (viewId == R.id.list_view_records) {
             inflater.inflate(R.menu.record_context, menu);
+        } else if (viewId == R.id.list_view_files) {
+            inflater.inflate(R.menu.file_context, menu);
         }
     }
 
@@ -474,14 +478,23 @@ public class MainPageFragment extends TetroidFragment {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        if (info.targetView.getParent() != mListViewRecords)
-            return false;
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(info.position);
+        int id = item.getItemId();
+        int pos = info.position;
+        if (info.targetView.getParent() == mListViewRecords) {
+            return onContextRecordItemSelected(id, pos);
+        } else if (info.targetView.getParent() == mListViewFiles) {
+            return onContextFileItemSelected(id, pos);
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private boolean onContextRecordItemSelected(int id, int pos) {
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(pos);
         if (record == null) {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return true;
         }
-        switch (item.getItemId()) {
+        switch (id) {
             case R.id.action_open_record:
                 showRecord(record);
                 return true;
@@ -498,16 +511,56 @@ public class MainPageFragment extends TetroidFragment {
                 copyRecordLink(record);
                 return true;
             case R.id.action_move_up:
-                moveRecord(info.position, true);
+                moveRecord(pos, true);
                 return true;
             case R.id.action_move_down:
-                moveRecord(info.position, false);
+                moveRecord(pos, false);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);
                 return true;
             default:
-                return super.onContextItemSelected(item);
+                return false;
+        }
+    }
+
+    private boolean onContextFileItemSelected(int id, int pos) {
+        TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(pos);
+        if (file == null) {
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return true;
+        }
+        switch (id) {
+            case R.id.action_open_file:
+                openFile(pos);
+                return true;
+            case R.id.action_rename:
+
+                // TODO:
+
+                return true;
+            case R.id.action_copy_link:
+
+                // TODO:
+
+                return true;
+            case R.id.action_move_up:
+
+                // TODO:
+
+                return true;
+            case R.id.action_move_down:
+
+                // TODO:
+
+                return true;
+            case R.id.action_delete:
+
+                // TODO:
+
+                return true;
+            default:
+                return false;
         }
     }
 

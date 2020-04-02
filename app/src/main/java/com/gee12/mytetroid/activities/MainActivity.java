@@ -184,7 +184,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
-        registerForContextMenu(mListViewNodes.getListView());
+//        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
 //        mListViewNodes.setEmptyView(mTextViewNodesEmpty);
         // список меток
@@ -1210,7 +1210,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 case R.id.action_create_node:
                     createNode(node, pos, false);
                     return true;
-                case R.id.action_rename_node:
+                case R.id.action_rename:
                     renameNode(node);
                     return true;
                 case R.id.action_node_icon:
