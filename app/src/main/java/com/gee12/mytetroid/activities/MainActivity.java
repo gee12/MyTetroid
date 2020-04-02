@@ -1322,7 +1322,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
-
             String fileLocation = data.getStringExtra("data");
             mViewPagerAdapter.getMainFragment().attachFile(fileLocation);
         }

@@ -109,10 +109,7 @@ public class CryptManager {
     public static byte[] encryptTextBase64Bytes(String text) {
         if (text == null)
             return null;
-        byte[] out = encrypt(cryptKey, text.getBytes(CHARSET_UTF_8));
-        if (out != null)
-            return Base64.encodeToByte(out, true);
-        return null;
+        return encryptBytesBase64Bytes(text.getBytes(CHARSET_UTF_8));
     }
 
     public static byte[] encryptTextBytes(String text) {
@@ -126,6 +123,15 @@ public class CryptManager {
         return encrypt(cryptKey, bytes);
     }
 
+    public static byte[] encryptBytesBase64Bytes(byte[] bytes) {
+        if (bytes == null)
+            return null;
+        byte[] out = encrypt(cryptKey, bytes);
+        if (out != null)
+            return Base64.encodeToByte(out, true);
+        return null;
+    }
+
     public static byte[] encrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
@@ -137,6 +143,75 @@ public class CryptManager {
             addLog(e);
         }
         return res;
+    }
+
+    /**
+     * Побайтовая зашифровка файла.
+     *
+     * @param srcFile
+     * @param destFile
+     * @return
+     * @throws IOException
+     */
+    public static boolean encryptFile(File srcFile, File destFile) throws IOException {
+        int size = (int) srcFile.length();
+        byte[] bytes = new byte[size];
+
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
+        int readed = bis.read(bytes, 0, size);
+        bis.close();
+
+        if (readed > 0) {
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
+            byte[] data = encryptBytes(bytes);
+            if (data == null) {
+                bos.close();
+                return false;
+            }
+            bos.write(data);
+            bos.flush();
+            bos.close();
+        } else {
+            addLog("File is empty");
+        }
+        return true;
+    }
+
+    /**
+     * Побайтовая "поблочная" зашифровка файла (работает неверно).
+     *
+     * FIXME: Написать метод RC5Simple.encryptByBlocks() для "поблочного" шифрования массива байт,
+     *  когда заранее неизвестно количество блоков (если такое вообще возможно в RC5Simple)
+     *
+     * @param srcFile
+     * @param destFile
+     * @return
+     * @throws IOException
+     */
+    public static boolean encryptFileByBlocks(File srcFile, File destFile) throws IOException {
+        if (srcFile == null || destFile == null)
+            return false;
+        try (FileInputStream fis = new FileInputStream(srcFile);
+             FileOutputStream fos = new FileOutputStream(destFile)) {
+
+            byte[] buffer = new byte[1024];
+            byte[] res;
+            rc5.setKey(cryptKey);
+            while (fis.read(buffer) > 0) {
+                try {
+                    // неверно, т.к. перед каждым блоком вставляется "преамбула",
+                    // которая должна быть только 1 раз в начале файла
+                    res = rc5.encrypt(buffer);
+                } catch (Exception e) {
+                    addLog(e);
+                    return false;
+                }
+                if (res != null) {
+                    fos.write(res);
+                }
+            }
+        }
+        return true;
     }
 
     public static boolean decryptAll(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
@@ -278,37 +353,6 @@ public class CryptManager {
      */
     public static byte[] decryptBytes(byte[] bytes) {
         return decrypt(cryptKey, bytes);
-    }
-
-
-    /**
-     * Побайтовая зашифровка файла.
-     * @param srcFile
-     * @param destFile
-     * @return
-     * @throws IOException
-     */
-    public static boolean encryptFile(File srcFile, File destFile) throws IOException {
-        if (srcFile == null || destFile == null)
-            return false;
-        try (FileInputStream fis = new FileInputStream(srcFile);
-             FileOutputStream fos = new FileOutputStream(destFile)) {
-
-            byte[] buffer = new byte[1024];
-            byte[] res = null;
-            int length;
-            rc5.setKey(cryptKey);
-            while ((length = fis.read(buffer)) > 0) {
-                try {
-                    res = rc5.encrypt(buffer);
-                } catch (Exception e) {
-                    addLog(e);
-                    return false;
-                }
-                fos.write(res, 0, length);
-            }
-        }
-        return true;
     }
 
     /**

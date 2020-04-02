@@ -298,7 +298,7 @@ public class MainPageFragment extends TetroidFragment {
     /**
      * Выбор файла для прикрепления к записи.
      */
-    public void attachFile() {
+    private void attachFile() {
         mMainView.chooseFile();
     }
 
