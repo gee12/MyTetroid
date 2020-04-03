@@ -258,16 +258,17 @@
     <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>
     <string name="log_record_delete_error">Unable to delete the record (more in the logs)</string>
     <string name="log_file_delete_error">Unable to delete the file (more in the logs)</string>
+    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
     <string name="log_wrong_tag_link_format">Wrong tag link format</string>
     <string name="log_start_node_creating">Start node creating</string>
-    <string name="log_start_node_changing">Start node fields changing</string>
+    <string name="log_start_node_fields_editing">Start node fields editing</string>
     <string name="log_start_node_deleting">Start node deleting</string>
     <string name="log_start_record_creating">Start record creating</string>
-    <string name="log_start_record_changing">Start record fields changing</string>
     <string name="log_start_record_fields_editing">Start record fields editing</string>
     <string name="log_start_record_deleting">Start record deleting</string>
     <string name="log_start_file_attaching">Start file attaching</string>
+    <string name="log_start_file_fields_editing">Start file fields editing</string>
     <string name="log_start_file_deleting">Start file deleting</string>
     <string name="crypted_node_name">Closed</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
@@ -280,10 +281,11 @@
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="menu_item_delete">Remove</string>
     <string name="log_cancel_node_creating">Cancel node creating, as failed to save mytetra.xml</string>
-    <string name="log_cancel_node_changing">Cancel node fields changing, as failed to save mytetra.xml</string>
+    <string name="log_cancel_node_changing">Cancel node fields editing, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>
-    <string name="log_cancel_record_changing">Cancel record fields changing, as failed to save mytetra.xml</string>
+    <string name="log_cancel_record_changing">Cancel record fields editing, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>
+    <string name="log_cancel_file_fields_editing">Cancel file fields editing, as failed to save mytetra.xml</string>
     <string name="log_cancel_file_deleting">Cancel file deleting, as failed to save mytetra.xml</string>
     <string name="edit_record_fields">Edit properties</string>
     <string name="edit_mode">Editing</string>
@@ -346,4 +348,5 @@
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
+    <string name="file_was_renamed">The file was renamed</string>
 </resources>

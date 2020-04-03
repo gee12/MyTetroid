@@ -458,6 +458,20 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    /**
+     * Переименование прикрепленного файла.
+     * @param file
+     */
+    private void renameFile(TetroidFile file) {
+        FileAskDialogs.createFileDialog(getContext(), file, (name) -> {
+            if (DataManager.editFileFields(file, name)) {
+                LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                mListAdapterFiles.notifyDataSetChanged();
+            } else {
+                LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        });
+    }
 
     /**
      * Обработчик клика на записи
@@ -576,9 +590,7 @@ public class MainPageFragment extends TetroidFragment {
                 openFile(pos);
                 return true;
             case R.id.action_rename:
-
-                // TODO:
-
+                renameFile(file);
                 return true;
             case R.id.action_copy_link:
 

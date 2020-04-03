@@ -716,7 +716,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения
         // уже были выданы при установке приложения
-        DataManager.openFile(this, file);
+        DataManager.openAttach(this, file);
     }
 
     /**
