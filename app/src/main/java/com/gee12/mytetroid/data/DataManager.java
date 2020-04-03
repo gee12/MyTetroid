@@ -925,12 +925,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      * Удаление файла.
      * @param file
-     * @param withoutDir не пытаться удалить каталог записи
+     * @param withoutFile не пытаться удалить сам файл на диске
      * @return 1 - успешно
      *         0 - ошибка
      *         -1 - ошибка (отсутствует каталог записи)
+     *         -2 - ошибка (отсутствует файл в каталоге записи)
      */
-    public static int deleteFile(TetroidFile file, boolean withoutDir) {
+    public static int deleteFile(TetroidFile file, boolean withoutFile) {
         if (file == null) {
             LogManager.emptyParams("DataManager.deleteFile()");
             return 0;
@@ -943,13 +944,24 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             return 0;
         }
 
-        // проверяем существование каталога записи
-        String dirPath = null;
-        if (!withoutDir) {
+        String dirPath;
+        String destFilePath = null;
+        File destFile = null;
+        if (!withoutFile) {
+            // проверяем существование каталога записи
             dirPath = getStoragePathBase() + File.separator + record.getDirName();
             int dirRes = checkRecordFolder(dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
+            }
+            // проверяем существование самого файла
+            String ext = FileUtils.getExtWithComma(file.getName());
+            String fileIdName = file.getId() + ext;
+            destFilePath = dirPath + File.separator + fileIdName;
+            destFile = new File(destFilePath);
+            if (!destFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + destFilePath, LogManager.Types.ERROR);
+                return -2;
             }
         }
 
@@ -974,9 +986,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
 
         // удаляем сам файл
-        if (!withoutDir) {
-            String destFilePath = dirPath + File.separator + file.getId();
-            File destFile = new File(destFilePath);
+        if (!withoutFile) {
             if (!FileUtils.deleteRecursive(destFile)) {
                 LogManager.addLog(context.getString(R.string.log_error_delete_file) + destFilePath, LogManager.Types.ERROR);
                 return 0;

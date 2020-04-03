@@ -83,7 +83,11 @@ public class FileAskDialogs {
         AskDialogs.showYesDialog(context, applyHandler, R.string.file_delete);
     }
 
-    public static void deleteFileWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
+    public static void deleteAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
+    }
+
+    public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_attach_delete_without_file);
     }
 }

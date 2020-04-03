@@ -197,6 +197,7 @@
     <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="log_error_delete_record_folder">Error deleting the record folder:&#160;</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
+    <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
     <string name="log_open_node_records">Open node records: id=</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
     <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
@@ -292,6 +293,7 @@
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="record_delete">Delete record ?</string>
     <string name="log_record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
+    <string name="log_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="record_deleted">Record deleted</string>
     <string name="file_deleted">File deleted</string>
     <string name="show_node">Show node</string>

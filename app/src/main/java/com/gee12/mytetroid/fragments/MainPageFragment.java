@@ -427,8 +427,13 @@ public class MainPageFragment extends TetroidFragment {
     private void deleteFile(TetroidFile file) {
         FileAskDialogs.deleteFile(getContext(), () -> {
             int res = DataManager.deleteFile(file, false);
-            if (res == -1) {
-                FileAskDialogs.deleteFileWithoutDir(getContext(), () -> {
+            if (res == -2) {
+                FileAskDialogs.deleteAttachWithoutFile(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
+                });
+            } else if (res == -1) {
+                FileAskDialogs.deleteAttachWithoutDir(getContext(), () -> {
                     int res1 = DataManager.deleteFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
