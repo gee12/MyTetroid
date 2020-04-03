@@ -309,4 +309,10 @@
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
     <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
     <string name="file_was_renamed">Файл переименован</string>
+    <string name="file_name_with_ext">Имя файла с расширением</string>
+    <string name="label_name">Название:</string>
+    <string name="label_author">Автор:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_tags">Метки:</string>
+    <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
 </resources>

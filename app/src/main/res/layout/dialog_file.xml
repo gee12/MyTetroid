@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <TextView
-        android:text="Название:"
+        android:text="@string/label_name"
         style="@style/DialogLabels"/>
 
     <EditText
@@ -18,5 +18,11 @@
         <requestFocus/>
 
     </EditText>
+
+    <TextView
+        android:text="@string/file_name_with_ext"
+        style="@style/DialogLabels"
+        android:textColor="@color/dark_gray"
+        android:textSize="@dimen/font_small"/>
 
 </LinearLayout>

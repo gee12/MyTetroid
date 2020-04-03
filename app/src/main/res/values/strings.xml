@@ -349,4 +349,10 @@
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
     <string name="file_was_renamed">The file was renamed</string>
+    <string name="file_name_with_ext">File name with extension</string>
+    <string name="label_name">Name:</string>
+    <string name="label_author">Author:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_tags">Tags:</string>
+    <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
 </resources>

@@ -1063,14 +1063,47 @@ public class DataManager extends XMLManager implements ICryptHandler {
      * Изменение свойств файла.
      * @param file
      * @param name
-     * @return
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     *         -2 - ошибка (отсутствует файл в каталоге записи)
      */
-    public static boolean editFileFields(TetroidFile file, String name) {
+    public static int editFileFields(TetroidFile file, String name) {
         if (file == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.editFileFields()");
-            return false;
+            return 0;
         }
         LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
+
+        TetroidRecord record = file.getRecord();
+        if (record == null) {
+            LogManager.addLog(context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            return 0;
+        }
+        // сравниваем расширения
+        String ext = FileUtils.getExtWithComma(file.getName());
+        String newExt = FileUtils.getExtWithComma(name);
+        boolean isExtChanged = !Utils.isEquals(ext, newExt, true);
+
+        String dirPath = null;
+        String filePath = null;
+        File srcFile = null;
+        if (isExtChanged) {
+            // проверяем существование каталога записи
+            dirPath = getStoragePathBase() + File.separator + record.getDirName();
+            int dirRes = checkRecordFolder(dirPath, false);
+            if (dirRes <= 0) {
+                return dirRes;
+            }
+            // проверяем существование самого файла
+            String fileIdName = file.getId() + ext;
+            filePath = dirPath + File.separator + fileIdName;
+            srcFile = new File(filePath);
+            if (!srcFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + filePath, LogManager.Types.ERROR);
+                return -2;
+            }
+        }
 
         String oldName = file.getName();
         // обновляем поля
@@ -1081,9 +1114,21 @@ public class DataManager extends XMLManager implements ICryptHandler {
             LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
             // возвращаем изменения
             file.setName(oldName);
-            return false;
+            return 0;
         }
-        return true;
+        // меняем расширение, если изменилось
+        if (isExtChanged) {
+            String newFileIdName = file.getId() + newExt;
+            String newFilePath = dirPath + File.separator + newFileIdName;
+            File destFile = new File(newFilePath);
+            if (!srcFile.renameTo(destFile)) {
+                LogManager.addLog(String.format(Locale.getDefault(),
+                        context.getString(R.string.log_rename_file_error), filePath, newFilePath), LogManager.Types.ERROR);
+                return 0;
+            }
+        }
+
+        return 1;
     }
 
     /**
