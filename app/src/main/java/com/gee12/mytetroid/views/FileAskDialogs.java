@@ -90,4 +90,12 @@ public class FileAskDialogs {
     public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler, R.string.log_attach_delete_without_file);
     }
+
+    public static void renameAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_record_without_dir);
+    }
+
+    public static void renameAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_attach_without_file);
+    }
 }

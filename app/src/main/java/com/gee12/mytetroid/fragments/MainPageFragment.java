@@ -275,17 +275,17 @@ public class MainPageFragment extends TetroidFragment {
         if (record == null)
             return;
         this.mCurRecord = record;
-        showRecordFiles(record.getAttachedFiles(), record);
+        showRecordFiles(record.getAttachedFiles());
     }
 
-    public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
+    public void showRecordFiles(List<TetroidFile> files) {
         showView(MAIN_VIEW_RECORD_FILES);
-        this.mListAdapterFiles.reset(files, record);
+        this.mListAdapterFiles.reset(files);
         mListViewFiles.setAdapter(mListAdapterFiles);
     }
 
     /**
-     * Открытие прикрепленного файла
+     * Открытие прикрепленного файла.
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openFile(int position) {
@@ -294,7 +294,7 @@ public class MainPageFragment extends TetroidFragment {
             return;
         }
         TetroidFile file = mCurRecord.getAttachedFiles().get(position);
-        mMainView.openFile(file);
+        mMainView.openAttach(file);
     }
 
     /**
@@ -398,7 +398,14 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetChanged();
             mMainView.updateTags();
             mMainView.updateNodes();
+            this.mCurRecord = null;
+            mListViewFiles.setAdapter(null);
             LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            // переходим в список записей ветки после удаления
+            // (запись может быть удалена при поппытке просмотра/изменения файла, например)
+            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
+                showView(MAIN_VIEW_NODE_RECORDS);
+            }
         } else {
             LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
@@ -464,13 +471,40 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void renameFile(TetroidFile file) {
         FileAskDialogs.createFileDialog(getContext(), file, (name) -> {
-            if (DataManager.editFileFields(file, name)) {
-                LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-                mListAdapterFiles.notifyDataSetChanged();
+            int res = DataManager.editFileFields(file, name);
+            if (res == -2) {
+                // если файл отсутствует на диске, предлагаем его удалить из хранилища
+                FileAskDialogs.renameAttachWithoutFile(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
+                });
+            } else if (res == -1) {
+                // если каталог записи отсутствует на диске, предлагаем удалить запись из хранилища
+
+                // TODO: добавить вариант Создать каталог записи
+
+                FileAskDialogs.renameAttachWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteRecord(file.getRecord(), true);
+                    onDeleteRecordResult(file.getRecord(), res1);
+                });
             } else {
-                LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                onRenameFileResult(file, res);
             }
         });
+    }
+
+    /**
+     * Обработка результата переименования файла.
+     * @param file
+     * @param res
+     */
+    private void onRenameFileResult(TetroidFile  file, int res) {
+        if (res > 0) {
+            LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            mListAdapterFiles.notifyDataSetChanged();
+        } else {
+            LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
     }
 
     /**

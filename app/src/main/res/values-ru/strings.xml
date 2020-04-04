@@ -257,6 +257,8 @@
     <string name="record_delete">Удалить запись ?</string>
     <string name="log_record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
     <string name="log_attach_delete_without_file">Файл отсутствует на диске. Удалить все равно ?</string>
+    <string name="log_delete_attach_without_file">Файл отсутствует на диске. Удалить файл из хранилища ?</string>
+    <string name="log_delete_record_without_dir">Каталог записи отсутствует. Удалить запись из хранилища ?</string>
     <string name="record_deleted">Запись удалена</string>
     <string name="file_deleted">Файл удален</string>
     <string name="show_node">Открыть ветку</string>

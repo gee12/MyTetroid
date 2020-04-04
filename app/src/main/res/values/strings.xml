@@ -294,8 +294,10 @@
     <string name="file_delete">Delete file ?</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="record_delete">Delete record ?</string>
-    <string name="log_record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
+    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>
     <string name="log_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
+    <string name="log_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
+    <string name="log_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
     <string name="record_deleted">Record deleted</string>
     <string name="file_deleted">File deleted</string>
     <string name="show_node">Show node</string>

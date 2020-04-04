@@ -1060,7 +1060,9 @@ public class DataManager extends XMLManager implements ICryptHandler {
     }
 
     /**
-     * Изменение свойств файла.
+     * Изменение свойств прикрепленного файла.
+     * Проверка существования каталога записи и файла происходит только
+     * если у имени файла было изменено расширение.
      * @param file
      * @param name
      * @return 1 - успешно
@@ -1132,7 +1134,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
     }
 
     /**
-     * Удаление файла.
+     * Удаление прикрепленного файла.
      * @param file
      * @param withoutFile не пытаться удалить сам файл на диске
      * @return 1 - успешно
@@ -1202,6 +1204,44 @@ public class DataManager extends XMLManager implements ICryptHandler {
             }
         }
         return 1;
+    }
+
+    /**
+     * Получение размера прикрепленного файла.
+     * @param context
+     * @param file
+     * @return
+     */
+    public static String getFileSize(Context context, @NonNull TetroidFile file) {
+        if (context == null || file == null) {
+            LogManager.emptyParams("DataManager.getFileSize()");
+            return null;
+        }
+        TetroidRecord record = file.getRecord();
+        if (record == null) {
+            LogManager.addLog(context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            return null;
+        }
+
+        String ext = FileUtils.getExtWithComma(file.getName());
+        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+
+        long size;
+        try {
+            File srcFile = new File(fullFileName);
+            if (!srcFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                return null;
+            }
+            size = srcFile.length();
+        } catch (SecurityException ex) {
+            LogManager.addLog(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+        return Utils.sizeToString(context, size);
     }
 
     /**
@@ -1377,34 +1417,6 @@ public class DataManager extends XMLManager implements ICryptHandler {
 //        }
 //        return file;
 //    }
-
-    /**
-     * Получение размера прикрепленного файла.
-     * @param context
-     * @param record
-     * @param file
-     * @return
-     */
-    public static String getFileSize(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
-        if (context == null || record == null || file == null) {
-            LogManager.emptyParams("DataManager.getFileSize()");
-            return null;
-        }
-        String ext = FileUtils.getExtWithComma(file.getName());
-        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
-
-        long size;
-        try {
-            size = new File(fullFileName).length();
-        } catch (SecurityException ex) {
-            LogManager.addLog(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
-            return null;
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
-            return null;
-        }
-        return Utils.sizeToString(context, size);
-    }
 
     public static List<TetroidNode> getRootNodes() {
         return instance.mRootNodesList;

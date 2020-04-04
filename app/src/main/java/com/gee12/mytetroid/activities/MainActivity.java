@@ -702,7 +702,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param file
      */
     @Override
-    public void openFile(TetroidFile file) {
+    public void openAttach(TetroidFile file) {
         if (Build.VERSION.SDK_INT >= 23) {
             // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
             if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
@@ -1426,7 +1426,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } break;
             case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
-                    openFile(mTempFileToOpen);
+                    openAttach(mTempFileToOpen);
                 } else {
                     LogManager.addLog(R.string.log_missing_write_ext_storage_permissions, Toast.LENGTH_SHORT);
                 }
