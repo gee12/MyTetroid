@@ -324,4 +324,5 @@
     <string name="log_start_attach_file_opening">Начало открытия прикрепленного файла id=</string>
     <string name="log_start_record_folder_opening">Начало открытия каталога записи id=</string>
     <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
+    <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
 </resources>

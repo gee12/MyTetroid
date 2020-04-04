@@ -29,6 +29,7 @@ public class LogManager {
 
     private static final String LOG_TAG = "MYTETROID";
     private static final int CALLER_STACK_INDEX = 5;
+    public static final int DURATION_NONE = -1;
 
     // FIXME: Переписать, чтобы использовать Singleton
     //  и не хранить context в static (получать всегда параметром)
@@ -90,7 +91,7 @@ public class LogManager {
     }
 
     public static void addLog(String s, Types type) {
-        addLog(s, type, isWriteToFile, -1);
+        addLog(s, type, isWriteToFile, DURATION_NONE);
     }
 
     public static void addLog(String s) {
@@ -189,6 +190,8 @@ public class LogManager {
                         addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
                                 Types.ERROR, false, Toast.LENGTH_LONG);
                         return;
+                    } else {
+                        addLog(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
                     }
                 }
                 // попытка создания лог-файла

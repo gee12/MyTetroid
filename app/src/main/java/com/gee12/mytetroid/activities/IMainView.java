@@ -9,7 +9,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 public interface IMainView extends Parcelable {
 
     void onMainPageCreated();
-    void openFolder(String pathUri);
+    void openRecordFolder(TetroidRecord record);
     void openAttach(TetroidFile file);
     void updateMainToolbar(int viewId, String title);
     void openFoundObject(ITetroidObject found);

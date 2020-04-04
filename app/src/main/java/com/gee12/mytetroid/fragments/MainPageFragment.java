@@ -323,12 +323,12 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void openRecordFolder(TetroidRecord record) {
-        mMainView.openFolder(DataManager.getRecordDirUri(record));
+        mMainView.openRecordFolder(record);
     }
 
     public void openRecordFolder() {
         if (mCurRecord != null) {
-            mMainView.openFolder(DataManager.getRecordDirUri(mCurRecord));
+            mMainView.openRecordFolder(mCurRecord);
         }
     }
 

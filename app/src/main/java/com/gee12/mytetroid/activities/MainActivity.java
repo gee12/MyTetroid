@@ -674,8 +674,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     @Override
-    public void openFolder(String pathUri) {
-        DataManager.openFolder(this, pathUri);
+    public void openRecordFolder(TetroidRecord record) {
+        DataManager.openRecordFolder(this, record);
     }
 
     @Override
@@ -698,7 +698,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
         ViewUtils.startActivity(this, RecordActivity.class, bundle, REQUEST_CODE_RECORD_ACTIVITY);
     }
-
 
     /**
      * Отрытие прикрепленного файла.

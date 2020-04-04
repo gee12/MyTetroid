@@ -210,7 +210,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
      */
     public static String getRecordTextUri(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
+            LogManager.emptyParams("DataManager.getRecordTextUri()");
             return null;
         }
         String path = null;
@@ -250,13 +250,13 @@ public class DataManager extends XMLManager implements ICryptHandler {
      */
     public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
+            LogManager.emptyParams("DataManager.getRecordHtmlTextDecrypted()");
             return null;
         }
         LogManager.addLog(context.getString(R.string.log_start_record_file_reading) + record.getId(), LogManager.Types.DEBUG);
         // проверка существования каталога записи
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        if (checkRecordFolder(dirPath, true) <= 0) {
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return null;
         }
         String path = dirPath + File.separator + record.getFileName();
@@ -313,7 +313,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         LogManager.addLog(context.getString(R.string.log_start_record_file_saving) + record.getId(), LogManager.Types.DEBUG);
         // проверка существования каталога записи
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        if (checkRecordFolder(dirPath, true) <= 0) {
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return false;
         }
         // формирование пути к файлу записи
@@ -455,9 +455,9 @@ public class DataManager extends XMLManager implements ICryptHandler {
      * @param record
      * @return
      */
-    public static boolean openFolder(Context context, @NotNull TetroidRecord record){
+    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
         if (context == null || record == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
+            LogManager.emptyParams("DataManager.openRecordFolder()");
             return false;
         }
         LogManager.addLog(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
@@ -481,24 +481,28 @@ public class DataManager extends XMLManager implements ICryptHandler {
      *         -1 - ошибка (отсутствует каталог записи)
      */
     public static int checkRecordFolder(String dirPath, boolean isCreate) {
+        return checkRecordFolder(dirPath, isCreate, LogManager.DURATION_NONE);
+    }
+
+    public static int checkRecordFolder(String dirPath, boolean isCreate, int duration) {
         File folder = new File(dirPath);
         try {
             if (!folder.exists()) {
                 if (isCreate) {
                     LogManager.addLog(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath),
-                            LogManager.Types.DEBUG);
+                            LogManager.Types.WARNING);
                     if (folder.mkdirs()) {
-                        LogManager.addLog(context.getString(R.string.log_record_dir_created), LogManager.Types.DEBUG);
+                        LogManager.addLog(context.getString(R.string.log_record_dir_created), LogManager.Types.DEBUG, duration);
                         return 1;
                     } else {
-                        LogManager.addLog(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR);
+                        LogManager.addLog(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR, duration);
                         return 0;
                     }
                 }
                 return -1;
             }
         } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_check_record_dir_error), LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.log_check_record_dir_error), LogManager.Types.ERROR, duration);
             return 0;
         }
         return 1;
@@ -725,18 +729,6 @@ public class DataManager extends XMLManager implements ICryptHandler {
     public boolean deleteRecordFolder(TetroidRecord record) {
         // проверяем существование каталога
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-//        Uri dirUri;
-//        try {
-//            dirUri = Uri.parse(dirPath);
-//        } catch (Exception ex) {
-//            LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
-//            return false;
-//        }
-//        File folder = new File(dirUri.getPath());
-//        if (!folder.exists()) {
-//            LogManager.addLog(context.getString(R.string.log_record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
-//            return false;
-//        }
         if (checkRecordFolder(dirPath, false) <= 0) {
             return false;
         }
@@ -801,17 +793,6 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
         // создаем каталог записи
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-//        Uri dirUri;
-//        try {
-//            dirUri = Uri.parse(dirPath);
-//        } catch (Exception ex) {
-//            LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
-//            return null;
-//        }
-//        File folder = new File(dirUri.getPath());
-//        if (!folder.mkdir()) {
-//            LogManager.addLog(context.getString(R.string.log_error_create_record_folder) + dirPath, LogManager.Types.ERROR);
-//        }
         if (checkRecordFolder(dirPath, true) <= 0) {
             return null;
         }
@@ -917,21 +898,6 @@ public class DataManager extends XMLManager implements ICryptHandler {
         String dirPath = null;
         File folder = null;
         // проверяем существование каталога записи
-//        if (!withoutDir) {
-//            dirPath = getStoragePathBase() + File.separator + record.getDirName();
-//            Uri dirUri;
-//            try {
-//                dirUri = Uri.parse(dirPath);
-//            } catch (Exception ex) {
-//                LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
-//                return 0;
-//            }
-//            folder = new File(dirUri.getPath());
-//            if (!folder.exists()) {
-//                LogManager.addLog(context.getString(R.string.log_record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
-//                return -1;
-//            }
-//        }
         if (!withoutDir) {
             dirPath = getStoragePathBase() + File.separator + record.getDirName();
             int dirRes = checkRecordFolder(dirPath, false);
@@ -1017,7 +983,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
         // проверка каталога записи
         String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        if (checkRecordFolder(dirPath, true) <= 0) {
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return null;
         }
         // формируем путь к файлу назначения в каталоге записи
