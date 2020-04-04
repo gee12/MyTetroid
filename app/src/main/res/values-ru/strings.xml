@@ -318,4 +318,9 @@
     <string name="label_tags">Метки:</string>
     <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
+    <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
+    <string name="log_start_record_file_reading">Начало чтения файла записи id=</string>
+    <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
+    <string name="log_start_attach_file_opening">Начало открытия прикрепленного файла id=</string>
+    <string name="log_start_record_folder_opening">Начало открытия каталога записи id=</string>
 </resources>

@@ -358,4 +358,9 @@
     <string name="label_tags">Tags:</string>
     <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
     <string name="request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
+    <string name="log_record_file_is_missing">No recording file will be created when saving</string>
+    <string name="log_start_record_file_reading">Start reading a file of record id=</string>
+    <string name="log_start_record_file_saving">Start saving a file of record id=</string>
+    <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
+    <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
 </resources>

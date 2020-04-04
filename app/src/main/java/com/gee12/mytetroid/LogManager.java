@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class LogManager {
 
@@ -26,11 +27,16 @@ public class LogManager {
     private static final String LOG_TAG = "MYTETROID";
     private static final int CALLER_STACK_INDEX = 5;
 
+    // FIXME: Переписать, чтобы использовать Singleton
+    //  и не хранить context в static (получать всегда параметром)
+//    private static LogManager instance;
+
     private static Context context;
-    private static  String fullFileName;
+    private static String fullFileName;
     private static boolean isWriteToFile;
 
     public static void init(Context ctx, String path, boolean isWriteToFile) {
+//        instance = new LogManager();
         LogManager.context = ctx;
         setLogPath(path);
         LogManager.isWriteToFile = isWriteToFile;
@@ -109,7 +115,10 @@ public class LogManager {
     }
 
     public static void showMessage(String s, int duration) {
-//        Toast.makeText(context, s, duration).show();
+        Message.show(context, s, duration);
+    }
+
+    public static void showMessage(Context context, String s, int duration) {
         Message.show(context, s, duration);
     }
 
@@ -151,7 +160,7 @@ public class LogManager {
         String methodName = caller.getMethodName();
         int lineNumber = caller.getLineNumber();
 
-        return String.format("%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
+        return String.format(Locale.getDefault(), "%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
     }
 
     private static void writeToFile(String s) {

@@ -662,12 +662,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
-//    @Override
-//    public void openTag(String tagName) {
-//        TetroidTag tag = DataManager.getTag(tagName);
-//        showTag(tag);
-//    }
-
     private void showRecords(List<TetroidRecord> records, int viewId) {
         showRecords(records, viewId, false);
     }

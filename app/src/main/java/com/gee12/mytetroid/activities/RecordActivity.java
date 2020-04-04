@@ -609,7 +609,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     public void openRecordFolder() {
-        DataManager.openFolder(this, DataManager.getRecordDirUri(mRecord));
+        DataManager.openFolder(this, mRecord);
     }
 
     @Override
