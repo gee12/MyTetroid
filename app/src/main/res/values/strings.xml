@@ -357,4 +357,5 @@
     <string name="label_url">Url:</string>
     <string name="label_tags">Tags:</string>
     <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
+    <string name="request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
 </resources>

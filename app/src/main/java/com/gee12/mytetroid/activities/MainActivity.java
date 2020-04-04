@@ -230,8 +230,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mIsAlreadyTryDecrypt = false;
         String storagePath = SettingsManager.getStoragePath();
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            if (!checkReadExtStoragePermission()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!checkWriteExtStoragePermission()) {
                 return;
             }
         }
@@ -253,19 +253,33 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Предоставление разрешения на запись во внешнюю память.
+     * Проверка разрешения на запись во внешнюю память.
      * @return
      */
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    private boolean checkReadExtStoragePermission() {
+    @TargetApi(Build.VERSION_CODES.M)
+    private boolean checkWriteExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_CODE_PERMISSION_WRITE_STORAGE);
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_CONTACTS)) {
+                // нужно объяснить пользователю зачем нужно разрешение
+                AskDialogs.showRequestWriteExtStorageDialog(this, () -> requestWriteExtStorage());
+            } else {
+                requestWriteExtStorage();
+            }
             return false;
         }
         return true;
+    }
+
+    /**
+     * Запрос разрешения на запись во внешнюю память.
+     * @return
+     */
+    private void requestWriteExtStorage() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_CODE_PERMISSION_WRITE_STORAGE);
     }
 
     /**
@@ -734,7 +748,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return true;
         }
     };
-
 
     /**
      * Обработчик клика на "конечной" ветке (без подветок).
@@ -1415,7 +1428,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
-        boolean permGranted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
@@ -1522,7 +1535,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
-        mViewPagerAdapter.getMainFragment().showRecordFiles(found, record);
+        mViewPagerAdapter.getMainFragment().showRecordFiles(found);
         if (found.isEmpty()) {
             mViewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.files_not_found), query));

@@ -66,6 +66,10 @@ public class AskDialogs {
                 .setNegativeButton(R.string.answer_no, dialogClickListener).show();
     }
 
+    public static void showRequestWriteExtStorageDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_record_without_dir);
+    }
+
     public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler, R.string.storage_path_was_changed);
     }

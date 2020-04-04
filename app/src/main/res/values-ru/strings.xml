@@ -317,4 +317,5 @@
     <string name="label_url">Url:</string>
     <string name="label_tags">Метки:</string>
     <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
+    <string name="request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
 </resources>
