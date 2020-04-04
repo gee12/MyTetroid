@@ -363,4 +363,5 @@
     <string name="log_start_record_file_saving">Start saving a file of record id=</string>
     <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
     <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
+    <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
 </resources>

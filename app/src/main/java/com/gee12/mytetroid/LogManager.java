@@ -17,6 +17,9 @@ import java.util.Locale;
 
 public class LogManager {
 
+    /**
+     * Типы логов.
+     */
     public enum Types {
         INFO,
         DEBUG,
@@ -32,9 +35,16 @@ public class LogManager {
 //    private static LogManager instance;
 
     private static Context context;
+    private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;
 
+    /**
+     * Инициализация менеджера.
+     * @param ctx
+     * @param path
+     * @param isWriteToFile
+     */
     public static void init(Context ctx, String path, boolean isWriteToFile) {
 //        instance = new LogManager();
         LogManager.context = ctx;
@@ -43,6 +53,7 @@ public class LogManager {
     }
 
     public static void setLogPath(String path) {
+        LogManager.dirPath = path;
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
@@ -163,10 +174,24 @@ public class LogManager {
         return String.format(Locale.getDefault(), "%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
     }
 
+    /**
+     * Запись логов в файл.
+     * @param s
+     */
     private static void writeToFile(String s) {
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
+                // проверка существования каталога
+                File dir = new File(dirPath);
+                if (!dir.exists()) {
+                    if (!dir.mkdirs()) {
+                        addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
+                                Types.ERROR, false, Toast.LENGTH_LONG);
+                        return;
+                    }
+                }
+                // попытка создания лог-файла
                 logFile.createNewFile();
             }
             catch (IOException e) {
