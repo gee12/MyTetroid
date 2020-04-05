@@ -27,13 +27,13 @@ public class SettingsManager {
         PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
 //        if (getStoragePath() == null) {
-//            setStoragePath(Utils.getExtPublicDocumentsDir());
+//            setStoragePath(Utils.getExternalPublicDocsDir());
 //        }
         if (getTempPath() == null) {
-            setTempPath(FileUtils.getAppExtFilesDir(context));
+            setTempPath(FileUtils.getAppExternalFilesDir(context));
         }
         if (getLogPath() == null) {
-            setLogPath(FileUtils.getAppExtFilesDir(context));
+            setLogPath(FileUtils.getAppExternalFilesDir(context));
         }
 //        LastStoragePath = getStoragePath();
         SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
@@ -42,7 +42,7 @@ public class SettingsManager {
     }
 
     /**
-     * Путь к хранилищу
+     * Путь к хранилищу.
      * @return
      */
     public static String getStoragePath() {
@@ -61,7 +61,7 @@ public class SettingsManager {
     }
 
     /**
-     * Загружать хранилище, используемое при прошлом запуске
+     * Загружать хранилище, используемое при прошлом запуске.
      * По-умолчанию - да
      * @return
      */
@@ -408,6 +408,18 @@ public class SettingsManager {
         setBoolean(R.string.pref_key_search_in_cur_node, value);
     }
 
+    /**
+     * Путь к каталогу, выбранному в последний раз.
+     * @return
+     */
+    public static String getLastChoosedFolder() {
+        return getString(R.string.pref_key_last_folder, null);
+    }
+
+    public static void setLastChoosedFolder(String path) {
+        setString(R.string.pref_key_last_folder, path);
+    }
+
     private static void setBoolean(int prefKeyStringRes, boolean value) {
         if (settings == null)
             return;
@@ -453,6 +465,11 @@ public class SettingsManager {
         }
         return defValue;
     }
+
+    /**
+     *
+     * @return
+     */
     public static SharedPreferences getSettings() {
         return settings;
     }

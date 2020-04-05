@@ -38,7 +38,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
-    protected ICryptHandler mCryptCallback;
+//    protected ICryptHandler mCryptCallback;
     protected boolean mIsNeedDecrypt;
 
     /**
@@ -65,6 +65,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected int mIconsCount;
     protected int mMaxSubnodesCount;
     protected int mMaxDepthLevel;
+
+    protected abstract boolean decryptNode(TetroidNode node);
+    protected abstract String encryptField(String field);
 
     /**
      * Чтение хранилища из xml-файла.
@@ -243,7 +246,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
         // расшифровка
         if (crypt && mIsNeedDecrypt) {
-            mCryptCallback.decryptNode(node);
+            decryptNode(node);
         }
         //else if (!crypt) {
         if (node.isNonCryptedOrDecrypted()) {
@@ -458,9 +461,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @return
      */
     public boolean save(FileOutputStream fos) throws IOException {
-        if (mCryptCallback == null) {
-            return false;
-        }
+//        if (mCryptCallback == null) {
+//            return false;
+//        }
         XmlSerializer serializer = Xml.newSerializer();
         try {
             serializer.setOutput(fos, "UTF-8");
@@ -591,7 +594,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     }
 
     private String cryptValue(boolean needEncrypt, String value) {
-        return (needEncrypt) ? mCryptCallback.encryptField(value) : value;
+        return (needEncrypt) ? encryptField(value) : value;
     }
 
     /**
@@ -669,15 +672,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         return mMaxDepthLevel;
     }
 
-    public ICryptHandler getCryptCallback() {
-        return mCryptCallback;
-    }
+//    public ICryptHandler getCryptCallback() {
+//        return mCryptCallback;
+//    }
 
     /**
      * Задание обработчика шифрования/расшифровки объектов
      */
-    public void setCryptHandler(ICryptHandler cryptCallback) {
-        this.mCryptCallback = cryptCallback;
-    }
+//    public void setCryptHandler(ICryptHandler cryptCallback) {
+//        this.mCryptCallback = cryptCallback;
+//    }
 
 }

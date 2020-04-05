@@ -160,42 +160,67 @@ public class FileUtils {
         return fileOrDirectory.delete();
     }
 
-
-
     /**
      * Получение расширения файла с точкой.
      * @param fileFullName
      * @return Расширение файла с точкой, или пустую строку, если расширение отсутствует.
      */
-    public static String getExtWithComma(String fileFullName) {
+    public static String getExtensionWithComma(String fileFullName) {
         int extIndex = fileFullName.lastIndexOf(".");
         return (extIndex > -1) ? fileFullName.substring(extIndex) : "";
     }
 
     /**
-     *
+     * Получение каталога приложения во внешнем хранилище (удаляется вместе с приложением).
      * @param context
      * @return
      */
-    public static String getAppExtFilesDir(Context context) {
+    public static String getAppExternalFilesDir(Context context) {
         File file = context.getExternalFilesDir(null);
         return (file != null) ? file.getAbsolutePath() : null;
     }
 
     /**
-     * Получение внешнего каталога по-умоланию.
-     *
-     * FIXME: Еще нужно проверять Environment.getExternalStorageState():
-     * Environment.MEDIA_MOUNTED или Environment.MEDIA_MOUNTED_READ_ONLY
+     * Получение общедоступного каталога "Документы" во внешнем хранилище (без проверки состояния).
      * @return
      */
-    public static String getExtPublicDocumentsDir() {
-//        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
-        if (Build.VERSION.SDK_INT >= 19) {
+    public static String getExternalPublicDocsDir() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
         } else {
             return Environment.getExternalStorageDirectory() + "/Documents";
         }
     }
 
+    /**
+     * Получение общедоступного каталога "Документы" или каталога приложения, если первый недоступен.
+     * @param context
+     * @param forWrite
+     * @return
+     */
+    public static String getExternalPublicDocsOrAppDir(Context context, boolean forWrite) {
+        String externalState = Environment.getExternalStorageState();
+        if ((!forWrite || !Environment.MEDIA_MOUNTED_READ_ONLY.equals(externalState))
+                && Environment.MEDIA_MOUNTED.equals(externalState)) {
+            return getExternalPublicDocsDir();
+        } else {
+            return getAppExternalFilesDir(context);
+        }
+    }
+
+    /**
+     * Является ли внешнее хранилище только для чтения.
+     * @return
+     */
+    private static boolean isExternalStorageReadOnly() {
+        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState());
+    }
+
+    /**
+     * Есть ли доступ к внешнему хранилищу.
+     * @return
+     */
+    private static boolean isExternalStorageAvailable() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
 }

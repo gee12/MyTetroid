@@ -54,7 +54,6 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
-import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
@@ -372,6 +371,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
+                SettingsManager.setLastChoosedFolder(storagePath);
             }
             // нужно ли выделять ветку, выбранную в прошлый раз
             // (обязательно после initGUI)
@@ -1290,10 +1290,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      *
      */
     @Override
-    public void chooseFile() {
+    public void openFilePicker() {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", "Select file to upload");
-        intent.putExtra("location", FileUtils.getExtPublicDocumentsDir());
+        intent.putExtra("title", R.string.select_file_to_upload);
+        intent.putExtra("location", DataManager.getLastFolderOrDefault());
         intent.putExtra("pickFiles", true);
         startActivityForResult(intent, REQUEST_CODE_FILE_PICKER);
     }

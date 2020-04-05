@@ -103,7 +103,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         context = ctx;
         DataManager.instance = new DataManager();
         // FIXME: здесь вылезла ошибка проектирования архитектуры классов (?)
-        DataManager.instance.setCryptHandler(instance);
+//        DataManager.instance.setCryptHandler(instance);
 
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
@@ -355,7 +355,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         LogManager.addLog(context.getString(R.string.log_start_attach_file_opening) + file.getId(), LogManager.Types.DEBUG);
         TetroidRecord record = file.getRecord();
         String fileDisplayName = file.getName();
-        String ext = FileUtils.getExtWithComma(fileDisplayName);
+        String ext = FileUtils.getExtensionWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
         String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
         File srcFile;
@@ -973,7 +973,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
 
         String fileDisplayName = srcFile.getName();
-        String ext = FileUtils.getExtWithComma(fileDisplayName);
+        String ext = FileUtils.getExtensionWithComma(fileDisplayName);
         String fileIdName = id + ext;
         // создание объекта хранилища
         boolean crypted = record.isCrypted();
@@ -1062,8 +1062,8 @@ public class DataManager extends XMLManager implements ICryptHandler {
             return 0;
         }
         // сравниваем расширения
-        String ext = FileUtils.getExtWithComma(file.getName());
-        String newExt = FileUtils.getExtWithComma(name);
+        String ext = FileUtils.getExtensionWithComma(file.getName());
+        String newExt = FileUtils.getExtensionWithComma(name);
         boolean isExtChanged = !Utils.isEquals(ext, newExt, true);
 
         String dirPath = null;
@@ -1145,7 +1145,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
                 return dirRes;
             }
             // проверяем существование самого файла
-            String ext = FileUtils.getExtWithComma(file.getName());
+            String ext = FileUtils.getExtensionWithComma(file.getName());
             String fileIdName = file.getId() + ext;
             destFilePath = dirPath + File.separator + fileIdName;
             destFile = new File(destFilePath);
@@ -1202,7 +1202,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
             return null;
         }
 
-        String ext = FileUtils.getExtWithComma(file.getName());
+        String ext = FileUtils.getExtensionWithComma(file.getName());
         String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
 
         long size;
@@ -1228,10 +1228,10 @@ public class DataManager extends XMLManager implements ICryptHandler {
      * @return
      */
     public static boolean saveStorage() {
-        if (instance.getCryptCallback() == null) {
-            LogManager.addLog("В XMLManager не указан ICryptHandler", LogManager.Types.ERROR);
-            return false;
-        }
+//        if (instance.getCryptCallback() == null) {
+//            LogManager.addLog("В XMLManager не указан ICryptHandler", LogManager.Types.ERROR);
+//            return false;
+//        }
         String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE;
         String tempPath = destPath + "_tmp";
 
@@ -1377,6 +1377,11 @@ public class DataManager extends XMLManager implements ICryptHandler {
             }
         }
         return null;
+    }
+
+    public static String getLastFolderOrDefault(Context context, boolean forWrite) {
+        String lastFolder = SettingsManager.getLastChoosedFolder();
+        return (!StringUtil.isBlank(lastFolder)) ? lastFolder : FileUtils.getExternalPublicDocsOrAppDir(context, forWrite);
     }
 
 //    public static File createTempExtStorageFile(Context context, String fileName) {

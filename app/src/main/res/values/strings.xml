@@ -365,4 +365,6 @@
     <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
     <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
     <string name="log_created_log_dir">The log directory was created:&#160;</string>
+    <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
+    <string name="select_file_to_upload">Select file to upload</string>
 </resources>
