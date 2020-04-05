@@ -152,6 +152,9 @@ public class RecordActivity extends TetroidActivity implements
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
         mEditTextHtml.addTextChangedListener(mHtmlWatcher);
+
+        // не гасим экран, если установлена опция
+        setKeepScreenOn(SettingsManager.isKeepScreenOn());
     }
 
     private void onMenuLoaded() {

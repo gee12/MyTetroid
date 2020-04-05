@@ -252,18 +252,59 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
-     * введенная строка в настройках не проверялась, что могло привести к падению приложения
-     * при отображении списка.
-     * @return
+     * Удаление записи.
+     * @param record
      */
-    private String checkDateFormatString() {
-        String dateFormatString = SettingsManager.getDateFormatString();
-        if (Utils.checkDateFormatString(dateFormatString)) {
-            return dateFormatString;
+    private void deleteRecord(TetroidRecord record) {
+        RecordAskDialogs.deleteRecord(getContext(), () -> {
+            int res = DataManager.deleteRecord(record, false);
+            if (res == -1) {
+                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteRecord(record, true);
+                    onDeleteRecordResult(record, res1);
+                });
+            } else {
+                onDeleteRecordResult(record, res);
+            }
+        });
+    }
+
+    /**
+     * Обработка результата удаления записи.
+     * @param record
+     * @param res
+     */
+    private void onDeleteRecordResult(TetroidRecord record, int res) {
+        if (res > 0) {
+            mListAdapterRecords.getDataSet().remove(record);
+            mListAdapterRecords.notifyDataSetChanged();
+            mMainView.updateTags();
+            mMainView.updateNodes();
+            this.mCurRecord = null;
+            mListViewFiles.setAdapter(null);
+            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            // переходим в список записей ветки после удаления
+            // (запись может быть удалена при поппытке просмотра/изменения файла, например)
+            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
+                showView(MAIN_VIEW_NODE_RECORDS);
+            }
         } else {
-            LogManager.addLog(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            return getContext().getString(R.string.def_date_format_string);
+            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Перемещение записи вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
+    private void moveRecord(int pos, boolean isUp) {
+        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
+        if (res > 0) {
+            mListAdapterRecords.notifyDataSetChanged();
+            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else if (res < 0) {
+            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -312,6 +353,11 @@ public class MainPageFragment extends TetroidFragment {
         TetroidFile file = DataManager.attachFile(fullName, mCurRecord);
         if (file != null) {
             mListAdapterFiles.notifyDataSetInvalidated();
+            // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,
+            // если был прикреплен первый файл
+            if (mCurRecord.getAttachedFilesCount() == 1) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
             LogManager.addLog(getString(R.string.log_file_was_attached), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_file_attaching_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -370,64 +416,6 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Удаление записи.
-     * @param record
-     */
-    private void deleteRecord(TetroidRecord record) {
-        RecordAskDialogs.deleteRecord(getContext(), () -> {
-            int res = DataManager.deleteRecord(record, false);
-            if (res == -1) {
-                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
-                    int res1 = DataManager.deleteRecord(record, true);
-                    onDeleteRecordResult(record, res1);
-                });
-            } else {
-                onDeleteRecordResult(record, res);
-            }
-        });
-    }
-
-    /**
-     * Обработка результата удаления записи.
-     * @param record
-     * @param res
-     */
-    private void onDeleteRecordResult(TetroidRecord record, int res) {
-        if (res > 0) {
-            mListAdapterRecords.getDataSet().remove(record);
-            mListAdapterRecords.notifyDataSetChanged();
-            mMainView.updateTags();
-            mMainView.updateNodes();
-            this.mCurRecord = null;
-            mListViewFiles.setAdapter(null);
-            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            // переходим в список записей ветки после удаления
-            // (запись может быть удалена при поппытке просмотра/изменения файла, например)
-            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
-                showView(MAIN_VIEW_NODE_RECORDS);
-            }
-        } else {
-            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-        }
-    }
-
-    /**
-     * Перемещение записи вверх/вниз по списку.
-     * @param pos
-     * @param isUp
-     */
-    private void moveRecord(int pos, boolean isUp) {
-        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
-        if (res > 0) {
-            mListAdapterRecords.notifyDataSetChanged();
-            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-        } else if (res < 0) {
-            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-        }
-    }
-
-
-    /**
      * Удаление прикрепленного файла.
      * @param file
      */
@@ -459,6 +447,11 @@ public class MainPageFragment extends TetroidFragment {
         if (res > 0) {
             mListAdapterFiles.getDataSet().remove(file);
             mListAdapterFiles.notifyDataSetChanged();
+            // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
+            // если был удален единственный файл
+            if (mCurRecord.getAttachedFilesCount() <= 0) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
             LogManager.addLog(getString(R.string.file_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_file_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -504,6 +497,22 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterFiles.notifyDataSetChanged();
         } else {
             LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
+     * введенная строка в настройках не проверялась, что могло привести к падению приложения
+     * при отображении списка.
+     * @return
+     */
+    private String checkDateFormatString() {
+        String dateFormatString = SettingsManager.getDateFormatString();
+        if (Utils.checkDateFormatString(dateFormatString)) {
+            return dateFormatString;
+        } else {
+            LogManager.addLog(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            return getContext().getString(R.string.def_date_format_string);
         }
     }
 
