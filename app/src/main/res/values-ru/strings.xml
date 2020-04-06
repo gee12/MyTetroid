@@ -326,4 +326,11 @@
     <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
     <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
     <string name="select_file_to_upload">Выберите файл</string>
+    <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>
+    <string name="title_log_file_content">Логи</string>
+    <string name="pref_log_file_content">Открыть логи</string>
+    <string name="pref_log_file_content_summ">Получить содержимое лог-файла</string>
+    <string name="title_show">Показать</string>
+    <string name="show_cur_session_logs">Показать логи текущего сеанса запуска приложения</string>
+    <string name="log_logs_is_missing">Логи отсутствуют</string>
 </resources>

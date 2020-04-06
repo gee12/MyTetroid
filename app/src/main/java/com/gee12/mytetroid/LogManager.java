@@ -39,6 +39,7 @@ public class LogManager {
     private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;
+    private static StringBuilder buffer;
 
     /**
      * Инициализация менеджера.
@@ -51,6 +52,7 @@ public class LogManager {
         LogManager.context = ctx;
         setLogPath(path);
         LogManager.isWriteToFile = isWriteToFile;
+        LogManager.buffer = new StringBuilder();
     }
 
     public static void setLogPath(String path) {
@@ -135,7 +137,11 @@ public class LogManager {
     }
 
     private static void addLogWithoutFile(Exception ex, int duration) {
-        addLog(getExceptionInfo(ex), Types.ERROR, false, duration);
+        addLogWithoutFile(getExceptionInfo(ex), duration);
+    }
+
+    private static void addLogWithoutFile(String s, int duration) {
+        addLog(s, Types.ERROR, false, duration);
     }
 
     private static String createMessage(String s) {
@@ -180,6 +186,7 @@ public class LogManager {
      * @param s
      */
     private static void writeToFile(String s) {
+        String mes = createMessage(s);
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
@@ -189,6 +196,8 @@ public class LogManager {
                     if (!dir.mkdirs()) {
                         addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
                                 Types.ERROR, false, Toast.LENGTH_LONG);
+                        //
+                        writeToBuffer(mes);
                         return;
                     } else {
                         addLog(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
@@ -199,15 +208,41 @@ public class LogManager {
             }
             catch (IOException e) {
                 addLogWithoutFile(e, Toast.LENGTH_LONG);
+                //
+                writeToBuffer(mes);
+                return;
             }
         }
         try {
             BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-            buf.append(createMessage(s));
+            buf.append(mes);
             buf.newLine();
             buf.close();
         } catch (IOException e) {
             addLogWithoutFile(e, Toast.LENGTH_LONG);
+            //
+            writeToBuffer(mes);
         }
+    }
+
+    private static void writeToBuffer(String s) {
+        buffer.append(s);
+        buffer.append("\n");
+    }
+
+    /**
+     * Получение полного пути к лог-файлу.
+     * @return
+     */
+    public static String getFullFileName() {
+        return fullFileName;
+    }
+
+    /**
+     * Получение списка логов, которые не удалось записать в файл.
+     * @return
+     */
+    public static String getBufferString() {
+        return buffer.toString();
     }
 }
