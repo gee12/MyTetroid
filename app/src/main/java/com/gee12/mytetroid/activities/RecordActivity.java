@@ -38,6 +38,7 @@ import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
+import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.ImgPicker;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -50,9 +51,11 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IPageLoadListener,
         EditableWebView.ILinkLoadListener,
         EditableWebView.IHtmlReceiveListener,
-        EditableWebView.IYoutubeLinkLoadListener {
+        EditableWebView.IYoutubeLinkLoadListener,
+        ImgPicker.IImgPicker {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
+    public static final int REQUEST_CODE_CAMERA = 2;
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
@@ -65,7 +68,6 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_OPEN_NODE = 3;
     public static final int RESULT_SHOW_TAG = 4;
-//    public static final int RESULT_FIELDS_EDITED = 4;
 
 //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
@@ -118,6 +120,8 @@ public class RecordActivity extends TetroidActivity implements
 //        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
 
         this.mEditor = findViewById(R.id.web_view_record_text);
+//        mEditor.setImagesFolder(DataManager.getPathToRecordFolder(mRecord));
+        mEditor.setImgPickerCallback(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.getWebView().setOnTouchListener(this);
@@ -445,11 +449,28 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    @Override
+    public void startPicker() {
+        ImgPicker.startPicker(this);
+    }
+
+    @Override
+    public void startCamera() {
+//        ImgPicker.startCamera(this, DataManager.getStoragePathBase(), mRecord.getDirName());
+        Intent intent =
+        ImagePicker.cameraOnly()
+                .imageFullDirectory(DataManager.getStoragePathBase())
+                .imageDirectory(mRecord.getDirName())
+//                .start(activity);
+                .getIntent(this);
+        startActivityForResult(intent, REQUEST_CODE_CAMERA);
+    }
+
     /**
      * Обработка выбранных изображений.
      * @param data
      */
-    private void saveSelectedImages(Intent data) {
+    private void saveSelectedImages(Intent data, boolean isCamera) {
         List<Image> images = ImagePicker.getImages(data);
         if (images == null) {
             LogManager.addLog(getString(R.string.log_selected_files_is_missing), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -458,7 +479,7 @@ public class RecordActivity extends TetroidActivity implements
         int errorCount = 0;
         List<String> savedImages = new ArrayList<>();
         for (Image image : images) {
-            String savedImage = DataManager.saveImage(mRecord, image.getPath());
+            String savedImage = DataManager.saveImage(mRecord, image.getPath(), isCamera);
             if (savedImage != null) {
                 savedImages.add(savedImage);
             } else {
@@ -718,8 +739,10 @@ public class RecordActivity extends TetroidActivity implements
             }
             // не гасим экран, если установили опцию
             setKeepScreenOn(SettingsManager.isKeepScreenOn());
+        } else if (requestCode == REQUEST_CODE_CAMERA) {
+            saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            saveSelectedImages(data);
+            saveSelectedImages(data, false);
         }
     }
 

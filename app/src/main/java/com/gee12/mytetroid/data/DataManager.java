@@ -1233,9 +1233,10 @@ public class DataManager extends XMLManager {
      * Сохранение файла изображения в каталог записи.
      * @param record
      * @param imageFullFileName
+     * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    public static String saveImage(TetroidRecord record, String imageFullFileName) {
+    public static String saveImage(TetroidRecord record, String imageFullFileName, boolean deleteSrcFile) {
         if (record == null) {
             LogManager.emptyParams("DataManager.saveImage()");
             return null;
@@ -1256,8 +1257,17 @@ public class DataManager extends XMLManager {
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
             FileUtils.convertImage(imageFullFileName, destFullFileName, Bitmap.CompressFormat.PNG, 100);
-            File file = new File(destFullFileName);
-            if (!file.exists()) {
+            File destFile = new File(destFullFileName);
+            if (destFile.exists()) {
+                if (deleteSrcFile) {
+                    File srcFile = new File(imageFullFileName);
+                    // удаляем исходный файл за ненадобностью
+                    if (!srcFile.delete()) {
+                        LogManager.addLog(context.getString(R.string.log_error_deleting_src_image_file)
+                                + imageFullFileName, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    }
+                }
+            } else {
                 LogManager.addLog(context.getString(R.string.log_error_image_file_saving), LogManager.Types.ERROR);
                 return null;
             }
@@ -1273,10 +1283,6 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean saveStorage() {
-//        if (instance.getCryptCallback() == null) {
-//            LogManager.addLog("В XMLManager не указан ICryptHandler", LogManager.Types.ERROR);
-//            return false;
-//        }
         String destPath = instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 
@@ -1366,21 +1372,21 @@ public class DataManager extends XMLManager {
     }
 
     @NonNull
-    private static Uri getStoragePathBaseUri() {
+    public static Uri getStoragePathBaseUri() {
 //        return Uri.fromFile(new File(getStoragePathBase()));
         return Uri.parse("file://" + getStoragePathBase());
     }
 
     @NonNull
-    private static String getStoragePathBase() {
+    public static String getStoragePathBase() {
         return instance.storagePath + SEPAR + BASE_FOLDER_NAME;
     }
 
-    private static String getPathToRecordFolder(TetroidRecord record) {
+    public static String getPathToRecordFolder(TetroidRecord record) {
         return getStoragePathBase() + SEPAR + record.getDirName();
     }
 
-    private static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {
+    public static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {
         return getPathToRecordFolder(record) + SEPAR + fileName;
     }
 

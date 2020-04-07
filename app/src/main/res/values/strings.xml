@@ -379,4 +379,5 @@
     <string name="log_start_image_file_saving">Start saving image file from [%s] to [%s]</string>
     <string name="log_error_image_file_saving">Failed to save image file</string>
     <string name="log_failed_to_save_images">Failed to save images: %s (more in the logs)</string>
+    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
 </resources>

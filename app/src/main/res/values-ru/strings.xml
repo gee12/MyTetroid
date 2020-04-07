@@ -337,4 +337,5 @@
     <string name="log_start_image_file_saving">Начало сохранения файла изображения из [%s] в [%s]</string>
     <string name="log_error_image_file_saving">Не удалось сохранить файл изображения</string>
     <string name="log_failed_to_save_images">Не удалось сохранить изображений: %s (подробнее в логах)</string>
+    <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
 </resources>
