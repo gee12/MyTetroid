@@ -370,9 +370,9 @@
     <string name="log_file_read_error">Log file read error:&#160;</string>
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
     <string name="title_log_file_content">Логи</string>
-    <string name="pref_log_file_content">Open logs</string>
+    <string name="pref_log_file_content">Show logs</string>
     <string name="pref_log_file_content_summ">Show log file content</string>
     <string name="title_show">Show</string>
-    <string name="show_cur_session_logs">Show logs of the current application launch session</string>
+    <string name="show_cur_session_logs">Show logs of the current application session that could not write to the log file</string>
     <string name="log_logs_is_missing">Logs is missing</string>
 </resources>
