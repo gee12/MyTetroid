@@ -43,6 +43,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecordActivity extends TetroidActivity implements
@@ -445,6 +446,34 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Обработка выбранных изображений.
+     * @param data
+     */
+    private void saveSelectedImages(Intent data) {
+        List<Image> images = ImagePicker.getImages(data);
+        if (images == null) {
+            LogManager.addLog(getString(R.string.log_selected_files_is_missing), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return;
+        }
+        int errorCount = 0;
+        List<String> savedImages = new ArrayList<>();
+        for (Image image : images) {
+            String savedImage = DataManager.saveImage(mRecord, image.getPath());
+            if (savedImage != null) {
+                savedImages.add(savedImage);
+            } else {
+                errorCount++;
+            }
+        }
+        if (errorCount > 0) {
+            LogManager.addLog(getString(R.string.log_failed_to_save_images), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+        }
+        if (!savedImages.isEmpty()) {
+            mEditor.onSelectImages(savedImages);
+        }
+    }
+
+    /**
      * Поиск по тексту записи.
      * @param query
      * @param record
@@ -690,10 +719,7 @@ public class RecordActivity extends TetroidActivity implements
             // не гасим экран, если установили опцию
             setKeepScreenOn(SettingsManager.isKeepScreenOn());
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            // получаем выбранные изображения
-            List<Image> images = ImagePicker.getImages(data);
-//            Image image = ImagePicker.getFirstImageOrNull(data);
-            mEditor.onSelectImages(images);
+            saveSelectedImages(data);
         }
     }
 

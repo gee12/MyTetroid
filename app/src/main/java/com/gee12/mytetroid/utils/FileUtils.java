@@ -1,6 +1,8 @@
 package com.gee12.mytetroid.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class FileUtils {
 
@@ -222,5 +225,22 @@ public class FileUtils {
      */
     private static boolean isExternalStorageAvailable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
+    /**
+     * Преобразование файла изображения в необходимый формат и сохранение.
+     * @param srcImagePath
+     * @param destImagePath
+     * @param format
+     * @param quality
+     * @throws IOException
+     */
+    public static void convertImage(String srcImagePath, String destImagePath, Bitmap.CompressFormat format, int quality)
+            throws IOException {
+        Bitmap bitmap = BitmapFactory.decodeFile(srcImagePath);
+        OutputStream stream = new FileOutputStream(destImagePath);
+        bitmap.compress(format, quality, stream);
+        stream.flush();
+        stream.close();
     }
 }

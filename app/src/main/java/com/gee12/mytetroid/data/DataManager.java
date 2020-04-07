@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -1226,6 +1227,45 @@ public class DataManager extends XMLManager {
             return null;
         }
         return Utils.sizeToString(context, size);
+    }
+
+    /**
+     * Сохранение файла изображения в каталог записи.
+     * @param record
+     * @param imageFullFileName
+     * @return
+     */
+    public static String saveImage(TetroidRecord record, String imageFullFileName) {
+        if (record == null) {
+            LogManager.emptyParams("DataManager.saveImage()");
+            return null;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_image_file_saving), LogManager.Types.DEBUG);
+
+        // создаем уникальное имя файла
+        String idName = createUniqueImageName();
+
+        // проверяем существование каталога записи
+        String dirPath = getPathToRecordFolder(record);
+        int dirRes = checkRecordFolder(dirPath, true);
+        if (dirRes <= 0) {
+            return null;
+        }
+
+        String destFullFileName = getPathToFileInRecordFolder(record, idName);
+        try {
+            // конвертируем изображение в формат PNG и сохраняем в каталог записи
+            FileUtils.convertImage(imageFullFileName, destFullFileName, Bitmap.CompressFormat.PNG, 100);
+            File file = new File(destFullFileName);
+            if (!file.exists()) {
+                LogManager.addLog(context.getString(R.string.log_error_image_file_saving), LogManager.Types.ERROR);
+                return null;
+            }
+        } catch (IOException ex) {
+            LogManager.addLog(context.getString(R.string.log_error_image_file_saving), ex);
+            return null;
+        }
+        return idName;
     }
 
     /**
