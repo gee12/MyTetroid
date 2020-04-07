@@ -66,7 +66,20 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected int mMaxSubnodesCount;
     protected int mMaxDepthLevel;
 
+    /**
+     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * сразу после загрузки ветки из xml.
+     * @param node
+     * @return
+     */
     protected abstract boolean decryptNode(TetroidNode node);
+
+    /**
+     * Обработчик события о необходимости зашифровать текстовое поле
+     * при сохранении структуры хранилища в xml.
+     * @param field
+     * @return
+     */
     protected abstract String encryptField(String field);
 
     /**
@@ -201,7 +214,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
-            //
+            // пропуск зашифрованных веток (для отладки)
             if (crypt && !AppDebug.isLoadCryptedRecords()) {
                 while (parser.next() != XmlPullParser.END_TAG) {
                     if (parser.getEventType() == XmlPullParser.START_TAG) {
@@ -211,8 +224,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 return null;
             }
             // наличие зашифрованных веток
-            if (crypt && !mIsExistCryptedNodes)
-                mIsExistCryptedNodes = true;
+            if (crypt && !mIsExistCryptedNodes) {
+                this.mIsExistCryptedNodes = true;
+            }
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             iconPath = parser.getAttributeValue(ns, "icon");

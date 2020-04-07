@@ -43,7 +43,7 @@ import java.util.Random;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class DataManager extends XMLManager implements ICryptHandler {
+public class DataManager extends XMLManager {
 
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
@@ -150,18 +150,20 @@ public class DataManager extends XMLManager implements ICryptHandler {
     }
 
     /**
-     * Обработчик события интерфейса ICryptHandler, возникающее при необходимости расшифровать
-     * ветку (вместе с дочерними объектами).
+     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * сразу после загрузки ветки из xml.
      * @param node
      */
     @Override
     public boolean decryptNode(@NonNull TetroidNode node) {
+        // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
+        // и расшифровка каждой из них запустится сама после их загрузки по очереди
         return CryptManager.decryptNode(node, false, this);
     }
 
     /**
-     * Обработчик события интерфейса ICryptHandler, возникающее при необходимости зашифровать
-     * текстовое поле.
+     * Обработчик события о необходимости зашифровать текстовое поле
+     * при сохранении структуры хранилища в xml.
      * @param field
      */
     @Override

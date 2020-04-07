@@ -384,17 +384,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                    showNode(nodeToSelect);
 //                }
             }
-            // проверка зашифрованы ли данные
+            // Если хранилище зашифровано, то пытаемся расшифровать его сразу, если:
+            // 1) хэш пароля сохранен локально
+            // или
+            // 2) установлена опция "Спрашивать пароль при старте"
 //            if (DataManager.isExistsCryptedNodes()) {
-            if (DataManager.isCrypted()) {
-
-                if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
-                    // спрашивать пароль при старте
+            if (DataManager.isCrypted()
+                    && (SettingsManager.isSaveMiddlePassHashLocal()
+                    || SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start)))) {
                     decryptStorage(nodeToSelect);
-                    return;
-                }
+            } else {
+                // иначе просто загружаем хранилище, даже если оно зашифровано
+                initStorage(nodeToSelect, false);
             }
-            initStorage(nodeToSelect, false);
         } else {
             LogManager.addLog(getString(R.string.log_failed_storage_init) + DataManager.getStoragePath(),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
