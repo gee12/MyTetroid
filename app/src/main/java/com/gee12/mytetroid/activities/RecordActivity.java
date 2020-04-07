@@ -21,6 +21,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -41,6 +43,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.List;
 
 public class RecordActivity extends TetroidActivity implements
         EditableWebView.IPageLoadListener,
@@ -686,6 +689,11 @@ public class RecordActivity extends TetroidActivity implements
             }
             // не гасим экран, если установили опцию
             setKeepScreenOn(SettingsManager.isKeepScreenOn());
+        } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            // получаем выбранные изображения
+            List<Image> images = ImagePicker.getImages(data);
+//            Image image = ImagePicker.getFirstImageOrNull(data);
+            mEditor.onSelectImages(images);
         }
     }
 

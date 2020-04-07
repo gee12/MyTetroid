@@ -51,7 +51,7 @@ public class SettingsManager {
 
     public static void setStoragePath(String value) {
         String oldPath = getStoragePath();
-        if (TextUtils.isEmpty(oldPath) || !value.equals(oldPath)) {
+        if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
 //            isAskReloadStorage = true;
             SettingsManager.setMiddlePassHash(null);
         }
