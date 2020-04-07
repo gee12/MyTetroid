@@ -72,10 +72,10 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
     }
 
-    public static final String BASE_FOLDER = "base/";
-    public static final String ICONS_FOLDER = "icons/";
-    public static final String MYTETRA_XML_FILE = "mytetra.xml";
-    public static final String DATABASE_INI_FILE = "database.ini";
+    public static final String BASE_FOLDER_NAME = "base";
+    public static final String ICONS_FOLDER_NAME = "icons";
+    public static final String MYTETRA_XML_FILE_NAME = "mytetra.xml";
+    public static final String DATABASE_INI_FILE_NAME = "database.ini";
 
     private static Context context;
 
@@ -109,7 +109,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         DataManager.databaseINI = new INIProperties();
         boolean res;
         try {
-            res = databaseINI.load(storagePath + File.separator + DATABASE_INI_FILE);
+            res = databaseINI.load(storagePath + File.separator + DATABASE_INI_FILE_NAME);
         } catch (Exception ex) {
             LogManager.addLog(ex);
             return false;
@@ -124,9 +124,9 @@ public class DataManager extends XMLManager implements ICryptHandler {
      */
     public static boolean readStorage(boolean isDecrypt) {
         boolean res = false;
-        File file = new File(instance.storagePath + File.separator + MYTETRA_XML_FILE);
+        File file = new File(instance.storagePath + File.separator + MYTETRA_XML_FILE_NAME);
         if (!file.exists()) {
-            LogManager.addLog(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE, LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
             return false;
         }
         try {
@@ -217,12 +217,13 @@ public class DataManager extends XMLManager implements ICryptHandler {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = SettingsManager.getTempPath()+File.separator+record.getDirName()
+                path = SettingsManager.getTempPath() + File.separator + record.getDirName()
                         +File.separator+record.getFileName();
             }
         } else {
-            path = SettingsManager.getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()
-                    +File.separator+record.getFileName();
+            path = SettingsManager.getStoragePath() + File.separator + BASE_FOLDER_NAME
+                    + File.separator+record.getDirName()
+                    + File.separator+record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -239,7 +240,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
     @Override
     public void loadIcon(@NonNull TetroidNode node) {
         if (node.isNonCryptedOrDecrypted()) {
-            node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER);
+            node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER_NAME);
         }
     }
 
@@ -255,7 +256,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
         LogManager.addLog(context.getString(R.string.log_start_record_file_reading) + record.getId(), LogManager.Types.DEBUG);
         // проверка существования каталога записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return null;
         }
@@ -312,7 +313,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
         LogManager.addLog(context.getString(R.string.log_start_record_file_saving) + record.getId(), LogManager.Types.DEBUG);
         // проверка существования каталога записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return false;
         }
@@ -357,7 +358,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtensionWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
-        String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
+        String fullFileName = getPathToFileInRecordFolder(record, fileIdName);
         File srcFile;
         try {
             srcFile = new File(fullFileName);
@@ -728,7 +729,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
      */
     public boolean deleteRecordFolder(TetroidRecord record) {
         // проверяем существование каталога
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, false) <= 0) {
             return false;
         }
@@ -792,7 +793,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
             record.setDecrypted(true);
         }
         // создаем каталог записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, true) <= 0) {
             return null;
         }
@@ -899,7 +900,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         File folder = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
-            dirPath = getStoragePathBase() + File.separator + record.getDirName();
+            dirPath = getPathToRecordFolder(record);
             int dirRes = checkRecordFolder(dirPath, false);
             if (dirRes > 0) {
                 folder = new File(dirPath);
@@ -982,7 +983,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
             file.setDecrypted(true);
         }
         // проверка каталога записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
+        String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return null;
         }
@@ -1071,7 +1072,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         File srcFile = null;
         if (isExtChanged) {
             // проверяем существование каталога записи
-            dirPath = getStoragePathBase() + File.separator + record.getDirName();
+            dirPath = getPathToRecordFolder(record);
             int dirRes = checkRecordFolder(dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
@@ -1139,7 +1140,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
         File destFile = null;
         if (!withoutFile) {
             // проверяем существование каталога записи
-            dirPath = getStoragePathBase() + File.separator + record.getDirName();
+            dirPath = getPathToRecordFolder(record);
             int dirRes = checkRecordFolder(dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
@@ -1203,7 +1204,8 @@ public class DataManager extends XMLManager implements ICryptHandler {
         }
 
         String ext = FileUtils.getExtensionWithComma(file.getName());
-        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+//        String fullFileName = String.format("%s/%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+        String fullFileName = getPathToFileInRecordFolder(record, file.getId() + ext);
 
         long size;
         try {
@@ -1232,7 +1234,7 @@ public class DataManager extends XMLManager implements ICryptHandler {
 //            LogManager.addLog("В XMLManager не указан ICryptHandler", LogManager.Types.ERROR);
 //            return false;
 //        }
-        String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+        String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 
         LogManager.addLog(context.getString(R.string.log_saving_mytetra_xml), LogManager.Types.DEBUG);
@@ -1328,7 +1330,15 @@ public class DataManager extends XMLManager implements ICryptHandler {
 
     @NonNull
     private static String getStoragePathBase() {
-        return instance.storagePath + File.separator + BASE_FOLDER;
+        return instance.storagePath + File.separator + BASE_FOLDER_NAME;
+    }
+
+    private static String getPathToRecordFolder(TetroidRecord record) {
+        return getPathToRecordFolder(record);
+    }
+
+    private static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {
+        return getStoragePathBase() + File.separator + record.getDirName() + File.separator + fileName;
     }
 
     public static TetroidNode getNode(String id) {
