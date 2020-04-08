@@ -261,7 +261,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_CONTACTS)) {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // нужно объяснить пользователю зачем нужно разрешение
                 AskDialogs.showRequestWriteExtStorageDialog(this, () -> requestWriteExtStorage());
             } else {
@@ -278,7 +278,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void requestWriteExtStorage() {
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
                 REQUEST_CODE_PERMISSION_WRITE_STORAGE);
     }
 
@@ -1432,14 +1432,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (permGranted) {
                     startInitStorage();
                 } else {
-                    LogManager.addLog(R.string.log_missing_read_ext_storage_permissions, Toast.LENGTH_SHORT);
+                    LogManager.addLog(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
             case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
                     openAttach(mTempFileToOpen);
                 } else {
-                    LogManager.addLog(R.string.log_missing_write_ext_storage_permissions, Toast.LENGTH_SHORT);
+                    LogManager.addLog(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             }
         }

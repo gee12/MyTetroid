@@ -112,6 +112,10 @@ public class LogManager {
         addLog(context.getString(sId), duration);
     }
 
+    public static void addLog(int sId, Types type, int duration) {
+        addLog(context.getString(sId), type, duration);
+    }
+
     public static void addLog(Exception ex) {
         addLog(getExceptionInfo(ex), Types.ERROR);
     }

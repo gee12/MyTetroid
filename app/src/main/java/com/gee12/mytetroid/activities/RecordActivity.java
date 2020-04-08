@@ -1,8 +1,12 @@
 package com.gee12.mytetroid.activities;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -20,6 +24,9 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
@@ -43,6 +50,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -70,8 +79,9 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_OPEN_NODE = 3;
     public static final int RESULT_SHOW_TAG = 4;
+    public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
-//    private RelativeLayout mFieldsLayout;
+    //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mFabFieldsToggle;
     private WebView mWebViewTags;
@@ -458,9 +468,44 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void startCamera() {
+        // проверка разрешения
+        if (!checkWriteExtStoragePermission()) {
+            return;
+        }
         Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
                 .getIntent(this);
         startActivityForResult(intent, REQUEST_CODE_CAMERA);
+    }
+
+
+    /**
+     * Проверка разрешения на включение камеры.
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    private boolean checkWriteExtStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+                // нужно объяснить пользователю зачем нужно разрешение
+                AskDialogs.showRequestCameraDialog(this, () -> requestCamera());
+            } else {
+                requestCamera();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Запрос разрешения на включение камеры.
+     * @return
+     */
+    private void requestCamera() {
+        ActivityCompat.requestPermissions(this,
+                new String[] { Manifest.permission.CAMERA },
+                REQUEST_CODE_PERMISSION_CAMERA);
     }
 
     /**
@@ -813,6 +858,20 @@ public class RecordActivity extends TetroidActivity implements
                 return res;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION_CAMERA: {
+                if (permGranted) {
+                    startCamera();
+                } else {
+                    LogManager.addLog(R.string.log_missing_camera_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                }
+            } break;
+        }
     }
 
     public void showActivityForResult(Class<?> cls, int requestCode) {
