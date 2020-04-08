@@ -9,7 +9,7 @@ import com.gee12.mytetroid.R;
 public class ImgPicker {
 
     /**
-     * StartPicker image picker activity with request code
+     * StartPicker image picker activity with request code.
      * @param activity
      */
     public static void startPicker(Activity activity) {
@@ -18,7 +18,7 @@ public class ImgPicker {
                 .toolbarFolderTitle(activity.getString(R.string.title_gallery))
                 .toolbarDoneButtonText(activity.getString(R.string.confirm_selected_images))
                 .showCamera(false)
-                .folderMode(false)
+                .folderMode(true)
                 .includeVideo(false)
                 .start();
     }

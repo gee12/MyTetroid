@@ -23,11 +23,13 @@ import android.widget.Toast;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
+import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -39,7 +41,6 @@ import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
-import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.IImagePicker;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -473,9 +474,9 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
         int errorCount = 0;
-        List<String> savedImages = new ArrayList<>();
+        List<TetroidImage> savedImages = new ArrayList<>();
         for (Image image : images) {
-            String savedImage = DataManager.saveImage(mRecord, image.getPath(), isCamera);
+            TetroidImage savedImage = DataManager.saveImage(mRecord, image.getPath(), isCamera);
             if (savedImage != null) {
                 savedImages.add(savedImage);
             } else {

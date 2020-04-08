@@ -41,8 +41,8 @@ public class NodeAskDialogs {
 
         if (node != null) {
             etName.setText(node.getName());
-            etName.setSelection(0, etName.getText().length());
         }
+        etName.setSelection(0, etName.getText().length());
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString());
@@ -55,11 +55,8 @@ public class NodeAskDialogs {
             final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
-                Keyboard.showKeyboard(etName);
             }
-            etName.setSelection(etName.getText().length());
-//            Keyboard.showKeyboard(etName);
-//            Keyboard.showKeyboard(builder.getView());
+            Keyboard.showKeyboard(builder.getView());
         });
         dialog.show();
 

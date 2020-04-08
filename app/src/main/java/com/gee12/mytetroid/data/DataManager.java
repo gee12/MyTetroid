@@ -19,10 +19,12 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
 
 import org.jetbrains.annotations.NotNull;
@@ -1236,7 +1238,7 @@ public class DataManager extends XMLManager {
      * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    public static String saveImage(TetroidRecord record, String srcFullName, boolean deleteSrcFile) {
+    public static TetroidImage saveImage(TetroidRecord record, String srcFullName, boolean deleteSrcFile) {
         if (record == null) {
             LogManager.emptyParams("DataManager.saveImage()");
             return null;
@@ -1244,8 +1246,10 @@ public class DataManager extends XMLManager {
         LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving),
                 srcFullName, record.getId()), LogManager.Types.DEBUG);
 
-        // создаем уникальное имя файла
-        String idName = createUniqueImageName();
+        // генерируем уникальное имя файла
+        String nameId = createUniqueImageName();
+
+        TetroidImage image = new TetroidImage(nameId, record);
 
         // проверяем существование каталога записи
         String dirPath = getPathToRecordFolder(record);
@@ -1254,12 +1258,12 @@ public class DataManager extends XMLManager {
             return null;
         }
 
-        String destFullName = getPathToFileInRecordFolder(record, idName);
+        String destFullName = getPathToFileInRecordFolder(record, nameId);
         LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_converting),
                 destFullName), LogManager.Types.DEBUG);
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            FileUtils.convertImage(srcFullName, destFullName, Bitmap.CompressFormat.PNG, 100);
+            ImageUtils.convertImage(srcFullName, destFullName, Bitmap.CompressFormat.PNG, 100);
             File destFile = new File(destFullName);
             if (destFile.exists()) {
                 if (deleteSrcFile) {
@@ -1280,7 +1284,7 @@ public class DataManager extends XMLManager {
             LogManager.addLog(context.getString(R.string.log_error_image_file_saving), ex);
             return null;
         }
-        return idName;
+        return image;
     }
 
     /**

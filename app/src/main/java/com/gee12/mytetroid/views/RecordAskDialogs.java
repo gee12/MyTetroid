@@ -47,13 +47,13 @@ public class RecordAskDialogs {
 
         if (record != null) {
             etName.setText(record.getName());
-            etName.setSelection(0, etName.getText().length());
             etAuthor.setText(record.getAuthor());
             etUrl.setText(record.getUrl());
 //            String tagsString = Jsoup.parse(record.getTagsString()).toString();
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
         }
+        etName.setSelection(0, etName.getText().length());
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString(),
@@ -71,9 +71,9 @@ public class RecordAskDialogs {
                 okButton.setEnabled(false);
                 Keyboard.showKeyboard(etName);
             }
-            etName.setSelection(etName.getText().length());
+//            etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
-//            Keyboard.showKeyboard(builder.getView());
+            Keyboard.showKeyboard(builder.getView());
         });
         dialog.show();
 

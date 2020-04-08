@@ -594,14 +594,14 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_open_record:
                 showRecord(record);
                 return true;
+            case R.id.action_record_edit_fields:
+                editRecordFields(record);
+                return true;
             case R.id.action_attached_files:
                 showRecordFiles(record);
                 return true;
             case R.id.action_open_record_folder:
                 openRecordFolder(record);
-                return true;
-            case R.id.action_record_edit_fields:
-                editRecordFields(record);
                 return true;
             case R.id.action_copy_link:
                 copyRecordLink(record);
