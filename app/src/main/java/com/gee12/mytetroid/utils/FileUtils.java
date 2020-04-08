@@ -174,6 +174,16 @@ public class FileUtils {
     }
 
     /**
+     * Получение пути к файлу (каталог).
+     * @param fileFullName
+     * @return
+     */
+    public static String getFileFolder(String fileFullName) {
+        int slashIndex = fileFullName.lastIndexOf("/");
+        return (slashIndex > -1) ? fileFullName.substring(0, slashIndex) : "";
+    }
+
+    /**
      * Получение каталога приложения во внешнем хранилище (удаляется вместе с приложением).
      * @param context
      * @return

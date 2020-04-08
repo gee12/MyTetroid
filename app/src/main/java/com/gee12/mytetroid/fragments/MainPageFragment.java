@@ -39,10 +39,8 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_GLOBAL_FOUND = -1;
     public static final int MAIN_VIEW_NONE = 0;
     public static final int MAIN_VIEW_NODE_RECORDS = 1;
-//    public static final int MAIN_VIEW_RECORD_TEXT = 2;
     public static final int MAIN_VIEW_RECORD_FILES = 2;
     public static final int MAIN_VIEW_TAG_RECORDS = 3;
-    //    public static final int VIEW_FOUND_RECORDS = 5;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;

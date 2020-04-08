@@ -54,6 +54,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
@@ -371,7 +372,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
-                SettingsManager.setLastChoosedFolder(storagePath);
             }
             // нужно ли выделять ветку, выбранную в прошлый раз
             // (обязательно после initGUI)
@@ -1318,8 +1318,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
-        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY /*&& resultCode == RESULT_OK*/) {
-//            int actionId = data.getIntExtra(RecordActivity.EXTRA_ACTION_ID, 0);
+        } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
@@ -1327,11 +1326,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
             String folderFullName = data.getStringExtra("data");
             initOrSyncStorage(folderFullName);
+            // сохраняем путь
+            SettingsManager.setLastChoosedFolder(folderFullName);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
-            String fileLocation = data.getStringExtra("data");
-            mViewPagerAdapter.getMainFragment().attachFile(fileLocation);
+            String fileFullName = data.getStringExtra("data");
+            mViewPagerAdapter.getMainFragment().attachFile(fileFullName);
+            // сохраняем путь
+            SettingsManager.setLastChoosedFolder(FileUtils.getFileFolder(fileFullName));
         }
 
     }
