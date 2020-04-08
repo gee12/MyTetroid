@@ -34,11 +34,12 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
-import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.ImgPicker;
+import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.IImagePicker;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -52,7 +53,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.ILinkLoadListener,
         EditableWebView.IHtmlReceiveListener,
         EditableWebView.IYoutubeLinkLoadListener,
-        ImgPicker.IImgPicker {
+        IImagePicker {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final int REQUEST_CODE_CAMERA = 2;
@@ -456,12 +457,7 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void startCamera() {
-//        ImgPicker.startCamera(this, DataManager.getStoragePathBase(), mRecord.getDirName());
-        Intent intent =
-        ImagePicker.cameraOnly()
-                .imageFullDirectory(DataManager.getStoragePathBase())
-                .imageDirectory(mRecord.getDirName())
-//                .start(activity);
+        Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
                 .getIntent(this);
         startActivityForResult(intent, REQUEST_CODE_CAMERA);
     }
@@ -739,7 +735,7 @@ public class RecordActivity extends TetroidActivity implements
             }
             // не гасим экран, если установили опцию
             setKeepScreenOn(SettingsManager.isKeepScreenOn());
-        } else if (requestCode == REQUEST_CODE_CAMERA) {
+        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             saveSelectedImages(data, false);

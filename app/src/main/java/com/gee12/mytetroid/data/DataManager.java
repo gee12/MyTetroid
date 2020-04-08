@@ -1232,16 +1232,17 @@ public class DataManager extends XMLManager {
     /**
      * Сохранение файла изображения в каталог записи.
      * @param record
-     * @param imageFullFileName
+     * @param srcFullName
      * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    public static String saveImage(TetroidRecord record, String imageFullFileName, boolean deleteSrcFile) {
+    public static String saveImage(TetroidRecord record, String srcFullName, boolean deleteSrcFile) {
         if (record == null) {
             LogManager.emptyParams("DataManager.saveImage()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_image_file_saving), LogManager.Types.DEBUG);
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving),
+                srcFullName, record.getId()), LogManager.Types.DEBUG);
 
         // создаем уникальное имя файла
         String idName = createUniqueImageName();
@@ -1253,18 +1254,22 @@ public class DataManager extends XMLManager {
             return null;
         }
 
-        String destFullFileName = getPathToFileInRecordFolder(record, idName);
+        String destFullName = getPathToFileInRecordFolder(record, idName);
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_converting),
+                destFullName), LogManager.Types.DEBUG);
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            FileUtils.convertImage(imageFullFileName, destFullFileName, Bitmap.CompressFormat.PNG, 100);
-            File destFile = new File(destFullFileName);
+            FileUtils.convertImage(srcFullName, destFullName, Bitmap.CompressFormat.PNG, 100);
+            File destFile = new File(destFullName);
             if (destFile.exists()) {
                 if (deleteSrcFile) {
-                    File srcFile = new File(imageFullFileName);
+                    LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_deleting),
+                            srcFullName), LogManager.Types.DEBUG);
+                    File srcFile = new File(srcFullName);
                     // удаляем исходный файл за ненадобностью
                     if (!srcFile.delete()) {
                         LogManager.addLog(context.getString(R.string.log_error_deleting_src_image_file)
-                                + imageFullFileName, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                                + srcFullName, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                 }
             } else {

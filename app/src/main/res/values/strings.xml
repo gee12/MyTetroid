@@ -376,8 +376,12 @@
     <string name="show_cur_session_logs">Show logs of the current application session that could not write to the log file</string>
     <string name="log_logs_is_missing">Logs is missing</string>
     <string name="log_selected_files_is_missing">Missing selected image files</string>
-    <string name="log_start_image_file_saving">Start saving image file from [%s] to [%s]</string>
+    <string name="log_start_image_file_saving">Start saving image [%s] to record id=%s</string>
+    <string name="log_start_image_file_converting">Start converting image file to [%s]</string>
+    <string name="log_start_image_file_deleting">Start deleting image file [%s]</string>
     <string name="log_error_image_file_saving">Failed to save image file</string>
     <string name="log_failed_to_save_images">Failed to save images: %s (more in the logs)</string>
     <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
+    <string name="confirm_selected_images">Confirm</string>
+    <string name="title_gallery">Gallery</string>
 </resources>
