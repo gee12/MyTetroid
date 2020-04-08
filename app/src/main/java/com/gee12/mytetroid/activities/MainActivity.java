@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -256,7 +255,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Проверка разрешения на запись во внешнюю память.
      * @return
      */
-    @TargetApi(Build.VERSION_CODES.M)
+//    @TargetApi(Build.VERSION_CODES.M)
     private boolean checkWriteExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -712,17 +711,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void openAttach(TetroidFile file) {
-        if (Build.VERSION.SDK_INT >= 23) {
+//        if (Build.VERSION.SDK_INT >= 23) {
             // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
             if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
-                && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
                 this.mTempFileToOpen = file;
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_CODE_PERMISSION_WRITE_TEMP);
                 return;
             }
-        }
+//        }
         // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения
         // уже были выданы при установке приложения
         DataManager.openAttach(this, file);

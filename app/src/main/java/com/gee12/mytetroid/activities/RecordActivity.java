@@ -1,12 +1,10 @@
 package com.gee12.mytetroid.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -472,7 +470,10 @@ public class RecordActivity extends TetroidActivity implements
         if (!checkWriteExtStoragePermission()) {
             return;
         }
-        Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
+        // не удалось сохранять сделанную фотографию сразу в каталог записи
+        // (возникает ошибка на Android 9)
+//        Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
+        Intent intent = ImagePicker.cameraOnly()
                 .getIntent(this);
         startActivityForResult(intent, REQUEST_CODE_CAMERA);
     }
@@ -482,7 +483,7 @@ public class RecordActivity extends TetroidActivity implements
      * Проверка разрешения на включение камеры.
      * @return
      */
-    @TargetApi(Build.VERSION_CODES.M)
+//    @TargetApi(Build.VERSION_CODES.M)
     private boolean checkWriteExtStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
