@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
@@ -18,12 +19,15 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.internal.StringUtil;
 
@@ -42,7 +46,7 @@ import java.util.Random;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class DataManager extends XMLManager implements IDecryptHandler {
+public class DataManager extends XMLManager {
 
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
@@ -54,8 +58,8 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      * Разделитель меток - запятая или запятая с пробелами.
      */
-    private static final String TAGS_SEPARATOR = "\\s*,\\s*";
-
+    private static final String TAGS_SEPAR = "\\s*,\\s*";
+    public static final String SEPAR = File.separator;
 
     //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
@@ -72,10 +76,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
     }
 
-    public static final String BASE_FOLDER = "base/";
-    public static final String ICONS_FOLDER = "icons/";
-    public static final String MYTETRA_XML_FILE = "mytetra.xml";
-    public static final String DATABASE_INI_FILE = "database.ini";
+    public static final String BASE_FOLDER_NAME = "base";
+    public static final String ICONS_FOLDER_NAME = "icons";
+    public static final String MYTETRA_XML_FILE_NAME = "mytetra.xml";
+    public static final String DATABASE_INI_FILE_NAME = "database.ini";
 
     private static Context context;
 
@@ -102,11 +106,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public static boolean init(Context ctx, String storagePath) {
         context = ctx;
         DataManager.instance = new DataManager();
+        // FIXME: здесь вылезла ошибка проектирования архитектуры классов (?)
+//        DataManager.instance.setCryptHandler(instance);
+
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
         boolean res;
         try {
-            res = databaseINI.load(storagePath + File.separator + DATABASE_INI_FILE);
+            res = databaseINI.load(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         } catch (Exception ex) {
             LogManager.addLog(ex);
             return false;
@@ -121,18 +128,17 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static boolean readStorage(boolean isDecrypt) {
         boolean res = false;
-        File file = new File(instance.storagePath + File.separator + MYTETRA_XML_FILE);
+        File file = new File(instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME);
         if (!file.exists()) {
-            LogManager.addLog(context.getString(R.string.missing_file) + MYTETRA_XML_FILE, LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
             return false;
         }
         try {
             FileInputStream fis = new FileInputStream(file);
-            IDecryptHandler decryptHandler = (isDecrypt) ? instance : null;
-            res = instance.parse(fis, decryptHandler);
+            res = instance.parse(fis, isDecrypt);
 
 //            if (BuildConfig.DEBUG) {
-//                TestData.addNodes(instance.rootNodesList, 100, 100);
+//                TestData.addNodes(instance.mRootNodesList, 100, 100);
 //            }
 
         } catch (Exception ex) {
@@ -143,21 +149,29 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     public static boolean decryptAll() {
         // достаем сохраненный пароль
-        return CryptManager.decryptAll(instance.rootNodesList, true, instance);
+        return CryptManager.decryptAll(instance.mRootNodesList, true, instance);
     }
 
     /**
-     * Обработчик события IDecryptHandler, возникающее при необходимости расшифровать ветку.
+     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * сразу после загрузки ветки из xml.
      * @param node
      */
     @Override
     public boolean decryptNode(@NonNull TetroidNode node) {
-//        boolean res = CryptManager.decryptNode(node, false, this);
-//        if (res) {
-//            // парсим метки
-//            parseNodeTags(node);
-//        }
+        // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
+        // и расшифровка каждой из них запустится сама после их загрузки по очереди
         return CryptManager.decryptNode(node, false, this);
+    }
+
+    /**
+     * Обработчик события о необходимости зашифровать текстовое поле
+     * при сохранении структуры хранилища в xml.
+     * @param field
+     */
+    @Override
+    public String encryptField(String field) {
+        return CryptManager.encryptTextBase64(field);
     }
 
     /**
@@ -202,19 +216,20 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static String getRecordTextUri(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
+            LogManager.emptyParams("DataManager.getRecordTextUri()");
             return null;
         }
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = SettingsManager.getTempPath()+File.separator+record.getDirName()
-                        +File.separator+record.getFileName();
+                path = SettingsManager.getTempPath() + SEPAR + record.getDirName()
+                        + SEPAR +record.getFileName();
             }
         } else {
-            path = SettingsManager.getStoragePath()+File.separator+BASE_FOLDER+record.getDirName()
-                    +File.separator+record.getFileName();
+            path = SettingsManager.getStoragePath() + SEPAR + BASE_FOLDER_NAME
+                    + SEPAR +record.getDirName()
+                    + SEPAR +record.getFileName();
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
@@ -230,8 +245,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     @Override
     public void loadIcon(@NonNull TetroidNode node) {
-        if (node.isNonCryptedOrDecrypted())
-            node.loadIconFromStorage(storagePath + File.separator + ICONS_FOLDER);
+        if (node.isNonCryptedOrDecrypted()) {
+            node.loadIconFromStorage(storagePath + SEPAR + ICONS_FOLDER_NAME);
+        }
     }
 
     /**
@@ -241,18 +257,27 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
+            LogManager.emptyParams("DataManager.getRecordHtmlTextDecrypted()");
             return null;
         }
-        String path = getStoragePathBase() + File.separator
-                + record.getDirName() + File.separator + record.getFileName();
-//        String pathUri = null;
+        LogManager.addLog(context.getString(R.string.log_start_record_file_reading) + record.getId(), LogManager.Types.DEBUG);
+        // проверка существования каталога записи
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
+            return null;
+        }
+        String path = dirPath + SEPAR + record.getFileName();
         Uri uri;
         try {
-//            pathUri = "file://" + URLEncoder.encode(path, "UTF-8");
             uri = Uri.parse(path);
         } catch (Exception ex) {
             LogManager.addLog(context.getString(R.string.log_error_generate_record_file_path) + path, ex);
+            return null;
+        }
+        // проверка существования файла записи
+        File file = new File(uri.getPath());
+        if (!file.exists()) {
+            LogManager.addLog(context.getString(R.string.log_record_file_is_missing), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             return null;
         }
         String res = null;
@@ -292,25 +317,14 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.saveRecordHtmlText()");
             return false;
         }
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        File dir = new File(dirPath);
-        try {
-            if (!dir.exists()) {
-                LogManager.addLog(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath),
-                        LogManager.Types.WARNING);
-                if (dir.mkdirs()) {
-                    LogManager.addLog(context.getString(R.string.log_record_dir_created), LogManager.Types.INFO);
-                } else {
-                    LogManager.addLog(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR);
-                    return false;
-                }
-            }
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_check_record_dir_error), LogManager.Types.ERROR);
+        LogManager.addLog(context.getString(R.string.log_start_record_file_saving) + record.getId(), LogManager.Types.DEBUG);
+        // проверка существования каталога записи
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return false;
         }
-
-        String path = dirPath + File.separator + record.getFileName();
+        // формирование пути к файлу записи
+        String path = dirPath + SEPAR + record.getFileName();
         Uri uri;
         try {
             uri = Uri.parse(path);
@@ -318,6 +332,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.addLog(context.getString(R.string.log_error_generate_record_file_path) + path, ex);
             return false;
         }
+        // запись файла, зашифровуя при необходимости
         try {
             if (record.isCrypted()) {
                 byte[] res = CryptManager.encryptTextBytes(htmlText);
@@ -330,6 +345,174 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Открытие прикрепленного файла сторонним приложением.
+     * @param context
+     * @param file
+     * @return
+     */
+    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
+    public static boolean openAttach(Context context, @NonNull TetroidFile file) {
+        if (context == null || file == null) {
+            LogManager.emptyParams("DataManager.openAttach()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_attach_file_opening) + file.getId(), LogManager.Types.DEBUG);
+        TetroidRecord record = file.getRecord();
+        String fileDisplayName = file.getName();
+        String ext = FileUtils.getExtensionWithComma(fileDisplayName);
+        String fileIdName = file.getId() + ext;
+        String fullFileName = getPathToFileInRecordFolder(record, fileIdName);
+        File srcFile;
+        try {
+            srcFile = new File(fullFileName);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_error_file_open) + fullFileName,
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(ex);
+            return false;
+        }
+        //
+        LogManager.addLog(context.getString(R.string.log_open_file) + fullFileName);
+        if (srcFile.exists()) {
+            // если запись зашифрована
+            if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
+                // создаем временный файл
+//                File tempFile = createTempCacheFile(context, fileIdName);
+//                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
+//                File tempFile = createTempExtStorageFile(context, fileIdName);
+                String tempFolderPath = SettingsManager.getTempPath() + SEPAR + record.getDirName();
+                File tempFolder = new File(tempFolderPath);
+                if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+                    LogManager.addLog(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
+                }
+                File tempFile = new File(tempFolder, fileIdName);
+//                File tempFile = new File(getTempPath()+File.separator, fileIdName);
+
+                // расшифровываем во временный файл
+                try {
+                    if ((tempFile.exists() || tempFile.createNewFile()) && CryptManager.decryptFile(srcFile, tempFile)) {
+                        srcFile = tempFile;
+                    } else {
+                        LogManager.addLog(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
+                        return false;
+                    }
+                } catch (IOException ex) {
+                    LogManager.addLog(context.getString(R.string.log_file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG);
+                    return false;
+                }
+            }
+
+//            Uri fileURI = Uri.fromFile(srcFile);
+            // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
+            // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
+            // нужно использовать механизм FileProvider.
+            // Путь к файлу должен быть сформирован так: content://<Uri for a file>
+            Uri fileURI;
+            try {
+                fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.log_file_sharing_error) + srcFile.getAbsolutePath(),
+                        LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.addLog(ex);
+                return false;
+            }
+            // ?
+            //grant permision for app with package "packegeName", eg. before starting other app via intent
+//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            //revoke permisions
+//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            // определяем тип файла по расширению, если оно есть
+            String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
+                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
+                    : "text/plain";
+            intent.setDataAndType(fileURI, mimeType);
+            // Add this flag if you're using an intent to make the system open your file.
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
+            Intent chooser = Intent.createChooser(intent, context.getString(R.string.open_with));
+            try {
+                // проверить, есть ли подходящее приложение для открытия файла
+                if (intent.resolveActivity(context.getPackageManager()) != null) {
+//                    context.startActivity(intent);
+                    context.startActivity(chooser);
+                } else {
+                    LogManager.addLog(context.getString(R.string.log_no_app_found) + fullFileName, Toast.LENGTH_LONG);
+                    return false;
+                }
+            }
+            catch(ActivityNotFoundException ex) {
+                LogManager.addLog(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
+                return false;
+            }
+        } else {
+            LogManager.addLog(context.getString(R.string.log_file_is_absent) + fullFileName, Toast.LENGTH_SHORT);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Открытие каталога записи.
+     * @param context
+     * @param record
+     * @return
+     */
+    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
+        if (context == null || record == null) {
+            LogManager.emptyParams("DataManager.openRecordFolder()");
+            return false;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
+        Uri uri = Uri.parse(getRecordDirUri(record));
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, "resource/folder");
+        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
+            context.startActivity(intent);
+            return true;
+        } else {
+            LogManager.addLog(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
+        return false;
+    }
+
+    /**
+     * Проверка существования каталога записи и создание при его отсутствии.
+     * @param dirPath
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     */
+    public static int checkRecordFolder(String dirPath, boolean isCreate) {
+        return checkRecordFolder(dirPath, isCreate, LogManager.DURATION_NONE);
+    }
+
+    public static int checkRecordFolder(String dirPath, boolean isCreate, int duration) {
+        File folder = new File(dirPath);
+        try {
+            if (!folder.exists()) {
+                if (isCreate) {
+                    LogManager.addLog(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath),
+                            LogManager.Types.WARNING);
+                    if (folder.mkdirs()) {
+                        LogManager.addLog(context.getString(R.string.log_record_dir_created), LogManager.Types.DEBUG, duration);
+                        return 1;
+                    } else {
+                        LogManager.addLog(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR, duration);
+                        return 0;
+                    }
+                }
+                return -1;
+            }
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_check_record_dir_error), LogManager.Types.ERROR, duration);
+            return 0;
+        }
+        return 1;
     }
 
     /**
@@ -420,7 +603,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.createNode()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_creating), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_node_creating), LogManager.Types.DEBUG);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -458,7 +641,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.editNodeFields()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_changing), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_node_fields_editing), LogManager.Types.DEBUG);
 
         String oldName = node.getName();
         // обновляем поля
@@ -474,7 +657,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return true;
     }
 
-
     /**
      * Удаление ветки.
      * @param node
@@ -485,7 +667,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.deleteNode()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_deleting), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_node_deleting), LogManager.Types.DEBUG);
 
         // удаляем ветку из коллекции
 //        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
@@ -498,9 +680,9 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
             // необходим обход всего дерева веток для пересчета следующих счетчиков:
-            instance.maxSubnodesCount = -1;
-            instance.maxDepthLevel = -1;
-            instance.uniqueTagsCount = -1;
+            instance.mMaxSubnodesCount = -1;
+            instance.mMaxDepthLevel = -1;
+            instance.mUniqueTagsCount = -1;
             // удаление всех объектов ветки рекурсивно
             instance.deleteNodeRecursively(node);
         } else {
@@ -517,25 +699,25 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     public void deleteNodeRecursively(TetroidNode node) {
         if (node == null)
             return;
-        nodesCount--;
+        mNodesCount--;
         if (node.isCrypted()) {
-            cryptedNodesCount--;
+            mCryptedNodesCount--;
         }
         if (!TextUtils.isEmpty(node.getIconName())) {
-            iconsCount--;
+            mIconsCount--;
         }
         int recordsCount = node.getRecordsCount();
         if (recordsCount > 0) {
             recordsCount -= recordsCount;
             if (node.isCrypted()) {
-                cryptedRecordsCount -= recordsCount;
+                mCryptedRecordsCount -= recordsCount;
             }
             for (TetroidRecord record : node.getRecords()) {
                 if (!StringUtil.isBlank(record.getAuthor())) {
-                    authorsCount--;
+                    mAuthorsCount--;
                 }
                 if (record.getAttachedFilesCount() > 0) {
-                    filesCount -= record.getAttachedFilesCount();
+                    mFilesCount -= record.getAttachedFilesCount();
                 }
                 deleteRecordTags(record);
                 deleteRecordFolder(record);
@@ -553,19 +735,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
      */
     public boolean deleteRecordFolder(TetroidRecord record) {
         // проверяем существование каталога
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        Uri dirUri;
-        try {
-            dirUri = Uri.parse(dirPath);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, false) <= 0) {
             return false;
         }
-        File folder = new File(dirUri.getPath());
-        if (!folder.exists()) {
-            LogManager.addLog(context.getString(R.string.log_record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
-            return false;
-        }
+        File folder = new File(dirPath);
         // удаляем каталог
         if (!FileUtils.deleteRecursive(folder)) {
             LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
@@ -576,7 +750,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
     /**
      * Удаление ветки из дерева.
-     * Устарело, т.к. сейчас используется поле parentNode.
+     * (устарело, т.к. сейчас используется поле parentNode)
      * @param nodes
      * @param nodeToDelete
      * @return
@@ -611,7 +785,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.createRecord()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_creating), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_record_creating), LogManager.Types.DEBUG);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -625,20 +799,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             record.setDecrypted(true);
         }
         // создаем каталог записи
-        String dirPath = getStoragePathBase() + File.separator + record.getDirName();
-        Uri dirUri;
-        try {
-            dirUri = Uri.parse(dirPath);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true) <= 0) {
             return null;
         }
-        File folder = new File(dirUri.getPath());
-        if (!folder.mkdir()) {
-            LogManager.addLog(context.getString(R.string.log_error_create_record_folder) + dirPath, LogManager.Types.ERROR);
-        }
+        File folder = new File(dirPath);
         // создаем файл записи (пустой)
-        String filePath = dirPath + File.separator + record.getFileName();
+        String filePath = dirPath + SEPAR + record.getFileName();
         Uri fileUri;
         try {
             fileUri = Uri.parse(filePath);
@@ -687,7 +854,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_changing), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_record_fields_editing), LogManager.Types.DEBUG);
 
         String oldName = record.getName();
         String oldAuthor = record.getAuthor();
@@ -723,6 +890,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     /**
      * Удаление записи.
      * @param record
+     * @param withoutDir не пытаться удалить каталог записи
      * @return 1 - успешно
      *         0 - ошибка
      *         -1 - ошибка (отсутствует каталог записи)
@@ -732,24 +900,18 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             LogManager.emptyParams("DataManager.deleteRecord()");
             return 0;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_deleting), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_start_record_deleting), LogManager.Types.DEBUG);
 
         String dirPath = null;
         File folder = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
-            dirPath = getStoragePathBase() + File.separator + record.getDirName();
-            Uri dirUri;
-            try {
-                dirUri = Uri.parse(dirPath);
-            } catch (Exception ex) {
-                LogManager.addLog(context.getString(R.string.log_error_generate_record_folder_path) + dirPath, ex);
-                return 0;
-            }
-            folder = new File(dirUri.getPath());
-            if (!folder.exists()) {
-                LogManager.addLog(context.getString(R.string.log_record_delete_absent_dir) + dirPath, LogManager.Types.WARNING);
-                return -1;
+            dirPath = getPathToRecordFolder(record);
+            int dirRes = checkRecordFolder(dirPath, false);
+            if (dirRes > 0) {
+                folder = new File(dirPath);
+            } else {
+                return dirRes;
             }
         }
 
@@ -767,13 +929,13 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            instance.recordsCount--;
+            instance.mRecordsCount--;
             if (isCrypted())
-                instance.cryptedRecordsCount--;
+                instance.mCryptedRecordsCount--;
             if (!StringUtil.isBlank(record.getAuthor()))
-                instance.authorsCount--;
+                instance.mAuthorsCount--;
             if (record.getAttachedFilesCount() > 0)
-                instance.filesCount -= record.getAttachedFilesCount();
+                instance.mFilesCount -= record.getAttachedFilesCount();
             // перезагружаем список меток
             instance.deleteRecordTags(record);
         } else {
@@ -792,14 +954,348 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     /**
+     * Прикрепление нового файла к записи.
+     * @param fullName
+     * @param record
+     * @return
+     */
+    public static TetroidFile attachFile(String fullName, TetroidRecord record) {
+        if (record == null || TextUtils.isEmpty(fullName)) {
+            LogManager.emptyParams("DataManager.attachFile()");
+            return null;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_file_attaching), LogManager.Types.DEBUG);
+
+        String id = createUniqueId();
+        // проверка исходного файла
+        File srcFile = new File(fullName);
+        try {
+            if (!srcFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_file_is_absent) + fullName, LogManager.Types.ERROR);
+                return null;
+            }
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_file_checking_error) + fullName, ex);
+            return null;
+        }
+
+        String fileDisplayName = srcFile.getName();
+        String ext = FileUtils.getExtensionWithComma(fileDisplayName);
+        String fileIdName = id + ext;
+        // создание объекта хранилища
+        boolean crypted = record.isCrypted();
+        TetroidFile file = new TetroidFile(crypted, id, fileDisplayName, TetroidFile.DEF_FILE_TYPE, record);
+        if (crypted) {
+            file.setDecrypted(true);
+        }
+        // проверка каталога записи
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
+            return null;
+        }
+        // формируем путь к файлу назначения в каталоге записи
+        String destFilePath = dirPath + SEPAR + fileIdName;
+        Uri destFileUri;
+        try {
+            destFileUri = Uri.parse(destFilePath);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_error_generate_file_path) + destFilePath, ex);
+            return null;
+        }
+        // копирование файла в каталог записи, зашифровуя при необходимости
+        File destFile = new File(destFileUri.getPath());
+        try {
+            if (record.isCrypted()) {
+                if (!CryptManager.encryptFile(srcFile, destFile)) {
+                    LogManager.addLog(String.format(Locale.getDefault(),
+                            context.getString(R.string.log_error_encrypt_file), fullName, destFilePath), LogManager.Types.ERROR);
+                    return null;
+                }
+            } else {
+                if (!FileUtils.copyFile(srcFile, destFile)) {
+                    LogManager.addLog(String.format(Locale.getDefault(),
+                            context.getString(R.string.log_error_copy_file), fullName, destFilePath), LogManager.Types.ERROR);
+                    return null;
+                }
+            }
+        } catch (IOException ex) {
+            LogManager.addLog(String.format(Locale.getDefault(),
+                    context.getString(R.string.log_error_copy_file), fullName, destFilePath), ex);
+            return null;
+        }
+
+        // добавляем файл к записи (и соответственно, в коллекцию)
+        List<TetroidFile> files = record.getAttachedFiles();
+        if (files == null) {
+            files = new ArrayList<>();
+            record.setAttachedFiles(files);
+        }
+        files.add(file);
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            instance.mFilesCount++;
+        } else {
+            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+            // удаляем файл из записи
+            files.remove(file);
+            // удаляем файл
+            destFile.delete();
+            return null;
+        }
+        return file;
+    }
+
+    /**
+     * Изменение свойств прикрепленного файла.
+     * Проверка существования каталога записи и файла происходит только
+     * если у имени файла было изменено расширение.
+     * @param file
+     * @param name
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     *         -2 - ошибка (отсутствует файл в каталоге записи)
+     */
+    public static int editFileFields(TetroidFile file, String name) {
+        if (file == null || TextUtils.isEmpty(name)) {
+            LogManager.emptyParams("DataManager.editFileFields()");
+            return 0;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
+
+        TetroidRecord record = file.getRecord();
+        if (record == null) {
+            LogManager.addLog(context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            return 0;
+        }
+        // сравниваем расширения
+        String ext = FileUtils.getExtensionWithComma(file.getName());
+        String newExt = FileUtils.getExtensionWithComma(name);
+        boolean isExtChanged = !Utils.isEquals(ext, newExt, true);
+
+        String dirPath = null;
+        String filePath = null;
+        File srcFile = null;
+        if (isExtChanged) {
+            // проверяем существование каталога записи
+            dirPath = getPathToRecordFolder(record);
+            int dirRes = checkRecordFolder(dirPath, false);
+            if (dirRes <= 0) {
+                return dirRes;
+            }
+            // проверяем существование самого файла
+            String fileIdName = file.getId() + ext;
+            filePath = dirPath + SEPAR + fileIdName;
+            srcFile = new File(filePath);
+            if (!srcFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + filePath, LogManager.Types.ERROR);
+                return -2;
+            }
+        }
+
+        String oldName = file.getName();
+        // обновляем поля
+        file.setName(name);
+
+        // перезаписываем структуру хранилища в файл
+        if (!saveStorage()) {
+            LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
+            // возвращаем изменения
+            file.setName(oldName);
+            return 0;
+        }
+        // меняем расширение, если изменилось
+        if (isExtChanged) {
+            String newFileIdName = file.getId() + newExt;
+            String newFilePath = dirPath + SEPAR + newFileIdName;
+            File destFile = new File(newFilePath);
+            if (!srcFile.renameTo(destFile)) {
+                LogManager.addLog(String.format(Locale.getDefault(),
+                        context.getString(R.string.log_rename_file_error), filePath, newFilePath), LogManager.Types.ERROR);
+                return 0;
+            }
+        }
+
+        return 1;
+    }
+
+    /**
+     * Удаление прикрепленного файла.
+     * @param file
+     * @param withoutFile не пытаться удалить сам файл на диске
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     *         -2 - ошибка (отсутствует файл в каталоге записи)
+     */
+    public static int deleteFile(TetroidFile file, boolean withoutFile) {
+        if (file == null) {
+            LogManager.emptyParams("DataManager.deleteFile()");
+            return 0;
+        }
+        LogManager.addLog(context.getString(R.string.log_start_file_deleting), LogManager.Types.DEBUG);
+
+        TetroidRecord record = file.getRecord();
+        if (record == null) {
+            LogManager.addLog(context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            return 0;
+        }
+
+        String dirPath;
+        String destFilePath = null;
+        File destFile = null;
+        if (!withoutFile) {
+            // проверяем существование каталога записи
+            dirPath = getPathToRecordFolder(record);
+            int dirRes = checkRecordFolder(dirPath, false);
+            if (dirRes <= 0) {
+                return dirRes;
+            }
+            // проверяем существование самого файла
+            String ext = FileUtils.getExtensionWithComma(file.getName());
+            String fileIdName = file.getId() + ext;
+            destFilePath = dirPath + SEPAR + fileIdName;
+            destFile = new File(destFilePath);
+            if (!destFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + destFilePath, LogManager.Types.ERROR);
+                return -2;
+            }
+        }
+
+        // удаляем файл из списка файлов записи (и соответственно, из коллекции)
+        List<TetroidFile> files = record.getAttachedFiles();
+        if (files != null) {
+            if (!files.remove(file)) {
+                LogManager.addLog(context.getString(R.string.log_not_found_file_in_record), LogManager.Types.ERROR);
+                return 0;
+            }
+        } else {
+            LogManager.addLog(context.getString(R.string.log_record_not_have_attached_files), LogManager.Types.ERROR);
+            return 0;
+        }
+
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            instance.mFilesCount--;
+        } else {
+            LogManager.addLog(context.getString(R.string.log_cancel_file_deleting), LogManager.Types.ERROR);
+            return 0;
+        }
+
+        // удаляем сам файл
+        if (!withoutFile) {
+            if (!FileUtils.deleteRecursive(destFile)) {
+                LogManager.addLog(context.getString(R.string.log_error_delete_file) + destFilePath, LogManager.Types.ERROR);
+                return 0;
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * Получение размера прикрепленного файла.
+     * @param context
+     * @param file
+     * @return
+     */
+    public static String getFileSize(Context context, @NonNull TetroidFile file) {
+        if (context == null || file == null) {
+            LogManager.emptyParams("DataManager.getFileSize()");
+            return null;
+        }
+        TetroidRecord record = file.getRecord();
+        if (record == null) {
+            LogManager.addLog(context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            return null;
+        }
+
+        String ext = FileUtils.getExtensionWithComma(file.getName());
+//        String fullFileName = String.format("%s/%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
+        String fullFileName = getPathToFileInRecordFolder(record, file.getId() + ext);
+
+        long size;
+        try {
+            File srcFile = new File(fullFileName);
+            if (!srcFile.exists()) {
+                LogManager.addLog(context.getString(R.string.log_attach_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                return null;
+            }
+            size = srcFile.length();
+        } catch (SecurityException ex) {
+            LogManager.addLog(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+        return Utils.sizeToString(context, size);
+    }
+
+    /**
+     * Сохранение файла изображения в каталог записи.
+     * @param record
+     * @param srcFullName
+     * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
+     * @return
+     */
+    public static TetroidImage saveImage(TetroidRecord record, String srcFullName, boolean deleteSrcFile) {
+        if (record == null) {
+            LogManager.emptyParams("DataManager.saveImage()");
+            return null;
+        }
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving),
+                srcFullName, record.getId()), LogManager.Types.DEBUG);
+
+        // генерируем уникальное имя файла
+        String nameId = createUniqueImageName();
+
+        TetroidImage image = new TetroidImage(nameId, record);
+
+        // проверяем существование каталога записи
+        String dirPath = getPathToRecordFolder(record);
+        int dirRes = checkRecordFolder(dirPath, true);
+        if (dirRes <= 0) {
+            return null;
+        }
+
+        String destFullName = getPathToFileInRecordFolder(record, nameId);
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_converting),
+                destFullName), LogManager.Types.DEBUG);
+        try {
+            // конвертируем изображение в формат PNG и сохраняем в каталог записи
+            ImageUtils.convertImage(srcFullName, destFullName, Bitmap.CompressFormat.PNG, 100);
+            File destFile = new File(destFullName);
+            if (destFile.exists()) {
+                if (deleteSrcFile) {
+                    LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_deleting),
+                            srcFullName), LogManager.Types.DEBUG);
+                    File srcFile = new File(srcFullName);
+                    // удаляем исходный файл за ненадобностью
+                    if (!srcFile.delete()) {
+                        LogManager.addLog(context.getString(R.string.log_error_deleting_src_image_file)
+                                + srcFullName, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    }
+                }
+            } else {
+                LogManager.addLog(context.getString(R.string.log_error_image_file_saving), LogManager.Types.ERROR);
+                return null;
+            }
+        } catch (IOException ex) {
+            LogManager.addLog(context.getString(R.string.log_error_image_file_saving), ex);
+            return null;
+        }
+        return image;
+    }
+
+    /**
      * Сохранение хранилища в файл mytetra.xml.
      * @return
      */
     public static boolean saveStorage() {
-        String destPath = instance.storagePath + File.separator + MYTETRA_XML_FILE;
+        String destPath = instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 
-        LogManager.addLog(context.getString(R.string.log_saving_mytetra_xml), LogManager.Types.INFO);
+        LogManager.addLog(context.getString(R.string.log_saving_mytetra_xml), LogManager.Types.DEBUG);
         try {
             FileOutputStream fos = new FileOutputStream(tempPath, false);
             if (instance.save(fos)) {
@@ -835,40 +1331,23 @@ public class DataManager extends XMLManager implements IDecryptHandler {
             return;
 //        String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
-            for (String tagName : tagsString.split(TAGS_SEPARATOR)) {
+            for (String tagName : tagsString.split(TAGS_SEPAR)) {
                 TetroidTag tag;
-                if (tagsMap.containsKey(tagName)) {
-                    tag = tagsMap.get(tagName);
+                if (mTagsMap.containsKey(tagName)) {
+                    tag = mTagsMap.get(tagName);
                     tag.addRecord(record);
                 } else {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);
                     tag = new TetroidTag(tagName, tagRecords);
-                    tagsMap.put(tagName, tag);
-                    this.uniqueTagsCount++;
+                    mTagsMap.put(tagName, tag);
+                    this.mUniqueTagsCount++;
                 }
-                this.tagsCount++;
+                this.mTagsCount++;
                 record.addTag(tag);
             }
         }
     }
-
-    /**
-     * Удаление меток записей ветки (рекурсивно) из списка.
-     * @param node
-     */
-//    public void deleteNodeTags(TetroidNode node) {
-//        if (node == null)
-//            return;
-//        if (recordsCount > 0) {
-//            for (TetroidRecord record : node.getRecords()) {
-//                deleteRecordTags(record);
-//            }
-//        }
-//        for (TetroidNode subNode : node.getSubNodes()) {
-//            deleteNodeTags(subNode);
-//        }
-//    }
 
     /**
      * Удаление меток записи из списка.
@@ -887,10 +1366,10 @@ public class DataManager extends XMLManager implements IDecryptHandler {
                         foundedTag.getRecords().remove(record);
                     } else {
                         // удаляем саму метку из списка
-                        tagsMap.remove(foundedTag.getName());
-                        this.uniqueTagsCount--;
+                        mTagsMap.remove(foundedTag.getName());
+                        this.mUniqueTagsCount--;
                     }
-                    this.tagsCount--;
+                    this.mTagsCount--;
                 }
             }
             record.getTags().clear();
@@ -898,34 +1377,38 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
-        return getStoragePathBaseUri() + File.separator + record.getDirName() + File.separator;
+        return getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR;
     }
 
     @NonNull
-    private static Uri getStoragePathBaseUri() {
-//        return "file://" + instance.storagePath + "/base/";
+    public static Uri getStoragePathBaseUri() {
 //        return Uri.fromFile(new File(getStoragePathBase()));
         return Uri.parse("file://" + getStoragePathBase());
     }
 
     @NonNull
-    private static String getStoragePathBase() {
-        return instance.storagePath + File.separator + BASE_FOLDER;
+    public static String getStoragePathBase() {
+        return instance.storagePath + SEPAR + BASE_FOLDER_NAME;
+    }
+
+    public static String getPathToRecordFolder(TetroidRecord record) {
+        return getStoragePathBase() + SEPAR + record.getDirName();
+    }
+
+    public static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {
+        return getPathToRecordFolder(record) + SEPAR + fileName;
     }
 
     public static TetroidNode getNode(String id) {
-        return getNodeInHierarchy(instance.rootNodesList, id);
+        return getNodeInHierarchy(instance.mRootNodesList, id);
     }
 
     public static TetroidRecord getRecord(String id) {
-//        return getRecordInHierarchy(instance.rootNodesList, id);
-        return getRecordInHierarchy(instance.rootNodesList, id, new TetroidRecordComparator(TetroidRecord.FIELD_ID));
+        return getRecordInHierarchy(instance.mRootNodesList, id, new TetroidRecordComparator(TetroidRecord.FIELD_ID));
     }
 
     public static TetroidTag getTag(String tagName) {
-//        for (TetroidTag tag : getTags()) {
         for (Map.Entry<String,TetroidTag> tag : getTags().entrySet()) {
-//            if (tag.getValue().getName().contentEquals(tagName))
             if (tag.getKey().contentEquals(tagName))
                 return tag.getValue();
         }
@@ -936,8 +1419,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         if (id == null)
             return null;
         for (TetroidNode node : nodes) {
-//            if (getNodeInHierarchy(node, id) != null)
-//                return node;
             if (id.equals(node.getId()))
                 return node;
             else if (node.isExpandable()) {
@@ -948,23 +1429,6 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         }
         return null;
     }
-
-//    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String id) {
-//        if (id == null)
-//            return null;
-//        for (TetroidNode node : nodes) {
-//            for (TetroidRecord record : node.getRecords()) {
-//                if (id.equals(record.getId()))
-//                    return record;
-//            }
-//            if (node.isExpandable()) {
-//                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), id);
-//                if (found != null)
-//                    return found;
-//            }
-//        }
-//        return null;
-//    }
 
     public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {
         if (comparator == null)
@@ -983,136 +1447,11 @@ public class DataManager extends XMLManager implements IDecryptHandler {
         return null;
     }
 
-    /**
-     * Открытие файла записи сторонним приложением.
-     * @param context
-     * @param file
-     * @return
-     */
-    @RequiresPermission(WRITE_EXTERNAL_STORAGE)
-    public static boolean openFile(Context context, @NonNull TetroidFile file) {
-        if (context == null || file == null) {
-            LogManager.emptyParams("DataManager.openFile()");
-            return false;
-        }
-        TetroidRecord record = file.getRecord();
-        String fileDisplayName = file.getName();
-        String ext = FileUtils.getExtWithComma(fileDisplayName);
-        String fileIdName = file.getId() + ext;
-        String fullFileName = String.format("%s%s/%s", getStoragePathBase(), record.getDirName(), fileIdName);
-        File srcFile;
-        try {
-            srcFile = new File(fullFileName);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_error_file_open) + fullFileName,
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            LogManager.addLog(ex);
-            return false;
-        }
-        //
-        LogManager.addLog(context.getString(R.string.log_open_file) + fullFileName);
-        if (srcFile.exists()) {
-            // если запись зашифрована
-            if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
-                // создаем временный файл
-//                File tempFile = createTempCacheFile(context, fileIdName);
-//                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
-//                File tempFile = createTempExtStorageFile(context, fileIdName);
-                String tempFolderPath = SettingsManager.getTempPath() + File.separator + record.getDirName();
-                File tempFolder = new File(tempFolderPath);
-                if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                    LogManager.addLog(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
-                }
-                File tempFile = new File(tempFolder, fileIdName);
-//                File tempFile = new File(getTempPath()+File.separator, fileIdName);
-
-                // расшифровываем во временный файл
-                try {
-                    if ((tempFile.exists() || tempFile.createNewFile()) && CryptManager.decryptFile(srcFile, tempFile)) {
-                        srcFile = tempFile;
-                    } else {
-                        LogManager.addLog(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
-                        return false;
-                    }
-                } catch (IOException ex) {
-                    LogManager.addLog(context.getString(R.string.log_file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG);
-                    return false;
-                }
-            }
-
-//            Uri fileURI = Uri.fromFile(srcFile);
-            // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
-            // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
-            // нужно использовать механизм FileProvider.
-            // Путь к файлу должен быть сформирован так: content://<Uri for a file>
-            Uri fileURI;
-            try {
-                fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
-            } catch (Exception ex) {
-                LogManager.addLog(context.getString(R.string.log_file_sharing_error) + srcFile.getAbsolutePath(),
-                        LogManager.Types.ERROR, Toast.LENGTH_LONG);
-                LogManager.addLog(ex);
-                return false;
-            }
-            // ?
-            //grant permision for app with package "packegeName", eg. before starting other app via intent
-//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            //revoke permisions
-//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            // определяем тип файла по расширению, если оно есть
-            String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
-                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
-                    : "text/plain";
-            intent.setDataAndType(fileURI, mimeType);
-            // Add this flag if you're using an intent to make the system open your file.
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-            Intent chooser = Intent.createChooser(intent, context.getString(R.string.open_with));
-            try {
-                // проверить, есть ли подходящее приложение для открытия файла
-                if (intent.resolveActivity(context.getPackageManager()) != null) {
-//                    context.startActivity(intent);
-                    context.startActivity(chooser);
-                } else {
-                    LogManager.addLog(context.getString(R.string.log_no_app_found) + fullFileName, Toast.LENGTH_LONG);
-                    return false;
-                }
-            }
-            catch(ActivityNotFoundException ex) {
-                LogManager.addLog(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
-                return false;
-            }
-        } else {
-            LogManager.addLog(context.getString(R.string.file_is_missing) + fullFileName, Toast.LENGTH_SHORT);
-            return false;
-        }
-        return true;
+    public static String getLastFolderOrDefault(Context context, boolean forWrite) {
+        String lastFolder = SettingsManager.getLastChoosedFolder();
+        return (!StringUtil.isBlank(lastFolder)) ? lastFolder : FileUtils.getExternalPublicDocsOrAppDir(context, forWrite);
     }
 
-    /**
-     * Открытие каталога записи.
-     * @param context
-     * @param pathUri
-     * @return
-     */
-    public static boolean openFolder(Context context, String pathUri){
-        if (context == null || pathUri == null) {
-            LogManager.emptyParams("DataManager.openFolder()");
-            return false;
-        }
-        Uri uri = Uri.parse(pathUri);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "resource/folder");
-        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
-            context.startActivity(intent);
-            return true;
-        } else {
-            LogManager.addLog(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
-        }
-        return false;
-    }
 //    public static File createTempExtStorageFile(Context context, String fileName) {
 //        return new File(context.getExternalFilesDir(null), fileName);
 //    }
@@ -1131,50 +1470,22 @@ public class DataManager extends XMLManager implements IDecryptHandler {
 //        return file;
 //    }
 
-    /**
-     * Получение размера прикрепленного файла.
-     * @param context
-     * @param record
-     * @param file
-     * @return
-     */
-    public static String getFileSize(Context context, @NonNull TetroidRecord record, @NonNull TetroidFile file) {
-        if (context == null || record == null || file == null) {
-            LogManager.emptyParams("DataManager.getFileSize()");
-            return null;
-        }
-        String ext = FileUtils.getExtWithComma(file.getName());
-        String fullFileName = String.format("%s%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
-
-        long size;
-        try {
-            size = new File(fullFileName).length();
-        } catch (SecurityException ex) {
-            LogManager.addLog(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
-            return null;
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
-            return null;
-        }
-        return Utils.sizeToString(context, size);
-    }
-
     public static List<TetroidNode> getRootNodes() {
-        return instance.rootNodesList;
+        return instance.mRootNodesList;
     }
 
     public static Map<String,TetroidTag> getTags() {
 //        return instance.tagsList;
-        return instance.tagsMap;
+        return instance.mTagsMap;
     }
 
     public static Collection<TetroidTag> getTagsValues() {
 //        return instance.tagsList;
-        return instance.tagsMap.values();
+        return instance.mTagsMap.values();
     }
 
     public static boolean isNodesExist() {
-        return (instance.rootNodesList != null && !instance.rootNodesList.isEmpty());
+        return (instance.mRootNodesList != null && !instance.mRootNodesList.isEmpty());
     }
 
     public static String getStoragePath() {
@@ -1182,7 +1493,7 @@ public class DataManager extends XMLManager implements IDecryptHandler {
     }
 
     public static boolean isExistsCryptedNodes() {
-        return instance.isExistCryptedNodes;
+        return instance.mIsExistCryptedNodes;
     }
 
     public static boolean isCrypted() {

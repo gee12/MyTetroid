@@ -12,34 +12,35 @@ import androidx.appcompat.app.AlertDialog;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidFile;
+import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
 
 import java.util.Random;
 
-public class NodeAskDialogs {
+public class FileAskDialogs {
 
-    public interface INodeFieldsResult {
+    public interface IFileFieldsResult {
         void onApply(String name);
     }
 
     /**
-     * Диалог создания/изменения ветки.
+     * Диалог создания/изменения файла.
      * @param context
      * @param handler
      */
-    public static void createNodeDialog(Context context, TetroidNode node, INodeFieldsResult handler) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
+    public static void createFileDialog(Context context, TetroidFile file, IFileFieldsResult handler) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_file);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
 
-        if (BuildConfig.DEBUG && node == null) {
+        if (BuildConfig.DEBUG && file == null) {
             Random rand = new Random();
             int num = Math.abs(rand.nextInt());
-            etName.setText("node " + num);
+            etName.setText("file " + num + ".test");
         }
 
-        if (node != null) {
-            etName.setText(node.getName());
+        if (file != null) {
+            etName.setText(file.getName());
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
@@ -53,6 +54,7 @@ public class NodeAskDialogs {
             final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
+                Keyboard.showKeyboard(etName);
             }
             etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
@@ -75,8 +77,23 @@ public class NodeAskDialogs {
         });
     }
 
-    public static void deleteNode(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.node_delete);
+    public static void deleteFile(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.file_delete);
     }
 
+    public static void deleteAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
+    }
+
+    public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_attach_delete_without_file);
+    }
+
+    public static void renameAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_record_without_dir);
+    }
+
+    public static void renameAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_attach_without_file);
+    }
 }

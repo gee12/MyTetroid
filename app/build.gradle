@@ -14,8 +14,8 @@ android {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 22
-        versionName "2.4"
+        versionCode 23
+        versionName "2.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 //    defaultConfig.applicationId = "com.gee12.mytetroid"
@@ -57,9 +57,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'com.google.android.material:material:1.2.0-alpha04'
+    implementation 'com.google.android.material:material:1.2.0-alpha05'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-//    implementation 'pl.openrnd.android:multi-level-listview:1.0.1'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
@@ -68,4 +67,5 @@ dependencies {
     }
     implementation(project(path: ':folder-picker'))
     implementation(project(path: ':multi-listview'))
+    implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
 }

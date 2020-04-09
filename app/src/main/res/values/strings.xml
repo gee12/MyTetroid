@@ -42,6 +42,7 @@
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
     <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
+    <string name="log_missing_camera_permissions">Not enough permissions to camera</string>
     <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Anyway decrypt with this password?</string>
     <string name="answer_yes">Yes</string>
     <string name="answer_no">No</string>
@@ -192,10 +193,12 @@
     <string name="log_error_decrypt_record_file">Error decrypting record file:&#160;</string>
     <string name="log_error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
     <string name="log_error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
+    <string name="log_error_generate_file_path">Error generating the path to the attached file:&#160;</string>
     <string name="log_error_add_record">Error add record to mytetra.xml</string>
     <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="log_error_delete_record_folder">Error deleting the record folder:&#160;</string>
-    <string name="missing_file">Missing file&#160;</string>
+    <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
+    <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
     <string name="log_open_node_records">Open node records: id=</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
     <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
@@ -255,15 +258,19 @@
     <string name="log_record_create_error">Unable to create the record (more in the logs)</string>
     <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>
     <string name="log_record_delete_error">Unable to delete the record (more in the logs)</string>
+    <string name="log_file_delete_error">Unable to delete the file (more in the logs)</string>
+    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
     <string name="log_wrong_tag_link_format">Wrong tag link format</string>
     <string name="log_start_node_creating">Start node creating</string>
-    <string name="log_start_node_changing">Start node fields changing</string>
+    <string name="log_start_node_fields_editing">Start node fields editing</string>
     <string name="log_start_node_deleting">Start node deleting</string>
     <string name="log_start_record_creating">Start record creating</string>
-    <string name="log_start_record_changing">Start record fields changing</string>
     <string name="log_start_record_fields_editing">Start record fields editing</string>
     <string name="log_start_record_deleting">Start record deleting</string>
+    <string name="log_start_file_attaching">Start file attaching</string>
+    <string name="log_start_file_fields_editing">Start file fields editing</string>
+    <string name="log_start_file_deleting">Start file deleting</string>
     <string name="crypted_node_name">Closed</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="tag_not_found">Tag [%s] not found..</string>
@@ -275,18 +282,25 @@
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="menu_item_delete">Remove</string>
     <string name="log_cancel_node_creating">Cancel node creating, as failed to save mytetra.xml</string>
-    <string name="log_cancel_node_changing">Cancel node fields changing, as failed to save mytetra.xml</string>
+    <string name="log_cancel_node_changing">Cancel node fields editing, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>
-    <string name="log_cancel_record_changing">Cancel record fields changing, as failed to save mytetra.xml</string>
+    <string name="log_cancel_record_changing">Cancel record fields editing, as failed to save mytetra.xml</string>
     <string name="log_cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>
+    <string name="log_cancel_file_fields_editing">Cancel file fields editing, as failed to save mytetra.xml</string>
+    <string name="log_cancel_file_deleting">Cancel file deleting, as failed to save mytetra.xml</string>
     <string name="edit_record_fields">Edit properties</string>
     <string name="edit_mode">Editing</string>
     <string name="view_mode">Viewing</string>
     <string name="node_delete">Delete node ?</string>
+    <string name="file_delete">Delete file ?</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="record_delete">Delete record ?</string>
-    <string name="log_record_delete_without_dir">Record directory is absent. Delete anyway ?</string>
+    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>
+    <string name="log_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
+    <string name="log_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
+    <string name="log_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
     <string name="record_deleted">Record deleted</string>
+    <string name="file_deleted">File deleted</string>
     <string name="show_node">Show node</string>
     <string name="rename">Rename</string>
     <string name="set_node_icon">Set icon</string>
@@ -325,4 +339,51 @@
     <string name="node_was_moved">The node was moved</string>
     <string name="node_was_created">The node was created</string>
     <string name="record_was_moved">The record was moved</string>
+    <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
+    <string name="log_file_is_absent">File is absent:</string>
+    <string name="log_file_checking_error">Error checking file existence:</string>
+    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>
+    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>
+    <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
+    <string name="log_record_fields_edited">Свойства записи изменены</string>
+    <string name="log_file_was_attached">File was attached</string>
+    <string name="open_file">Open file</string>
+    <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
+    <string name="log_record_not_have_attached_files">The record does not have attached files</string>
+    <string name="log_not_found_file_in_record">Not found file in the record</string>
+    <string name="file_was_renamed">The file was renamed</string>
+    <string name="file_name_with_ext">File name with extension</string>
+    <string name="label_name">Name:</string>
+    <string name="label_author">Author:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_tags">Tags:</string>
+    <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
+    <string name="request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
+    <string name="request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
+    <string name="log_record_file_is_missing">No recording file will be created when saving</string>
+    <string name="log_start_record_file_reading">Start reading a file of record id=</string>
+    <string name="log_start_record_file_saving">Start saving a file of record id=</string>
+    <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
+    <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
+    <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
+    <string name="log_created_log_dir">The log directory was created:&#160;</string>
+    <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
+    <string name="select_file_to_upload">Select file to upload</string>
+    <string name="log_file_read_error">Log file read error:&#160;</string>
+    <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
+    <string name="title_log_file_content">Логи</string>
+    <string name="pref_log_file_content">Show logs</string>
+    <string name="pref_log_file_content_summ">Show log file content</string>
+    <string name="title_show">Show</string>
+    <string name="show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
+    <string name="log_logs_is_missing">Logs is missing</string>
+    <string name="log_selected_files_is_missing">Missing selected image files</string>
+    <string name="log_start_image_file_saving">Start saving image [%s] to record id=%s</string>
+    <string name="log_start_image_file_converting">Start converting image file to [%s]</string>
+    <string name="log_start_image_file_deleting">Start deleting image file [%s]</string>
+    <string name="log_error_image_file_saving">Failed to save image file</string>
+    <string name="log_failed_to_save_images">Failed to save images: %s (more in the logs)</string>
+    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
+    <string name="confirm_selected_images">Confirm</string>
+    <string name="title_gallery">Gallery</string>
 </resources>

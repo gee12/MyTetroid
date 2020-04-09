@@ -4,7 +4,7 @@
     package="com.gee12.mytetroid"
     android:installLocation="auto">
 
-    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -21,6 +21,9 @@
         <!-- tools:replace="android:theme" -->
 <!--        android:authorities="@string/authority_provider"-->
 <!--        tools:replace="android:authorities"-->
+
+<!--        For Android Q (10):-->
+<!--        android:requestLegacyExternalStorage="true"-->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -81,7 +84,19 @@
             android:name=".activities.InfoActivity"
             android:label="@string/title_storage_info"
             android:parentActivityName=".activities.MainActivity"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".activities.LogsActivity"
+            android:label="@string/title_log_file_content"
+            android:parentActivityName=".activities.SettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="com.gee12.mytetroid.activities.LogsActivity"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.AboutActivity"
             android:label="@string/title_about_app"

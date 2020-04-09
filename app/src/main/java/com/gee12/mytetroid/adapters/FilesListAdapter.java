@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.TetroidFile;
-import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,36 +26,34 @@ public class FilesListAdapter extends BaseAdapter {
         TextView sizeView;
     }
 
-    private LayoutInflater inflater;
-    private List<TetroidFile> dataSet;
-    private TetroidRecord record;
-    private Context context;
+    private LayoutInflater mInflater;
+    private List<TetroidFile> mDataSet;
+    private Context mContext;
 
     public FilesListAdapter(Context context) {
-        this.context = context;
-        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.dataSet = new ArrayList<>();
+        this.mContext = context;
+        this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.mDataSet = new ArrayList<>();
     }
 
-    public void reset(List<TetroidFile> data, TetroidRecord record) {
-        this.dataSet = data;
-        this.record = record;
+    public void reset(List<TetroidFile> data) {
+        this.mDataSet = data;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return dataSet.size();
+        return mDataSet.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return dataSet.get(position);
+        return mDataSet.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return dataSet.get(position).getId().hashCode();
+        return mDataSet.get(position).getId().hashCode();
     }
 
     @Override
@@ -64,7 +61,7 @@ public class FilesListAdapter extends BaseAdapter {
         FileViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new FileViewHolder();
-            convertView = inflater.inflate(R.layout.list_item_file, null);
+            convertView = mInflater.inflate(R.layout.list_item_file, null);
             viewHolder.lineNumView = convertView.findViewById(R.id.file_view_line_num);
             viewHolder.nameView = convertView.findViewById(R.id.file_view_name);
             viewHolder.sizeView = convertView.findViewById(R.id.file_view_size);
@@ -73,21 +70,26 @@ public class FilesListAdapter extends BaseAdapter {
             viewHolder = (FileViewHolder) convertView.getTag();
         }
 
-        final TetroidFile file = dataSet.get(position);
+        final TetroidFile file = mDataSet.get(position);
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название файла
         viewHolder.nameView.setText(file.getName());
-        // размер файла
-        String fileSize = DataManager.getFileSize(context, record, file);
+        // размер
+        ImageView icon = convertView.findViewById(R.id.file_view_icon);
+        String fileSize = DataManager.getFileSize(mContext, file);
         if (fileSize != null) {
+            icon.setImageResource(R.drawable.ic_file);
             viewHolder.sizeView.setText(fileSize);
         } else {
-            ImageView icon = convertView.findViewById(R.id.file_view_icon);
             icon.setImageResource(R.drawable.ic_file_missing);
             viewHolder.sizeView.setText(R.string.file_is_missing);
         }
 
         return convertView;
+    }
+
+    public List<TetroidFile> getDataSet() {
+        return mDataSet;
     }
 }

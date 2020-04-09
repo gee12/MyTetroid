@@ -13,9 +13,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class LogManager {
 
+    /**
+     * Типы логов.
+     */
     public enum Types {
         INFO,
         DEBUG,
@@ -25,18 +29,34 @@ public class LogManager {
 
     private static final String LOG_TAG = "MYTETROID";
     private static final int CALLER_STACK_INDEX = 5;
+    public static final int DURATION_NONE = -1;
+
+    // FIXME: Переписать, чтобы использовать Singleton
+    //  и не хранить context в static (получать всегда параметром)
+//    private static LogManager instance;
 
     private static Context context;
-    private static  String fullFileName;
+    private static String dirPath;
+    private static String fullFileName;
     private static boolean isWriteToFile;
+    private static StringBuilder buffer;
 
+    /**
+     * Инициализация менеджера.
+     * @param ctx
+     * @param path
+     * @param isWriteToFile
+     */
     public static void init(Context ctx, String path, boolean isWriteToFile) {
+//        instance = new LogManager();
         LogManager.context = ctx;
         setLogPath(path);
         LogManager.isWriteToFile = isWriteToFile;
+        LogManager.buffer = new StringBuilder();
     }
 
     public static void setLogPath(String path) {
+        LogManager.dirPath = path;
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
@@ -73,7 +93,7 @@ public class LogManager {
     }
 
     public static void addLog(String s, Types type) {
-        addLog(s, type, isWriteToFile, -1);
+        addLog(s, type, isWriteToFile, DURATION_NONE);
     }
 
     public static void addLog(String s) {
@@ -90,6 +110,10 @@ public class LogManager {
 
     public static void addLog(int sId, int duration) {
         addLog(context.getString(sId), duration);
+    }
+
+    public static void addLog(int sId, Types type, int duration) {
+        addLog(context.getString(sId), type, duration);
     }
 
     public static void addLog(Exception ex) {
@@ -109,12 +133,19 @@ public class LogManager {
     }
 
     public static void showMessage(String s, int duration) {
-//        Toast.makeText(context, s, duration).show();
+        Message.show(context, s, duration);
+    }
+
+    public static void showMessage(Context context, String s, int duration) {
         Message.show(context, s, duration);
     }
 
     private static void addLogWithoutFile(Exception ex, int duration) {
-        addLog(getExceptionInfo(ex), Types.ERROR, false, duration);
+        addLogWithoutFile(getExceptionInfo(ex), duration);
+    }
+
+    private static void addLogWithoutFile(String s, int duration) {
+        addLog(s, Types.ERROR, false, duration);
     }
 
     private static String createMessage(String s) {
@@ -151,26 +182,71 @@ public class LogManager {
         String methodName = caller.getMethodName();
         int lineNumber = caller.getLineNumber();
 
-        return String.format("%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
+        return String.format(Locale.getDefault(), "%s.%s():%d\n%s", className, methodName, lineNumber, ex.getMessage());
     }
 
+    /**
+     * Запись логов в файл.
+     * @param s
+     */
     private static void writeToFile(String s) {
+        String mes = createMessage(s);
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
+                // проверка существования каталога
+                File dir = new File(dirPath);
+                if (!dir.exists()) {
+                    if (!dir.mkdirs()) {
+                        addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
+                                Types.ERROR, false, Toast.LENGTH_LONG);
+                        //
+                        writeToBuffer(mes);
+                        return;
+                    } else {
+                        addLog(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
+                    }
+                }
+                // попытка создания лог-файла
                 logFile.createNewFile();
             }
             catch (IOException e) {
                 addLogWithoutFile(e, Toast.LENGTH_LONG);
+                //
+                writeToBuffer(mes);
+                return;
             }
         }
         try {
             BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-            buf.append(createMessage(s));
+            buf.append(mes);
             buf.newLine();
             buf.close();
         } catch (IOException e) {
             addLogWithoutFile(e, Toast.LENGTH_LONG);
+            //
+            writeToBuffer(mes);
         }
+    }
+
+    private static void writeToBuffer(String s) {
+        buffer.append(s);
+        buffer.append("\n");
+    }
+
+    /**
+     * Получение полного пути к лог-файлу.
+     * @return
+     */
+    public static String getFullFileName() {
+        return fullFileName;
+    }
+
+    /**
+     * Получение списка логов, которые не удалось записать в файл.
+     * @return
+     */
+    public static String getBufferString() {
+        return buffer.toString();
     }
 }

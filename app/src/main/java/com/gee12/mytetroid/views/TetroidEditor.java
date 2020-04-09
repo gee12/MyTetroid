@@ -9,6 +9,9 @@ import androidx.annotation.Nullable;
 import com.gee12.htmlwysiwygeditor.ActionButton;
 import com.gee12.htmlwysiwygeditor.ActionType;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.model.TetroidImage;
+import com.gee12.mytetroid.utils.ImageUtils;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import java.util.ArrayList;
@@ -88,6 +91,29 @@ public class TetroidEditor extends WysiwygEditor {
         //
         if (!App.isFullVersion() && !type.isFree()) {
             button.setEnabled(false);
+        }
+    }
+
+    /**
+     * Вставка выбранных изображений.
+     * @param imagesFileNames
+     */
+    public void onSelectImages(List<TetroidImage> imagesFileNames) {
+        if (imagesFileNames == null)
+            return;
+        int size = imagesFileNames.size();
+        if (size > 0) {
+            if (size == 1) {
+                // обрабатываем изображение только когда выбран один файл
+                TetroidImage image = imagesFileNames.get(0);
+                ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
+                showEditImageDialog(image.getName(), image.getWidth(), image.getHeight());
+            } else {
+                for (TetroidImage fileName : imagesFileNames) {
+                    webView.insertImage(fileName.getName(), null);
+                }
+            }
+            setIsEdited();
         }
     }
 

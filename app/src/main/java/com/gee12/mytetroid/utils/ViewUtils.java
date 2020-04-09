@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.app.ActionBar;
@@ -37,23 +38,24 @@ public class ViewUtils {
     }
 
     /**
-     *
+     * Отображение клавиатуры.
      * @param context
      * @param view
      */
-    public static void showKeyboard(Context context, View view) {
+    public static void showKeyboard(Context context, View view, boolean isForced) {
         if (context == null)
             return;
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (view != null)
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-        else
-            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+        int flags = (isForced) ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT;
+        if (view != null) {
+            imm.showSoftInput(view, flags);
+        } else
+            imm.toggleSoftInput(flags, 0);
     }
 
     /**
-     *
+     * Скрытие клавиатуры.
      * @param context
      * @param view
      */
@@ -100,6 +102,18 @@ public class ViewUtils {
         }
         // панель с полями записи
 //        viewPagerAdapter.getMainFragment().setFullscreen(isFullscreen);
+    }
+
+    /**
+     * Установка блокировки выключения экрана.
+     * @param activity
+     * @param isKeep
+     */
+    public static void setKeepScreenOn(Activity activity, boolean isKeep) {
+        if (isKeep)
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     /**

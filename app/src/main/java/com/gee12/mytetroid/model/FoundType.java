@@ -15,6 +15,8 @@ public class FoundType {
     public static final int TYPE_FILE = 5;
     public static final int TYPE_TAG = 6;
     public static final int TYPE_NODE = 7;
+    // не хранятся в mytetra.xml
+    public static final int TYPE_IMAGE = 8;
 
     private int type;
 

@@ -1,5 +1,7 @@
 package com.gee12.mytetroid;
 
+import android.app.Activity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gee12.mytetroid.utils.ViewUtils;
@@ -24,6 +26,14 @@ public class App {
         SettingsManager.IsFullScreen = newValue;
         ViewUtils.setFullscreen(activity, newValue);
         return newValue;
+    }
+
+    /**
+     * Переключатель блокировки выключения экрана.
+     * @param activity
+     */
+    public static void setKeepScreenOn(Activity activity) {
+        ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn());
     }
 
 }

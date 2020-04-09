@@ -4,7 +4,6 @@ import android.text.TextUtils;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
-import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
@@ -36,35 +35,52 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      */
     private static final String ns = null;
 
-    protected Version formatVersion;
-    protected boolean isExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
+    protected Version mFormatVersion;
+    protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
-    protected IDecryptHandler decryptCallback;
-
-    /**
-     *
-     */
-    protected List<TetroidNode> rootNodesList;
+//    protected ICryptHandler mCryptCallback;
+    protected boolean mIsNeedDecrypt;
 
     /**
      *
      */
-    protected TreeMap<String, TetroidTag> tagsMap;
+    protected List<TetroidNode> mRootNodesList;
+
+    /**
+     *
+     */
+    protected TreeMap<String, TetroidTag> mTagsMap;
 
     /**
      * Статистические данные.
      */
-    protected int nodesCount;
-    protected int cryptedNodesCount;
-    protected int recordsCount;
-    protected int cryptedRecordsCount;
-    protected int filesCount;
-    protected int tagsCount;
-    protected int uniqueTagsCount;
-    protected int authorsCount;
-    protected int iconsCount;
-    protected int maxSubnodesCount;
-    protected int maxDepthLevel;
+    protected int mNodesCount;
+    protected int mCryptedNodesCount;
+    protected int mRecordsCount;
+    protected int mCryptedRecordsCount;
+    protected int mFilesCount;
+    protected int mTagsCount;
+    protected int mUniqueTagsCount;
+    protected int mAuthorsCount;
+    protected int mIconsCount;
+    protected int mMaxSubnodesCount;
+    protected int mMaxDepthLevel;
+
+    /**
+     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * сразу после загрузки ветки из xml.
+     * @param node
+     * @return
+     */
+    protected abstract boolean decryptNode(TetroidNode node);
+
+    /**
+     * Обработчик события о необходимости зашифровать текстовое поле
+     * при сохранении структуры хранилища в xml.
+     * @param field
+     * @return
+     */
+    protected abstract String encryptField(String field);
 
     /**
      * Чтение хранилища из xml-файла.
@@ -73,21 +89,21 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public boolean parse(InputStream in, IDecryptHandler decryptHandler) throws XmlPullParserException, IOException {
-        this.decryptCallback = decryptHandler;
-        this.rootNodesList = new ArrayList<>();
-        this.tagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
-        this.nodesCount = 0;
-        this.cryptedNodesCount = 0;
-        this.recordsCount = 0;
-        this.cryptedRecordsCount = 0;
-        this.filesCount = 0;
-        this.tagsCount = 0;
-        this.uniqueTagsCount = 0;
-        this.authorsCount = 0;
-        this.iconsCount = 0;
-        this.maxSubnodesCount = 0;
-        this.maxDepthLevel = 0;
+    public boolean parse(InputStream in, boolean isNeedDecrypt) throws XmlPullParserException, IOException {
+        this.mIsNeedDecrypt = isNeedDecrypt;
+        this.mRootNodesList = new ArrayList<>();
+        this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
+        this.mNodesCount = 0;
+        this.mCryptedNodesCount = 0;
+        this.mRecordsCount = 0;
+        this.mCryptedRecordsCount = 0;
+        this.mFilesCount = 0;
+        this.mTagsCount = 0;
+        this.mUniqueTagsCount = 0;
+        this.mAuthorsCount = 0;
+        this.mIconsCount = 0;
+        this.mMaxSubnodesCount = 0;
+        this.mMaxDepthLevel = 0;
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -115,7 +131,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             String tagName = parser.getName();
             if (tagName.equals("format")) {
-                this.formatVersion = readFormatVersion(parser);
+                this.mFormatVersion = readFormatVersion(parser);
             } else if (tagName.equals("content")) {
                 res = readContent(parser);
             }
@@ -167,7 +183,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                     nodes.add(node);
                 }
                 //
-                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                if (AppDebug.isRecordsLoadedEnough(mRecordsCount)) {
                     break;
                 }
             } else {
@@ -175,7 +191,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
         rootNode.setSubNodes(nodes);
-        this.rootNodesList = nodes;
+        this.mRootNodesList = nodes;
         return true;
     }
 
@@ -198,7 +214,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         String tagName = parser.getName();
         if (tagName.equals("node")) {
             crypt = ("1".equals(parser.getAttributeValue(ns, "crypt")));
-            //
+            // пропуск зашифрованных веток (для отладки)
             if (crypt && !AppDebug.isLoadCryptedRecords()) {
                 while (parser.next() != XmlPullParser.END_TAG) {
                     if (parser.getEventType() == XmlPullParser.START_TAG) {
@@ -208,8 +224,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 return null;
             }
             // наличие зашифрованных веток
-            if (crypt && !isExistCryptedNodes)
-                isExistCryptedNodes = true;
+            if (crypt && !mIsExistCryptedNodes) {
+                this.mIsExistCryptedNodes = true;
+            }
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
             iconPath = parser.getAttributeValue(ns, "icon");
@@ -228,7 +245,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                 // записи
                 records = readRecords(parser, node);
                 //
-                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                if (AppDebug.isRecordsLoadedEnough(mRecordsCount)) {
                     break;
                 }
             } else if (tagName.equals("node")) {
@@ -242,8 +259,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         node.setRecords(records);
 
         // расшифровка
-        if (crypt && decryptCallback != null) {
-            decryptCallback.decryptNode(node);
+        if (crypt && mIsNeedDecrypt) {
+            decryptNode(node);
         }
         //else if (!crypt) {
         if (node.isNonCryptedOrDecrypted()) {
@@ -254,15 +271,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         // загрузка иконки из файла (после расшифровки имени иконки)
         loadIcon(node);
 
-        this.nodesCount++;
+        this.mNodesCount++;
         if (crypt)
-            this.cryptedNodesCount++;
-        if (subNodes.size() > maxSubnodesCount)
-            this.maxSubnodesCount = subNodes.size();
-        if (depthLevel > maxDepthLevel)
-            this.maxDepthLevel = depthLevel;
+            this.mCryptedNodesCount++;
+        if (subNodes.size() > mMaxSubnodesCount)
+            this.mMaxSubnodesCount = subNodes.size();
+        if (depthLevel > mMaxDepthLevel)
+            this.mMaxDepthLevel = depthLevel;
         if (!TextUtils.isEmpty(iconPath)) {
-            this.iconsCount++;
+            this.mIconsCount++;
         }
 
         return node;
@@ -290,7 +307,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
                     records.add(record);
                 }
                 //
-                if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
+                if (AppDebug.isRecordsLoadedEnough(mRecordsCount)) {
                     return records;
                 }
             } else {
@@ -369,7 +386,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         TetroidRecord record = new TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node);
 
         if (!StringUtil.isBlank(author))
-            this.authorsCount++;
+            this.mAuthorsCount++;
 //        parser.nextTag();
 //        parser.require(XmlPullParser.END_TAG, ns, "record");
         // файлы
@@ -386,13 +403,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
         }
         if (files != null) {
-            record.setFiles(files);
+            record.setAttachedFiles(files);
         }
         parser.require(XmlPullParser.END_TAG, ns, "record");
 
         if (crypt)
-            this.cryptedRecordsCount++;
-        this.recordsCount++;
+            this.mCryptedRecordsCount++;
+        this.mRecordsCount++;
 
         return record;
     }
@@ -447,7 +464,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         parser.nextTag();
         parser.require(XmlPullParser.END_TAG, ns, "file");
 
-        this.filesCount++;
+        this.mFilesCount++;
 
         return new TetroidFile(crypt, id, fileName, type, record);
     }
@@ -458,6 +475,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @return
      */
     public boolean save(FileOutputStream fos) throws IOException {
+//        if (mCryptCallback == null) {
+//            return false;
+//        }
         XmlSerializer serializer = Xml.newSerializer();
         try {
             serializer.setOutput(fos, "UTF-8");
@@ -475,12 +495,12 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             serializer.startTag(ns, "root");
             // format
             serializer.startTag(ns, "format");
-            addAttribute(serializer, "version", String.valueOf(formatVersion.getMajor()));
-            addAttribute(serializer, "subversion", String.valueOf(formatVersion.getMinor()));
+            addAttribute(serializer, "version", String.valueOf(mFormatVersion.getMajor()));
+            addAttribute(serializer, "subversion", String.valueOf(mFormatVersion.getMinor()));
             serializer.endTag(ns, "format");
             // content
             serializer.startTag(ns, "content");
-            saveNodes(serializer, rootNodesList);
+            saveNodes(serializer, mRootNodesList);
             serializer.endTag(ns, "content");
 
             serializer.endTag(ns, "root");
@@ -541,9 +561,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
             addAttribute(serializer, "dir", record.getDirName());
             addAttribute(serializer, "file", record.getFileName());
-            if (crypted)
+            if (crypted) {
                 addAttribute(serializer, "crypt", "1");
-
+            }
             if (record.getAttachedFilesCount() > 0) {
                 saveFiles(serializer, record.getAttachedFiles());
             }
@@ -568,17 +588,18 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             addAttribute(serializer, "id", file.getId());
             addCryptAttribute(serializer, file, "fileName", file.getName());
             addAttribute(serializer, "type", file.getFileType());
-            if (crypted)
+            if (crypted) {
                 addAttribute(serializer, "crypt", "1");
-
+            }
             serializer.endTag(ns, "file");
         }
         serializer.endTag(ns, "files");
     }
 
     private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
-        if (value == null)
+        if (value == null) {
             value = "";
+        }
         serializer.attribute(ns, name, value);
     }
 
@@ -587,7 +608,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     }
 
     private String cryptValue(boolean needEncrypt, String value) {
-        return (needEncrypt) ? CryptManager.encryptTextBase64(value) : value;
+        return (needEncrypt) ? encryptField(value) : value;
     }
 
     /**
@@ -618,50 +639,62 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     }
 
     public Version getFormatVersion() {
-        return formatVersion;
+        return mFormatVersion;
     }
 
     public int getNodesCount() {
-        return nodesCount;
+        return mNodesCount;
     }
 
     public int getCryptedNodesCount() {
-        return cryptedNodesCount;
+        return mCryptedNodesCount;
     }
 
     public int getRecordsCount() {
-        return recordsCount;
+        return mRecordsCount;
     }
 
     public int getCryptedRecordsCount() {
-        return cryptedRecordsCount;
+        return mCryptedRecordsCount;
     }
 
     public int getFilesCount() {
-        return filesCount;
+        return mFilesCount;
     }
 
     public int getTagsCount() {
-        return tagsCount;
+        return mTagsCount;
     }
 
     public int getUniqueTagsCount() {
-        return uniqueTagsCount;
+        return mUniqueTagsCount;
     }
 
     public int getAuthorsCount() {
-        return authorsCount;
+        return mAuthorsCount;
     }
 
     public int getIconsCount() {
-        return iconsCount;
+        return mIconsCount;
     }
 
     public int getMaxSubnodesCount() {
-        return maxSubnodesCount;
+        return mMaxSubnodesCount;
     }
 
     public int getMaxDepthLevel() {
-        return maxDepthLevel;
+        return mMaxDepthLevel;
     }
+
+//    public ICryptHandler getCryptCallback() {
+//        return mCryptCallback;
+//    }
+
+    /**
+     * Задание обработчика шифрования/расшифровки объектов
+     */
+//    public void setCryptHandler(ICryptHandler cryptCallback) {
+//        this.mCryptCallback = cryptCallback;
+//    }
+
 }

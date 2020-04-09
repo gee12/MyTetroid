@@ -28,6 +28,7 @@
     <string name="answer_cancel">Отмена</string>
     <string name="log_missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
     <string name="log_missing_write_ext_storage_permissions">Недостаточно прав для записи во внешнее файловое хранилище</string>
+    <string name="log_missing_camera_permissions">Недостаточно прав для использования камеры</string>
     <string name="log_empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>
@@ -159,10 +160,12 @@
     <string name="log_error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
     <string name="log_error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="log_error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
+    <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
     <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
     <string name="log_error_delete_record_folder">Ошибка удаления каталога записи:&#160;</string>
+    <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
+    <string name="log_attach_file_is_missing">Файл отсутствует на диске:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
-    <string name="missing_file">Отсутствует файл&#160;</string>
     <string name="log_open_node_records">Открытие записей ветки: id=</string>
     <string name="title_storage_sync">Синхронизация</string>
     <string name="pref_category_sync">Синхронизация</string>
@@ -215,16 +218,20 @@
     <string name="log_record_save_error">Не удается сохранить запись (подробнее в логах)</string>
     <string name="log_record_create_error">Не удается создать запись (подробнее в логах)</string>
     <string name="log_record_edit_fields_error">Не удается отредактировать свойства записи (подробнее в логах)</string>
+    <string name="log_file_edit_fields_error">Не удается отредактировать свойства файла (подробнее в логах)</string>
     <string name="log_record_delete_error">Не удается удалить запись (подробнее в логах)</string>
+    <string name="log_file_delete_error">Не удается удалить файл (подробнее в логах)</string>
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="log_start_node_creating">Начало создания ветки</string>
-    <string name="log_start_node_changing">Начало редактирования свойств ветки</string>
+    <string name="log_start_node_fields_editing">Начало редактирования свойств ветки</string>
     <string name="log_start_node_deleting">Начало удаления ветки</string>
     <string name="log_start_record_creating">Начало создания записи</string>
-    <string name="log_start_record_changing">Начало редактирования свойств записи</string>
     <string name="log_start_record_fields_editing">Начало изменения свойств записи</string>
     <string name="log_start_record_deleting">Начало удаления записи</string>
+    <string name="log_start_file_attaching">Начало прикрепления файла к записи</string>
+    <string name="log_start_file_fields_editing">Начало редактирования свойств файла</string>
+    <string name="log_start_file_deleting">Начало удаления прикрепленного файла</string>
     <string name="crypted_node_name">Закрыто</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="tag_not_found">Не найдена метка [%s]..</string>
@@ -240,14 +247,21 @@
     <string name="log_cancel_record_creating">Отмена создания записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_changing">Отмена редактирования свойств записи, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="log_cancel_file_fields_editing">Отмена редактирования свойств файла, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="log_cancel_file_deleting">Отмена удаления прикрепленного файла, т.к. не удалось сохранить mytetra.xml</string>
     <string name="edit_record_fields">Редактировать свойства</string>
     <string name="edit_mode">Редактирование</string>
     <string name="view_mode">Просмотр</string>
     <string name="node_delete">Удалить ветку ?</string>
+    <string name="file_delete">Удалить файл ?</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="record_delete">Удалить запись ?</string>
     <string name="log_record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>
+    <string name="log_attach_delete_without_file">Файл отсутствует на диске. Удалить все равно ?</string>
+    <string name="log_delete_attach_without_file">Файл отсутствует на диске. Удалить файл из хранилища ?</string>
+    <string name="log_delete_record_without_dir">Каталог записи отсутствует. Удалить запись из хранилища ?</string>
     <string name="record_deleted">Запись удалена</string>
+    <string name="file_deleted">Файл удален</string>
     <string name="show_node">Открыть ветку</string>
     <string name="rename">Переименовать</string>
     <string name="set_node_icon">Задать иконку</string>
@@ -286,4 +300,48 @@
     <string name="node_was_moved">Ветка перемещена</string>
     <string name="node_was_created">Ветка создана</string>
     <string name="record_was_moved">Запись перемещена</string>
+    <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
+    <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
+    <string name="log_file_checking_error">Ошибка проверки существования файла:&#160;</string>
+    <string name="log_error_encrypt_file">Ошибка копирования и зашифровки файла из [%s] в [%s]</string>
+    <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>
+    <string name="log_file_attaching_error">Не удается прикрепить файл к записи (подробнее в логах)</string>
+    <string name="log_record_fields_edited">Свойства записи изменены</string>
+    <string name="log_file_was_attached">Файл прикреплен</string>
+    <string name="open_file">Открыть файл</string>
+    <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
+    <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
+    <string name="file_was_renamed">Файл переименован</string>
+    <string name="file_name_with_ext">Имя файла с расширением</string>
+    <string name="label_name">Название:</string>
+    <string name="label_author">Автор:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_tags">Метки:</string>
+    <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
+    <string name="request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
+    <string name="request_camera">Необходимо разрешение на использование камеры для захвата изображения. Предоставить ?</string>
+    <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
+    <string name="log_start_record_file_reading">Начало чтения файла записи id=</string>
+    <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
+    <string name="log_start_attach_file_opening">Начало открытия прикрепленного файла id=</string>
+    <string name="log_start_record_folder_opening">Начало открытия каталога записи id=</string>
+    <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
+    <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
+    <string name="select_file_to_upload">Выберите файл</string>
+    <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>
+    <string name="title_log_file_content">Логи</string>
+    <string name="pref_log_file_content">Показать логи</string>
+    <string name="pref_log_file_content_summ">Показать содержимое лог-файла</string>
+    <string name="title_show">Показать</string>
+    <string name="show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
+    <string name="log_logs_is_missing">Логи отсутствуют</string>
+    <string name="log_selected_files_is_missing">Отсутствуют выбранные файлы изображений</string>
+    <string name="log_start_image_file_saving">Начало сохранения изображения [%s] в запись id=%s</string>
+    <string name="log_start_image_file_converting">Начало конвертирования файла изображения в [%s]</string>
+    <string name="log_start_image_file_deleting">Начало удаления файла изображения [%s]</string>
+    <string name="log_error_image_file_saving">Не удалось сохранить файл изображения</string>
+    <string name="log_failed_to_save_images">Не удалось сохранить изображений: %s (подробнее в логах)</string>
+    <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
+    <string name="confirm_selected_images">Выбрать</string>
+    <string name="title_gallery">Галерея</string>
 </resources>

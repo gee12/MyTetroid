@@ -18,7 +18,6 @@ import android.widget.ViewFlipper;
 import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -29,6 +28,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.FileAskDialogs;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -39,10 +39,8 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_GLOBAL_FOUND = -1;
     public static final int MAIN_VIEW_NONE = 0;
     public static final int MAIN_VIEW_NODE_RECORDS = 1;
-//    public static final int MAIN_VIEW_RECORD_TEXT = 2;
     public static final int MAIN_VIEW_RECORD_FILES = 2;
     public static final int MAIN_VIEW_TAG_RECORDS = 3;
-//    public static final int VIEW_FOUND_RECORDS = 5;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -98,12 +96,13 @@ public class MainPageFragment extends TetroidFragment {
         mListViewFiles.setOnItemClickListener(onFileClicklistener);
         this.mTextViewFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         mListViewFiles.setEmptyView(mTextViewFilesEmpty);
+        registerForContextMenu(mListViewFiles);
 
         this.mButtonAddRecord = view.findViewById(R.id.button_add_record);
 //        mButtonAddRecord.setAlpha(0.1f);
         mButtonAddRecord.setOnClickListener(v -> createRecord());
         this.mButtonAddFile = view.findViewById(R.id.button_add_file);
-        mButtonAddFile.setOnClickListener(v -> createFile());
+        mButtonAddFile.setOnClickListener(v -> attachFile());
 
         this.mCurMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
@@ -191,6 +190,9 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateMainToolbar(restoredViewId, title);
     }
 
+    /**
+     * Возврат фрагмента в первоначальное состояние.
+     */
     public void clearView() {
         showView(MAIN_VIEW_NONE);
         this.mCurRecord = null;
@@ -200,6 +202,11 @@ public class MainPageFragment extends TetroidFragment {
         mTextViewRecordsEmpty.setText(R.string.select_the_node);
     }
 
+    /**
+     * Отображение списка записей.
+     * @param records
+     * @param viewId
+     */
     public void showRecords(List<TetroidRecord> records, int viewId) {
         String dateTimeFormat = checkDateFormatString();
         showView(viewId);
@@ -243,28 +250,60 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
-     * введенная строка в настройках не проверялась, что могло привести к падению приложения
-     * при отображении списка.
-     * @return
+     * Удаление записи.
+     * @param record
      */
-    private String checkDateFormatString() {
-        String dateFormatString = SettingsManager.getDateFormatString();
-        if (Utils.checkDateFormatString(dateFormatString)) {
-            return dateFormatString;
+    private void deleteRecord(TetroidRecord record) {
+        RecordAskDialogs.deleteRecord(getContext(), () -> {
+            int res = DataManager.deleteRecord(record, false);
+            if (res == -1) {
+                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteRecord(record, true);
+                    onDeleteRecordResult(record, res1);
+                });
+            } else {
+                onDeleteRecordResult(record, res);
+            }
+        });
+    }
+
+    /**
+     * Обработка результата удаления записи.
+     * @param record
+     * @param res
+     */
+    private void onDeleteRecordResult(TetroidRecord record, int res) {
+        if (res > 0) {
+            mListAdapterRecords.getDataSet().remove(record);
+            mListAdapterRecords.notifyDataSetChanged();
+            mMainView.updateTags();
+            mMainView.updateNodes();
+            this.mCurRecord = null;
+            mListViewFiles.setAdapter(null);
+            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            // переходим в список записей ветки после удаления
+            // (запись может быть удалена при поппытке просмотра/изменения файла, например)
+            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
+                showView(MAIN_VIEW_NODE_RECORDS);
+            }
         } else {
-            LogManager.addLog(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            return getContext().getString(R.string.def_date_format_string);
+            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
     /**
-     * Отображение списка прикрепленных файлов.
-     * @param position Индекс записи в списке записей ветки
+     * Перемещение записи вверх/вниз по списку.
+     * @param pos
+     * @param isUp
      */
-    private void showRecordFiles(int position) {
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(position);
-        showRecordFiles(record);
+    private void moveRecord(int pos, boolean isUp) {
+        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
+        if (res > 0) {
+            mListAdapterRecords.notifyDataSetChanged();
+            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else if (res < 0) {
+            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
     }
 
     /**
@@ -275,17 +314,17 @@ public class MainPageFragment extends TetroidFragment {
         if (record == null)
             return;
         this.mCurRecord = record;
-        showRecordFiles(record.getAttachedFiles(), record);
+        showRecordFiles(record.getAttachedFiles());
     }
 
-    public void showRecordFiles(List<TetroidFile> files, TetroidRecord record) {
+    public void showRecordFiles(List<TetroidFile> files) {
         showView(MAIN_VIEW_RECORD_FILES);
-        this.mListAdapterFiles.reset(files, record);
+        this.mListAdapterFiles.reset(files);
         mListViewFiles.setAdapter(mListAdapterFiles);
     }
 
     /**
-     * Открытие прикрепленного файла
+     * Открытие прикрепленного файла.
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openFile(int position) {
@@ -294,20 +333,33 @@ public class MainPageFragment extends TetroidFragment {
             return;
         }
         TetroidFile file = mCurRecord.getAttachedFiles().get(position);
-        mMainView.openFile(file);
+        mMainView.openAttach(file);
     }
 
     /**
-     * Прикрепление нового файла к записи.
+     * Выбор файла для прикрепления к записи.
      */
-    public void createFile() {
+    private void attachFile() {
+        mMainView.openFilePicker();
+    }
 
-        // TODO:
-        if (!BuildConfig.DEBUG) {
-            LogManager.addLog(getString(R.string.debug_not_implemented_yet), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            return;
+    /**
+     * Прикрепление выбранного файла к записи.
+     * @param fullName
+     */
+    public void attachFile(String fullName) {
+        TetroidFile file = DataManager.attachFile(fullName, mCurRecord);
+        if (file != null) {
+            mListAdapterFiles.notifyDataSetInvalidated();
+            // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,
+            // если был прикреплен первый файл
+            if (mCurRecord.getAttachedFilesCount() == 1) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
+            LogManager.addLog(getString(R.string.log_file_was_attached), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.addLog(getString(R.string.log_file_attaching_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
-
     }
 
     /**
@@ -315,12 +367,12 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void openRecordFolder(TetroidRecord record) {
-        mMainView.openFolder(DataManager.getRecordDirUri(record));
+        mMainView.openRecordFolder(record);
     }
 
     public void openRecordFolder() {
         if (mCurRecord != null) {
-            mMainView.openFolder(DataManager.getRecordDirUri(mCurRecord));
+            mMainView.openRecordFolder(mCurRecord);
         }
     }
 
@@ -332,6 +384,7 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
+                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
@@ -361,52 +414,103 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Удаление записи.
-     * @param record
+     * Удаление прикрепленного файла.
+     * @param file
      */
-    private void deleteRecord(TetroidRecord record) {
-        RecordAskDialogs.deleteRecord(getContext(), () -> {
-            int res = DataManager.deleteRecord(record, false);
-            if (res == -1) {
-                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
-                    int res1 = DataManager.deleteRecord(record, true);
-                    onDeleteRecordResult(record, res1);
+    private void deleteFile(TetroidFile file) {
+        FileAskDialogs.deleteFile(getContext(), () -> {
+            int res = DataManager.deleteFile(file, false);
+            if (res == -2) {
+                FileAskDialogs.deleteAttachWithoutFile(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
+                });
+            } else if (res == -1) {
+                FileAskDialogs.deleteAttachWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
                 });
             } else {
-                onDeleteRecordResult(record, res);
+                onDeleteFileResult(file, res);
             }
         });
     }
 
     /**
-     * Обработка результата удаления записи.
-     * @param record
+     * Обработка результата удаления файла.
+     * @param file
      * @param res
      */
-    private void onDeleteRecordResult(TetroidRecord record, int res) {
+    private void onDeleteFileResult(TetroidFile  file, int res) {
         if (res > 0) {
-            mListAdapterRecords.getDataSet().remove(record);
-            mListAdapterRecords.notifyDataSetChanged();
-            mMainView.updateTags();
-            mMainView.updateNodes();
-            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            mListAdapterFiles.getDataSet().remove(file);
+            mListAdapterFiles.notifyDataSetChanged();
+            // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
+            // если был удален единственный файл
+            if (mCurRecord.getAttachedFilesCount() <= 0) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
+            LogManager.addLog(getString(R.string.file_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
-            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.log_file_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
     /**
-     * Перемещение записи вверх/вниз по списку.
-     * @param pos
-     * @param isUp
+     * Переименование прикрепленного файла.
+     * @param file
      */
-    private void moveRecord(int pos, boolean isUp) {
-        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
+    private void renameFile(TetroidFile file) {
+        FileAskDialogs.createFileDialog(getContext(), file, (name) -> {
+            int res = DataManager.editFileFields(file, name);
+            if (res == -2) {
+                // если файл отсутствует на диске, предлагаем его удалить из хранилища
+                FileAskDialogs.renameAttachWithoutFile(getContext(), () -> {
+                    int res1 = DataManager.deleteFile(file, true);
+                    onDeleteFileResult(file, res1);
+                });
+            } else if (res == -1) {
+                // если каталог записи отсутствует на диске, предлагаем удалить запись из хранилища
+
+                // TODO: добавить вариант Создать каталог записи
+
+                FileAskDialogs.renameAttachWithoutDir(getContext(), () -> {
+                    int res1 = DataManager.deleteRecord(file.getRecord(), true);
+                    onDeleteRecordResult(file.getRecord(), res1);
+                });
+            } else {
+                onRenameFileResult(file, res);
+            }
+        });
+    }
+
+    /**
+     * Обработка результата переименования файла.
+     * @param file
+     * @param res
+     */
+    private void onRenameFileResult(TetroidFile  file, int res) {
         if (res > 0) {
-            mListAdapterRecords.notifyDataSetChanged();
-            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-        } else if (res < 0) {
-            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            mListAdapterFiles.notifyDataSetChanged();
+        } else {
+            LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
+     * введенная строка в настройках не проверялась, что могло привести к падению приложения
+     * при отображении списка.
+     * @return
+     */
+    private String checkDateFormatString() {
+        String dateFormatString = SettingsManager.getDateFormatString();
+        if (Utils.checkDateFormatString(dateFormatString)) {
+            return dateFormatString;
+        } else {
+            LogManager.addLog(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            return getContext().getString(R.string.def_date_format_string);
         }
     }
 
@@ -453,9 +557,12 @@ public class MainPageFragment extends TetroidFragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        if (v.getId() == R.id.list_view_records) {
-            MenuInflater inflater = getActivity().getMenuInflater();
+        int viewId = v.getId();
+        MenuInflater inflater = getActivity().getMenuInflater();
+        if (viewId == R.id.list_view_records) {
             inflater.inflate(R.menu.record_context, menu);
+        } else if (viewId == R.id.list_view_files) {
+            inflater.inflate(R.menu.file_context, menu);
         }
     }
 
@@ -467,16 +574,28 @@ public class MainPageFragment extends TetroidFragment {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        if (info.targetView.getParent() != mListViewRecords)
-            return false;
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(info.position);
+        int id = item.getItemId();
+        int pos = info.position;
+        if (info.targetView.getParent() == mListViewRecords) {
+            return onContextRecordItemSelected(id, pos);
+        } else if (info.targetView.getParent() == mListViewFiles) {
+            return onContextFileItemSelected(id, pos);
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private boolean onContextRecordItemSelected(int id, int pos) {
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(pos);
         if (record == null) {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return true;
         }
-        switch (item.getItemId()) {
+        switch (id) {
             case R.id.action_open_record:
                 showRecord(record);
+                return true;
+            case R.id.action_record_edit_fields:
+                editRecordFields(record);
                 return true;
             case R.id.action_attached_files:
                 showRecordFiles(record);
@@ -484,23 +603,56 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_open_record_folder:
                 openRecordFolder(record);
                 return true;
-            case R.id.action_record_edit_fields:
-                editRecordFields(record);
-                return true;
             case R.id.action_copy_link:
                 copyRecordLink(record);
                 return true;
             case R.id.action_move_up:
-                moveRecord(info.position, true);
+                moveRecord(pos, true);
                 return true;
             case R.id.action_move_down:
-                moveRecord(info.position, false);
+                moveRecord(pos, false);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);
                 return true;
             default:
-                return super.onContextItemSelected(item);
+                return false;
+        }
+    }
+
+    private boolean onContextFileItemSelected(int id, int pos) {
+        TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(pos);
+        if (file == null) {
+            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return true;
+        }
+        switch (id) {
+            case R.id.action_open_file:
+                openFile(pos);
+                return true;
+            case R.id.action_rename:
+                renameFile(file);
+                return true;
+            case R.id.action_copy_link:
+
+                // TODO:
+
+                return true;
+            case R.id.action_move_up:
+
+                // TODO:
+
+                return true;
+            case R.id.action_move_down:
+
+                // TODO:
+
+                return true;
+            case R.id.action_delete:
+                deleteFile(file);
+                return true;
+            default:
+                return false;
         }
     }
 
