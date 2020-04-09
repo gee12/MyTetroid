@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -29,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
@@ -172,7 +172,7 @@ public class RecordActivity extends TetroidActivity implements
         mEditTextHtml.addTextChangedListener(mHtmlWatcher);
 
         // не гасим экран, если установлена опция
-        setKeepScreenOn(SettingsManager.isKeepScreenOn());
+        App.setKeepScreenOn(this);
     }
 
     private void onMenuLoaded() {
@@ -691,13 +691,6 @@ public class RecordActivity extends TetroidActivity implements
         finishWithResult(RESULT_REINIT_STORAGE, null);
     }
 
-    private void setKeepScreenOn(boolean keepScreenOn) {
-        if (keepScreenOn)
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        else
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
     @Override
     public boolean toggleFullscreen() {
         boolean isFullscreen = super.toggleFullscreen();
@@ -781,7 +774,7 @@ public class RecordActivity extends TetroidActivity implements
                 AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
             }
             // не гасим экран, если установили опцию
-            setKeepScreenOn(SettingsManager.isKeepScreenOn());
+            App.setKeepScreenOn(this);
         } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
@@ -890,6 +883,16 @@ public class RecordActivity extends TetroidActivity implements
             setResultFieldsEdited();
             super.onBackPressed();
         }
+    }
+
+    /**
+     * Обработчик события закрытия активности.
+     */
+    @Override
+    protected void onStop() {
+        // отключаем блокировку выключения экрана
+        ViewUtils.setKeepScreenOn(this, false);
+        super.onStop();
     }
 
     private TextWatcher mHtmlWatcher = new TextWatcher() {

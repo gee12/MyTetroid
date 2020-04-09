@@ -333,7 +333,7 @@
     <string name="pref_log_file_content">Показать логи</string>
     <string name="pref_log_file_content_summ">Показать содержимое лог-файла</string>
     <string name="title_show">Показать</string>
-    <string name="show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл</string>
+    <string name="show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
     <string name="log_logs_is_missing">Логи отсутствуют</string>
     <string name="log_selected_files_is_missing">Отсутствуют выбранные файлы изображений</string>
     <string name="log_start_image_file_saving">Начало сохранения изображения [%s] в запись id=%s</string>

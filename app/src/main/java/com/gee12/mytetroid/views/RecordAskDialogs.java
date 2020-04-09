@@ -13,7 +13,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
 
 import java.util.Random;
 
@@ -53,7 +52,6 @@ public class RecordAskDialogs {
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
         }
-        etName.setSelection(0, etName.getText().length());
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString(),
@@ -69,11 +67,10 @@ public class RecordAskDialogs {
             final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
-                Keyboard.showKeyboard(etName);
+//                Keyboard.showKeyboard(etName);
             }
-//            etName.setSelection(etName.getText().length());
+//            etName.setSelection(0, etName.getText().length());
 //            Keyboard.showKeyboard(etName);
-            Keyboard.showKeyboard(builder.getView());
         });
         dialog.show();
 

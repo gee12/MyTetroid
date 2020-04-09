@@ -42,7 +42,6 @@ public class FileAskDialogs {
         if (file != null) {
             etName.setText(file.getName());
         }
-        etName.setSelection(0, etName.getText().length());
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString());
@@ -57,8 +56,8 @@ public class FileAskDialogs {
                 okButton.setEnabled(false);
                 Keyboard.showKeyboard(etName);
             }
+//            etName.setSelection(0, etName.getText().length());
 //            Keyboard.showKeyboard(etName);
-            Keyboard.showKeyboard(builder.getView());
         });
         dialog.show();
 

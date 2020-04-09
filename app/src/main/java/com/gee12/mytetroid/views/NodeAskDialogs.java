@@ -13,7 +13,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
 
 import java.util.Random;
 
@@ -42,7 +41,6 @@ public class NodeAskDialogs {
         if (node != null) {
             etName.setText(node.getName());
         }
-        etName.setSelection(0, etName.getText().length());
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString());
@@ -56,7 +54,8 @@ public class NodeAskDialogs {
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
             }
-            Keyboard.showKeyboard(builder.getView());
+//            etName.setSelection(0, etName.getText().length());
+//            Keyboard.showKeyboard(etName);
         });
         dialog.show();
 

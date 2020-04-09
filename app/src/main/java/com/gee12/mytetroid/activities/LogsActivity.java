@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class LogsActivity extends AppCompatActivity {
             logFullFileName = LogManager.getFullFileName();
             String logsText = FileUtils.readTextFile(Uri.parse(logFullFileName));
             textViewLogs.setText(logsText);
+            scrollToBottom();
         } catch (IOException ex) {
             // ошибка чтения
             String mes = getString(R.string.log_file_read_error) + logFullFileName;
@@ -51,10 +53,19 @@ public class LogsActivity extends AppCompatActivity {
                     errorLayout.setVisibility(View.GONE);
                     textViewLogs.setText(curLogs);
                     textViewLogs.setVisibility(View.VISIBLE);
+                    scrollToBottom();
                 } else {
                     LogManager.addLog(getString(R.string.log_logs_is_missing), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                 }
             });
         }
+    }
+
+    /**
+     * Пролистывание в конец.
+     */
+    private void scrollToBottom() {
+        ScrollView scrollView = findViewById(R.id.scroll_view_logs);
+        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
     }
 }
