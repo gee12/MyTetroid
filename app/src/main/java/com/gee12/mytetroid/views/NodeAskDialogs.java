@@ -54,7 +54,7 @@ public class NodeAskDialogs {
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
             }
-//            etName.setSelection(0, etName.getText().length());
+            etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
         });
         dialog.show();

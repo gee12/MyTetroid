@@ -56,7 +56,7 @@ public class FileAskDialogs {
                 okButton.setEnabled(false);
                 Keyboard.showKeyboard(etName);
             }
-//            etName.setSelection(0, etName.getText().length());
+            etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
         });
         dialog.show();

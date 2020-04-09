@@ -67,9 +67,8 @@ public class RecordAskDialogs {
             final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
                 okButton.setEnabled(false);
-//                Keyboard.showKeyboard(etName);
             }
-//            etName.setSelection(0, etName.getText().length());
+            etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
         });
         dialog.show();
