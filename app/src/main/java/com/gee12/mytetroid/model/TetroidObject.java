@@ -19,6 +19,7 @@ public class TetroidObject implements ITetroidObject {
     protected boolean isCrypted;
     protected boolean isDecrypted;
 
+    protected String decryptedName;
 
     public TetroidObject(int type, String id) {
         this.type = type;
@@ -39,7 +40,28 @@ public class TetroidObject implements ITetroidObject {
 
     @Override
     public String getName() {
-        return name;
+//        return name;
+
+//        if (isCrypted) {
+//            if (isDecrypted) {
+//                return decryptedName;
+//            } else {
+//                // для расшифровки и последующего сохранения decryptedName
+//                return name;
+//            }
+//        } else {
+//            return name;
+//        }
+        return (isCrypted && isDecrypted) ? decryptedName : name;
+    }
+
+    /**
+     *
+     * @param isCryptedValue
+     * @return
+     */
+    public String getName(boolean isCryptedValue) {
+        return (isCryptedValue) ? name : decryptedName;
     }
 
     @Override
@@ -70,6 +92,25 @@ public class TetroidObject implements ITetroidObject {
 
     public void setName(String name) {
         this.name = name;
+
+/*        if (isCrypted) {
+            if (isDecrypted) {
+                // сохранение нового значения в уже зашифрованном виде
+                this.name = name;
+            } *//*else {
+                // вариант, который не должен возникнуть
+                // (не нужно менять зашифрованное значение поля, если еще не расшифровывали)
+                this.name = name;
+            }*//*
+        } else {
+            this.name = name;
+        }*/
+    }
+
+    public void setDecryptedName(String name) {
+//        if (isCrypted && isDecrypted) {
+            this.decryptedName = name;
+//        }
     }
 
     public void setDecrypted(boolean decrypted) {

@@ -344,4 +344,6 @@
     <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
     <string name="confirm_selected_images">Выбрать</string>
     <string name="title_gallery">Галерея</string>
+    <string name="error_record_file_reading">Не удалось прочитать файл записи (подробнее в логах)</string>
+    <string name="error_record_file_decrypting">Не удалось расшифровать файл записи (подробнее в логах)</string>
 </resources>

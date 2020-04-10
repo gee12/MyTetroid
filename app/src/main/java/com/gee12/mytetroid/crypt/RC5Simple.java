@@ -52,14 +52,14 @@ public class RC5Simple {
     public static final int RC5_BLOCK_LEN = (RC5_W*RC5_WORDS_IN_BLOCK/8);   // block size in bytes
     public static final int RC5_WORD_LEN = (RC5_W/8);                       // word size in bytes
 
-     public static final int RC5_ERROR_CODE_1 = 1;      // Bad RC5 mKey length
-     public static final int RC5_ERROR_CODE_2 = 2;      // Can't read input file
-     public static final int RC5_ERROR_CODE_3 = 3;      // Input file is empty
-     public static final int RC5_ERROR_CODE_4 = 4;      // Can't show output file
-     public static final int RC5_ERROR_CODE_5 = 5;      // Can't encrypt null data
-     public static final int RC5_ERROR_CODE_6 = 6;      // Can't decryptBase64 null data
-     public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decryptBase64 data
-
+    public static final int RC5_ERROR_CODE_1 = 1;      // Bad RC5 key length
+    public static final int RC5_ERROR_CODE_2 = 2;      // Can't read input file
+    public static final int RC5_ERROR_CODE_3 = 3;      // Input file is empty
+    public static final int RC5_ERROR_CODE_4 = 4;      // Can't show output file
+    public static final int RC5_ERROR_CODE_5 = 5;      // Can't encrypt null data
+    public static final int RC5_ERROR_CODE_6 = 6;      // Can't decryptBase64 null data
+    public static final int RC5_ERROR_CODE_7 = 7;      // Incorrect data size for decryptBase64 data
+    public static final int RC5_ERROR_CODE_8 = 8;      // Empty incoming data array
 
     private long[] mRC5_s;       // Expanded mKey table
     private long mRC5_p;         // Magic constants one
@@ -169,8 +169,9 @@ public class RC5Simple {
      * @return
      */
     public byte[] encrypt(byte[] inSigned) {
+        this.mErrorCode = 0;
         if (inSigned == null) {
-            //
+            this.mErrorCode = RC5_ERROR_CODE_8;
             return null;
         }
         List<Integer> inUnsigned = Utils.toUnsigned2(inSigned);
@@ -307,8 +308,9 @@ public class RC5Simple {
      * @return
      */
     public byte[] decrypt(byte[] inSigned) throws OutOfMemoryError {
+        this.mErrorCode = 0;
         if (inSigned == null) {
-            //
+            this.mErrorCode = RC5_ERROR_CODE_8;
             return null;
         }
         int[] in = Utils.toUnsigned(inSigned);
@@ -373,10 +375,11 @@ public class RC5Simple {
         }
 
         // Get IV
-        int[] iv = new int[ RC5_BLOCK_LEN];
-        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-            iv[i] = in[i + ivShift];
-        }
+        int[] iv = new int[RC5_BLOCK_LEN];
+//        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
+//            iv[i] = in[i + ivShift];
+//        }
+        System.arraycopy(in, ivShift, iv, 0, RC5_BLOCK_LEN);
 
         // Set secret mKey for decryptBase64
         setup(mKey);
@@ -405,7 +408,7 @@ public class RC5Simple {
             // ---------------------------
 
             // Convert block words size plain array
-            int[] ct_part = new int[ RC5_BLOCK_LEN];
+            int[] ct_part = new int[RC5_BLOCK_LEN];
 
             for (int i = 0; i < RC5_WORD_LEN; i++) {
                 ct_part[i] = getByteFromWord(ct[0], i);
@@ -420,21 +423,22 @@ public class RC5Simple {
             if (block == blockWithDataSize) {
                 dataSize = (int)getIntFromByte(ct_part[0], ct_part[1], ct_part[2], ct_part[3]);
 
-                out = new byte[dataSize];
-
                 // Uncorrect decryptBase64 data size
-                if (dataSize > inSize)
+                if (dataSize <= 0 || dataSize > inSize)
                 {
-                    addErrorLog(String.format("Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize,  in.length ));
+                    addErrorLog(String.format("Incorrect data size. Decrypt data size: %d, estimate data size: ~%d", dataSize, in.length));
                     this.mErrorCode = RC5_ERROR_CODE_7;
                     return null;
                 }
+                out = new byte[dataSize];
+
             }
 
             // Generate next IV for Cipher Block Chaining (CBC)
-            for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-                iv[i] = in[shift + i];
-            }
+//            for (int i = 0; i < RC5_BLOCK_LEN; i++) {
+//                iv[i] = in[shift + i];
+//            }
+            System.arraycopy(in, shift, iv, 0, RC5_BLOCK_LEN);
 
             if (block >= firstDataBlock + removeBlocksFromOutput) {
                 // Save decryptBase64 data
@@ -532,5 +536,9 @@ public class RC5Simple {
 
     private static void addDebugLog(String s) {
         LogManager.addLog(s, LogManager.Types.DEBUG);
+    }
+
+    public int getErrorCode() {
+        return mErrorCode;
     }
 }

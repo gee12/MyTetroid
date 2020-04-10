@@ -32,6 +32,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -234,10 +235,20 @@ public class RecordActivity extends TetroidActivity implements
         // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
         // и не используется авто-сохранение изменений, то загружаем html-код из редактора
         // 2) если нет, то загружаем html-код из файла записи
-        String textHtml = (fromHtmlEditor && !SettingsManager.isRecordAutoSave())
-                ? mEditTextHtml.getText().toString()
-                : DataManager.getRecordHtmlTextDecrypted(record);
-//        mEditor.getWebView().clearAndFocusEditor();
+        String textHtml = null;
+        if (fromHtmlEditor && !SettingsManager.isRecordAutoSave()) {
+            textHtml = mEditTextHtml.getText().toString();
+        } else {
+            if (!record.isNew()) {
+                textHtml = DataManager.getRecordHtmlTextDecrypted(record);
+                if (textHtml == null) {
+                    int mesId = (record.isCrypted() && CryptManager.getErrorCode() > 0)
+                            ? R.string.error_record_file_reading : R.string.error_record_file_decrypting;
+                    LogManager.addLog(mesId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
+            }
+        }
+                //        mEditor.getWebView().clearAndFocusEditor();
         mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 textHtml, "text/html", "UTF-8", null);
     }

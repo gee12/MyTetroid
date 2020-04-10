@@ -386,4 +386,6 @@
     <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
     <string name="confirm_selected_images">Confirm</string>
     <string name="title_gallery">Gallery</string>
+    <string name="error_record_file_reading">Failed to read the record file (more in the logs)</string>
+    <string name="error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
 </resources>

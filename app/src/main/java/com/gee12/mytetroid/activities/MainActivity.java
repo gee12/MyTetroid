@@ -115,7 +115,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
-    private boolean mIsStarted;
+    private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
     boolean isNodeOpening = false;
@@ -166,8 +166,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void onPageSelected(int i) {
-                if (mIsStarted)
+                if (mIsActivityCreated) {
                     changeToolBarByPage(i);
+                }
             }
 
             @Override
@@ -549,10 +550,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
+     * @param res Результат загрузки хранилища.
      */
     private void initGUI(boolean res) {
+        // добавляем к результату загрузки проверку на пустоту списка веток
         List<TetroidNode> rootNodes = DataManager.getRootNodes();
-        if (res && rootNodes != null) {
+        res = (res && rootNodes != null);
+        if (res) {
             // список веток
             this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
             mListViewNodes.setAdapter(mListAdapterNodes);
@@ -837,6 +841,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         new SearchViewListener(mSearchViewNodes) {
             @Override
             public void OnClose() {
+                // ничего не делать, если хранилище не было загружено
+                if (mListAdapterNodes == null)
+                    return;
                 mListAdapterNodes.setDataItems(DataManager.getRootNodes());
                 setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
@@ -1582,7 +1589,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             m.setOptionalIconsVisible(true);
         }
         //
-        this.mIsStarted = true;
+        this.mIsActivityCreated = true;
         return true;
     }
 
