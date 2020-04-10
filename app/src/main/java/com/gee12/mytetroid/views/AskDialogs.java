@@ -53,17 +53,20 @@ public class AskDialogs {
     public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName,
                         final TetroidNode node, final IPassCheckResult applyHandler) {
 
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    applyHandler.onApply(node);
-                    break;
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
+//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+//            switch (which){
+//                case DialogInterface.BUTTON_POSITIVE:
+//                    applyHandler.onApply(node);
+//                    break;
+//            }
+//        };
+//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
+//                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply(node))
+//                .setNegativeButton(R.string.answer_no, null).show();
+        showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
+                (dialog, which) -> applyHandler.onApply(node),
+                null);
     }
 
     public static void showRequestWriteExtStorageDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
@@ -98,18 +101,16 @@ public class AskDialogs {
      * @param messageRes
      */
     public static void showYesNoDialog(Context context, final IApplyCancelResult applyHandler, @StringRes int messageRes) {
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                applyHandler.onCancel();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(messageRes)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
-
+//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+//            if (which == DialogInterface.BUTTON_POSITIVE) {
+//                applyHandler.onApply();
+//            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+//                applyHandler.onCancel();
+//            }
+//        };
+        showAlertDialog(context, messageRes,
+                (dialog, which) -> applyHandler.onApply(),
+                (dialog, which) -> applyHandler.onCancel());
     }
 
     /**
@@ -119,15 +120,31 @@ public class AskDialogs {
      * @param messageRes
      */
     public static void showYesDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
-        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                applyHandler.onApply();
-            }
-        };
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(messageRes)
-                .setPositiveButton(R.string.answer_yes, dialogClickListener)
-                .setNegativeButton(R.string.answer_no, dialogClickListener).show();
-
+//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+//            if (which == DialogInterface.BUTTON_POSITIVE) {
+//                applyHandler.onApply();
+//            }
+//        };
+//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//        builder.setMessage(messageRes)
+//                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply())
+//                .setNegativeButton(R.string.answer_no, null).show();
+        showAlertDialog(context, messageRes,
+                (dialog, which) -> applyHandler.onApply(),
+                null);
     }
+
+    public static void showAlertDialog(Context context, int messageRes,
+           DialogInterface.OnClickListener yesListener, DialogInterface.OnClickListener noListerener) {
+        showAlertDialog(context, context.getString(messageRes), yesListener, noListerener);
+    }
+
+    public static void showAlertDialog(Context context, String message,
+           DialogInterface.OnClickListener yesListener, DialogInterface.OnClickListener noListerener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(message)
+                .setPositiveButton(R.string.answer_yes, yesListener)
+                .setNegativeButton(R.string.answer_no, noListerener).show();
+    }
+
 }

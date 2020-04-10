@@ -248,7 +248,7 @@ public class RecordActivity extends TetroidActivity implements
                 }
             }
         }
-                //        mEditor.getWebView().clearAndFocusEditor();
+        //        mEditor.getWebView().clearAndFocusEditor();
         mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 textHtml, "text/html", "UTF-8", null);
     }
@@ -439,10 +439,14 @@ public class RecordActivity extends TetroidActivity implements
 
     private void toggleRecordFieldsVisibility() {
         mFieldsExpanderLayout.toggle();
+        FloatingActionButton scrolTopButton = mEditor.findViewById(R.id.button_scroll_top);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrolTopButton.getLayoutParams();
         if (mFieldsExpanderLayout.isExpanded()) {
             mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_up);
+            params.topMargin = 8;
         } else {
             mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_down);
+            params.topMargin = 86;
         }
     }
 
