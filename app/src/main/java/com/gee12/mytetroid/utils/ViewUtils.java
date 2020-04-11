@@ -17,6 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class ViewUtils {
 
+    public static int toVisibility(boolean isVisible) {
+        return (isVisible) ? View.VISIBLE : View.GONE;
+    }
+
     public static void setEnabledIfNotNull(MenuItem view, boolean isEnabled) {
         if (view != null)
             view.setEnabled(isEnabled);

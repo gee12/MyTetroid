@@ -17,6 +17,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -89,6 +90,7 @@ public class RecordActivity extends TetroidActivity implements
     private TextView mTvUrl;
     private TextView mTvDate;
     private ImageButton mButtonFieldsEdit;
+    protected ProgressBar mHtmlProgressBar;
     private TetroidEditor mEditor;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
@@ -172,6 +174,8 @@ public class RecordActivity extends TetroidActivity implements
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
         mEditTextHtml.addTextChangedListener(mHtmlWatcher);
+
+        this.mHtmlProgressBar = findViewById(R.id.progress_bar);
 
         // не гасим экран, если установлена опция
         App.setKeepScreenOn(this);
@@ -713,10 +717,10 @@ public class RecordActivity extends TetroidActivity implements
                     String htmlText = mEditor.getWebView().getEditableHtml();
                     mEditTextHtml.setText(htmlText);
                 } else {
+                    setProgressVisibility(true);
                     // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
                     mEditor.getWebView().loadEditorJSScript(true);
 
-                    mEditor.setProgressBarVisibility(true);
                 }
 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.setVisibility(View.VISIBLE);
@@ -757,14 +761,11 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-                mEditTextHtml.setText(htmlText);
-                mEditTextHtml.requestFocus();
-                mEditor.setProgressBarVisibility(false);
-//            }
-//        });
+        runOnUiThread(() -> {
+            mEditTextHtml.setText(htmlText);
+            mEditTextHtml.requestFocus();
+            setProgressVisibility(false);
+        });
     }
 
     private void editFields() {
@@ -952,6 +953,10 @@ public class RecordActivity extends TetroidActivity implements
         // отключаем блокировку выключения экрана
         ViewUtils.setKeepScreenOn(this, false);
         super.onStop();
+    }
+
+    public void setProgressVisibility(boolean vis) {
+        mHtmlProgressBar.setVisibility(ViewUtils.toVisibility(vis));
     }
 
     private TextWatcher mHtmlWatcher = new TextWatcher() {
