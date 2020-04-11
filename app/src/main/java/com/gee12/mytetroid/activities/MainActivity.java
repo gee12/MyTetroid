@@ -122,10 +122,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
 
     public MainActivity() {
-        super(R.layout.activity_main);
+        super();
     }
 
     public MainActivity(Parcel in) {
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_main;
     }
 
     @Override

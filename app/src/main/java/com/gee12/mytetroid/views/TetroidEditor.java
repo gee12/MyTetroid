@@ -85,7 +85,6 @@ public class TetroidEditor extends WysiwygEditor {
     }
 
     @Override
-
     protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
         super.initActionButton(button, type, isCheckable, isPopup);
         //

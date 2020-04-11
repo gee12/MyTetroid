@@ -14,27 +14,17 @@ import com.gee12.mytetroid.ActivityDoubleTapListener;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 
-public class TetroidActivity extends AppCompatActivity implements View.OnTouchListener {
+public abstract class TetroidActivity extends AppCompatActivity implements View.OnTouchListener {
 
     protected GestureDetectorCompat gestureDetector;
-    protected int mContentLayoutId;
     protected Toolbar mToolbar;
     protected TextView tvTitle;
     protected TextView tvSubtitle;
 
-    public TetroidActivity() {
-        super();
-    }
-
-    public TetroidActivity(int contentLayoutId) {
-        super(contentLayoutId);
-        this.mContentLayoutId = contentLayoutId;
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(mContentLayoutId);
+        setContentView(getLayoutResourceId());
 
         this.mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
@@ -47,6 +37,8 @@ public class TetroidActivity extends AppCompatActivity implements View.OnTouchLi
         this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
 
     }
+
+    protected abstract int getLayoutResourceId();
 
     /**
      * Установка заголовка активности.

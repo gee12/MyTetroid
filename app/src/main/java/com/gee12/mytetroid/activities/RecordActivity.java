@@ -80,7 +80,6 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_SHOW_TAG = 4;
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
-    //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
     private WebView mWebViewTags;
@@ -105,7 +104,12 @@ public class RecordActivity extends TetroidActivity implements
 
 
     public RecordActivity() {
-        super(R.layout.activity_record);
+        super();
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_record;
     }
 
     @Override
@@ -125,13 +129,9 @@ public class RecordActivity extends TetroidActivity implements
             return;
         } else {
             setTitle(mRecord.getName());
-//            setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
 
-//        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
-
         this.mEditor = findViewById(R.id.web_view_record_text);
-//        mEditor.setImagesFolder(DataManager.getPathToRecordFolder(mRecord));
         mEditor.setImgPickerCallback(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
@@ -163,26 +163,6 @@ public class RecordActivity extends TetroidActivity implements
         this.mButtonToggleFields = findViewById(R.id.button_toggle_fields);
         mButtonToggleFields.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
-//        final ViewTreeObserver vto = mButtonToggleFields.getViewTreeObserver();
-//        if (vto.isAlive()) {
-//            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//                @Override
-//                public void onGlobalLayout() {
-//                    if (mButtonToggleFields.getMeasuredWidth() > 0) {
-//                        // заново получаем ViewTreeObserver, т.к.  vto != newVto
-//                        ViewTreeObserver newVto = mButtonToggleFields.getViewTreeObserver();
-//                        if (Build.VERSION.SDK_INT < 16) {
-//                            newVto.removeGlobalOnLayoutListener(this);
-//                        } else {
-//                            newVto.removeOnGlobalLayoutListener(this);
-//                        }
-//                        // нужно обновить расположение кнопки скроллинга
-//                        // (здесь, чтобы проинициализировались размеры)
-//                        updateScrollButtonLocation();
-//                    }
-//                }
-//            });
-//        }
         ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
 
         this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
