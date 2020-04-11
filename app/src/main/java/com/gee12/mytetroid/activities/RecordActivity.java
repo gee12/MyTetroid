@@ -82,7 +82,7 @@ public class RecordActivity extends TetroidActivity implements
 
     //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
-    private FloatingActionButton mFabFieldsToggle;
+    private FloatingActionButton mButtonToggleFields;
     private WebView mWebViewTags;
     private ScrollView mScrollViewHtml;
     private EditText mEditTextHtml;
@@ -160,9 +160,30 @@ public class RecordActivity extends TetroidActivity implements
         this.mFieldsExpanderLayout = findViewById(R.id.layout_fields_expander);
 //        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
 //        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mFieldsExpanderLayout.toggle());
-        this.mFabFieldsToggle = findViewById(R.id.button_toggle_fields);
-        mFabFieldsToggle.setOnClickListener(v -> toggleRecordFieldsVisibility());
+        this.mButtonToggleFields = findViewById(R.id.button_toggle_fields);
+        mButtonToggleFields.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
+//        final ViewTreeObserver vto = mButtonToggleFields.getViewTreeObserver();
+//        if (vto.isAlive()) {
+//            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//                @Override
+//                public void onGlobalLayout() {
+//                    if (mButtonToggleFields.getMeasuredWidth() > 0) {
+//                        // заново получаем ViewTreeObserver, т.к.  vto != newVto
+//                        ViewTreeObserver newVto = mButtonToggleFields.getViewTreeObserver();
+//                        if (Build.VERSION.SDK_INT < 16) {
+//                            newVto.removeGlobalOnLayoutListener(this);
+//                        } else {
+//                            newVto.removeOnGlobalLayoutListener(this);
+//                        }
+//                        // нужно обновить расположение кнопки скроллинга
+//                        // (здесь, чтобы проинициализировались размеры)
+//                        updateScrollButtonLocation();
+//                    }
+//                }
+//            });
+//        }
+        ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
 
         this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
         mButtonFieldsEdit.setOnClickListener(v -> editFields());
@@ -242,9 +263,12 @@ public class RecordActivity extends TetroidActivity implements
             if (!record.isNew()) {
                 textHtml = DataManager.getRecordHtmlTextDecrypted(record);
                 if (textHtml == null) {
-                    int mesId = (record.isCrypted() && CryptManager.getErrorCode() > 0)
-                            ? R.string.error_record_file_reading : R.string.error_record_file_decrypting;
-                    LogManager.addLog(mesId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                    int mesId = (record.isCrypted() && CryptManager.getErrorCode() > 0)
+//                            ? R.string.error_record_file_decrypting : R.string.error_record_file_reading;
+//                    LogManager.addLog(mesId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
+                        LogManager.addLog(R.string.error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    }
                 }
             }
         }
@@ -258,7 +282,6 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onPageStartLoading() {
-
     }
 
     /**
@@ -439,14 +462,27 @@ public class RecordActivity extends TetroidActivity implements
 
     private void toggleRecordFieldsVisibility() {
         mFieldsExpanderLayout.toggle();
-        FloatingActionButton scrolTopButton = mEditor.findViewById(R.id.button_scroll_top);
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrolTopButton.getLayoutParams();
+
         if (mFieldsExpanderLayout.isExpanded()) {
-            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_up);
-            params.topMargin = 8;
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up);
         } else {
-            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_down);
-            params.topMargin = 86;
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down);
+        }
+        updateScrollButtonLocation();
+    }
+
+    private void updateScrollButtonLocation() {
+        FloatingActionButton scrollTopButton = mEditor.findViewById(R.id.button_scroll_top);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
+        float density = getResources().getDisplayMetrics().density;
+        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
+
+        if (mFieldsExpanderLayout.isExpanded()) {
+            params.topMargin = fabMargin;
+        } else {
+            int aboveButtonHeight = (int) (mButtonToggleFields.getMeasuredHeight() / density);
+            params.topMargin = fabMargin + aboveButtonHeight + fabMargin;
+            params.rightMargin = fabMargin; // для совпадения с mButtonToggleFields
         }
     }
 
@@ -454,10 +490,10 @@ public class RecordActivity extends TetroidActivity implements
 //        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
         if (isVisible) {
             mFieldsExpanderLayout.setVisibility(View.VISIBLE);
-            mFabFieldsToggle.show();
+            mButtonToggleFields.show();
         } else {
             mFieldsExpanderLayout.setVisibility(View.GONE);
-            mFabFieldsToggle.hide();
+            mButtonToggleFields.hide();
         }
     }
 
@@ -661,6 +697,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemHtml.setVisible(true);
 //                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
+                mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.record_subtitle_view));
                 ViewUtils.hideKeyboard(this, mEditor.getWebView());
             } break;
@@ -674,6 +711,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemHtml.setVisible(true);
 //                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
+                mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.record_subtitle_edit));
                 mEditor.getWebView().focusEditor();
 //                ViewUtils.showKeyboard(this, mEditor.getWebView());

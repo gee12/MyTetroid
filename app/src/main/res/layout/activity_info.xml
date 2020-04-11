@@ -43,116 +43,116 @@
             <TextView
                 android:id="@+id/label_stats_nodes_count"
                 android:text="@string/stats_nodes_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
             <!--    android:text="oll dorfdlo dfo ldf ld lfod fld lf od lfos dssdfsdfsd sdfsdfs dsfsdfwe wef wef wew"-->
 
             <TextView
                 android:id="@+id/text_view_stats_nodes_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
             <TextView
                 android:id="@+id/label_stats_crypt_nodes_count"
                 android:paddingLeft="15dp"
                 android:text="@string/stats_crypt_nodes_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_crypt_nodes_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
             <TextView
                 android:id="@+id/label_stats_icons_count"
                 android:paddingLeft="15dp"
                 android:text="@string/stats_icons_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_icons_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
-            <View style="@style/StatsLine"/>
+            <View style="@style/stats_line"/>
 
             <TextView
                 android:id="@+id/label_stats_max_subnodes"
                 android:text="@string/stats_max_subnodes"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_max_subnodes"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
             <TextView
                 android:id="@+id/label_stats_max_depth"
                 android:text="@string/stats_max_depth"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_max_depth"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
-            <View style="@style/StatsLine"/>
+            <View style="@style/stats_line"/>
 
             <TextView
                 android:id="@+id/label_stats_records_count"
                 android:text="@string/stats_records_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_records_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
             <TextView
                 android:id="@+id/label_stats_crypt_records_count"
                 android:paddingLeft="15dp"
                 android:text="@string/stats_crypt_records_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_crypt_records_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
-            <View style="@style/StatsLine"/>
+            <View style="@style/stats_line"/>
 
             <TextView
                 android:id="@+id/label_stats_files_count"
                 android:text="@string/stats_files_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_files_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
-            <View style="@style/StatsLine"/>
+            <View style="@style/stats_line"/>
 
             <TextView
                 android:id="@+id/label_stats_tags_count"
                 android:text="@string/stats_tags_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_tags_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
             <TextView
                 android:id="@+id/label_stats_unique_tags_count"
                 android:paddingLeft="15dp"
                 android:text="@string/stats_unique_tags_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_unique_tags_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
-            <View style="@style/StatsLine"/>
+            <View style="@style/stats_line"/>
 
             <TextView
                 android:id="@+id/label_stats_authors_count"
                 android:text="@string/stats_authors_count"
-                style="@style/StatsLabels" />
+                style="@style/stats_labels" />
 
             <TextView
                 android:id="@+id/text_view_stats_authors_count"
-                style="@style/StatsValues" />
+                style="@style/stats_values" />
 
         </GridLayout>
 

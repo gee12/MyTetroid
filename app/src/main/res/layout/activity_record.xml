@@ -196,9 +196,9 @@
             android:layout_alignParentBottom="false"
             android:src="@drawable/ic_arrow_drop_down"
             app:backgroundTint="@color/colorAccent_50"
-            android:layout_margin="6dp"
+            android:layout_margin="@dimen/fab_small_margin"
             app:fabSize="mini"
-            style="@style/FloatingButtons"/>
+            style="@style/fab"/>
 
     </RelativeLayout>
 

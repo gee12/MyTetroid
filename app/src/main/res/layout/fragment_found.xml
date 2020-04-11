@@ -24,6 +24,6 @@
         app:fabSize="mini"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:backgroundTint="#BBB"
-        style="@style/FloatingButtons"/>
+        style="@style/fab"/>
 
 </RelativeLayout>

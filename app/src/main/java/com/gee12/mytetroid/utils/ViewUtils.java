@@ -3,9 +3,11 @@ package com.gee12.mytetroid.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
@@ -164,4 +166,30 @@ public class ViewUtils {
         return intent;
     }
 
+    /**
+     *
+     * @param view
+     * @param runnable
+     */
+    public static void setOnGlobalLayoutListener(View view, Runnable runnable) {
+        final ViewTreeObserver vto = view.getViewTreeObserver();
+        if (vto.isAlive()) {
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (view.getMeasuredWidth() > 0) {
+                        // заново получаем ViewTreeObserver, т.к.  vto != newVto
+                        ViewTreeObserver newVto = view.getViewTreeObserver();
+                        if (Build.VERSION.SDK_INT < 16) {
+                            newVto.removeGlobalOnLayoutListener(this);
+                        } else {
+                            newVto.removeOnGlobalLayoutListener(this);
+                        }
+                        // запускаем свой код
+                        runnable.run();
+                    }
+                }
+            });
+        }
+    }
 }
