@@ -30,6 +30,7 @@ public class TetroidEditor extends WysiwygEditor {
                     "<body style=\" font-family:'DejaVu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">";
     public static final String HTML_END_WITH = "</body></html>";
 
+
     public TetroidEditor(Context context) {
         super(context);
     }
@@ -44,8 +45,8 @@ public class TetroidEditor extends WysiwygEditor {
 
     public List<ActionButton> getActionButtons() {
         List<ActionButton> buttons = new ArrayList<>();
-        for (int i = 0; i < layoutButtons.getChildCount(); i++) {
-            View view = layoutButtons.getChildAt(i);
+        for (int i = 0; i < mLayoutButtons.getChildCount(); i++) {
+            View view = mLayoutButtons.getChildAt(i);
             if (view instanceof ActionButton) {
                 buttons.add((ActionButton) view);
             }
@@ -109,7 +110,7 @@ public class TetroidEditor extends WysiwygEditor {
                 showEditImageDialog(image.getName(), image.getWidth(), image.getHeight());
             } else {
                 for (TetroidImage fileName : imagesFileNames) {
-                    webView.insertImage(fileName.getName(), null);
+                    mWebView.insertImage(fileName.getName(), null);
                 }
             }
             setIsEdited();
@@ -125,6 +126,6 @@ public class TetroidEditor extends WysiwygEditor {
     }
 
     public String getDocumentHtml() {
-        return getDocumentHtml(webView.getEditableHtml());
+        return getDocumentHtml(mWebView.getEditableHtml());
     }
 }

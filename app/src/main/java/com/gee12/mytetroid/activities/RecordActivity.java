@@ -286,6 +286,14 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Событие окончания загрузки Javascript-кода для редактирования текста.
+     */
+    @Override
+    public void onEditorJSLoaded() {
+
+    }
+
+    /**
      * Открытие ссылки в тексте.
      * @param url
      */
@@ -683,6 +691,9 @@ public class RecordActivity extends TetroidActivity implements
             } break;
             case MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
+                // загружаем Javascript (если нужно)
+                mEditor.getWebView().loadEditorJSScript(false);
+
                 mEditor.setToolBarVisibility(true);
                 mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(false);
@@ -698,11 +709,18 @@ public class RecordActivity extends TetroidActivity implements
             } break;
             case MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
-                String htmlText = mEditor.getWebView().getEditableHtml();
-                mEditTextHtml.setText(htmlText);
+                if (mEditor.getWebView().isHtmlRequestMade()) {
+                    String htmlText = mEditor.getWebView().getEditableHtml();
+                    mEditTextHtml.setText(htmlText);
+                } else {
+                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
+                    mEditor.getWebView().loadEditorJSScript(true);
+
+                    mEditor.setProgressBarVisibility(true);
+                }
 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.setVisibility(View.VISIBLE);
-                mEditTextHtml.requestFocus();
+//                mEditTextHtml.requestFocus();
                 setRecordFieldsVisibility(false);
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
@@ -739,7 +757,14 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-        mEditTextHtml.setText(htmlText);
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+                mEditTextHtml.setText(htmlText);
+                mEditTextHtml.requestFocus();
+                mEditor.setProgressBarVisibility(false);
+//            }
+//        });
     }
 
     private void editFields() {
@@ -748,6 +773,7 @@ public class RecordActivity extends TetroidActivity implements
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
+                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
