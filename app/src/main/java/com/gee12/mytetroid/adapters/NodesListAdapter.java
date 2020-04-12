@@ -133,7 +133,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
-                    R.drawable.ic_arrow_up : R.drawable.ic_arrow_down);
+                    R.drawable.ic_arrow_collapse : R.drawable.ic_arrow_expand);
             rightMargin = 60;
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);
