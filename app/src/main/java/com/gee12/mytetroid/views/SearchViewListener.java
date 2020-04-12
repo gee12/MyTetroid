@@ -5,11 +5,7 @@ import android.widget.SearchView;
 public abstract class SearchViewListener {
 
     public SearchViewListener(SearchView searchView) {
-        searchView.setOnCloseListener(() -> {
-            OnClose();
-            return false;
-        });
-        searchView.setOnSearchClickListener(v -> OnSearch());
+        searchView.setOnSearchClickListener(v -> onSearch());
         searchView.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -22,9 +18,13 @@ public abstract class SearchViewListener {
                 return false;
             }
         });
+        searchView.setOnCloseListener(() -> {
+            onClose();
+            return false;
+        });
     }
 
-    public abstract void OnClose();
-    public abstract void OnSearch();
+    public abstract void onSearch();
     public abstract void onQuerySubmit(String query);
+    public abstract void onClose();
 }

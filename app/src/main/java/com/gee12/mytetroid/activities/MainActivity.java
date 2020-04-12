@@ -845,7 +845,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         new SearchViewListener(mSearchViewNodes) {
             @Override
-            public void OnClose() {
+            public void onClose() {
                 // ничего не делать, если хранилище не было загружено
                 if (mListAdapterNodes == null)
                     return;
@@ -856,7 +856,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
             @Override
-            public void OnSearch() {
+            public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
                 ivIcon.setVisibility(View.GONE);
             }
@@ -900,13 +900,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         new SearchViewListener(mSearchViewTags) {
             @Override
-            public void OnClose() {
+            public void onClose() {
                 searchInTags(null, false);
                 tvHeader.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void OnSearch() {
+            public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
             }
 
@@ -939,10 +939,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param menuItem
      */
     private void initRecordsSearchView(MenuItem menuItem) {
+        // Associate searchable configuration with the SearchView
         this.mSearchViewRecords = (SearchView) menuItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchViewRecords.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchViewRecords.setIconifiedByDefault(true);
+        mSearchViewRecords.setQueryRefinementEnabled(true);
 
         mSearchViewRecords.setOnCloseListener(() -> {
             // "сбрасываем" фильтрацию, но не для только что открытых веток
@@ -1472,11 +1474,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Поиск по записям, меткам, файлам, тексту записи.
+     * Поиск по записям, меткам или файлам (смотря какой список активен в данный момент).
      * @param query
      */
     private void searchInMainPage(String query) {
-        TetroidSuggestionProvider.SaveRecentQuery(this, query);
+        TetroidSuggestionProvider.saveRecentQuery(this, query);
         searchInMainPage(query, mViewPagerAdapter.getMainFragment().getCurMainViewId());
     }
 
@@ -1589,8 +1591,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(mMenuItemSearchViewRecords);
 
-        if(menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder)menu;
+        // для отображения иконок
+        if (menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
             m.setOptionalIconsVisible(true);
         }
         //

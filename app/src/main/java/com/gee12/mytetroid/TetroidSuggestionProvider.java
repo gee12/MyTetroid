@@ -8,13 +8,27 @@ public class TetroidSuggestionProvider extends SearchRecentSuggestionsProvider {
     public final static String AUTHORITY = "com.gee12.TetroidSuggestionProvider";
     public final static int MODE = DATABASE_MODE_QUERIES;
 
+
     public TetroidSuggestionProvider() {
         setupSuggestions(AUTHORITY, MODE);
     }
 
-    public static void SaveRecentQuery(Context context, String query) {
-        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(context,
-                TetroidSuggestionProvider.AUTHORITY, TetroidSuggestionProvider.MODE);
+    /**
+     * Сохранить запрос в системной бд.
+     * @param context
+     * @param query
+     */
+    public static void saveRecentQuery(Context context, String query) {
+        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(context, AUTHORITY, MODE);
         suggestions.saveRecentQuery(query, null);
+    }
+
+    /**
+     * Очистить историю поиска.
+     * @param context
+     */
+    public static void clearHistory(Context context) {
+        SearchRecentSuggestions suggestions = new SearchRecentSuggestions(context, AUTHORITY, MODE);
+        suggestions.clearHistory();
     }
 }

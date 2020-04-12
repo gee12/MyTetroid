@@ -388,4 +388,8 @@
     <string name="title_gallery">Gallery</string>
     <string name="error_record_file_reading">Failed to read the record file (more in the logs)</string>
     <string name="error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
+    <string name="title_search_text">Search text</string>
+    <string name="search_text_hint">Search</string>
+    <string name="log_n_matches_found">%d matches found</string>
+    <string name="log_matches_not_found">Matches not found</string>
 </resources>

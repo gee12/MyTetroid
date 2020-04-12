@@ -346,4 +346,8 @@
     <string name="title_gallery">Галерея</string>
     <string name="error_record_file_reading">Не удалось прочитать файл записи (подробнее в логах)</string>
     <string name="error_record_file_decrypting">Не удалось расшифровать файл записи (подробнее в логах)</string>
+    <string name="title_search_text">Поиск текста</string>
+    <string name="search_text_hint">Найти</string>
+    <string name="log_n_matches_found">Найдено %d совпадений</string>
+    <string name="log_matches_not_found">Совпадений не найдено</string>
 </resources>

@@ -14,11 +14,20 @@ import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 
 public class ViewUtils {
 
     public static int toVisibility(boolean isVisible) {
         return (isVisible) ? View.VISIBLE : View.GONE;
+    }
+
+    public static void setFabVisibility(FloatingActionButton fab, boolean isVisible) {
+        if (fab == null)
+            return;
+        if (isVisible) fab.show();
+        else fab.hide();
     }
 
     public static void setEnabledIfNotNull(MenuItem view, boolean isEnabled) {
