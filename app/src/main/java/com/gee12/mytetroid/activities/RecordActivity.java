@@ -53,6 +53,7 @@ import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditor;
+import com.gee12.mytetroid.views.TextViewSearcher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
@@ -93,6 +94,7 @@ public class RecordActivity extends TetroidActivity implements
     private WebView mWebViewTags;
     private ScrollView mScrollViewHtml;
     private EditText mEditTextHtml;
+    private TextViewSearcher mTextViewSearcher;
     private TextView mTvAuthor;
     private TextView mTvUrl;
     private TextView mTvDate;
@@ -154,8 +156,6 @@ public class RecordActivity extends TetroidActivity implements
         mEditor.getWebView().setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
         EditableWebView webView = mEditor.getWebView();
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setDisplayZoomControls(false);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
@@ -180,20 +180,18 @@ public class RecordActivity extends TetroidActivity implements
         mButtonToggleFields.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
 //        ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
-
         this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
         mButtonFieldsEdit.setOnClickListener(v -> editFields());
 
-        this.mScrollViewHtml = findViewById(R.id.scroll_html);
         this.mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
         this.mButtonScrollTop = findViewById(R.id.button_scroll_top);
         // прокидывание кнопок пролистывания в редактор
         mEditor.initScrollButtons(mButtonScrollBottom, mButtonScrollTop);
 
         this.mButtonFindNext = findViewById(R.id.button_find_next);
-        mButtonFindNext.setOnClickListener(v -> mEditor.nextMatch());
+        mButtonFindNext.setOnClickListener(v -> findNext());
         this.mButtonFindPrev = findViewById(R.id.button_find_prev);
-        mButtonFindPrev.setOnClickListener(v -> mEditor.prevMatch());
+        mButtonFindPrev.setOnClickListener(v -> findPrev());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             this.mFindListener = new TextFindListener();
@@ -202,9 +200,11 @@ public class RecordActivity extends TetroidActivity implements
             // TODO: что здесь для API=15 ?
         }
 
+        this.mScrollViewHtml = findViewById(R.id.scroll_html);
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
         mEditTextHtml.addTextChangedListener(mHtmlWatcher);
+        this.mTextViewSearcher = new TextViewSearcher(mEditTextHtml, mScrollViewHtml);
 
         this.mHtmlProgressBar = findViewById(R.id.progress_bar);
 
@@ -325,7 +325,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onEditorJSLoaded() {
-
+        setProgressVisibility(false);
     }
 
     /**
@@ -735,6 +735,9 @@ public class RecordActivity extends TetroidActivity implements
             case MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
                 // загружаем Javascript (если нужно)
+                if (!mEditor.getWebView().isEditorJSLoaded()) {
+                    setProgressVisibility(true);
+                }
                 mEditor.getWebView().loadEditorJSScript(false);
 
                 mEditor.setToolBarVisibility(true);
@@ -827,9 +830,38 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void searchInRecordText(String query) {
         TetroidSuggestionProvider.saveRecentQuery(this, query);
-        mEditor.searchText(query);
+        if (mCurMode == MODE_HTML) {
+            mTextViewSearcher.findAll(query);
+        } else {
+            mEditor.searchText(query);
+        }
+        // сбрасываем счетчик совпадений от прежнего поиска
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mFindListener.reset();
+        }
+    }
+
+    private void findPrev() {
+        if (mCurMode == MODE_HTML) {
+            mTextViewSearcher.prevMatch();
+        } else {
+            mEditor.prevMatch();
+        }
+    }
+
+    private void findNext() {
+        if (mCurMode == MODE_HTML) {
+            mTextViewSearcher.nextMatch();
+        } else {
+            mEditor.nextMatch();
+        }
+    }
+
+    private void stopSearch() {
+        if (mCurMode == MODE_HTML) {
+            mTextViewSearcher.stopSearch();
+        } else {
+            mEditor.stopSearch();
         }
     }
 
@@ -945,15 +977,18 @@ public class RecordActivity extends TetroidActivity implements
             public void onSearch() { }
             @Override
             public void onQuerySubmit(String query) {
+                searchInRecordText(query);
                 setFindButtonsVisibility(true);
             }
             @Override
-            public void onSuggestionSelectOrClick(int position) {
+            public void onSuggestionSelectOrClick(String query) {
+                searchInRecordText(query);
                 setFindButtonsVisibility(true);
             }
             @Override
             public void onClose() {
                 setFindButtonsVisibility(false);
+                stopSearch();
             }
         };
         /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
