@@ -45,7 +45,7 @@ public class TextViewSearcher {
         Matcher matcher = pattern.matcher(text);
         this.mCurIndex = -1;
         int index = 0;
-        while (matcher.find(index)) {
+        while (matcher.find()) {
             index = matcher.start();
             mMatches.add(index);
         }

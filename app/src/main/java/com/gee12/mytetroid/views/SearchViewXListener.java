@@ -1,8 +1,9 @@
 package com.gee12.mytetroid.views;
 
 
+import android.database.Cursor;
+
 import androidx.appcompat.widget.SearchView;
-import androidx.cursoradapter.widget.CursorAdapter;
 
 public abstract class SearchViewXListener {
 
@@ -24,16 +25,22 @@ public abstract class SearchViewXListener {
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
-                CursorAdapter cursor = (CursorAdapter) searchView.getSuggestionsAdapter().getItem(position);
-                onSuggestionSelectOrClick(cursor.toString());
-                return false;
+                Cursor searchCursor = searchView.getSuggestionsAdapter().getCursor();
+                if (searchCursor.moveToPosition(position)) {
+                    String query = searchCursor.getString(2);
+                    onSuggestionSelectOrClick(query);
+                }
+                return true;
             }
 
             @Override
             public boolean onSuggestionClick(int position) {
-                CursorAdapter cursor = (CursorAdapter) searchView.getSuggestionsAdapter().getItem(position);
-                onSuggestionSelectOrClick(cursor.toString());
-                return false;
+                Cursor searchCursor = searchView.getSuggestionsAdapter().getCursor();
+                if (searchCursor.moveToPosition(position)) {
+                    String query = searchCursor.getString(2);
+                    onSuggestionSelectOrClick(query);
+                }
+                return true;
             }
         });
         searchView.setOnCloseListener(() -> {
