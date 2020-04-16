@@ -25,14 +25,14 @@ public class TextViewSearcher {
 
     public TextViewSearcher(EditText tv, ScrollView sv) {
         this.mTextView = tv;
-        this.mEditable = mTextView.getEditableText();
         this.mScrollView = sv;
-        this.mScrollHeight = sv.getHeight();
         this.mMatches = new ArrayList<>();
     }
 
     public void findAll(String query) {
         this.mQuery = query;
+        this.mEditable = mTextView.getEditableText();
+        this.mScrollHeight = mScrollView.getHeight();
         // Reset the index and clear highlighting
         if (query.length() == 0) {
             mEditable.removeSpan(mSpan);
@@ -44,10 +44,12 @@ public class TextViewSearcher {
         mMatches.clear();
         Matcher matcher = pattern.matcher(text);
         this.mCurIndex = -1;
-        int index = 0;
         while (matcher.find()) {
-            index = matcher.start();
-            mMatches.add(index);
+            mMatches.add(matcher.start());
+        }
+        if (!mMatches.isEmpty()) {
+            this.mCurIndex = 0;
+            showMatch(mCurIndex);
         }
     }
 
@@ -74,12 +76,13 @@ public class TextViewSearcher {
     }
 
     private void showMatch(int index) {
-        int line = mTextView.getLayout().getLineForOffset(index);
+        int startIndex = mMatches.get(index);
+        int line = mTextView.getLayout().getLineForOffset(startIndex);
         int pos = mTextView.getLayout().getLineBaseline(line);
         // Scroll to it
         mScrollView.scrollTo(0, pos - mScrollHeight / 2);
         // Highlight it
-        mEditable.setSpan(mSpan, index, index + mQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mEditable.setSpan(mSpan, startIndex, startIndex + mQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     public void stopSearch() {

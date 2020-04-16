@@ -296,7 +296,7 @@ public class RecordActivity extends TetroidActivity implements
      * Событие запуска загрузки страницы.
      */
     @Override
-    public void onPageStartLoading() {
+    public void onStartPageLoading() {
     }
 
     /**
@@ -321,11 +321,19 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Событие начала загрузки Javascript-кода для редактирования текста.
+     */
+    @Override
+    public void onStartEditorJSLoading() {
+//        setProgressVisibility(true);
+    }
+
+    /**
      * Событие окончания загрузки Javascript-кода для редактирования текста.
      */
     @Override
     public void onEditorJSLoaded() {
-        setProgressVisibility(false);
+//        setProgressVisibility(false);
     }
 
     /**
@@ -735,9 +743,9 @@ public class RecordActivity extends TetroidActivity implements
             case MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
                 // загружаем Javascript (если нужно)
-                if (!mEditor.getWebView().isEditorJSLoaded()) {
-                    setProgressVisibility(true);
-                }
+//                if (!mEditor.getWebView().isEditorJSLoaded()) {
+//                    setProgressVisibility(true);
+//                }
                 mEditor.getWebView().loadEditorJSScript(false);
 
                 mEditor.setToolBarVisibility(true);
