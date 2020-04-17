@@ -7,6 +7,8 @@ import android.text.style.BackgroundColorSpan;
 import android.widget.EditText;
 import android.widget.ScrollView;
 
+import org.jsoup.internal.StringUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,7 +30,6 @@ public class TextViewSearcher {
     private ScrollView mScrollView;
     private int mScrollHeight;
     private Editable mEditable;
-    private BackgroundColorSpan mMatchSpan = new BackgroundColorSpan(Color.YELLOW);
     private BackgroundColorSpan mCurMatchSpan = new BackgroundColorSpan(Color.rgb(255, 165, 0));
     private String mQuery;
     private List<SpanIndex> mMatches;
@@ -40,46 +41,50 @@ public class TextViewSearcher {
         this.mMatches = new ArrayList<>();
     }
 
-    public void findAll(String query) {
+    public int findAll(String query) {
+        if (StringUtil.isBlank(query))
+            return -1;
         this.mQuery = query;
         this.mEditable = mTextView.getEditableText();
         this.mScrollHeight = mScrollView.getHeight();
-        // Reset the index and clear highlighting
-//        if (query.length() == 0) {
-//            mEditable.removeSpan(mMatchSpan);
-//        }
-        // Use regex search and spannable for highlighting
+        // убираем выделение
+        removeSpans();
+        // создаем критерий поиска
         Pattern pattern = Pattern.compile(query,
                 Pattern.CASE_INSENSITIVE | Pattern.LITERAL | Pattern.UNICODE_CASE);
         String text = mTextView.getText().toString();
         mMatches.clear();
         Matcher matcher = pattern.matcher(text);
         this.mCurIndex = -1;
-        boolean isFirst = true;
-        while (matcher.find()) {
-            // TODO: использовать один и тот же mMatchSpan или создавать новый 
-//            BackgroundColorSpan span = (isFirst) ? mCurMatchSpan : new BackgroundColorSpan(Color.YELLOW);
-            BackgroundColorSpan span = (isFirst) ? mCurMatchSpan : mMatchSpan;
-            SpanIndex spanIndex = new SpanIndex(matcher.start(), span);
+
+        // выделяем первое совпадение и отображаем
+        if (matcher.find()) {
+            SpanIndex spanIndex = new SpanIndex(matcher.start(), mCurMatchSpan);
             mMatches.add(spanIndex);
-            showMatch(spanIndex);
+            this.mCurIndex = 0;
+            setSpan(spanIndex.index, spanIndex.span);
+            showMatch(mCurIndex);
+
+            // выделяем остальные совпадения
+            while (matcher.find()) {
+                spanIndex = new SpanIndex(matcher.start(), new BackgroundColorSpan(Color.YELLOW));
+                mMatches.add(spanIndex);
+                setSpan(spanIndex.index, spanIndex.span);
+            }
         }
-//        if (!mMatches.isEmpty()) {
-//            this.mCurIndex = 0;
-//            showMatch(mCurIndex);
-//        }
+        return mMatches.size();
     }
 
     public void nextMatch() {
         if (mCurIndex < 0)
             return;
+        int oldIndex = mCurIndex;
         if (mCurIndex == mMatches.size() - 1) {
             mCurIndex = 0;
         } else {
             mCurIndex++;
         }
-        // TODO: заменить старый span на новый
-        // ...
+        updateSpans(oldIndex, mCurIndex);
         showMatch(mCurIndex);
     }
 
@@ -92,37 +97,41 @@ public class TextViewSearcher {
         } else {
             mCurIndex--;
         }
-
-        // TODO: заменить старый span на новый
-        SpanIndex oldSpanIndex = mMatches.get(oldIndex);
-//        mEditable.removeSpan(oldSpanIndex.span);
-        oldSpanIndex.span = mMatchSpan;
-
+        updateSpans(oldIndex, mCurIndex);
         showMatch(mCurIndex);
     }
 
+    private void updateSpans(int oldIndex, int newIndex) {
+        SpanIndex oldSpanIndex = mMatches.get(oldIndex);
+        mEditable.removeSpan(oldSpanIndex.span);
+        oldSpanIndex.span = new BackgroundColorSpan(Color.YELLOW);
+        setSpan(oldSpanIndex.index, oldSpanIndex.span);
+
+        SpanIndex curSpanIndex = mMatches.get(newIndex);
+        mEditable.removeSpan(curSpanIndex.span);
+        curSpanIndex.span = mCurMatchSpan;
+        setSpan(curSpanIndex.index, curSpanIndex.span);
+
+    }
+
     private void showMatch(int index) {
-        SpanIndex spanIndex = mMatches.get(index);
-        showMatch(spanIndex);
-    }
-
-    private void showMatch(SpanIndex spanIndex) {
-        showMatch(spanIndex.index, spanIndex.span);
-    }
-
-    private void showMatch(int startIndex, BackgroundColorSpan span) {
+        int startIndex = mMatches.get(index).index;
         int line = mTextView.getLayout().getLineForOffset(startIndex);
         int pos = mTextView.getLayout().getLineBaseline(line);
-        // Scroll to it
         mScrollView.scrollTo(0, pos - mScrollHeight / 2);
-        // Highlight it
+    }
+
+    private void setSpan(int startIndex, BackgroundColorSpan span) {
         mEditable.setSpan(span, startIndex, startIndex + mQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     public void stopSearch() {
-        // TODO: удалить все span или достаточно только mMatchSpan
+        removeSpans();
+    }
+
+    private void removeSpans() {
         for (SpanIndex spanIndex : mMatches) {
-            mEditable.removeSpan(spanIndex);
+            mEditable.removeSpan(spanIndex.span);
         }
     }
 

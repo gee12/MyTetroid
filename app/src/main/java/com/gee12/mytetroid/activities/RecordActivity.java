@@ -839,7 +839,10 @@ public class RecordActivity extends TetroidActivity implements
     private void searchInRecordText(String query) {
         TetroidSuggestionProvider.saveRecentQuery(this, query);
         if (mCurMode == MODE_HTML) {
-            mTextViewSearcher.findAll(query);
+            int matches = mTextViewSearcher.findAll(query);
+            if (matches >= 0) {
+                onFindTextResult(matches);
+            }
         } else {
             mEditor.searchText(query);
         }
@@ -881,13 +884,7 @@ public class RecordActivity extends TetroidActivity implements
         public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
             if (isDoneCounting && isStartSearch) {
                 this.isStartSearch = false;
-                if (numberOfMatches > 0) {
-                    LogManager.addLog(String.format(getString(R.string.log_n_matches_found), numberOfMatches),
-                            LogManager.Types.INFO, false, Toast.LENGTH_LONG);
-                } else {
-                    LogManager.addLog(getString(R.string.log_matches_not_found),
-                            LogManager.Types.INFO, false, Toast.LENGTH_LONG);
-                }
+                onFindTextResult(numberOfMatches);
             } else {
 
             }
@@ -895,6 +892,16 @@ public class RecordActivity extends TetroidActivity implements
 
         void reset() {
             this.isStartSearch = true;
+        }
+    }
+
+    public void onFindTextResult(int matches) {
+        if (matches > 0) {
+            LogManager.addLog(String.format(getString(R.string.log_n_matches_found), matches),
+                    LogManager.Types.INFO, false, Toast.LENGTH_LONG);
+        } else {
+            LogManager.addLog(getString(R.string.log_matches_not_found),
+                    LogManager.Types.INFO, false, Toast.LENGTH_LONG);
         }
     }
 
@@ -999,7 +1006,7 @@ public class RecordActivity extends TetroidActivity implements
                 stopSearch();
             }
         };
-        /*searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        /*searchView.setOnQuindexindexindexeryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 setFindButtonsVisibility(true);
