@@ -9,16 +9,13 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -52,8 +49,8 @@ import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.SearchViewXListener;
+import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
-import com.gee12.mytetroid.views.TextViewSearcher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
@@ -93,8 +90,7 @@ public class RecordActivity extends TetroidActivity implements
     private FloatingActionButton mButtonToggleFields;
     private WebView mWebViewTags;
     private ScrollView mScrollViewHtml;
-    private EditText mEditTextHtml;
-    private TextViewSearcher mTextViewSearcher;
+    private TetroidEditText mEditTextHtml;
     private TextView mTvAuthor;
     private TextView mTvUrl;
     private TextView mTvDate;
@@ -203,8 +199,8 @@ public class RecordActivity extends TetroidActivity implements
         this.mScrollViewHtml = findViewById(R.id.scroll_html);
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
-        mEditTextHtml.addTextChangedListener(mHtmlWatcher);
-        this.mTextViewSearcher = new TextViewSearcher(mEditTextHtml, mScrollViewHtml);
+        mEditTextHtml.setTetroidListener(new HtmlEditTextEditTextListener());
+        mEditTextHtml.initSearcher(mScrollViewHtml);
 
         this.mHtmlProgressBar = findViewById(R.id.progress_bar);
 
@@ -287,9 +283,15 @@ public class RecordActivity extends TetroidActivity implements
                 }
             }
         }
+        mEditTextHtml.reset();
         //        mEditor.getWebView().clearAndFocusEditor();
+        final String text = textHtml;
+//        runOnUiThread(() ->
         mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                textHtml, "text/html", "UTF-8", null);
+                text, "text/html", "UTF-8", null);
+//        );
+//        mEditor.getWebView().reload();
+//        mEditor.getWebView().invalidate();
     }
 
     /**
@@ -814,7 +816,7 @@ public class RecordActivity extends TetroidActivity implements
         runOnUiThread(() -> {
             mEditTextHtml.setText(htmlText);
             mEditTextHtml.requestFocus();
-            setProgressVisibility(false);
+//            setProgressVisibility(false);
         });
     }
 
@@ -839,7 +841,7 @@ public class RecordActivity extends TetroidActivity implements
     private void searchInRecordText(String query) {
         TetroidSuggestionProvider.saveRecentQuery(this, query);
         if (mCurMode == MODE_HTML) {
-            int matches = mTextViewSearcher.findAll(query);
+            int matches = mEditTextHtml.getSearcher().findAll(query);
             if (matches >= 0) {
                 onFindTextResult(matches);
             }
@@ -854,7 +856,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void findPrev() {
         if (mCurMode == MODE_HTML) {
-            mTextViewSearcher.prevMatch();
+            mEditTextHtml.getSearcher().prevMatch();
         } else {
             mEditor.prevMatch();
         }
@@ -862,7 +864,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void findNext() {
         if (mCurMode == MODE_HTML) {
-            mTextViewSearcher.nextMatch();
+            mEditTextHtml.getSearcher().nextMatch();
         } else {
             mEditor.nextMatch();
         }
@@ -870,7 +872,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void stopSearch() {
         if (mCurMode == MODE_HTML) {
-            mTextViewSearcher.stopSearch();
+            mEditTextHtml.getSearcher().stopSearch();
         } else {
             mEditor.stopSearch();
         }
@@ -1148,14 +1150,14 @@ public class RecordActivity extends TetroidActivity implements
         startActivityForResult(intent, requestCode);
     }
 
-    @Override
+/*    @Override
     protected void onNewIntent(Intent intent) {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchInRecordText(query);
         }
         super.onNewIntent(intent);
-    }
+    }*/
 
     /**
      * Обработчик нажатия кнопки Назад.
@@ -1183,22 +1185,22 @@ public class RecordActivity extends TetroidActivity implements
         mHtmlProgressBar.setVisibility(ViewUtils.toVisibility(vis));
     }
 
-    private TextWatcher mHtmlWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    /**
+     *
+     */
+    private class HtmlEditTextEditTextListener implements TetroidEditText.ITetroidEditTextListener {
 
+        @Override
+        public void onAfterTextInited() {
+            if (mCurMode == MODE_HTML) {
+                setProgressVisibility(false);
+            }
         }
-
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
+        public void onAfterTextChanged() {
             if (mCurMode == MODE_HTML) {
                 mEditor.setIsEdited();
             }
         }
-    };
+    }
 }

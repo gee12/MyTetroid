@@ -21,7 +21,6 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_close"
-        app:fabSize="mini"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:backgroundTint="#BBB"
         style="@style/fab"/>

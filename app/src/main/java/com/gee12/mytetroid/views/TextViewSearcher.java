@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Поисковик текста в EditText.
+ * Основа взята отсюда: https://billthefarmer.github.io/blog/android-text-search/
+ */
 public class TextViewSearcher {
 
     class SpanIndex {
@@ -35,12 +39,22 @@ public class TextViewSearcher {
     private List<SpanIndex> mMatches;
     private int mCurIndex;
 
+    /**
+     *
+     * @param tv
+     * @param sv
+     */
     public TextViewSearcher(EditText tv, ScrollView sv) {
         this.mTextView = tv;
         this.mScrollView = sv;
         this.mMatches = new ArrayList<>();
     }
 
+    /**
+     *
+     * @param query
+     * @return
+     */
     public int findAll(String query) {
         if (StringUtil.isBlank(query))
             return -1;
@@ -75,6 +89,9 @@ public class TextViewSearcher {
         return mMatches.size();
     }
 
+    /**
+     *
+     */
     public void nextMatch() {
         if (mCurIndex < 0)
             return;
@@ -88,6 +105,9 @@ public class TextViewSearcher {
         showMatch(mCurIndex);
     }
 
+    /**
+     *
+     */
     public void prevMatch() {
         if (mCurIndex < 0)
             return;
@@ -101,6 +121,11 @@ public class TextViewSearcher {
         showMatch(mCurIndex);
     }
 
+    /**
+     *
+     * @param oldIndex
+     * @param newIndex
+     */
     private void updateSpans(int oldIndex, int newIndex) {
         SpanIndex oldSpanIndex = mMatches.get(oldIndex);
         mEditable.removeSpan(oldSpanIndex.span);
@@ -114,6 +139,10 @@ public class TextViewSearcher {
 
     }
 
+    /**
+     *
+     * @param index
+     */
     private void showMatch(int index) {
         int startIndex = mMatches.get(index).index;
         int line = mTextView.getLayout().getLineForOffset(startIndex);
@@ -121,14 +150,25 @@ public class TextViewSearcher {
         mScrollView.scrollTo(0, pos - mScrollHeight / 2);
     }
 
+    /**
+     *
+     * @param startIndex
+     * @param span
+     */
     private void setSpan(int startIndex, BackgroundColorSpan span) {
         mEditable.setSpan(span, startIndex, startIndex + mQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
+    /**
+     *
+     */
     public void stopSearch() {
         removeSpans();
     }
 
+    /**
+     *
+     */
     private void removeSpans() {
         for (SpanIndex spanIndex : mMatches) {
             mEditable.removeSpan(spanIndex.span);

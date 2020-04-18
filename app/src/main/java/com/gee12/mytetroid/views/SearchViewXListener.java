@@ -13,7 +13,6 @@ public abstract class SearchViewXListener {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 onQuerySubmit(query);
-//                return false;
                 return true;
             }
 

@@ -4,8 +4,8 @@
 <!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
         <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/main_center_color</item>
+        <item name="colorPrimaryDark">@color/main_dark_color</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
@@ -17,7 +17,7 @@
         <!--<item name="android:windowContentOverlay">@null</item>-->
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
@@ -69,9 +69,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_alignParentBottom">true</item>
-<!--        <item name="android:layout_margin">@dimen/fab_small_margin</item>-->
+        <item name="android:layout_margin">@dimen/fab_small_margin</item>
 <!--        <item name="android:padding">6dp</item>-->
         <item name="fabSize">auto</item>
+        <item name="elevation">0dp</item>
+        <item name="pressedTranslationZ">0dp</item>
         <item name="useCompatPadding">true</item>
     </style>
 

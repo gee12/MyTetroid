@@ -2,7 +2,7 @@
 <resources>
     <color name="colorBaseText">#444</color>
     <color name="colorBlack">#111</color>
-    <color name="colorLightText">#999</color>
+    <color name="colorLightText">#BBB</color>
     <color name="colorMoreLightText">#EEE</color>
     <color name="colorBlue">#3F51B5</color>
     <color name="colorLightLabelText">#a4a4e4</color>
@@ -15,7 +15,8 @@
     <color name="colorGray_50">#80444444</color>
     <color name="colorGreen_50">#4D86B945</color>
     <color name="colorBlue_50">#8000BCD4</color>
-    <!--<color name="colorNodeName">#000</color>-->
-    <!--<color name="colorNodeNameWithoutRecords">#777</color>-->
-    <!--<color name="colorRecordWithAttach">#AEA</color>-->
+
+    <color name="main_dark_color">#5A79AE</color>
+    <color name="main_center_color">#8391DA</color>
+    <color name="main_light_color">#A4B2E4</color>
 </resources>
