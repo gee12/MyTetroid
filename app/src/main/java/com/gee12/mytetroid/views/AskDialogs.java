@@ -17,8 +17,7 @@ public class AskDialogs {
         void onApply();
     }
 
-    public interface IApplyCancelResult {
-        void onApply();
+    public interface IApplyCancelResult extends IApplyResult {
         void onCancel();
     }
 
