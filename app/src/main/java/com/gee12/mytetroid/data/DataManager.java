@@ -476,20 +476,52 @@ public class DataManager extends XMLManager {
      * @param record
      * @return
      */
-    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
+    public static void openRecordFolder(Context context, @NotNull TetroidRecord record){
         if (context == null || record == null) {
             LogManager.emptyParams("DataManager.openRecordFolder()");
-            return false;
+            return;
         }
         LogManager.addLog(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
         Uri uri = Uri.parse(getRecordDirUri(record));
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "resource/folder");
-        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
-            context.startActivity(intent);
-            return true;
-        } else {
+        if (!openFolder(context, uri)) {
+            Utils.writeToClipboard(context, context.getString(R.string.record_folder_path), uri.getPath());
             LogManager.addLog(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Открытие каталога в файловом менеджере.
+     * @param context
+     * @param uri
+     * @return
+     */
+    public static boolean openFolder(Context context, Uri uri) {
+        if (context == null || uri == null) {
+            LogManager.emptyParams("DataManager.openRecordFolder()");
+            return false;
+        }
+        // ACTION_VIEW is not supported by most of the file managers, it's crashing.
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        // Of course it can show you the contents,
+        // but when you will click on any file - activity will close and return you a link to selected file,
+        // because that's the purpose of ACTION_GET_CONTENT.
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setDataAndType(uri, "resource/folder");
+//        intent.setDataAndType(uri, "text/csv");
+//        intent.setDataAndType(uri, "*/*");
+//        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_folder));
+//        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            try {
+                context.startActivity(intent);
+    //            context.startActivity(chooser);
+                return true;
+            } catch (Exception ignored) {
+                return false;
+            }
         }
         return false;
     }

@@ -301,6 +301,10 @@ public class RecordActivity extends TetroidActivity implements
     public void onStartPageLoading() {
     }
 
+    @Override
+    public void onPageLoading(int progress) {
+    }
+
     /**
      * Событие окончания загрузки страницы.
      */

@@ -38,7 +38,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
-//    protected ICryptHandler mCryptCallback;
     protected boolean mIsNeedDecrypt;
 
     /**
@@ -475,13 +474,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @return
      */
     public boolean save(FileOutputStream fos) throws IOException {
-//        if (mCryptCallback == null) {
-//            return false;
-//        }
         XmlSerializer serializer = Xml.newSerializer();
         try {
             serializer.setOutput(fos, "UTF-8");
-            // header
+            // header:
+            // <?xml version='1.0' encoding='UTF-8' ?>
+            // FIXME: Но записывается с одинарными кавычками, а нужно с двойными вот так:
+            //  <?xml version="1.0" encoding="UTF-8"?>
             serializer.startDocument("UTF-8", null);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             // попытка изменить установить размер отступа
@@ -698,16 +697,5 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     public int getMaxDepthLevel() {
         return mMaxDepthLevel;
     }
-
-//    public ICryptHandler getCryptCallback() {
-//        return mCryptCallback;
-//    }
-
-    /**
-     * Задание обработчика шифрования/расшифровки объектов
-     */
-//    public void setCryptHandler(ICryptHandler cryptCallback) {
-//        this.mCryptCallback = cryptCallback;
-//    }
 
 }

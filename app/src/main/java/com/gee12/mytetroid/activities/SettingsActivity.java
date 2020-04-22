@@ -50,7 +50,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //                path = FileUtils.getExternalPublicDocsDir();
 //            }
             SettingsManager.isAskReloadStorage = false;
-            openFolderPicker(getString(R.string.folder_chooser_title),
+            openFolderPicker(getString(R.string.title_storage_folder),
                     SettingsManager.getStoragePath(),
                     REQUEST_CODE_OPEN_STORAGE_PATH);
             return true;

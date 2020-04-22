@@ -57,7 +57,8 @@
     <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
     <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
     <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
-    <string name="folder_chooser_title">Storage folder</string>
+    <string name="title_storage_folder">Storage folder</string>
+    <string name="title_record_folder">Record folder</string>
     <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="title_about_app">About app</string>
     <string name="license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
@@ -188,7 +189,7 @@
     <string name="stats_tags_count">Tags:</string>
     <string name="stats_unique_tags_count">Of which are unique:</string>
     <string name="stats_authors_count">Authors:</string>
-    <string name="log_missing_file_manager">Missing file manager</string>
+    <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
     <string name="log_error_read_record_file">Error reading record file:&#160;</string>
     <string name="log_error_decrypt_record_file">Error decrypting record file:&#160;</string>
     <string name="log_error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
@@ -392,4 +393,5 @@
     <string name="search_text_hint">Search</string>
     <string name="log_n_matches_found">%d matches found</string>
     <string name="log_matches_not_found">Matches not found</string>
+    <string name="record_folder_path">Record folder path</string>
 </resources>

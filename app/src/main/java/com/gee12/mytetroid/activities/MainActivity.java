@@ -599,7 +599,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void showFolderChooser() {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", getString(R.string.folder_chooser_title));
+        intent.putExtra("title", getString(R.string.title_storage_folder));
         intent.putExtra("location", SettingsManager.getStoragePath());
         startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
     }
