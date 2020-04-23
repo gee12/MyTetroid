@@ -8,7 +8,7 @@ import androidx.appcompat.widget.SearchView;
 public abstract class SearchViewXListener {
 
     public SearchViewXListener(SearchView searchView) {
-        searchView.setOnSearchClickListener(v -> onSearch());
+        searchView.setOnSearchClickListener(v -> onSearchClick());
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -48,7 +48,7 @@ public abstract class SearchViewXListener {
         });
     }
 
-    public abstract void onSearch();
+    public abstract void onSearchClick();
     public abstract void onQuerySubmit(String query);
     public abstract void onSuggestionSelectOrClick(String query);
     public abstract void onClose();

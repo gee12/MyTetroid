@@ -60,6 +60,7 @@ import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
+import com.gee12.mytetroid.views.SearchViewXListener;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
@@ -931,9 +932,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     : getString(R.string.log_tags_is_missing));
     }
 
-
     /**
-     * Виджет поиска по записям/файлам/тексту.
+     * Виджет поиска по записям ветки / прикрепленным к записи файлам.
      * @param menuItem
      */
     private void initRecordsSearchView(MenuItem menuItem) {
@@ -944,34 +944,47 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mSearchViewRecords.setIconifiedByDefault(true);
         mSearchViewRecords.setQueryRefinementEnabled(true);
 
-        mSearchViewRecords.setOnCloseListener(() -> {
-            // "сбрасываем" фильтрацию, но не для только что открытых веток
-            // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
-            // что приводит к повторному открытию списка записей)
-            if (!isNodeOpening) {
-                switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
-                    case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-                        if (mCurNode != null) {
-                            showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
-                        }
-                        break;
-                    case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-                        if (mCurTag != null) {
-                            showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
-                        }
-                        break;
-                    // пока по файлам не ищем
+        new SearchViewXListener(mSearchViewRecords) {
+            @Override
+            public void onSearchClick() { }
+            @Override
+            public void onQuerySubmit(String query) {
+                searchInMainPage(query);
+            }
+            @Override
+            public void onSuggestionSelectOrClick(String query) {
+//                searchInMainPage(query);
+                mSearchViewRecords.setQuery(query, true);
+            }
+            @Override
+            public void onClose() {
+                // "сбрасываем" фильтрацию, но не для только что открытых веток
+                // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
+                // что приводит к повторному открытию списка записей)
+                if (!isNodeOpening) {
+                    switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
+                        case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
+                            if (mCurNode != null) {
+                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+                            }
+                            break;
+                        case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
+                            if (mCurTag != null) {
+                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+                            }
+                            break;
+                        // пока по файлам не ищем
                /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                     TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
                     if (curRecord != null) {
                         mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                     }
                     break;*/
+                    }
                 }
+                MainActivity.this.mIsRecordsFiltered = false;
             }
-            MainActivity.this.mIsRecordsFiltered = false;
-            return false;
-        });
+        };
     }
 
     /**
@@ -1463,10 +1476,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onNewIntent(Intent intent) {
-        // search in main page
+        // обработка результата голосового поиска
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            searchInMainPage(query);
+//            searchInMainPage(query);
+            mSearchViewRecords.setQuery(query, true);
         }
         super.onNewIntent(intent);
     }

@@ -114,6 +114,7 @@ public class RecordActivity extends TetroidActivity implements
     private boolean mIsFirstLoad = true;
     private boolean mIsFieldsEdited;
     private TextFindListener mFindListener;
+    private SearchView mSearchView;
 
 
     public RecordActivity() {
@@ -984,18 +985,27 @@ public class RecordActivity extends TetroidActivity implements
         this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
 //        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
+        initSearchView(menu);
 
-        // инициализация элементов для поиска
+        onMenuLoaded();
+        return true;
+    }
+
+    /**
+     * Инициализация элементов для поиска.
+     * @param menu
+     */
+    public void initSearchView(Menu menu) {
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search_text).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(true);
+        this.mSearchView = (SearchView) menu.findItem(R.id.action_search_text).getActionView();
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setIconifiedByDefault(true);
         // добавлять кнопки справа в выпадающем списке предложений (suggestions), чтобы вставить выбранное
         // предложение в строку запроса для дальнейшего уточнения (изменения), а не для поиска по нему
-        searchView.setQueryRefinementEnabled(true);
-        new SearchViewXListener(searchView) {
+        mSearchView.setQueryRefinementEnabled(true);
+        new SearchViewXListener(mSearchView) {
             @Override
-            public void onSearch() { }
+            public void onSearchClick() { }
             @Override
             public void onQuerySubmit(String query) {
                 searchInRecordText(query);
@@ -1003,8 +1013,9 @@ public class RecordActivity extends TetroidActivity implements
             }
             @Override
             public void onSuggestionSelectOrClick(String query) {
-                searchInRecordText(query);
-                setFindButtonsVisibility(true);
+//                searchInRecordText(query);
+//                setFindButtonsVisibility(true);
+                mSearchView.setQuery(query, true);
             }
             @Override
             public void onClose() {
@@ -1012,6 +1023,7 @@ public class RecordActivity extends TetroidActivity implements
                 stopSearch();
             }
         };
+
         /*searchView.setOnQuindexindexindexeryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -1039,9 +1051,6 @@ public class RecordActivity extends TetroidActivity implements
             setFindButtonsVisibility(false);
             return false;
         });*/
-
-        onMenuLoaded();
-        return true;
     }
 
     /**
@@ -1154,14 +1163,17 @@ public class RecordActivity extends TetroidActivity implements
         startActivityForResult(intent, requestCode);
     }
 
-/*    @Override
+    @Override
     protected void onNewIntent(Intent intent) {
+        // обработка результата голосового поиска
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            searchInRecordText(query);
+//            searchInRecordText(query);
+//            setFindButtonsVisibility(true);
+            mSearchView.setQuery(query, true);
         }
         super.onNewIntent(intent);
-    }*/
+    }
 
     /**
      * Обработчик нажатия кнопки Назад.
