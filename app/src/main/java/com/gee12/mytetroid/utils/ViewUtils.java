@@ -3,17 +3,32 @@ package com.gee12.mytetroid.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 
 public class ViewUtils {
+
+    public static int toVisibility(boolean isVisible) {
+        return (isVisible) ? View.VISIBLE : View.GONE;
+    }
+
+    public static void setFabVisibility(FloatingActionButton fab, boolean isVisible) {
+        if (fab == null)
+            return;
+        if (isVisible) fab.show();
+        else fab.hide();
+    }
 
     public static void setEnabledIfNotNull(MenuItem view, boolean isEnabled) {
         if (view != null)
@@ -164,4 +179,30 @@ public class ViewUtils {
         return intent;
     }
 
+    /**
+     *
+     * @param view
+     * @param runnable
+     */
+    public static void setOnGlobalLayoutListener(View view, Runnable runnable) {
+        final ViewTreeObserver vto = view.getViewTreeObserver();
+        if (vto.isAlive()) {
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (view.getMeasuredWidth() > 0) {
+                        // заново получаем ViewTreeObserver, т.к.  vto != newVto
+                        ViewTreeObserver newVto = view.getViewTreeObserver();
+                        if (Build.VERSION.SDK_INT < 16) {
+                            newVto.removeGlobalOnLayoutListener(this);
+                        } else {
+                            newVto.removeOnGlobalLayoutListener(this);
+                        }
+                        // запускаем свой код
+                        runnable.run();
+                    }
+                }
+            });
+        }
+    }
 }

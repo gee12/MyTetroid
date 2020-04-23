@@ -20,6 +20,8 @@ public class TetroidNode extends TetroidObject {
     private String iconName;
     private TetroidNode parentNode;
 
+    private String decryptedIconName;
+
     public TetroidNode(boolean isCrypted, String id, String name, String iconName, int level) {
         super(FoundType.TYPE_NODE, isCrypted, id, name);
 //        setIcon(iconFullName);
@@ -66,17 +68,22 @@ public class TetroidNode extends TetroidObject {
     }
 
     public void loadIconFromStorage(String iconsStoragePath) {
-        if (TextUtils.isEmpty(iconName))
+        if (TextUtils.isEmpty(getIconName()))
             return;
-        loadIcon(iconsStoragePath + iconName);
+        loadIcon(iconsStoragePath + getIconName());
     }
 
     public String getIconName() {
-        return iconName;
+//        return iconName;
+        return (isCrypted && isDecrypted) ? decryptedIconName : iconName;
+    }
+
+    public String getIconName(boolean isCryptedValue) {
+        return (isCryptedValue) ? iconName : decryptedIconName;
     }
 
     public String getCryptedName(String cryptedName) {
-        return (!isCrypted || isDecrypted) ? name : cryptedName;
+        return (!isCrypted || isDecrypted) ? getName() : cryptedName;
     }
 
     public int getLevel() {
@@ -101,6 +108,12 @@ public class TetroidNode extends TetroidObject {
 
     public void setIconName(String iconName) {
         this.iconName = iconName;
+    }
+
+    public void setDecryptedIconName(String value) {
+//        if (isCrypted && isDecrypted) {
+            this.decryptedIconName = value;
+//        }
     }
 
     public void setSubNodes(List<TetroidNode> subNodes) {

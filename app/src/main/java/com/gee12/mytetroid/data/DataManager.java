@@ -21,6 +21,7 @@ import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
@@ -164,14 +165,26 @@ public class DataManager extends XMLManager {
         return CryptManager.decryptNode(node, false, this);
     }
 
-    /**
-     * Обработчик события о необходимости зашифровать текстовое поле
-     * при сохранении структуры хранилища в xml.
-     * @param field
-     */
-    @Override
-    public String encryptField(String field) {
-        return CryptManager.encryptTextBase64(field);
+    public static String decryptField(TetroidObject obj, String value) {
+        return (obj != null && obj.isCrypted()) ? CryptManager.decryptBase64(value) : value;
+    }
+
+//    /**
+//     * Обработчик события о необходимости зашифровать текстовое поле
+//     * при сохранении структуры хранилища в xml.
+//     * @param field
+//     */
+//    @Override
+//    public String encryptField(String field) {
+//        return CryptManager.encryptTextBase64(field);
+//    }
+
+    public static String encryptField(TetroidObject obj, String field) {
+        return encryptField(obj != null && obj.isCrypted() && obj.isDecrypted(), field); // последняя проверка не обязательна
+    }
+
+    public static String encryptField(boolean isCrypted, String field) {
+        return (isCrypted) ? CryptManager.encryptTextBase64(field) : field;
     }
 
     /**
@@ -288,6 +301,7 @@ public class DataManager extends XMLManager {
                     text = FileUtils.readFile(uri);
                 } catch (Exception ex) {
                     LogManager.addLog(context.getString(R.string.log_error_read_record_file) + path, ex);
+                    return null;
                 }
                 // расшифровываем содержимое файла
                 res = CryptManager.decryptText(text);
@@ -462,20 +476,52 @@ public class DataManager extends XMLManager {
      * @param record
      * @return
      */
-    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
+    public static void openRecordFolder(Context context, @NotNull TetroidRecord record){
         if (context == null || record == null) {
             LogManager.emptyParams("DataManager.openRecordFolder()");
-            return false;
+            return;
         }
         LogManager.addLog(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
         Uri uri = Uri.parse(getRecordDirUri(record));
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, "resource/folder");
-        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
-            context.startActivity(intent);
-            return true;
-        } else {
+        if (!openFolder(context, uri)) {
+            Utils.writeToClipboard(context, context.getString(R.string.record_folder_path), uri.getPath());
             LogManager.addLog(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
+    }
+
+    /**
+     * Открытие каталога в файловом менеджере.
+     * @param context
+     * @param uri
+     * @return
+     */
+    public static boolean openFolder(Context context, Uri uri) {
+        if (context == null || uri == null) {
+            LogManager.emptyParams("DataManager.openRecordFolder()");
+            return false;
+        }
+        // ACTION_VIEW is not supported by most of the file managers, it's crashing.
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        // Of course it can show you the contents,
+        // but when you will click on any file - activity will close and return you a link to selected file,
+        // because that's the purpose of ACTION_GET_CONTENT.
+//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setDataAndType(uri, "resource/folder");
+//        intent.setDataAndType(uri, "text/csv");
+//        intent.setDataAndType(uri, "*/*");
+//        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_folder));
+//        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            try {
+                context.startActivity(intent);
+    //            context.startActivity(chooser);
+                return true;
+            } catch (Exception ignored) {
+                return false;
+            }
         }
         return false;
     }
@@ -610,7 +656,11 @@ public class DataManager extends XMLManager {
 
         boolean crypted = (parentNode != null && parentNode.isCrypted());
         int level = (parentNode != null) ? parentNode.getLevel() + 1 : 0;
-        TetroidNode node = new TetroidNode(crypted, id, name, null, level);
+//        TetroidNode node = new TetroidNode(crypted, id, name, null, level);
+        TetroidNode node = new TetroidNode(crypted, id,
+                encryptField(crypted, name),
+                null, level);
+        node.setDecryptedName(name);
         node.setParentNode(parentNode);
         node.setRecords(new ArrayList<>());
         node.setSubNodes(new ArrayList<>());
@@ -643,15 +693,17 @@ public class DataManager extends XMLManager {
         }
         LogManager.addLog(context.getString(R.string.log_start_node_fields_editing), LogManager.Types.DEBUG);
 
-        String oldName = node.getName();
+        String oldName = node.getName(true);
         // обновляем поля
-        node.setName(name);
+        node.setName(encryptField(node, name));
+        node.setDecryptedName(name);
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
             LogManager.addLog(context.getString(R.string.log_cancel_node_changing), LogManager.Types.ERROR);
             // возвращаем изменения
             node.setName(oldName);
+            node.setDecryptedName(decryptField(node, oldName));
             return false;
         }
         return true;
@@ -792,8 +844,16 @@ public class DataManager extends XMLManager {
         String dirName = createUniqueId();
 
         boolean crypted = node.isCrypted();
-        TetroidRecord record = new TetroidRecord(crypted, id, name, tagsString, author, url,
+        TetroidRecord record = new TetroidRecord(crypted, id,
+                encryptField(crypted, name),
+                encryptField(crypted, tagsString),
+                encryptField(crypted, author),
+                encryptField(crypted, url),
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
+        record.setDecryptedName(name);
+        record.setDecryptedTagsString(tagsString);
+        record.setDecryptedAuthor(author);
+        record.setDecryptedUrl(url);
         record.setIsNew(true);
         if (crypted) {
             record.setDecrypted(true);
@@ -856,15 +916,19 @@ public class DataManager extends XMLManager {
         }
         LogManager.addLog(context.getString(R.string.log_start_record_fields_editing), LogManager.Types.DEBUG);
 
-        String oldName = record.getName();
-        String oldAuthor = record.getAuthor();
-        String oldTagsString = record.getTagsString();
-        String oldUrl = record.getUrl();
+        String oldName = record.getName(true);
+        String oldAuthor = record.getAuthor(true);
+        String oldTagsString = record.getTagsString(true);
+        String oldUrl = record.getUrl(true);
         // обновляем поля
-        record.setName(name);
-        record.setAuthor(author);
-        record.setTagsString(tagsString);
-        record.setUrl(url);
+        record.setName(encryptField(record, name));
+        record.setDecryptedName(name);
+        record.setTagsString(encryptField(record, tagsString));
+        record.setDecryptedTagsString(tagsString);
+        record.setAuthor(encryptField(record, author));
+        record.setDecryptedAuthor(author);
+        record.setUrl(encryptField(record, url));
+        record.setDecryptedUrl(url);
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
@@ -879,9 +943,13 @@ public class DataManager extends XMLManager {
             LogManager.addLog(context.getString(R.string.log_cancel_record_changing), LogManager.Types.ERROR);
             // возвращаем изменения
             record.setName(oldName);
-            record.setAuthor(oldAuthor);
+            record.setDecryptedName(decryptField(record, oldName));
             record.setTagsString(oldTagsString);
+            record.setDecryptedTagsString(decryptField(record, oldTagsString));
+            record.setAuthor(oldAuthor);
+            record.setDecryptedAuthor(decryptField(record, oldAuthor));
             record.setUrl(oldUrl);
+            record.setDecryptedUrl(decryptField(record, url));
             return false;
         }
         return true;
@@ -984,7 +1052,10 @@ public class DataManager extends XMLManager {
         String fileIdName = id + ext;
         // создание объекта хранилища
         boolean crypted = record.isCrypted();
-        TetroidFile file = new TetroidFile(crypted, id, fileDisplayName, TetroidFile.DEF_FILE_TYPE, record);
+        TetroidFile file = new TetroidFile(crypted, id,
+                encryptField(crypted, fileDisplayName),
+                TetroidFile.DEF_FILE_TYPE, record);
+        file.setDecryptedName(fileDisplayName);
         if (crypted) {
             file.setDecrypted(true);
         }
@@ -1093,15 +1164,17 @@ public class DataManager extends XMLManager {
             }
         }
 
-        String oldName = file.getName();
+        String oldName = file.getName(true);
         // обновляем поля
-        file.setName(name);
+        file.setName(encryptField(file, name));
+        file.setDecryptedName(name);
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
             LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
             // возвращаем изменения
             file.setName(oldName);
+            file.setDecryptedName(decryptField(file, oldName));
             return 0;
         }
         // меняем расширение, если изменилось

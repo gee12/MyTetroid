@@ -42,13 +42,13 @@
         android:id="@+id/action_expand_node"
         android:orderInCategory="80"
         android:title="@string/expand_node_subnodes"
-        android:icon="@drawable/ic_arrow_down"
+        android:icon="@drawable/ic_arrow_expand"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_collapse_node"
         android:orderInCategory="90"
         android:title="@string/collapse_node_subnodes"
-        android:icon="@drawable/ic_arrow_up"
+        android:icon="@drawable/ic_arrow_collapse"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item

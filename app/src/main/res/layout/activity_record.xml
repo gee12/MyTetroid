@@ -152,7 +152,7 @@
         </net.cachapa.expandablelayout.ExpandableLayout>
 
         <com.gee12.mytetroid.views.TetroidEditor
-            android:id="@+id/web_view_record_text"
+            android:id="@+id/html_editor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/layout_fields_expander"
@@ -168,7 +168,7 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone">
 
-            <EditText
+            <com.gee12.mytetroid.views.TetroidEditText
                 android:id="@+id/edit_text_html"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -183,12 +183,41 @@
                 android:background="@null"
                 />
 
-<!--        android:textIsSelectable="true"-->
-<!--        android:focusable="true"-->
-<!--        android:focusableInTouchMode="true"-->
-<!--        android:cursorVisible="true"-->
+        </ScrollView>
 
-            </ScrollView>
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_find_prev"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="false"
+            android:layout_toLeftOf="@id/button_find_next"
+            android:src="@drawable/ic_arrow_prev"
+            app:backgroundTint="@color/colorGray_50"
+            android:visibility="gone"
+            style="@style/fab"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_find_next"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="false"
+            android:layout_toLeftOf="@id/button_toggle_fields"
+            android:src="@drawable/ic_arrow_next"
+            app:backgroundTint="@color/colorGray_50"
+            android:visibility="gone"
+            style="@style/fab"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_toggle_fields"
@@ -196,9 +225,27 @@
             android:layout_alignParentBottom="false"
             android:src="@drawable/ic_arrow_drop_down"
             app:backgroundTint="@color/colorAccent_50"
-            android:layout_margin="6dp"
-            app:fabSize="mini"
-            style="@style/FloatingButtons"/>
+            style="@style/fab"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_scroll_top"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentBottom="false"
+            android:layout_below="@id/button_toggle_fields"
+            android:src="@drawable/ic_arrow_up"
+            app:backgroundTint="@color/fab"
+            android:visibility="gone"
+            style="@style/fab"/>
+<!--        android:gradientRadius="30"-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_scroll_bottom"
+            android:layout_alignParentTop="false"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/ic_arrow_down"
+            app:backgroundTint="@color/fab"
+            android:visibility="gone"
+            style="@style/fab"/>
 
     </RelativeLayout>
 

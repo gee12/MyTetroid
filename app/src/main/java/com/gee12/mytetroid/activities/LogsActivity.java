@@ -66,6 +66,6 @@ public class LogsActivity extends AppCompatActivity {
      */
     private void scrollToBottom() {
         ScrollView scrollView = findViewById(R.id.scroll_view_logs);
-        scrollView.post(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN));
+        scrollView.postDelayed(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN), 100);
     }
 }

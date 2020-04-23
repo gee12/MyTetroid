@@ -8,12 +8,12 @@
 
     <TextView
         android:text="@string/label_name"
-        style="@style/DialogLabels"/>
+        style="@style/dialog_labels"/>
 
     <EditText
         android:id="@+id/edit_text_name"
         android:inputType="text|textCapSentences"
-        style="@style/DialogTextEdit">
+        style="@style/dialog_text_edit">
 
         <requestFocus/>
 

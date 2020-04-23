@@ -111,6 +111,10 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         // имя
         String cryptedName = context.getString(R.string.crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
+//        String name = (node.isCrypted() && !node.isDecrypted())
+//                ? context.getString(R.string.crypted_node_name)
+//                : DataManager.decryptField(node, node.getName());
+//        viewHolder.nameView.setText(name);
         // количество записей в ветке
             viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
@@ -129,7 +133,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
-                    R.drawable.ic_arrow_up : R.drawable.ic_arrow_down);
+                    R.drawable.ic_arrow_collapse : R.drawable.ic_arrow_expand);
             rightMargin = 60;
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);

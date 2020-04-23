@@ -60,6 +60,7 @@ import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
+import com.gee12.mytetroid.views.SearchViewXListener;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
@@ -115,17 +116,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
-    private boolean mIsStarted;
+    private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
-    boolean isNodeOpening = false;
+    private boolean isNodeOpening = false;
 
 
     public MainActivity() {
-        super(R.layout.activity_main);
+        super();
     }
 
     public MainActivity(Parcel in) {
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_main;
     }
 
     @Override
@@ -163,13 +169,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void onPageScrolled(int i, float v, int i1) {
             }
-
             @Override
             public void onPageSelected(int i) {
-                if (mIsStarted)
+                if (mIsActivityCreated) {
                     changeToolBarByPage(i);
+                }
             }
-
             @Override
             public void onPageScrollStateChanged(int i) {
             }
@@ -388,12 +393,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // или
             // 2) установлена опция "Спрашивать пароль при старте"
 //            if (DataManager.isExistsCryptedNodes()) {
-            if (DataManager.isCrypted()
+
+            /*if (DataManager.isCrypted()
                     && (SettingsManager.isSaveMiddlePassHashLocal()
                     || SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start)))) {
                     decryptStorage(nodeToSelect);
             } else {
                 // иначе просто загружаем хранилище, даже если оно зашифровано
+                initStorage(nodeToSelect, false);
+            }*/
+            if (DataManager.isCrypted()) {
+                decryptStorage(nodeToSelect);
+            } else {
                 initStorage(nodeToSelect, false);
             }
         } else {
@@ -407,8 +418,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Вызывается при:
      * 1) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
-     * 2) запуске приложения, если выделение было сохранено на зашифрованной ветке
-     * 3) при выделении зашифрованной ветки
+     * 2) --запуске приложения, если выделение было сохранено на зашифрованной ветке
+     * 3) --при выделении зашифрованной ветки
      * @param node Ветка для выбора при удачной расшифровке
      */
     private void decryptStorage(TetroidNode node) {
@@ -429,15 +440,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
             } catch (DataManager.EmptyFieldException e) {
                 // if middle_hash_check_data field is empty, so asking "decrypt anyway?"
-                AskDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node, new AskDialogs.IPassCheckResult() {
-                    @Override
-                    public void onApply(TetroidNode node) {
-                        decryptStorage(SettingsManager.getMiddlePassHash(), true, node);
-                    }
-                });
+                AskDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), node,
+                        node1 -> decryptStorage(SettingsManager.getMiddlePassHash(), true, node1));
             }
-        } else {
+        } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
+            // спрашиваем пароль, если нужно расшифровывать на старте
             showPassDialog(node);
+        } else {
+            // просто загружаем без расшифровки, если не сохранен пароль и его не нужно спрашивать на старте
+            initStorage(node, false);
         }
     }
 
@@ -473,9 +484,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         @Override
                         public void onApply(TetroidNode node) {
                             decryptStorage(pass, false, node);
-                            // пароль не сохраняем
-                            // а спрашиваем нормально ли расшифровались данные, и потом сохраняем
-                            // ...
+
+                            // TODO: пароль не сохраняем
+                            //  а спрашиваем нормально ли расшифровались данные, и потом сохраняем
+                            //  ...
                         }
                     });
                 }
@@ -483,8 +495,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void cancelPass() {
-                // Если при первой загрузке хранилища
-                // установлена текущей зашифрованная ветка (node),
+                // Если при первой загрузке хранилища установлена текущей зашифрованная ветка (node),
                 // и пароль не сохраняли, то нужно его спросить.
                 // Но если пароль вводить отказались, то просто грузим хранилище как есть
                 // (только в первый раз, затем перезагружать не нужно)
@@ -503,10 +514,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param nodeToSelect
      */
     private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
-        if (isMiddleHash)
+        if (isMiddleHash) {
             CryptManager.initFromMiddleHash(pass, DataManager.getInstance());
-        else
+        } else {
             CryptManager.initFromPass(pass, DataManager.getInstance());
+        }
         initStorage(nodeToSelect, true);
     }
 
@@ -530,29 +542,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mListAdapterNodes.notifyDataSetChanged();
             mListAdapterTags.setDataItems(DataManager.getTags());
 
-            if (node != null)
+            if (node != null) {
                 showNode(node);
+            }
         } else {
             LogManager.addLog(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
             new MainActivity.ReadStorageTask().execute(isDecrypt);
-            // парсим дерево веток и расшифровываем зашифрованные
-//            if (DataManager.readStorage(isDecrypt)) {
-//                LogManager.addLog(R.string.storage_loaded);
-//            }
-            // инициализация контролов
-//            initGUI();
         }
-        // выбираем ветку в новом списке расшифрованных веток
-//        if (node != null)
-//            showNode(node);
     }
 
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
+     * @param res Результат загрузки хранилища.
      */
     private void initGUI(boolean res) {
+        // добавляем к результату загрузки проверку на пустоту списка веток
         List<TetroidNode> rootNodes = DataManager.getRootNodes();
-        if (res && rootNodes != null) {
+        res = (res && rootNodes != null);
+        if (res) {
             // список веток
             this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
             mListViewNodes.setAdapter(mListAdapterNodes);
@@ -591,9 +598,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Открытие активности для первоначального выбора пути хранилища в файловой системе.
      */
-    void showFolderChooser() {
+    private void showFolderChooser() {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", getString(R.string.folder_chooser_title));
+        intent.putExtra("title", getString(R.string.title_storage_folder));
         intent.putExtra("location", SettingsManager.getStoragePath());
         startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
     }
@@ -620,8 +627,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         // проверка нужно ли расшифровать ветку перед отображением
         if (!node.isNonCryptedOrDecrypted()) {
-            decryptStorage(node);
-            // выходим, т.к. возможен запрос пароля в асинхронном режиме
+//            decryptStorage(node);
+            showPassDialog(node);
+            // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
         LogManager.addLog(getString(R.string.log_open_node_records) + node.getId());
@@ -762,14 +770,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
          */
         @Override
         public void onGroupItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
-            // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
+/*          // это событие обрабатывается с помощью OnNodeHeaderClickListener, чтобы разделить клик
             // на заголовке и на стрелке раскрытия/закрытия ветки
             TetroidNode node = (TetroidNode) item;
             if (!node.isNonCryptedOrDecrypted()) {
                 decryptStorage(node);
                 // как остановить дальнейшее выполнение, чтобы не стабатывал Expander?
 //                return;
-            }
+            }*/
         }
     };
 
@@ -836,7 +844,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         new SearchViewListener(mSearchViewNodes) {
             @Override
-            public void OnClose() {
+            public void onClose() {
+                // ничего не делать, если хранилище не было загружено
+                if (mListAdapterNodes == null)
+                    return;
                 mListAdapterNodes.setDataItems(DataManager.getRootNodes());
                 setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
@@ -844,7 +855,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
             @Override
-            public void OnSearch() {
+            public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
                 ivIcon.setVisibility(View.GONE);
             }
@@ -888,13 +899,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
         new SearchViewListener(mSearchViewTags) {
             @Override
-            public void OnClose() {
+            public void onClose() {
                 searchInTags(null, false);
                 tvHeader.setVisibility(View.VISIBLE);
             }
 
             @Override
-            public void OnSearch() {
+            public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
             }
 
@@ -921,45 +932,59 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     : getString(R.string.log_tags_is_missing));
     }
 
-
     /**
-     * Виджет поиска по записям/файлам/тексту.
+     * Виджет поиска по записям ветки / прикрепленным к записи файлам.
      * @param menuItem
      */
     private void initRecordsSearchView(MenuItem menuItem) {
+        // Associate searchable configuration with the SearchView
         this.mSearchViewRecords = (SearchView) menuItem.getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         mSearchViewRecords.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         mSearchViewRecords.setIconifiedByDefault(true);
+        mSearchViewRecords.setQueryRefinementEnabled(true);
 
-        mSearchViewRecords.setOnCloseListener(() -> {
-            // "сбрасываем" фильтрацию, но не для только что открытых веток
-            // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
-            // что приводит к повторному открытию списка записей)
-            if (!isNodeOpening) {
-                switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
-                    case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-                        if (mCurNode != null) {
-                            showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
-                        }
-                        break;
-                    case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-                        if (mCurTag != null) {
-                            showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
-                        }
-                        break;
-                    // пока по файлам не ищем
+        new SearchViewXListener(mSearchViewRecords) {
+            @Override
+            public void onSearchClick() { }
+            @Override
+            public void onQuerySubmit(String query) {
+                searchInMainPage(query);
+            }
+            @Override
+            public void onSuggestionSelectOrClick(String query) {
+//                searchInMainPage(query);
+                mSearchViewRecords.setQuery(query, true);
+            }
+            @Override
+            public void onClose() {
+                // "сбрасываем" фильтрацию, но не для только что открытых веток
+                // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
+                // что приводит к повторному открытию списка записей)
+                if (!isNodeOpening) {
+                    switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
+                        case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
+                            if (mCurNode != null) {
+                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+                            }
+                            break;
+                        case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
+                            if (mCurTag != null) {
+                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+                            }
+                            break;
+                        // пока по файлам не ищем
                /* case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                     TetroidRecord curRecord = mViewPagerAdapter.getMainFragment().getCurRecord();
                     if (curRecord != null) {
                         mViewPagerAdapter.getMainFragment().showRecordFiles(curRecord);
                     }
                     break;*/
+                    }
                 }
+                MainActivity.this.mIsRecordsFiltered = false;
             }
-            MainActivity.this.mIsRecordsFiltered = false;
-            return false;
-        });
+        };
     }
 
     /**
@@ -1451,20 +1476,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onNewIntent(Intent intent) {
-        // search in main page
+        // обработка результата голосового поиска
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            searchInMainPage(query);
+//            searchInMainPage(query);
+            mSearchViewRecords.setQuery(query, true);
         }
         super.onNewIntent(intent);
     }
 
     /**
-     * Поиск по записям, меткам, файлам, тексту записи.
+     * Поиск по записям, меткам или файлам (смотря какой список активен в данный момент).
      * @param query
      */
     private void searchInMainPage(String query) {
-        TetroidSuggestionProvider.SaveRecentQuery(this, query);
+        TetroidSuggestionProvider.saveRecentQuery(this, query);
         searchInMainPage(query, mViewPagerAdapter.getMainFragment().getCurMainViewId());
     }
 
@@ -1577,12 +1603,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(mMenuItemSearchViewRecords);
 
-        if(menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder)menu;
+        // для отображения иконок
+        if (menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
             m.setOptionalIconsVisible(true);
         }
         //
-        this.mIsStarted = true;
+        this.mIsActivityCreated = true;
         return true;
     }
 

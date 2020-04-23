@@ -38,7 +38,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
-//    protected ICryptHandler mCryptCallback;
     protected boolean mIsNeedDecrypt;
 
     /**
@@ -74,13 +73,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      */
     protected abstract boolean decryptNode(TetroidNode node);
 
-    /**
-     * Обработчик события о необходимости зашифровать текстовое поле
-     * при сохранении структуры хранилища в xml.
-     * @param field
-     * @return
-     */
-    protected abstract String encryptField(String field);
+//    /**
+//     * Обработчик события о необходимости зашифровать текстовое поле
+//     * при сохранении структуры хранилища в xml.
+//     * @param field
+//     * @return
+//     */
+//    protected abstract String encryptField(TetroidObject obj, String field);
 
     /**
      * Чтение хранилища из xml-файла.
@@ -475,13 +474,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * @return
      */
     public boolean save(FileOutputStream fos) throws IOException {
-//        if (mCryptCallback == null) {
-//            return false;
-//        }
         XmlSerializer serializer = Xml.newSerializer();
         try {
             serializer.setOutput(fos, "UTF-8");
-            // header
+            // header:
+            // <?xml version='1.0' encoding='UTF-8' ?>
+            // FIXME: Но записывается с одинарными кавычками, а нужно с двойными вот так:
+            //  <?xml version="1.0" encoding="UTF-8"?>
             serializer.startDocument("UTF-8", null);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             // попытка изменить установить размер отступа
@@ -525,10 +524,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = node.isCrypted();
             addAttribute(serializer, "crypt", (crypted) ? "1" : "");
-            if (!TextUtils.isEmpty(node.getIconName()))
-                addCryptAttribute(serializer, node, "icon", node.getIconName());
+            if (!TextUtils.isEmpty(node.getIconName())) {
+                addCryptAttribute(serializer, node, "icon", node.getIconName(), node.getIconName(true));
+//                addAttribute(serializer, "icon", node.getIconName());
+            }
             addAttribute(serializer, "id", node.getId());
-            addCryptAttribute(serializer, node, "name", node.getName());
+            addCryptAttribute(serializer, node, "name", node.getName(), node.getName(true));
+//            addAttribute(serializer, "name", node.getName());
 
             if (node.getRecordsCount() > 0) {
                 saveRecords(serializer, node.getRecords());
@@ -554,10 +556,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = record.isCrypted();
             addAttribute(serializer, "id", record.getId());
-            addCryptAttribute(serializer, record, "name", record.getName());
-            addCryptAttribute(serializer, record, "author", record.getAuthor());
-            addCryptAttribute(serializer, record, "url", record.getUrl());
-            addCryptAttribute(serializer, record, "tags", record.getTagsString());
+            addCryptAttribute(serializer, record, "name", record.getName(), record.getName(true));
+//            addAttribute(serializer, "name", record.getName());
+            addCryptAttribute(serializer, record, "author", record.getAuthor(), record.getAuthor(true));
+//            addAttribute(serializer, "author", record.getAuthor());
+            addCryptAttribute(serializer, record, "url", record.getUrl(), record.getUrl(true));
+//            addAttribute(serializer, "url", record.getUrl());
+            addCryptAttribute(serializer, record, "tags", record.getTagsString(), record.getTagsString(true));
+//            addAttribute(serializer, "tags", record.getTagsString());
             addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
             addAttribute(serializer, "dir", record.getDirName());
             addAttribute(serializer, "file", record.getFileName());
@@ -586,7 +592,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
             boolean crypted = file.isCrypted();
             addAttribute(serializer, "id", file.getId());
-            addCryptAttribute(serializer, file, "fileName", file.getName());
+            addCryptAttribute(serializer, file, "fileName", file.getName(), file.getName(true));
+//            addAttribute(serializer, "fileName", file.getName());
             addAttribute(serializer, "type", file.getFileType());
             if (crypted) {
                 addAttribute(serializer, "crypt", "1");
@@ -603,12 +610,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         serializer.attribute(ns, name, value);
     }
 
-    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
-        addAttribute(serializer, name, cryptValue(obj.isCrypted() && obj.isDecrypted(), value));
-    }
+//    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
+//        addAttribute(serializer, name, cryptValue(obj.isCrypted() && obj.isDecrypted(), value));
+//    }
 
-    private String cryptValue(boolean needEncrypt, String value) {
-        return (needEncrypt) ? encryptField(value) : value;
+//    private String cryptValue(boolean needEncrypt, String value) {
+//        return (needEncrypt) ? encryptField(value) : value;
+//    }
+
+    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
+            throws IOException {
+        addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : value);
     }
 
     /**
@@ -685,16 +697,5 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     public int getMaxDepthLevel() {
         return mMaxDepthLevel;
     }
-
-//    public ICryptHandler getCryptCallback() {
-//        return mCryptCallback;
-//    }
-
-    /**
-     * Задание обработчика шифрования/расшифровки объектов
-     */
-//    public void setCryptHandler(ICryptHandler cryptCallback) {
-//        this.mCryptCallback = cryptCallback;
-//    }
 
 }

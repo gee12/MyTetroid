@@ -1,27 +1,11 @@
 package com.gee12.mytetroid.views;
 
-import android.view.View;
 import android.widget.SearchView;
 
 public abstract class SearchViewListener {
-//    private SearchView searchView;
 
     public SearchViewListener(SearchView searchView) {
-//        this.searchView = searchView;
-        searchView.setOnCloseListener(new android.widget.SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                OnClose();
-                return false;
-            }
-        });
-//        searchView.setOn
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OnSearch();
-            }
-        });
+        searchView.setOnSearchClickListener(v -> onSearch());
         searchView.setOnQueryTextListener(new android.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -34,9 +18,13 @@ public abstract class SearchViewListener {
                 return false;
             }
         });
+        searchView.setOnCloseListener(() -> {
+            onClose();
+            return false;
+        });
     }
 
-    public abstract void OnClose();
-    public abstract void OnSearch();
+    public abstract void onSearch();
     public abstract void onQuerySubmit(String query);
+    public abstract void onClose();
 }

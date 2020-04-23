@@ -39,7 +39,8 @@
     <string name="record_date_label">Дата:</string>
     <string name="pref_date_format_string">Формат даты</string>
     <string name="pref_date_format_string_summ">Формат для отображения даты/времени создания записи</string>
-    <string name="folder_chooser_title">Каталог хранилища</string>
+    <string name="title_storage_folder">Каталог хранилища</string>
+    <string name="title_record_folder">Каталог записи</string>
     <string name="app_summ_html"><![CDATA[Просмотрщик хранилища полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="title_about_app">О приложении</string>
     <string name="license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
@@ -155,7 +156,7 @@
     <string name="stats_tags_count">Меток:</string>
     <string name="stats_unique_tags_count">Из них уникальных:</string>
     <string name="stats_authors_count">Авторов:</string>
-    <string name="log_missing_file_manager">Отсутствует файловый менеджер</string>
+    <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
     <string name="log_error_read_record_file">Ошибка чтения файла записи:&#160;</string>
     <string name="log_error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
     <string name="log_error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
@@ -344,4 +345,11 @@
     <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
     <string name="confirm_selected_images">Выбрать</string>
     <string name="title_gallery">Галерея</string>
+    <string name="error_record_file_reading">Не удалось прочитать файл записи (подробнее в логах)</string>
+    <string name="error_record_file_decrypting">Не удалось расшифровать файл записи (подробнее в логах)</string>
+    <string name="title_search_text">Поиск текста</string>
+    <string name="search_text_hint">Найти</string>
+    <string name="log_n_matches_found">Найдено %d совпадений</string>
+    <string name="log_matches_not_found">Совпадений не найдено</string>
+    <string name="record_folder_path">Путь к каталогу записи</string>
 </resources>

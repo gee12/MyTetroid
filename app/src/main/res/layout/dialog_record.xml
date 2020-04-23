@@ -8,12 +8,12 @@
 
     <TextView
         android:text="@string/label_name"
-        style="@style/DialogLabels"/>
+        style="@style/dialog_labels"/>
 
     <EditText
         android:id="@+id/edit_text_name"
         android:inputType="text|textCapSentences"
-        style="@style/DialogTextEdit">
+        style="@style/dialog_text_edit">
 
         <requestFocus/>
 
@@ -21,29 +21,29 @@
 
     <TextView
         android:text="@string/label_author"
-        style="@style/DialogLabels"/>
+        style="@style/dialog_labels"/>
 
     <EditText
         android:id="@+id/edit_text_author"
         android:inputType="text|textCapWords"
-        style="@style/DialogTextEdit"/>
+        style="@style/dialog_text_edit"/>
 
     <TextView
         android:text="@string/label_url"
-        style="@style/DialogLabels"/>
+        style="@style/dialog_labels"/>
 
     <EditText
         android:id="@+id/edit_text_url"
         android:inputType="textUri"
-        style="@style/DialogTextEdit"/>
+        style="@style/dialog_text_edit"/>
 
     <TextView
         android:text="@string/label_tags"
-        style="@style/DialogLabels"/>
+        style="@style/dialog_labels"/>
 
     <EditText
         android:id="@+id/edit_text_tags"
         android:inputType="text"
-        style="@style/DialogTextEdit"/>
+        style="@style/dialog_text_edit"/>
 
 </LinearLayout>

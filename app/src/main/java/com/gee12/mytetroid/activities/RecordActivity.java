@@ -1,27 +1,30 @@
 package com.gee12.mytetroid.activities;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -32,6 +35,8 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -43,6 +48,8 @@ import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.RecordAskDialogs;
+import com.gee12.mytetroid.views.SearchViewXListener;
+import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
@@ -79,17 +86,21 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_SHOW_TAG = 4;
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
-    //    private RelativeLayout mFieldsLayout;
     private ExpandableLayout mFieldsExpanderLayout;
-    private FloatingActionButton mFabFieldsToggle;
+    private FloatingActionButton mButtonToggleFields;
     private WebView mWebViewTags;
     private ScrollView mScrollViewHtml;
-    private EditText mEditTextHtml;
+    private TetroidEditText mEditTextHtml;
     private TextView mTvAuthor;
     private TextView mTvUrl;
     private TextView mTvDate;
     private ImageButton mButtonFieldsEdit;
+    protected ProgressBar mHtmlProgressBar;
     private TetroidEditor mEditor;
+    private FloatingActionButton mButtonScrollBottom;
+    private FloatingActionButton mButtonScrollTop;
+    private FloatingActionButton mButtonFindNext;
+    private FloatingActionButton mButtonFindPrev;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
 //    private MenuItem mMenuItemSave;
@@ -97,14 +108,22 @@ public class RecordActivity extends TetroidActivity implements
 //    private MenuItem miCurNode;
 //    private MenuItem miAttachedFiles;
 //    private MenuItem miCurRecordFolder;
+
     private TetroidRecord mRecord;
     private int mCurMode;
     private boolean mIsFirstLoad = true;
     private boolean mIsFieldsEdited;
+    private TextFindListener mFindListener;
+    private SearchView mSearchView;
 
 
     public RecordActivity() {
-        super(R.layout.activity_record);
+        super();
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_record;
     }
 
     @Override
@@ -114,6 +133,7 @@ public class RecordActivity extends TetroidActivity implements
         String recordId = getIntent().getStringExtra(EXTRA_OBJECT_ID);
         if (recordId == null) {
             LogManager.addLog(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            finish();
             return;
         }
         // получаем запись
@@ -124,21 +144,15 @@ public class RecordActivity extends TetroidActivity implements
             return;
         } else {
             setTitle(mRecord.getName());
-//            setSubtitle(getResources().getStringArray(R.array.view_type_titles)[1]);
         }
 
-//        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this));
-
-        this.mEditor = findViewById(R.id.web_view_record_text);
-//        mEditor.setImagesFolder(DataManager.getPathToRecordFolder(mRecord));
+        this.mEditor = findViewById(R.id.html_editor);
         mEditor.setImgPickerCallback(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.getWebView().setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
         EditableWebView webView = mEditor.getWebView();
-        webView.getSettings().setBuiltInZoomControls(true);
-        webView.getSettings().setDisplayZoomControls(false);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
@@ -159,17 +173,37 @@ public class RecordActivity extends TetroidActivity implements
         this.mFieldsExpanderLayout = findViewById(R.id.layout_fields_expander);
 //        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
 //        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mFieldsExpanderLayout.toggle());
-        this.mFabFieldsToggle = findViewById(R.id.button_toggle_fields);
-        mFabFieldsToggle.setOnClickListener(v -> toggleRecordFieldsVisibility());
+        this.mButtonToggleFields = findViewById(R.id.button_toggle_fields);
+        mButtonToggleFields.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
-
+//        ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
         this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
         mButtonFieldsEdit.setOnClickListener(v -> editFields());
+
+        this.mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
+        this.mButtonScrollTop = findViewById(R.id.button_scroll_top);
+        // прокидывание кнопок пролистывания в редактор
+        mEditor.initScrollButtons(mButtonScrollBottom, mButtonScrollTop);
+
+        this.mButtonFindNext = findViewById(R.id.button_find_next);
+        mButtonFindNext.setOnClickListener(v -> findNext());
+        this.mButtonFindPrev = findViewById(R.id.button_find_prev);
+        mButtonFindPrev.setOnClickListener(v -> findPrev());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.mFindListener = new TextFindListener();
+            mEditor.getWebView().setFindListener(mFindListener);
+        } else {
+            // TODO: что здесь для API=15 ?
+        }
 
         this.mScrollViewHtml = findViewById(R.id.scroll_html);
         this.mEditTextHtml = findViewById(R.id.edit_text_html);
 //        mEditTextHtml.setOnTouchListener(this); // работает криво
-        mEditTextHtml.addTextChangedListener(mHtmlWatcher);
+        mEditTextHtml.setTetroidListener(new HtmlEditTextEditTextListener());
+        mEditTextHtml.initSearcher(mScrollViewHtml);
+
+        this.mHtmlProgressBar = findViewById(R.id.progress_bar);
 
         // не гасим экран, если установлена опция
         App.setKeepScreenOn(this);
@@ -234,20 +268,42 @@ public class RecordActivity extends TetroidActivity implements
         // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
         // и не используется авто-сохранение изменений, то загружаем html-код из редактора
         // 2) если нет, то загружаем html-код из файла записи
-        String textHtml = (fromHtmlEditor && !SettingsManager.isRecordAutoSave())
-                ? mEditTextHtml.getText().toString()
-                : DataManager.getRecordHtmlTextDecrypted(record);
-//        mEditor.getWebView().clearAndFocusEditor();
+        String textHtml = null;
+        if (fromHtmlEditor && !SettingsManager.isRecordAutoSave()) {
+            textHtml = mEditTextHtml.getText().toString();
+        } else {
+            if (!record.isNew()) {
+                textHtml = DataManager.getRecordHtmlTextDecrypted(record);
+                if (textHtml == null) {
+//                    int mesId = (record.isCrypted() && CryptManager.getErrorCode() > 0)
+//                            ? R.string.error_record_file_decrypting : R.string.error_record_file_reading;
+//                    LogManager.addLog(mesId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
+                        LogManager.addLog(R.string.error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    }
+                }
+            }
+        }
+        mEditTextHtml.reset();
+        //        mEditor.getWebView().clearAndFocusEditor();
+        final String text = textHtml;
+//        runOnUiThread(() ->
         mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
-                textHtml, "text/html", "UTF-8", null);
+                text, "text/html", "UTF-8", null);
+//        );
+//        mEditor.getWebView().reload();
+//        mEditor.getWebView().invalidate();
     }
 
     /**
      * Событие запуска загрузки страницы.
      */
     @Override
-    public void onPageStartLoading() {
+    public void onStartPageLoading() {
+    }
 
+    @Override
+    public void onPageLoading(int progress) {
     }
 
     /**
@@ -269,6 +325,22 @@ public class RecordActivity extends TetroidActivity implements
             // переключаем только views
             switchViews(mCurMode);
         }
+    }
+
+    /**
+     * Событие начала загрузки Javascript-кода для редактирования текста.
+     */
+    @Override
+    public void onStartEditorJSLoading() {
+//        setProgressVisibility(true);
+    }
+
+    /**
+     * Событие окончания загрузки Javascript-кода для редактирования текста.
+     */
+    @Override
+    public void onEditorJSLoaded() {
+//        setProgressVisibility(false);
     }
 
     /**
@@ -428,21 +500,46 @@ public class RecordActivity extends TetroidActivity implements
 
     private void toggleRecordFieldsVisibility() {
         mFieldsExpanderLayout.toggle();
+
         if (mFieldsExpanderLayout.isExpanded()) {
-            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_up);
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up);
         } else {
-            mFabFieldsToggle.setImageResource(R.drawable.ic_arrow_drop_down);
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down);
         }
+        updateScrollButtonLocation();
+    }
+
+    private void updateScrollButtonLocation() {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
+//        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
+        float density = getResources().getDisplayMetrics().density;
+        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
+
+        if (mFieldsExpanderLayout.isExpanded()) {
+//            params.topMargin = fabMargin;
+            params.addRule(RelativeLayout.ALIGN_TOP, R.id.html_editor);
+//            params.topMargin = fabMargin;
+        } else {
+//            int aboveButtonHeight = (int) (mButtonToggleFields.getMeasuredHeight() / density);
+//            params.topMargin = fabMargin + aboveButtonHeight + fabMargin;
+//            params.rightMargin = fabMargin; // для совпадения с mButtonToggleFields
+            params.addRule(RelativeLayout.BELOW, R.id.button_toggle_fields);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_TOP);
+            }
+//            params.topMargin = 0;
+        }
+        mButtonScrollTop.setLayoutParams(params);
     }
 
     private void setRecordFieldsVisibility(boolean isVisible) {
 //        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
         if (isVisible) {
             mFieldsExpanderLayout.setVisibility(View.VISIBLE);
-            mFabFieldsToggle.show();
+            mButtonToggleFields.show();
         } else {
             mFieldsExpanderLayout.setVisibility(View.GONE);
-            mFabFieldsToggle.hide();
+            mButtonToggleFields.hide();
         }
     }
 
@@ -646,11 +743,18 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemHtml.setVisible(true);
 //                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
+                mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.record_subtitle_view));
                 ViewUtils.hideKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
+                // загружаем Javascript (если нужно)
+//                if (!mEditor.getWebView().isEditorJSLoaded()) {
+//                    setProgressVisibility(true);
+//                }
+                mEditor.getWebView().loadEditorJSScript(false);
+
                 mEditor.setToolBarVisibility(true);
                 mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(false);
@@ -659,17 +763,25 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemHtml.setVisible(true);
 //                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
+                mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.record_subtitle_edit));
                 mEditor.getWebView().focusEditor();
 //                ViewUtils.showKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
-                String htmlText = mEditor.getWebView().getEditableHtml();
-                mEditTextHtml.setText(htmlText);
+                if (mEditor.getWebView().isHtmlRequestMade()) {
+                    String htmlText = mEditor.getWebView().getEditableHtml();
+                    mEditTextHtml.setText(htmlText);
+                } else {
+                    setProgressVisibility(true);
+                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
+                    mEditor.getWebView().loadEditorJSScript(true);
+
+                }
 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.setVisibility(View.VISIBLE);
-                mEditTextHtml.requestFocus();
+//                mEditTextHtml.requestFocus();
                 setRecordFieldsVisibility(false);
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
@@ -706,7 +818,11 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-        mEditTextHtml.setText(htmlText);
+        runOnUiThread(() -> {
+            mEditTextHtml.setText(htmlText);
+            mEditTextHtml.requestFocus();
+//            setProgressVisibility(false);
+        });
     }
 
     private void editFields() {
@@ -715,10 +831,85 @@ public class RecordActivity extends TetroidActivity implements
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
+                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         });
+    }
+
+
+    /**
+     * Поиск по тексту записи..
+     * @param query
+     */
+    private void searchInRecordText(String query) {
+        TetroidSuggestionProvider.saveRecentQuery(this, query);
+        if (mCurMode == MODE_HTML) {
+            int matches = mEditTextHtml.getSearcher().findAll(query);
+            if (matches >= 0) {
+                onFindTextResult(matches);
+            }
+        } else {
+            mEditor.searchText(query);
+        }
+        // сбрасываем счетчик совпадений от прежнего поиска
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            mFindListener.reset();
+        }
+    }
+
+    private void findPrev() {
+        if (mCurMode == MODE_HTML) {
+            mEditTextHtml.getSearcher().prevMatch();
+        } else {
+            mEditor.prevMatch();
+        }
+    }
+
+    private void findNext() {
+        if (mCurMode == MODE_HTML) {
+            mEditTextHtml.getSearcher().nextMatch();
+        } else {
+            mEditor.nextMatch();
+        }
+    }
+
+    private void stopSearch() {
+        if (mCurMode == MODE_HTML) {
+            mEditTextHtml.getSearcher().stopSearch();
+        } else {
+            mEditor.stopSearch();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    class TextFindListener implements WebView.FindListener {
+        boolean isStartSearch = true;
+
+        @Override
+        public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
+            if (isDoneCounting && isStartSearch) {
+                this.isStartSearch = false;
+                onFindTextResult(numberOfMatches);
+            } else {
+
+            }
+        }
+
+        void reset() {
+            this.isStartSearch = true;
+        }
+    }
+
+    public void onFindTextResult(int matches) {
+        if (matches > 0) {
+            LogManager.addLog(String.format(getString(R.string.log_n_matches_found), matches),
+                    LogManager.Types.INFO, false, Toast.LENGTH_LONG);
+        } else {
+            LogManager.addLog(getString(R.string.log_matches_not_found),
+                    LogManager.Types.INFO, false, Toast.LENGTH_LONG);
+        }
     }
 
     /**
@@ -794,8 +985,107 @@ public class RecordActivity extends TetroidActivity implements
         this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
 //        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
+        initSearchView(menu);
+
         onMenuLoaded();
         return true;
+    }
+
+    /**
+     * Инициализация элементов для поиска.
+     * @param menu
+     */
+    public void initSearchView(Menu menu) {
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        this.mSearchView = (SearchView) menu.findItem(R.id.action_search_text).getActionView();
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        mSearchView.setIconifiedByDefault(true);
+        // добавлять кнопки справа в выпадающем списке предложений (suggestions), чтобы вставить выбранное
+        // предложение в строку запроса для дальнейшего уточнения (изменения), а не для поиска по нему
+        mSearchView.setQueryRefinementEnabled(true);
+        new SearchViewXListener(mSearchView) {
+            @Override
+            public void onSearchClick() { }
+            @Override
+            public void onQuerySubmit(String query) {
+                searchInRecordText(query);
+                setFindButtonsVisibility(true);
+            }
+            @Override
+            public void onSuggestionSelectOrClick(String query) {
+//                searchInRecordText(query);
+//                setFindButtonsVisibility(true);
+                mSearchView.setQuery(query, true);
+            }
+            @Override
+            public void onClose() {
+                setFindButtonsVisibility(false);
+                stopSearch();
+            }
+        };
+
+        /*searchView.setOnQuindexindexindexeryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                setFindButtonsVisibility(true);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                setFindButtonsVisibility(true);
+                return false;
+            }
+            @Override
+            public boolean onSuggestionClick(int position) {
+                setFindButtonsVisibility(true);
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(() -> {
+            setFindButtonsVisibility(false);
+            return false;
+        });*/
+    }
+
+    /**
+     * Установка видимости и позиционирования Fab кнопок при включении/выключении режима поиска.
+     * @param vis
+     */
+    public void setFindButtonsVisibility(boolean vis) {
+        ViewUtils.setFabVisibility(mButtonFindNext, vis);
+        ViewUtils.setFabVisibility(mButtonFindPrev, vis);
+        setRecordFieldsVisibility(!vis);
+        // установим позиционирование кнопки FindNext от правого края
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonFindNext.getLayoutParams();
+        if (vis) {
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.RIGHT_OF);
+            }
+        } else {
+            params.addRule(RelativeLayout.RIGHT_OF, R.id.button_toggle_fields);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            }
+        }
+        mButtonFindNext.setLayoutParams(params);
+        // установим позиционирование кнопки ScrollToTop от кнопки FindNext
+        if (vis) {
+            params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
+            params.addRule(RelativeLayout.BELOW, R.id.button_find_next);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_TOP);
+            }
+            mButtonScrollTop.setLayoutParams(params);
+        } else {
+            updateScrollButtonLocation();
+        }
     }
 
     /**
@@ -873,6 +1163,18 @@ public class RecordActivity extends TetroidActivity implements
         startActivityForResult(intent, requestCode);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        // обработка результата голосового поиска
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+//            searchInRecordText(query);
+//            setFindButtonsVisibility(true);
+            mSearchView.setQuery(query, true);
+        }
+        super.onNewIntent(intent);
+    }
+
     /**
      * Обработчик нажатия кнопки Назад.
      */
@@ -895,22 +1197,26 @@ public class RecordActivity extends TetroidActivity implements
         super.onStop();
     }
 
-    private TextWatcher mHtmlWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    public void setProgressVisibility(boolean vis) {
+        mHtmlProgressBar.setVisibility(ViewUtils.toVisibility(vis));
+    }
 
+    /**
+     *
+     */
+    private class HtmlEditTextEditTextListener implements TetroidEditText.ITetroidEditTextListener {
+
+        @Override
+        public void onAfterTextInited() {
+            if (mCurMode == MODE_HTML) {
+                setProgressVisibility(false);
+            }
         }
-
         @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
+        public void onAfterTextChanged() {
             if (mCurMode == MODE_HTML) {
                 mEditor.setIsEdited();
             }
         }
-    };
+    }
 }
