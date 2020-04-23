@@ -14,8 +14,8 @@ android {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 23
-        versionName "2.5"
+        versionCode 24
+        versionName "2.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 //    defaultConfig.applicationId = "com.gee12.mytetroid"
