@@ -352,4 +352,8 @@
     <string name="log_n_matches_found">Найдено %d совпадений</string>
     <string name="log_matches_not_found">Совпадений не найдено</string>
     <string name="record_folder_path">Путь к каталогу записи</string>
+    <string name="title_cut">Вырезать</string>
+    <string name="title_copy">Копировать</string>
+    <string name="title_insert">Вставить</string>
+    <string name="log_create_folder_error">Не удается создать каталог назначения:&#160;</string>
 </resources>

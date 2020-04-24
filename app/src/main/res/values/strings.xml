@@ -72,9 +72,11 @@
     <string name="show_attached_files">Attached files</string>
     <string name="open_record_folder">Open folder</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
+    <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
     <string name="temp_path">Temporary catalog</string>
     <string name="temp_path_summ">Temporary catalog path</string>
     <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
+    <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
     <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
     <string name="log_could_not_decrypt_file">Could not decrypt file</string>
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
@@ -394,4 +396,8 @@
     <string name="log_n_matches_found">%d matches found</string>
     <string name="log_matches_not_found">Matches not found</string>
     <string name="record_folder_path">Record folder path</string>
+    <string name="title_cut">Cut</string>
+    <string name="title_copy">Copy</string>
+    <string name="title_insert">Insert</string>
+    <string name="log_create_folder_error">Unable to create destination directory:&#160;</string>
 </resources>

@@ -24,6 +24,7 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -399,6 +400,22 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateTags();
     }
 
+    private void copyRecord() {
+        TetroidClipboard.copy(mCurRecord);
+    }
+
+    private void cutRecord() {
+        TetroidClipboard.cut(mCurRecord);
+        // удаляем запись из текущей ветки
+
+    }
+
+    private void insertRecord() {
+        TetroidClipboard clipboard = TetroidClipboard.get();
+        // вставляем запись в текущую ветку
+
+    }
+
     /**
      * Копирование ссылки на запись в буфер обмена.
      * @param record
@@ -596,6 +613,15 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case R.id.action_record_edit_fields:
                 editRecordFields(record);
+                return true;
+            case R.id.action_copy:
+                copyRecord();
+                return true;
+            case R.id.action_cut:
+                cutRecord();
+                return true;
+            case R.id.action_insert:
+                insertRecord();
                 return true;
             case R.id.action_attached_files:
                 showRecordFiles(record);

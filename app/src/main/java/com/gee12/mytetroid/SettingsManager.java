@@ -29,8 +29,8 @@ public class SettingsManager {
 //        if (getStoragePath() == null) {
 //            setStoragePath(Utils.getExternalPublicDocsDir());
 //        }
-        if (getTempPath() == null) {
-            setTempPath(FileUtils.getAppExternalFilesDir(context));
+        if (getTrashPath() == null) {
+            setTrashPath(FileUtils.getAppExternalFilesDir(context));
         }
         if (getLogPath() == null) {
             setLogPath(FileUtils.getAppExternalFilesDir(context));
@@ -161,16 +161,36 @@ public class SettingsManager {
     }
 
     /**
-     * Путь к временному каталогу
+     * Путь к каталогу корзины.
      * @return
      */
-    public static String getTempPath() {
+    public static String getTrashPath() {
         return getString(R.string.pref_key_temp_path, null);
     }
 
-    public static void setTempPath(String value) {
+    public static void setTrashPath(String value) {
         setString(R.string.pref_key_temp_path, value);
     }
+
+//    /**
+//     *
+//     * @return
+//     */
+//    public static boolean isUseTrash() {
+//        return getBoolean(R.string.pref_key_is_use_trash, false);
+//    }
+//
+//    /**
+//     * Путь к каталогу корзины.
+//     * @return
+//     */
+//    public static String getTrashPath() {
+//        return getString(R.string.pref_key_trash_path, null);
+//    }
+//
+//    public static void setTrashPath(String value) {
+//        setString(R.string.pref_key_trash_path, value);
+//    }
 
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы?

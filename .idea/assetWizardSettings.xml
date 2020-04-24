@@ -215,7 +215,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/hardware/ic_keyboard_arrow_up_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/action/ic_assignment_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -225,8 +225,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_arrow_prev" />
+                            <entry key="color" value="eeeeee" />
+                            <entry key="outputName" value="ic_insert" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>

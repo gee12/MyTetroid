@@ -152,12 +152,45 @@ public class FileUtils {
      * @param fileOrDirectory
      */
     public static boolean deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory == null)
+            return false;
         if (fileOrDirectory.isDirectory())
             for (File child : fileOrDirectory.listFiles())
                 if (!deleteRecursive(child))
                     return false;
-
         return fileOrDirectory.delete();
+    }
+
+    /**
+     * Перемещение файла или каталога с файлами/подкаталогами.
+     * @param srcFile
+     */
+    public static boolean moveToDirRecursive(File srcFile, File destDir) {
+        if (srcFile == null || destDir == null)
+            return false;
+        if (srcFile.isDirectory())
+            for (File child : srcFile.listFiles())
+                if (!moveToDirRecursive(child, destDir))
+                    return false;
+//        Files.move(srcFile.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        File destFile = new File(destDir.getPath() + File.separator + srcFile.getName());
+        return srcFile.renameTo(destFile);
+    }
+
+    /**
+     * Создание каталога, если его еще не существует.
+     * @param dir
+     * @return
+     */
+    public static boolean createDirIfNeed(File dir) {
+        if (dir == null)
+            return false;
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
