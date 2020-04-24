@@ -108,7 +108,7 @@ public class DataManager extends XMLManager {
         context = ctx;
         DataManager.instance = new DataManager();
         // FIXME: здесь вылезла ошибка проектирования архитектуры классов (?)
-//        DataManager.instance.setCryptHandler(instance);
+//        DataManager.mInstance.setCryptHandler(mInstance);
 
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
@@ -139,7 +139,7 @@ public class DataManager extends XMLManager {
             res = instance.parse(fis, isDecrypt);
 
 //            if (BuildConfig.DEBUG) {
-//                TestData.addNodes(instance.mRootNodesList, 100, 100);
+//                TestData.addNodes(mInstance.mRootNodesList, 100, 100);
 //            }
 
         } catch (Exception ex) {
@@ -236,7 +236,7 @@ public class DataManager extends XMLManager {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = SettingsManager.getTempPath() + SEPAR + record.getDirName()
+                path = SettingsManager.getTrashPath() + SEPAR + record.getDirName()
                         + SEPAR +record.getFileName();
             }
         } else {
@@ -397,13 +397,13 @@ public class DataManager extends XMLManager {
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
-                String tempFolderPath = SettingsManager.getTempPath() + SEPAR + record.getDirName();
+                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
                 File tempFolder = new File(tempFolderPath);
                 if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                     LogManager.addLog(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
                 }
                 File tempFile = new File(tempFolder, fileIdName);
-//                File tempFile = new File(getTempPath()+File.separator, fileIdName);
+//                File tempFile = new File(getTrashPath()+File.separator, fileIdName);
 
                 // расшифровываем во временный файл
                 try {
@@ -964,6 +964,23 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      */
     public static int deleteRecord(TetroidRecord record, boolean withoutDir) {
+        String trashPath = (!withoutDir)
+                ? SettingsManager.getTrashPath() : null;
+        return deleteRecord(record, withoutDir, trashPath);
+    }
+
+    /**
+     * Вырезание записи.
+     * @param record
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     */
+    public static int cutRecord(TetroidRecord record) {
+        return deleteRecord(record, false, SettingsManager.getTrashPath());
+    }
+
+    public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
             return 0;
@@ -1011,11 +1028,26 @@ public class DataManager extends XMLManager {
             return 0;
         }
 
-        // удаляем каталог записи
         if (!withoutDir) {
-            if (!FileUtils.deleteRecursive(folder)) {
-                LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
-                return 0;
+            if (movePath == null) {
+                // удаляем каталог записи
+                if (!FileUtils.deleteRecursive(folder)) {
+                    LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+                    return 0;
+                }
+            } else {
+                // проверяем каталог назначения для перемещения в него
+                File moveDirFile = new File(movePath);
+                if (!FileUtils.createDirIfNeed(moveDirFile)) {
+                    LogManager.addLog(context.getString(R.string.log_create_folder_error) + movePath, LogManager.Types.ERROR);
+                    return 0;
+                }
+                // перемещаем каталог записи
+                if (!FileUtils.moveToDirRecursive(folder, moveDirFile)) {
+                    LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+                    return 0;
+                }
+
             }
         }
         return 1;
@@ -1548,12 +1580,12 @@ public class DataManager extends XMLManager {
     }
 
     public static Map<String,TetroidTag> getTags() {
-//        return instance.tagsList;
+//        return mInstance.tagsList;
         return instance.mTagsMap;
     }
 
     public static Collection<TetroidTag> getTagsValues() {
-//        return instance.tagsList;
+//        return mInstance.tagsList;
         return instance.mTagsMap.values();
     }
 

@@ -59,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
         tempFolderPicker.setOnPreferenceClickListener(preference -> {
             openFolderPicker(getString(R.string.temp_path),
-                    SettingsManager.getTempPath(),
+                    SettingsManager.getTrashPath(),
                     REQUEST_CODE_OPEN_TEMP_PATH);
             return true;
         });
@@ -73,7 +73,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         });
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
-        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTempPath());
+        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
     }
@@ -107,7 +107,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             updateSummary(R.string.pref_key_storage_path, folderFullName);
         }
         else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
-            SettingsManager.setTempPath(folderFullName);
+            SettingsManager.setTrashPath(folderFullName);
             SettingsManager.setLastChoosedFolder(folderFullName);
             updateSummary(R.string.pref_key_temp_path, folderFullName);
         }
