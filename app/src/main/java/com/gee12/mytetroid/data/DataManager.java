@@ -976,8 +976,8 @@ public class DataManager extends XMLManager {
      *         0 - ошибка
      *         -1 - ошибка (отсутствует каталог записи)
      */
-    public static int cutRecord(TetroidRecord record) {
-        return deleteRecord(record, false, SettingsManager.getTrashPath());
+    public static int cutRecord(TetroidRecord record, boolean withoutDir) {
+        return deleteRecord(record, withoutDir, SettingsManager.getTrashPath());
     }
 
     public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath) {
