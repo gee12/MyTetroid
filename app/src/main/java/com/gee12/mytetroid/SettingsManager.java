@@ -35,7 +35,6 @@ public class SettingsManager {
         if (getLogPath() == null) {
             setLogPath(FileUtils.getAppExternalFilesDir(context));
         }
-//        LastStoragePath = getStoragePath();
         SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
         SettingsManager.IsHighlightAttachCache = isHighlightRecordWithAttach();
         SettingsManager.DateFormatStringCache = getDateFormatString();

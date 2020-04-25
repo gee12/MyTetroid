@@ -37,7 +37,7 @@
     <string name="answer_ok">Ok</string>
     <string name="answer_cancel">Cancel</string>
     <string name="files_is_missing">Attach is missing</string>
-    <string name="pref_category_srorage">Storage</string>
+    <string name="pref_category_main">Main</string>
     <string name="pref_storage_path">Storage path</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
@@ -73,16 +73,16 @@
     <string name="open_record_folder">Open folder</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
     <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
-    <string name="temp_path">Temporary catalog</string>
-    <string name="temp_path_summ">Temporary catalog path</string>
+    <string name="trash_path">Trash catalog</string>
+    <string name="trash_path_summ">Trash catalog path</string>
     <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
     <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
     <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
     <string name="log_could_not_decrypt_file">Could not decrypt file</string>
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
-    <string name="decrypt_files_to_temp_dir">Decrypt files to directory</string>
-    <string name="decrypt_files_to_temp_dir_sum">Decrypt attachments to a temporary directory when previewing</string>
+    <string name="decrypt_files_to_trash_dir">Decrypt files to directory</string>
+    <string name="decrypt_files_to_trash_dir_sum">Decrypt attachments to a trash directory when previewing</string>
     <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="pref_category_display">Display</string>
     <string name="pref_key_is_write_log" translatable="false">pref_key_is_write_log</string>
@@ -256,13 +256,9 @@
     <string name="log_editing_crypted_records">Editing encrypted records is not implemented yet..</string>
     <string name="url_decode_error">Url decoding error:&#160;</string>
     <string name="log_before_record_save">Saving record with id=</string>
-    <string name="log_record_saved">Record saved</string>
-    <string name="log_record_save_error">Unable to save the record (more in the logs)</string>
-    <string name="log_record_create_error">Unable to create the record (more in the logs)</string>
-    <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>
-    <string name="log_record_delete_error">Unable to delete the record (more in the logs)</string>
-    <string name="log_file_delete_error">Unable to delete the file (more in the logs)</string>
-    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>
+<!--    <string name="log_record_saved">Record saved</string>-->
+<!--    <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>-->
+<!--    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>-->
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
     <string name="log_wrong_tag_link_format">Wrong tag link format</string>
     <string name="log_start_node_creating">Start node creating</string>
@@ -302,13 +298,19 @@
     <string name="log_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="log_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
     <string name="log_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
-    <string name="record_deleted">Record deleted</string>
-    <string name="file_deleted">File deleted</string>
-    <string name="show_node">Show node</string>
-    <string name="rename">Rename</string>
-    <string name="set_node_icon">Set icon</string>
-    <string name="encrypt_node">Encrypt</string>
-    <string name="decrypt_node">Decrypt</string>
+    <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
+    <string name="oper_res_node">Node was&#160;</string>
+    <string name="oper_res_node_fields">Node fields was&#160;</string>
+    <string name="oper_res_record">Record was&#160;</string>
+    <string name="oper_res_record_fields">Record fields was&#160;</string>
+    <string name="oper_res_file">File was&#160;</string>
+    <string name="oper_res_file_fields">File fields was&#160;</string>
+    <string name="oper_node">node</string>
+    <string name="oper_node_fields">node fields</string>
+    <string name="oper_record">record</string>
+    <string name="oper_record_fields">record fields</string>
+    <string name="oper_file">file</string>
+    <string name="oper_file_fields">file fields</string>
     <string name="expand_node_subnodes">Expand all subnodes</string>
     <string name="collapse_node_subnodes">Collapse all subnodes</string>
     <string name="create_subnode">Create subnode</string>
@@ -323,12 +325,8 @@
     <string name="link_to_tag">Link to MyTetroid tag</string>
     <string name="save_record">Save record ?</string>
     <string name="log_record_loading">Record loading id=</string>
-    <string name="log_node_delete_error">Unable to delete the node (more in the logs)</string>
     <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
-    <string name="log_node_move_error">Unable to move the node (more in the logs)</string>
     <string name="log_node_move_list_error">The node was moved, but an error occurred while updating the list. Reboot storage</string>
-    <string name="log_record_move_error">Unable to move the record (more in the logs)</string>
-    <string name="log_create_node_error">Unable to create the record (more in the logs)</string>
     <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
     <string name="open_tag_records">Open tag records</string>
     <string name="link_was_copied">Link was copied:&#160;</string>
@@ -337,18 +335,13 @@
     <string name="log_create_record_dir_error">Record directory creating failed</string>
     <string name="log_check_record_dir_error">Record directory checking failed</string>
     <string name="tag_name_is_empty">Tag name is empty</string>
-    <string name="node_was_renamed">The node was renamed</string>
-    <string name="node_was_deleted">The node was deleted</string>
-    <string name="node_was_moved">The node was moved</string>
-    <string name="node_was_created">The node was created</string>
-    <string name="record_was_moved">The record was moved</string>
     <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
     <string name="log_file_is_absent">File is absent:</string>
     <string name="log_file_checking_error">Error checking file existence:</string>
     <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>
     <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>
     <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
-    <string name="log_record_fields_edited">Свойства записи изменены</string>
+<!--    <string name="log_record_fields_edited">Свойства записи изменены</string>-->
     <string name="log_file_was_attached">File was attached</string>
     <string name="open_file">Open file</string>
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
@@ -396,8 +389,33 @@
     <string name="log_n_matches_found">%d matches found</string>
     <string name="log_matches_not_found">Matches not found</string>
     <string name="record_folder_path">Record folder path</string>
+    <string name="title_show_node">Show node</string>
+    <string name="title_set_node_icon">Set icon</string>
+    <string name="title_encrypt_node">Encrypt</string>
+    <string name="title_decrypt_node">Decrypt</string>
+    <string name="title_rename">Rename</string>
     <string name="title_cut">Cut</string>
     <string name="title_copy">Copy</string>
     <string name="title_insert">Insert</string>
     <string name="log_create_folder_error">Unable to create destination directory:&#160;</string>
+    <string name="create">create</string>
+    <string name="add">add</string>
+    <string name="change">change</string>
+    <string name="rename">rename</string>
+    <string name="delete">delete</string>
+    <string name="copy">copy</string>
+    <string name="cut">cut</string>
+    <string name="insert">insert</string>
+    <string name="move">move</string>
+    <string name="save">save</string>
+    <string name="created">created</string>
+    <string name="added">added</string>
+    <string name="changed">changed</string>
+    <string name="renamed">renamed</string>
+    <string name="deleted">deleted</string>
+    <string name="copied">copied</string>
+    <string name="cutted">cutted</string>
+    <string name="inserted">inserted</string>
+    <string name="moved">moved</string>
+    <string name="saved">saved</string>
 </resources>

@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_open_node"
         android:orderInCategory="10"
-        android:title="@string/show_node"
+        android:title="@string/title_show_node"
         android:icon="@drawable/ic_open_node"
         app:showAsAction="always" />
     <item
@@ -22,13 +22,13 @@
     <item
         android:id="@+id/action_rename"
         android:orderInCategory="30"
-        android:title="@string/rename"
+        android:title="@string/title_rename"
         android:icon="@drawable/ic_edit"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_node_icon"
         android:orderInCategory="40"
-        android:title="@string/set_node_icon"
+        android:title="@string/title_set_node_icon"
         android:icon="@drawable/ic_node_icon"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
@@ -66,13 +66,13 @@
     <item
         android:id="@+id/action_encrypt_node"
         android:orderInCategory="60"
-        android:title="@string/encrypt_node"
+        android:title="@string/title_encrypt_node"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_decrypt_node"
         android:orderInCategory="70"
-        android:title="@string/decrypt_node"
+        android:title="@string/title_decrypt_node"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item

@@ -38,6 +38,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.adapters.NodesListAdapter;
@@ -1077,12 +1078,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode node = DataManager.createNode(name, trueParentNode);
             if (node != null) {
                 if (mListAdapterNodes.addItem(pos, isSubNode)) {
-                    LogManager.addLog(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                    LogManager.addLog(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
                 } else {
                     LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
-                LogManager.addLog(getString(R.string.log_create_node_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_create_node_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }
         });
     }
@@ -1120,13 +1123,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void renameNode(TetroidNode node) {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (DataManager.editNodeFields(node, name)) {
-                LogManager.addLog(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                LogManager.addLog(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
                 mListAdapterNodes.notifyDataSetChanged();
                 if (mCurNode == node) {
                     setTitle(name);
                 }
             } else {
-                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
             }
         });
     }
@@ -1142,7 +1147,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.deleteNode(node)) {
                 // удаляем элемент внутри списка
                 if (mListAdapterNodes.deleteItem(pos)) {
-                    LogManager.addLog(getString(R.string.node_was_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                    LogManager.addLog(getString(R.string.node_was_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
                 } else {
                     LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
@@ -1152,7 +1158,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     this.mCurNode = null;
                 }
             } else {
-                LogManager.addLog(getString(R.string.log_node_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_node_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
             }
         });
     }
@@ -1192,12 +1199,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (res > 0) {
                 // меняем местами элементы внутри списка
                 if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
-                    LogManager.addLog(getString(R.string.node_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                    LogManager.addLog(getString(R.string.node_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
                 } else {
                     LogManager.addLog(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else if (res < 0) {
-                LogManager.addLog(getString(R.string.log_node_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_node_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
             }
         }
     }

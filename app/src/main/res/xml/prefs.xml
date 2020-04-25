@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_key_screen">
 
-    <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_srorage">
+    <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_main">
 
         <Preference
             android:key="@string/pref_key_storage_path"
@@ -13,6 +13,11 @@
             android:title="@string/pref_is_load_last_storage_path"
             android:summary="@string/pref_is_load_last_storage_path_summ"
             android:defaultValue="true" />
+
+        <Preference
+            android:key="@string/pref_key_temp_path"
+            android:title="@string/trash_path"
+            android:summary="@string/trash_path_summ" />
 
     </PreferenceCategory>
 
@@ -35,15 +40,9 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_decrypt_in_temp"
-            android:title="@string/decrypt_files_to_temp_dir"
-            android:summary="@string/decrypt_files_to_temp_dir_sum"
+            android:title="@string/decrypt_files_to_trash_dir"
+            android:summary="@string/decrypt_files_to_trash_dir_sum"
             android:defaultValue="false" />
-
-        <Preference
-            android:dependency="@string/pref_key_is_decrypt_in_temp"
-            android:key="@string/pref_key_temp_path"
-            android:title="@string/temp_path"
-            android:summary="@string/temp_path_summ" />
 
     </PreferenceCategory>
 

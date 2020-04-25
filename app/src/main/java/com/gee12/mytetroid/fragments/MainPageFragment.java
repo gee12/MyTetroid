@@ -21,6 +21,7 @@ import androidx.core.view.GestureDetectorCompat;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
@@ -245,7 +246,8 @@ public class MainPageFragment extends TetroidFragment {
                 mMainView.updateNodes();
                 showRecord(record);
             } else {
-                LogManager.addLog(getString(R.string.log_record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             }
         });
     }
@@ -260,10 +262,10 @@ public class MainPageFragment extends TetroidFragment {
             if (res == -1) {
                 RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
                     int res1 = DataManager.deleteRecord(record, true);
-                    onDeleteRecordResult(record, res1);
+                    onDeleteRecordResult(record, res1, false);
                 });
             } else {
-                onDeleteRecordResult(record, res);
+                onDeleteRecordResult(record, res, false);
             }
         });
     }
@@ -273,7 +275,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      * @param res
      */
-    private void onDeleteRecordResult(TetroidRecord record, int res) {
+    private void onDeleteRecordResult(TetroidRecord record, int res, boolean isCutted) {
         if (res > 0) {
             mListAdapterRecords.getDataSet().remove(record);
             mListAdapterRecords.notifyDataSetChanged();
@@ -281,14 +283,18 @@ public class MainPageFragment extends TetroidFragment {
             mMainView.updateNodes();
             this.mCurRecord = null;
             mListViewFiles.setAdapter(null);
-            LogManager.addLog(getString(R.string.record_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            String s = getString(R.string.oper_res_record) + getString((isCutted) ? R.string.cutted : R.string.deleted);
+//            LogManager.addLog(s, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
             // переходим в список записей ветки после удаления
             // (запись может быть удалена при поппытке просмотра/изменения файла, например)
             if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
                 showView(MAIN_VIEW_NODE_RECORDS);
             }
         } else {
-            LogManager.addLog(getString(R.string.log_record_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            String s = getString(R.string.oper_res_record) + getString((isCutted) ? R.string.cut : R.string.delete);
+//            LogManager.addLog(getString(R.string.log_oper_error_mask), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
         }
     }
 
@@ -301,9 +307,12 @@ public class MainPageFragment extends TetroidFragment {
         int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
         if (res > 0) {
             mListAdapterRecords.notifyDataSetChanged();
-            LogManager.addLog(getString(R.string.record_was_moved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            String s = getString(R.string.oper_res_record) + getString(R.string.moved);
+//            LogManager.addLog(s, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
         } else if (res < 0) {
-            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.addLog(getString(R.string.log_record_move_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
         }
     }
 
@@ -385,9 +394,11 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (DataManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
-                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                TetroidLog.addOperResLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }
@@ -400,17 +411,37 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.updateTags();
     }
 
-    private void copyRecord() {
-        TetroidClipboard.copy(mCurRecord);
+    /**
+     * Копирование записи.
+     * @param record
+     */
+    private void copyRecord(TetroidRecord record) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.copy(record);
     }
 
-    private void cutRecord() {
-        TetroidClipboard.cut(mCurRecord);
+    /**
+     * Вырезание записи из ветки.
+     * @param record
+     */
+    private void cutRecord(TetroidRecord record) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.cut(record);
         // удаляем запись из текущей ветки
-
+        int res = DataManager.cutRecord(record, false);
+        if (res == -1) {
+            int res1 = DataManager.cutRecord(record, true);
+            onDeleteRecordResult(record, res1, true);
+        } else {
+            onDeleteRecordResult(record, res, true);
+        }
     }
 
+    /**
+     * Вставка записи в ветку.
+     */
     private void insertRecord() {
+        // получаем запись из "буфера обмена"
         TetroidClipboard clipboard = TetroidClipboard.get();
         // вставляем запись в текущую ветку
 
@@ -467,9 +498,12 @@ public class MainPageFragment extends TetroidFragment {
             if (mCurRecord.getAttachedFilesCount() <= 0) {
                 mListAdapterRecords.notifyDataSetInvalidated();
             }
-            LogManager.addLog(getString(R.string.file_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            String s = getString(R.string.oper_res_file) + getString(R.string.deleted);
+//            LogManager.addLog(s, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
         } else {
-            LogManager.addLog(getString(R.string.log_file_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.addLog(getString(R.string.log_file_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
         }
     }
 
@@ -493,7 +527,7 @@ public class MainPageFragment extends TetroidFragment {
 
                 FileAskDialogs.renameAttachWithoutDir(getContext(), () -> {
                     int res1 = DataManager.deleteRecord(file.getRecord(), true);
-                    onDeleteRecordResult(file.getRecord(), res1);
+                    onDeleteRecordResult(file.getRecord(), res1, false);
                 });
             } else {
                 onRenameFileResult(file, res);
@@ -508,10 +542,12 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void onRenameFileResult(TetroidFile  file, int res) {
         if (res > 0) {
-            LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            LogManager.addLog(getString(R.string.file_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
             mListAdapterFiles.notifyDataSetChanged();
         } else {
-            LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.addLog(getString(R.string.log_file_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
         }
     }
 
@@ -615,10 +651,10 @@ public class MainPageFragment extends TetroidFragment {
                 editRecordFields(record);
                 return true;
             case R.id.action_copy:
-                copyRecord();
+                copyRecord(record);
                 return true;
             case R.id.action_cut:
-                cutRecord();
+                cutRecord(record);
                 return true;
             case R.id.action_insert:
                 insertRecord();

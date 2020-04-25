@@ -35,7 +35,7 @@ public class LogManager {
     //  и не хранить context в static (получать всегда параметром)
 //    private static LogManager instance;
 
-    private static Context context;
+    protected static Context context;
     private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;

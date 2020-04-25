@@ -35,6 +35,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
@@ -548,11 +549,13 @@ public class RecordActivity extends TetroidActivity implements
         String htmlText = (mCurMode == MODE_HTML)
                 ? mEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
-            LogManager.addLog(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            LogManager.addLog(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
         } else {
-            LogManager.addLog(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.addLog(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
         }
     }
 
@@ -831,9 +834,11 @@ public class RecordActivity extends TetroidActivity implements
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
-                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }
@@ -931,11 +936,9 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void setResultFieldsEdited() {
         if (mIsFieldsEdited) {
-            if (mIsFieldsEdited) {
-                Intent intent = new Intent();
-                intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
-                setResult(RESULT_OK, intent);
-            }
+            Intent intent = new Intent();
+            intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
+            setResult(RESULT_OK, intent);
         }
     }
 
