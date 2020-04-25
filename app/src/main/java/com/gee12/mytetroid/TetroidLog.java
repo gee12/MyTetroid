@@ -4,60 +4,77 @@ import android.widget.Toast;
 
 public class TetroidLog extends LogManager {
 
+    public static final int PRESENT_SIMPLE = 0;
+    public static final int PAST_PERFECT = 1;
+    public static final int PRESENT_CONTINUOUS = 2;
+
     public enum Objs {
-        NODE (R.string.oper_node, R.string.oper_res_node),
-        NODE_FIELDS (R.string.oper_node_fields, R.string.oper_res_node_fields),
-        RECORD (R.string.oper_record, R.string.oper_res_record),
-        RECORD_FIELDS (R.string.oper_record_fields, R.string.oper_res_record_fields),
-        FILE (R.string.oper_file, R.string.oper_res_file),
-        FILE_FIELDS (R.string.oper_file_fields, R.string.oper_res_file_fields);
+        NODE (R.string.oper_simple_node, R.string.oper_past_node, R.string.oper_continuous_node),
+        NODE_FIELDS (R.string.oper_simple_node_fields, R.string.oper_past_node_fields, R.string.oper_continuous_node_fields),
+        RECORD (R.string.oper_simple_record, R.string.oper_past_record, R.string.oper_continuous_record),
+        RECORD_FIELDS (R.string.oper_simple_record_fields, R.string.oper_past_record_fields, R.string.oper_continuous_record_fields),
+        FILE (R.string.oper_simple_file, R.string.oper_past_file, R.string.oper_continuous_file),
+        FILE_FIELDS (R.string.oper_simple_file_fields, R.string.oper_past_file_fields, R.string.oper_continuous_file_fields);
 
-        int mRes;
-        int mResultRes;
+        int[] mRes = new int[3];
 
-        Objs(int res, int resres) {
-            this.mRes = res;
-            this.mResultRes = resres;
+        Objs(int simple, int perfect, int continuous) {
+            this.mRes[0] = simple;
+            this.mRes[1] = perfect;
+            this.mRes[2] = continuous;
         }
 
-        int getRes(boolean isResult) {
-            return (isResult) ? mResultRes : mRes;
+        int getResId(int tense) {
+            return (tense >= 0 && tense < 3) ? mRes[tense] : 0;
         }
     }
 
     public enum Opers {
-        CREATE (R.string.create, R.string.created),
-        ADD (R.string.add, R.string.added),
-        CHANGE (R.string.change, R.string.changed),
-        RENAME (R.string.rename, R.string.renamed),
-        DELETE (R.string.delete, R.string.deleted),
-        COPY (R.string.copy, R.string.copied),
-        CUT (R.string.cut, R.string.cutted),
-        INSERT (R.string.insert, R.string.inserted),
-        MOVE (R.string.move, R.string.moved),
-        SAVE (R.string.save, R.string.saved);
+        CREATE (R.string.create, R.string.created, R.string.creating),
+        ADD (R.string.add, R.string.added, R.string.adding),
+        CHANGE (R.string.change, R.string.changed, R.string.changing),
+        RENAME (R.string.rename, R.string.renamed, R.string.renaming),
+        DELETE (R.string.delete, R.string.deleted, R.string.deleting),
+        COPY (R.string.copy, R.string.copied, R.string.copying),
+        CUT (R.string.cut, R.string.cutted, R.string.cutting),
+        INSERT (R.string.insert, R.string.inserted, R.string.inserting),
+        MOVE (R.string.move, R.string.moved, R.string.moving),
+        SAVE (R.string.save, R.string.saved, R.string.saving),
+        ATTACH (R.string.attach, R.string.attached, R.string.attaching);
 
-        int mRes;
-        int mResultRes;
+        int[] mRes = new int[3];
 
-        Opers(int res, int resres) {
-            this.mRes = res;
-            this.mResultRes = resres;
+        Opers(int simple, int perfect, int continuous) {
+            this.mRes[0] = simple;
+            this.mRes[1] = perfect;
+            this.mRes[2] = continuous;
         }
 
-        int getRes(boolean isResult) {
-            return (isResult) ? mResultRes : mRes;
+        int getResId(int tense) {
+            return (tense >= 0 && tense < 3) ? mRes[tense] : 0;
         }
     }
 
+    public static void addOperStartLog(Objs obj, Opers oper) {
+        String mes = String.format(getString(R.string.log_oper_cancel_mask),
+                getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
+        LogManager.addLog(mes, Types.ERROR);
+    }
+
+    public static void addOperCancelLog(Objs obj, Opers oper) {
+        String mes = String.format(getString(R.string.log_oper_start_mask),
+                getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
+        LogManager.addLog(mes, Types.DEBUG);
+    }
+
     public static void addOperResLog(Objs obj, Opers oper) {
-        String mes = getString(obj.getRes(true)) + getString(oper.getRes(true));
-        LogManager.addLog(mes, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        String mes = getString(obj.getResId(PAST_PERFECT)) + getString(oper.getResId(PAST_PERFECT));
+        LogManager.addLog(mes, Types.INFO, Toast.LENGTH_SHORT);
     }
 
     public static void addOperErrorLog(Objs obj, Opers oper) {
         String mes = String.format(getString(R.string.log_oper_error_mask),
-                getString(obj.getRes(false)), getString(oper.getRes(false)));
+                getString(obj.getResId(PRESENT_SIMPLE)), getString(oper.getResId(PRESENT_SIMPLE)));
         LogManager.addLog(mes, Types.ERROR, Toast.LENGTH_LONG);
     }
 
