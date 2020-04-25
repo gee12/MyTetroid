@@ -17,6 +17,7 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -649,7 +650,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.createNode()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_creating), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_node_creating), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -672,7 +674,8 @@ public class DataManager extends XMLManager {
         list.add(node);
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            LogManager.addLog(context.getString(R.string.log_cancel_node_creating), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_node_creating), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             // удаляем запись из коллекции
             list.remove(node);
             return null;
@@ -691,7 +694,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.editNodeFields()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_fields_editing), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_node_fields_editing), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
 
         String oldName = node.getName(true);
         // обновляем поля
@@ -700,7 +704,8 @@ public class DataManager extends XMLManager {
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            LogManager.addLog(context.getString(R.string.log_cancel_node_changing), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_node_changing), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             node.setName(oldName);
             node.setDecryptedName(decryptField(node, oldName));
@@ -719,7 +724,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.deleteNode()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_node_deleting), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_node_deleting), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
 
         // удаляем ветку из коллекции
 //        if (!deleteNodeInHierarchy(getRootNodes(), node)) {
@@ -738,7 +744,8 @@ public class DataManager extends XMLManager {
             // удаление всех объектов ветки рекурсивно
             instance.deleteNodeRecursively(node);
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
             return false;
         }
         return true;
@@ -823,8 +830,9 @@ public class DataManager extends XMLManager {
 
     /**
      * Создание записи (пустую без текста):
-     * 1) создание каталога для записи
-     * 2) добавление в структуру mytetra.xml
+     * 1) создание объекта в памяти
+     * 2) создание каталога
+     * 3) добавление в структуру mytetra.xml
      * @param name
      * @param tagsString
      * @param author
@@ -837,7 +845,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.createRecord()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_creating), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_record_creating), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -888,7 +897,8 @@ public class DataManager extends XMLManager {
             // добавляем метки в запись и в коллекцию
             instance.parseRecordTags(record, tagsString);
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
             node.getRecords().remove(record);
             // удаляем файл записи
@@ -914,7 +924,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_fields_editing), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_record_fields_editing), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
 
         String oldName = record.getName(true);
         String oldAuthor = record.getAuthor(true);
@@ -940,7 +951,8 @@ public class DataManager extends XMLManager {
                 instance.parseRecordTags(record, tagsString);
             }
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_record_changing), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_changing), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             record.setName(oldName);
             record.setDecryptedName(decryptField(record, oldName));
@@ -966,7 +978,7 @@ public class DataManager extends XMLManager {
     public static int deleteRecord(TetroidRecord record, boolean withoutDir) {
         String trashPath = (!withoutDir)
                 ? SettingsManager.getTrashPath() : null;
-        return deleteRecord(record, withoutDir, trashPath);
+        return deleteRecord(record, withoutDir, trashPath, false);
     }
 
     /**
@@ -977,15 +989,31 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      */
     public static int cutRecord(TetroidRecord record, boolean withoutDir) {
-        return deleteRecord(record, withoutDir, SettingsManager.getTrashPath());
+        // добавляем в "буфер обмена"
+        TetroidClipboard.cut(record);
+        // удаляем запись из текущей ветки
+        return deleteRecord(record, withoutDir, SettingsManager.getTrashPath(), true);
     }
 
-    public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath) {
+
+    public static boolean insertRecord(TetroidNode node) {
+        // получаем запись из "буфера обмена"
+        TetroidClipboard clipboard = TetroidClipboard.get();
+        // вставляем запись в текущую ветку
+        if (clipboard == null || clipboard.getObject() == null)
+            return false;
+
+        return true;
+    }
+
+    public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath, boolean isCutting) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
             return 0;
         }
-        LogManager.addLog(context.getString(R.string.log_start_record_deleting), LogManager.Types.DEBUG);
+//        int stringRes = (isCutting) ? R.string.log_start_record_cutting : R.string.log_start_record_deleting;
+//        LogManager.addLog(context.getString(stringRes), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
 
         String dirPath = null;
         File folder = null;
@@ -1024,7 +1052,8 @@ public class DataManager extends XMLManager {
             // перезагружаем список меток
             instance.deleteRecordTags(record);
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
             return 0;
         }
 
@@ -1064,7 +1093,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.attachFile()");
             return null;
         }
-        LogManager.addLog(context.getString(R.string.log_start_file_attaching), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_file_attaching), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
 
         String id = createUniqueId();
         // проверка исходного файла
@@ -1138,7 +1168,8 @@ public class DataManager extends XMLManager {
         if (saveStorage()) {
             instance.mFilesCount++;
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
             // удаляем файл из записи
             files.remove(file);
             // удаляем файл
@@ -1164,7 +1195,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.editFileFields()");
             return 0;
         }
-        LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
@@ -1203,7 +1235,8 @@ public class DataManager extends XMLManager {
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             file.setName(oldName);
             file.setDecryptedName(decryptField(file, oldName));
@@ -1238,7 +1271,8 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.deleteFile()");
             return 0;
         }
-        LogManager.addLog(context.getString(R.string.log_start_file_deleting), LogManager.Types.DEBUG);
+//        LogManager.addLog(context.getString(R.string.log_start_file_deleting), LogManager.Types.DEBUG);
+        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
@@ -1283,7 +1317,8 @@ public class DataManager extends XMLManager {
         if (saveStorage()) {
             instance.mFilesCount--;
         } else {
-            LogManager.addLog(context.getString(R.string.log_cancel_file_deleting), LogManager.Types.ERROR);
+//            LogManager.addLog(context.getString(R.string.log_cancel_file_deleting), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
             return 0;
         }
 

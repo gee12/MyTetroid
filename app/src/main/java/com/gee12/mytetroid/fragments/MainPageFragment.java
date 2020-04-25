@@ -425,9 +425,6 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void cutRecord(TetroidRecord record) {
-        // добавляем в "буфер обмена"
-        TetroidClipboard.cut(record);
-        // удаляем запись из текущей ветки
         int res = DataManager.cutRecord(record, false);
         if (res == -1) {
             int res1 = DataManager.cutRecord(record, true);
@@ -441,10 +438,11 @@ public class MainPageFragment extends TetroidFragment {
      * Вставка записи в ветку.
      */
     private void insertRecord() {
-        // получаем запись из "буфера обмена"
-        TetroidClipboard clipboard = TetroidClipboard.get();
-        // вставляем запись в текущую ветку
+        if (DataManager.insertRecord(mCurNode)) {
 
+        } else {
+
+        }
     }
 
     /**
