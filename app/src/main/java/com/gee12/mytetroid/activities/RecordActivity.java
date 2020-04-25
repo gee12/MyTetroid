@@ -807,7 +807,7 @@ public class RecordActivity extends TetroidActivity implements
     public boolean toggleFullscreen() {
         boolean isFullscreen = super.toggleFullscreen();
         if (mCurMode == MODE_VIEW) {
-//            setRecordFieldsVisibility(!isFullscreen);
+            setRecordFieldsVisibility(!isFullscreen);
         }
         return isFullscreen;
     }
