@@ -166,8 +166,12 @@ public class DataManager extends XMLManager {
         return CryptManager.decryptNode(node, false, this);
     }
 
-    public static String decryptField(TetroidObject obj, String value) {
-        return (obj != null && obj.isCrypted()) ? CryptManager.decryptBase64(value) : value;
+    public static String decryptField(TetroidObject obj, String field) {
+        return (obj != null && obj.isCrypted()) ? CryptManager.decryptBase64(field) : field;
+    }
+
+    public static String decryptField(boolean isCrypted, String field) {
+        return (isCrypted) ? CryptManager.decryptBase64(field) : field;
     }
 
 //    /**
@@ -699,16 +703,21 @@ public class DataManager extends XMLManager {
 
         String oldName = node.getName(true);
         // обновляем поля
-        node.setName(encryptField(node, name));
-        node.setDecryptedName(name);
-
+        boolean crypted = node.isCrypted();
+        node.setName(encryptField(crypted, name));
+        if (crypted) {
+            node.setDecryptedName(name);
+        }
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
 //            LogManager.addLog(context.getString(R.string.log_cancel_node_changing), LogManager.Types.ERROR);
             TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             node.setName(oldName);
-            node.setDecryptedName(decryptField(node, oldName));
+//            node.setDecryptedName(decryptField(node, oldName));
+            if (crypted) {
+                node.setDecryptedName(decryptField(crypted, oldName));
+            }
             return false;
         }
         return true;
@@ -859,10 +868,13 @@ public class DataManager extends XMLManager {
                 encryptField(crypted, author),
                 encryptField(crypted, url),
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
-        record.setDecryptedName(name);
-        record.setDecryptedTagsString(tagsString);
-        record.setDecryptedAuthor(author);
-        record.setDecryptedUrl(url);
+        if (crypted) {
+            record.setDecryptedValues(name, tagsString, author, url);
+        }
+//        record.setDecryptedName(name);
+//        record.setDecryptedTagsString(tagsString);
+//        record.setDecryptedAuthor(author);
+//        record.setDecryptedUrl(url);
         record.setIsNew(true);
         if (crypted) {
             record.setDecrypted(true);
@@ -932,14 +944,22 @@ public class DataManager extends XMLManager {
         String oldTagsString = record.getTagsString(true);
         String oldUrl = record.getUrl(true);
         // обновляем поля
-        record.setName(encryptField(record, name));
-        record.setDecryptedName(name);
-        record.setTagsString(encryptField(record, tagsString));
-        record.setDecryptedTagsString(tagsString);
-        record.setAuthor(encryptField(record, author));
-        record.setDecryptedAuthor(author);
-        record.setUrl(encryptField(record, url));
-        record.setDecryptedUrl(url);
+        boolean crypted = record.isCrypted();
+//        record.setName(encryptField(record, name));
+        record.setName(encryptField(crypted, name));
+//        record.setDecryptedName(name);
+//        record.setTagsString(encryptField(record, tagsString));
+        record.setTagsString(encryptField(crypted, tagsString));
+//        record.setDecryptedTagsString(tagsString);
+//        record.setAuthor(encryptField(record, author));
+        record.setAuthor(encryptField(crypted, author));
+//        record.setDecryptedAuthor(author);
+//        record.setUrl(encryptField(record, url));
+        record.setUrl(encryptField(crypted, url));
+//        record.setDecryptedUrl(url);
+        if (crypted) {
+            record.setDecryptedValues(name, tagsString, author, url);
+        }
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
@@ -955,13 +975,19 @@ public class DataManager extends XMLManager {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             record.setName(oldName);
-            record.setDecryptedName(decryptField(record, oldName));
+//            record.setDecryptedName(decryptField(record, oldName));
             record.setTagsString(oldTagsString);
-            record.setDecryptedTagsString(decryptField(record, oldTagsString));
+//            record.setDecryptedTagsString(decryptField(record, oldTagsString));
             record.setAuthor(oldAuthor);
-            record.setDecryptedAuthor(decryptField(record, oldAuthor));
+//            record.setDecryptedAuthor(decryptField(record, oldAuthor));
             record.setUrl(oldUrl);
-            record.setDecryptedUrl(decryptField(record, url));
+//            record.setDecryptedUrl(decryptField(record, url));
+            if (crypted) {
+                record.setDecryptedValues(decryptField(crypted, oldName),
+                        decryptField(crypted, oldTagsString),
+                        decryptField(crypted, oldAuthor),
+                        decryptField(crypted, url));
+            }
             return false;
         }
         return true;
@@ -982,7 +1008,16 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     * Вырезание записи.
+     * Копирование записи (добавление в "буфер обмена").
+     * @param record
+     */
+    public static void copyRecord(TetroidRecord record) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.copy(record);
+    }
+
+    /**
+     * Вырезание записи из ветки (добавление в "буфер обмена" и удаление).
      * @param record
      * @return 1 - успешно
      *         0 - ошибка
@@ -995,13 +1030,84 @@ public class DataManager extends XMLManager {
         return deleteRecord(record, withoutDir, SettingsManager.getTrashPath(), true);
     }
 
-
-    public static boolean insertRecord(TetroidNode node) {
+    /**
+     * Вставка записи из "буфера обмена" в указанную ветку.
+     * @param node
+     * @return
+     */
+    public static TetroidRecord insertRecord(TetroidNode node) {
         // получаем запись из "буфера обмена"
         TetroidClipboard clipboard = TetroidClipboard.get();
-        // вставляем запись в текущую ветку
-        if (clipboard == null || clipboard.getObject() == null)
-            return false;
+        if (clipboard == null || !(clipboard.getObject() instanceof TetroidRecord)) {
+            return null;
+        }
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+        TetroidRecord srcRecord = (TetroidRecord)clipboard.getObject();
+        if (srcRecord == null)
+            return null;
+
+        // генерируем уникальные идентификаторы
+        String id = (clipboard.isCutted()) ? srcRecord.getId() : createUniqueId();
+        String dirName = (clipboard.isCutted()) ? srcRecord.getDirName() : createUniqueId();
+        String name = srcRecord.getName(false);
+        String tagsString = srcRecord.getTagsString(false);
+        String author = srcRecord.getAuthor(false);
+        String url = srcRecord.getUrl(false);
+
+        boolean crypted = node.isCrypted();
+        TetroidRecord record = new TetroidRecord(crypted, id,
+                encryptField(crypted, name),
+                encryptField(crypted, tagsString),
+                encryptField(crypted, author),
+                encryptField(crypted, url),
+                srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
+        if (crypted) {
+            record.setDecryptedValues(name, tagsString, author, url);
+        }
+        record.setIsNew(false);
+        if (crypted) {
+            record.setDecrypted(true);
+        }
+        // создаем каталог записи
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true) <= 0) {
+            return null;
+        }
+        File folder = new File(dirPath);
+        // создаем файл записи (пустой)
+        String filePath = dirPath + SEPAR + record.getFileName();
+        Uri fileUri;
+        try {
+            fileUri = Uri.parse(filePath);
+        } catch (Exception ex) {
+            LogManager.addLog(context.getString(R.string.log_error_generate_record_file_path) + filePath, ex);
+            return null;
+        }
+        File file = new File(fileUri.getPath());
+        try {
+            file.createNewFile();
+        } catch (IOException ex) {
+            LogManager.addLog(context.getString(R.string.log_error_creating_record_file) + filePath, ex);
+            return null;
+        }
+
+        // добавляем запись в ветку (и соответственно, в коллекцию)
+        node.addRecord(record);
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            // добавляем метки в запись и в коллекцию
+            instance.parseRecordTags(record, tagsString);
+        } else {
+//            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            // удаляем запись из ветки
+            node.getRecords().remove(record);
+            // удаляем файл записи
+            file.delete();
+            // удаляем каталог записи (пустой)
+            folder.delete();
+            return null;
+        }
 
         return true;
     }
@@ -1230,8 +1336,12 @@ public class DataManager extends XMLManager {
 
         String oldName = file.getName(true);
         // обновляем поля
-        file.setName(encryptField(file, name));
-        file.setDecryptedName(name);
+        boolean crypted = file.isCrypted();
+        file.setName(encryptField(crypted, name));
+//        file.setDecryptedName(name);
+        if (crypted) {
+            file.setDecryptedName(name);
+        }
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
@@ -1239,7 +1349,10 @@ public class DataManager extends XMLManager {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             file.setName(oldName);
-            file.setDecryptedName(decryptField(file, oldName));
+//            file.setDecryptedName(decryptField(file, oldName));
+            if (crypted) {
+                file.setDecryptedName(decryptField(crypted, oldName));
+            }
             return 0;
         }
         // меняем расширение, если изменилось

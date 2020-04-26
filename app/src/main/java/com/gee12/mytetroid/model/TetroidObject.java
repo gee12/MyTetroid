@@ -57,11 +57,11 @@ public class TetroidObject implements ITetroidObject {
 
     /**
      * Получение наименования объекта.
-     * @param isCryptedValue Если true - возврат исходного (зашифрованного) значения.
+     * @param cryptedValue Если true - возврат исходного (нерасшифрованного) значения.
      * @return
      */
-    public String getName(boolean isCryptedValue) {
-        return (isCryptedValue) ? name : decryptedName;
+    public String getName(boolean cryptedValue) {
+        return (cryptedValue) ? name : decryptedName;
     }
 
     @Override
