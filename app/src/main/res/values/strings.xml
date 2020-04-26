@@ -1,12 +1,56 @@
 <resources>
+
     <string name="app_name">MyTetroid</string>
     <string name="main_header_title" translatable="false">MyTetroid</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
+
     <string name="title_settings">Settings</string>
-    <string name="records_is_missing">Records is missing</string>
-    <string name="select_the_node">Select the node…</string>
+    <string name="title_pass_input">Enter password</string>
+    <string name="title_storage_folder">Storage folder</string>
+    <string name="title_record_folder">Record folder</string>
+    <string name="title_show_record_content">Open record</string>
+    <string name="title_show_attached_files">Attached files</string>
+    <string name="title_open_record_folder">Open folder</string>
+    <string name="title_global_search">Global search</string>
+    <string name="title_search_records">Records search</string>
+    <string name="title_open_tag_records">Open tag records</string>
+    <string name="title_edit_record_fields">Edit properties</string>
+    <string name="title_edit_mode">Editing</string>
+    <string name="title_view_mode">Viewing</string>
+    <string name="title_expand_node_subnodes">Expand all subnodes</string>
+    <string name="title_collapse_node_subnodes">Collapse all subnodes</string>
+    <string name="title_create_subnode">Create subnode</string>
+    <string name="title_create_node">Create node nearly</string>
+    <string name="title_move_up">Move up</string>
+    <string name="title_move_down">Move down</string>
+    <string name="title_copy_link">Copy link</string>
+    <string name="title_storage_sync">Sync</string>
+    <string name="title_choose_sync_app">Choose sync app</string>
+    <string name="title_delete">Delete</string>
+    <string name="title_show_node">Show node</string>
+    <string name="title_set_node_icon">Set icon</string>
+    <string name="title_encrypt_node">Encrypt</string>
+    <string name="title_decrypt_node">Decrypt</string>
+    <string name="title_rename">Rename</string>
+    <string name="title_cut">Cut</string>
+    <string name="title_copy">Copy</string>
+    <string name="title_insert">Insert</string>
+    <string name="title_open_with">Open with</string>
+    <string name="title_about_app">About app</string>
+    <string name="title_record_html">html-code</string>
+    <string name="title_record_save">Save</string>
+    <string name="title_search_text">Search text</string>
+    <string name="title_gallery">Gallery</string>
+    <string name="title_show">Show</string>
+    <string name="title_log_file_content">Логи</string>
+    <string name="title_storage_info">Storage statistics</string>
+    <!--<string name="title_activity_found">Found</string>-->
+    <string name="title_cur_node">Record node</string>
+    <string name="title_attached_files">Attached files</string>
+    <string name="title_cur_record">Open record</string>
+    <string name="title_fullscreen">Fullscreen</string>
+
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
     <string name="pref_category_crypt">Encryption</string>
@@ -15,7 +59,7 @@
     <string name="pref_key_storage_path" translatable="false">pref_key_storage_path</string>
     <string name="pref_key_is_save_pass_hash_local" translatable="false">pref_key_is_save_pass_hash_local</string>
     <string name="pref_key_is_load_last_storage_path" translatable="false">pref_key_is_load_last_storage_path</string>
-    <string name="pref_key_category_other">Rest</string>
+    <string name="pref_category_other">Rest</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
     <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time</string>
     <string name="pref_key_is_keep_selected_node" translatable="false">pref_key_is_select_last_node</string>
@@ -33,117 +77,41 @@
     <string name="pref_when_ask_password_on_start">When the application starts</string>
     <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
-    <string name="title_pass_input">Enter password</string>
-    <string name="answer_ok">Ok</string>
-    <string name="answer_cancel">Cancel</string>
-    <string name="files_is_missing">Attach is missing</string>
     <string name="pref_category_main">Main</string>
     <string name="pref_storage_path">Storage path</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
-    <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
-    <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
-    <string name="log_missing_camera_permissions">Not enough permissions to camera</string>
-    <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Anyway decrypt with this password?</string>
-    <string name="answer_yes">Yes</string>
-    <string name="answer_no">No</string>
-    <string name="log_wrong_saved_pass">Wrong saved pass (value does not match middle_hash_check_data)</string>
-    <string name="record_tags_label">Tags:</string>
-    <string name="record_author_label">Author:</string>
-    <string name="record_uri_label">Url:</string>
-    <string name="record_date_label">Date:</string>
+    <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
+    <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
+    <string name="pref_trash_path">Trash catalog</string>
+    <string name="pref_trash_path_summ">Trash catalog path</string>
+    <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
+    <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
     <string name="pref_key_date_format_string" translatable="false">pref_key_date_format_string</string>
     <string name="pref_date_format_string">Date format string</string>
     <string name="pref_date_format_string_summ">Format string for created date/time display</string>
-    <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
-    <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
-    <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
-    <string name="title_storage_folder">Storage folder</string>
-    <string name="title_record_folder">Record folder</string>
-    <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
-    <string name="title_about_app">About app</string>
-    <string name="license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
-    <string name="rate_app">Rate app</string>
-    <string name="version_label">Version</string>
-    <string name="log_password_is_incorrect">Password is incorrect</string>
-    <string name="g_bytes">Gb</string>
-    <string name="m_bytes">Mb</string>
-    <string name="k_bytes">Kb</string>
-    <string name="show_record_content">Open record</string>
-    <string name="show_attached_files">Attached files</string>
-    <string name="open_record_folder">Open folder</string>
-    <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
-    <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
-    <string name="trash_path">Trash catalog</string>
-    <string name="trash_path_summ">Trash catalog path</string>
-    <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
-    <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
-    <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
-    <string name="log_could_not_decrypt_file">Could not decrypt file</string>
-    <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
-    <string name="log_file_decryption_error">File decryption error:&#160;</string>
-    <string name="decrypt_files_to_trash_dir">Decrypt files to directory</string>
-    <string name="decrypt_files_to_trash_dir_sum">Decrypt attachments to a trash directory when previewing</string>
-    <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="pref_category_display">Display</string>
     <string name="pref_key_is_write_log" translatable="false">pref_key_is_write_log</string>
     <string name="pref_key_log_path" translatable="false">pref_key_log_path</string>
-    <string name="write_log">Is write log</string>
-    <string name="is_write_log">Log events to file</string>
-    <string name="log_path">Logs catalog</string>
-    <string name="log_path_summ">Path to catalog with log file</string>
-    <string name="log_storage_load_error">Storage loading error</string>
-    <string name="log_errors_during_decryption">Errors occurred during decryption.</string>
-    <string name="details_in_logs">Details in the logs</string>
-    <string name="for_more_info_enable_log">For more information, enable logging</string>
-    <string name="app_start">Run app. Version %s</string>
-    <string name="log_storage_loaded">Storage is loaded:&#160;</string>
-    <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-    <string name="log_storage_decrypted">Storage is decrypted</string>
-    <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
-    <string name="log_tags_is_missing">Tags is missing</string>
-    <string name="tags_header">TAGS</string>
-    <string name="exit_from_app">Exit from app?</string>
+    <string name="pref_write_log">Is write log</string>
+    <string name="pref_write_log_summ">Log events to file</string>
+    <string name="pref_log_path">Logs catalog</string>
+    <string name="pref_log_path_summ">Path to catalog with log file</string>
     <string name="pref_key_is_confirm_app_exit" translatable="false">pref_key_is_confirm_app_exit</string>
-    <string name="is_confirm_app_exit">Confirm app exit</string>
-    <string name="is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
-    <string name="file_is_missing">File is missing&#160;</string>
-    <string name="storage_loading">Storage loading…</string>
-    <string name="global_searching">Global searching…</string>
-    <string name="log_start_storage_loading">Start storage loading:&#160;</string>
-    <string name="search_records_hint">Records search</string>
-    <string name="title_search_records">Records search</string>
-    <string name="log_records_search_select_node">Select not an empty branch or use the global search.</string>
-    <string name="records_in_node_not_found">No records found for query \"%s\" in node [%s]…</string>
-    <string name="records_in_tag_not_found">No records found for query \"%s\" in tag [%s]…</string>
-    <string name="files_not_found">No files found for query \"%s\"…</string>
-    <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
-    <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
-    <string name="search_files_by_query">Search files in record [%s] by query "%s"</string>
-    <string name="search_text_by_query">Search text in record [%s] by query "%s"</string>
-    <string name="tags_search_hint">Tags search</string>
-    <string name="nodes_search_hint">Nodes search</string>
-    <string name="nodes_header">NODES</string>
-    <string name="nodes_is_missing">Nodes is missing</string>
-    <string name="nodes_not_found">No nodes found for query \"%s\"…</string>
-    <string name="search_nodes_by_query">Search nodes by query "%s"…</string>
-    <string name="tags_not_found">No tags found for query \"%s\"…</string>
-    <string name="search_tags_by_query">Search tags by query "%s"…</string>
-    <string name="title_global_search">Global search</string>
-    <string name="search_hint_input_query">Enter query</string>
-    <string name="search_search_in">Search in:</string>
-    <string name="search_in_record_text">Record text</string>
-    <string name="search_in_record_name">Record name</string>
-    <string name="search_in_record_author">Author</string>
-    <string name="search_in_record_url">Url</string>
-    <string name="search_in_tags">Tags</string>
-    <string name="search_in_nodes">Node name</string>
-    <string name="search_in_file_names">File name</string>
-    <string name="search_other_options">Other:</string>
-    <string name="found_mask">Found: %d</string>
-    <string name="log_records_search_select_tag">Select not an empty tag or use the global search.</string>
-    <string name="global_search_not_found">No matches found for query \"%s\"…</string>
-    <string name="global_search_not_found_in_node">No matches found for query \"%s\" in node \"%s\"…</string>
-    <string name="show_node_records">Show node records</string>
+    <string name="pref_is_confirm_app_exit">Confirm app exit</string>
+    <string name="pref_is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
+    <string name="pref_category_sync">Sync</string>
+    <string name="pref_is_sync_storage">Sync storage</string>
+    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
+    <string name="pref_is_sync_before_loading">Sync before loading</string>
+    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
+    <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
+    <string name="pref_sync_command">Sync command</string>
+    <string name="pref_sync_command_summ">A synchronization command as a string, for example: \"git pull\" (optional, depends on a third-party application)</string>
+    <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
+    <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
+    <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
+    <string name="pref_is_not_remember_sync_app">Do not remember application</string>
+    <string name="pref_is_not_remember_sync_app_summ">Do not use the standard mechanism for remembering the last used application for sync</string>
     <string name="pref_key_search_text" translatable="false">pref_key_search_text</string>
     <string name="pref_key_search_records_names" translatable="false">pref_key_search_records_names</string>
     <string name="pref_key_search_author" translatable="false">pref_key_search_author</string>
@@ -154,32 +122,79 @@
     <string name="pref_key_search_split_to_words" translatable="false">pref_key_search_split_to_words</string>
     <string name="pref_key_search_in_whole_words" translatable="false">pref_key_search_in_whole_words</string>
     <string name="pref_key_search_in_cur_node" translatable="false">pref_key_search_in_cur_node</string>
-    <string name="search_submit_title">Start search</string>
     <string name="pref_key_search_query" translatable="false">pref_key_search_query</string>
-    <string name="enter_query">Enter the search query</string>
+    <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>
+    <string name="pref_category_edit">Edit</string>
+    <string name="pref_record_auto_save">Save automatically</string>
+    <string name="pref_record_auto_save_summ">Save record changes automatically when editing is completed</string>
+    <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
+    <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
+    <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
+    <string name="pref_ask_before_sync">Ask before starting</string>
+    <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start</string>
+    <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
+    <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
+    <string name="pref_log_file_content">Show logs</string>
+    <string name="pref_log_file_content_summ">Show log file content</string>
+
+    <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
+    <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
+    <string name="search_files_by_query">Search files in record [%s] by query "%s"</string>
+    <string name="search_text_by_query">Search text in record [%s] by query "%s"</string>
+    <string name="search_records_hint">Records search</string>
+    <string name="search_tags_by_query">Search tags by query "%s"…</string>
+    <string name="search_hint_input_query">Enter query</string>
+    <string name="search_search_in">Search in:</string>
+    <string name="search_in_record_text">Record text</string>
+    <string name="search_in_record_name">Record name</string>
+    <string name="search_in_record_author">Author</string>
+    <string name="search_in_record_url">Url</string>
+    <string name="search_in_tags">Tags</string>
+    <string name="search_in_nodes">Node name</string>
+    <string name="search_in_file_names">File name</string>
+    <string name="search_other_options">Other:</string>
+    <string name="search_records_select_tag">Select not an empty tag or use the global search.</string>
+    <string name="search_submit_title">Start search</string>
+    <string name="search_text_hint">Search</string>
+    <string name="search_nodes_by_query">Search nodes by query "%s"…</string>
+    <string name="global_search_not_found">No matches found for query \"%s\"…</string>
+    <string name="global_search_not_found_in_node">No matches found for query \"%s\" in node \"%s\"…</string>
     <string name="global_search_results">Search results</string>
-    <string name="log_global_search_return_null">Some error in global search…</string>
-    <string name="log_cur_node_is_not_selected">Current node is not selected</string>
-    <!--<string name="title_activity_found">Found</string>-->
     <string name="global_search_in_cur_node">In current node</string>
     <string name="global_search_start">Global search started by query \"%s\"</string>
     <string name="global_search_end">Global search end. Found \"%d\" objects</string>
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
-    <string name="title_cur_node">Record node</string>
-    <string name="title_attached_files">Attached files</string>
-    <string name="title_cur_record">Open record</string>
-    <string name="title_fullscreen">Fullscreen</string>
-    <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
-    <string name="log_cur_record_is_not_set">Current record is not set</string>
-    <string name="log_no_app_found">No suitable application was found to open the file&#160;</string>
-    <string name="log_error_file_open">File open error&#160;</string>
-    <string name="log_failed_storage_load">Failed to load storage:&#160;</string>
-    <string name="log_failed_storage_init">Failed to init storage:&#160;</string>
-    <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
-    <string name="pref_keep_screen_on">Keep screen on</string>
-    <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
-    <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
-    <string name="title_storage_info">Storage statistics</string>
+    <string name="global_searching">Global searching…</string>
+
+    <string name="label_record_name">Name:</string>
+    <string name="label_record_tags">Tags:</string>
+    <string name="label_record_author">Author:</string>
+    <string name="label_record_uri">Url:</string>
+    <string name="label_record_date">Date:</string>
+
+    <string name="oper_past_node">Node was&#160;</string>
+    <string name="oper_past_node_fields">Node fields was&#160;</string>
+    <string name="oper_past_record">Record was&#160;</string>
+    <string name="oper_past_record_fields">Record fields was&#160;</string>
+    <string name="oper_past_file">File was&#160;</string>
+    <string name="oper_past_file_fields">File fields was&#160;</string>
+
+    <string name="oper_simple_node">node</string>
+    <string name="oper_simple_node_fields">node fields</string>
+    <string name="oper_simple_record">record</string>
+    <string name="oper_simple_record_fields">record fields</string>
+    <string name="oper_simple_file">file</string>
+    <string name="oper_simple_file_fields">file fields</string>
+
+    <string name="oper_continuous_node">@string/oper_simple_node</string>
+    <string name="oper_continuous_node_fields">@string/oper_simple_node_fields</string>
+    <string name="oper_continuous_record">@string/oper_simple_record</string>
+    <string name="oper_continuous_record_fields">@string/oper_simple_record_fields</string>
+    <string name="oper_continuous_file">@string/oper_simple_file</string>
+    <string name="oper_continuous_file_fields">@string/oper_simple_file_fields</string>
+
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
     <string name="stats_icons_count">Of them with icons:</string>
@@ -191,223 +206,26 @@
     <string name="stats_tags_count">Tags:</string>
     <string name="stats_unique_tags_count">Of which are unique:</string>
     <string name="stats_authors_count">Authors:</string>
-    <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
-    <string name="log_error_read_record_file">Error reading record file:&#160;</string>
-    <string name="log_error_decrypt_record_file">Error decrypting record file:&#160;</string>
-    <string name="log_error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
-    <string name="log_error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
-    <string name="log_error_generate_file_path">Error generating the path to the attached file:&#160;</string>
-    <string name="log_error_add_record">Error add record to mytetra.xml</string>
-    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
-    <string name="log_error_delete_record_folder">Error deleting the record folder:&#160;</string>
-    <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
-    <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
-    <string name="log_open_node_records">Open node records: id=</string>
-    <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
-    <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
-    <string name="title_storage_sync">Sync</string>
-    <string name="pref_category_sync">Sync</string>
-    <string name="pref_is_sync_storage">Sync storage</string>
-    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
-    <string name="pref_is_sync_before_loading">Sync before loading</string>
-    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
-    <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
-    <string name="pref_sync_command">Sync command</string>
-    <string name="pref_sync_command_summ">A synchronization command as a string, for example: \"git pull\" (optional, depends on a third-party application)</string>
-    <string name="title_choose_sync_app">Choose sync app</string>
-    <string name="log_sync_successful">Sync successful</string>
-    <string name="log_sync_failed">Failed to sync</string>
-    <string name="log_sync_success_dialog_request">Sync done. Reboot storage?</string>
-    <string name="log_sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
-    <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
-    <string name="pref_is_not_remember_sync_app">Do not remember application</string>
-    <string name="pref_is_not_remember_sync_app_summ">Do not use the standard mechanism for remembering the last used application for sync</string>
-    <string name="log_open_file">Open file:&#160;</string>
-    <string name="open_with">Open with</string>
-    <string name="log_open_tag_records">Open tag records:&#160;</string>
-    <string name="log_start_storage_sync">Start storage sync. Command:&#160;</string>
-    <string name="log_get_file_size_error">Error getting file size:&#160;</string>
-    <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
-    <string name="log_file_sharing_error">File sharing error:&#160;</string>
-    <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
-    <string name="ask_before_sync">Ask before starting</string>
-    <string name="ask_before_sync_summ">Show confirmation of synchronization start</string>
-    <string name="start_sync_dialog_title">Start storage sync?</string>
-    <string name="log_record_file_reading">Record file reading: id=</string>
-    <string name="log_error_record_reading">Record reading error</string>
-    <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>
-    <string name="log_error_write_to_record_file">Error write to the record file:&#160;</string>
-    <string name="title_record_html">html-code</string>
-    <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
-    <string name="recod_edit_mode">Edit mode</string>
-    <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
-    <string name="title_record_save">Save</string>
-    <string name="writing_here">Start writing here…</string>
-    <string name="log_not_found_node_id">Not found node with id=</string>
-    <string name="log_not_found_record">Not found record with id=</string>
-    <string name="log_not_transferred_record_id">Record Id not passed</string>
-    <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>
-    <string name="pref_category_edit">Edit</string>
-    <string name="record_auto_save">Save automatically</string>
-    <string name="record_auto_save_summ">Save record changes automatically when editing is completed</string>
-    <string name="record_subtitle_view">VIEWER</string>
-    <string name="record_subtitle_edit">EDITOR</string>
-    <string name="record_subtitle_html">HTML</string>
-    <string name="log_editing_crypted_records">Editing encrypted records is not implemented yet..</string>
-    <string name="url_decode_error">Url decoding error:&#160;</string>
-    <string name="log_before_record_save">Saving record with id=</string>
-<!--    <string name="log_record_saved">Record saved</string>-->
-<!--    <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>-->
-<!--    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>-->
-    <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
-    <string name="log_wrong_tag_link_format">Wrong tag link format</string>
-<!--    <string name="log_start_node_creating">Start node creating</string>-->
-<!--    <string name="log_start_node_fields_editing">Start node fields editing</string>-->
-<!--    <string name="log_start_node_deleting">Start node deleting</string>-->
-<!--    <string name="log_start_record_creating">Start record creating</string>-->
-<!--    <string name="log_start_record_fields_editing">Start record fields editing</string>-->
-<!--    <string name="log_start_record_deleting">Start record deleting</string>-->
-<!--    <string name="log_start_record_cutting">Start record cutting</string>-->
-<!--    <string name="log_start_file_attaching">Start file attaching</string>-->
-<!--    <string name="log_start_file_fields_editing">Start file fields editing</string>-->
-<!--    <string name="log_start_file_deleting">Start file deleting</string>-->
-    <string name="log_oper_start_mask">Start %s %s</string>
-    <string name="crypted_node_name">Closed</string>
-    <string name="log_error_creating_record_file">Error creating record file</string>
-    <string name="tag_not_found">Tag [%s] not found..</string>
-    <string name="debug_not_implemented_yet">Not implemented yet..</string>
-    <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
-    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>
-    <string name="log_dailed_rename_file">Failed to renaming file from %s to %s</string>
-    <string name="log_record_not_have_node">The record does not have a node</string>
-    <string name="log_not_found_record_in_node">Not found record in node records</string>
-    <string name="menu_item_delete">Remove</string>
-<!--    <string name="log_cancel_node_creating">Cancel node creating, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_node_changing">Cancel node fields editing, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_record_changing">Cancel record fields editing, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_file_ataching">Cancel file fields editing, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_file_fields_editing">Cancel file fields editing, as failed to save mytetra.xml</string>-->
-<!--    <string name="log_cancel_file_deleting">Cancel file deleting, as failed to save mytetra.xml</string>-->
-    <string name="log_oper_cancel_mask">Cancel $s $s, as failed to save mytetra.xml</string>
-    <string name="edit_record_fields">Edit properties</string>
-    <string name="edit_mode">Editing</string>
-    <string name="view_mode">Viewing</string>
-    <string name="node_delete">Delete node ?</string>
-    <string name="file_delete">Delete file ?</string>
-    <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
-    <string name="record_delete">Delete record ?</string>
-    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>
-    <string name="log_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
-    <string name="log_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
-    <string name="log_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
-    <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
-    <string name="oper_past_node">Node was&#160;</string>
-    <string name="oper_past_node_fields">Node fields was&#160;</string>
-    <string name="oper_past_record">Record was&#160;</string>
-    <string name="oper_past_record_fields">Record fields was&#160;</string>
-    <string name="oper_past_file">File was&#160;</string>
-    <string name="oper_past_file_fields">File fields was&#160;</string>
-    <string name="oper_simple_node">node</string>
-    <string name="oper_simple_node_fields">node fields</string>
-    <string name="oper_simple_record">record</string>
-    <string name="oper_simple_record_fields">record fields</string>
-    <string name="oper_simple_file">file</string>
-    <string name="oper_simple_file_fields">file fields</string>
-    <string name="oper_continuous_node">@string/oper_simple_node</string>
-    <string name="oper_continuous_node_fields">@string/oper_simple_node_fields</string>
-    <string name="oper_continuous_record">@string/oper_simple_record</string>
-    <string name="oper_continuous_record_fields">@string/oper_simple_record_fields</string>
-    <string name="oper_continuous_file">@string/oper_simple_file</string>
-    <string name="oper_continuous_file_fields">@string/oper_simple_file_fields</string>
-    <string name="expand_node_subnodes">Expand all subnodes</string>
-    <string name="collapse_node_subnodes">Collapse all subnodes</string>
-    <string name="create_subnode">Create subnode</string>
-    <string name="create_node">Create node nearly</string>
-    <string name="delete_node">Delete</string>
-    <string name="move_up">Move up</string>
-    <string name="move_down">Move down</string>
-    <string name="copy_link">Copy link</string>
-    <string name="log_get_item_is_null">Unable to get current list item</string>
+
+    <string name="answer_ok">Ok</string>
+    <string name="answer_cancel">Cancel</string>
+    <string name="answer_yes">Yes</string>
+    <string name="answer_no">No</string>
+
+    <string name="g_bytes">Gb</string>
+    <string name="m_bytes">Mb</string>
+    <string name="k_bytes">Kb</string>
+
     <string name="link_to_record">Link to MyTetroid record</string>
     <string name="link_to_node">Link to MyTetroid node</string>
     <string name="link_to_tag">Link to MyTetroid tag</string>
-    <string name="save_record">Save record ?</string>
-    <string name="log_record_loading">Record loading id=</string>
-    <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
-    <string name="log_node_move_list_error">The node was moved, but an error occurred while updating the list. Reboot storage</string>
-    <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
-    <string name="open_tag_records">Open tag records</string>
-    <string name="link_was_copied">Link was copied:&#160;</string>
-    <string name="log_create_record_dir">Record directory \"%s\" is absent. Creating..</string>
-    <string name="log_record_dir_created">Record directory was created</string>
-    <string name="log_create_record_dir_error">Record directory creating failed</string>
-    <string name="log_check_record_dir_error">Record directory checking failed</string>
-    <string name="tag_name_is_empty">Tag name is empty</string>
-    <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
-    <string name="log_file_is_absent">File is absent:</string>
-    <string name="log_file_checking_error">Error checking file existence:</string>
-    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>
-    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>
-    <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
-<!--    <string name="log_record_fields_edited">Свойства записи изменены</string>-->
-    <string name="log_file_was_attached">File was attached</string>
-    <string name="open_file">Open file</string>
-    <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
-    <string name="log_record_not_have_attached_files">The record does not have attached files</string>
-    <string name="log_not_found_file_in_record">Not found file in the record</string>
-    <string name="file_was_renamed">The file was renamed</string>
-    <string name="file_name_with_ext">File name with extension</string>
-    <string name="label_name">Name:</string>
-    <string name="label_author">Author:</string>
-    <string name="label_url">Url:</string>
-    <string name="label_tags">Tags:</string>
-    <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
-    <string name="request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
-    <string name="request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
-    <string name="log_record_file_is_missing">No recording file will be created when saving</string>
-    <string name="log_start_record_file_reading">Start reading a file of record id=</string>
-    <string name="log_start_record_file_saving">Start saving a file of record id=</string>
-    <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
-    <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
-    <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
-    <string name="log_created_log_dir">The log directory was created:&#160;</string>
-    <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
-    <string name="select_file_to_upload">Select file to upload</string>
-    <string name="log_file_read_error">Log file read error:&#160;</string>
-    <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
-    <string name="title_log_file_content">Логи</string>
-    <string name="pref_log_file_content">Show logs</string>
-    <string name="pref_log_file_content_summ">Show log file content</string>
-    <string name="title_show">Show</string>
-    <string name="show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
-    <string name="log_logs_is_missing">Logs is missing</string>
-    <string name="log_selected_files_is_missing">Missing selected image files</string>
-    <string name="log_start_image_file_saving">Start saving image [%s] to record id=%s</string>
-    <string name="log_start_image_file_converting">Start converting image file to [%s]</string>
-    <string name="log_start_image_file_deleting">Start deleting image file [%s]</string>
-    <string name="log_error_image_file_saving">Failed to save image file</string>
-    <string name="log_failed_to_save_images">Failed to save images: %s (more in the logs)</string>
-    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
-    <string name="confirm_selected_images">Confirm</string>
-    <string name="title_gallery">Gallery</string>
-    <string name="error_record_file_reading">Failed to read the record file (more in the logs)</string>
-    <string name="error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
-    <string name="title_search_text">Search text</string>
-    <string name="search_text_hint">Search</string>
-    <string name="log_n_matches_found">%d matches found</string>
-    <string name="log_matches_not_found">Matches not found</string>
-    <string name="record_folder_path">Record folder path</string>
-    <string name="title_show_node">Show node</string>
-    <string name="title_set_node_icon">Set icon</string>
-    <string name="title_encrypt_node">Encrypt</string>
-    <string name="title_decrypt_node">Decrypt</string>
-    <string name="title_rename">Rename</string>
-    <string name="title_cut">Cut</string>
-    <string name="title_copy">Copy</string>
-    <string name="title_insert">Insert</string>
-    <string name="log_create_folder_error">Unable to create destination directory:&#160;</string>
+
+    <string name="subtitle_tags">TAGS</string>
+    <string name="subtitle_nodes">NODES</string>
+    <string name="subtitle_record_view">VIEWER</string>
+    <string name="subtitle_record_edit">EDITOR</string>
+    <string name="subtitle_record_html">HTML</string>
+
     <string name="create">create</string>
     <string name="add">add</string>
     <string name="change">change</string>
@@ -443,4 +261,202 @@
     <string name="moving">moving</string>
     <string name="saving">saving</string>
     <string name="attaching">attaching</string>
+
+    <string name="ask_record_delete">Delete record ?</string>
+    <!--    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>-->
+    <string name="ask_record_oper_without_dir_mask">Record directory is missing. %s anyway ?</string>
+    <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
+    <string name="ask_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
+    <string name="ask_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
+    <string name="ask_exit_from_app">Exit from app?</string>
+    <string name="ask_sync_success_dialog_request">Sync done. Reboot storage?</string>
+    <string name="ask_sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
+    <string name="ask_save_record">Save record ?</string>
+    <string name="ask_node_delete">Delete node ?</string>
+    <string name="ask_file_delete">Delete file ?</string>
+    <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
+    <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
+    <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="records_is_missing">Records is missing</string>
+    <string name="select_the_node">Select the node…</string>
+    <string name="files_is_missing">Attach is missing</string>
+    <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
+    <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
+    <string name="log_missing_camera_permissions">Not enough permissions to camera</string>
+    <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Anyway decrypt with this password?</string>
+    <string name="log_wrong_saved_pass">Wrong saved pass (value does not match middle_hash_check_data)</string>
+    <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
+    <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
+    <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
+    <string name="license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
+    <string name="rate_app">Rate app</string>
+    <string name="version_label">Version</string>
+    <string name="log_password_is_incorrect">Password is incorrect</string>
+    <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
+    <string name="log_could_not_decrypt_file">Could not decrypt file</string>
+    <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
+    <string name="log_file_decryption_error">File decryption error:&#160;</string>
+    <string name="decrypt_files_to_trash_dir">Decrypt files to directory</string>
+    <string name="decrypt_files_to_trash_dir_sum">Decrypt attachments to a trash directory when previewing</string>
+    <string name="storage_path_was_changed">Storage path was changed. Reload database?</string>
+    <string name="log_storage_load_error">Storage loading error</string>
+    <string name="log_errors_during_decryption">Errors occurred during decryption.</string>
+    <string name="details_in_logs">Details in the logs</string>
+    <string name="for_more_info_enable_log">For more information, enable logging</string>
+    <string name="app_start">Run app. Version %s</string>
+    <string name="log_storage_loaded">Storage is loaded:&#160;</string>
+    <string name="log_show_pass_dialog"> Starting the password request dialog</string>
+    <string name="log_storage_decrypted">Storage is decrypted</string>
+    <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
+    <string name="log_tags_is_missing">Tags is missing</string>
+    <string name="file_is_missing">File is missing&#160;</string>
+    <string name="storage_loading">Storage loading…</string>
+    <string name="log_start_storage_loading">Start storage loading:&#160;</string>
+    <string name="log_records_search_select_node">Select not an empty branch or use the global search.</string>
+    <string name="records_in_node_not_found">No records found for query \"%s\" in node [%s]…</string>
+    <string name="records_in_tag_not_found">No records found for query \"%s\" in tag [%s]…</string>
+    <string name="files_not_found">No files found for query \"%s\"…</string>
+    <string name="tags_search_hint">Tags search</string>
+    <string name="nodes_search_hint">Nodes search</string>
+    <string name="nodes_is_missing">Nodes is missing</string>
+    <string name="nodes_not_found">No nodes found for query \"%s\"…</string>
+    <string name="tags_not_found">No tags found for query \"%s\"…</string>
+    <string name="found_mask">Found: %d</string>
+    <string name="show_node_records">Show node records</string>
+    <string name="enter_query">Enter the search query</string>
+    <string name="log_global_search_return_null">Some error in global search…</string>
+    <string name="log_cur_node_is_not_selected">Current node is not selected</string>
+    <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
+    <string name="log_cur_record_is_not_set">Current record is not set</string>
+    <string name="log_no_app_found">No suitable application was found to open the file&#160;</string>
+    <string name="log_error_file_open">File open error&#160;</string>
+    <string name="log_failed_storage_load">Failed to load storage:&#160;</string>
+    <string name="log_failed_storage_init">Failed to init storage:&#160;</string>
+    <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
+    <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
+    <string name="log_error_read_record_file">Error reading record file:&#160;</string>
+    <string name="log_error_decrypt_record_file">Error decrypting record file:&#160;</string>
+    <string name="log_error_generate_record_file_path">Error generating the path to the record file:&#160;</string>
+    <string name="log_error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
+    <string name="log_error_generate_file_path">Error generating the path to the attached file:&#160;</string>
+    <string name="log_error_add_record">Error add record to mytetra.xml</string>
+    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
+    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>
+    <string name="log_error_move_record_dir">Error moving the record folder from [%s] to [%s]</string>
+    <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
+    <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
+    <string name="log_open_node_records">Open node records: id=</string>
+    <string name="log_sync_successful">Sync successful</string>
+    <string name="log_sync_failed">Failed to sync</string>
+    <string name="log_open_file">Open file:&#160;</string>
+    <string name="log_open_tag_records">Open tag records:&#160;</string>
+    <string name="log_start_storage_sync">Start storage sync. Command:&#160;</string>
+    <string name="log_get_file_size_error">Error getting file size:&#160;</string>
+    <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
+    <string name="log_file_sharing_error">File sharing error:&#160;</string>
+    <string name="start_sync_dialog_title">Start storage sync?</string>
+    <string name="log_record_file_reading">Record file reading: id=</string>
+    <string name="log_error_record_reading">Record reading error</string>
+    <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>
+    <string name="log_error_write_to_record_file">Error write to the record file:&#160;</string>
+    <string name="recod_edit_mode">Edit mode</string>
+    <string name="record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
+    <string name="writing_here">Start writing here…</string>
+    <string name="log_not_found_node_id">Not found node with id=</string>
+    <string name="log_not_found_record">Not found record with id=</string>
+    <string name="log_not_transferred_record_id">Record Id not passed</string>
+    <string name="log_editing_crypted_records">Editing encrypted records is not implemented yet..</string>
+    <string name="url_decode_error">Url decoding error:&#160;</string>
+    <string name="log_before_record_save">Saving record with id=</string>
+<!--    <string name="log_record_saved">Record saved</string>-->
+<!--    <string name="log_record_edit_fields_error">Unable to edit the record fields (more in the logs)</string>-->
+<!--    <string name="log_file_edit_fields_error">Unable to edit the file (more in the logs)</string>-->
+    <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
+    <string name="log_wrong_tag_link_format">Wrong tag link format</string>
+<!--    <string name="log_start_node_creating">Start node creating</string>-->
+<!--    <string name="log_start_node_fields_editing">Start node fields editing</string>-->
+<!--    <string name="log_start_node_deleting">Start node deleting</string>-->
+<!--    <string name="log_start_record_creating">Start record creating</string>-->
+<!--    <string name="log_start_record_fields_editing">Start record fields editing</string>-->
+<!--    <string name="log_start_record_deleting">Start record deleting</string>-->
+<!--    <string name="log_start_record_cutting">Start record cutting</string>-->
+<!--    <string name="log_start_file_attaching">Start file attaching</string>-->
+<!--    <string name="log_start_file_fields_editing">Start file fields editing</string>-->
+<!--    <string name="log_start_file_deleting">Start file deleting</string>-->
+    <string name="log_oper_start_mask">Start %s %s</string>
+    <string name="crypted_node_name">Closed</string>
+    <string name="log_error_creating_record_file">Error creating record file</string>
+    <string name="tag_not_found">Tag [%s] not found..</string>
+    <string name="debug_not_implemented_yet">Not implemented yet..</string>
+    <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
+    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>
+    <string name="log_dailed_rename_file">Failed to renaming file from %s to %s</string>
+    <string name="log_record_not_have_node">The record does not have a node</string>
+    <string name="log_not_found_record_in_node">Not found record in node records</string>
+<!--    <string name="log_cancel_node_creating">Cancel node creating, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_node_changing">Cancel node fields editing, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_record_creating">Cancel record creation, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_record_changing">Cancel record fields editing, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_record_deleting">Cancel record deleting, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_file_ataching">Cancel file fields editing, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_file_fields_editing">Cancel file fields editing, as failed to save mytetra.xml</string>-->
+<!--    <string name="log_cancel_file_deleting">Cancel file deleting, as failed to save mytetra.xml</string>-->
+    <string name="log_oper_cancel_mask">Cancel $s $s, as failed to save mytetra.xml</string>
+    <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
+    <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
+    <string name="log_get_item_is_null">Unable to get current list item</string>
+    <string name="log_record_loading">Record loading id=</string>
+    <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
+    <string name="log_node_move_list_error">The node was moved, but an error occurred while updating the list. Reboot storage</string>
+    <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
+    <string name="link_was_copied">Link was copied:&#160;</string>
+    <string name="log_create_record_dir">Record directory \"%s\" is absent. Creating..</string>
+    <string name="log_record_dir_created">Record directory was created</string>
+    <string name="log_create_record_dir_error">Record directory creating failed</string>
+    <string name="log_check_record_dir_error">Record directory checking failed</string>
+    <string name="tag_name_is_empty">Tag name is empty</string>
+    <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
+    <string name="log_file_is_absent">File is absent:</string>
+    <string name="log_file_checking_error">Error checking file existence:</string>
+    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>
+    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>
+    <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
+<!--    <string name="log_record_fields_edited">Свойства записи изменены</string>-->
+    <string name="log_file_was_attached">File was attached</string>
+    <string name="open_file">Open file</string>
+    <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
+    <string name="log_record_not_have_attached_files">The record does not have attached files</string>
+    <string name="log_not_found_file_in_record">Not found file in the record</string>
+    <string name="file_was_renamed">The file was renamed</string>
+    <string name="file_name_with_ext">File name with extension</string>
+    <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
+    <string name="log_record_file_is_missing">No recording file will be created when saving</string>
+    <string name="log_start_record_file_reading">Start reading a file of record id=</string>
+    <string name="log_start_record_file_saving">Start saving a file of record id=</string>
+    <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
+    <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
+    <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
+    <string name="log_created_log_dir">The log directory was created:&#160;</string>
+    <string name="select_file_to_upload">Select file to upload</string>
+    <string name="log_file_read_error">Log file read error:&#160;</string>
+    <string name="log_logs_is_missing">Logs is missing</string>
+    <string name="log_selected_files_is_missing">Missing selected image files</string>
+    <string name="log_start_image_file_saving">Start saving image [%s] to record id=%s</string>
+    <string name="log_start_image_file_converting">Start converting image file to [%s]</string>
+    <string name="log_start_image_file_deleting">Start deleting image file [%s]</string>
+    <string name="log_error_image_file_saving">Failed to save image file</string>
+    <string name="log_failed_to_save_images">Failed to save images: %s (more in the logs)</string>
+    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
+    <string name="confirm_selected_images">Confirm</string>
+    <string name="error_record_file_reading">Failed to read the record file (more in the logs)</string>
+    <string name="error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
+    <string name="log_n_matches_found">%d matches found</string>
+    <string name="log_matches_not_found">Matches not found</string>
+    <string name="record_folder_path">Record folder path</string>
+    <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
+    <string name="log_error_move_record_catalog">Error moving record directory</string>
+
 </resources>

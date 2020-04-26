@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <TextView
-        android:text="@string/label_name"
+        android:text="@string/label_record_name"
         style="@style/dialog_labels"/>
 
     <EditText

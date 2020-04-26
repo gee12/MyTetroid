@@ -69,11 +69,11 @@ public class AskDialogs {
     }
 
     public static void showRequestWriteExtStorageDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.request_write_ext_storage);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_request_write_ext_storage);
     }
 
     public static void showRequestCameraDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.request_camera);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_request_camera);
     }
 
     public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
@@ -81,7 +81,7 @@ public class AskDialogs {
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
-        int mesRes = (isSyncSuccess) ? R.string.log_sync_success_dialog_request : R.string.log_sync_failed_dialog_request;
+        int mesRes = (isSyncSuccess) ? R.string.ask_sync_success_dialog_request : R.string.ask_sync_failed_dialog_request;
         AskDialogs.showYesDialog(context, applyHandler, mesRes);
     }
 
@@ -90,7 +90,7 @@ public class AskDialogs {
     }
 
     public static void showExitDialog(Context context, final IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.exit_from_app);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_exit_from_app);
     }
 
     /**

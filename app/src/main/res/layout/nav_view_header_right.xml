@@ -27,7 +27,7 @@
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
             android:layout_centerVertical="true"
-            android:text="@string/tags_header"
+            android:text="@string/subtitle_tags"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textStyle="italic"
             android:textSize="@dimen/nav_view_headers_text_size" />

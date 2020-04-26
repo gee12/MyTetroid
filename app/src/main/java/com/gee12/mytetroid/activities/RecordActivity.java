@@ -747,7 +747,7 @@ public class RecordActivity extends TetroidActivity implements
 //                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
                 mEditor.setScrollButtonsVisibility(true);
-                setSubtitle(getString(R.string.record_subtitle_view));
+                setSubtitle(getString(R.string.subtitle_record_view));
                 ViewUtils.hideKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_EDIT : {
@@ -767,7 +767,7 @@ public class RecordActivity extends TetroidActivity implements
 //                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
                 mEditor.setScrollButtonsVisibility(false);
-                setSubtitle(getString(R.string.record_subtitle_edit));
+                setSubtitle(getString(R.string.subtitle_record_edit));
                 mEditor.getWebView().focusEditor();
 //                ViewUtils.showKeyboard(this, mEditor.getWebView());
             } break;
@@ -790,7 +790,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(false);
 //                mMenuItemSave.setVisible(true);
-                setSubtitle(getString(R.string.record_subtitle_html));
+                setSubtitle(getString(R.string.subtitle_record_html));
             } break;
         }
     }

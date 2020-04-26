@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.Random;
@@ -90,14 +91,23 @@ public class RecordAskDialogs {
     }
 
     public static void saveRecord(Context context, final AskDialogs.IApplyCancelResult applyHandler) {
-        AskDialogs.showYesNoDialog(context, applyHandler, R.string.save_record);
+        AskDialogs.showYesNoDialog(context, applyHandler, R.string.ask_save_record);
     }
 
     public static void deleteRecord(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.record_delete);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_record_delete);
     }
 
-    public static void deleteRecordWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
+    public static void operRecordWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult applyHandler) {
+        int resId = (oper == TetroidLog.Opers.DELETE) ? R.string.title_delete
+                : (oper == TetroidLog.Opers.CUT) ? R.string.title_cut
+                : R.string.title_insert;
+        String mes = String.format(context.getString(R.string.ask_record_oper_without_dir_mask),
+                context.getString(resId));
+//        AskDialogs.showYesDialog(context, applyHandler, mes);
+        AskDialogs.showAlertDialog(context, mes,
+                (dialog, which) -> applyHandler.onApply(),
+                null);
     }
+
 }

@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_app_name"
-            android:text="@string/nodes_header"
+            android:text="@string/subtitle_nodes"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="@dimen/nav_view_headers_text_size"
             android:textStyle="italic"

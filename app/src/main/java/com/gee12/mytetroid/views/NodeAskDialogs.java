@@ -76,7 +76,7 @@ public class NodeAskDialogs {
     }
 
     public static void deleteNode(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.node_delete);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_node_delete);
     }
 
 }
