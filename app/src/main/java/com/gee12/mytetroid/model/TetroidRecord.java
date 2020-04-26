@@ -25,7 +25,6 @@ public class TetroidRecord extends TetroidObject {
     List<TetroidFile> files;
     List<TetroidTag> tags;
 
-
     private String decryptedTagsString;
     private String decryptedAuthor;
     private String decryptedUrl;
@@ -33,6 +32,16 @@ public class TetroidRecord extends TetroidObject {
     public TetroidRecord(boolean isCrypted, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, TetroidNode node) {
         super(FoundType.TYPE_RECORD, isCrypted, id, name);
+        init(tagsString, author, url, created, dirName, fileName, node);
+    }
+
+    public TetroidRecord(TetroidRecord record) {
+        super(FoundType.TYPE_RECORD, record.isCrypted, record.getId(), record.getName());
+        init(record.getTagsString(), record.getAuthor(false), record.getUrl(), record.getCreated(),
+                record.getDirName(), record.getFileName(), record.getNode());
+    }
+
+    private void init(String tagsString, String author, String url, Date created, String dirName, String fileName, TetroidNode node) {
         this.tagsString = tagsString;
         this.author = author;
         this.url = url;
@@ -45,17 +54,12 @@ public class TetroidRecord extends TetroidObject {
         this.isNew = false;
     }
 
-//    public TetroidRecord(boolean isCrypted, String id, Date created, String dirName, String fileName, TetroidNode node) {
-//        super(FoundType.TYPE_RECORD, id, name, isCrypted);
-//        this.isCrypted = isCrypted;
-//        this.id = id;
-//        this.created = created;
-//        this.dirName = dirName;
-//        this.fileName = fileName;
-//        this.node = node;
-//        this.files = new ArrayList<>();
-//        this.tags = new ArrayList<>();
-//    }
+    public void setDecryptedValues(String name, String tagsString, String author, String url) {
+        this.decryptedName = name;
+        this.decryptedTagsString = tagsString;
+        this.decryptedAuthor = author;
+        this.decryptedUrl = url;
+    }
 
     public TetroidNode getNode() {
         return node;
@@ -66,8 +70,8 @@ public class TetroidRecord extends TetroidObject {
         return (isCrypted && isDecrypted) ? decryptedTagsString : tagsString;
     }
 
-    public String getTagsString(boolean isCryptedValue) {
-        return (isCryptedValue) ? tagsString : decryptedTagsString;
+    public String getTagsString(boolean cryptedValue) {
+        return (cryptedValue) ? tagsString : decryptedTagsString;
     }
 
     public String getAuthor() {
@@ -75,8 +79,8 @@ public class TetroidRecord extends TetroidObject {
         return (isCrypted && isDecrypted) ? decryptedAuthor : author;
     }
 
-    public String getAuthor(boolean isCryptedValue) {
-        return (isCryptedValue) ? author : decryptedAuthor;
+    public String getAuthor(boolean cryptedValue) {
+        return (cryptedValue) ? author : decryptedAuthor;
     }
 
     public String getUrl() {
@@ -84,8 +88,8 @@ public class TetroidRecord extends TetroidObject {
         return (isCrypted && isDecrypted) ? decryptedUrl : url;
     }
 
-    public String getUrl(boolean isCryptedValue) {
-        return (isCryptedValue) ? url : decryptedUrl;
+    public String getUrl(boolean cryptedValue) {
+        return (cryptedValue) ? url : decryptedUrl;
     }
 
     public Date getCreated() {
