@@ -260,7 +260,7 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.deleteRecord(getContext(), () -> {
             int res = DataManager.deleteRecord(record, false);
             if (res == -1) {
-                RecordAskDialogs.deleteRecordWithoutDir(getContext(), () -> {
+                RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
                     int res1 = DataManager.deleteRecord(record, true);
                     onDeleteRecordResult(record, res1, false);
                 });
@@ -425,10 +425,16 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void cutRecord(TetroidRecord record) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.cut(record);
+        // удаляем запись из текущей ветки и каталог перемещаем в корзину
         int res = DataManager.cutRecord(record, false);
         if (res == -1) {
-            int res1 = DataManager.cutRecord(record, true);
-            onDeleteRecordResult(record, res1, true);
+            RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.CUT, () -> {
+                // вставляем без каталога записи
+                int res1 = DataManager.cutRecord(record, true);
+                onDeleteRecordResult(record, res1, true);
+            });
         } else {
             onDeleteRecordResult(record, res, true);
         }
@@ -438,10 +444,31 @@ public class MainPageFragment extends TetroidFragment {
      * Вставка записи в ветку.
      */
     private void insertRecord() {
-        if (DataManager.insertRecord(mCurNode)) {
-
+        // достаем запись из "буфера обмена"
+        TetroidClipboard clipboard = TetroidClipboard.get();
+        // вставляем с попыткой восстановить каталог записи
+        int res = DataManager.insertRecord(clipboard, mCurNode, false);
+        TetroidRecord record = (TetroidRecord) clipboard.getObject();
+        if (res == -1) {
+            RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
+                // вставляем без каталога записи
+                int res1 = DataManager.insertRecord(clipboard, mCurNode, false);
+                onInsertRecordResult(record, res1);
+            });
+        } else if (res == -2) {
+            LogManager.addLog(R.string.log_error_move_record_catalog, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         } else {
+            onInsertRecordResult(record, res);
+        }
+    }
 
+    private void onInsertRecordResult(TetroidRecord record, int res) {
+        if (res > 0 && record != null) {
+            mListAdapterRecords.notifyDataSetInvalidated();
+            mMainView.updateTags();
+            mMainView.updateNodes();
+        } else {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
         }
     }
 

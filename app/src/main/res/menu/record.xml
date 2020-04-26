@@ -10,14 +10,14 @@
     <item
         android:id="@+id/action_record_view"
         android:orderInCategory="10"
-        android:title="@string/view_mode"
+        android:title="@string/title_view_mode"
         android:visible="false"
         android:icon="@android:drawable/ic_menu_view"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_edit"
         android:orderInCategory="20"
-        android:title="@string/edit_mode"
+        android:title="@string/title_edit_mode"
         android:visible="false"
         android:icon="@android:drawable/ic_menu_edit"
         app:showAsAction="always" />
@@ -37,7 +37,7 @@
     <item
         android:id="@+id/action_record_edit_fields"
         android:orderInCategory="45"
-        android:title="@string/edit_record_fields"
+        android:title="@string/title_edit_record_fields"
         android:icon="@android:drawable/ic_menu_set_as"
         app:showAsAction="never" />
     <item
@@ -57,7 +57,7 @@
     <item
         android:id="@+id/action_cur_record_folder"
         android:orderInCategory="70"
-        android:title="@string/open_record_folder"
+        android:title="@string/title_open_record_folder"
         android:visible="true"
         android:icon="@drawable/ic_folder"
         app:showAsAction="never" />

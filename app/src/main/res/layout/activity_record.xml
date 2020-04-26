@@ -45,7 +45,7 @@
                     android:paddingRight="2dp"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
-                    android:text="@string/record_tags_label"
+                    android:text="@string/label_record_tags"
                     android:textColor="@color/colorLightLabelText"/>
 
                 <WebView
@@ -71,7 +71,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="2dp"
-                    android:text="@string/record_author_label"
+                    android:text="@string/label_record_author"
                     android:layout_alignParentStart="true"
                     android:textColor="@color/colorLightLabelText" />
 
@@ -82,7 +82,7 @@
                     android:layout_toEndOf="@id/label_record_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/record_author_label"
+                    android:text="@string/label_record_author"
                     android:padding="2dp" />
 
                 <TextView
@@ -92,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="2dp"
-                    android:text="@string/record_uri_label"
+                    android:text="@string/label_record_uri"
                     android:layout_alignParentStart="true"
                     android:textColor="@color/colorLightLabelText" />
 
@@ -116,7 +116,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="2dp"
-                    android:text="@string/record_date_label"
+                    android:text="@string/label_record_date"
                     android:textColor="@color/colorLightLabelText" />
 
                 <TextView

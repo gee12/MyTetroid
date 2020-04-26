@@ -62,6 +62,7 @@ public class DataManager extends XMLManager {
      */
     private static final String TAGS_SEPAR = "\\s*,\\s*";
     public static final String SEPAR = File.separator;
+    public static final int UNIQUE_ID_HALF_LENGTH = 10;
 
     //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
@@ -453,7 +454,7 @@ public class DataManager extends XMLManager {
             // Add this flag if you're using an intent to make the system open your file.
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-            Intent chooser = Intent.createChooser(intent, context.getString(R.string.open_with));
+            Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
             try {
                 // проверить, есть ли подходящее приложение для открытия файла
                 if (intent.resolveActivity(context.getPackageManager()) != null) {
@@ -589,17 +590,17 @@ public class DataManager extends XMLManager {
         // 10 цифр количества (милли)секунд с эпохи UNIX
         String seconds = String.valueOf(System.currentTimeMillis());
         int length = seconds.length();
-        if (length > 10) {
-            sb.append(seconds.substring(0, 10));
-        } else if (length < 10) {
+        if (length > UNIQUE_ID_HALF_LENGTH) {
+            sb.append(seconds.substring(0, UNIQUE_ID_HALF_LENGTH));
+        } else if (length < UNIQUE_ID_HALF_LENGTH) {
             sb.append(seconds);
-            for (int i = 0; i < 10 - length; i++){
+            for (int i = 0; i < UNIQUE_ID_HALF_LENGTH - length; i++){
                 sb.append('0');
             }
         }
         // 10 случайных символов
         Random rand = new Random();
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < UNIQUE_ID_HALF_LENGTH; i++){
             int randIndex = Math.abs(rand.nextInt()) % ID_SYMBOLS.length();
             sb.append(ID_SYMBOLS.charAt(randIndex));
         }
@@ -810,7 +811,7 @@ public class DataManager extends XMLManager {
         File folder = new File(dirPath);
         // удаляем каталог
         if (!FileUtils.deleteRecursive(folder)) {
-            LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+            LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
             return false;
         }
         return true;
@@ -884,7 +885,7 @@ public class DataManager extends XMLManager {
         if (checkRecordFolder(dirPath, true) <= 0) {
             return null;
         }
-        File folder = new File(dirPath);
+        File dir = new File(dirPath);
         // создаем файл записи (пустой)
         String filePath = dirPath + SEPAR + record.getFileName();
         Uri fileUri;
@@ -916,7 +917,7 @@ public class DataManager extends XMLManager {
             // удаляем файл записи
             file.delete();
             // удаляем каталог записи (пустой)
-            folder.delete();
+            dir.delete();
             return null;
         }
         return record;
@@ -1007,14 +1008,14 @@ public class DataManager extends XMLManager {
         return deleteRecord(record, withoutDir, trashPath, false);
     }
 
-    /**
-     * Копирование записи (добавление в "буфер обмена").
-     * @param record
-     */
-    public static void copyRecord(TetroidRecord record) {
-        // добавляем в "буфер обмена"
-        TetroidClipboard.copy(record);
-    }
+//    /**
+//     * Копирование записи (добавление в "буфер обмена").
+//     * @param record
+//     */
+//    public static void copyRecord(TetroidRecord record) {
+//        // добавляем в "буфер обмена"
+//        TetroidClipboard.copy(record);
+//    }
 
     /**
      * Вырезание записи из ветки (добавление в "буфер обмена" и удаление).
@@ -1024,29 +1025,69 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      */
     public static int cutRecord(TetroidRecord record, boolean withoutDir) {
-        // добавляем в "буфер обмена"
+/*        // добавляем в "буфер обмена"
         TetroidClipboard.cut(record);
         // удаляем запись из текущей ветки
+        int res = deleteRecord(record, false, SettingsManager.getTrashPath(), true);
+        if (res == -1) {
+            return deleteRecord(record, true, SettingsManager.getTrashPath(),true);
+        }
+        return res;*/
         return deleteRecord(record, withoutDir, SettingsManager.getTrashPath(), true);
     }
+
+/*    public static TetroidRecord insertRecord(TetroidNode node) {
+        // достаем запись из "буфера обмена"
+        TetroidClipboard clipboard = TetroidClipboard.get();
+        // вставляем с попыткой восстановить каталог записи
+        int res = insertRecord(clipboard, node, false);
+        if (res <= 0) {
+            // вставляем без каталога записи
+            if (insertRecord(clipboard, node, true) <= 0) {
+                return null;
+            }
+        }
+        return (TetroidRecord) clipboard.getObject();
+    }*/
 
     /**
      * Вставка записи из "буфера обмена" в указанную ветку.
      * @param node
-     * @return
+     * @param withoutDir
+     * @return 1 - успешно
+     *         0 - ошибка
+     *         -1 - ошибка (отсутствует каталог записи)
+     *         -2 - ошибка (не удалось переместить каталог записи)
      */
-    public static TetroidRecord insertRecord(TetroidNode node) {
-        // получаем запись из "буфера обмена"
-        TetroidClipboard clipboard = TetroidClipboard.get();
+    public static int insertRecord(TetroidClipboard clipboard, TetroidNode node, boolean withoutDir) {
         if (clipboard == null || !(clipboard.getObject() instanceof TetroidRecord)) {
-            return null;
+            return 0;
         }
         TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
         TetroidRecord srcRecord = (TetroidRecord)clipboard.getObject();
         if (srcRecord == null)
-            return null;
+            return 0;
 
-        // генерируем уникальные идентификаторы
+        String srcDirPath = null;
+        File srcDir = null;
+        // проверяем существование каталога записи
+        if (!withoutDir) {
+            if (clipboard.isCutted()) {
+                // вырезаем уникальную приставку в имени каталога
+                srcDirPath = SettingsManager.getTrashPath() + File.separator
+                        + srcRecord.getDirName().substring(UNIQUE_ID_HALF_LENGTH + 1);
+            } else {
+                srcDirPath = getPathToRecordFolder(srcRecord);
+            }
+            int dirRes = checkRecordFolder(srcDirPath, false);
+            if (dirRes > 0) {
+                srcDir = new File(srcDirPath);
+            } else {
+                return dirRes;
+            }
+        }
+
+        // генерируем уникальные идентификаторы, если запись копируется
         String id = (clipboard.isCutted()) ? srcRecord.getId() : createUniqueId();
         String dirName = (clipboard.isCutted()) ? srcRecord.getDirName() : createUniqueId();
         String name = srcRecord.getName(false);
@@ -1054,6 +1095,7 @@ public class DataManager extends XMLManager {
         String author = srcRecord.getAuthor(false);
         String url = srcRecord.getUrl(false);
 
+        // создаем копию записи
         boolean crypted = node.isCrypted();
         TetroidRecord record = new TetroidRecord(crypted, id,
                 encryptField(crypted, name),
@@ -1062,33 +1104,32 @@ public class DataManager extends XMLManager {
                 encryptField(crypted, url),
                 srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
         if (crypted) {
+            record.setDecrypted(true);
             record.setDecryptedValues(name, tagsString, author, url);
         }
         record.setIsNew(false);
-        if (crypted) {
-            record.setDecrypted(true);
-        }
+
         // создаем каталог записи
-        String dirPath = getPathToRecordFolder(record);
-        if (checkRecordFolder(dirPath, true) <= 0) {
-            return null;
+        String destDirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(destDirPath, true) <= 0) {
+            return -2;
         }
-        File folder = new File(dirPath);
-        // создаем файл записи (пустой)
-        String filePath = dirPath + SEPAR + record.getFileName();
-        Uri fileUri;
-        try {
-            fileUri = Uri.parse(filePath);
-        } catch (Exception ex) {
-            LogManager.addLog(context.getString(R.string.log_error_generate_record_file_path) + filePath, ex);
-            return null;
-        }
-        File file = new File(fileUri.getPath());
-        try {
-            file.createNewFile();
-        } catch (IOException ex) {
-            LogManager.addLog(context.getString(R.string.log_error_creating_record_file) + filePath, ex);
-            return null;
+        File destDir = new File(destDirPath);
+        if (clipboard.isCutted()) {
+            // перемещаем каталог записи
+            if (!FileUtils.moveToDirRecursive(srcDir, destDir)) {
+                LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
+                        srcDirPath, destDirPath), LogManager.Types.ERROR);
+                return -2;
+            }
+
+        } else {
+            // копируем каталог записи
+            if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
+                LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
+                        srcDirPath, destDirPath), LogManager.Types.ERROR);
+                return -2;
+            }
         }
 
         // добавляем запись в ветку (и соответственно, в коллекцию)
@@ -1112,6 +1153,14 @@ public class DataManager extends XMLManager {
         return true;
     }
 
+    /**
+     * Удаление записи из хранилища.
+     * @param record
+     * @param withoutDir Нужно ли пропустить работу с каталогом записи
+     * @param movePath Путь к каталогу, куда следует переместить каталог записи (не обязательно)
+     * @param isCutting Если true, то запись вырезается, иначе - удаляется
+     * @return
+     */
     public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath, boolean isCutting) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
@@ -1167,22 +1216,30 @@ public class DataManager extends XMLManager {
             if (movePath == null) {
                 // удаляем каталог записи
                 if (!FileUtils.deleteRecursive(folder)) {
-                    LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+                    LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
                     return 0;
                 }
             } else {
-                // проверяем каталог назначения для перемещения в него
-                File moveDirFile = new File(movePath);
-                if (!FileUtils.createDirIfNeed(moveDirFile)) {
-                    LogManager.addLog(context.getString(R.string.log_create_folder_error) + movePath, LogManager.Types.ERROR);
+
+                // добавляем к имени каталога записи уникальную приставку
+                String newDirName = createUniqueId() + "_" + record.getDirName();
+                if (isCutting) {
+                    record.setDirName(newDirName);
+                }
+
+                String destPath = movePath + File.separator + newDirName;
+                File destDirFile = new File(destPath);
+                // создаем каталог назначения
+                if (!FileUtils.createDirIfNeed(destDirFile)) {
+                    LogManager.addLog(context.getString(R.string.log_create_dir_error) + destPath, LogManager.Types.ERROR);
                     return 0;
                 }
                 // перемещаем каталог записи
-                if (!FileUtils.moveToDirRecursive(folder, moveDirFile)) {
-                    LogManager.addLog(context.getString(R.string.log_error_delete_record_folder) + dirPath, LogManager.Types.ERROR);
+                if (!FileUtils.moveToDirRecursive(folder, destDirFile)) {
+                    LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
+                            dirPath, movePath), LogManager.Types.ERROR);
                     return 0;
                 }
-
             }
         }
         return 1;

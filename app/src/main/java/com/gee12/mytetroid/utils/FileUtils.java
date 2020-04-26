@@ -21,6 +21,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class FileUtils {
 
@@ -163,7 +165,8 @@ public class FileUtils {
 
     /**
      * Перемещение файла или каталога с файлами/подкаталогами.
-     * @param srcFile
+     * @param srcFile Исходный каталог
+     * @param destDir Каталог назначения (не продительский)
      */
     public static boolean moveToDirRecursive(File srcFile, File destDir) {
         if (srcFile == null || destDir == null)
@@ -175,6 +178,41 @@ public class FileUtils {
 //        Files.move(srcFile.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
         File destFile = new File(destDir.getPath() + File.separator + srcFile.getName());
         return srcFile.renameTo(destFile);
+    }
+
+    /**
+     *
+     * @param srcFile
+     * @param destFile
+     * @throws IOException
+     */
+    public static boolean copyDirRecursive(File srcFile , File destFile) throws IOException {
+        if (srcFile == null || destFile == null)
+            return false;
+        if (srcFile.isDirectory()) {
+            if (!destFile.exists() && !destFile.mkdirs()) {
+                throw new IOException("Cannot create directory " + destFile.getAbsolutePath());
+            }
+            for (String child : srcFile.list()) {
+                if (!copyDirRecursive(new File(srcFile, child), new File(destFile, child)))
+                    return false;
+            }
+        } else {
+            File dir = destFile.getParentFile();
+            if (dir != null && !dir.exists() && !dir.mkdirs()) {
+                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
+            }
+            InputStream in = new FileInputStream(srcFile);
+            OutputStream out = new FileOutputStream(destFile);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        }
+        return true;
     }
 
     /**

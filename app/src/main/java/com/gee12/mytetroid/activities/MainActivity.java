@@ -1536,7 +1536,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (mCurTag != null) {
             searchInRecords(query, mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
         } else {
-            LogManager.addLog(R.string.log_records_search_select_tag, Toast.LENGTH_LONG);
+            LogManager.addLog(R.string.search_records_select_tag, Toast.LENGTH_LONG);
         }
     }
 

@@ -16,8 +16,8 @@
 
         <Preference
             android:key="@string/pref_key_temp_path"
-            android:title="@string/trash_path"
-            android:summary="@string/trash_path_summ" />
+            android:title="@string/pref_trash_path"
+            android:summary="@string/pref_trash_path_summ" />
 
     </PreferenceCategory>
 
@@ -72,8 +72,8 @@
         <CheckBoxPreference
             android:key="@string/pref_key_is_ask_before_sync"
             android:dependency="@string/pref_key_is_sync_before_init"
-            android:title="@string/ask_before_sync"
-            android:summary="@string/ask_before_sync_summ"
+            android:title="@string/pref_ask_before_sync"
+            android:summary="@string/pref_ask_before_sync_summ"
             android:defaultValue="true" />
 
         <CheckBoxPreference
@@ -95,8 +95,8 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_record_auto_save"
-            android:title="@string/record_auto_save"
-            android:summary="@string/record_auto_save_summ"
+            android:title="@string/pref_record_auto_save"
+            android:summary="@string/pref_record_auto_save_summ"
             android:defaultValue="false" />
 
     </PreferenceCategory>
@@ -131,7 +131,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_key_category_other">
+    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_category_other">
 
         <!--<CheckBoxPreference-->
             <!--android:visibility="gone"-->
@@ -142,15 +142,15 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_write_log"
-            android:title="@string/write_log"
-            android:summary="@string/is_write_log"
+            android:title="@string/pref_write_log"
+            android:summary="@string/pref_write_log_summ"
             android:defaultValue="false" />
 
         <Preference
             android:dependency="@string/pref_key_is_write_log"
             android:key="@string/pref_key_log_path"
-            android:title="@string/log_path"
-            android:summary="@string/log_path_summ" />
+            android:title="@string/pref_log_path"
+            android:summary="@string/pref_log_path_summ" />
 
         <PreferenceScreen
             android:dependency="@string/pref_key_is_write_log"
@@ -162,8 +162,8 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_confirm_app_exit"
-            android:title="@string/is_confirm_app_exit"
-            android:summary="@string/is_confirm_app_exit_summ"
+            android:title="@string/pref_is_confirm_app_exit"
+            android:summary="@string/pref_is_confirm_app_exit_summ"
             android:defaultValue="true" />
 
     </PreferenceCategory>

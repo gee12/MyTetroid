@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_open_tag"
         android:orderInCategory="10"
-        android:title="@string/open_tag_records"
+        android:title="@string/title_open_tag_records"
         android:icon="@drawable/ic_tag"
         app:showAsAction="always" />
     <item
@@ -17,7 +17,7 @@
     <item
         android:id="@+id/action_copy_link"
         android:orderInCategory="30"
-        android:title="@string/copy_link"
+        android:title="@string/title_copy_link"
         android:icon="@drawable/ic_link"
         app:showAsAction="ifRoom|withText" />
 </menu>

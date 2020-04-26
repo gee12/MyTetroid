@@ -78,7 +78,7 @@ public class FileAskDialogs {
     }
 
     public static void deleteFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.file_delete);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_file_delete);
     }
 
     public static void deleteAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
@@ -86,14 +86,14 @@ public class FileAskDialogs {
     }
 
     public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.log_attach_delete_without_file);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_attach_delete_without_file);
     }
 
     public static void renameAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_record_without_dir);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_delete_record_without_dir);
     }
 
     public static void renameAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.log_delete_attach_without_file);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_delete_attach_without_file);
     }
 }

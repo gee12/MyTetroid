@@ -58,7 +58,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
         tempFolderPicker.setOnPreferenceClickListener(preference -> {
-            openFolderPicker(getString(R.string.trash_path),
+            openFolderPicker(getString(R.string.pref_trash_path),
                     SettingsManager.getTrashPath(),
                     REQUEST_CODE_OPEN_TEMP_PATH);
             return true;
@@ -66,7 +66,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference logFolderPicker = findPreference(getString(R.string.pref_key_log_path));
         logFolderPicker.setOnPreferenceClickListener(preference -> {
-            openFolderPicker(getString(R.string.log_path),
+            openFolderPicker(getString(R.string.pref_log_path),
                     SettingsManager.getLogPath(),
                     REQUEST_CODE_OPEN_LOG_PATH);
             return true;
