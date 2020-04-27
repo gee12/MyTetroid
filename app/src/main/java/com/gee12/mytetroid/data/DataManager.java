@@ -1068,14 +1068,15 @@ public class DataManager extends XMLManager {
         if (srcRecord == null)
             return 0;
 
-        String srcDirPath = null;
+        String srcDirName = null;
+                String srcDirPath = null;
         File srcDir = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
             if (clipboard.isCutted()) {
                 // вырезаем уникальную приставку в имени каталога
-                srcDirPath = SettingsManager.getTrashPath() + File.separator
-                        + srcRecord.getDirName().substring(UNIQUE_ID_HALF_LENGTH + 1);
+                srcDirName = srcRecord.getDirName().substring(UNIQUE_ID_HALF_LENGTH + 1);
+                srcDirPath = SettingsManager.getTrashPath() + File.separator + srcDirName;
             } else {
                 srcDirPath = getPathToRecordFolder(srcRecord);
             }
@@ -1109,22 +1110,24 @@ public class DataManager extends XMLManager {
         }
         record.setIsNew(false);
 
-        // создаем каталог записи
+/*        // создаем каталог записи
         String destDirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(destDirPath, true) <= 0) {
             return -2;
-        }
-        File destDir = new File(destDirPath);
+        }*/
         if (clipboard.isCutted()) {
             // перемещаем каталог записи
+            String destDirPath = getStoragePathBase();
+            File destDir = new File(destDirPath);
             if (!FileUtils.moveToDirRecursive(srcDir, destDir)) {
                 LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
                         srcDirPath, destDirPath), LogManager.Types.ERROR);
                 return -2;
             }
-
         } else {
             // копируем каталог записи
+            String destDirPath = getPathToRecordFolder(record);
+            File destDir = new File(destDirPath);
             try {
                 if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
@@ -1139,25 +1142,37 @@ public class DataManager extends XMLManager {
         }
 
         // добавляем запись в ветку (и соответственно, в коллекцию)
-        // TODO:
         node.addRecord(record);
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
             // добавляем метки в запись и в коллекцию
             instance.parseRecordTags(record, tagsString);
         } else {
-//            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             // удаляем запись из ветки
             node.getRecords().remove(record);
-            // удаляем файл записи
-            file.delete();
-            // удаляем каталог записи (пустой)
-            folder.delete();
-            return null;
+            if (clipboard.isCutted()) {
+                // перемещаем каталог записи обратно в корзину
+                File srcDir2 = new File(getStoragePathBase(), srcDirName);
+                File destDir = new File(SettingsManager.getTrashPath());
+                if (!FileUtils.moveToDirRecursive(srcDir2, destDir)) {
+                    LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
+                            srcDir2.getAbsolutePath(), destDir.getAbsolutePath()), LogManager.Types.ERROR);
+                    return -2;
+                }
+            } else {
+                // удаляем только что скопированный каталог записи
+                String destDirPath = getPathToRecordFolder(record);
+                File destDir = new File(destDirPath);
+                if (!FileUtils.deleteRecursive(destDir)) {
+                    LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
+                    return 0;
+                }
+            }
+            return 0;
         }
 
-        return true;
+        return 1;
     }
 
     /**
