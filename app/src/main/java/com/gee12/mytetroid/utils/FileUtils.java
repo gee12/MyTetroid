@@ -156,34 +156,36 @@ public class FileUtils {
     public static boolean deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory == null)
             return false;
-        if (fileOrDirectory.isDirectory())
+        if (fileOrDirectory.isDirectory()) {
             for (File child : fileOrDirectory.listFiles())
                 if (!deleteRecursive(child))
                     return false;
+        }
         return fileOrDirectory.delete();
     }
 
     /**
-     * Перемещение файла или каталога с файлами/подкаталогами.
-     * @param srcFile Исходный каталог
-     * @param destDir Каталог назначения (не продительский)
+     * Перемещение файла или каталога с файлами/подкаталогами в указанный каталог (родительский).
+     * @param srcFile Исходный файл/каталог
+     * @param destDir Каталог назначения (родительский)
      */
-    public static boolean moveToDirRecursive(File srcFile, File destDir) {
+    public static boolean moveToDirRecursive(File srcFile, File destDir) /*throws IOException*/ {
         if (srcFile == null || destDir == null)
             return false;
-        if (srcFile.isDirectory())
-            for (File child : srcFile.listFiles())
-                if (!moveToDirRecursive(child, destDir))
+        if (srcFile.isDirectory()) {
+            for (String child : srcFile.list())
+                if (!moveToDirRecursive(new File(srcFile, child), new File(destDir, srcFile.getName())))
                     return false;
+        }
 //        Files.move(srcFile.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        File destFile = new File(destDir.getPath() + File.separator + srcFile.getName());
+        File destFile = new File(destDir, srcFile.getName());
         return srcFile.renameTo(destFile);
     }
 
     /**
-     *
-     * @param srcFile
-     * @param destFile
+     * Копирование файла или каталога с файлами/подкаталогами в указанный файл/каталог (не родительский).
+     * @param srcFile Исходный файл/каталог
+     * @param destFile Файл/каталог назначения (не родительский)
      * @throws IOException
      */
     public static boolean copyDirRecursive(File srcFile , File destFile) throws IOException {
