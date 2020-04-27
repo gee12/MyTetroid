@@ -1125,14 +1125,21 @@ public class DataManager extends XMLManager {
 
         } else {
             // копируем каталог записи
-            if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
+            try {
+                if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
+                    LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
+                            srcDirPath, destDirPath), LogManager.Types.ERROR);
+                    return -2;
+                }
+            } catch (IOException ex) {
                 LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
-                        srcDirPath, destDirPath), LogManager.Types.ERROR);
+                        srcDirPath, destDirPath), ex);
                 return -2;
             }
         }
 
         // добавляем запись в ветку (и соответственно, в коллекцию)
+        // TODO:
         node.addRecord(record);
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {

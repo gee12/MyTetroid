@@ -346,6 +346,7 @@
     <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>
     <string name="log_error_move_record_dir">Error moving the record folder from [%s] to [%s]</string>
+    <string name="log_error_copy_record_dir">Error copying the record folder from [%s] to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
     <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
     <string name="log_open_node_records">Open node records: id=</string>
