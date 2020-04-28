@@ -34,6 +34,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      *
      */
     private static final String ns = null;
+    public static final String DATE_TIME_FORMAT = "yyyyMMddHHmmss";
 
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
@@ -378,7 +379,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             author = parser.getAttributeValue(ns, "author");
             url = parser.getAttributeValue(ns, "url");
             // строка вида "yyyyMMddHHmmss" (например, "20180901211132")
-            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), "yyyyMMddHHmmss");
+            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), DATE_TIME_FORMAT);
             dirName = parser.getAttributeValue(ns, "dir");
             fileName = parser.getAttributeValue(ns, "file");
         }

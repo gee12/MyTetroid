@@ -13,6 +13,7 @@ public class TetroidLog extends LogManager {
         NODE_FIELDS (R.string.oper_simple_node_fields, R.string.oper_past_node_fields, R.string.oper_continuous_node_fields),
         RECORD (R.string.oper_simple_record, R.string.oper_past_record, R.string.oper_continuous_record),
         RECORD_FIELDS (R.string.oper_simple_record_fields, R.string.oper_past_record_fields, R.string.oper_continuous_record_fields),
+        RECORD_DIR (R.string.oper_simple_record_dir, R.string.oper_past_record_dir, R.string.oper_continuous_record_dir),
         FILE (R.string.oper_simple_file, R.string.oper_past_file, R.string.oper_continuous_file),
         FILE_FIELDS (R.string.oper_simple_file_fields, R.string.oper_past_file_fields, R.string.oper_continuous_file_fields);
 
@@ -55,27 +56,39 @@ public class TetroidLog extends LogManager {
         }
     }
 
-    public static void addOperStartLog(Objs obj, Opers oper) {
-        String mes = String.format(getString(R.string.log_oper_cancel_mask),
-                getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
-        LogManager.addLog(mes, Types.ERROR);
-    }
-
-    public static void addOperCancelLog(Objs obj, Opers oper) {
+    public static String addOperStartLog(Objs obj, Opers oper) {
         String mes = String.format(getString(R.string.log_oper_start_mask),
                 getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
+        LogManager.addLog(mes, Types.ERROR);
+        return mes;
+    }
+
+    public static String addOperCancelLog(Objs obj, Opers oper) {
+        String mes = String.format(getString(R.string.log_oper_cancel_mask),
+                getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
         LogManager.addLog(mes, Types.DEBUG);
+        return mes;
     }
 
-    public static void addOperResLog(Objs obj, Opers oper) {
+    public static String addOperResLog(Objs obj, Opers oper) {
+        return addOperResLog(obj, oper, Toast.LENGTH_SHORT);
+    }
+
+    public static String addOperResLog(Objs obj, Opers oper, int length) {
         String mes = getString(obj.getResId(PAST_PERFECT)) + getString(oper.getResId(PAST_PERFECT));
-        LogManager.addLog(mes, Types.INFO, Toast.LENGTH_SHORT);
+        LogManager.addLog(mes, Types.INFO, length);
+        return mes;
     }
 
-    public static void addOperErrorLog(Objs obj, Opers oper) {
+    public static String addOperErrorLog(Objs obj, Opers oper) {
+        return addOperResLog(obj, oper, Toast.LENGTH_LONG);
+    }
+
+    public static String addOperErrorLog(Objs obj, Opers oper, int length) {
         String mes = String.format(getString(R.string.log_oper_error_mask),
                 getString(obj.getResId(PRESENT_SIMPLE)), getString(oper.getResId(PRESENT_SIMPLE)));
-        LogManager.addLog(mes, Types.ERROR, Toast.LENGTH_LONG);
+        LogManager.addLog(mes, Types.ERROR, length);
+        return mes;
     }
 
     private static String getString(int resId) {

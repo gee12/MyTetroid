@@ -173,13 +173,23 @@ public class FileUtils {
         if (srcFile == null || destDir == null)
             return false;
         if (srcFile.isDirectory()) {
+            if (!destDir.exists() && !destDir.mkdirs()) {
+//            throw new IOException("Cannot create directory " + destDir.getAbsolutePath());
+                return false;
+            }
             for (String child : srcFile.list())
                 if (!moveToDirRecursive(new File(srcFile, child), new File(destDir, srcFile.getName())))
                     return false;
-        }
+            return srcFile.delete();
+        } else {
+            if (!destDir.exists() && !destDir.mkdirs()) {
+//            throw new IOException("Cannot create directory " + destDir.getAbsolutePath());
+                return false;
+            }
 //        Files.move(srcFile.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        File destFile = new File(destDir, srcFile.getName());
-        return srcFile.renameTo(destFile);
+            File destFile = new File(destDir, srcFile.getName());
+            return srcFile.renameTo(destFile);
+        }
     }
 
     /**

@@ -149,24 +149,27 @@
     <string name="stats_unique_tags_count">Из них уникальных:</string>
     <string name="stats_authors_count">Авторов:</string>
 
-    <string name="oper_past_node">Ветка&#160;</string>
-    <string name="oper_past_node_fields">Свойства ветки&#160;</string>
-    <string name="oper_past_record">Запись&#160;</string>
-    <string name="oper_past_record_fields">Свойства записи&#160;</string>
-    <string name="oper_past_file">Файл&#160;</string>
-    <string name="oper_past_file_fields">Свойства файла&#160;</string>
-
     <string name="oper_simple_node">ветку</string>
     <string name="oper_simple_node_fields">свойства ветки</string>
     <string name="oper_simple_record">запись</string>
     <string name="oper_simple_record_fields">свойства записи</string>
+    <string name="oper_simple_record_dir">каталог записи</string>
     <string name="oper_simple_file">файл</string>
     <string name="oper_simple_file_fields">свойства файла</string>
+
+    <string name="oper_past_node">Ветка&#160;</string>
+    <string name="oper_past_node_fields">Свойства ветки&#160;</string>
+    <string name="oper_past_record">Запись&#160;</string>
+    <string name="oper_past_record_fields">Свойства записи&#160;</string>
+    <string name="oper_past_record_dir">Каталог записи&#160;</string>
+    <string name="oper_past_file">Файл&#160;</string>
+    <string name="oper_past_file_fields">Свойства файла&#160;</string>
 
     <string name="oper_continuous_node">ветки</string>
     <string name="oper_continuous_node_fields">свойств ветки</string>
     <string name="oper_continuous_record">записи</string>
     <string name="oper_continuous_record_fields">свойств записи</string>
+    <string name="oper_continuous_record_dir">каталога записи</string>
     <string name="oper_continuous_file">файла</string>
     <string name="oper_continuous_file_fields">свойств файла</string>
 
@@ -357,7 +360,7 @@
 <!--    <string name="log_cancel_record_deleting">Отмена удаления записи, т.к. не удалось сохранить mytetra.xml</string>-->
 <!--    <string name="log_cancel_file_fields_editing">Отмена редактирования свойств файла, т.к. не удалось сохранить mytetra.xml</string>-->
 <!--    <string name="log_cancel_file_deleting">Отмена удаления прикрепленного файла, т.к. не удалось сохранить mytetra.xml</string>-->
-    <string name="log_oper_cancel_mask">Отмена $s $s, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="log_oper_cancel_mask">Отмена %s %s, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="log_get_item_is_null">Не удается получить текущий элемент списка</string>
     <string name="link_to_record">Ссылка на запись MyTetroid</string>
@@ -369,7 +372,7 @@
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="link_was_copied">Ссылка скопирована:&#160;</string>
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
-    <string name="log_record_dir_created">Создан каталог записи</string>
+<!--    <string name="log_record_dir_created">Создан каталог записи</string>-->
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
     <string name="tag_name_is_empty">Имя метки пусто</string>
@@ -413,5 +416,6 @@
     <string name="log_matches_not_found">Совпадений не найдено</string>
     <string name="record_folder_path">Путь к каталогу записи</string>
     <string name="log_error_move_record_catalog">Ошибка перемещения каталога записи</string>
+    <string name="log_erorr_move_record_dir_when_del">Запись удалена, но при перемещении каталога в корзину возникла ошибка (подробнее в логах)</string>
 
 </resources>

@@ -298,6 +298,8 @@ public class MainPageFragment extends TetroidFragment {
             if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
                 showView(MAIN_VIEW_NODE_RECORDS);
             }
+        } else if (res == -2 && !isCutted) {
+            LogManager.addLog(R.string.log_erorr_move_record_dir_when_del, LogManager.Types.WARNING, Toast.LENGTH_LONG);
         } else {
 //            String s = getString(R.string.oper_res_record) + getString((isCutted) ? R.string.cut : R.string.delete);
 //            LogManager.addLog(getString(R.string.log_oper_error_mask), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -463,7 +465,8 @@ public class MainPageFragment extends TetroidFragment {
                 onInsertRecordResult(record, res1);
             });
         } else if (res == -2) {
-            LogManager.addLog(R.string.log_error_move_record_catalog, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.addLog(R.string.log_error_move_record_catalog, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
         } else {
             onInsertRecordResult(record, res);
         }
