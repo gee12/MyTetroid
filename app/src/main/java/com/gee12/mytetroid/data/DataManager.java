@@ -1153,11 +1153,11 @@ public class DataManager extends XMLManager {
             node.getRecords().remove(record);
             if (clipboard.isCutted()) {
                 // перемещаем каталог записи обратно в корзину
-                File srcDir2 = new File(getStoragePathBase(), srcDirName);
-                File destDir = new File(SettingsManager.getTrashPath());
-                if (!FileUtils.moveToDirRecursive(srcDir2, destDir)) {
+                File inBaseDir = new File(getStoragePathBase(), srcDirName);
+                File trashDir = new File(SettingsManager.getTrashPath());
+                if (!FileUtils.moveToDirRecursive(inBaseDir, trashDir)) {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
-                            srcDir2.getAbsolutePath(), destDir.getAbsolutePath()), LogManager.Types.ERROR);
+                            inBaseDir.getAbsolutePath(), trashDir.getAbsolutePath()), LogManager.Types.ERROR);
                     return -2;
                 }
             } else {

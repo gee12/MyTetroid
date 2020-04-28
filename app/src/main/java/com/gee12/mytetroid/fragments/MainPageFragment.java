@@ -26,6 +26,7 @@ import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
+import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -91,6 +92,12 @@ public class MainPageFragment extends TetroidFragment {
         this.mTextViewRecordsEmpty = view.findViewById(R.id.text_view_empty_records);
         mListViewRecords.setEmptyView(mTextViewRecordsEmpty);
         registerForContextMenu(mListViewRecords);
+        mListViewRecords.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
         // список файлов
         this.mListViewFiles = view.findViewById(R.id.list_view_files);
         // обработка нажатия на пустом месте списка файлов
@@ -260,7 +267,7 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.deleteRecord(getContext(), () -> {
             int res = DataManager.deleteRecord(record, false);
             if (res == -1) {
-                RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
+                RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
                     int res1 = DataManager.deleteRecord(record, true);
                     onDeleteRecordResult(record, res1, false);
                 });
@@ -430,7 +437,7 @@ public class MainPageFragment extends TetroidFragment {
         // удаляем запись из текущей ветки и каталог перемещаем в корзину
         int res = DataManager.cutRecord(record, false);
         if (res == -1) {
-            RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.CUT, () -> {
+            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.CUT, () -> {
                 // вставляем без каталога записи
                 int res1 = DataManager.cutRecord(record, true);
                 onDeleteRecordResult(record, res1, true);
@@ -450,7 +457,7 @@ public class MainPageFragment extends TetroidFragment {
         int res = DataManager.insertRecord(clipboard, mCurNode, false);
         TetroidRecord record = (TetroidRecord) clipboard.getObject();
         if (res == -1) {
-            RecordAskDialogs.operRecordWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
+            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
                 // вставляем без каталога записи
                 int res1 = DataManager.insertRecord(clipboard, mCurNode, false);
                 onInsertRecordResult(record, res1);
@@ -499,7 +506,7 @@ public class MainPageFragment extends TetroidFragment {
                     onDeleteFileResult(file, res1);
                 });
             } else if (res == -1) {
-                FileAskDialogs.deleteAttachWithoutDir(getContext(), () -> {
+                RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
                     int res1 = DataManager.deleteFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
@@ -632,16 +639,52 @@ public class MainPageFragment extends TetroidFragment {
      * @param menuInfo
      */
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
         int viewId = v.getId();
         MenuInflater inflater = getActivity().getMenuInflater();
+        AdapterView.AdapterContextMenuInfo adapterMenuInfo = (AdapterView.AdapterContextMenuInfo) menuInfo;
         if (viewId == R.id.list_view_records) {
             inflater.inflate(R.menu.record_context, menu);
+            prepareRecordsContextMenu(menu, adapterMenuInfo);
         } else if (viewId == R.id.list_view_files) {
             inflater.inflate(R.menu.file_context, menu);
+            prepareFilesContextMenu(menu, adapterMenuInfo);
         }
+    }
+
+    /**
+     * @param menu
+     * @param menuInfo
+     */
+    private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
+        if (menuInfo == null)
+            return;
+        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.checkType(FoundType.TYPE_RECORD));
+        activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
+        if (record != null) {
+            activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
+        }
+    }
+
+    /**
+     * @param menu
+     * @param menuInfo
+     */
+    private void prepareFilesContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
+        if (menuInfo == null)
+            return;
+        activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterFiles.getCount() - 1);
+    }
+
+    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
+//        menuItem.setEnabled(isActivate);
+//        menuItem.getIcon().setAlpha((isActivate) ? 255 : 130);
+        menuItem.setVisible(isActivate);
     }
 
     /**

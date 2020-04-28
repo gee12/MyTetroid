@@ -81,9 +81,17 @@ public class FileAskDialogs {
         AskDialogs.showYesDialog(context, applyHandler, R.string.ask_file_delete);
     }
 
-    public static void deleteAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
-    }
+/*    public static void deleteAttachWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult applyHandler) {
+        int resId = (oper == TetroidLog.Opers.DELETE) ? R.string.title_delete
+                : (oper == TetroidLog.Opers.CUT) ? R.string.title_cut
+                : R.string.title_insert;
+        String mes = String.format(context.getString(R.string.ask_record_oper_without_dir_mask),
+                context.getString(resId));
+//        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
+        AskDialogs.showAlertDialog(context, mes,
+                (dialog, which) -> applyHandler.onApply(),
+                null);
+    }*/
 
     public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler, R.string.ask_attach_delete_without_file);

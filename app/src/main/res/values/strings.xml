@@ -264,7 +264,7 @@
 
     <string name="ask_record_delete">Delete record ?</string>
     <!--    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>-->
-    <string name="ask_record_oper_without_dir_mask">Record directory is missing. %s anyway ?</string>
+    <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="ask_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
     <string name="ask_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
