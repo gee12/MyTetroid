@@ -174,24 +174,27 @@
     <string name="label_record_uri">Url:</string>
     <string name="label_record_date">Date:</string>
 
-    <string name="oper_past_node">Node was&#160;</string>
-    <string name="oper_past_node_fields">Node fields was&#160;</string>
-    <string name="oper_past_record">Record was&#160;</string>
-    <string name="oper_past_record_fields">Record fields was&#160;</string>
-    <string name="oper_past_file">File was&#160;</string>
-    <string name="oper_past_file_fields">File fields was&#160;</string>
-
     <string name="oper_simple_node">node</string>
     <string name="oper_simple_node_fields">node fields</string>
     <string name="oper_simple_record">record</string>
     <string name="oper_simple_record_fields">record fields</string>
+    <string name="oper_simple_record_dir">record catalog</string>
     <string name="oper_simple_file">file</string>
     <string name="oper_simple_file_fields">file fields</string>
+
+    <string name="oper_past_node">Node was&#160;</string>
+    <string name="oper_past_node_fields">Node fields was&#160;</string>
+    <string name="oper_past_record">Record was&#160;</string>
+    <string name="oper_past_record_fields">Record fields was&#160;</string>
+    <string name="oper_past_record_dir">Record catalog was&#160;</string>
+    <string name="oper_past_file">File was&#160;</string>
+    <string name="oper_past_file_fields">File fields was&#160;</string>
 
     <string name="oper_continuous_node">@string/oper_simple_node</string>
     <string name="oper_continuous_node_fields">@string/oper_simple_node_fields</string>
     <string name="oper_continuous_record">@string/oper_simple_record</string>
     <string name="oper_continuous_record_fields">@string/oper_simple_record_fields</string>
+    <string name="oper_continuous_record_dir">@string/oper_simple_record_dir</string>
     <string name="oper_continuous_file">@string/oper_simple_file</string>
     <string name="oper_continuous_file_fields">@string/oper_simple_file_fields</string>
 
@@ -405,7 +408,7 @@
 <!--    <string name="log_cancel_file_ataching">Cancel file fields editing, as failed to save mytetra.xml</string>-->
 <!--    <string name="log_cancel_file_fields_editing">Cancel file fields editing, as failed to save mytetra.xml</string>-->
 <!--    <string name="log_cancel_file_deleting">Cancel file deleting, as failed to save mytetra.xml</string>-->
-    <string name="log_oper_cancel_mask">Cancel $s $s, as failed to save mytetra.xml</string>
+    <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
@@ -415,7 +418,7 @@
     <string name="log_create_node_list_error">The node was created, but an error occurred while updating the list. Reboot storage</string>
     <string name="link_was_copied">Link was copied:&#160;</string>
     <string name="log_create_record_dir">Record directory \"%s\" is absent. Creating..</string>
-    <string name="log_record_dir_created">Record directory was created</string>
+<!--    <string name="log_record_dir_created">Record directory was created</string>-->
     <string name="log_create_record_dir_error">Record directory creating failed</string>
     <string name="log_check_record_dir_error">Record directory checking failed</string>
     <string name="tag_name_is_empty">Tag name is empty</string>
@@ -459,5 +462,6 @@
     <string name="record_folder_path">Record folder path</string>
     <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
     <string name="log_error_move_record_catalog">Error moving record directory</string>
+    <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>
 
 </resources>

@@ -22,7 +22,7 @@ import java.util.Locale;
 public class Utils {
 
     /**
-     *
+     * Проверка рравенства двух строк.
      * @param one
      * @param two
      * @param checkCase
@@ -33,7 +33,7 @@ public class Utils {
     }
 
     /***
-     * Преобразование строки в дату
+     * Преобразование строки в дату.
      * @param dateString
      * @return
      */
@@ -49,6 +49,16 @@ public class Utils {
 //            e.printStackTrace();
         }
         return convertedDate;
+    }
+
+    /**
+     * Преобразование строки в дату.
+     * @param date
+     * @param pattern
+     * @return
+     */
+    public static String dateToString(Date date, String pattern) {
+        return new SimpleDateFormat(pattern, Locale.getDefault()).format(date);
     }
 
     /**

@@ -82,10 +82,12 @@ public class LogManager {
                 Log.d(LOG_TAG, s);
                 break;
         }
-        if (isWriteToFile)
+        if (isWriteToFile) {
             writeToFile(typeTag + s);
-        if (duration >= 0)
+        }
+        if (duration >= 0) {
             showMessage(s, duration);
+        }
     }
 
     public static void addLog(String s, Types type, int duration) {

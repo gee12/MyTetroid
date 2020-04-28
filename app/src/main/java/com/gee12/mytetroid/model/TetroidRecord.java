@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.model;
 
-import java.text.SimpleDateFormat;
+import com.gee12.mytetroid.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -97,7 +98,7 @@ public class TetroidRecord extends TetroidObject {
     }
 
     public String getCreatedString(String format) {
-        return (created != null) ? new SimpleDateFormat(format).format(created) : "";
+        return (created != null) ? Utils.dateToString(created, format) : "";
 //        return dateFormat.format(created);
     }
 
