@@ -215,7 +215,7 @@
     <string name="ask_node_delete">Удалить ветку ?</string>
     <string name="ask_file_delete">Удалить файл ?</string>
     <!--    <string name="log_record_delete_without_dir">Каталог записи отсутствует. Удалить все равно ?</string>-->
-    <string name="ask_record_oper_without_dir_mask">Каталог записи отсутствует. %s все равно ?</string>
+    <string name="ask_oper_without_record_dir_mask">Каталог записи отсутствует. %s все равно ?</string>
     <string name="ask_attach_delete_without_file">Файл отсутствует на диске. Удалить все равно ?</string>
     <string name="ask_delete_attach_without_file">Файл отсутствует на диске. Удалить файл из хранилища ?</string>
     <string name="ask_delete_record_without_dir">Каталог записи отсутствует. Удалить запись из хранилища ?</string>
