@@ -1241,6 +1241,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         PopupMenu popupMenu = new PopupMenu(this, v); //, Gravity.CENTER_HORIZONTAL);
         popupMenu.inflate(R.menu.node_context);
 
+        Menu menu = popupMenu.getMenu();
+        activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable());
+        activateMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
+        activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
+        int nodesCount = ((node.getParentNode() != null) ? node.getParentNode().getSubNodes() : DataManager.getRootNodes()).size();
+        activateMenuItem(menu.findItem(R.id.action_move_up), pos < nodesCount - 1);
+
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.action_open_node:
@@ -1284,9 +1291,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         });
         // для отображения иконок
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) popupMenu.getMenu(), v);
+        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) menu, v);
         menuHelper.setForceShowIcon(true);
         menuHelper.show();
+    }
+
+    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
+        menuItem.setEnabled(isActivate);
+        menuItem.getIcon().setAlpha((isActivate) ? 255 : 130);
+//        menuItem.setVisible(isActivate);
     }
 
     /**
