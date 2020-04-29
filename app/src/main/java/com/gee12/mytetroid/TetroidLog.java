@@ -81,7 +81,7 @@ public class TetroidLog extends LogManager {
     }
 
     public static String addOperErrorLog(Objs obj, Opers oper) {
-        return addOperResLog(obj, oper, Toast.LENGTH_LONG);
+        return addOperErrorLog(obj, oper, Toast.LENGTH_LONG);
     }
 
     public static String addOperErrorLog(Objs obj, Opers oper, int length) {

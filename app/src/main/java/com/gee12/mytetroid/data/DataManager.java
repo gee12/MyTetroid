@@ -243,8 +243,8 @@ public class DataManager extends XMLManager {
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
                 // расшифровываем файл и ложим в temp
-                path = SettingsManager.getTrashPath() + SEPAR + record.getDirName()
-                        + SEPAR +record.getFileName();
+//                path = SettingsManager.getTrashPath() + SEPAR + record.getDirName()
+                path = getPathToRecordFolderInTrash(record) + SEPAR +record.getFileName();
             }
         } else {
             path = SettingsManager.getStoragePath() + SEPAR + BASE_FOLDER_NAME
@@ -404,7 +404,8 @@ public class DataManager extends XMLManager {
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
-                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
+//                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
+                String tempFolderPath = getPathToRecordFolderInTrash(record);
                 File tempFolder = new File(tempFolderPath);
                 if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                     LogManager.addLog(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
@@ -1074,15 +1075,15 @@ public class DataManager extends XMLManager {
         if (srcRecord == null)
             return 0;
 
-        String srcDirName = null;
-                String srcDirPath = null;
+        String srcDirPath = null;
+//        String dirNameInTrash = null;
         File srcDir = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
             if (clipboard.isCutted()) {
-                // вырезаем уникальную приставку в имени каталога
-                srcDirName = srcRecord.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
-                srcDirPath = SettingsManager.getTrashPath() + File.separator + srcDirName;
+//                dirNameInTrash = srcRecord.getDirName();
+//                srcDirPath = SettingsManager.getTrashPath() + File.separator + srcRecord.getDirName();
+                srcDirPath = getPathToRecordFolderInTrash(srcRecord);
             } else {
                 srcDirPath = getPathToRecordFolder(srcRecord);
             }
@@ -1121,9 +1122,10 @@ public class DataManager extends XMLManager {
         if (checkRecordFolder(destDirPath, true) <= 0) {
             return -2;
         }*/
+//        String dirNameInBase = null;
         if (clipboard.isCutted()) {
             // перемещаем каталог записи
-            String destDirPath = getStoragePathBase();
+            /*String destDirPath = getStoragePathBase();
             File destDir = new File(destDirPath);
             if (FileUtils.moveToDirRecursive(srcDir, destDir)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
@@ -1131,6 +1133,12 @@ public class DataManager extends XMLManager {
                 LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
                         srcDirPath, destDirPath), LogManager.Types.ERROR);
                 return -2;
+            }*/
+            // вырезаем уникальную приставку в имени каталога
+            String dirNameInBase = srcRecord.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
+            int res = moveRecordFolder(record, srcDirPath, getStoragePathBase(), dirNameInBase);
+            if (res < 0) {
+                return res;
             }
         } else {
             // копируем каталог записи
@@ -1163,7 +1171,7 @@ public class DataManager extends XMLManager {
             node.getRecords().remove(record);
             if (clipboard.isCutted()) {
                 // перемещаем каталог записи обратно в корзину
-                File inBaseDir = new File(getStoragePathBase(), srcDirName);
+/*                File inBaseDir = new File(getStoragePathBase(), dirNameInBase);
                 File trashDir = new File(SettingsManager.getTrashPath());
                 if (FileUtils.moveToDirRecursive(inBaseDir, trashDir)) {
                     TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
@@ -1171,7 +1179,8 @@ public class DataManager extends XMLManager {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
                             inBaseDir.getAbsolutePath(), trashDir.getAbsolutePath()), LogManager.Types.ERROR);
                     return -2;
-                }
+                }*/
+                return moveRecordFolder(record, getPathToRecordFolder(record), SettingsManager.getTrashPath(), srcRecord.getDirName());
             } else {
                 // удаляем только что скопированный каталог записи
                 String destDirPath = getPathToRecordFolder(record);
@@ -1210,13 +1219,13 @@ public class DataManager extends XMLManager {
         TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
 
         String dirPath = null;
-        File folder = null;
+        File dir = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
             dirPath = getPathToRecordFolder(record);
             int dirRes = checkRecordFolder(dirPath, false);
             if (dirRes > 0) {
-                folder = new File(dirPath);
+                dir = new File(dirPath);
             } else {
                 return dirRes;
             }
@@ -1254,40 +1263,49 @@ public class DataManager extends XMLManager {
         if (!withoutDir) {
             if (movePath == null) {
                 // удаляем каталог записи
-                if (FileUtils.deleteRecursive(folder)) {
+                if (FileUtils.deleteRecursive(dir)) {
                     TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
                 } else {
                     LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
                     return 0;
                 }
             } else {
-                File destDirFile = new File(movePath);
-                // создаем каталог назначения
-                if (!FileUtils.createDirIfNeed(destDirFile)) {
-                    LogManager.addLog(context.getString(R.string.log_create_dir_error) + movePath, LogManager.Types.ERROR);
-                    return 0;
-                }
-                // перемещаем каталог записи
-                if (FileUtils.moveToDirRecursive(folder, destDirFile)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
-                } else {
-                    LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
-                            dirPath, movePath), LogManager.Types.ERROR);
-                    return -2;
-                }
-
-                // добавляем к имени каталога записи уникальную приставку
                 String newDirName = createDateTimePrefix() + "_" + record.getDirName();
-                if (!new File(movePath, record.getDirName()).renameTo(new File(movePath, newDirName))) {
-                    TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.RENAME);
-                    return -2;
-                }
-                // обновляем имя каталога для дальнейшей вставки
-                if (isCutting) {
-                    record.setDirName(newDirName);
-                }
-
+                return moveRecordFolder(record, dirPath, movePath, newDirName);
             }
+        }
+        return 1;
+    }
+
+    public static int moveRecordFolder(TetroidRecord record, String srcPath, String destPath, String newDirName) {
+        File destDirFile = new File(destPath);
+        // создаем каталог назначения
+/*        if (!FileUtils.createDirIfNeed(destDirFile)) {
+            LogManager.addLog(context.getString(R.string.log_create_dir_error) + destPath, LogManager.Types.ERROR);
+            return 0;
+        }*/
+        // перемещаем каталог записи
+//        String srcPath = getPathToRecordFolder(record);
+        File folder = new File(srcPath);
+        if (FileUtils.moveToDirRecursive(folder, destDirFile)) {
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
+        } else {
+            LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
+                    srcPath, destPath), LogManager.Types.ERROR);
+            return -2;
+        }
+
+        if (newDirName != null) {
+            // добавляем к имени каталога записи уникальную приставку
+//        String newDirName = createDateTimePrefix() + "_" + record.getDirName();
+            if (!new File(destPath, record.getDirName()).renameTo(new File(destPath, newDirName))) {
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.RENAME);
+                return -2;
+            }
+            // обновляем имя каталога для дальнейшей вставки
+//        if (isCutting) {
+            record.setDirName(newDirName);
+//        }
         }
         return 1;
     }
@@ -1750,6 +1768,10 @@ public class DataManager extends XMLManager {
 
     public static String getPathToRecordFolder(TetroidRecord record) {
         return getStoragePathBase() + SEPAR + record.getDirName();
+    }
+
+    public static String getPathToRecordFolderInTrash(TetroidRecord record) {
+        return SettingsManager.getTrashPath() + SEPAR + record.getDirName();
     }
 
     public static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {

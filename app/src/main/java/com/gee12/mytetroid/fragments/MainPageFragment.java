@@ -461,7 +461,7 @@ public class MainPageFragment extends TetroidFragment {
         if (res == -1) {
             RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
                 // вставляем без каталога записи
-                int res1 = DataManager.insertRecord(clipboard, mCurNode, false);
+                int res1 = DataManager.insertRecord(clipboard, mCurNode, true);
                 onInsertRecordResult(record, res1);
             });
         } else if (res == -2) {
@@ -477,6 +477,8 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
+            // очищаем "буфер обмена"
+            TetroidClipboard.clear();
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
         }
