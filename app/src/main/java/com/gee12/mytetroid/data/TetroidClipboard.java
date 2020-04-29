@@ -25,6 +25,12 @@ public class TetroidClipboard {
         getInstance().push(obj, true);
     }
 
+    public static void clear() {
+        if (mInstance == null)
+            return;
+        mInstance.push(null, false);
+    }
+
     private void push(TetroidObject obj, boolean isCut) {
         this.mObj = obj;
         this.mIsCutted = isCut;
@@ -56,6 +62,9 @@ public class TetroidClipboard {
     }
 
     private static TetroidClipboard getInstance() {
-        return (mInstance != null) ? mInstance : new TetroidClipboard();
+        if (mInstance == null) {
+            mInstance = new TetroidClipboard();
+        }
+        return mInstance;
     }
 }
