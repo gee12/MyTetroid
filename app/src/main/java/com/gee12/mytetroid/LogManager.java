@@ -39,7 +39,7 @@ public class LogManager {
     private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;
-    private static StringBuilder buffer;
+    private static StringBuilder buffer = new StringBuilder();
 
     /**
      * Инициализация менеджера.
@@ -52,7 +52,7 @@ public class LogManager {
         LogManager.context = ctx;
         setLogPath(path);
         LogManager.isWriteToFile = isWriteToFile;
-        LogManager.buffer = new StringBuilder();
+//        LogManager.buffer = new StringBuilder();
     }
 
     public static void setLogPath(String path) {
@@ -60,33 +60,35 @@ public class LogManager {
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
-    public static void addLog(String s, Types type, boolean isWriteToFile, int duration) {
+    public static void addLog(String mes, Types type, boolean isWriteToFile, int duration) {
         if (type == Types.DEBUG && !BuildConfig.DEBUG)
             return;
         String typeTag;
         switch(type) {
             case INFO:
                 typeTag = "INFO: ";
-                Log.i(LOG_TAG, s);
+                Log.i(LOG_TAG, mes);
                 break;
             case WARNING:
                 typeTag = "WARN: ";
-                Log.w(LOG_TAG, s);
+                Log.w(LOG_TAG, mes);
                 break;
             case ERROR:
                 typeTag = "ERROR: ";
-                Log.e(LOG_TAG, s);
+                Log.e(LOG_TAG, mes);
                 break;
             default:
                 typeTag = "DEBUG: ";
-                Log.d(LOG_TAG, s);
+                Log.d(LOG_TAG, mes);
                 break;
         }
+        String fullMes = addTime(typeTag + mes);
+        writeToBuffer(fullMes);
         if (isWriteToFile) {
-            writeToFile(typeTag + s);
+            writeToFile(fullMes);
         }
         if (duration >= 0) {
-            showMessage(s, duration);
+            showMessage(mes, duration);
         }
     }
 
@@ -150,7 +152,7 @@ public class LogManager {
         addLog(s, Types.ERROR, false, duration);
     }
 
-    private static String createMessage(String s) {
+    private static String addTime(String s) {
         return String.format("%s - %s", DateFormat.format("yyyy.MM.dd HH:mm:ss",
                 Calendar.getInstance().getTime()), s);
     }
@@ -188,11 +190,19 @@ public class LogManager {
     }
 
     /**
-     * Запись логов в файл.
+     * Запись логов в буфер.
      * @param s
      */
-    private static void writeToFile(String s) {
-        String mes = createMessage(s);
+    private static void writeToBuffer(String s) {
+        buffer.append(s);
+        buffer.append("\n");
+    }
+
+    /**
+     * Запись логов в файл.
+     * @param mes
+     */
+    private static void writeToFile(String mes) {
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
@@ -200,10 +210,11 @@ public class LogManager {
                 File dir = new File(dirPath);
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
-                        addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
-                                Types.ERROR, false, Toast.LENGTH_LONG);
+//                        addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
+//                                Types.ERROR, false, Toast.LENGTH_LONG);
+                        addLogWithoutFile(context.getString(R.string.log_dir_creating_error) + dirPath, Toast.LENGTH_LONG);
                         //
-                        writeToBuffer(mes);
+//                        writeToBuffer(mes);
                         return;
                     } else {
                         addLog(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
@@ -215,7 +226,7 @@ public class LogManager {
             catch (IOException e) {
                 addLogWithoutFile(e, Toast.LENGTH_LONG);
                 //
-                writeToBuffer(mes);
+//                writeToBuffer(mes);
                 return;
             }
         }
@@ -227,13 +238,8 @@ public class LogManager {
         } catch (IOException e) {
             addLogWithoutFile(e, Toast.LENGTH_LONG);
             //
-            writeToBuffer(mes);
+//            writeToBuffer(mes);
         }
-    }
-
-    private static void writeToBuffer(String s) {
-        buffer.append(s);
-        buffer.append("\n");
     }
 
     /**

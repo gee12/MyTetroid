@@ -87,16 +87,16 @@
     <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>
     <string name="pref_keep_screen_on">Не гасить экран</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
-    <string name="pref_log_file_content">Показать логи</string>
-    <string name="pref_log_file_content_summ">Показать содержимое лог-файла</string>
+    <string name="pref_show_logs">Показать логи</string>
+    <string name="pref_show_logs_summ">Логи текущего сеанса запуска или содержимое лог-файла</string>
     <string name="pref_date_format_string">Формат даты</string>
     <string name="pref_date_format_string_summ">Формат для отображения даты/времени создания записи</string>
     <string name="pref_ask_before_sync">Спрашивать перед запуском</string>
     <string name="pref_ask_before_sync_summ">Выводить подтверждение запуска синхронизации</string>
     <string name="pref_is_confirm_app_exit">Подтверждать выход</string>
     <string name="pref_is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
-    <string name="pref_write_log">Записывать логи</string>
-    <string name="pref_write_log_summ">Логировать события в файл</string>
+    <string name="pref_write_log_to_file">Записывать логи в файл</string>
+    <string name="pref_write_log_to_file_summ">Логировать события в файл</string>
     <string name="pref_log_path">Каталог логов</string>
     <string name="pref_log_path_summ">Путь к каталогу для записи лог-файла</string>
 
@@ -418,5 +418,6 @@
     <string name="log_matches_not_found">Совпадений не найдено</string>
     <string name="log_error_move_record_catalog">Ошибка перемещения каталога записи</string>
     <string name="log_erorr_move_record_dir_when_del">Запись удалена, но при перемещении каталога в корзину возникла ошибка (подробнее в логах)</string>
+    <string name="log_open_log_file">Открытие лог-файла на чтение</string>
 
 </resources>

@@ -27,7 +27,7 @@
         android:fadeScrollbars="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_view_logs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,6 +37,8 @@
             android:padding="5dp"
             android:textIsSelectable="true"
             android:background="@null"/>
+<!--        android:breakStrategy="simple"-->
+<!--        android:hyphenationFrequency="none"-->
 
     </ScrollView>
 
@@ -76,5 +78,14 @@
             android:text="@string/title_show"/>
 
     </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

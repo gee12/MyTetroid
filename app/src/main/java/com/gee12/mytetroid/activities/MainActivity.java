@@ -222,7 +222,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         SettingsManager.init(this);
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
-        LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLog());
+        LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
         startInitStorage();
     }
@@ -535,7 +535,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 LogManager.addLog(R.string.log_storage_decrypted);
             } else {
                 LogManager.addLog(getString(R.string.log_errors_during_decryption)
-                                + (SettingsManager.isWriteLog()
+                                + (SettingsManager.isWriteLogToFile()
                                 ? getString(R.string.details_in_logs)
                                 : getString(R.string.for_more_info_enable_log)),
                         Toast.LENGTH_LONG);

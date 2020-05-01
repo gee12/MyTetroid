@@ -94,8 +94,8 @@
     <string name="pref_category_display">Display</string>
     <string name="pref_key_is_write_log" translatable="false">pref_key_is_write_log</string>
     <string name="pref_key_log_path" translatable="false">pref_key_log_path</string>
-    <string name="pref_write_log">Is write log</string>
-    <string name="pref_write_log_summ">Log events to file</string>
+    <string name="pref_write_log_to_file">Is write log to file</string>
+    <string name="pref_write_log_to_file_summ">Log events to file</string>
     <string name="pref_log_path">Logs catalog</string>
     <string name="pref_log_path_summ">Path to catalog with log file</string>
     <string name="pref_key_is_confirm_app_exit" translatable="false">pref_key_is_confirm_app_exit</string>
@@ -138,8 +138,8 @@
     <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start</string>
     <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
-    <string name="pref_log_file_content">Show logs</string>
-    <string name="pref_log_file_content_summ">Show log file content</string>
+    <string name="pref_show_logs">Show logs</string>
+    <string name="pref_show_logs_summ">The logs of the current startup session or the contents of the log file</string>
 
     <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
     <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
@@ -464,5 +464,6 @@
     <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
     <string name="log_error_move_record_catalog">Error moving record directory</string>
     <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>
+    <string name="log_open_log_file">Open log file for reading</string>
 
 </resources>
