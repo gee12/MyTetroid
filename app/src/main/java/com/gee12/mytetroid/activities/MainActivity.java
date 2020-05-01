@@ -1617,7 +1617,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+//        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
         this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
         this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
         ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
@@ -1633,6 +1633,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         //
         this.mIsActivityCreated = true;
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     /**
@@ -1666,8 +1672,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 ViewUtils.startActivity(this, AboutActivity.class, null);
                 return true;
             default:
-                if (mViewPagerAdapter.getMainFragment().onOptionsItemSelected(id))
+                if (mViewPagerAdapter.getMainFragment().onOptionsItemSelected(id)) {
                     return true;
+                }
         }
         return super.onOptionsItemSelected(item);
     }

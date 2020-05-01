@@ -50,6 +50,8 @@
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Open record</string>
     <string name="title_fullscreen">Fullscreen</string>
+    <string name="title_record_folder_path">Record folder path</string>
+    <string name="title_insert_record">Insert record</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -459,7 +461,6 @@
     <string name="error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
     <string name="log_n_matches_found">%d matches found</string>
     <string name="log_matches_not_found">Matches not found</string>
-    <string name="record_folder_path">Record folder path</string>
     <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
     <string name="log_error_move_record_catalog">Error moving record directory</string>
     <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>

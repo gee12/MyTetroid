@@ -48,6 +48,8 @@
     <string name="title_show_record_content">Открыть запись</string>
     <string name="title_show_attached_files">Прикрепленные файлы</string>
     <string name="title_open_record_folder">Открыть каталог</string>
+    <string name="title_record_folder_path">Путь к каталогу записи</string>
+    <string name="title_insert_record">Вставить запись</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -414,7 +416,6 @@
     <string name="log_create_dir_error">Не удается создать каталог назначения:&#160;</string>
     <string name="log_n_matches_found">Найдено %d совпадений</string>
     <string name="log_matches_not_found">Совпадений не найдено</string>
-    <string name="record_folder_path">Путь к каталогу записи</string>
     <string name="log_error_move_record_catalog">Ошибка перемещения каталога записи</string>
     <string name="log_erorr_move_record_dir_when_del">Запись удалена, но при перемещении каталога в корзину возникла ошибка (подробнее в логах)</string>
 

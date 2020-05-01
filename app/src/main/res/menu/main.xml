@@ -50,6 +50,13 @@
         android:icon="@drawable/ic_folder"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_insert"
+        android:orderInCategory="95"
+        android:title="@string/title_insert_record"
+        android:visible="false"
+        android:icon="@drawable/ic_insert"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"

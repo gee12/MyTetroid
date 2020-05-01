@@ -50,9 +50,10 @@ public class MainPageFragment extends TetroidFragment {
     private ListView mListViewFiles;
     private TextView mTextViewRecordsEmpty;
     private TextView mTextViewFilesEmpty;
-    private MenuItem mMenuItemCurNode;
-    private MenuItem mMenuItemCurRecord;
-    private MenuItem mMenuItemCurRecordFolder;
+//    private MenuItem mMenuItemCurNode;
+//    private MenuItem mMenuItemCurRecord;
+//    private MenuItem mMenuItemCurRecordFolder;
+//    private MenuItem mMenuItemInsertRecord;
     private FloatingActionButton mButtonAddRecord;
     private FloatingActionButton mButtonAddFile;
 
@@ -149,9 +150,9 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showView(int viewId) {
-        mMenuItemCurNode.setVisible(false);
-        mMenuItemCurRecord.setVisible(false);
-        mMenuItemCurRecordFolder.setVisible(false);
+//        mMenuItemCurNode.setVisible(false);
+//        mMenuItemCurRecord.setVisible(false);
+//        mMenuItemCurRecordFolder.setVisible(false);
         mButtonAddRecord.hide();
         mButtonAddFile.hide();
         // сохраняем значение для возврата на старое View
@@ -171,9 +172,9 @@ public class MainPageFragment extends TetroidFragment {
                 mButtonAddRecord.show();
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-                mMenuItemCurNode.setVisible(true);
-                mMenuItemCurRecordFolder.setVisible(true);
-                mMenuItemCurRecord.setVisible(true);
+//                mMenuItemCurNode.setVisible(true);
+//                mMenuItemCurRecordFolder.setVisible(true);
+//                mMenuItemCurRecord.setVisible(true);
                 mButtonAddFile.show();
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
@@ -626,10 +627,19 @@ public class MainPageFragment extends TetroidFragment {
      */
     private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
 
-    public void onCreateOptionsMenu(@NonNull Menu menu) {
-        this.mMenuItemCurNode = menu.findItem(R.id.action_cur_node);
-        this.mMenuItemCurRecord = menu.findItem(R.id.action_cur_record);
-        this.mMenuItemCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
+//    public void onCreateOptionsMenu(@NonNull Menu menu) {
+//        this.mMenuItemCurNode = menu.findItem(R.id.action_cur_node);
+//        this.mMenuItemCurRecord = menu.findItem(R.id.action_cur_record);
+//        this.mMenuItemCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
+//        this.mMenuItemInsertRecord = menu.findItem(R.id.action_insert);
+//    }
+
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        boolean isRecordFilesView = (mCurMainViewId == MainPageFragment.MAIN_VIEW_RECORD_FILES);
+        activateMenuItem(menu.findItem(R.id.action_cur_node), isRecordFilesView);
+        activateMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView);
+        activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView);
+        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
     }
 
     public boolean onOptionsItemSelected(int menuId) {
@@ -673,7 +683,7 @@ public class MainPageFragment extends TetroidFragment {
     private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
         if (menuInfo == null)
             return;
-        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.checkType(FoundType.TYPE_RECORD));
+        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
