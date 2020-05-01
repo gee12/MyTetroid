@@ -61,7 +61,7 @@ public class TetroidClipboard {
      * @param type
      * @return
      */
-    public static boolean checkType(int type) {
+    public static boolean hasObject(int type) {
         if (mInstance == null || mInstance.mObj == null)
             return false;
         return (type == FoundType.TYPE_RECORD && mInstance.mObj instanceof TetroidRecord

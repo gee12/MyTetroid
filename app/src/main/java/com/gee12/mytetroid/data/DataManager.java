@@ -492,7 +492,7 @@ public class DataManager extends XMLManager {
         LogManager.addLog(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
         Uri uri = Uri.parse(getRecordDirUri(record));
         if (!openFolder(context, uri)) {
-            Utils.writeToClipboard(context, context.getString(R.string.record_folder_path), uri.getPath());
+            Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), uri.getPath());
             LogManager.addLog(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
         }
     }

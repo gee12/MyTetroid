@@ -4,7 +4,7 @@
     <dimen name="nav_header_vertical_spacing">0dp</dimen>
     <dimen name="nav_header_height">72dp</dimen>
     <dimen name="fab_margin">12dp</dimen>
-    <dimen name="fab_small_margin">6dp</dimen>
+    <dimen name="fab_small_margin">8dp</dimen>
 
     <dimen name="font_default">18sp</dimen>
     <dimen name="font_big">22sp</dimen>
