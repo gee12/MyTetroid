@@ -11,6 +11,7 @@ public class TetroidClipboard {
     static TetroidClipboard mInstance;
 
     private TetroidObject mObj;
+    private TetroidObject mObjForInsert;
     private boolean mIsCutted;
 
     public TetroidClipboard() {
@@ -34,14 +35,21 @@ public class TetroidClipboard {
     private void push(TetroidObject obj, boolean isCut) {
         this.mObj = obj;
         this.mIsCutted = isCut;
+        this.mObjForInsert = null;
     }
 
-    public static TetroidClipboard get() {
-        return getInstance();
+    public void setObjForInsert(TetroidObject obj) {
+        this.mObjForInsert = obj;
     }
 
     public TetroidObject getObject() {
         return mObj;
+    }
+
+    public static TetroidObject getObjectForInsert() {
+        if (mInstance == null)
+            return null;
+        return mInstance.mObjForInsert;
     }
 
     public boolean isCutted() {
@@ -61,7 +69,7 @@ public class TetroidClipboard {
                 || type == FoundType.TYPE_FILE && mInstance.mObj instanceof TetroidFile);
     }
 
-    private static TetroidClipboard getInstance() {
+    public static TetroidClipboard getInstance() {
         if (mInstance == null) {
             mInstance = new TetroidClipboard();
         }

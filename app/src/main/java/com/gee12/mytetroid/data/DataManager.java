@@ -1066,21 +1066,36 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      *         -2 - ошибка (не удалось переместить каталог записи)
      */
-    public static int insertRecord(TetroidClipboard clipboard, TetroidNode node, boolean withoutDir) {
+/*    public static int insertRecord(*//*TetroidClipboard clipboard,*//* TetroidNode node, boolean withoutDir) {
+        TetroidClipboard clipboard = TetroidClipboard.getInstance();
         if (clipboard == null || !(clipboard.getObject() instanceof TetroidRecord)) {
             return 0;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
-        TetroidRecord srcRecord = (TetroidRecord)clipboard.getObject();
-        if (srcRecord == null)
+        int res = insertRecord((TetroidRecord)clipboard.getObject(), node, clipboard.isCutted(), withoutDir);
+        if (res > 0) {
+            clipboard.setObjForInsert();
+        }
+        return res;
+    }*/
+
+//    public static int insertRecord(TetroidClipboard clipboard, TetroidNode node, boolean withoutDir) {
+    public static int insertRecord(TetroidRecord srcRecord, boolean isCutted, TetroidNode node, boolean withoutDir) {
+//        if (clipboard == null || !(clipboard.getObject() instanceof TetroidRecord) || node == null) {
+        if (srcRecord == null || node == null) {
+            LogManager.emptyParams("DataManager.insertRecord()");
             return 0;
+        }
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+//        TetroidRecord srcRecord = (TetroidRecord)clipboard.getObject();
+//        boolean isCutted = clipboard.isCutted();
 
         String srcDirPath = null;
 //        String dirNameInTrash = null;
         File srcDir = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
-            if (clipboard.isCutted()) {
+//            if (clipboard.isCutted()) {
+            if (isCutted) {
 //                dirNameInTrash = srcRecord.getDirName();
 //                srcDirPath = SettingsManager.getTrashPath() + File.separator + srcRecord.getDirName();
                 srcDirPath = getPathToRecordFolderInTrash(srcRecord);
@@ -1096,12 +1111,12 @@ public class DataManager extends XMLManager {
         }
 
         // генерируем уникальные идентификаторы, если запись копируется
-        String id = (clipboard.isCutted()) ? srcRecord.getId() : createUniqueId();
-        String dirName = (clipboard.isCutted()) ? srcRecord.getDirName() : createUniqueId();
-        String name = srcRecord.getName(false);
-        String tagsString = srcRecord.getTagsString(false);
-        String author = srcRecord.getAuthor(false);
-        String url = srcRecord.getUrl(false);
+        String id = (isCutted) ? srcRecord.getId() : createUniqueId();
+        String dirName = (isCutted) ? srcRecord.getDirName() : createUniqueId();
+        String name = srcRecord.getName();
+        String tagsString = srcRecord.getTagsString();
+        String author = srcRecord.getAuthor();
+        String url = srcRecord.getUrl();
 
         // создаем копию записи
         boolean crypted = node.isCrypted();
@@ -1123,7 +1138,7 @@ public class DataManager extends XMLManager {
             return -2;
         }*/
 //        String dirNameInBase = null;
-        if (clipboard.isCutted()) {
+        if (isCutted) {
             // перемещаем каталог записи
             /*String destDirPath = getStoragePathBase();
             File destDir = new File(destDirPath);
@@ -1169,7 +1184,7 @@ public class DataManager extends XMLManager {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             // удаляем запись из ветки
             node.getRecords().remove(record);
-            if (clipboard.isCutted()) {
+            if (isCutted) {
                 // перемещаем каталог записи обратно в корзину
 /*                File inBaseDir = new File(getStoragePathBase(), dirNameInBase);
                 File trashDir = new File(SettingsManager.getTrashPath());
@@ -1194,7 +1209,10 @@ public class DataManager extends XMLManager {
             }
             return 0;
         }
-
+        // сохраняем объект для вставки в список;
+        // нельзя было положить вместо srcRecord, т.к. он нужен, если потребуется
+        // еще раз вставить скопированную запись
+//        clipboard.setObjForInsert(record);
         return 1;
     }
 
@@ -1278,6 +1296,9 @@ public class DataManager extends XMLManager {
     }
 
     public static int moveRecordFolder(TetroidRecord record, String srcPath, String destPath, String newDirName) {
+        if (record == null) {
+            return 0;
+        }
         File destDirFile = new File(destPath);
         // создаем каталог назначения
 /*        if (!FileUtils.createDirIfNeed(destDirFile)) {
