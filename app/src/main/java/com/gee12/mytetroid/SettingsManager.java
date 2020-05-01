@@ -270,7 +270,7 @@ public class SettingsManager {
      * По-умолчанию - нет
      * @return
      */
-    public static boolean isWriteLog() {
+    public static boolean isWriteLogToFile() {
         return getBoolean(R.string.pref_key_is_write_log, false);
     }
 

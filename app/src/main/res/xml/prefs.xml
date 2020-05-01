@@ -140,10 +140,17 @@
             <!--android:summary="@string/pref_is_keep_selected_node_summ"-->
             <!--android:defaultValue="true" />-->
 
+        <PreferenceScreen
+            android:key="@string/pref_key_show_logs"
+            android:title="@string/pref_show_logs"
+            android:summary="@string/pref_show_logs_summ" >
+            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>
+        </PreferenceScreen>
+
         <CheckBoxPreference
             android:key="@string/pref_key_is_write_log"
-            android:title="@string/pref_write_log"
-            android:summary="@string/pref_write_log_summ"
+            android:title="@string/pref_write_log_to_file"
+            android:summary="@string/pref_write_log_to_file_summ"
             android:defaultValue="false" />
 
         <Preference
@@ -151,14 +158,6 @@
             android:key="@string/pref_key_log_path"
             android:title="@string/pref_log_path"
             android:summary="@string/pref_log_path_summ" />
-
-        <PreferenceScreen
-            android:dependency="@string/pref_key_is_write_log"
-            android:key="@string/pref_key_show_logs"
-            android:title="@string/pref_log_file_content"
-            android:summary="@string/pref_log_file_content_summ" >
-            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>
-        </PreferenceScreen>
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_confirm_app_exit"
