@@ -454,31 +454,38 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void insertRecord() {
         // достаем запись из "буфера обмена"
-        TetroidClipboard clipboard = TetroidClipboard.get();
+        TetroidClipboard clipboard = TetroidClipboard.getInstance();
         // вставляем с попыткой восстановить каталог записи
-        int res = DataManager.insertRecord(clipboard, mCurNode, false);
+//        int res = DataManager.insertRecord(clipboard, mCurNode, false);
         TetroidRecord record = (TetroidRecord) clipboard.getObject();
+        boolean isCutted = clipboard.isCutted();
+        int res = DataManager.insertRecord(record, isCutted, mCurNode, false);
         if (res == -1) {
             RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
                 // вставляем без каталога записи
-                int res1 = DataManager.insertRecord(clipboard, mCurNode, true);
-                onInsertRecordResult(record, res1);
+//                int res1 = DataManager.insertRecord(clipboard, mCurNode, true);
+                int res1 = DataManager.insertRecord(record, isCutted, mCurNode, true);
+                onInsertRecordResult(res1, isCutted);
             });
         } else if (res == -2) {
 //            LogManager.addLog(R.string.log_error_move_record_catalog, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
         } else {
-            onInsertRecordResult(record, res);
+            onInsertRecordResult(res, isCutted);
         }
     }
 
-    private void onInsertRecordResult(TetroidRecord record, int res) {
-        if (res > 0 && record != null) {
+    private void onInsertRecordResult(/*TetroidRecord record, */int res, boolean isCutted) {
+//        TetroidRecord record = (TetroidRecord) TetroidClipboard.getObjectForInsert();
+        if (res > 0/* && record != null*/) {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
-            // очищаем "буфер обмена"
-            TetroidClipboard.clear();
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+            if (isCutted) {
+                // очищаем "буфер обмена"
+                TetroidClipboard.clear();
+            }
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
         }
