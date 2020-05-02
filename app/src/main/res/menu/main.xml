@@ -27,7 +27,7 @@
         android:title="@string/title_cur_node"
         android:visible="false"
         android:icon="@drawable/ic_show_node"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_cur_record"
         android:orderInCategory="80"

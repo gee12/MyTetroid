@@ -37,6 +37,7 @@
     <string name="title_copy">Copy</string>
     <string name="title_insert">Insert</string>
     <string name="title_open_with">Open with</string>
+    <string name="title_send_to">Send to</string>
     <string name="title_about_app">About app</string>
     <string name="title_record_html">html-code</string>
     <string name="title_record_save">Save</string>
@@ -52,6 +53,7 @@
     <string name="title_fullscreen">Fullscreen</string>
     <string name="title_record_folder_path">Record folder path</string>
     <string name="title_insert_record">Insert record</string>
+    <string name="title_share">Share</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -336,7 +338,8 @@
     <string name="log_cur_node_is_not_selected">Current node is not selected</string>
     <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="log_cur_record_is_not_set">Current record is not set</string>
-    <string name="log_no_app_found">No suitable application was found to open the file&#160;</string>
+    <string name="log_no_app_found_for_open_file">No suitable application was found to open the file&#160;</string>
+    <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
     <string name="log_failed_storage_load">Failed to load storage:&#160;</string>
     <string name="log_failed_storage_init">Failed to init storage:&#160;</string>

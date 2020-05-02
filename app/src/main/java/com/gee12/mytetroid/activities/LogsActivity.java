@@ -27,7 +27,7 @@ import java.util.Locale;
 
 public class LogsActivity extends AppCompatActivity {
 
-    public static final int LINES_IN_RECYCLER_VIEW_ITEM = 5;
+    public static final int LINES_IN_RECYCLER_VIEW_ITEM = 10;
     
     //    private AppCompatTextView mTextViewLogs;
     private RecyclerView mRecycleView;
