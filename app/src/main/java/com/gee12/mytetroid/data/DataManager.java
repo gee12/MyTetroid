@@ -961,15 +961,35 @@ public class DataManager extends XMLManager {
         return record;
     }
 
+
     /**
-     * Изменение свойств записи.
-     * @param record
+     * Создание записи при приеме внешнего Intent.
      * @param name
-     * @param tagsString
-     * @param author
      * @param url
      * @return
      */
+    public static TetroidRecord createRecord(String name, String url) {
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+
+        if (TextUtils.isEmpty(name)) {
+            name = Utils.dateToString(new Date(), "yyyy.MM.dd hh:mm:ss");
+        }
+
+        // TODO: хранилище уже должно быть загружено
+
+        TetroidNode node = instance.mRootNodesList.get(0);
+
+    }
+
+        /**
+         * Изменение свойств записи.
+         * @param record
+         * @param name
+         * @param tagsString
+         * @param author
+         * @param url
+         * @return
+         */
     public static boolean editRecordFields(TetroidRecord record, String name, String tagsString, String author, String url) {
         if (record == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.editRecordFields()");
