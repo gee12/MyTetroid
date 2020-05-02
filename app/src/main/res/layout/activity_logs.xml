@@ -20,7 +20,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+<!--    <ScrollView
         android:id="@+id/scroll_view_logs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,10 +37,21 @@
             android:padding="5dp"
             android:textIsSelectable="true"
             android:background="@null"/>
-<!--        android:breakStrategy="simple"-->
-<!--        android:hyphenationFrequency="none"-->
 
-    </ScrollView>
+    </ScrollView>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycle_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:textIsSelectable="true"
+        android:focusable="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        />
 
     <LinearLayout
         android:id="@+id/layout_read_error"

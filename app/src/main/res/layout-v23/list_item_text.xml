@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:textColor="@color/colorBaseText"
+        android:gravity="top"
+        android:textSize="12sp"
+        android:textIsSelectable="true"
+        android:focusable="true"
+        android:background="@null"
+        android:breakStrategy="simple"
+        android:hyphenationFrequency="none"/>
+
+</RelativeLayout>
