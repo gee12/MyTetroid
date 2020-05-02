@@ -7,27 +7,32 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.text.PrecomputedTextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.adapters.TextAdapter;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 public class LogsActivity extends AppCompatActivity {
 
-    private AppCompatTextView mTextViewLogs;
+    public static final int LINES_IN_RECYCLER_VIEW_ITEM = 5;
+    
+    //    private AppCompatTextView mTextViewLogs;
+    private RecyclerView mRecycleView;
     private LinearLayout mLayoutError;
+    private TextAdapter mTextAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +42,16 @@ public class LogsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        this.mTextViewLogs = findViewById(R.id.text_view_logs);
+        /*this.mTextViewLogs = findViewById(R.id.text_view_logs);
+        // убираем перенос слов, замедляющий работу
+        if (Build.VERSION.SDK_INT >= 23) {
+            mTextViewLogs.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);
+            mTextViewLogs.setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE);
+        }*/
+        this.mRecycleView = findViewById(R.id.recycle_view);
+        mRecycleView.setLayoutManager(new LinearLayoutManager(this));
+        this.mTextAdapter = new TextAdapter();
+        mRecycleView.setAdapter(mTextAdapter);
         this.mLayoutError = findViewById(R.id.layout_read_error);
 
         if (SettingsManager.isWriteLogToFile()) {
@@ -54,24 +68,27 @@ public class LogsActivity extends AppCompatActivity {
         String curLogs = LogManager.getBufferString();
         if (!TextUtils.isEmpty(curLogs)) {
             mLayoutError.setVisibility(View.GONE);
-            mTextViewLogs.setVisibility(View.VISIBLE);
-            setText(curLogs);
+//            mTextViewLogs.setVisibility(View.VISIBLE);
+//            setText(curLogs);
+            mRecycleView.setVisibility(View.VISIBLE);
+            mTextAdapter.setItem(curLogs);
             scrollToBottom();
         } else {
             LogManager.addLog(getString(R.string.log_logs_is_missing), LogManager.Types.WARNING, Toast.LENGTH_SHORT);
         }
     }
 
-    private void setText(String text) {
+/*    private void setText(String text) {
         mTextViewLogs.setText(text);
-    }
+    }*/
 
     /**
      * Пролистывание в конец.
      */
     private void scrollToBottom() {
-        ScrollView scrollView = findViewById(R.id.scroll_view_logs);
-        scrollView.postDelayed(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN), 100);
+        /*ScrollView scrollView = findViewById(R.id.scroll_view_logs);
+        scrollView.postDelayed(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN), 100);*/
+        mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1);
     }
 
     private void setProgresVisible(boolean isVis) {
@@ -85,9 +102,13 @@ public class LogsActivity extends AppCompatActivity {
     private class FileReadTask extends AsyncTask<String, Void, FileReadTask.FileReadResult> {
 
         class FileReadResult {
-            PrecomputedTextCompat text;
+//            PrecomputedTextCompat text;
+            List<String> data;
+            String text;
             boolean res;
-            FileReadResult(PrecomputedTextCompat text, boolean res) {
+//            FileReadResult(PrecomputedTextCompat text, boolean res) {
+            FileReadResult(List<String> data, String text, boolean res) {
+                this.data = data;
                 this.text = text;
                 this.res = res;
             }
@@ -104,18 +125,21 @@ public class LogsActivity extends AppCompatActivity {
         @Override
         protected FileReadResult doInBackground(String... strings) {
             String fullFileName = strings[0];
-            String text;
+            List<String> data = null;
+            String text = null;
             boolean res = false;
             try {
-                text = FileUtils.readTextFile(Uri.parse(fullFileName));
+//                text = FileUtils.readTextFile(Uri.parse(fullFileName));
+                data = FileUtils.readTextFile(Uri.parse(fullFileName), LINES_IN_RECYCLER_VIEW_ITEM);
                 res = true;
             } catch (IOException ex) {
                 // ошибка чтения
                 text = ex.getLocalizedMessage();
             }
-            PrecomputedTextCompat.Params params = mTextViewLogs.getTextMetricsParamsCompat();
-            PrecomputedTextCompat precomputedText = PrecomputedTextCompat.create(text, params);
-            return new FileReadResult(precomputedText, res);
+//            PrecomputedTextCompat.Params params = mTextViewLogs.getTextMetricsParamsCompat();
+//            PrecomputedTextCompat precomputedText = PrecomputedTextCompat.create(text, params);
+//            return new FileReadResult(precomputedText, res);
+            return new FileReadResult(data, text, res);
         }
 
         @Override
@@ -123,21 +147,22 @@ public class LogsActivity extends AppCompatActivity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             setProgresVisible(false);
             if (res.res) {
-                mTextViewLogs.setText(res.text);
+//                mTextViewLogs.setText(res.text);
+                mTextAdapter.setItems(res.data);
             } else {
                 String mes = String.format(Locale.getDefault(), "%s%s\n\n%s",
                         getString(R.string.log_file_read_error), LogManager.getFullFileName(), res.text);
                 LogManager.addLog(mes, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 ((TextView) findViewById(R.id.text_view_error)).setText(mes);
                 mLayoutError.setVisibility(View.VISIBLE);
-                mTextViewLogs.setVisibility(View.GONE);
+//                mTextViewLogs.setVisibility(View.GONE);
+                mRecycleView.setVisibility(View.GONE);
                 // выводим логи текущего сеанса запуска приложения
                 (findViewById(R.id.button_show_cur_logs)).setOnClickListener(v -> {
                     showBufferLogs();
                 });
             }
             scrollToBottom();
-
         }
     }
 

@@ -23,6 +23,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class FileUtils {
 
@@ -71,6 +72,34 @@ public class FileUtils {
         }
         br.close();
         return sb.toString();
+    }
+
+    /**
+     *
+     * @param fileUri
+     * @return
+     * @throws IOException
+     */
+    public static ArrayList<String> readTextFile(Uri fileUri, int linesInBlock) throws IOException {
+        if (fileUri == null)
+            return null;
+        ArrayList<String> blocks = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(new File(fileUri.getPath())));
+        String line;
+        int counter = 0;
+        while ((line = br.readLine()) != null) {
+            sb.append(line);
+            if (++counter >= linesInBlock) {
+                counter = 0;
+                blocks.add(sb.toString());
+                sb.setLength(0);
+            } else {
+                sb.append('\n');
+            }
+        }
+        br.close();
+        return blocks;
     }
 
     /**
