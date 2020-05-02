@@ -5,8 +5,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.text.Html;
-import android.text.Spanned;
 
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
@@ -28,19 +26,7 @@ import java.util.ArrayList;
 public class FileUtils {
 
     /**
-     *
-     * @param htmlText
-     * @return
-     */
-    public static Spanned fromHtml(String htmlText) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return Html.fromHtml(htmlText, Html.FROM_HTML_MODE_LEGACY);
-        } else {
-            return Html.fromHtml(htmlText);
-        }
-    }
-    /**
-     *
+     * Загрузка .svg файла в объект Drawable.
      * @param fullFileName
      * @return
      * @throws FileNotFoundException
@@ -55,7 +41,7 @@ public class FileUtils {
     }
 
     /**
-     *
+     * Построчное чтение текстового файла.
      * @param fileUri
      * @return
      * @throws IOException
@@ -75,7 +61,7 @@ public class FileUtils {
     }
 
     /**
-     *
+     * Построчное чтение текстового файла с формированием результата в виде блоков.
      * @param fileUri
      * @return
      * @throws IOException

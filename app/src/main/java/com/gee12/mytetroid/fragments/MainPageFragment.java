@@ -482,7 +482,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
-            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.COPY);
             if (isCutted) {
                 // очищаем "буфер обмена"
                 TetroidClipboard.clear();
@@ -642,8 +642,16 @@ public class MainPageFragment extends TetroidFragment {
         activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
     }
 
+    /**
+     * Обработчик пунктов меню фрагмента. Вызывается из аналогичного метода в классе активности.
+     * @param menuId
+     * @return
+     */
     public boolean onOptionsItemSelected(int menuId) {
         switch (menuId) {
+            case R.id.action_insert:
+                insertRecord();
+                return true;
             case R.id.action_cur_record:
                 showCurRecord();
                 return true;

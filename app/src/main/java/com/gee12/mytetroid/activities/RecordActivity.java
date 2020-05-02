@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -45,6 +46,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.ImgPicker;
@@ -547,7 +549,7 @@ public class RecordActivity extends TetroidActivity implements
     private void saveRecord() {
         LogManager.addLog(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
-                ? mEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
+                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
 //            LogManager.addLog(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
@@ -819,6 +821,24 @@ public class RecordActivity extends TetroidActivity implements
         DataManager.openRecordFolder(this, mRecord);
     }
 
+
+    public void shareRecord() {
+        String text = (mCurMode == MODE_HTML)
+                ? mEditTextHtml.getText().toString()
+                : Utils.fromHtml(mEditor.getWebView().getEditableHtml()).toString();
+
+        // FIXME: если получать текст из html-кода ВСЕЙ страницы,
+        //  то Html.fromHtml() неверно обрабатывает код стиля в шапке:
+        //  <header><style> p, li { white-space: pre-wrap; } </style></header>
+        //  добавляя его в результат
+        String except = "p, li { white-space: pre-wrap; } ";
+        if (text.startsWith(except)) {
+            text = text.substring(except.length());
+        }
+
+        DataManager.shareText(this, mRecord.getName(), text);
+    }
+
     @Override
     public void onReceiveEditableHtml(String htmlText) {
         runOnUiThread(() -> {
@@ -990,6 +1010,11 @@ public class RecordActivity extends TetroidActivity implements
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
         initSearchView(menu);
 
+        // для отображения иконок
+        if (menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
         onMenuLoaded();
         return true;
     }
@@ -1016,8 +1041,6 @@ public class RecordActivity extends TetroidActivity implements
             }
             @Override
             public void onSuggestionSelectOrClick(String query) {
-//                searchInRecordText(query);
-//                setFindButtonsVisibility(true);
                 mSearchView.setQuery(query, true);
             }
             @Override
@@ -1026,34 +1049,6 @@ public class RecordActivity extends TetroidActivity implements
                 stopSearch();
             }
         };
-
-        /*searchView.setOnQuindexindexindexeryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                setFindButtonsVisibility(true);
-                return false;
-            }
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
-        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
-            @Override
-            public boolean onSuggestionSelect(int position) {
-                setFindButtonsVisibility(true);
-                return false;
-            }
-            @Override
-            public boolean onSuggestionClick(int position) {
-                setFindButtonsVisibility(true);
-                return false;
-            }
-        });
-        searchView.setOnCloseListener(() -> {
-            setFindButtonsVisibility(false);
-            return false;
-        });*/
     }
 
     /**
@@ -1123,6 +1118,9 @@ public class RecordActivity extends TetroidActivity implements
                 return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
+                return true;
+            case R.id.action_share:
+                shareRecord();
                 return true;
             case R.id.action_fullscreen:
                 toggleFullscreen();

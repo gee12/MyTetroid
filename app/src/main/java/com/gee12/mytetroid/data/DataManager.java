@@ -368,6 +368,37 @@ public class DataManager extends XMLManager {
         return true;
     }
 
+//    public static boolean shareRecordText(Context context, TetroidRecord record) {
+//
+//    }
+
+    public static boolean shareText(Context context, String subject, String text) {
+        if (context == null)
+            return false;
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, text);
+//        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_using)));
+        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
+        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_send_to));
+        try {
+            // проверить, есть ли подходящее приложение для открытия файла
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+//                    context.startActivity(intent);
+                context.startActivity(chooser);
+            } else {
+                LogManager.addLog(context.getString(R.string.log_no_app_found_for_share_text), Toast.LENGTH_LONG);
+                return false;
+            }
+        }
+        catch (ActivityNotFoundException ex) {
+            LogManager.addLog(context.getString(R.string.log_no_app_found_for_share_text), Toast.LENGTH_LONG);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Открытие прикрепленного файла сторонним приложением.
      * @param context
@@ -463,11 +494,11 @@ public class DataManager extends XMLManager {
 //                    context.startActivity(intent);
                     context.startActivity(chooser);
                 } else {
-                    LogManager.addLog(context.getString(R.string.log_no_app_found) + fullFileName, Toast.LENGTH_LONG);
+                    LogManager.addLog(context.getString(R.string.log_no_app_found_for_open_file) + fullFileName, Toast.LENGTH_LONG);
                     return false;
                 }
             }
-            catch(ActivityNotFoundException ex) {
+            catch (ActivityNotFoundException ex) {
                 LogManager.addLog(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
                 return false;
             }
@@ -1160,9 +1191,9 @@ public class DataManager extends XMLManager {
             String destDirPath = getPathToRecordFolder(record);
             File destDir = new File(destDirPath);
             try {
-                if (FileUtils.copyDirRecursive(srcDir, destDir)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
-                } else {
+                if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
+//                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
+//                } else {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
                             srcDirPath, destDirPath), LogManager.Types.ERROR);
                     return -2;
@@ -1308,9 +1339,9 @@ public class DataManager extends XMLManager {
         // перемещаем каталог записи
 //        String srcPath = getPathToRecordFolder(record);
         File folder = new File(srcPath);
-        if (FileUtils.moveToDirRecursive(folder, destDirFile)) {
-            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
-        } else {
+        if (!FileUtils.moveToDirRecursive(folder, destDirFile)) {
+//            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
+//        } else {
             LogManager.addLog(String.format(context.getString(R.string.log_error_move_record_dir),
                     srcPath, destPath), LogManager.Types.ERROR);
             return -2;
