@@ -1415,6 +1415,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     showNode(nodeId);
                 }
                 break;
+            case RecordActivity.RESULT_SHOW_FILES:
+                String recordId2 = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
+                TetroidRecord record = DataManager.getRecord(recordId2);
+                if (record != null) {
+                    mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+                }
+                break;
             case RecordActivity.RESULT_SHOW_TAG:
                 String tagName = data.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
                 TetroidTag tag = DataManager.getTag(tagName);

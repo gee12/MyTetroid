@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_search_records"
         android:title="@string/title_search_records"
-        android:icon="@drawable/ic_search"
+        android:icon="@drawable/ic_search_white"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
 <!--    <item-->
@@ -66,7 +66,7 @@
         android:id="@+id/action_global_search"
         android:orderInCategory="200"
         android:title="@string/title_global_search"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_search"
         android:enabled="false"
         app:showAsAction="never|collapseActionView" />
     <item
@@ -88,12 +88,12 @@
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="@string/title_settings"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_about_app"
         android:orderInCategory="400"
         android:title="@string/title_about_app"
-        android:icon="@android:drawable/ic_menu_info_details"
+        android:icon="@drawable/ic_info"
         app:showAsAction="never" />
 </menu>

@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_search_text"
         android:title="@string/title_search_text"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@drawable/ic_search_white"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
@@ -12,46 +12,44 @@
         android:orderInCategory="10"
         android:title="@string/title_view_mode"
         android:visible="false"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@drawable/ic_view_white"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_edit"
         android:orderInCategory="20"
         android:title="@string/title_edit_mode"
         android:visible="false"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_edit_white"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_record_save"
+        android:orderInCategory="30"
+        android:title="@string/title_record_save"
+        android:icon="@drawable/ic_save_white"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_record_html"
-        android:orderInCategory="30"
+        android:orderInCategory="40"
         android:title="@string/title_record_html"
         android:visible="false"
         android:icon="@drawable/ic_code_24dp"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/action_record_save"
-        android:orderInCategory="40"
-        android:title="@string/title_record_save"
-        android:icon="@android:drawable/ic_menu_save"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_record_edit_fields"
         android:orderInCategory="45"
         android:title="@string/title_edit_record_fields"
-        android:icon="@android:drawable/ic_menu_set_as"
+        android:icon="@drawable/ic_edit_fields"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_cur_node"
         android:orderInCategory="50"
         android:title="@string/title_cur_node"
-        android:visible="false"
         android:icon="@drawable/ic_show_node"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_attached_files"
         android:orderInCategory="60"
         android:title="@string/title_attached_files"
-        android:visible="false"
         android:icon="@drawable/ic_attachment"
         app:showAsAction="never" />
     <item
@@ -84,12 +82,12 @@
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="@string/title_settings"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_about_app"
         android:orderInCategory="400"
         android:title="@string/title_about_app"
-        android:icon="@android:drawable/ic_menu_info_details"
+        android:icon="@drawable/ic_info"
         app:showAsAction="never" />
 </menu>

@@ -52,6 +52,7 @@
     <string name="title_record_folder_path">Путь к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
     <string name="title_share">Отправить</string>
+    <string name="title_intent_send">Mytetroid - Запись</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
