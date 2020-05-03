@@ -968,28 +968,46 @@ public class DataManager extends XMLManager {
      * @param url
      * @return
      */
-    public static TetroidRecord createRecord(String name, String url) {
+    public static TetroidRecord createRecord(String name, String url, String text) {
         TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         if (TextUtils.isEmpty(name)) {
-            name = Utils.dateToString(new Date(), "yyyy.MM.dd hh:mm:ss");
+            name = Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss");
         }
 
-        // TODO: хранилище уже должно быть загружено
+        if (instance.mRootNodesList.isEmpty()) {
+            LogManager.addLog("В хранилище не загружено ни одной ветки", LogManager.Types.ERROR);
+            return null;
+        }
 
+        // TODO: пока что выбираем просто первую ветку в хранилище
         TetroidNode node = instance.mRootNodesList.get(0);
 
+        TetroidRecord record = createRecord(name, null, null, url, node);
+        if (record == null) {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
+            return null;
+        }
+
+        if (saveRecordHtmlText(record, text)) {
+            record.setIsNew(false);
+        } else {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
+            return null;
+        }
+
+        return record;
     }
 
-        /**
-         * Изменение свойств записи.
-         * @param record
-         * @param name
-         * @param tagsString
-         * @param author
-         * @param url
-         * @return
-         */
+    /**
+     * Изменение свойств записи.
+     * @param record
+     * @param name
+     * @param tagsString
+     * @param author
+     * @param url
+     * @return
+     */
     public static boolean editRecordFields(TetroidRecord record, String name, String tagsString, String author, String url) {
         if (record == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.editRecordFields()");

@@ -248,16 +248,19 @@ public class MainPageFragment extends TetroidFragment {
     public void createRecord() {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
-            if (record != null) {
-                mListAdapterRecords.notifyDataSetInvalidated();
-                mMainView.updateTags();
-                mMainView.updateNodes();
-                showRecord(record);
-            } else {
-//                LogManager.addLog(getString(R.string.log_record_create_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
-            }
+            addNewRecord(record);
         });
+    }
+
+    public void addNewRecord(TetroidRecord record) {
+        if (record != null) {
+            mListAdapterRecords.notifyDataSetInvalidated();
+            mMainView.updateTags();
+            mMainView.updateNodes();
+            showRecord(record);
+        } else {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+        }
     }
 
     /**

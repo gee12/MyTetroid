@@ -84,6 +84,9 @@ public class FileUtils {
                 sb.append('\n');
             }
         }
+        if (counter > 0) {
+            blocks.add(sb.toString());
+        }
         br.close();
         return blocks;
     }

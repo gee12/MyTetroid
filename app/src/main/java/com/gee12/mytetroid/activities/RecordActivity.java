@@ -64,7 +64,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class RecordActivity extends TetroidActivity implements
@@ -157,22 +156,6 @@ public class RecordActivity extends TetroidActivity implements
                 finish();
                 return;
             }
-        } else if (action.equals(Intent.ACTION_SEND)) {
-            String type = intent.getType();
-            if (type == null) {
-                finish();
-                return;
-            }
-            if (type.startsWith("text/")) {
-                String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (text != null) {
-                    String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-                    String name = (subject != null) ? subject : Utils.dateToString(new Date(), "yyyy.MM.dd hh:mm:ss");
-
-                }
-            }
-//            else if (type.startsWith("image/")) {
-//            }
         } else {
             finish();
             return;
