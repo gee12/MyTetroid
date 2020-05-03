@@ -115,14 +115,7 @@ public class RecordsListAdapter extends BaseAdapter {
                 convertView.setBackgroundColor(SettingsManager.HighlightAttachColorCache);
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
-            viewHolder.attachedView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onRecordAttachmentClickListener.onClick(record);
-                }
-            });
-            // API>=17..
-//            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMarginEnd(context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width));
+            viewHolder.attachedView.setOnClickListener(v -> onRecordAttachmentClickListener.onClick(record));
             ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,
                     context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width),0);
         }

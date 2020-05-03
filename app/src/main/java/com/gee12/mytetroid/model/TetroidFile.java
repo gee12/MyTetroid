@@ -8,6 +8,10 @@ public class TetroidFile extends TetroidObject {
     private String fileType;
     private TetroidRecord record;
 
+    public TetroidFile() {
+        super(FoundType.TYPE_FILE, "");
+    }
+
     public TetroidFile(boolean isCrypted, String id, String name, String fileType, TetroidRecord record) {
         super(FoundType.TYPE_FILE, isCrypted, id, name);
         this.fileType = fileType;

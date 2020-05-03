@@ -49,7 +49,6 @@
                                               <map>
                                                 <entry key="color" value="000000" />
                                                 <entry key="opacityPercent" value="80" />
-                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -60,10 +59,10 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="$PROJECT_DIR$/../link_remove.png" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Загрузки/edit-12-64.png" />
                                       <entry key="outputName" value="ic_link_remove_black" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="000000" />
+                                      <entry key="themeColor" value="b8bcbf" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -215,7 +214,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/social/ic_share_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_edit_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -225,8 +224,9 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="eeeeee" />
-                            <entry key="outputName" value="ic_share" />
+                            <entry key="color" value="ffffff" />
+                            <entry key="opacityPercent" value="80" />
+                            <entry key="outputName" value="ic_edit_white" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>

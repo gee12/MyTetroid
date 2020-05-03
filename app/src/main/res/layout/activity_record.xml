@@ -131,21 +131,21 @@
                     android:paddingTop="3dp"
                     android:paddingBottom="0dp" />
 
-                <ImageButton
+                <!--<ImageButton
                     android:id="@+id/button_edit_fields"
                     android:layout_below="@id/text_view_record_url"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:scaleType="fitCenter"
                     android:layout_marginRight="2dp"
                     android:layout_marginEnd="2dp"
                     android:layout_marginBottom="0dp"
-                    android:src="@android:drawable/ic_menu_set_as"
-                    android:alpha="0.6"
+                    android:src="@drawable/ic_edit_fields"
+                    android:alpha="0.8"
                     android:background="@android:color/transparent"
-                    />
+                    />-->
 
             </RelativeLayout>
 

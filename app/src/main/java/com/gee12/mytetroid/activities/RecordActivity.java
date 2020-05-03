@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -41,6 +40,7 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
@@ -86,7 +86,8 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_OPEN_NODE = 3;
-    public static final int RESULT_SHOW_TAG = 4;
+    public static final int RESULT_SHOW_FILES = 4;
+    public static final int RESULT_SHOW_TAG = 5;
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
     private ExpandableLayout mFieldsExpanderLayout;
@@ -97,7 +98,6 @@ public class RecordActivity extends TetroidActivity implements
     private TextView mTvAuthor;
     private TextView mTvUrl;
     private TextView mTvDate;
-    private ImageButton mButtonFieldsEdit;
     protected ProgressBar mHtmlProgressBar;
     private TetroidEditor mEditor;
     private FloatingActionButton mButtonScrollBottom;
@@ -192,8 +192,8 @@ public class RecordActivity extends TetroidActivity implements
         mButtonToggleFields.setOnClickListener(v -> toggleRecordFieldsVisibility());
         setRecordFieldsVisibility(false);
 //        ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
-        this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
-        mButtonFieldsEdit.setOnClickListener(v -> editFields());
+//        this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
+//        mButtonFieldsEdit.setOnClickListener(v -> editFields());
 
         this.mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
         this.mButtonScrollTop = findViewById(R.id.button_scroll_top);
@@ -456,6 +456,7 @@ public class RecordActivity extends TetroidActivity implements
     /**
      * Открытие другой записи по внутренней ссылке.
      * @param record
+     * @param isAskForSave
      */
     private void openAnotherRecord(TetroidRecord record, boolean isAskForSave) {
         if (record == null)
@@ -473,6 +474,7 @@ public class RecordActivity extends TetroidActivity implements
     /**
      * Открытие другой ветки по внутренней ссылке.
      * @param node
+     * @param isAskForSave
      */
     private void openAnotherNode(TetroidNode node, boolean isAskForSave) {
         if (node == null)
@@ -485,8 +487,37 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Открытие ветки записи.
+     */
+    private void showCurNode() {
+        openAnotherNode(mRecord.getNode(), true);
+    }
+
+    /**
+     * Открытие списка файлов записи.
+     * @param isAskForSave
+     */
+    private void openRecordFiles(TetroidRecord record, boolean isAskForSave) {
+        if (record == null)
+            return;
+        if (onSaveRecord(isAskForSave, new TetroidFile()))
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_OBJECT_ID, record.getId());
+        finishWithResult(RESULT_SHOW_FILES, bundle);
+    }
+
+    /**
+     *
+     */
+    private void openCurRecordFiles() {
+        openRecordFiles(mRecord, true);
+    }
+
+    /**
      * Открытие записей метки в главной активности.
      * @param tagName
+     * @param isAskForSave
      */
     private void openTag(String tagName, boolean isAskForSave) {
         if (onSaveRecord(isAskForSave, tagName))
@@ -497,20 +528,6 @@ public class RecordActivity extends TetroidActivity implements
             bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
         }
         finishWithResult(RESULT_SHOW_TAG, bundle);
-    }
-
-    /**
-     * TODO:
-     */
-    private void showCurNode() {
-
-    }
-
-    /**
-     * TODO:
-     */
-    private void showRecordFiles() {
-
     }
 
     private void toggleRecordFieldsVisibility() {
@@ -527,8 +544,8 @@ public class RecordActivity extends TetroidActivity implements
     private void updateScrollButtonLocation() {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
 //        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
-        float density = getResources().getDisplayMetrics().density;
-        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
+//        float density = getResources().getDisplayMetrics().density;
+//        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
 
         if (mFieldsExpanderLayout.isExpanded()) {
 //            params.topMargin = fabMargin;
@@ -739,6 +756,8 @@ public class RecordActivity extends TetroidActivity implements
             openAnotherRecord((TetroidRecord) obj, false);
         } else if (obj instanceof TetroidNode) {
             openAnotherNode((TetroidNode) obj, false);
+        } else if (obj instanceof TetroidFile) {
+            openRecordFiles(mRecord, false);
         } else if (obj instanceof String) {
             openTag((String) obj, false);
         }
@@ -1126,7 +1145,7 @@ public class RecordActivity extends TetroidActivity implements
                 showCurNode();
                 return true;
             case R.id.action_attached_files:
-                showRecordFiles();
+                openCurRecordFiles();
                 return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
