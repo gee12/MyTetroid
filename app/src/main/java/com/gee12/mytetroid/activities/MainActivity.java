@@ -114,6 +114,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsAlreadyTryDecrypt;
     private boolean mIsStorageLoaded;
 
+    private Intent mReceivedIntent;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
@@ -138,6 +139,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.mReceivedIntent = getIntent();
 
         // выдвигающиеся панели
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -166,20 +169,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         this.mTitleStrip = mViewPager.findViewById(R.id.pager_title_strip);
         setFoundPageVisibility(false);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i1) {
-            }
-            @Override
-            public void onPageSelected(int i) {
-                if (mIsActivityCreated) {
-                    changeToolBarByPage(i);
-                }
-            }
-            @Override
-            public void onPageScrollStateChanged(int i) {
-            }
-        });
+        mViewPager.addOnPageChangeListener(new ViewPagerListener());
 
 //        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
 //        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -246,6 +236,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             showFolderChooser();
         }
+    }
+
+    /**
+     * Обработчик события после загрузки хранилища.
+     */
+    private void afterStorageInited() {
+        checkReceivedIntent(mReceivedIntent);
     }
 
     /**
@@ -706,7 +703,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openRecord(String recordId) {
         Bundle bundle = new Bundle();
         bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
-        ViewUtils.startActivity(this, RecordActivity.class, bundle, REQUEST_CODE_RECORD_ACTIVITY);
+        ViewUtils.startActivity(this, RecordActivity.class, bundle, Intent.ACTION_MAIN, 0,
+                REQUEST_CODE_RECORD_ACTIVITY);
     }
 
     /**
@@ -1444,7 +1442,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void openFoundObject(ITetroidObject found) {
-        switch (found.getType()) {
+        int type = found.getType();
+        switch (type) {
             case FoundType.TYPE_RECORD:
                 openRecord((TetroidRecord)found);
                 break;
@@ -1458,7 +1457,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showTag((TetroidTag)found);
                 break;
         }
-        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        if (type != FoundType.TYPE_RECORD) {
+            mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        }
     }
 
     @Override
@@ -1498,13 +1499,55 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onNewIntent(Intent intent) {
-        // обработка результата голосового поиска
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+//        // обработка результата голосового поиска
+//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+//            String query = intent.getStringExtra(SearchManager.QUERY);
+////            searchInMainPage(query);
+//            mSearchViewRecords.setQuery(query, true);
+//        }
+        checkReceivedIntent(intent);
+        super.onNewIntent(intent);
+    }
+
+    /**
+     * Проверка входящего Intent.
+     */
+    private void checkReceivedIntent(Intent intent) {
+        String action;
+        if (intent == null || (action = intent.getAction()) == null) {
+            return;
+        }
+        if (action.equals(Intent.ACTION_SEARCH)) {
+            // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
 //            searchInMainPage(query);
             mSearchViewRecords.setQuery(query, true);
+        } else if (action.equals(Intent.ACTION_SEND)) {
+            // прием текста извне
+            String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (text == null) {
+                return;
+            }
+            String type = intent.getType();
+            if (type == null) {
+                return;
+            }
+            if (type.startsWith("text/")) {
+                LogManager.addLog("Внешний прием текстовой записи", LogManager.Types.INFO);
+            } else if (type.startsWith("image/")) {
+                LogManager.addLog("Внешний прием изображения", LogManager.Types.INFO);
+                // TODO:
+
+            }
+            String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+            String url = null;
+            if (Build.VERSION.SDK_INT >= 17) {
+                url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
+            }
+            // создаем запись и открываем
+            TetroidRecord record = DataManager.createRecord(subject, url, text);
+            mViewPagerAdapter.getMainFragment().addNewRecord(record);
         }
-        super.onNewIntent(intent);
     }
 
     /**
@@ -1679,6 +1722,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Обработчик смены страниц ViewPager.
+     */
+    private class ViewPagerListener implements ViewPager.OnPageChangeListener {
+        @Override
+        public void onPageScrolled(int i, float v, int i1) {
+        }
+        @Override
+        public void onPageSelected(int i) {
+            if (mIsActivityCreated) {
+                changeToolBarByPage(i);
+            }
+        }
+        @Override
+        public void onPageScrollStateChanged(int i) {
+        }
+    }
+
     private void onExit() {
         AskDialogs.showExitDialog(this, () -> finish());
     }
@@ -1738,6 +1799,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // инициализация контролов
             initGUI(res);
+            // действия после загрузки хранилища
+            if (res) {
+                afterStorageInited();
+            }
 
 //            if (BuildConfig.DEBUG) {
 //                LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
