@@ -431,6 +431,7 @@ public class MainPageFragment extends TetroidFragment {
     private void copyRecord(TetroidRecord record) {
         // добавляем в "буфер обмена"
         TetroidClipboard.copy(record);
+        TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.COPY);
     }
 
     /**
@@ -485,7 +486,8 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
-            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.COPY);
+//            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.COPY);
+            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             if (isCutted) {
                 // очищаем "буфер обмена"
                 TetroidClipboard.clear();
