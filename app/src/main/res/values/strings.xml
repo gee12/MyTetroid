@@ -55,6 +55,7 @@
     <string name="title_insert_record">Insert record</string>
     <string name="title_share">Share</string>
     <string name="title_intent_send">Mytetroid - Note</string>
+    <string name="title_intent_send_attach">Mytetroid - Attach</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>

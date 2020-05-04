@@ -2,13 +2,16 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,6 +69,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1529,22 +1533,34 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String query = intent.getStringExtra(SearchManager.QUERY);
 //            searchInMainPage(query);
             mSearchViewRecords.setQuery(query, true);
+
         } else if (action.equals(Intent.ACTION_SEND)) {
-            // прием текста извне
-            String text = intent.getStringExtra(Intent.EXTRA_TEXT);
-            if (text == null) {
-                return;
-            }
+            // прием текста/изображения из другого приложения
             String type = intent.getType();
             if (type == null) {
                 return;
             }
+            String text = null;
             if (type.startsWith("text/")) {
-                LogManager.addLog("Внешний прием текстовой записи", LogManager.Types.INFO);
+                text = intent.getStringExtra(Intent.EXTRA_TEXT);
+                LogManager.addLog("Прием текста из другого приложения", LogManager.Types.INFO);
             } else if (type.startsWith("image/")) {
-                LogManager.addLog("Внешний прием изображения", LogManager.Types.INFO);
-                // TODO:
+                if (intent.hasExtra(Intent.EXTRA_STREAM)) {
+                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                    if (imageUri == null)
+                        return;
+                    LogManager.addLog(String.format("Прием изображения из другого приложения: [%s]", imageUri), LogManager.Types.INFO);
 
+                    String component = intent.getComponent().getClassName();
+                    if (component.endsWith("MainActivity")) {
+
+                    } else if (component.endsWith("MainActivityAlias")) {
+
+                    }
+                }
+            }
+            if (text == null) {
+                return;
             }
             String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
             String url = null;
@@ -1554,6 +1570,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // создаем запись и открываем
             TetroidRecord record = DataManager.createRecord(subject, url, text);
             mViewPagerAdapter.getMainFragment().addNewRecord(record);
+
+        } else if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
+            // прием нескольких изображений из другого приложения
+            String type = intent.getType();
+            if (type == null) {
+                return;
+            }
+            String text = null;
+            if (type.startsWith("image/")) {
+                if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
+                    ArrayList<Parcelable> list = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                    if (list == null)
+                        return;
+                    LogManager.addLog(String.format("Прием изображений (%s) из другого приложения", list.size()), LogManager.Types.INFO);
+
+                    ComponentName component = intent.getComponent();
+                }
+            }
         }
     }
 
