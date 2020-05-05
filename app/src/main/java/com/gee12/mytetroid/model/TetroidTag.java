@@ -29,31 +29,6 @@ public class TetroidTag extends TetroidObject {
         return (records != null) ? records.get(index) : null;
     }
 
-    /**
-     * Формирование списка меток в виде html-кода.
-     * @return
-     */
-    public static String createTagsHtmlString(TetroidRecord record) {
-        if (record == null)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        int size = record.getTags().size();
-        if (size == 0) {
-            return null;
-        }
-        // #a4a4e4 - это colorLightLabelText
-        sb.append("<body style=\"font-family:'DejaVu Sans';color:#a4a4e4;margin:0px;\">");
-        for (TetroidTag tag : record.getTags()) {
-            // #303F9F - это colorBlueDark
-            sb.append("<a href=\"").append(LINKS_PREFIX).append(tag.getName()).append("\" style=\"color:#303F9F;\">").
-                    append(tag.getName()).append("</a>");
-            if (--size > 0)
-                sb.append(", ");
-        }
-        sb.append("</body>");
-        return sb.toString();
-    }
-
     //    @Override
 //    public String getKey() {
 //        return name;

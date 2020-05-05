@@ -10,6 +10,7 @@ import com.gee12.htmlwysiwygeditor.ActionButton;
 import com.gee12.htmlwysiwygeditor.ActionType;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.HtmlHelper;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
@@ -18,18 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TetroidEditor extends WysiwygEditor {
-
-    public static final String HTML_START_WITH =
-            "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n" +
-                    "<html><head>" +
-                    "<meta name=\"qrichtext\" content=\"1\" />" +
-                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />" +
-                    "<style type=\"text/css\">\n" +
-                    "p, li { white-space: pre-wrap; }\n" +
-                    "</style></head>" +
-                    "<body style=\" font-family:'DejaVu Sans'; font-size:11pt; font-weight:400; font-style:normal;\">";
-    public static final String HTML_END_WITH = "</body></html>";
-
 
     public TetroidEditor(Context context) {
         super(context);
@@ -119,9 +108,9 @@ public class TetroidEditor extends WysiwygEditor {
 
     public static String getDocumentHtml(String bodyHtml) {
         StringBuilder sb = new StringBuilder(3);
-        sb.append(HTML_START_WITH);
+        sb.append(HtmlHelper.HTML_START_WITH);
         sb.append(bodyHtml);
-        sb.append(HTML_END_WITH);
+        sb.append(HtmlHelper.HTML_END_WITH);
         return sb.toString();
     }
 

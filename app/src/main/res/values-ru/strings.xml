@@ -24,7 +24,7 @@
     <string name="title_about_app">О приложении</string>
     <string name="title_global_search">Глобальный поиск</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
-    <string name="title_cur_record">Открыть запись</string>
+    <string name="title_cur_record">Текст записи</string>
     <string name="title_storage_info">Статистика хранилища</string>
     <string name="title_expand_node_subnodes">Развернуть все подветки</string>
     <string name="title_collapse_node_subnodes">Свернуть все подветки</string>
@@ -52,8 +52,14 @@
     <string name="title_record_folder_path">Путь к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
     <string name="title_share">Отправить</string>
-    <string name="title_intent_send">Mytetroid - Запись</string>
-    <string name="title_intent_send_attach">Mytetroid - Прикрепить</string>
+    <string name="title_intent_send">Mytetroid</string>
+    <string name="title_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
+    <string name="title_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
+    <string name="title_intent_create_image_attach">Прикрепить к новой записи;Создать новую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
+    <string name="title_intent_exist_text">Вставить в существующую запись;Выбрать существующую запись и добавить переданный текст</string>
+    <string name="title_intent_exist_image">Вставить в существующую запись;Выбрать существующую запись и добавить переданное(ые) изображение(я) в ее текст</string>
+    <string name="title_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
+    <string name="title_not_implemented_yet">(пока не реализовано)</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -413,7 +419,7 @@
     <string name="log_start_image_file_converting">Начало конвертирования файла изображения в [%s]</string>
     <string name="log_start_image_file_deleting">Начало удаления файла изображения [%s]</string>
     <string name="log_error_image_file_saving">Не удалось сохранить файл изображения</string>
-    <string name="log_failed_to_save_images">Не удалось сохранить изображений: %s (подробнее в логах)</string>
+    <string name="log_failed_to_save_images">Не удалось сохранить изображений: %d (подробнее в логах)</string>
     <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
     <string name="confirm_selected_images">Выбрать</string>
     <string name="error_record_file_reading">Не удалось прочитать файл записи (подробнее в логах)</string>
@@ -424,5 +430,11 @@
     <string name="log_error_move_record_catalog">Ошибка перемещения каталога записи</string>
     <string name="log_erorr_move_record_dir_when_del">Запись удалена, но при перемещении каталога в корзину возникла ошибка (подробнее в логах)</string>
     <string name="log_open_log_file">Открытие лог-файла на чтение</string>
+    <string name="log_not_passed_text">Не передан текст</string>
+    <string name="log_not_passed_image_uri">Не передан путь к изображению(ям)</string>
+    <string name="log_receiving_intent_text">Прием текста из другого приложения</string>
+    <string name="log_receiving_intent_image">Прием изображения из другого приложения: [%s]</string>
+    <string name="log_receiving_intent_images">Прием изображений (%d) из другого приложения</string>
+    <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>
 
 </resources>

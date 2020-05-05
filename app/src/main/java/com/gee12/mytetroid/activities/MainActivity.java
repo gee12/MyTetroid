@@ -2,7 +2,6 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -61,6 +59,7 @@ import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
@@ -707,6 +706,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openRecord(String recordId) {
         Bundle bundle = new Bundle();
         bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
+        openRecord(bundle);
+    }
+
+    public void openRecord(TetroidRecord record, ArrayList<Uri> imagesUri) {
+        Bundle bundle = new Bundle();
+        bundle.putString(RecordActivity.EXTRA_OBJECT_ID, record.getId());
+        bundle.putParcelableArrayList(RecordActivity.EXTRA_IMAGES_URI, imagesUri);
+        openRecord(bundle);
+    }
+
+    public void openRecord(Bundle bundle) {
         ViewUtils.startActivity(this, RecordActivity.class, bundle, Intent.ACTION_MAIN, 0,
                 REQUEST_CODE_RECORD_ACTIVITY);
     }
@@ -1523,7 +1533,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Проверка входящего Intent.
      */
-    private void checkReceivedIntent(Intent intent) {
+    private void checkReceivedIntent(final Intent intent) {
         String action;
         if (intent == null || (action = intent.getAction()) == null) {
             return;
@@ -1541,35 +1551,29 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 return;
             }
             String text = null;
+            boolean isText = false;
+            ArrayList<Uri> images = null;
             if (type.startsWith("text/")) {
+                // текст
+                isText = true;
                 text = intent.getStringExtra(Intent.EXTRA_TEXT);
-                LogManager.addLog("Прием текста из другого приложения", LogManager.Types.INFO);
-            } else if (type.startsWith("image/")) {
-                if (intent.hasExtra(Intent.EXTRA_STREAM)) {
-                    Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                    if (imageUri == null)
-                        return;
-                    LogManager.addLog(String.format("Прием изображения из другого приложения: [%s]", imageUri), LogManager.Types.INFO);
-
-                    String component = intent.getComponent().getClassName();
-                    if (component.endsWith("MainActivity")) {
-
-                    } else if (component.endsWith("MainActivityAlias")) {
-
-                    }
+                if (text == null) {
+                    LogManager.addLog(R.string.log_not_passed_text, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    return;
                 }
+                LogManager.addLog(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
+            } else if (type.startsWith("image/")) {
+                // изображение
+                Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                if (imageUri == null) {
+                    LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    return;
+                }
+                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_image), imageUri), LogManager.Types.INFO);
+                images = new ArrayList<>();
+                images.add(imageUri);
             }
-            if (text == null) {
-                return;
-            }
-            String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-            String url = null;
-            if (Build.VERSION.SDK_INT >= 17) {
-                url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
-            }
-            // создаем запись и открываем
-            TetroidRecord record = DataManager.createRecord(subject, url, text);
-            mViewPagerAdapter.getMainFragment().addNewRecord(record);
+            showIntentDialog(intent, isText, text, images);
 
         } else if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
             // прием нескольких изображений из другого приложения
@@ -1577,18 +1581,69 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (type == null) {
                 return;
             }
-            String text = null;
             if (type.startsWith("image/")) {
-                if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-                    ArrayList<Parcelable> list = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                    if (list == null)
-                        return;
-                    LogManager.addLog(String.format("Прием изображений (%s) из другого приложения", list.size()), LogManager.Types.INFO);
-
-                    ComponentName component = intent.getComponent();
+                ArrayList<Uri> images = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                if (images == null) {
+                    LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    return;
                 }
+                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images), images.size()), LogManager.Types.INFO);
+//                ArrayList<Uri> images = new ArrayList<>(list.size());
+//                for (Parcelable uri : list) {
+//                    images.add((Uri)uri);
+//                }
+
+                showIntentDialog(intent, false, null, images);
             }
         }
+    }
+
+    private void showIntentDialog(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri) {
+
+        IntentDialog.createDialog(this, isText, item -> {
+            if (item.isCreate()) {
+                // имя записи
+                String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+                String url = null;
+                if (Build.VERSION.SDK_INT >= 17) {
+                    url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
+                }
+                // текст записи
+                /*String imageText;
+                if (!isText && !item.isAttach()) {
+                    imageText =
+                }*/
+                // создаем запись
+                TetroidRecord record = DataManager.createRecord(subject, url, text);
+                // обновляем список записей, меток, и количества записей ветки
+                mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !item.isAttach());
+                // загружаем изображения в каталоги записи
+                if (record != null && !isText) {
+                    if (!item.isAttach()) {
+                        // запускаем активность записи с командой вставки изображений после загрузки
+                        openRecord(record, imagesUri);
+
+                    } else {
+                        // прикрепляем изображения как файлы
+                        boolean hasError = false;
+                        for (Uri uri : imagesUri) {
+                            if (DataManager.attachFile(FileUtils.getPathFromUri(this, uri), record) == null) {
+                                hasError = true;
+                            }
+                        }
+                        if (hasError) {
+                            LogManager.addLog(R.string.log_files_attach_error, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        }
+                        // обновляем список файлов
+                        mDrawerLayout.closeDrawers();
+                        mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+                    }
+                }
+            } else {
+                // TODO: реализовать выбор имеющихся записей
+            }
+        });
+
     }
 
     /**
