@@ -39,6 +39,7 @@ import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.HtmlHelper;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -61,6 +62,7 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -79,15 +81,18 @@ public class RecordActivity extends TetroidActivity implements
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
     public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
+    public static final String EXTRA_IMAGES_URI = "EXTRA_IMAGES_URI";
 
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
+
     public static final int RESULT_REINIT_STORAGE = 1;
     public static final int RESULT_OPEN_RECORD = 2;
     public static final int RESULT_OPEN_NODE = 3;
     public static final int RESULT_SHOW_FILES = 4;
     public static final int RESULT_SHOW_TAG = 5;
+
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
     private ExpandableLayout mFieldsExpanderLayout;
@@ -106,11 +111,7 @@ public class RecordActivity extends TetroidActivity implements
     private FloatingActionButton mButtonFindPrev;
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
-//    private MenuItem mMenuItemSave;
     private MenuItem mMenuItemHtml;
-//    private MenuItem miCurNode;
-//    private MenuItem miAttachedFiles;
-//    private MenuItem miCurRecordFolder;
 
     private TetroidRecord mRecord;
     private int mCurMode;
@@ -118,6 +119,7 @@ public class RecordActivity extends TetroidActivity implements
     private boolean mIsFieldsEdited;
     private TextFindListener mFindListener;
     private SearchView mSearchView;
+    private boolean mIsReceivedImages;
 
 
     public RecordActivity() {
@@ -140,6 +142,7 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
         if (action.equals(Intent.ACTION_MAIN)) {
+            // получаем переданную запись
             String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
             if (recordId != null) {
                 // получаем запись
@@ -160,6 +163,9 @@ public class RecordActivity extends TetroidActivity implements
             finish();
             return;
         }
+
+        // проверяем передавались ли изображения
+        this.mIsReceivedImages = intent.hasExtra(EXTRA_IMAGES_URI);
 
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setImgPickerCallback(this);
@@ -249,7 +255,7 @@ public class RecordActivity extends TetroidActivity implements
             return;
         int id = R.id.label_record_tags;
         // метки
-        String tagsHtml = TetroidTag.createTagsHtmlString(record);
+        String tagsHtml = HtmlHelper.createTagsHtmlString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
             mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
@@ -327,15 +333,15 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onPageLoaded() {
         if (mIsFirstLoad) {
-            // переключаем views и делаем другие обработки
-            int defMode = (mRecord.isNew() || SettingsManager.isRecordEditMode()) ? MODE_EDIT : MODE_VIEW;
+            this.mIsFirstLoad = false;
+            // переключаем режим отображения
+            int defMode = (mRecord.isNew() || mIsReceivedImages || SettingsManager.isRecordEditMode())
+                    ? MODE_EDIT : MODE_VIEW;
 
-            // сбрасываем флаг, т.к. им уже воспользовались
+            // сбрасываем флаг, т.к. уже воспользовались
             mRecord.setIsNew(false);
 
             switchMode(defMode);
-
-            this.mIsFirstLoad = false;
         } else {
             // переключаем только views
             switchViews(mCurMode);
@@ -356,6 +362,12 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onEditorJSLoaded() {
 //        setProgressVisibility(false);
+
+        // вставляем переданные изображения
+        if (mIsReceivedImages) {
+            List<Uri> uris = getIntent().getParcelableArrayListExtra(EXTRA_IMAGES_URI);
+            saveImages(uris, false);
+        }
     }
 
     /**
@@ -650,10 +662,20 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.addLog(getString(R.string.log_selected_files_is_missing), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
+        List<Uri> uris = new ArrayList<>();
+        for (Image image : images) {
+            uris.add(Uri.fromFile(new File(image.getPath())));
+        }
+        saveImages(uris, isCamera);
+    }
+
+    private void saveImages(List<Uri> imageUris, boolean deleteSrcFile) {
+        if (imageUris == null)
+            return;
         int errorCount = 0;
         List<TetroidImage> savedImages = new ArrayList<>();
-        for (Image image : images) {
-            TetroidImage savedImage = DataManager.saveImage(mRecord, image.getPath(), isCamera);
+        for (Uri uri : imageUris) {
+            TetroidImage savedImage = DataManager.saveImage(this, mRecord, uri, deleteSrcFile);
             if (savedImage != null) {
                 savedImages.add(savedImage);
             } else {
@@ -661,7 +683,8 @@ public class RecordActivity extends TetroidActivity implements
             }
         }
         if (errorCount > 0) {
-            LogManager.addLog(getString(R.string.log_failed_to_save_images), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.addLog(String.format(getString(R.string.log_failed_to_save_images), errorCount),
+                    LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
         if (!savedImages.isEmpty()) {
             mEditor.onSelectImages(savedImages);
@@ -777,7 +800,6 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(true);
-//                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
                 mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.subtitle_record_view));
@@ -797,12 +819,10 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(true);
                 mMenuItemEdit.setVisible(false);
                 mMenuItemHtml.setVisible(true);
-//                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
                 mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_edit));
                 mEditor.getWebView().focusEditor();
-//                ViewUtils.showKeyboard(this, mEditor.getWebView());
             } break;
             case MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
@@ -817,12 +837,10 @@ public class RecordActivity extends TetroidActivity implements
                 }
 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.setVisibility(View.VISIBLE);
-//                mEditTextHtml.requestFocus();
                 setRecordFieldsVisibility(false);
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(false);
-//                mMenuItemSave.setVisible(true);
                 setSubtitle(getString(R.string.subtitle_record_html));
             } break;
         }
@@ -832,10 +850,6 @@ public class RecordActivity extends TetroidActivity implements
      * Перезагрузка хранилища в главной активности.
      */
     private void reinitStorage() {
-//        Bundle bundle = new Bundle();
-//        bundle.putInt(EXTRA_ACTION_ID, ACTION_REINIT_STORAGE);
-//        ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE, Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//        setResult(0, ViewUtils.createIntent(this, MainActivity.class, bundle, ACTION_REINIT_STORAGE));
         finishWithResult(RESULT_REINIT_STORAGE, null);
     }
 
@@ -872,11 +886,11 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-        runOnUiThread(() -> {
+//        runOnUiThread(() -> {
             mEditTextHtml.setText(htmlText);
             mEditTextHtml.requestFocus();
 //            setProgressVisibility(false);
-        });
+//        });
     }
 
     private void editFields() {
@@ -885,10 +899,8 @@ public class RecordActivity extends TetroidActivity implements
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
-//                LogManager.addLog(getString(R.string.log_record_fields_edited), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-//                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
@@ -1037,7 +1049,6 @@ public class RecordActivity extends TetroidActivity implements
         getMenuInflater().inflate(R.menu.record, menu);
         this.mMenuItemView = menu.findItem(R.id.action_record_view);
         this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
-//        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
         initSearchView(menu);
 

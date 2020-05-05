@@ -22,12 +22,15 @@ import java.util.concurrent.Future;
 
 public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder> {
 
+    /**
+     *
+     */
     class TextViewHolder extends RecyclerView.ViewHolder {
 
         private AppCompatTextView textView;
         PrecomputedTextCompat.Params params;
 
-        public TextViewHolder(@NonNull View itemView) {
+        TextViewHolder(@NonNull View itemView) {
             super(itemView);
             this.textView = itemView.findViewById(R.id.text_view);
             // убираем перенос слов, замедляющий работу
@@ -38,7 +41,7 @@ public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder
             this.params = textView.getTextMetricsParamsCompat();
         }
 
-        public void bind(String text) {
+        void bind(String text) {
 //            textView.setText(text);
             // запускаем расчет заранее
             Future<PrecomputedTextCompat> future = PrecomputedTextCompat.getTextFuture(

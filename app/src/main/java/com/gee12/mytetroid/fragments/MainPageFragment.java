@@ -248,16 +248,18 @@ public class MainPageFragment extends TetroidFragment {
     public void createRecord() {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), null, (name, tags, author, url) -> {
             TetroidRecord record = DataManager.createRecord(name, tags, author, url, mCurNode);
-            addNewRecord(record);
+            addNewRecord(record,true);
         });
     }
 
-    public void addNewRecord(TetroidRecord record) {
+    public void addNewRecord(TetroidRecord record, boolean isShow) {
         if (record != null) {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
-            showRecord(record);
+            if (isShow) {
+                showRecord(record);
+            }
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
         }
@@ -372,6 +374,10 @@ public class MainPageFragment extends TetroidFragment {
      */
     public void attachFile(String fullName) {
         TetroidFile file = DataManager.attachFile(fullName, mCurRecord);
+        attachFile(file);
+    }
+
+    public void attachFile(TetroidFile file) {
         if (file != null) {
             mListAdapterFiles.notifyDataSetInvalidated();
             // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,

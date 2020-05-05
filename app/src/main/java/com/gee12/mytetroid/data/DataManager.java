@@ -1411,7 +1411,6 @@ public class DataManager extends XMLManager {
             LogManager.emptyParams("DataManager.attachFile()");
             return null;
         }
-//        LogManager.addLog(context.getString(R.string.log_start_file_attaching), LogManager.Types.DEBUG);
         TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
 
         String id = createUniqueId();
@@ -1698,18 +1697,20 @@ public class DataManager extends XMLManager {
 
     /**
      * Сохранение файла изображения в каталог записи.
+     * @param context
      * @param record
-     * @param srcFullName
+     * @param srcUri
      * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    public static TetroidImage saveImage(TetroidRecord record, String srcFullName, boolean deleteSrcFile) {
-        if (record == null) {
+    public static TetroidImage saveImage(Context context, TetroidRecord record, Uri srcUri, boolean deleteSrcFile) {
+        if (record == null || srcUri == null) {
             LogManager.emptyParams("DataManager.saveImage()");
             return null;
         }
+        String srcPath = srcUri.getPath();
         LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving),
-                srcFullName, record.getId()), LogManager.Types.DEBUG);
+                srcPath, record.getId()), LogManager.Types.DEBUG);
 
         // генерируем уникальное имя файла
         String nameId = createUniqueImageName();
@@ -1728,24 +1729,24 @@ public class DataManager extends XMLManager {
                 destFullName), LogManager.Types.DEBUG);
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            ImageUtils.convertImage(srcFullName, destFullName, Bitmap.CompressFormat.PNG, 100);
+            ImageUtils.convertImage(context, srcUri, destFullName, Bitmap.CompressFormat.PNG, 100);
             File destFile = new File(destFullName);
             if (destFile.exists()) {
                 if (deleteSrcFile) {
                     LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_deleting),
-                            srcFullName), LogManager.Types.DEBUG);
-                    File srcFile = new File(srcFullName);
+                            srcUri), LogManager.Types.DEBUG);
+                    File srcFile = new File(srcPath);
                     // удаляем исходный файл за ненадобностью
                     if (!srcFile.delete()) {
                         LogManager.addLog(context.getString(R.string.log_error_deleting_src_image_file)
-                                + srcFullName, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                                + srcPath, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                 }
             } else {
                 LogManager.addLog(context.getString(R.string.log_error_image_file_saving), LogManager.Types.ERROR);
                 return null;
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LogManager.addLog(context.getString(R.string.log_error_image_file_saving), ex);
             return null;
         }

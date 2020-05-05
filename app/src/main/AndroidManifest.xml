@@ -61,24 +61,12 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
 
-       <!--     <intent-filter android:label="@string/title_intent_send_attach">
-                <action android:name="android.intent.action.SEND" />
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.ALTERNATIVE" />
-                <data android:mimeType="image/*" />
-            </intent-filter>-->
-
-           <!-- <intent-filter android:label="@string/title_intent_send_attach">
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.ALTERNATIVE" />
-                <data android:mimeType="image/*" />
-            </intent-filter>-->
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_records" />
         </activity>
 
+<!--
         <activity-alias
             android:name=".activities.MainActivityAlias"
             android:targetActivity=".activities.MainActivity">
@@ -96,6 +84,7 @@
             </intent-filter>
 
         </activity-alias>
+-->
 
         <provider
             android:name=".TetroidSuggestionProvider"
