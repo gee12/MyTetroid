@@ -110,11 +110,6 @@
     <string name="pref_log_path">Каталог логов</string>
     <string name="pref_log_path_summ">Путь к каталогу для записи лог-файла</string>
 
-    <string name="answer_ok">Ок</string>
-    <string name="answer_cancel">Отмена</string>
-    <string name="answer_yes">Да</string>
-    <string name="answer_no">Нет</string>
-
     <string name="label_record_name">Название:</string>
     <string name="label_record_tags">Метки:</string>
     <string name="label_record_author">Автор:</string>
@@ -436,5 +431,7 @@
     <string name="log_receiving_intent_image">Прием изображения из другого приложения: [%s]</string>
     <string name="log_receiving_intent_images">Прием изображений (%d) из другого приложения</string>
     <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>
+    <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
+    <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
 
 </resources>

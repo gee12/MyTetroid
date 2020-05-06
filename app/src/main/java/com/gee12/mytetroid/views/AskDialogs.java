@@ -2,12 +2,12 @@ package com.gee12.mytetroid.views;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.text.InputType;
 import android.widget.EditText;
 
 import androidx.annotation.StringRes;
 
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
@@ -63,7 +63,7 @@ public class AskDialogs {
 //        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
 //                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply(node))
 //                .setNegativeButton(R.string.answer_no, null).show();
-        showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
+        Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
                 (dialog, which) -> applyHandler.onApply(node),
                 null);
     }
@@ -100,14 +100,7 @@ public class AskDialogs {
      * @param messageRes
      */
     public static void showYesNoDialog(Context context, final IApplyCancelResult applyHandler, @StringRes int messageRes) {
-//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-//            if (which == DialogInterface.BUTTON_POSITIVE) {
-//                applyHandler.onApply();
-//            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-//                applyHandler.onCancel();
-//            }
-//        };
-        showAlertDialog(context, messageRes,
+        Dialogs.showAlertDialog(context, messageRes,
                 (dialog, which) -> applyHandler.onApply(),
                 (dialog, which) -> applyHandler.onCancel());
     }
@@ -119,31 +112,9 @@ public class AskDialogs {
      * @param messageRes
      */
     public static void showYesDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
-//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-//            if (which == DialogInterface.BUTTON_POSITIVE) {
-//                applyHandler.onApply();
-//            }
-//        };
-//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//        builder.setMessage(messageRes)
-//                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply())
-//                .setNegativeButton(R.string.answer_no, null).show();
-        showAlertDialog(context, messageRes,
+        Dialogs.showAlertDialog(context, messageRes,
                 (dialog, which) -> applyHandler.onApply(),
                 null);
-    }
-
-    public static void showAlertDialog(Context context, int messageRes,
-           DialogInterface.OnClickListener yesListener, DialogInterface.OnClickListener noListerener) {
-        showAlertDialog(context, context.getString(messageRes), yesListener, noListerener);
-    }
-
-    public static void showAlertDialog(Context context, String message,
-           DialogInterface.OnClickListener yesListener, DialogInterface.OnClickListener noListerener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setMessage(message)
-                .setPositiveButton(R.string.answer_yes, yesListener)
-                .setNegativeButton(R.string.answer_no, noListerener).show();
     }
 
 }

@@ -303,18 +303,25 @@ public class DataManager extends XMLManager {
         String res = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                byte[] text = new byte[0];
+                byte[] bytes;
                 try {
-                    text = FileUtils.readFile(uri);
+                    bytes = FileUtils.readFile(uri);
                 } catch (Exception ex) {
                     LogManager.addLog(context.getString(R.string.log_error_read_record_file) + path, ex);
                     return null;
                 }
+                if (bytes == null) {
+                    LogManager.addLog(context.getString(R.string.log_error_decrypt_record_file) + path, LogManager.Types.ERROR);
+                    return null;
+                } else if (bytes.length == 0) {
+                    // файл пуст
+                    return "";
+                }
                 // расшифровываем содержимое файла
-                res = CryptManager.decryptText(text);
+                LogManager.addLog(context.getString(R.string.log_start_record_text_decrypting), LogManager.Types.DEBUG);
+                res = CryptManager.decryptText(bytes);
                 if (res == null) {
-                    LogManager.addLog(context.getString(R.string.log_error_decrypt_record_file) + path,
-                            LogManager.Types.ERROR);
+                    LogManager.addLog(context.getString(R.string.log_error_decrypt_record_file) + path, LogManager.Types.ERROR);
                 }
             }
         } else {

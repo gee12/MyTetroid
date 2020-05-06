@@ -687,7 +687,7 @@ public class RecordActivity extends TetroidActivity implements
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
         if (!savedImages.isEmpty()) {
-            mEditor.onSelectImages(savedImages);
+            mEditor.insertImages(savedImages);
         }
     }
 

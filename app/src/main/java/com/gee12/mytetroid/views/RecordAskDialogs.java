@@ -105,7 +105,7 @@ public class RecordAskDialogs {
         String mes = String.format(context.getString(R.string.ask_oper_without_record_dir_mask),
                 context.getString(resId));
 //        AskDialogs.showYesDialog(context, applyHandler, mes);
-        AskDialogs.showAlertDialog(context, mes,
+        Dialogs.showAlertDialog(context, mes,
                 (dialog, which) -> applyHandler.onApply(),
                 null);
     }
