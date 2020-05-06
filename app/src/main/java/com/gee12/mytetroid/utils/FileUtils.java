@@ -351,8 +351,13 @@ public class FileUtils {
         Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int colindex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                res = cursor.getString(colindex);
+                int colIndex;
+                try {
+                    colIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                } catch (Exception ex) {
+                    return null;
+                }
+                res = cursor.getString(colIndex);
             }
             cursor.close();
         }

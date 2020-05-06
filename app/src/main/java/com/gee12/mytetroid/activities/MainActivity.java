@@ -1552,7 +1552,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             String text = null;
             boolean isText = false;
-            ArrayList<Uri> images = null;
+            ArrayList<Uri> uris = null;
             if (type.startsWith("text/")) {
                 // текст
                 isText = true;
@@ -1570,10 +1570,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return;
                 }
                 LogManager.addLog(String.format(getString(R.string.log_receiving_intent_image), imageUri), LogManager.Types.INFO);
-                images = new ArrayList<>();
-                images.add(imageUri);
+                uris = new ArrayList<>();
+                uris.add(imageUri);
             }
-            showIntentDialog(intent, isText, text, images);
+            showIntentDialog(intent, isText, text, uris);
 
         } else if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
             // прием нескольких изображений из другого приложения
@@ -1582,18 +1582,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 return;
             }
             if (type.startsWith("image/")) {
-                ArrayList<Uri> images = getIntent().getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                if (images == null) {
+                ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                if (uris == null) {
                     LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images), images.size()), LogManager.Types.INFO);
-//                ArrayList<Uri> images = new ArrayList<>(list.size());
-//                for (Parcelable uri : list) {
-//                    images.add((Uri)uri);
+                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images), uris.size()), LogManager.Types.INFO);
+//                ArrayList<Uri> uris = new ArrayList<>(images.size());
+//                for (Parcelable uri : images) {
+//                    uris.add((Uri)uri);
 //                }
 
-                showIntentDialog(intent, false, null, images);
+                showIntentDialog(intent, false, null, uris);
             }
         }
     }
@@ -1615,10 +1615,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }*/
                 // создаем запись
                 TetroidRecord record = DataManager.createRecord(subject, url, text);
+                if (record == null) {
+                    return;
+                }
+                // открываем ветку, в которую добавили запись
+                showNode(record.getNode());
                 // обновляем список записей, меток, и количества записей ветки
                 mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !item.isAttach());
                 // загружаем изображения в каталоги записи
-                if (record != null && !isText) {
+                if (!isText) {
                     if (!item.isAttach()) {
                         // запускаем активность записи с командой вставки изображений после загрузки
                         openRecord(record, imagesUri);

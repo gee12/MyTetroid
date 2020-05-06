@@ -222,11 +222,6 @@
     <string name="stats_unique_tags_count">Of which are unique:</string>
     <string name="stats_authors_count">Authors:</string>
 
-    <string name="answer_ok">Ok</string>
-    <string name="answer_cancel">Cancel</string>
-    <string name="answer_yes">Yes</string>
-    <string name="answer_no">No</string>
-
     <string name="g_bytes">Gb</string>
     <string name="m_bytes">Mb</string>
     <string name="k_bytes">Kb</string>
@@ -482,5 +477,7 @@
     <string name="log_receiving_intent_image">Receiving image from another application: [%s]</string>
     <string name="log_receiving_intent_images">Receiving images (%d) from another application</string>
     <string name="log_files_attach_error">Errors occurred while attaching file (s) (more in logs)</string>
+    <string name="ask_change_image_dimens">Resize images before inserting?</string>
+    <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
 
 </resources>
