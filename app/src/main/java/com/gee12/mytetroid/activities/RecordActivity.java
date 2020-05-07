@@ -296,9 +296,6 @@ public class RecordActivity extends TetroidActivity implements
             if (!record.isNew()) {
                 textHtml = DataManager.getRecordHtmlTextDecrypted(record);
                 if (textHtml == null) {
-//                    int mesId = (record.isCrypted() && CryptManager.getErrorCode() > 0)
-//                            ? R.string.error_record_file_decrypting : R.string.error_record_file_reading;
-//                    LogManager.addLog(mesId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
                         LogManager.addLog(R.string.error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     }
@@ -306,14 +303,10 @@ public class RecordActivity extends TetroidActivity implements
             }
         }
         mEditTextHtml.reset();
-        //        mEditor.getWebView().clearAndFocusEditor();
+        //mEditor.getWebView().clearAndFocusEditor();
         final String text = textHtml;
-//        runOnUiThread(() ->
         mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
                 text, "text/html", "UTF-8", null);
-//        );
-//        mEditor.getWebView().reload();
-//        mEditor.getWebView().invalidate();
     }
 
     /**
