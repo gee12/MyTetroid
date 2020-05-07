@@ -479,5 +479,7 @@
     <string name="log_files_attach_error">Errors occurred while attaching file (s) (more in logs)</string>
     <string name="ask_change_image_dimens">Resize images before inserting?</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
+    <string name="log_error_record_file_decrypt">Error decrypting record file</string>
+    <string name="log_error_record_file_encrypt">Error encrypting record file</string>
 
 </resources>

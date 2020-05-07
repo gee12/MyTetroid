@@ -433,5 +433,7 @@
     <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
+    <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
+    <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
 
 </resources>
