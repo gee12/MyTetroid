@@ -19,6 +19,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -1208,14 +1209,17 @@ public class DataManager extends XMLManager {
         }
         record.setIsNew(false);
 
+        String destDirPath = getPathToRecordFolder(record);
+        File destDir = new File(destDirPath);
+        if (!withoutDir) {
 /*        // создаем каталог записи
         String destDirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(destDirPath, true) <= 0) {
             return -2;
         }*/
 //        String dirNameInBase = null;
-        if (isCutted) {
-            // перемещаем каталог записи
+            if (isCutted) {
+                // перемещаем каталог записи
             /*String destDirPath = getStoragePathBase();
             File destDir = new File(destDirPath);
             if (FileUtils.moveToDirRecursive(srcDir, destDir)) {
@@ -1225,28 +1229,29 @@ public class DataManager extends XMLManager {
                         srcDirPath, destDirPath), LogManager.Types.ERROR);
                 return -2;
             }*/
-            // вырезаем уникальную приставку в имени каталога
-            String dirNameInBase = srcRecord.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
-            int res = moveRecordFolder(record, srcDirPath, getStoragePathBase(), dirNameInBase);
-            if (res < 0) {
-                return res;
-            }
-        } else {
-            // копируем каталог записи
-            String destDirPath = getPathToRecordFolder(record);
-            File destDir = new File(destDirPath);
-            try {
-                if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
+                // вырезаем уникальную приставку в имени каталога
+                String dirNameInBase = srcRecord.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
+                int res = moveRecordFolder(record, srcDirPath, getStoragePathBase(), dirNameInBase);
+                if (res < 0) {
+                    return res;
+                }
+            } else {
+                // копируем каталог записи
+//                String destDirPath = getPathToRecordFolder(record);
+//                File destDir = new File(destDirPath);
+                try {
+                    if (!FileUtils.copyDirRecursive(srcDir, destDir)) {
 //                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
 //                } else {
+                        LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
+                                srcDirPath, destDirPath), LogManager.Types.ERROR);
+                        return -2;
+                    }
+                } catch (IOException ex) {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
-                            srcDirPath, destDirPath), LogManager.Types.ERROR);
+                            srcDirPath, destDirPath), ex);
                     return -2;
                 }
-            } catch (IOException ex) {
-                LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir),
-                        srcDirPath, destDirPath), ex);
-                return -2;
             }
         }
 
@@ -1256,12 +1261,21 @@ public class DataManager extends XMLManager {
         if (saveStorage()) {
             // добавляем метки в запись и в коллекцию
             instance.parseRecordTags(record, tagsString);
+
+            if (!withoutDir) {
+                // зашифровываем или расшифровываем файл записи
+                // FIXME: обрабатывать результат ?
+                File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
+                cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted);
+            }
         } else {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             // удаляем запись из ветки
             node.getRecords().remove(record);
-            if (isCutted) {
-                // перемещаем каталог записи обратно в корзину
+
+            if (!withoutDir) {
+                if (isCutted) {
+                    // перемещаем каталог записи обратно в корзину
 /*                File inBaseDir = new File(getStoragePathBase(), dirNameInBase);
                 File trashDir = new File(SettingsManager.getTrashPath());
                 if (FileUtils.moveToDirRecursive(inBaseDir, trashDir)) {
@@ -1271,16 +1285,18 @@ public class DataManager extends XMLManager {
                             inBaseDir.getAbsolutePath(), trashDir.getAbsolutePath()), LogManager.Types.ERROR);
                     return -2;
                 }*/
-                return moveRecordFolder(record, getPathToRecordFolder(record), SettingsManager.getTrashPath(), srcRecord.getDirName());
-            } else {
-                // удаляем только что скопированный каталог записи
-                String destDirPath = getPathToRecordFolder(record);
-                File destDir = new File(destDirPath);
-                if (FileUtils.deleteRecursive(destDir)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
+//                    return moveRecordFolder(record, getPathToRecordFolder(record), SettingsManager.getTrashPath(), srcRecord.getDirName());
+                    return moveRecordFolder(record, destDirPath, SettingsManager.getTrashPath(), srcRecord.getDirName());
                 } else {
-                    LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
-                    return 0;
+                    // удаляем только что скопированный каталог записи
+//                    String destDirPath = getPathToRecordFolder(record);
+//                    File destDir = new File(destDirPath);
+                    if (FileUtils.deleteRecursive(destDir)) {
+                        TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
+                    } else {
+                        LogManager.addLog(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
+                        return 0;
+                    }
                 }
             }
             return 0;
@@ -1290,6 +1306,32 @@ public class DataManager extends XMLManager {
         // еще раз вставить скопированную запись
 //        clipboard.setObjForInsert(record);
         return 1;
+    }
+
+    /**
+     *
+     * @param file
+     * @param srcCrypted
+     * @param destCrypted
+     * @return
+     */
+    public static boolean cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
+        if (srcCrypted && !destCrypted) {
+            try {
+                // расшифровуем файл записи
+                return Crypter.decryptFile(file, file);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.log_error_record_file_decrypt) + file.getAbsolutePath(), ex);
+            }
+        } else if (!srcCrypted && destCrypted) {
+            try {
+                // зашифровуем файл записи
+                return Crypter.encryptFile(file, file);
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.log_error_record_file_encrypt) + file.getAbsolutePath(), ex);
+            }
+        }
+        return false;
     }
 
     /**
