@@ -127,8 +127,8 @@ public class Crypter {
     /**
      * Побайтовая зашифровка файла.
      *
-     * @param srcFile
-     * @param destFile
+     * @param srcFile Исходный файл, который нужно зашифровать
+     * @param destFile Результирующий файл, который должен быть зашифрован
      * @return
      * @throws IOException
      */
@@ -216,8 +216,8 @@ public class Crypter {
      *
      * TODO: Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком.
      *
-     * @param srcFile
-     * @param destFile
+     * @param srcFile Исходный зашифрованный файл
+     * @param destFile Результирующий файл, который должен быть расшифрован
      * @return
      */
     public static boolean decryptFile(File srcFile, File destFile) throws IOException {
