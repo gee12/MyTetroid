@@ -185,6 +185,22 @@ public class FileUtils {
     }
 
     /**
+     * Очистка содержимого каталога.
+     * @param dir
+     * @return
+     */
+    public static boolean clearDir(File dir) {
+        if (dir == null)
+            return false;
+        if (dir.isDirectory()) {
+            for (File child : dir.listFiles())
+                if (!deleteRecursive(child))
+                    return false;
+        }
+        return true;
+    }
+
+    /**
      * Перемещение файла или каталога с файлами/подкаталогами в указанный каталог (родительский).
      * @param srcFile Исходный файл/каталог
      * @param destDir Каталог назначения (родительский)

@@ -1453,6 +1453,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             LogManager.Types.WARNING, Toast.LENGTH_LONG);
                 }
                 break;
+            case RecordActivity.RESULT_DELETE_RECORD:
+                String recordId3 = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
+                if (recordId3 != null) {
+                    TetroidRecord record2 = DataManager.getRecord(recordId3);
+                    mViewPagerAdapter.getMainFragment().deleteRecordExactly(record2);
+                }
+                break;
         }
     }
 

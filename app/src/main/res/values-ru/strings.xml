@@ -109,6 +109,8 @@
     <string name="pref_write_log_to_file_summ">Логировать события в файл</string>
     <string name="pref_log_path">Каталог логов</string>
     <string name="pref_log_path_summ">Путь к каталогу для записи лог-файла</string>
+    <string name="pref_clear_search_history">Очистить историю поиска</string>
+    <string name="pref_clear_trash">Очистить корзину</string>
 
     <string name="label_record_name">Название:</string>
     <string name="label_record_tags">Метки:</string>
@@ -235,6 +237,9 @@
     <string name="ask_request_camera">Необходимо разрешение на использование камеры для захвата изображения. Предоставить ?</string>
     <string name="ask_show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
     <string name="ask_save_record">Сохранить запись?</string>
+    <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
+    <string name="ask_clear_trash">Очистить корзину?</string>
+    <string name="ask_clear_search_history">Очистить историю поиска?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -431,10 +436,12 @@
     <string name="log_receiving_intent_image">Прием изображения из другого приложения: [%s]</string>
     <string name="log_receiving_intent_images">Прием изображений (%d) из другого приложения</string>
     <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>
-    <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
     <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
     <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
-    <string name="log_cannot_delete_root_node">Невозможно удалить единственную корневую ветку</string>
+    <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
+    <string name="title_trash_cleared">Корзина очищена</string>
+    <string name="title_trash_clear_error">Не удалось очистить корзину</string>
+    <string name="title_search_history_cleared">История поиска очищена</string>
 
 </resources>

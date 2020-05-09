@@ -1,70 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_open_record"
         android:orderInCategory="10"
         android:title="@string/title_show_record_content"
-        android:icon="@drawable/ic_record"
-        app:showAsAction="always" />
+        android:icon="@drawable/ic_record" />
     <item
         android:id="@+id/action_record_edit_fields"
         android:orderInCategory="20"
         android:title="@string/title_edit_record_fields"
-        android:icon="@drawable/ic_edit"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_edit" />
     <item
         android:id="@+id/action_copy"
         android:orderInCategory="30"
         android:title="@string/title_copy"
-        android:icon="@drawable/ic_copy"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_copy" />
     <item
         android:id="@+id/action_cut"
         android:orderInCategory="40"
         android:title="@string/title_cut"
-        android:icon="@drawable/ic_cut"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_cut" />
     <item
         android:id="@+id/action_insert"
         android:orderInCategory="50"
         android:title="@string/title_insert"
-        android:icon="@drawable/ic_insert"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_insert" />
     <item
         android:id="@+id/action_attached_files"
         android:orderInCategory="60"
         android:title="@string/title_show_attached_files"
-        android:icon="@drawable/ic_file"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_file" />
     <item
         android:id="@+id/action_open_record_folder"
         android:orderInCategory="70"
         android:title="@string/title_open_record_folder"
-        android:icon="@drawable/ic_folder"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_folder" />
     <item
         android:id="@+id/action_copy_link"
         android:orderInCategory="80"
         android:title="@string/title_copy_link"
-        android:icon="@drawable/ic_link"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_link" />
     <item
         android:id="@+id/action_move_up"
         android:orderInCategory="90"
         android:title="@string/title_move_up"
-        android:icon="@drawable/ic_move_up"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_move_up" />
     <item
         android:id="@+id/action_move_down"
         android:orderInCategory="100"
         android:title="@string/title_move_down"
-        android:icon="@drawable/ic_move_down"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_move_down" />
     <item
         android:id="@+id/action_delete"
         android:orderInCategory="110"
         android:title="@string/title_delete"
-        android:icon="@drawable/ic_delete"
-        app:showAsAction="ifRoom|withText" />
+        android:icon="@drawable/ic_delete" />
 </menu>
