@@ -1891,6 +1891,11 @@ public class DataManager extends XMLManager {
         }
     }
 
+    public static boolean clearTrashFolder() {
+        File trashDir = new File(SettingsManager.getTrashPath());
+        return FileUtils.clearDir(trashDir);
+    }
+
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR;
     }

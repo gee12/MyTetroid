@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
@@ -18,8 +19,10 @@ import androidx.appcompat.widget.Toolbar;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
+import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.views.AskDialogs;
 
 import org.jsoup.internal.StringUtil;
 
@@ -71,6 +74,27 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     REQUEST_CODE_OPEN_LOG_PATH);
             return true;
         });
+
+        findPreference(getString(R.string.pref_key_clear_trash))
+                .setOnPreferenceClickListener(preference -> {
+                    AskDialogs.showYesDialog(this, () -> {
+                        if (DataManager.clearTrashFolder()) {
+                            LogManager.addLog(R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                        } else {
+                            LogManager.addLog(R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                        }
+                    }, R.string.ask_clear_trash);
+                    return true;
+                });
+
+        findPreference(getString(R.string.pref_key_clear_search_history))
+                .setOnPreferenceClickListener(preference -> {
+                    AskDialogs.showYesDialog(this, () -> {
+                        TetroidSuggestionProvider.clearHistory(this);
+                        LogManager.addLog(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    }, R.string.ask_clear_search_history);
+                    return true;
+                });
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());

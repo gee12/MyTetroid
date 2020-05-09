@@ -92,6 +92,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_OPEN_NODE = 3;
     public static final int RESULT_SHOW_FILES = 4;
     public static final int RESULT_SHOW_TAG = 5;
+    public static final int RESULT_DELETE_RECORD = 6;
 
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
@@ -361,6 +362,15 @@ public class RecordActivity extends TetroidActivity implements
             List<Uri> uris = getIntent().getParcelableArrayListExtra(EXTRA_IMAGES_URI);
             saveImages(uris, false);
         }
+    }
+
+    @Override
+    public void onReceiveEditableHtml(String htmlText) {
+//        runOnUiThread(() -> {
+        mEditTextHtml.setText(htmlText);
+        mEditTextHtml.requestFocus();
+//            setProgressVisibility(false);
+//        });
     }
 
     /**
@@ -855,11 +865,17 @@ public class RecordActivity extends TetroidActivity implements
         return isFullscreen;
     }
 
+    /**
+     * Открытие каталога записи.
+     */
     public void openRecordFolder() {
         DataManager.openRecordFolder(this, mRecord);
     }
 
 
+    /**
+     * Отправка записи.
+     */
     public void shareRecord() {
         String text = (mCurMode == MODE_HTML)
                 ? mEditTextHtml.getText().toString()
@@ -877,13 +893,15 @@ public class RecordActivity extends TetroidActivity implements
         DataManager.shareText(this, mRecord.getName(), text);
     }
 
-    @Override
-    public void onReceiveEditableHtml(String htmlText) {
-//        runOnUiThread(() -> {
-            mEditTextHtml.setText(htmlText);
-            mEditTextHtml.requestFocus();
-//            setProgressVisibility(false);
-//        });
+    /**
+     * Удаление записи.
+     */
+    public void deleteRecord() {
+        RecordAskDialogs.deleteRecord(this, () -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+            finishWithResult(RESULT_DELETE_RECORD, bundle);
+        });
     }
 
     private void editFields() {
@@ -898,7 +916,6 @@ public class RecordActivity extends TetroidActivity implements
             }
         });
     }
-
 
     /**
      * Поиск по тексту записи..
@@ -971,19 +988,6 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.addLog(getString(R.string.log_matches_not_found),
                     LogManager.Types.INFO, false, Toast.LENGTH_LONG);
         }
-    }
-
-    /**
-     * Формирование результата активности и ее закрытие.
-     * @param bundle
-     */
-    private void finishWithResult(int resCode, Bundle bundle) {
-        Intent intent = new Intent();
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        setResult(resCode, intent);
-        finish();
     }
 
     /**
@@ -1157,6 +1161,9 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_share:
                 shareRecord();
                 return true;
+            case R.id.action_delete:
+                deleteRecord();
+                return true;
             case R.id.action_fullscreen:
                 toggleFullscreen();
                 return true;
@@ -1199,13 +1206,26 @@ public class RecordActivity extends TetroidActivity implements
         startActivityForResult(intent, requestCode);
     }
 
+    /**
+     * Формирование результата активности и ее закрытие.
+     * @param bundle
+     */
+    private void finishWithResult(int resCode, Bundle bundle) {
+        if (bundle != null) {
+            Intent intent = new Intent();
+            intent.putExtras(bundle);
+            setResult(resCode, intent);
+        } else {
+            setResult(resCode);
+        }
+        finish();
+    }
+
     @Override
     protected void onNewIntent(Intent intent) {
         // обработка результата голосового поиска
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-//            searchInRecordText(query);
-//            setFindButtonsVisibility(true);
             mSearchView.setQuery(query, true);
         }
         super.onNewIntent(intent);

@@ -150,6 +150,10 @@
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
     <string name="pref_show_logs">Show logs</string>
     <string name="pref_show_logs_summ">The logs of the current startup session or the contents of the log file</string>
+    <string name="pref_key_clear_search_history" translatable="false">pref_key_clear_search_history</string>
+    <string name="pref_clear_search_history">Очистить историю поиска</string>
+    <string name="pref_clear_trash">Очистить корзину</string>
+    <string name="pref_key_clear_trash" translatable="false">pref_key_clear_trash</string>
 
     <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
     <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
@@ -287,6 +291,9 @@
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
+    <string name="ask_change_image_dimens">Resize images before inserting?</string>
+    <string name="ask_clear_trash">Cleat trash folder?</string>
+    <string name="ask_clear_search_history">Clear search history?</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -477,10 +484,12 @@
     <string name="log_receiving_intent_image">Receiving image from another application: [%s]</string>
     <string name="log_receiving_intent_images">Receiving images (%d) from another application</string>
     <string name="log_files_attach_error">Errors occurred while attaching file (s) (more in logs)</string>
-    <string name="ask_change_image_dimens">Resize images before inserting?</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
     <string name="log_error_record_file_decrypt">Error decrypting record file</string>
     <string name="log_error_record_file_encrypt">Error encrypting record file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
+    <string name="title_trash_cleared">Trash folder was cleared</string>
+    <string name="title_trash_clear_error">Failed to empty trash folder</string>
+    <string name="title_search_history_cleared">Search history was cleared</string>
 
 </resources>

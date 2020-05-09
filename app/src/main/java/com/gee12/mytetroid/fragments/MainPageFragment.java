@@ -271,16 +271,20 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void deleteRecord(TetroidRecord record) {
         RecordAskDialogs.deleteRecord(getContext(), () -> {
-            int res = DataManager.deleteRecord(record, false);
-            if (res == -1) {
-                RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
-                    int res1 = DataManager.deleteRecord(record, true);
-                    onDeleteRecordResult(record, res1, false);
-                });
-            } else {
-                onDeleteRecordResult(record, res, false);
-            }
+            deleteRecordExactly(record);
         });
+    }
+
+    public void deleteRecordExactly(TetroidRecord record) {
+        int res = DataManager.deleteRecord(record, false);
+        if (res == -1) {
+            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
+                int res1 = DataManager.deleteRecord(record, true);
+                onDeleteRecordResult(record, res1, false);
+            });
+        } else {
+            onDeleteRecordResult(record, res, false);
+        }
     }
 
     /**
