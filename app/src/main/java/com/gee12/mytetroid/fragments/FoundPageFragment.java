@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -16,7 +15,6 @@ import com.gee12.mytetroid.adapters.FoundListAdapter;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;
 
@@ -51,22 +49,15 @@ public class FoundPageFragment extends TetroidFragment {
         this.tvEmpty = rootView.findViewById(R.id.text_view_empty_found);
         lvFound.setEmptyView(tvEmpty);
         registerForContextMenu(lvFound);
-        lvFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openFoundObject(position);
-            }
-        });
+        lvFound.setOnItemClickListener((parent, view, position, id) -> openFoundObject(position));
         lvFound.setOnTouchListener(this);
 
         this.listAdapter = new FoundListAdapter(getContext());
         lvFound.setAdapter(listAdapter);
         setMainView(getArguments());
 
-
-        FloatingActionButton fab = rootView.findViewById(R.id.button_close);
-        fab.setOnClickListener(view -> mMainView.closeFoundFragment());
-        fab.setAlpha(0.5f);
+        rootView.findViewById(R.id.button_research).setOnClickListener(view -> mMainView.reSearch());
+        rootView.findViewById(R.id.button_close).setOnClickListener(view -> mMainView.closeFoundFragment());
 
         return rootView;
     }
