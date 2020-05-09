@@ -20,9 +20,15 @@
         android:textAlignment="center"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/button_research"
+        android:src="@drawable/ic_research_white"
+        app:backgroundTint="@color/colorAccent_50"
+        style="@style/fab"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_close"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:backgroundTint="#BBB"
+        app:backgroundTint="@color/colorGray_50"
         style="@style/fab"/>
 
 </RelativeLayout>

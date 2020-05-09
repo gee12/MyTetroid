@@ -1155,6 +1155,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void deleteNode(TetroidNode node, int pos) {
         if (node == null)
             return;
+        // запрет на удаление последней ветки в корне
+        if (node.getLevel() == 0 && DataManager.getRootNodes().size() == 1) {
+            LogManager.addLog(R.string.log_cannot_delete_root_node, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            return;
+        }
+
         NodeAskDialogs.deleteNode(this, () -> {
             if (DataManager.deleteNode(node)) {
                 // удаляем элемент внутри списка
@@ -1259,6 +1265,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
         int nodesCount = ((node.getParentNode() != null) ? node.getParentNode().getSubNodes() : DataManager.getRootNodes()).size();
         activateMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
+        activateMenuItem(menu.findItem(R.id.action_delete),node.getLevel() > 0 || DataManager.getRootNodes().size() > 1);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -1489,6 +1496,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     @Override
+    public void reSearch() {
+        showGlobalSearchActivity();
+    }
+
+    @Override
     public void openMainPage() {
         mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
@@ -1520,12 +1532,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onNewIntent(Intent intent) {
-//        // обработка результата голосового поиска
-//        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-//            String query = intent.getStringExtra(SearchManager.QUERY);
-////            searchInMainPage(query);
-//            mSearchViewRecords.setQuery(query, true);
-//        }
         checkReceivedIntent(intent);
         super.onNewIntent(intent);
     }
@@ -1541,7 +1547,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (action.equals(Intent.ACTION_SEARCH)) {
             // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
-//            searchInMainPage(query);
             mSearchViewRecords.setQuery(query, true);
 
         } else if (action.equals(Intent.ACTION_SEND)) {
@@ -1588,11 +1593,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return;
                 }
                 LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images), uris.size()), LogManager.Types.INFO);
-//                ArrayList<Uri> uris = new ArrayList<>(images.size());
-//                for (Parcelable uri : images) {
-//                    uris.add((Uri)uri);
-//                }
-
                 showIntentDialog(intent, false, null, uris);
             }
         }
@@ -1608,11 +1608,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (Build.VERSION.SDK_INT >= 17) {
                     url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
                 }
-                // текст записи
-                /*String imageText;
-                if (!isText && !item.isAttach()) {
-                    imageText =
-                }*/
                 // создаем запись
                 TetroidRecord record = DataManager.createRecord(subject, url, text);
                 if (record == null) {
@@ -1663,11 +1658,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInMainPage(String query, int viewId) {
         switch (viewId) {
             case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
-//                this.recordsSearchQuery = query;
                 searchInNodeRecords(query);
                 break;
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
-//                this.recordsSearchQuery = query;
                 searchInTagRecords(query);
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:

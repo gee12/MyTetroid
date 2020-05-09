@@ -435,5 +435,6 @@
     <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
     <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
     <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
+    <string name="log_cannot_delete_root_node">Невозможно удалить единственную корневую ветку</string>
 
 </resources>

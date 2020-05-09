@@ -481,5 +481,6 @@
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
     <string name="log_error_record_file_decrypt">Error decrypting record file</string>
     <string name="log_error_record_file_encrypt">Error encrypting record file</string>
+    <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
 
 </resources>
