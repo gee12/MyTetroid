@@ -785,15 +785,173 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean cutNode(TetroidNode node) {
-/*        // добавляем в "буфер обмена"
-        TetroidClipboard.cut(record);
-        // удаляем запись из текущей ветки
-        int res = deleteRecord(record, false, SettingsManager.getTrashPath(), true);
-        if (res == -1) {
-            return deleteRecord(record, true, SettingsManager.getTrashPath(),true);
-        }
-        return res;*/
         return deleteNode(node, SettingsManager.getTrashPath(), true);
+    }
+
+
+    /**
+     * Вставка ветки в указанную ветку.
+     * @param srcNode
+     * @param destParentNode
+     * @param isCutted Если true, то запись была вырезана. Иначе - скопирована
+     * @return
+     */
+    public static boolean insertNode(TetroidNode srcNode, TetroidNode destParentNode, boolean isCutted) {
+        if (srcNode == null || destParentNode == null) {
+            LogManager.emptyParams("DataManager.insertNode()");
+            return false;
+        }
+//        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+
+        TetroidNode newNode = insertNodeRecursively(srcNode, destParentNode, isCutted, false);
+
+        // перезаписываем структуру хранилища в файл
+        if (!saveStorage()) {
+            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            // удаляем запись из коллекции
+            destParentNode.getSubNodes().remove(newNode);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Вставка ветки в указанную ветку.
+     * @param srcNode
+     */
+    public static TetroidNode insertNodeRecursively(TetroidNode srcNode, TetroidNode destParentNode, boolean isCutted, boolean breakOnFSErrors) {
+        if (srcNode == null || destParentNode == null)
+            return null;
+        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+
+        // генерируем уникальный идентификатор, если ветка копируется
+        String id = (isCutted) ? srcNode.getId() : createUniqueId();
+        String name = srcNode.getName();
+        String iconName = srcNode.getIconName();
+
+        // создаем копию ветки
+        boolean crypted = destParentNode.isCrypted();
+        TetroidNode node = new TetroidNode(crypted, id,
+                encryptField(crypted, name),
+                encryptField(crypted, iconName),
+                srcNode.getLevel());
+        node.setDecryptedName(name);
+        node.setDecryptedIconName(iconName);
+        node.setParentNode(destParentNode);
+        node.setRecords(new ArrayList<>());
+        node.setSubNodes(new ArrayList<>());
+        if (crypted) {
+            node.setDecrypted(true);
+        }
+        destParentNode.addSubNode(node);
+
+        // добавляем записи
+        if (srcNode.getRecordsCount() > 0) {
+            for (TetroidRecord srcRecord : srcNode.getRecords()) {
+                if (cloneRecordToNode(srcRecord, node, isCutted, breakOnFSErrors) == null && breakOnFSErrors) {
+                    return null;
+                }
+            }
+        }
+        // добавляем подветки
+        for (TetroidNode srcSubNode : srcNode.getSubNodes()) {
+            if (insertNodeRecursively(srcSubNode, node, isCutted, breakOnFSErrors) == null && breakOnFSErrors) {
+                return null;
+            }
+        }
+        return node;
+    }
+
+    /**
+     *
+     * @param srcRecord
+     * @param node
+     * @param isCutted
+     * @return
+     */
+    private static TetroidRecord cloneRecordToNode(TetroidRecord srcRecord, TetroidNode node, boolean isCutted, boolean breakOnFSErrors) {
+        if (srcRecord == null)
+            return null;
+        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+
+        // генерируем уникальные идентификаторы, если запись копируется
+        String id = (isCutted) ? srcRecord.getId() : createUniqueId();
+        String dirName = (isCutted) ? srcRecord.getDirName() : createUniqueId();
+        String name = srcRecord.getName();
+        String tagsString = srcRecord.getTagsString();
+        String author = srcRecord.getAuthor();
+        String url = srcRecord.getUrl();
+
+        // создаем копию записи
+        boolean crypted = srcRecord.isCrypted();
+        TetroidRecord record = new TetroidRecord(crypted, id,
+                encryptField(crypted, name),
+                encryptField(crypted, tagsString),
+                encryptField(crypted, author),
+                encryptField(crypted, url),
+                srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
+        if (crypted) {
+            record.setDecrypted(true);
+            record.setDecryptedValues(name, tagsString, author, url);
+        }
+        record.setIsNew(false);
+        // добавляем запись в ветку (и соответственно, в коллекцию)
+        node.addRecord(record);
+        // добавляем метки в запись и в коллекцию
+        instance.parseRecordTags(record, tagsString);
+
+        TetroidRecord errorRes = (breakOnFSErrors) ? null : record;
+        String srcDirPath = null;
+        File srcDir = null;
+        // проверяем существование каталога записи
+        if (isCutted) {
+            srcDirPath = getPathToRecordFolderInTrash(srcRecord);
+        } else {
+            srcDirPath = getPathToRecordFolder(srcRecord);
+        }
+        int dirRes = checkRecordFolder(srcDirPath, false);
+        if (dirRes > 0) {
+            srcDir = new File(srcDirPath);
+        } else {
+            return errorRes;
+        }
+
+        String destDirPath = getPathToRecordFolder(record);
+        File destDir = new File(destDirPath);
+        if (isCutted) {
+            // вырезаем уникальную приставку в имени каталога
+            String dirNameInBase = srcRecord.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
+            // перемещаем каталог записи
+            int res = moveRecordFolder(record, srcDirPath, getStoragePathBase(), dirNameInBase);
+            if (res < 0) {
+                return errorRes;
+            }
+        } else {
+            // копируем каталог записи
+            try {
+                if (FileUtils.copyDirRecursive(srcDir, destDir)) {
+                    LogManager.addLog(String.format(context.getString(R.string.log_copy_record_dir_mask),
+                            destDirPath), LogManager.Types.ERROR);
+                } else {
+                    LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir_mask),
+                            srcDirPath, destDirPath), LogManager.Types.ERROR);
+                    return errorRes;
+                }
+            } catch (IOException ex) {
+                LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir_mask),
+                        srcDirPath, destDirPath), ex);
+                return errorRes;
+            }
+        }
+
+        // зашифровываем или расшифровываем файл записи
+        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
+        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
+            return errorRes;
+        }
+
+        return record;
     }
 
     /**
@@ -801,7 +959,7 @@ public class DataManager extends XMLManager {
      * @param node
      * @return
      */
-    public static boolean deleteNode(TetroidNode node, String movePath, boolean isCutting) {
+    private static boolean deleteNode(TetroidNode node, String movePath, boolean isCutting) {
         if (node == null) {
             LogManager.emptyParams("DataManager.deleteNode()");
             return false;
@@ -836,7 +994,7 @@ public class DataManager extends XMLManager {
      * Удаление объектов ветки.
      * @param node
      */
-    public boolean deleteNodeRecursively(TetroidNode node, String movePath, boolean breakOnFSErrors) {
+    private boolean deleteNodeRecursively(TetroidNode node, String movePath, boolean breakOnFSErrors) {
         if (node == null)
             return false;
        /* mNodesCount--;
@@ -1334,13 +1492,13 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     *
+     * Зашифровка или расшифровка файла записи при необходимости.
      * @param file
      * @param srcCrypted
      * @param destCrypted
      * @return
      */
-    public static boolean cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
+    private static boolean cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
         if (srcCrypted && !destCrypted) {
             try {
                 // расшифровуем файл записи
@@ -1370,7 +1528,7 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      *         -2 - ошибка (не удалось переместить каталог записи)
      */
-    public static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath, boolean isCutting) {
+    private static int deleteRecord(TetroidRecord record, boolean withoutDir, String movePath, boolean isCutting) {
         if (record == null) {
             LogManager.emptyParams("DataManager.deleteRecord()");
             return 0;
@@ -1431,7 +1589,7 @@ public class DataManager extends XMLManager {
         return 1;
     }
 
-    public static int moveOrDeleteRecordFolder(TetroidRecord record, String dirPath, String movePath) {
+    private static int moveOrDeleteRecordFolder(TetroidRecord record, String dirPath, String movePath) {
         if (record == null || dirPath == null)
             return 0;
 //        String dirPath = recordDir.getPath();
@@ -1446,6 +1604,8 @@ public class DataManager extends XMLManager {
                 return 0;
             }
         } else {
+            // перемещаем каталог записи в корзину
+            // с добавлением префикса в виде текущей даты и времени
             String newDirName = createDateTimePrefix() + "_" + record.getDirName();
             return moveRecordFolder(record, dirPath, movePath, newDirName);
         }
@@ -1459,7 +1619,7 @@ public class DataManager extends XMLManager {
      * @param newDirName Если не null - новое имя каталога записи
      * @return
      */
-    public static int moveRecordFolder(TetroidRecord record, String srcPath, String destPath, String newDirName) {
+    private static int moveRecordFolder(TetroidRecord record, String srcPath, String destPath, String newDirName) {
         if (record == null) {
             return 0;
         }
