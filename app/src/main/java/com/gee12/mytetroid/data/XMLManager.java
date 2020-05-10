@@ -407,9 +407,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         }
         parser.require(XmlPullParser.END_TAG, ns, "record");
 
+        this.mRecordsCount++;
         if (crypt)
             this.mCryptedRecordsCount++;
-        this.mRecordsCount++;
 
         return record;
     }
@@ -622,6 +622,19 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
     private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
             throws IOException {
         addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : value);
+    }
+
+    /**
+     * Пересчет статистических счетчиков хранилища.
+     */
+    public void calcCounters() {
+        /*instance.mRecordsCount--;
+            if (isCrypted())
+                instance.mCryptedRecordsCount--;
+            if (!StringUtil.isBlank(record.getAuthor()))
+                instance.mAuthorsCount--;
+            if (record.getAttachedFilesCount() > 0)
+                instance.mFilesCount -= record.getAttachedFilesCount();*/
     }
 
     /**

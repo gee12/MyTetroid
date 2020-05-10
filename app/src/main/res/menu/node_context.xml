@@ -53,18 +53,38 @@
         android:title="@string/title_move_down"
         android:icon="@drawable/ic_move_down" />
     <item
+        android:id="@+id/action_copy"
+        android:orderInCategory="120"
+        android:title="@string/title_copy"
+        android:icon="@drawable/ic_copy" />
+    <item
+        android:id="@+id/action_cut"
+        android:orderInCategory="121"
+        android:title="@string/title_cut"
+        android:icon="@drawable/ic_cut" />
+    <item
+        android:id="@+id/action_insert"
+        android:orderInCategory="122"
+        android:title="@string/title_insert_beside"
+        android:icon="@drawable/ic_insert" />
+    <item
+        android:id="@+id/action_insert_subnode"
+        android:orderInCategory="123"
+        android:title="@string/title_insert_subnode"
+        android:icon="@drawable/ic_insert" />
+    <item
         android:id="@+id/action_encrypt_node"
-        android:orderInCategory="60"
+        android:orderInCategory="130"
         android:title="@string/title_encrypt_node"
         android:visible="false" />
     <item
         android:id="@+id/action_decrypt_node"
-        android:orderInCategory="70"
+        android:orderInCategory="140"
         android:title="@string/title_decrypt_node"
         android:visible="false" />
     <item
         android:id="@+id/action_delete"
-        android:orderInCategory="120"
+        android:orderInCategory="150"
         android:title="@string/title_delete"
         android:icon="@drawable/ic_delete" />
 </menu>

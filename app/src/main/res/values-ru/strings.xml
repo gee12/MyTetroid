@@ -60,6 +60,11 @@
     <string name="title_intent_exist_image">Вставить в существующую запись;Выбрать существующую запись и добавить переданное(ые) изображение(я) в ее текст</string>
     <string name="title_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
+    <string name="title_trash_cleared">Корзина очищена</string>
+    <string name="title_trash_clear_error">Не удалось очистить корзину</string>
+    <string name="title_search_history_cleared">История поиска очищена</string>
+    <string name="title_insert_beside">Вставить рядом</string>
+    <string name="title_insert_subnode">Вставить как подветку</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -312,8 +317,9 @@
     <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
     <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
     <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>
-    <string name="log_error_move_record_dir">Ошибка перемещения каталога записи из [%s] в [%s]</string>
-    <string name="log_error_copy_record_dir">Ошибка копирования каталога записи из [%s] в [%s]</string>
+    <string name="log_error_move_record_dir_mask">Ошибка перемещения каталога записи из [%s] в [%s]</string>
+    <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%s] в [%s]</string>
+    <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
     <string name="log_attach_file_is_missing">Файл отсутствует на диске:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
@@ -440,8 +446,6 @@
     <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
     <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
-    <string name="title_trash_cleared">Корзина очищена</string>
-    <string name="title_trash_clear_error">Не удалось очистить корзину</string>
-    <string name="title_search_history_cleared">История поиска очищена</string>
+    <string name="log_record_folder_moved_mask">Каталог записи был перемещен в %s</string>
 
 </resources>

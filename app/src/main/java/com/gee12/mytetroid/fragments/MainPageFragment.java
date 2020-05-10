@@ -468,7 +468,10 @@ public class MainPageFragment extends TetroidFragment {
      * Вставка записи в ветку.
      */
     private void insertRecord() {
-        // достаем запись из "буфера обмена"
+        // на всякий случай проверяем тип
+        if (!TetroidClipboard.hasObject(FoundType.TYPE_RECORD))
+            return;
+        // достаем объект из "буфера обмена"
         TetroidClipboard clipboard = TetroidClipboard.getInstance();
         // вставляем с попыткой восстановить каталог записи
 //        int res = DataManager.insertRecord(clipboard, mCurNode, false);
@@ -484,7 +487,7 @@ public class MainPageFragment extends TetroidFragment {
             });
         } else if (res == -2) {
 //            LogManager.addLog(R.string.log_error_move_record_catalog, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.MOVE);
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.INSERT);
         } else {
             onInsertRecordResult(res, isCutted);
         }
