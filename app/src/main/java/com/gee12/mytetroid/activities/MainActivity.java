@@ -48,6 +48,7 @@ import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SyncManager;
+import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
@@ -1082,7 +1083,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Создание ветки.
      * @param parentNode Родительская ветка
-     * @param pos Позиция в списке родительской ветки.
+     * @param pos Позиция в списке родительской ветки
+     * @param isSubNode Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         NodeAskDialogs.createNodeDialog(this, null, (name) -> {
@@ -1162,7 +1164,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         NodeAskDialogs.deleteNode(this, () -> {
-            if (DataManager.deleteNode(node)) {
+            boolean res = DataManager.deleteNode(node);
+            onDeleteNodeResult(node, res, pos, false);
+           /* if (DataManager.deleteNode(node)) {
                 // удаляем элемент внутри списка
                 if (mListAdapterNodes.deleteItem(pos)) {
 //                    LogManager.addLog(getString(R.string.node_was_deleted), LogManager.Types.INFO, Toast.LENGTH_SHORT);
@@ -1178,8 +1182,26 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } else {
 //                LogManager.addLog(getString(R.string.log_node_delete_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
-            }
+            }*/
         });
+    }
+
+    private void onDeleteNodeResult(TetroidNode node, boolean res, int pos, boolean isCutted) {
+        if (res) {
+            // удаляем элемент внутри списка
+            if (mListAdapterNodes.deleteItem(pos)) {
+                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
+            } else {
+                LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+            // убираем список записей удаляемой ветки
+            if (mCurNode == node || isNodeInNode(mCurNode, node)) {
+                mViewPagerAdapter.getMainFragment().clearView();
+                this.mCurNode = null;
+            }
+        } else {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
+        }
     }
 
     /**
@@ -1248,6 +1270,57 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Копирование ветки.
+     * @param node
+     */
+    private void copyNode(TetroidNode node) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.copy(node);
+        TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.COPY);
+    }
+
+    /**
+     * Вырезание ветки из родительской ветки.
+     * @param node
+     */
+    private void cutNode(TetroidNode node, int pos) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.cut(node);
+        // удаляем ветку из родительской ветки вместе с записями
+        boolean res = DataManager.cutNode(node);
+        onDeleteNodeResult(node, res, pos, false);
+    }
+
+    /**
+     * Вставка ветки.
+     * @param parentNode Родительская ветка
+     * @param pos Позиция в списке родительской ветки
+     * @param isSubNode Если true, значит как подветка, иначе рядом с выделенной веткой
+     */
+    private void insertNode(TetroidNode parentNode, int pos, boolean isSubNode) {
+        // на всякий случай проверяем тип
+        if (!TetroidClipboard.hasObject(FoundType.TYPE_NODE))
+            return;
+        // достаем объект из "буфера обмена"
+        TetroidClipboard clipboard = TetroidClipboard.getInstance();
+        // вставляем с попыткой восстановить каталог записи
+        TetroidNode node = (TetroidNode) clipboard.getObject();
+        boolean isCutted = clipboard.isCutted();
+
+        TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
+        int res = DataManager.insertNode(node, isCutted, trueParentNode, false);
+        if (res) {
+            if (mListAdapterNodes.addItem(pos, isSubNode)) {
+                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            } else {
+                LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        } else {
+            TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+        }
+    }
+
+    /**
      * Отображение всплывающего (контексного) меню ветки.
      *
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
@@ -1265,7 +1338,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
         int nodesCount = ((node.getParentNode() != null) ? node.getParentNode().getSubNodes() : DataManager.getRootNodes()).size();
         activateMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
-        activateMenuItem(menu.findItem(R.id.action_delete),node.getLevel() > 0 || DataManager.getRootNodes().size() > 1);
+        boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
+        activateMenuItem(menu.findItem(R.id.action_insert), canInsert);
+        activateMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert);
+        boolean canCutDel = node.getLevel() > 0 || DataManager.getRootNodes().size() > 1;
+        activateMenuItem(menu.findItem(R.id.action_cut), canCutDel);
+        activateMenuItem(menu.findItem(R.id.action_delete), canCutDel);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -1301,6 +1379,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return true;
                 case R.id.action_move_down:
                     moveNode(node, pos, false);
+                    return true;
+                case R.id.action_copy:
+                    copyNode(node);
+                    return true;
+                case R.id.action_cut:
+                    cutNode(node, pos);
+                    return true;
+                case R.id.action_insert:
+                    insertNode(node, pos, false);
+                    return true;
+                case R.id.action_insert_subnode:
+                    insertNode(node, pos, true);
                     return true;
                 case R.id.action_delete:
                     deleteNode(node, pos);

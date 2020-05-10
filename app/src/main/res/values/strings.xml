@@ -62,6 +62,11 @@
     <string name="title_intent_exist_image">Insert into an existing entry; Select an existing entry and add the transferred image (s) to its text</string>
     <string name="title_intent_exist_image_attach">Attach to an existing entry; Select an existing entry and attach the transferred image (s) as file (s)</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>
+    <string name="title_trash_cleared">Trash folder was cleared</string>
+    <string name="title_trash_clear_error">Failed to empty trash folder</string>
+    <string name="title_search_history_cleared">Search history was cleared</string>
+    <string name="title_insert_beside">Insert beside</string>
+    <string name="title_insert_subnode">Insert like subnode</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -363,8 +368,9 @@
     <string name="log_error_add_record">Error add record to mytetra.xml</string>
     <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>
-    <string name="log_error_move_record_dir">Error moving the record folder from [%s] to [%s]</string>
-    <string name="log_error_copy_record_dir">Error copying the record folder from [%s] to [%s]</string>
+    <string name="log_error_move_record_dir_mask">Error moving the record folder from [%s] to [%s]</string>
+    <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%s] to [%s]</string>
+    <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
     <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
     <string name="log_open_node_records">Open node records: id=</string>
@@ -488,8 +494,6 @@
     <string name="log_error_record_file_decrypt">Error decrypting record file</string>
     <string name="log_error_record_file_encrypt">Error encrypting record file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
-    <string name="title_trash_cleared">Trash folder was cleared</string>
-    <string name="title_trash_clear_error">Failed to empty trash folder</string>
-    <string name="title_search_history_cleared">Search history was cleared</string>
+    <string name="log_record_folder_moved_mask">Record folder was moved to %s</string>
 
 </resources>
