@@ -21,7 +21,8 @@
 
         <Preference
             android:key="@string/pref_key_clear_trash"
-            android:title="@string/pref_clear_trash" />
+            android:title="@string/pref_clear_trash"
+            android:summary="@string/pref_clear_trash_summ"/>
 
     </PreferenceCategory>
 
@@ -44,8 +45,8 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_decrypt_in_temp"
-            android:title="@string/decrypt_files_to_trash_dir"
-            android:summary="@string/decrypt_files_to_trash_dir_sum"
+            android:title="@string/pref_decrypt_files_to_trash_dir"
+            android:summary="@string/pref_decrypt_files_to_trash_dir_summ"
             android:defaultValue="false" />
 
     </PreferenceCategory>
@@ -93,8 +94,8 @@
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_record_edit_mode"
-            android:title="@string/recod_edit_mode"
-            android:summary="@string/record_edit_mode_summ"
+            android:title="@string/title_recod_edit_mode"
+            android:summary="@string/pref_record_edit_mode_summ"
             android:defaultValue="false" />
 
         <CheckBoxPreference
@@ -165,7 +166,8 @@
 
         <Preference
             android:key="@string/pref_key_clear_search_history"
-            android:title="@string/pref_clear_search_history" />
+            android:title="@string/pref_clear_search_history"
+            android:summary="@string/pref_clear_search_history_summ"/>
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_confirm_app_exit"

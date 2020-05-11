@@ -20,7 +20,7 @@
     </EditText>
 
     <TextView
-        android:text="@string/file_name_with_ext"
+        android:text="@string/title_file_name_with_ext"
         style="@style/dialog_labels"
         android:textColor="@color/dark_gray"
         android:textSize="@dimen/font_small"/>

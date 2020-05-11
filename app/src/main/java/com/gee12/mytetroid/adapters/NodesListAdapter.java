@@ -109,7 +109,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.iconView.setVisibility(View.GONE);
         }
         // имя
-        String cryptedName = context.getString(R.string.crypted_node_name);
+        String cryptedName = context.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
 //        String name = (node.isCrypted() && !node.isDecrypted())
 //                ? context.getString(R.string.crypted_node_name)

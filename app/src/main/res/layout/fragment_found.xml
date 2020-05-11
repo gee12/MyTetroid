@@ -21,12 +21,15 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_research"
-        android:src="@drawable/ic_research_white"
+        android:layout_alignParentBottom="false"
+        android:layout_above="@id/button_close"
+        android:src="@android:drawable/ic_menu_search"
         app:backgroundTint="@color/colorAccent_50"
         style="@style/fab"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_close"
+        android:layout_alignParentBottom="true"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         app:backgroundTint="@color/colorGray_50"
         style="@style/fab"/>

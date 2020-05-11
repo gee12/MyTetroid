@@ -41,6 +41,6 @@
             android:paddingLeft="20dp"
             android:paddingStart="20dp"
             android:iconifiedByDefault="true"
-            android:queryHint="@string/tags_search_hint" />
+            android:queryHint="@string/title_tags_search_hint" />
 
 </RelativeLayout>

@@ -58,7 +58,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:iconifiedByDefault="true"
-            android:queryHint="@string/nodes_search_hint" />
+            android:queryHint="@string/title_nodes_search_hint" />
 
     </RelativeLayout>
 

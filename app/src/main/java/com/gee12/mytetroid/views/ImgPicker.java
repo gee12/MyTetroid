@@ -16,7 +16,7 @@ public class ImgPicker {
         ImagePicker.create(activity)
                 .limit(10)
                 .toolbarFolderTitle(activity.getString(R.string.title_gallery))
-                .toolbarDoneButtonText(activity.getString(R.string.confirm_selected_images))
+                .toolbarDoneButtonText(activity.getString(R.string.title_confirm_selected_images))
                 .showCamera(false)
                 .folderMode(true)
                 .includeVideo(false)

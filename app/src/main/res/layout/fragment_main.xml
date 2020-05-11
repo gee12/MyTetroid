@@ -33,7 +33,7 @@
                 android:layout_centerVertical="true"
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
-                android:text="@string/select_the_node" />
+                android:text="@string/title_select_the_node" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_add_record"
@@ -62,7 +62,7 @@
                 android:layout_centerVertical="true"
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
-                android:text="@string/files_is_missing" />
+                android:text="@string/title_files_is_missing" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_add_file"

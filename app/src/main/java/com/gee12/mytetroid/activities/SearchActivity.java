@@ -153,7 +153,7 @@ public class SearchActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.action_query_submit) {
             if (TextUtils.isEmpty(etQuery.getText().toString())) {
-                Message.show(this, getString(R.string.enter_query));
+                Message.show(this, getString(R.string.title_enter_query));
             } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.global_search_in_cur_node))
                 && !isCurNodeNotNull) {
                 Message.show(this, getString(R.string.log_cur_node_is_not_selected));

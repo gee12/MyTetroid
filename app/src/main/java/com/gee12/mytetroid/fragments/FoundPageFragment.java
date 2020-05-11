@@ -85,7 +85,7 @@ public class FoundPageFragment extends TetroidFragment {
     @Override
     public String getTitle() {
         if (getContext() != null)
-            return String.format(getString(R.string.found_mask), foundCount);
+            return String.format(getString(R.string.search_found_mask), foundCount);
         else
             return null;
     }
