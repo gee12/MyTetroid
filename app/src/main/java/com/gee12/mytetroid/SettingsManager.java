@@ -11,6 +11,17 @@ import com.gee12.mytetroid.utils.FileUtils;
 
 public class SettingsManager {
 
+    public static final boolean DEF_SEARCH_IN_RECORD_TEXT = true;
+    public static final boolean DEF_SEARCH_IN_RECORDS_NAMES = true;
+    public static final boolean DEF_SEARCH_IN_AUTHOR = true;
+    public static final boolean DEF_SEARCH_IN_URL = true;
+    public static final boolean DEF_SEARCH_IN_TAGS = true;
+    public static final boolean DEF_SEARCH_IN_NODES = true;
+    public static final boolean DEF_SEARCH_IN_FILES = true;
+    public static final boolean DEF_SEARCH_SPLIT_TO_WORDS = false;
+    public static final boolean DEF_SEARCH_IN_WHOLE_WORDS = false;
+    public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
+
     private static SharedPreferences settings;
     private static Context context;
 
@@ -38,6 +49,23 @@ public class SettingsManager {
         SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
         SettingsManager.IsHighlightAttachCache = isHighlightRecordWithAttach();
         SettingsManager.DateFormatStringCache = getDateFormatString();
+    }
+
+    /**
+     * Очистка параметров глобального поиска.
+     */
+    public static void clearSearchOptions() {
+        setSearchQuery(null);
+        setSearchInText(DEF_SEARCH_IN_RECORD_TEXT);
+        setSearchInRecordsNames(DEF_SEARCH_IN_RECORDS_NAMES);
+        setSearchInAuthor(DEF_SEARCH_IN_AUTHOR);
+        setSearchInUrl(DEF_SEARCH_IN_URL);
+        setSearchInTags(DEF_SEARCH_IN_TAGS);
+        setSearchInNodes(DEF_SEARCH_IN_NODES);
+        setSearchInFiles(DEF_SEARCH_IN_FILES);
+        setSearchSplitToWords(DEF_SEARCH_SPLIT_TO_WORDS);
+        setSearchInWholeWords(DEF_SEARCH_IN_WHOLE_WORDS);
+        setSearchInCurNode(DEF_SEARCH_IN_CUR_NODE);
     }
 
     /**
@@ -312,7 +340,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInText() {
-        return getBoolean(R.string.pref_key_search_text, true);
+        return getBoolean(R.string.pref_key_search_text, DEF_SEARCH_IN_RECORD_TEXT);
     }
 
     public static void setSearchInText(boolean value) {
@@ -324,7 +352,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInRecordsNames() {
-        return getBoolean(R.string.pref_key_search_records_names, true);
+        return getBoolean(R.string.pref_key_search_records_names, DEF_SEARCH_IN_RECORDS_NAMES);
     }
 
     public static void setSearchInRecordsNames(boolean value) {
@@ -336,7 +364,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInAuthor() {
-        return getBoolean(R.string.pref_key_search_author, true);
+        return getBoolean(R.string.pref_key_search_author, DEF_SEARCH_IN_AUTHOR);
     }
 
     public static void setSearchInAuthor(boolean value) {
@@ -348,7 +376,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInUrl() {
-        return getBoolean(R.string.pref_key_search_url, true);
+        return getBoolean(R.string.pref_key_search_url, DEF_SEARCH_IN_URL);
     }
 
     public static void setSearchInUrl(boolean value) {
@@ -360,7 +388,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInTags() {
-        return getBoolean(R.string.pref_key_search_tags, true);
+        return getBoolean(R.string.pref_key_search_tags, DEF_SEARCH_IN_TAGS);
     }
 
     public static void setSearchInTags(boolean value) {
@@ -372,7 +400,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInNodes() {
-        return getBoolean(R.string.pref_key_search_nodes, true);
+        return getBoolean(R.string.pref_key_search_nodes, DEF_SEARCH_IN_NODES);
     }
 
     public static void setSearchInNodes(boolean value) {
@@ -384,7 +412,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInFiles() {
-        return getBoolean(R.string.pref_key_search_files, true);
+        return getBoolean(R.string.pref_key_search_files, DEF_SEARCH_IN_FILES);
     }
 
     public static void setSearchInFiles(boolean value) {
@@ -396,7 +424,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchSplitToWords() {
-        return getBoolean(R.string.pref_key_search_split_to_words, true);
+        return getBoolean(R.string.pref_key_search_split_to_words, DEF_SEARCH_SPLIT_TO_WORDS);
     }
 
     public static void setSearchSplitToWords(boolean value) {
@@ -408,7 +436,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInWholeWords() {
-        return getBoolean(R.string.pref_key_search_in_whole_words, true);
+        return getBoolean(R.string.pref_key_search_in_whole_words, DEF_SEARCH_IN_WHOLE_WORDS);
     }
 
     public static void setSearchInWholeWords(boolean value) {
@@ -420,7 +448,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isSearchInCurNode() {
-        return getBoolean(R.string.pref_key_search_in_cur_node, true);
+        return getBoolean(R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
     }
 
     public static void setSearchInCurNode(boolean value) {

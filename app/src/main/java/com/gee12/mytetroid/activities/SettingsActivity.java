@@ -91,6 +91,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 .setOnPreferenceClickListener(preference -> {
                     AskDialogs.showYesDialog(this, () -> {
                         TetroidSuggestionProvider.clearHistory(this);
+                        SettingsManager.clearSearchOptions();
                         LogManager.addLog(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                     }, R.string.ask_clear_search_history);
                     return true;

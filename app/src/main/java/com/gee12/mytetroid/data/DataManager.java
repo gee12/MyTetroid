@@ -58,10 +58,6 @@ public class DataManager extends XMLManager {
     public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
     public static final String INI_CRYPT_MODE = "crypt_mode";
 
-    /**
-     * Разделитель меток - запятая или запятая с пробелами.
-     */
-    private static final String TAGS_SEPAR = "\\s*,\\s*";
     public static final String SEPAR = File.separator;
     public static final int UNIQUE_ID_HALF_LENGTH = 10;
     public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
@@ -111,9 +107,6 @@ public class DataManager extends XMLManager {
     public static boolean init(Context ctx, String storagePath) {
         context = ctx;
         DataManager.instance = new DataManager();
-        // FIXME: здесь вылезла ошибка проектирования архитектуры классов (?)
-//        DataManager.mInstance.setCryptHandler(mInstance);
-
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseINI = new INIProperties();
         boolean res;
@@ -657,7 +650,6 @@ public class DataManager extends XMLManager {
     public static String createDateTimePrefix() {
         return Utils.dateToString(new Date(), PREFIX_DATE_TIME_FORMAT);
     }
-
 
     /**
      * Поменять местами 2 объекта хранилища в списке.
@@ -2055,7 +2047,12 @@ public class DataManager extends XMLManager {
                 TetroidTag tag;
                 if (mTagsMap.containsKey(tagName)) {
                     tag = mTagsMap.get(tagName);
-                    tag.addRecord(record);
+                    // добавляем запись по метке, только если ее еще нет
+                    // (исправление дублирования записей по метке, если одна и та же метка
+                    // добавлена в запись несколько раз)
+                    if (!tag.getRecords().contains(record)) {
+                        tag.addRecord(record);
+                    }
                 } else {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);

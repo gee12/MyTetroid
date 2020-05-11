@@ -34,7 +34,16 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      *
      */
     private static final String ns = null;
+
+    /**
+     * Формат даты создания записи.
+     */
     public static final String DATE_TIME_FORMAT = "yyyyMMddHHmmss";
+
+    /**
+     * Разделитель меток - запятая или запятая с пробелами.
+     */
+    static final String TAGS_SEPAR = "\\s*,\\s*";
 
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
@@ -628,13 +637,61 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      * Пересчет статистических счетчиков хранилища.
      */
     public void calcCounters() {
-        /*instance.mRecordsCount--;
-            if (isCrypted())
-                instance.mCryptedRecordsCount--;
-            if (!StringUtil.isBlank(record.getAuthor()))
-                instance.mAuthorsCount--;
-            if (record.getAttachedFilesCount() > 0)
-                instance.mFilesCount -= record.getAttachedFilesCount();*/
+        this.mNodesCount = 0;
+        this.mCryptedNodesCount = 0;
+        this.mRecordsCount = 0;
+        this.mCryptedRecordsCount = 0;
+        this.mFilesCount = 0;
+        this.mTagsCount = 0;
+        this.mUniqueTagsCount = 0;
+        this.mAuthorsCount = 0;
+        this.mIconsCount = 0;
+        this.mMaxSubnodesCount = 0;
+        this.mMaxDepthLevel = 0;
+
+        for (TetroidNode node : mRootNodesList) {
+            calcCounters(node);
+        }
+        mUniqueTagsCount = mTagsMap.keySet().size();
+    }
+
+    /**
+     * Пересчет статистических счетчиков ветки.
+     */
+    private void calcCounters(TetroidNode node) {
+        if (node == null)
+            return;
+        mNodesCount++;
+        if (node.isCrypted())
+            mCryptedNodesCount++;
+        if (!StringUtil.isBlank(node.getIconName()))
+            mIconsCount++;
+        if (node.getLevel() > mMaxDepthLevel)
+            mMaxDepthLevel = node.getLevel();
+
+        if (node.getRecordsCount() > 0) {
+            for (TetroidRecord record : node.getRecords()) {
+                mRecordsCount++;
+                if (node.isCrypted())
+                    mCryptedRecordsCount++;
+                if (!StringUtil.isBlank(record.getAuthor()))
+                    mAuthorsCount++;
+                if (!StringUtil.isBlank(record.getTagsString())) {
+                    mTagsCount += record.getTagsString().split(TAGS_SEPAR).length;
+                }
+                if (record.getAttachedFilesCount() > 0)
+                    mFilesCount += record.getAttachedFilesCount();
+            }
+        }
+        int subNodesCount = node.getSubNodesCount();
+        if (subNodesCount > 0) {
+            if (subNodesCount > mMaxSubnodesCount)
+                mMaxSubnodesCount = subNodesCount;
+
+            for (TetroidNode subNode : node.getSubNodes()) {
+                calcCounters(subNode);
+            }
+        }
     }
 
     /**
