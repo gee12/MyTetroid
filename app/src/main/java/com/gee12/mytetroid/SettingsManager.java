@@ -229,8 +229,8 @@ public class SettingsManager {
     }
 
     /**
-     * Цвет записей в списке с прикрепленными файлами
-     * По-умолчанию - светло зеленый
+     * Цвет записей в списке с прикрепленными файлами.
+     * По-умолчанию - светло зеленый.
      * @return
      */
     public static int getHighlightAttachColor() {
@@ -250,7 +250,7 @@ public class SettingsManager {
     }
 
     /**
-     * Устанавливать текущей выбранную при предыдущем запуске ветку
+     * Устанавливать текущей выбранную при предыдущем запуске ветку.
      * По-умолчанию - да
      * @return
      */
@@ -259,11 +259,15 @@ public class SettingsManager {
     }
 
     /**
-     * Id выбранной при предыдущем запуске ветки
+     * Id ветки, выбранной последний раз.
      * @return
      */
     public static String getSelectedNodeId() {
         return getString(R.string.pref_key_selected_node_id, null);
+    }
+
+    public static void setSelectedNodeId(String value) {
+        setString(R.string.pref_key_selected_node_id, value);
     }
 
     /**

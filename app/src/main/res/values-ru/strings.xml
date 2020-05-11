@@ -326,7 +326,7 @@
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
     <string name="log_attach_file_is_missing">Файл отсутствует на диске:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
-    <string name="log_open_node_records">Открытие записей ветки: id=</string>
+    <string name="log_open_node">Открытие ветки: id=</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
     <string name="log_sync_failed">Не удалось выполнить синхронизацию</string>
     <string name="log_open_file">Открытие файла:&#160;</string>
@@ -343,7 +343,6 @@
     <string name="title_recod_edit_mode">Режим редактирования</string>
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="title_record_save">Сохранить</string>
-    <string name="writing_here">Пишите здесь…</string>
     <string name="log_not_found_node_id">Не найдена ветка с id=</string>
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
@@ -388,7 +387,6 @@
     <string name="title_open_file">Открыть файл</string>
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
     <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
-    <string name="file_was_renamed">Файл переименован</string>
     <string name="title_file_name_with_ext">Имя файла с расширением</string>
     <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>

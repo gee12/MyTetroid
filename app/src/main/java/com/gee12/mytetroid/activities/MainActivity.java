@@ -73,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import lib.folderpicker.FolderPicker;
 import pl.openrnd.multilevellistview.ItemInfo;
@@ -562,11 +563,31 @@ public class MainActivity extends TetroidActivity implements IMainView {
         List<TetroidNode> rootNodes = DataManager.getRootNodes();
         res = (res && rootNodes != null);
         if (res) {
+            boolean isEmpty = rootNodes.isEmpty();
             // список веток
             this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
             mListViewNodes.setAdapter(mListAdapterNodes);
-            mListAdapterNodes.setDataItems(rootNodes);
-            boolean isEmpty = DataManager.getRootNodes().isEmpty();
+//            mListAdapterNodes.setDataItems(rootNodes);
+
+            // выбираем ветку, выбранную в прошлый раз
+            boolean nodesAdapterInited = false;
+            if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
+                String nodeId = SettingsManager.getSelectedNodeId();
+                if (nodeId != null) {
+                    TetroidNode node = DataManager.getNode(nodeId);
+                    if (node != null) {
+//                        mListAdapterNodes.extendNode();
+                        Stack<TetroidNode> expandNodes = DataManager.createNodesHierarchy(node);
+                        mListAdapterNodes.setDataItems(rootNodes, expandNodes);
+                        nodesAdapterInited = true;
+                        showNode(node);
+                    }
+                }
+            }
+            if (!nodesAdapterInited) {
+                mListAdapterNodes.setDataItems(rootNodes);
+            }
+
             if (!isEmpty) {
                 // списки записей, файлов
                 mViewPagerAdapter.getMainFragment().initListAdapters(this);
@@ -634,7 +655,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
-        LogManager.addLog(getString(R.string.log_open_node_records) + node.getId());
+        LogManager.addLog(getString(R.string.log_open_node) + node.getId());
         // сбрасываем фильтрацию при открытии ветки
         if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
@@ -1841,8 +1862,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             || mViewPager.getCurrentItem() == MainViewPager.PAGE_FOUND
                 && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
             if (SettingsManager.isConfirmAppExit()) {
-                onExit();
+                askForExit();
             } else {
+                onBeforeExit();
                 super.onBackPressed();
             }
         }
@@ -1936,8 +1958,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
-    private void onExit() {
-        AskDialogs.showExitDialog(this, () -> finish());
+    private void askForExit() {
+        AskDialogs.showExitDialog(this, () -> {
+            onBeforeExit();
+            finish();
+        });
+    }
+
+    private void onBeforeExit() {
+        // сохраняем выбранную ветку
+        if (SettingsManager.isKeepSelectedNode()) {
+            String nodeId = (mCurNode != null) ? mCurNode.getId() : null;
+            SettingsManager.setSelectedNodeId(nodeId);
+        }
     }
 
     private void showGlobalSearchActivity() {

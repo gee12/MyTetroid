@@ -390,7 +390,7 @@
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
     <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
-    <string name="log_open_node_records">Open node records: id=</string>
+    <string name="log_open_node">Open node: id=</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
     <string name="log_open_file">Open file:&#160;</string>
