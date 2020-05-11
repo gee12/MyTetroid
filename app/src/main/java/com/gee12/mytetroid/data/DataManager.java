@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -2090,6 +2091,26 @@ public class DataManager extends XMLManager {
                 }
             }
             record.getTags().clear();
+        }
+    }
+
+    /**
+     * Получение иерархии веток. В корне стека - исходная ветка, на верхушке - ее самый дальний предок.
+     * @param node
+     * @return
+     */
+    public static Stack<TetroidNode> createNodesHierarchy(TetroidNode node) {
+        if (node == null)
+            return null;
+        Stack<TetroidNode> hierarchy = new Stack<>();
+        createModesIerarhy(hierarchy, node);
+        return hierarchy;
+    }
+
+    private static void createModesIerarhy(Stack<TetroidNode> hierarchy, TetroidNode node) {
+        hierarchy.push(node);
+        if (node.getLevel() > 0) {
+            createModesIerarhy(hierarchy, node.getParentNode());
         }
     }
 
