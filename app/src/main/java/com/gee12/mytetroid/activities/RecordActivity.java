@@ -298,7 +298,7 @@ public class RecordActivity extends TetroidActivity implements
                 textHtml = DataManager.getRecordHtmlTextDecrypted(record);
                 if (textHtml == null) {
                     if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
-                        LogManager.addLog(R.string.error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                        LogManager.addLog(R.string.log_error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     }
                 }
             }
@@ -416,7 +416,7 @@ public class RecordActivity extends TetroidActivity implements
                     if (!TextUtils.isEmpty(tag)) {
                         openTag(tag, true);
                     } else {
-                        LogManager.addLog(getString(R.string.tag_name_is_empty), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.addLog(getString(R.string.title_tag_name_is_empty), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
                 case FoundType.TYPE_AUTHOR:
@@ -456,7 +456,7 @@ public class RecordActivity extends TetroidActivity implements
         try {
             decodedUrl = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
-            LogManager.addLog(getString(R.string.url_decode_error) + url, ex);
+            LogManager.addLog(getString(R.string.log_url_decode_error) + url, ex);
             return;
         }
         if (decodedUrl.startsWith(TetroidTag.LINKS_PREFIX)) {
@@ -686,7 +686,7 @@ public class RecordActivity extends TetroidActivity implements
             }
         }
         if (errorCount > 0) {
-            LogManager.addLog(String.format(getString(R.string.log_failed_to_save_images), errorCount),
+            LogManager.addLog(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
         if (!savedImages.isEmpty()) {

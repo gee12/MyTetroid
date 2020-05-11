@@ -835,7 +835,7 @@ public class DataManager extends XMLManager {
         TetroidNode node = new TetroidNode(crypted, id,
                 encryptField(crypted, name),
                 encryptField(crypted, iconName),
-                srcNode.getLevel());
+                destParentNode.getLevel() + 1);
         node.setDecryptedName(name);
         node.setDecryptedIconName(iconName);
         node.setParentNode(destParentNode);
@@ -1963,7 +1963,7 @@ public class DataManager extends XMLManager {
             return null;
         }
         String srcPath = srcUri.getPath();
-        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving),
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_saving_mask),
                 srcPath, record.getId()), LogManager.Types.DEBUG);
 
         // генерируем уникальное имя файла
@@ -1979,7 +1979,7 @@ public class DataManager extends XMLManager {
         }
 
         String destFullName = getPathToFileInRecordFolder(record, nameId);
-        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_converting),
+        LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_converting_mask),
                 destFullName), LogManager.Types.DEBUG);
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
@@ -1987,7 +1987,7 @@ public class DataManager extends XMLManager {
             File destFile = new File(destFullName);
             if (destFile.exists()) {
                 if (deleteSrcFile) {
-                    LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_deleting),
+                    LogManager.addLog(String.format(context.getString(R.string.log_start_image_file_deleting_mask),
                             srcUri), LogManager.Types.DEBUG);
                     File srcFile = new File(srcPath);
                     // удаляем исходный файл за ненадобностью

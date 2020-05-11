@@ -217,7 +217,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
-        LogManager.addLog(String.format(getString(R.string.app_start), Utils.getVersionName(this)));
+        LogManager.addLog(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
         startInitStorage();
     }
 
@@ -576,7 +576,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 mListViewTags.setAdapter(mListAdapterTags);
                 mTextViewTagsEmpty.setText(R.string.log_tags_is_missing);
             }
-            setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.nodes_is_missing);
+            setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
         } else {
             setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
         }
@@ -863,7 +863,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (mListAdapterNodes == null)
                     return;
                 mListAdapterNodes.setDataItems(DataManager.getRootNodes());
-                setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.nodes_is_missing);
+                setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.title_nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
                 ivIcon.setVisibility(View.VISIBLE);
             }
@@ -887,7 +887,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
         setListEmptyViewState(mTextViewNodesEmpty, found.isEmpty(),
-                String.format(getString(R.string.nodes_not_found), query));
+                String.format(getString(R.string.search_nodes_not_found_mask), query));
     }
 
     private void closeSearchView(SearchView search) {
@@ -942,7 +942,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListAdapterTags.setDataItems(tags);
         if (tags.isEmpty())
             mTextViewTagsEmpty.setText((isSearch)
-                    ? String.format(getString(R.string.tags_not_found), query)
+                    ? String.format(getString(R.string.search_tags_not_found_mask), query)
                     : getString(R.string.log_tags_is_missing));
     }
 
@@ -1111,7 +1111,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (node != null) {
             String url = node.createUrl();
             Utils.writeToClipboard(this, getString(R.string.link_to_node), url);
-            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
@@ -1124,7 +1124,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (tag != null) {
             String url = tag.createUrl();
             Utils.writeToClipboard(this, getString(R.string.link_to_tag), url);
-            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
@@ -1306,10 +1306,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // вставляем с попыткой восстановить каталог записи
         TetroidNode node = (TetroidNode) clipboard.getObject();
         boolean isCutted = clipboard.isCutted();
-
         TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
-        int res = DataManager.insertNode(node, isCutted, trueParentNode, false);
-        if (res) {
+
+        if (DataManager.insertNode(node, trueParentNode, isCutted)) {
             if (mListAdapterNodes.addItem(pos, isSubNode)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             } else {
@@ -1333,7 +1332,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         popupMenu.inflate(R.menu.node_context);
 
         Menu menu = popupMenu.getMenu();
-        activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable());
+        boolean isNonCrypted = node.isNonCryptedOrDecrypted();
+        activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable() && isNonCrypted);
+        activateMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
+        activateMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted);
+        activateMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
 //        activateMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
         activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
         int nodesCount = ((node.getParentNode() != null) ? node.getParentNode().getSubNodes() : DataManager.getRootNodes()).size();
@@ -1341,8 +1344,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
         activateMenuItem(menu.findItem(R.id.action_insert), canInsert);
         activateMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert);
+        activateMenuItem(menu.findItem(R.id.action_copy), isNonCrypted);
         boolean canCutDel = node.getLevel() > 0 || DataManager.getRootNodes().size() > 1;
-        activateMenuItem(menu.findItem(R.id.action_cut), canCutDel);
+        activateMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_delete), canCutDel);
 
         popupMenu.setOnMenuItemClickListener(item -> {
@@ -1450,7 +1454,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void openFilePicker() {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", R.string.select_file_to_upload);
+        intent.putExtra("title", R.string.title_select_file_to_upload);
         intent.putExtra("location", DataManager.getLastFolderOrDefault(this, false));
         intent.putExtra("pickFiles", true);
         startActivityForResult(intent, REQUEST_CODE_FILE_PICKER);
@@ -1539,7 +1543,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (tag != null) {
                     showTag(tag);
                 } else {
-                    LogManager.addLog(String.format(getString(R.string.tag_not_found), tagName),
+                    LogManager.addLog(String.format(getString(R.string.search_tag_not_found_mask), tagName),
                             LogManager.Types.WARNING, Toast.LENGTH_LONG);
                 }
                 break;
@@ -1671,7 +1675,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_image), imageUri), LogManager.Types.INFO);
+                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_image_mask), imageUri), LogManager.Types.INFO);
                 uris = new ArrayList<>();
                 uris.add(imageUri);
             }
@@ -1689,7 +1693,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images), uris.size()), LogManager.Types.INFO);
+                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images_mask), uris.size()), LogManager.Types.INFO);
                 showIntentDialog(intent, false, null, uris);
             }
         }
@@ -1775,7 +1779,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (mCurNode != null) {
             searchInRecords(query, mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
         } else {
-            LogManager.addLog(R.string.log_records_search_select_node, Toast.LENGTH_LONG);
+            LogManager.addLog(R.string.search_records_search_select_node, Toast.LENGTH_LONG);
         }
     }
 
@@ -1797,8 +1801,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         showRecords(found, viewId, true);
         if (found.isEmpty()) {
             String emptyText = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
-                    ? String.format(getString(R.string.records_in_node_not_found), query, mCurNode.getName())
-                    : String.format(getString(R.string.records_in_tag_not_found), query, mCurTag.getName());
+                    ? String.format(getString(R.string.search_records_in_node_not_found_mask), query, mCurNode.getName())
+                    : String.format(getString(R.string.search_records_in_tag_not_found_mak), query, mCurTag.getName());
             mViewPagerAdapter.getMainFragment().setRecordsEmptyViewText(emptyText);
         }
     }
@@ -1818,7 +1822,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().showRecordFiles(found);
         if (found.isEmpty()) {
             mViewPagerAdapter.getMainFragment().setFilesEmptyViewText(
-                    String.format(getString(R.string.files_not_found), query));
+                    String.format(getString(R.string.search_files_not_found_mask), query));
         }
     }
 
@@ -1965,7 +1969,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            mTextViewProgress.setText(R.string.storage_loading);
+            mTextViewProgress.setText(R.string.title_storage_loading);
             mLayoutProgress.setVisibility(View.VISIBLE);
         }
 

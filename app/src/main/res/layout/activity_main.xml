@@ -44,7 +44,7 @@
             android:layout_marginTop="@dimen/nav_header_height"
             android:padding="@dimen/tv_empty_padding"
             android:textAlignment="center"
-            android:text="@string/nodes_is_missing"/>
+            android:text="@string/title_nodes_is_missing"/>
 
     </com.google.android.material.navigation.NavigationView>
 

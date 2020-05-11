@@ -209,7 +209,7 @@ public class MainPageFragment extends TetroidFragment {
         this.mCurNode = null;
         mListViewRecords.setAdapter(null);
         mListViewFiles.setAdapter(null);
-        mTextViewRecordsEmpty.setText(R.string.select_the_node);
+        mTextViewRecordsEmpty.setText(R.string.title_select_the_node);
     }
 
     /**
@@ -220,7 +220,7 @@ public class MainPageFragment extends TetroidFragment {
     public void showRecords(List<TetroidRecord> records, int viewId) {
         String dateTimeFormat = checkDateFormatString();
         showView(viewId);
-        mTextViewRecordsEmpty.setText(R.string.records_is_missing);
+        mTextViewRecordsEmpty.setText(R.string.title_records_is_missing);
         this.mListAdapterRecords.setDataItems(records, viewId, dateTimeFormat);
         mListViewRecords.setAdapter(mListAdapterRecords);
     }
@@ -518,7 +518,7 @@ public class MainPageFragment extends TetroidFragment {
         if (record != null) {
             String url = record.createUrl();
             Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), url);
-            LogManager.addLog(getString(R.string.link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }

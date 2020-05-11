@@ -77,7 +77,7 @@ public class AskDialogs {
     }
 
     public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.storage_path_was_changed);
+        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_storage_path_was_changed);
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
@@ -86,7 +86,7 @@ public class AskDialogs {
     }
 
     public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
-        AskDialogs.showYesNoDialog(context, applyHandler, R.string.start_sync_dialog_title);
+        AskDialogs.showYesNoDialog(context, applyHandler, R.string.ask_start_sync_dialog_title);
     }
 
     public static void showExitDialog(Context context, final IApplyResult applyHandler) {
