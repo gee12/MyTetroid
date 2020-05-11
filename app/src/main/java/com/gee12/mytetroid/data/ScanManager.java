@@ -108,10 +108,10 @@ public class ScanManager implements Parcelable {
 
         if (isSplitToWords) {
             for (String word : query.split(QUERY_SEPAR)) {
-                foundObjects.putAll(globalSearch(/*data, */node, word));
+                foundObjects.putAll(globalSearch(node, word));
             }
         } else {
-            foundObjects.putAll(globalSearch(/*data, */node, query));
+            foundObjects.putAll(globalSearch(node, query));
         }
         return foundObjects;
     }
@@ -209,8 +209,7 @@ public class ScanManager implements Parcelable {
      * @param regex
      * @return
      */
-    private void globalSearchInRecords(
-            List<TetroidRecord> srcRecords, String regex) {
+    private void globalSearchInRecords(List<TetroidRecord> srcRecords, String regex) {
         for (TetroidRecord record : srcRecords) {
             // поиск по именам записей
             if (inRecordsNames && record.getName().matches(regex)) {

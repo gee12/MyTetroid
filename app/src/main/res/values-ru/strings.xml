@@ -78,7 +78,7 @@
     <string name="pref_is_save_pass_hash_local">Сохранять пароль</string>
     <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально</string>
     <string name="pref_is_keep_selected_node">Выбирать прошлую ветку</string>
-    <string name="pref_is_keep_selected_node_summ">Устанавливать текущей ветку, выбранную в прошлый раз</string>
+    <string name="pref_is_keep_selected_node_summ">Устанавливать текущей ветку, выбранную в последний раз</string>
     <string name="pref_record_fields_cols">Отображаемые поля записей в списке</string>
     <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>

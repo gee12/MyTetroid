@@ -940,10 +940,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             tags = DataManager.getTags();
         }
         mListAdapterTags.setDataItems(tags);
-        if (tags.isEmpty())
+        if (tags.isEmpty()) {
             mTextViewTagsEmpty.setText((isSearch)
                     ? String.format(getString(R.string.search_tags_not_found_mask), query)
                     : getString(R.string.log_tags_is_missing));
+        }
     }
 
     /**
