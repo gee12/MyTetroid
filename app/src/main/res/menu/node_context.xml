@@ -76,12 +76,12 @@
         android:id="@+id/action_encrypt_node"
         android:orderInCategory="130"
         android:title="@string/title_encrypt_node"
-        android:visible="false" />
+        android:icon="@drawable/ic_encrypt" />
     <item
-        android:id="@+id/action_decrypt_node"
+        android:id="@+id/action_no_encrypt_node"
         android:orderInCategory="140"
         android:title="@string/title_decrypt_node"
-        android:visible="false" />
+        android:icon="@drawable/ic_no_encrypt" />
     <item
         android:id="@+id/action_delete"
         android:orderInCategory="150"
