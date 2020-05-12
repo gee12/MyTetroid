@@ -383,14 +383,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // нужно ли выделять ветку, выбранную в прошлый раз
             // (обязательно после initGUI)
             TetroidNode nodeToSelect = null;
-            String nodeId = SettingsManager.getSelectedNodeId();
+  /*          String nodeId = SettingsManager.getSelectedNodeId();
             if (nodeId != null) {
                 nodeToSelect = DataManager.getNode(nodeId);
                 // если нашли, отображаем
 //                if (nodeToSelect != null) {
 //                    showNode(nodeToSelect);
 //                }
-            }
+            }*/
             // Если хранилище зашифровано, то пытаемся расшифровать его сразу, если:
             // 1) хэш пароля сохранен локально
             // или
@@ -571,16 +571,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             // выбираем ветку, выбранную в прошлый раз
             boolean nodesAdapterInited = false;
+            TetroidNode nodeToSelect = null;
             if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
                 String nodeId = SettingsManager.getSelectedNodeId();
                 if (nodeId != null) {
-                    TetroidNode node = DataManager.getNode(nodeId);
-                    if (node != null) {
+                    nodeToSelect = DataManager.getNode(nodeId);
+                    if (nodeToSelect != null) {
 //                        mListAdapterNodes.extendNode();
-                        Stack<TetroidNode> expandNodes = DataManager.createNodesHierarchy(node);
+                        Stack<TetroidNode> expandNodes = DataManager.createNodesHierarchy(nodeToSelect);
                         mListAdapterNodes.setDataItems(rootNodes, expandNodes);
                         nodesAdapterInited = true;
-                        showNode(node);
                     }
                 }
             }
@@ -591,6 +591,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (!isEmpty) {
                 // списки записей, файлов
                 mViewPagerAdapter.getMainFragment().initListAdapters(this);
+                if (nodeToSelect != null) {
+                    showNode(nodeToSelect);
+                }
 
                 // список меток
                 this.mListAdapterTags = new TagsListAdapter(this, DataManager.getTags());
