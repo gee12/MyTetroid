@@ -549,9 +549,9 @@ public class RecordActivity extends TetroidActivity implements
         mFieldsExpanderLayout.toggle();
 
         if (mFieldsExpanderLayout.isExpanded()) {
-            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up);
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up_white);
         } else {
-            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down);
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down_white);
         }
         updateScrollButtonLocation();
     }

@@ -203,7 +203,7 @@
             android:layout_alignParentBottom="false"
             android:layout_alignParentRight="false"
             android:layout_toLeftOf="@id/button_find_next"
-            android:src="@drawable/ic_arrow_prev"
+            android:src="@drawable/ic_arrow_prev_white"
             app:backgroundTint="@color/colorGray_50"
             android:visibility="gone"
             style="@style/fab"/>
@@ -214,7 +214,7 @@
             android:layout_alignParentBottom="false"
             android:layout_alignParentRight="false"
             android:layout_toLeftOf="@id/button_toggle_fields"
-            android:src="@drawable/ic_arrow_next"
+            android:src="@drawable/ic_arrow_next_white"
             app:backgroundTint="@color/colorGray_50"
             android:visibility="gone"
             style="@style/fab"/>
@@ -223,7 +223,7 @@
             android:id="@+id/button_toggle_fields"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="false"
-            android:src="@drawable/ic_arrow_drop_down"
+            android:src="@drawable/ic_arrow_drop_down_white"
             app:backgroundTint="@color/colorAccent_50"
             style="@style/fab"/>
 
@@ -232,7 +232,7 @@
             android:layout_alignParentTop="false"
             android:layout_alignParentBottom="false"
             android:layout_below="@id/button_toggle_fields"
-            android:src="@drawable/ic_arrow_up"
+            android:src="@drawable/ic_arrow_up_white"
             app:backgroundTint="@color/fab"
             android:visibility="gone"
             style="@style/fab"/>
@@ -242,7 +242,7 @@
             android:id="@+id/button_scroll_bottom"
             android:layout_alignParentTop="false"
             android:layout_alignParentBottom="true"
-            android:src="@drawable/ic_arrow_down"
+            android:src="@drawable/ic_arrow_down_white"
             app:backgroundTint="@color/fab"
             android:visibility="gone"
             style="@style/fab"/>

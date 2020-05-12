@@ -1344,6 +1344,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    private void encryptNode(TetroidNode node) {
+
+    }
+
+    private void noEncryptNode(TetroidNode node) {
+
+    }
+
     /**
      * Отображение всплывающего (контексного) меню ветки.
      *
@@ -1357,6 +1365,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         popupMenu.inflate(R.menu.node_context);
 
         Menu menu = popupMenu.getMenu();
+        TetroidNode parentNode = node.getParentNode();
         boolean isNonCrypted = node.isNonCryptedOrDecrypted();
         activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable() && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
@@ -1364,7 +1373,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         activateMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
 //        activateMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
         activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
-        int nodesCount = ((node.getParentNode() != null) ? node.getParentNode().getSubNodes() : DataManager.getRootNodes()).size();
+        int nodesCount = ((parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes()).size();
         activateMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
         activateMenuItem(menu.findItem(R.id.action_insert), canInsert);
@@ -1373,6 +1382,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         boolean canCutDel = node.getLevel() > 0 || DataManager.getRootNodes().size() > 1;
         activateMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_delete), canCutDel);
+        activateMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
+        boolean canNoCrypt = node.isCrypted() && (parentNode == null || !parentNode.isCrypted());
+        activateMenuItem(menu.findItem(R.id.action_no_encrypt_node), canNoCrypt);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -1394,8 +1406,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     copyNodeLink(node);
                     return true;
                 case R.id.action_encrypt_node:
+                    encryptNode(node);
                     return true;
-                case R.id.action_decrypt_node:
+                case R.id.action_no_encrypt_node:
+                    noEncryptNode(node);
                     return true;
                 case R.id.action_expand_node:
                     expandSubNodes(pos);
