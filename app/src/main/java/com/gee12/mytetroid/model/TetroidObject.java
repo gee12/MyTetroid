@@ -113,8 +113,12 @@ public class TetroidObject implements ITetroidObject {
 //        }
     }
 
+    public void setIsCrypted(boolean isCrypted) {
+        this.isCrypted = isCrypted;
+    }
+
     public void setDecrypted(boolean decrypted) {
-        isDecrypted = decrypted;
+        this.isDecrypted = decrypted;
     }
 
     /**
