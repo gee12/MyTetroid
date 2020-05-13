@@ -119,6 +119,14 @@ public class DataManager extends XMLManager {
         return res;
     }
 
+    public static void initCryptPass(String pass, boolean isMiddleHash) {
+        if (isMiddleHash) {
+            CryptManager.initFromMiddleHash(pass, instance);
+        } else {
+            CryptManager.initFromPass(pass, instance);
+        }
+    }
+
     /**
      * Загрузка хранилища из файла mytetra.xml.
      * @param isDecrypt Расшифровывать ли ветки
@@ -206,7 +214,7 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean encryptNode(@NotNull TetroidNode node) {
-        
+
     }
 
     /**
