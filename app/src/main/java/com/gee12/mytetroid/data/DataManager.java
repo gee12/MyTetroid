@@ -63,7 +63,6 @@ public class DataManager extends XMLManager {
     public static final int UNIQUE_ID_HALF_LENGTH = 10;
     public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
 
-    //    public static final Exception EmptyFieldException = new Exception("Отсутствуют данные для проверки пароля (поле middle_hash_check_data пустое)");
     public static class EmptyFieldException extends Exception {
 
         private String fieldName;
@@ -146,8 +145,11 @@ public class DataManager extends XMLManager {
         return res;
     }
 
+    /**
+     *
+     * @return
+     */
     public static boolean decryptAll() {
-        // достаем сохраненный пароль
         return CryptManager.decryptAll(instance.mRootNodesList, true, instance);
     }
 
@@ -157,10 +159,19 @@ public class DataManager extends XMLManager {
      * @param node
      */
     @Override
-    public boolean decryptNode(@NonNull TetroidNode node) {
+    protected boolean decryptNode(@NonNull TetroidNode node) {
         // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
         // и расшифровка каждой из них запустится сама после их загрузки по очереди
-        return CryptManager.decryptNode(node, false, this);
+        return CryptManager.decryptNode(node, false, this, false);
+    }
+
+    /**
+     * Расшифровка ветки с подветками (постоянная).
+     * @param node
+     * @return
+     */
+    public static boolean nocryptNode(@NonNull TetroidNode node) {
+        return CryptManager.decryptNode(node, true, instance, true);
     }
 
     public static String decryptField(TetroidObject obj, String field) {
@@ -187,6 +198,15 @@ public class DataManager extends XMLManager {
 
     public static String encryptField(boolean isCrypted, String field) {
         return (isCrypted) ? CryptManager.encryptTextBase64(field) : field;
+    }
+
+    /**
+     * Зашифровка ветки с подветками.
+     * @param node
+     * @return
+     */
+    public static boolean encryptNode(@NotNull TetroidNode node) {
+        
     }
 
     /**

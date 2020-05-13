@@ -1349,7 +1349,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void noEncryptNode(TetroidNode node) {
+        if (DataManager.nocryptNode(node)) {
 
+        } else {
+
+        }
     }
 
     /**
