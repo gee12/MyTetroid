@@ -26,9 +26,9 @@ public class AskDialogs {
         void cancelPass();
     }
 
-    public interface IPassCheckResult {
+    /*public interface IPassCheckResult {
         void onApply(TetroidNode node);
-    }
+    }*/
 
     public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -49,8 +49,7 @@ public class AskDialogs {
         builder.show();
     }
 
-    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName,
-                        final TetroidNode node, final IPassCheckResult applyHandler) {
+    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyResult applyHandler) {
 
 //        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
 //            switch (which){
@@ -64,7 +63,7 @@ public class AskDialogs {
 //                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply(node))
 //                .setNegativeButton(R.string.answer_no, null).show();
         Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
-                (dialog, which) -> applyHandler.onApply(node),
+                (dialog, which) -> applyHandler.onApply(),
                 null);
     }
 
