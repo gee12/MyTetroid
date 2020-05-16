@@ -7,7 +7,8 @@
     <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 
     <string name="title_settings">Settings</string>
-    <string name="title_pass_input">Enter password</string>
+    <string name="title_password_enter">Enter password</string>
+    <string name="title_password_set">Set password</string>
     <string name="title_storage_folder">Storage folder</string>
     <string name="title_record_folder">Record folder</string>
     <string name="title_show_record_content">Open record</string>

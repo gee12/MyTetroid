@@ -18,7 +18,8 @@
     <string name="title_cut">Вырезать</string>
     <string name="title_copy">Копировать</string>
     <string name="title_insert">Вставить</string>
-    <string name="title_pass_input">Введите пароль</string>
+    <string name="title_password_enter">Введите пароль</string>
+    <string name="title_password_set">Задайте пароль</string>
     <string name="title_storage_folder">Каталог хранилища</string>
     <string name="title_record_folder">Каталог записи</string>
     <string name="title_about_app">О приложении</string>
