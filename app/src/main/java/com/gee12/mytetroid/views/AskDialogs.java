@@ -30,9 +30,9 @@ public class AskDialogs {
         void onApply(TetroidNode node);
     }*/
 
-    public static void showPassDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
+    public static void showPassDialog(Context context, final TetroidNode node, boolean isNewPass, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getString(R.string.title_pass_input));
+        builder.setTitle(context.getString((isNewPass) ? R.string.title_password_set : R.string.title_password_enter));
 
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
