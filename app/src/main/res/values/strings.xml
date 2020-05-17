@@ -9,6 +9,7 @@
     <string name="title_settings">Settings</string>
     <string name="title_password_enter">Enter password</string>
     <string name="title_password_set">Set password</string>
+    <string name="title_password_change">Change password</string>
     <string name="title_storage_folder">Storage folder</string>
     <string name="title_record_folder">Record folder</string>
     <string name="title_show_record_content">Open record</string>
@@ -90,6 +91,8 @@
     <string name="title_tag_name_is_empty">Tag name is empty</string>
     <string name="title_open_file">Open file</string>
     <string name="title_link_was_copied">Link was copied:&#160;</string>
+
+    <string name="text_pass_change_warning_html" formatted="true"><b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -230,6 +233,9 @@
     <string name="label_record_author">Author:</string>
     <string name="label_record_uri">Url:</string>
     <string name="label_record_date">Date:</string>
+    <string name="label_cur_pass">Current password:</string>
+    <string name="label_new_pass">New password:</string>
+    <string name="label_confirm_pass">Confirm:</string>
 
     <string name="oper_simple_node">node</string>
     <string name="oper_simple_node_fields">node fields</string>
@@ -292,6 +298,8 @@
     <string name="move">move</string>
     <string name="save">save</string>
     <string name="attach">attach</string>
+    <string name="encrypt">encrypt</string>
+    <string name="decrypt">decrypt</string>
 
     <string name="created">created</string>
     <string name="added">added</string>
@@ -304,6 +312,8 @@
     <string name="moved">moved</string>
     <string name="saved">saved</string>
     <string name="attached">attached</string>
+    <string name="encrypted">encrypted</string>
+    <string name="decrypted">decrypted</string>
 
     <string name="creating">creating</string>
     <string name="adding">adding</string>
@@ -316,6 +326,8 @@
     <string name="moving">moving</string>
     <string name="saving">saving</string>
     <string name="attaching">attaching</string>
+    <string name="encrypting">encrypting</string>
+    <string name="decrypting">decrypting</string>
 
     <string name="ask_record_delete">Delete record ?</string>
     <!--    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>-->
@@ -477,5 +489,14 @@
     <string name="log_error_record_file_encrypt">Error encrypting record file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
     <string name="log_record_folder_moved_mask">Record folder was moved to %s</string>
+    <string name="log_start_set_storage_pass">Start setting the storage password</string>
+    <string name="log_storage_pass_setted">Storage password was set</string>
+    <string name="log_storage_pass_set_error">Failed to set storage password</string>
+    <string name="log_start_pass_change">Start password changing</string>
+    <string name="log_start_storage_decrypt">Start storage decrypting</string>
+    <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>
+    <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
+    <string name="pref_change_pass">Change password</string>
+    <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
 
 </resources>

@@ -41,7 +41,9 @@ public class TetroidLog extends LogManager {
         INSERT (R.string.insert, R.string.inserted, R.string.inserting),
         MOVE (R.string.move, R.string.moved, R.string.moving),
         SAVE (R.string.save, R.string.saved, R.string.saving),
-        ATTACH (R.string.attach, R.string.attached, R.string.attaching);
+        ATTACH (R.string.attach, R.string.attached, R.string.attaching),
+        ENCRYPT (R.string.encrypt, R.string.encrypted, R.string.encrypting),
+        DECRYPT (R.string.decrypt, R.string.decrypted, R.string.decrypting);
 
         int[] mRes = new int[3];
 

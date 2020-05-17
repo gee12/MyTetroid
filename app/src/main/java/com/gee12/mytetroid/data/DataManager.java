@@ -29,6 +29,7 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.AskDialogs;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -158,6 +159,7 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean reencryptStorage() {
+        LogManager.addLog(R.string.log_start_storage_reencrypt);
         return CryptManager.encryptNodes(instance.mRootNodesList, true);
     }
 
@@ -166,6 +168,7 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean decryptStorage() {
+        LogManager.addLog(R.string.log_start_storage_decrypt);
         return CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false);
     }
 
@@ -252,10 +255,10 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean savePass(String pass) {
-        String passHash = "";
+        /*String passHash = "";
         databaseINI.set(INI_CRYPT_CHECK_HASH, passHash);
         String salt = "";
-        databaseINI.set(INI_CRYPT_CHECK_SALT, salt);
+        databaseINI.set(INI_CRYPT_CHECK_SALT, salt);*/
         return databaseINI.save();
     }
 
@@ -263,7 +266,21 @@ public class DataManager extends XMLManager {
      * Смена пароля.
      * @return
      */
+    public static void changePass(Context context) {
+        LogManager.addLog(R.string.log_start_pass_change);
+
+        AskDialogs.showPassChangeDialog(context, (curPass, newPass, confirmPass) -> {
+
+            // TODO: проверяем пароли
+
+
+            changePass();
+            return true;
+        });
+    }
+
     public static boolean changePass() {
+
         // сначала расшифровываем хранилище
         if (DataManager.decryptStorage()) {
             LogManager.addLog(R.string.log_storage_decrypted);

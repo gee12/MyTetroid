@@ -26,11 +26,16 @@ public class AskDialogs {
         void cancelPass();
     }
 
+    public interface IPassChangeResult {
+        boolean applyPass(String curPass, String newPass, String confirmPass);
+//        void applyPass(String newPass);
+    }
+
     /*public interface IPassCheckResult {
         void onApply(TetroidNode node);
     }*/
 
-    public static void showPassDialog(Context context, final TetroidNode node, boolean isNewPass, final IPassInputResult passResult) {
+    public static void showPassEnterDialog(Context context, final TetroidNode node, boolean isNewPass, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getString((isNewPass) ? R.string.title_password_set : R.string.title_password_enter));
 
@@ -47,6 +52,29 @@ public class AskDialogs {
         });
 
         builder.show();
+    }
+
+    public static void showPassChangeDialog(Context context, final IPassChangeResult passResult) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
+        builder.setTitle(context.getString(R.string.title_password_change));
+        builder.setPositiveButton(R.string.answer_ok, null);
+
+        EditText curPass = builder.getView().findViewById(R.id.edit_text_cur_pass);
+        EditText newPass = builder.getView().findViewById(R.id.edit_text_new_pass);
+        EditText confirmPass = builder.getView().findViewById(R.id.edit_text_confirm_pass);
+
+        final androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(dialogInterface -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                if (passResult.applyPass(curPass.getText().toString(),
+                        newPass.getText().toString(),
+                        confirmPass.getText().toString())) {
+                    dialog.dismiss();
+                }
+            });
+        });
+
+        dialog.show();
     }
 
     public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyResult applyHandler) {

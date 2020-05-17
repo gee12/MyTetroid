@@ -468,7 +468,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     void askPassword(final TetroidNode node) {
         LogManager.addLog(R.string.log_show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
-        AskDialogs.showPassDialog(this, node, false, new AskDialogs.IPassInputResult() {
+        AskDialogs.showPassEnterDialog(this, node, false, new AskDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 // подтверждение введенного пароля
@@ -1359,9 +1359,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void encryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
             if (DataManager.encryptNode(node)) {
-
+                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
             } else {
-
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
             }
         });
     }
@@ -1369,9 +1369,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void noEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
             if (DataManager.nocryptNode(node)) {
-
+                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
             } else {
-
+                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
             }
         });
     }
@@ -1382,9 +1382,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param callback Действие после проверки пароля
      */
     private void checkStoragePass(TetroidNode node, AskDialogs.IApplyResult callback) {
-
-        // пароль сохранен локально?
         if (SettingsManager.isSaveMiddlePassHashLocal()) {
+            // получаем сохраненный пароль
             String middlePassHash;
             if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
                 // пароль сохранен, проверяем
@@ -1416,12 +1415,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // пароль не сохранен, вводим
                 askPassword(node, callback);
             }
-        } else if (DataManager.isCrypted()) {
-            // спрашиваем пароль
-            askPassword(node, callback);
         } else {
-            // TODO: задаем пароль
-
+            // спрашиваем или задаем пароль
+            askPassword(node, callback);
         }
     }
 
@@ -1434,17 +1430,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.addLog(R.string.log_show_pass_dialog);
         boolean isNewPass = !DataManager.isCrypted();
         // выводим окно с запросом пароля в асинхронном режиме
-        AskDialogs.showPassDialog(this, node, isNewPass, new AskDialogs.IPassInputResult() {
+        AskDialogs.showPassEnterDialog(this, node, isNewPass, new AskDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
 
                 if (isNewPass) {
+                    LogManager.addLog(R.string.log_start_set_storage_pass);
+
                     // TODO: сохраняем пароль в database.ini
-                    /*if (DataManager.savePass(pass)) {
 
+                    if (DataManager.savePass(pass)) {
+                        LogManager.addLog(R.string.log_storage_pass_setted);
                     } else {
-
-                    }*/
+                        LogManager.addLog(R.string.log_storage_pass_set_error, LogManager.Types.ERROR);
+                    }
                     String passHash = CryptManager.passToHash(pass);
                     // сохраняем хэш пароля в настройки
                     if (SettingsManager.isSaveMiddlePassHashLocal()) {

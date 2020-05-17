@@ -116,6 +116,10 @@ public class LogManager {
         addLog(context.getString(sId), duration);
     }
 
+    public static void addLog(int sId, Types type) {
+        addLog(context.getString(sId), type, DURATION_NONE);
+    }
+
     public static void addLog(int sId, Types type, int duration) {
         addLog(context.getString(sId), type, duration);
     }

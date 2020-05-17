@@ -28,6 +28,11 @@
 
     <PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
 
+        <Preference
+            android:key="@string/pref_key_change_pass"
+            android:title="@string/pref_change_pass"
+            android:summary="@string/pref_change_pass_summ"/>
+
         <CheckBoxPreference
             android:key="@string/pref_key_is_save_pass_hash_local"
             android:title="@string/pref_is_save_pass_hash_local"
