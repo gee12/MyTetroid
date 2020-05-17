@@ -9,18 +9,18 @@ import java.util.Properties;
 
 public class INIProperties {
     private Properties configuration;
-//    private String configurationFile = "config.ini";
+    private String fileName;
 
-    public INIProperties() {
-        configuration = new Properties();
+    public INIProperties(String fileName) {
+        this.configuration = new Properties();
+        this.fileName = fileName;
     }
 
     /**
      * Загрузка параметров из файла
-     * @param fileName
      * @return
      */
-    public boolean load(String fileName) {
+    public boolean load() {
         boolean retval = false;
 
         try {
@@ -34,11 +34,10 @@ public class INIProperties {
     }
 
     /**
-     * Сохранение параметров в файл
-     * @param fileName
+     * Сохранение параметров в файл.
      * @return
      */
-    public boolean save(String fileName) {
+    public boolean save() {
         boolean retval = false;
 
         try {

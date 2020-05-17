@@ -28,14 +28,72 @@ public class CryptManager extends Crypter {
     }
 
     /**
-     * Расшифровка веток (временная).
+     * Зашифровка веток.
      * @param nodes
-     * @param isDecryptSubNodes
-     * @param iconLoader
      * @return
      */
-    public static boolean decryptAll(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader) {
-        return decryptNodes(nodes, isDecryptSubNodes, iconLoader, false);
+    public static boolean encryptNodes(List<TetroidNode> nodes) {
+        boolean res = true;
+        for (TetroidNode node : nodes) {
+            if (node.isCrypted()) {
+                res = res & encryptNode(node);
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Зашифровка ветки.
+     * @param node
+     * @return
+     */
+    public static boolean encryptNode(TetroidNode node) {
+        if (node == null)
+            return false;
+        boolean res;
+        // засшифровываем поля
+        res = encryptNodeFields(node);
+        if (node.getRecordsCount() > 0) {
+            res = res & encryptRecordsFields(node.getRecords());
+        }
+        // расшифровываем подветки
+        if (node.getSubNodesCount() > 0) {
+            res = res & decryptNodes(node.getSubNodes());
+        }
+        return res;
+    }
+
+    /**
+     * Расшифровка полей ветки.
+     * @param node
+     * @return
+     */
+    public static boolean encryptNodeFields(TetroidNode node) {
+        boolean res;
+        // name
+        String temp = CryptManager.decryptBase64(mCryptKey, node.getName());
+        res = (temp != null);
+        if (res) {
+            if (nocrypt)
+                node.setName(temp);
+            else
+                node.setDecryptedName(temp);
+        }
+        // icon
+        temp = CryptManager.decryptBase64(mCryptKey, node.getIconName());
+        res = res & (temp != null);
+        if (temp != null) {
+            if (nocrypt)
+                node.setIconName(temp);
+            else
+                node.setDecryptedIconName(temp);
+        }
+        // decryption result
+        if (nocrypt)
+            node.setIsCrypted(!res);
+        else
+            node.setDecrypted(res);
+        return res;
     }
 
     /**

@@ -24,8 +24,8 @@ public class Crypter {
 
     private static RC5Simple rc5 = new RC5Simple();
     protected static int[] mCryptKey;
-    private static Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
-    private static Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
+    private static final Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
+    private static final Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
     /**
      * Для будущего сохранения в настройках.
