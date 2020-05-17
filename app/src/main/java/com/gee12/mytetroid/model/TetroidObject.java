@@ -16,7 +16,16 @@ public class TetroidObject implements ITetroidObject {
     protected int type = FoundType.TYPE_NONE;
     protected String id;
     protected String name;
+
+    /**
+     * Зашифрован ли объект.
+     */
     protected boolean isCrypted;
+
+
+    /**
+     * Расшифрован ли объект в данный момент (временно).
+     */
     protected boolean isDecrypted;
 
     protected String decryptedName;
@@ -113,10 +122,18 @@ public class TetroidObject implements ITetroidObject {
 //        }
     }
 
+    /**
+     * Зашифрован ли объект.
+     * @param isCrypted
+     */
     public void setIsCrypted(boolean isCrypted) {
         this.isCrypted = isCrypted;
     }
 
+    /**
+     * Расшифрован ли объект в данный момент (временно).
+     * @param decrypted
+     */
     public void setDecrypted(boolean decrypted) {
         this.isDecrypted = decrypted;
     }

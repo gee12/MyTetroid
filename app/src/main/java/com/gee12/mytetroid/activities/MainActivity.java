@@ -538,20 +538,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }*/
 
     /**
-     * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища
+     * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища.
      * @param node
      * @param isDecrypt
      */
     private void initStorage(TetroidNode node, boolean isDecrypt) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
-            if (DataManager.decryptAll()) {
+            if (DataManager.decryptStorage()) {
                 LogManager.addLog(R.string.log_storage_decrypted);
             } else {
-                LogManager.addLog(getString(R.string.log_errors_during_decryption)
-                                + (SettingsManager.isWriteLogToFile()
-                                ? getString(R.string.details_in_logs)
-                                : getString(R.string.for_more_info_enable_log)),
+                LogManager.addLog(getString(R.string.log_errors_during_decryption),
+//                                + (SettingsManager.isWriteLogToFile()
+//                                ? getString(R.string.details_in_logs)
+//                                : getString(R.string.for_more_info_enable_log)),
                         Toast.LENGTH_LONG);
             }
             mListAdapterNodes.notifyDataSetChanged();
