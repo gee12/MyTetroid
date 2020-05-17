@@ -346,7 +346,7 @@
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
     <string name="details_in_logs">Details in the logs</string>
-    <string name="for_more_info_enable_log">For more information, enable logging</string>
+<!--    <string name="for_more_info_enable_log">For more information, enable logging</string>-->
 
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
     <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
@@ -359,11 +359,13 @@
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
-    <string name="log_errors_during_decryption">Errors occurred during decryption.</string>
+    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
+    <string name="log_errors_during_reencryption">Errors occurred during re-encryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded">Storage is loaded:&#160;</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_decrypted">Storage is decrypted</string>
+    <string name="log_storage_reencrypted">Storage is re-encrypted</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_start_storage_loading">Start storage loading:&#160;</string>

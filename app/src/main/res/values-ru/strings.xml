@@ -276,13 +276,15 @@
     <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
-    <string name="log_errors_during_decryption">При расшифровке произошли ошибки.</string>
+    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
+    <string name="log_errors_during_reencryption">При перешифровке произошли ошибки (подробнее в логах)</string>
     <string name="details_in_logs">Подробности в логах</string>
-    <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>
+<!--    <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded">Хранилище загружено:&#160;</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
+    <string name="log_storage_reencrypted">Хранилище перешифровано</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="title_file_is_missing">Файл отсутствует&#160;</string>

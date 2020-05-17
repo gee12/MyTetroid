@@ -30,13 +30,15 @@ public class CryptManager extends Crypter {
     /**
      * Зашифровка веток.
      * @param nodes
+     * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта
+     *      *                    (должно быть расшифрованно перед этим)
      * @return
      */
-    public static boolean encryptNodes(List<TetroidNode> nodes) {
+    public static boolean encryptNodes(List<TetroidNode> nodes, boolean isReencrypt) {
         boolean res = true;
         for (TetroidNode node : nodes) {
-            if (node.isCrypted()) {
-                res = res & encryptNode(node);
+            if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
+                res = res & encryptNode(node, isReencrypt);
             }
         }
         return res;
@@ -45,54 +47,145 @@ public class CryptManager extends Crypter {
     /**
      * Зашифровка ветки.
      * @param node
+     * @param isReencrypt
      * @return
      */
-    public static boolean encryptNode(TetroidNode node) {
+    public static boolean encryptNode(TetroidNode node, boolean isReencrypt) {
         if (node == null)
             return false;
         boolean res;
         // засшифровываем поля
-        res = encryptNodeFields(node);
+        res = encryptNodeFields(node, isReencrypt);
         if (node.getRecordsCount() > 0) {
-            res = res & encryptRecordsFields(node.getRecords());
+            res = res & encryptRecordsAndFiles(node.getRecords(), isReencrypt);
         }
         // расшифровываем подветки
         if (node.getSubNodesCount() > 0) {
-            res = res & decryptNodes(node.getSubNodes());
+            res = res & encryptNodes(node.getSubNodes(), isReencrypt);
         }
         return res;
     }
 
     /**
-     * Расшифровка полей ветки.
+     * Зашифровка полей ветки.
      * @param node
+     * @param isReencrypt
      * @return
      */
-    public static boolean encryptNodeFields(TetroidNode node) {
+    public static boolean encryptNodeFields(TetroidNode node, boolean isReencrypt) {
         boolean res;
         // name
-        String temp = CryptManager.decryptBase64(mCryptKey, node.getName());
+        String temp = CryptManager.encryptTextBase64(node.getName());
         res = (temp != null);
         if (res) {
-            if (nocrypt)
-                node.setName(temp);
-            else
-                node.setDecryptedName(temp);
+            if (!isReencrypt && !node.isCrypted()) {
+                node.setDecryptedName(node.getName());
+            }
+            node.setName(temp);
         }
         // icon
-        temp = CryptManager.decryptBase64(mCryptKey, node.getIconName());
+        temp = CryptManager.encryptTextBase64(node.getIconName());
         res = res & (temp != null);
         if (temp != null) {
-            if (nocrypt)
-                node.setIconName(temp);
-            else
-                node.setDecryptedIconName(temp);
+            if (!isReencrypt && !node.isCrypted()) {
+                node.setDecryptedIconName(node.getIconName());
+            }
+            node.setIconName(temp);
         }
-        // decryption result
-        if (nocrypt)
-            node.setIsCrypted(!res);
-        else
+        // encryption result
+        if (!isReencrypt && !node.isCrypted()) {
+            node.setIsCrypted(res);
             node.setDecrypted(res);
+        }
+        return res;
+    }
+
+    /**
+     * Зашифровка полей списка записей и полей их прикрепленных прифайлов.
+     * @param records
+     * @param isReencrypt
+     * @return
+     */
+    public static boolean encryptRecordsAndFiles(List<TetroidRecord> records, boolean isReencrypt) {
+        boolean res = true;
+        for (TetroidRecord record : records) {
+            if (record.isCrypted()) {
+                res = res & encryptRecordFields(record, isReencrypt);
+                if (record.getAttachedFilesCount() > 0)
+                    for (TetroidFile file : record.getAttachedFiles()) {
+                        res = res & encryptAttach(file, isReencrypt);
+                    }
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Зашифровка полей записи.
+     * @param record
+     * @param isReencrypt
+     * @return
+     */
+    public static boolean encryptRecordFields(TetroidRecord record, boolean isReencrypt) {
+        boolean res;
+        String temp = CryptManager.encryptTextBase64(record.getName());
+        res = (temp != null);
+        if (res) {
+            if (!isReencrypt && !record.isCrypted()) {
+                record.setDecryptedName(record.getName());
+            }
+            record.setName(temp);
+        }
+        temp = CryptManager.encryptTextBase64(record.getTagsString());
+        res = res & (temp != null);
+        if (temp != null) {
+            if (!isReencrypt && !record.isCrypted()) {
+                record.setDecryptedTagsString(record.getTagsString());
+            }
+            record.setTagsString(temp);
+        }
+        temp = CryptManager.encryptTextBase64(record.getAuthor());
+        res = res & (temp != null);
+        if (temp != null) {
+            if (!isReencrypt && !record.isCrypted()) {
+                record.setDecryptedAuthor(record.getAuthor());
+            }
+            record.setAuthor(temp);
+        }
+        temp = CryptManager.encryptTextBase64(record.getUrl());
+        res = res & (temp != null);
+        if (temp != null) {
+            if (!isReencrypt && !record.isCrypted()) {
+                record.setDecryptedUrl(record.getUrl());
+            }
+            record.setUrl(temp);
+        }
+        if (!isReencrypt && !record.isCrypted()) {
+            record.setIsCrypted(res);
+            record.setDecrypted(res);
+        }
+        return res;
+    }
+
+    /**
+     * Зашифровка полей прикрепленного файла.
+     * @param file
+     * @param isReencrypt
+     * @return
+     */
+    public static boolean encryptAttach(TetroidFile file, boolean isReencrypt) {
+        String temp = CryptManager.encryptTextBase64(file.getName());
+        boolean res = (temp != null);
+        if (res) {
+            if (!isReencrypt && !file.isCrypted()) {
+                file.setDecryptedName(file.getName());
+            }
+            file.setName(temp);
+        }
+        if (!isReencrypt && !file.isCrypted()) {
+            file.setIsCrypted(!res);
+            file.setDecrypted(res);
+        }
         return res;
     }
 
@@ -101,15 +194,15 @@ public class CryptManager extends Crypter {
      * @param nodes
      * @param isDecryptSubNodes
      * @param iconLoader
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
     public static boolean decryptNodes(List<TetroidNode> nodes, boolean isDecryptSubNodes, INodeIconLoader iconLoader,
-                                       boolean nocrypt) {
+                                       boolean dropCrypt) {
         boolean res = true;
         for (TetroidNode node : nodes) {
             if (node.isCrypted()) {
-                res = res & decryptNode(node, isDecryptSubNodes, iconLoader, nocrypt);
+                res = res & decryptNode(node, isDecryptSubNodes, iconLoader, dropCrypt);
             }
         }
         return res;
@@ -120,16 +213,16 @@ public class CryptManager extends Crypter {
      * @param node
      * @param isDecryptSubNodes
      * @param iconLoader
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
     public static boolean decryptNode(TetroidNode node, boolean isDecryptSubNodes, INodeIconLoader iconLoader,
-                                      boolean nocrypt) {
+                                      boolean dropCrypt) {
         if (node == null)
             return false;
         boolean res;
         // расшифровываем поля
-        res = decryptNodeFields(node, nocrypt);
+        res = decryptNodeFields(node, dropCrypt);
         // загружаем иконку
         if (iconLoader != null) {
             iconLoader.loadIcon(node);
@@ -137,11 +230,11 @@ public class CryptManager extends Crypter {
         // TODO: расшифровывать список записей сразу или при выделении ?
         //  (пока сразу)
         if (node.getRecordsCount() > 0) {
-            res = res & decryptRecordsFields(node.getRecords(), nocrypt);
+            res = res & decryptRecordsAndFiles(node.getRecords(), dropCrypt);
         }
         // расшифровываем подветки
         if (isDecryptSubNodes && node.getSubNodesCount() > 0) {
-            res = res & decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader, nocrypt);
+            res = res & decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader, dropCrypt);
         }
         return res;
     }
@@ -149,31 +242,31 @@ public class CryptManager extends Crypter {
     /**
      * Расшифровка полей ветки.
      * @param node
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptNodeFields(TetroidNode node, boolean nocrypt) {
+    public static boolean decryptNodeFields(TetroidNode node, boolean dropCrypt) {
         boolean res;
         // name
-        String temp = CryptManager.decryptBase64(mCryptKey, node.getName());
+        String temp = CryptManager.decryptBase64(node.getName());
         res = (temp != null);
         if (res) {
-            if (nocrypt)
+            if (dropCrypt)
                 node.setName(temp);
             else
                 node.setDecryptedName(temp);
         }
         // icon
-        temp = CryptManager.decryptBase64(mCryptKey, node.getIconName());
+        temp = CryptManager.decryptBase64(node.getIconName());
         res = res & (temp != null);
         if (temp != null) {
-            if (nocrypt)
+            if (dropCrypt)
                 node.setIconName(temp);
             else
                 node.setDecryptedIconName(temp);
         }
         // decryption result
-        if (nocrypt)
+        if (dropCrypt)
             node.setIsCrypted(!res);
         else
             node.setDecrypted(res);
@@ -181,19 +274,19 @@ public class CryptManager extends Crypter {
     }
 
     /**
-     * Расшифровка полей списка записей.
+     * Расшифровка полей списка записей и полей их прикрепленных прифайлов.
      * @param records
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptRecordsFields(List<TetroidRecord> records, boolean nocrypt) {
+    public static boolean decryptRecordsAndFiles(List<TetroidRecord> records, boolean dropCrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
             if (record.isCrypted()) {
-                res = res & decryptRecordFields(record, nocrypt);
+                res = res & decryptRecordFields(record, dropCrypt);
                 if (record.getAttachedFilesCount() > 0)
                     for (TetroidFile file : record.getAttachedFiles()) {
-                        res = res & decryptAttach(file, nocrypt);
+                        res = res & decryptAttach(file, dropCrypt);
                     }
             }
         }
@@ -203,45 +296,47 @@ public class CryptManager extends Crypter {
     /**
      * Расшифровка полей записи.
      * @param record
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptRecordFields(TetroidRecord record, boolean nocrypt) {
+    public static boolean decryptRecordFields(TetroidRecord record, boolean dropCrypt) {
         boolean res;
-        String temp = CryptManager.decryptBase64(mCryptKey, record.getName());
+        String temp = CryptManager.decryptBase64(record.getName());
         res = (temp != null);
         if (res) {
-            if (nocrypt)
+            if (dropCrypt)
                 record.setName(temp);
             else
                 record.setDecryptedName(temp);
         }
-        temp = CryptManager.decryptBase64(mCryptKey, record.getTagsString());
+        temp = CryptManager.decryptBase64(record.getTagsString());
         res = res & (temp != null);
         if (temp != null) {
-            if (nocrypt)
+            if (dropCrypt)
                 record.setTagsString(temp);
             else
                 record.setDecryptedTagsString(temp);
-            tagsParser.parseRecordTags(record, temp);
+            if (tagsParser != null) {
+                tagsParser.parseRecordTags(record, temp);
+            }
         }
-        temp = CryptManager.decryptBase64(mCryptKey, record.getAuthor());
+        temp = CryptManager.decryptBase64(record.getAuthor());
         res = res & (temp != null);
         if (temp != null) {
-            if (nocrypt)
+            if (dropCrypt)
                 record.setAuthor(temp);
             else
                 record.setDecryptedAuthor(temp);
         }
-        temp = CryptManager.decryptBase64(mCryptKey, record.getUrl());
+        temp = CryptManager.decryptBase64(record.getUrl());
         res = res & (temp != null);
         if (temp != null) {
-            if (nocrypt)
+            if (dropCrypt)
                 record.setUrl(temp);
             else
                 record.setDecryptedUrl(temp);
         }
-        if (nocrypt)
+        if (dropCrypt)
             record.setIsCrypted(!res);
         else
             record.setDecrypted(res);
@@ -251,19 +346,19 @@ public class CryptManager extends Crypter {
     /**
      * Расшифровка полей прикрепленного файла.
      * @param file
-     * @param nocrypt Если true - объект расшифровывается навсегда, false - временная расшифровка.
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptAttach(TetroidFile file, boolean nocrypt) {
-        String temp = CryptManager.decryptBase64(mCryptKey, file.getName());
+    public static boolean decryptAttach(TetroidFile file, boolean dropCrypt) {
+        String temp = CryptManager.decryptBase64(file.getName());
         boolean res = (temp != null);
         if (res) {
-            if (nocrypt)
+            if (dropCrypt)
                 file.setName(temp);
             else
                 file.setDecryptedName(temp);
         }
-        if (nocrypt)
+        if (dropCrypt)
             file.setIsCrypted(!res);
         else
             file.setDecrypted(res);

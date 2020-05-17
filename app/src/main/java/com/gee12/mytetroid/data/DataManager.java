@@ -154,10 +154,18 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     *
+     * Перешифровка хранилища (перед этим ветки должны быть расшифрованы).
      * @return
      */
-    public static boolean decryptAll() {
+    public static boolean reencryptStorage() {
+        return CryptManager.encryptNodes(instance.mRootNodesList, true);
+    }
+
+    /**
+     * Расшифровка хранилища.
+     * @return
+     */
+    public static boolean decryptStorage() {
         return CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false);
     }
 
@@ -209,16 +217,12 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     * Зашифровка ветки с подветками.
+     * Зашифровка (незашифрованной) ветки с подветками.
      * @param node
      * @return
      */
     public static boolean encryptNode(@NotNull TetroidNode node) {
-
-    }
-
-    public static boolean recryptStorage() {
-
+        return CryptManager.encryptNode(node, false);
     }
 
     /**
@@ -253,6 +257,28 @@ public class DataManager extends XMLManager {
         String salt = "";
         databaseINI.set(INI_CRYPT_CHECK_SALT, salt);
         return databaseINI.save();
+    }
+
+    /**
+     * Смена пароля.
+     * @return
+     */
+    public static boolean changePass() {
+        // сначала расшифровываем хранилище
+        if (DataManager.decryptStorage()) {
+            LogManager.addLog(R.string.log_storage_decrypted);
+        } else {
+            LogManager.addLog(R.string.log_errors_during_decryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
+            return false;
+        }
+        // перешифровываем зашифрованные ветки
+        if (reencryptStorage()) {
+            LogManager.addLog(R.string.log_storage_reencrypted);
+        } else {
+            LogManager.addLog(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
+            return false;
+        }
+        return true;
     }
 
     /**
