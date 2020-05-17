@@ -88,12 +88,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 });
 
         findPreference(getString(R.string.pref_key_clear_search_history))
-                .setOnPreferenceClickListener(preference -> {
+                .setOnPreferenceClickListener(pref -> {
                     AskDialogs.showYesDialog(this, () -> {
                         TetroidSuggestionProvider.clearHistory(this);
                         SettingsManager.clearSearchOptions();
                         LogManager.addLog(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                     }, R.string.ask_clear_search_history);
+                    return true;
+                });
+
+        findPreference(getString(R.string.pref_key_change_pass))
+                .setOnPreferenceClickListener(pref -> {
+                    DataManager.changePass(this);
                     return true;
                 });
 

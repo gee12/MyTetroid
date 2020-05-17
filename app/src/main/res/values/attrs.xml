@@ -6,4 +6,9 @@
         <attr name="el_parallax" format="float" />
         <attr name="android:orientation"/>
     </declare-styleable>
+
+    <declare-styleable name="TextViewHtml">
+        <attr name="isHtml" format="boolean"/>
+        <attr name="android:text" />
+    </declare-styleable>
 </resources>

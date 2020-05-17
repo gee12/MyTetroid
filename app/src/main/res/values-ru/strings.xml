@@ -20,6 +20,7 @@
     <string name="title_insert">Вставить</string>
     <string name="title_password_enter">Введите пароль</string>
     <string name="title_password_set">Задайте пароль</string>
+    <string name="title_password_change">Изменение пароля</string>
     <string name="title_storage_folder">Каталог хранилища</string>
     <string name="title_record_folder">Каталог записи</string>
     <string name="title_about_app">О приложении</string>
@@ -68,6 +69,8 @@
     <string name="title_delete_record">Удалить запись</string>
     <string name="title_select_file_to_upload">Выберите файл</string>
     <string name="title_confirm_selected_images">Выбрать</string>
+
+    <string name="text_pass_change_warning_html"><b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -127,6 +130,9 @@
     <string name="label_record_author">Автор:</string>
     <string name="label_record_uri">Url:</string>
     <string name="label_record_date">Дата:</string>
+    <string name="label_cur_pass">Текущий пароль:</string>
+    <string name="label_new_pass">Новый пароль:</string>
+    <string name="label_confirm_pass">Пароль повторно:</string>
 
     <string name="search_tags_by_query">Поиск меток по запросу "%s"…</string>
     <string name="search_hint_input_query">Введите запрос</string>
@@ -207,6 +213,8 @@
     <string name="move">переместить</string>
     <string name="save">сохранить</string>
     <string name="attach">присоединить</string>
+    <string name="encrypt">зашифровать</string>
+    <string name="decrypt">расшифровать</string>
 
     <string name="created">создан(а)</string>
     <string name="added">добавлен(а)</string>
@@ -219,6 +227,8 @@
     <string name="moved">перемещен(а)</string>
     <string name="saved">сохранен(а)</string>
     <string name="attached">присоединен(а)</string>
+    <string name="encrypted">зашифрована(а)</string>
+    <string name="decrypted">расшифрована(а)</string>
 
     <string name="creating">создания</string>
     <string name="adding">добавления</string>
@@ -231,6 +241,8 @@
     <string name="moving">перемещения</string>
     <string name="saving">сохранения</string>
     <string name="attaching">присоединения</string>
+    <string name="encrypting">зашифровки</string>
+    <string name="decrypting">расшифровки</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_record_delete">Удалить запись ?</string>
@@ -427,5 +439,13 @@
     <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
     <string name="log_record_folder_moved_mask">Каталог записи был перемещен в %s</string>
+    <string name="log_start_set_storage_pass">Начало установки пароля хранилища</string>
+    <string name="log_storage_pass_setted">Пароль хранилища установлен</string>
+    <string name="log_storage_pass_set_error">Не удалось установить пароль хранилища</string>
+    <string name="log_start_pass_change">Начало изменения пароля</string>
+    <string name="log_start_storage_decrypt">Начало расшифровки хранилища</string>
+    <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>
+    <string name="pref_change_pass">Сменить пароль</string>
+    <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
 
 </resources>
