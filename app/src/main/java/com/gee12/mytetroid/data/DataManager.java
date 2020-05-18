@@ -53,16 +53,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class DataManager extends XMLManager {
 
-    public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
-    public static final String QUOTES_PARAM_STRING = "\"\"";
-    public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
-    public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
-    public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
-    public static final String INI_CRYPT_MODE = "crypt_mode";
-
-    public static final String SEPAR = File.separator;
-    public static final int UNIQUE_ID_HALF_LENGTH = 10;
-    public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
+    public interface ICallback {
+        void run();
+    }
 
     public static class EmptyFieldException extends Exception {
 
@@ -77,6 +70,17 @@ public class DataManager extends XMLManager {
             return fieldName;
         }
     }
+
+    public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
+    public static final String QUOTES_PARAM_STRING = "\"\"";
+    public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
+    public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
+    public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
+    public static final String INI_CRYPT_MODE = "crypt_mode";
+
+    public static final String SEPAR = File.separator;
+    public static final int UNIQUE_ID_HALF_LENGTH = 10;
+    public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
 
     public static final String BASE_FOLDER_NAME = "base";
     public static final String ICONS_FOLDER_NAME = "icons";
@@ -250,6 +254,48 @@ public class DataManager extends XMLManager {
     }
 
     /**
+     * Каркас проверки введенного пароля.
+     * @param context
+     * @param pass
+     * @param callback
+     * @param wrongPassRes
+     */
+    public static void checkPass(Context context, String pass, ICallback callback, int wrongPassRes) {
+        try {
+            if (checkPass(pass)) {
+                callback.run();
+            } else {
+                LogManager.addLog(wrongPassRes, Toast.LENGTH_LONG);
+            }
+        } catch (DataManager.EmptyFieldException e) {
+            // если поля в INI-файле для проверки пустые
+            LogManager.addLog(e);
+            // спрашиваем "continue anyway?"
+            AskDialogs.showEmptyPassCheckingFieldDialog(context, e.getFieldName(), () -> {
+
+                // TODO: спрашиваем нормально ли расшифровались данные
+                if (callback != null)
+                    callback.run();
+            });
+        }
+    }
+
+    /**
+     * Сохранение пароля в настройках и его установка для шифрования.
+     * @param pass
+     */
+    public static void setStoragePass(String pass) {
+        String passHash = CryptManager.passToHash(pass);
+        // сохраняем хэш пароля
+        if (SettingsManager.isSaveMiddlePassHashLocal())
+            SettingsManager.setMiddlePassHash(passHash);
+        else
+            CryptManager.setMiddlePassHash(passHash);
+
+        initCryptPass(pass, false);
+    }
+
+    /**
      * TODO: как сохранять хэш и соль ?
      * @param pass
      * @return
@@ -268,18 +314,20 @@ public class DataManager extends XMLManager {
      */
     public static void changePass(Context context) {
         LogManager.addLog(R.string.log_start_pass_change);
+        // вводим пароли (с проверкой на пустоту и равенство)
+        AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
+            // проверяем пароль
+            checkPass(context, curPass, () -> {
 
-        AskDialogs.showPassChangeDialog(context, (curPass, newPass, confirmPass) -> {
+                changePass(newPass);
 
-            // TODO: проверяем пароли
+            }, R.string.log_cur_pass_is_incorrect);
 
-
-            changePass();
             return true;
         });
     }
 
-    public static boolean changePass() {
+    public static boolean changePass(String newPass) {
 
         // сначала расшифровываем хранилище
         if (DataManager.decryptStorage()) {
@@ -288,6 +336,9 @@ public class DataManager extends XMLManager {
             LogManager.addLog(R.string.log_errors_during_decryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
             return false;
         }
+
+        // устанавливаем новый пароль
+        setStoragePass(newPass);
         // перешифровываем зашифрованные ветки
         if (reencryptStorage()) {
             LogManager.addLog(R.string.log_storage_reencrypted);
@@ -295,6 +346,10 @@ public class DataManager extends XMLManager {
             LogManager.addLog(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
             return false;
         }
+
+        // TODO: сохраняем в database.ini ?
+        savePass(newPass);
+
         return true;
     }
 

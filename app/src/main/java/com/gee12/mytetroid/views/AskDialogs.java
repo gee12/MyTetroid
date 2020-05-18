@@ -3,11 +3,16 @@ package com.gee12.mytetroid.views;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.InputType;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
+import com.gee12.htmlwysiwygeditor.ViewUtils;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
@@ -27,8 +32,7 @@ public class AskDialogs {
     }
 
     public interface IPassChangeResult {
-        boolean applyPass(String curPass, String newPass, String confirmPass);
-//        void applyPass(String newPass);
+        boolean applyPass(String curPass, String newPass);
     }
 
     /*public interface IPassCheckResult {
@@ -59,16 +63,31 @@ public class AskDialogs {
         builder.setTitle(context.getString(R.string.title_password_change));
         builder.setPositiveButton(R.string.answer_ok, null);
 
-        EditText curPass = builder.getView().findViewById(R.id.edit_text_cur_pass);
-        EditText newPass = builder.getView().findViewById(R.id.edit_text_new_pass);
-        EditText confirmPass = builder.getView().findViewById(R.id.edit_text_confirm_pass);
+        EditText tvCurPass = builder.getView().findViewById(R.id.edit_text_cur_pass);
+        EditText tvNewPass = builder.getView().findViewById(R.id.edit_text_new_pass);
+        EditText tvConfirmPass = builder.getView().findViewById(R.id.edit_text_confirm_pass);
 
         final androidx.appcompat.app.AlertDialog dialog = builder.create();
+        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        // проверка на пустоту паролей
+        ViewUtils.TextChangedListener listener = new ViewUtils.TextChangedListener(newText -> {
+            okButton.setVisibility((!TextUtils.isEmpty(newText)) ? View.VISIBLE : View.GONE);
+        });
+        tvCurPass.addTextChangedListener(listener);
+        tvNewPass.addTextChangedListener(listener);
+        tvConfirmPass.addTextChangedListener(listener);
+
         dialog.setOnShowListener(dialogInterface -> {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                if (passResult.applyPass(curPass.getText().toString(),
-                        newPass.getText().toString(),
-                        confirmPass.getText().toString())) {
+            okButton.setOnClickListener(view -> {
+                String curPass = tvCurPass.getText().toString();
+                String newPass = tvNewPass.getText().toString();
+                String confirmPass = tvConfirmPass.getText().toString();
+                // проверка совпадения паролей
+                if (!newPass.contentEquals(confirmPass)) {
+                    Toast.makeText(context, context.getString(R.string.log_pass_confirm_not_match), Toast.LENGTH_SHORT).show();
+                }
+                // проверка текущего пароля
+                if (passResult.applyPass(curPass, newPass)) {
                     dialog.dismiss();
                 }
             });
@@ -78,18 +97,6 @@ public class AskDialogs {
     }
 
     public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyResult applyHandler) {
-
-//        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-//            switch (which){
-//                case DialogInterface.BUTTON_POSITIVE:
-//                    applyHandler.onApply(node);
-//                    break;
-//            }
-//        };
-//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-//        builder.setMessage(String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName))
-//                .setPositiveButton(R.string.answer_yes, (dialog, which) -> applyHandler.onApply(node))
-//                .setNegativeButton(R.string.answer_no, null).show();
         Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
                 (dialog, which) -> applyHandler.onApply(),
                 null);
