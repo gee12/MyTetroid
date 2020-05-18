@@ -279,7 +279,8 @@
     <string name="title_license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
     <string name="title_rate_app">Оценить приложение</string>
     <string name="title_version_label">Версия</string>
-    <string name="log_password_is_incorrect">Введен неверный пароль</string>
+    <string name="log_pass_is_incorrect">Введен неверный пароль</string>
+    <string name="log_cur_pass_is_incorrect">Введен неверный текущий пароль</string>
     <string name="log_viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
     <string name="log_could_not_decrypt_file">Не удалось расшифровать файл</string>
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
@@ -447,5 +448,6 @@
     <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>
     <string name="pref_change_pass">Сменить пароль</string>
     <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
+    <string name="log_pass_confirm_not_match">Подтверждение пароля не совпадает</string>
 
 </resources>
