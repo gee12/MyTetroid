@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="10dp">
 
     <com.gee12.mytetroid.views.TextViewHtml
         android:text="@string/text_pass_change_warning_html"
         android_ex:isHtml="true"
         android:layout_marginBottom="8pt"
+        android:textSize="@dimen/font_small"
         style="@style/dialog_labels"/>
 
     <TextView

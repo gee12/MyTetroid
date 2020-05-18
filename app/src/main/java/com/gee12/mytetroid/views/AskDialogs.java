@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -59,7 +58,7 @@ public class AskDialogs {
     }
 
     public static void showPassChangeDialog(Context context, final IPassChangeResult passResult) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pass_change);
         builder.setTitle(context.getString(R.string.title_password_change));
         builder.setPositiveButton(R.string.answer_ok, null);
 
@@ -68,16 +67,20 @@ public class AskDialogs {
         EditText tvConfirmPass = builder.getView().findViewById(R.id.edit_text_confirm_pass);
 
         final androidx.appcompat.app.AlertDialog dialog = builder.create();
-        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
         // проверка на пустоту паролей
         ViewUtils.TextChangedListener listener = new ViewUtils.TextChangedListener(newText -> {
-            okButton.setVisibility((!TextUtils.isEmpty(newText)) ? View.VISIBLE : View.GONE);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!(TextUtils.isEmpty(newText)
+                || tvCurPass.getText().length() == 0
+                || tvNewPass.getText().length() == 0
+                || tvConfirmPass.getText().length() == 0));
         });
         tvCurPass.addTextChangedListener(listener);
         tvNewPass.addTextChangedListener(listener);
         tvConfirmPass.addTextChangedListener(listener);
 
         dialog.setOnShowListener(dialogInterface -> {
+            Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            okButton.setEnabled(false);
             okButton.setOnClickListener(view -> {
                 String curPass = tvCurPass.getText().toString();
                 String newPass = tvNewPass.getText().toString();
@@ -85,6 +88,7 @@ public class AskDialogs {
                 // проверка совпадения паролей
                 if (!newPass.contentEquals(confirmPass)) {
                     Toast.makeText(context, context.getString(R.string.log_pass_confirm_not_match), Toast.LENGTH_SHORT).show();
+                    return;
                 }
                 // проверка текущего пароля
                 if (passResult.applyPass(curPass, newPass)) {

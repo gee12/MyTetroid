@@ -260,12 +260,13 @@ public class DataManager extends XMLManager {
      * @param callback
      * @param wrongPassRes
      */
-    public static void checkPass(Context context, String pass, ICallback callback, int wrongPassRes) {
+    public static boolean checkPass(Context context, String pass, ICallback callback, int wrongPassRes) {
         try {
             if (checkPass(pass)) {
                 callback.run();
             } else {
                 LogManager.addLog(wrongPassRes, Toast.LENGTH_LONG);
+                return false;
             }
         } catch (DataManager.EmptyFieldException e) {
             // если поля в INI-файле для проверки пустые
@@ -278,6 +279,7 @@ public class DataManager extends XMLManager {
                     callback.run();
             });
         }
+        return true;
     }
 
     /**
@@ -317,13 +319,9 @@ public class DataManager extends XMLManager {
         // вводим пароли (с проверкой на пустоту и равенство)
         AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
             // проверяем пароль
-            checkPass(context, curPass, () -> {
-
+            return checkPass(context, curPass, () -> {
                 changePass(newPass);
-
             }, R.string.log_cur_pass_is_incorrect);
-
-            return true;
         });
     }
 
@@ -351,6 +349,15 @@ public class DataManager extends XMLManager {
         savePass(newPass);
 
         return true;
+    }
+
+    /**
+     * Очистка установленного пароля.
+     * @return
+     */
+    public static boolean clearPass() {
+        SettingsManager.setMiddlePassHash(null);
+        return savePass(null);
     }
 
     /**
