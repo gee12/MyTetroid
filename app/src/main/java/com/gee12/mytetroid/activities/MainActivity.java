@@ -44,7 +44,9 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.adapters.NodesListAdapter;
 import com.gee12.mytetroid.adapters.TagsListAdapter;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.DatabaseConfig;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
@@ -441,10 +443,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         initStorage(null, false);
                     }
                 }
-            } catch (DataManager.EmptyFieldException e) {
+            } catch (DatabaseConfig.EmptyFieldException ex) {
                 // если поля в INI-файле для проверки пустые
                 // спрашиваем "continue anyway?"
-                AskDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(),
+                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(),
 //                        node -> decryptStorage(SettingsManager.getMiddlePassHash(), true, null));
                         () -> {
                             DataManager.initCryptPass(middlePassHash, true);
@@ -1348,6 +1350,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } else {
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
             }
+            mListAdapterNodes.notifyDataSetChanged();
         });
     }
 
@@ -1358,6 +1361,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } else {
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
             }
+            mListAdapterNodes.notifyDataSetChanged();
         });
     }
 
@@ -1367,10 +1371,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param callback Действие после проверки пароля
      */
     private void checkStoragePass(TetroidNode node, AskDialogs.IApplyResult callback) {
-        if (SettingsManager.isSaveMiddlePassHashLocal()) {
+        //if (SettingsManager.isSaveMiddlePassHashLocal()) {
             // получаем сохраненный пароль
             String middlePassHash;
-            if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
+            if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null
+                || (middlePassHash = CryptManager.getMiddlePassHash()) != null) {
                 // пароль сохранен, проверяем
                 try {
                     if (DataManager.checkMiddlePassHash(middlePassHash)) {
@@ -1381,13 +1386,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         // спрашиваем пароль
                         askPassword(node, callback);
                     }
-                } catch (DataManager.EmptyFieldException e) {
+                } catch (DatabaseConfig.EmptyFieldException ex) {
                     // если поля в INI-файле для проверки пустые
     //                if (DataManager.isExistsCryptedNodes()) {
                     if (DataManager.isCrypted()) {
+                        final String hash = middlePassHash;
                         // спрашиваем "continue anyway?"
-                        AskDialogs.showEmptyPassCheckingFieldDialog(this, e.getFieldName(), () -> {
-                            DataManager.initCryptPass(middlePassHash, true);
+                        AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), () -> {
+                            DataManager.initCryptPass(hash, true);
                             callback.onApply();
                         });
                     } else {
@@ -1396,10 +1402,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         callback.onApply();
                     }
                 }
-            } else {
-                // пароль не сохранен, вводим
-                askPassword(node, callback);
-            }
+//            } else {
+//                // пароль не сохранен, вводим
+//                askPassword(node, callback);
+//            }
         } else {
             // спрашиваем или задаем пароль
             askPassword(node, callback);

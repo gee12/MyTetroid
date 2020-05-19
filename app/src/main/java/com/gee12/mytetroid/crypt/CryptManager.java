@@ -84,13 +84,16 @@ public class CryptManager extends Crypter {
             node.setName(temp);
         }
         // icon
-        temp = CryptManager.encryptTextBase64(node.getIconName());
-        res = res & (temp != null);
-        if (temp != null) {
-            if (!isReencrypt && !node.isCrypted()) {
-                node.setDecryptedIconName(node.getIconName());
+        String iconName = node.getIconName();
+        if (iconName != null) {
+            temp = CryptManager.encryptTextBase64(iconName);
+            res = res & (temp != null);
+            if (temp != null) {
+                if (!isReencrypt && !node.isCrypted()) {
+                    node.setDecryptedIconName(iconName);
+                }
+                node.setIconName(temp);
             }
-            node.setIconName(temp);
         }
         // encryption result
         if (!isReencrypt && !node.isCrypted()) {
