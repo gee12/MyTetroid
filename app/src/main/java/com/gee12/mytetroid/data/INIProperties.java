@@ -17,7 +17,7 @@ public class INIProperties {
     }
 
     /**
-     * Загрузка параметров из файла
+     * Загрузка параметров из файла.
      * @return
      */
     public boolean load() {
@@ -51,7 +51,7 @@ public class INIProperties {
     }
 
     /**
-     * Установка значения по ключу
+     * Установка значения по ключу.
      * @param key
      * @param value
      */
@@ -68,15 +68,4 @@ public class INIProperties {
         return configuration.getProperty(key);
     }
 
-    /**
-     * Получение значения по ключу без двойных кавычек вначале и вконце
-     * @param key
-     * @return
-     */
-    public String getWithoutQuotes(String key) {
-        String res = configuration.getProperty(key);
-        if (res != null && !res.isEmpty())
-            res = res.replaceAll("^\"|\"$", "");
-        return res;
-    }
 }

@@ -18,6 +18,7 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidLog;
+import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.model.TetroidFile;
@@ -57,26 +58,8 @@ public class DataManager extends XMLManager {
         void run();
     }
 
-    public static class EmptyFieldException extends Exception {
-
-        private String fieldName;
-
-        public EmptyFieldException(String fieldName) {
-            super();
-            this.fieldName = fieldName;
-        }
-
-        public String getFieldName() {
-            return fieldName;
-        }
-    }
-
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
-    public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
-    public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
-    public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
-    public static final String INI_CRYPT_MODE = "crypt_mode";
 
     public static final String SEPAR = File.separator;
     public static final int UNIQUE_ID_HALF_LENGTH = 10;
@@ -97,7 +80,7 @@ public class DataManager extends XMLManager {
     /**
      *
      */
-    private static INIProperties databaseINI;
+    private static DatabaseConfig databaseConfig;
 
     /**
      *
@@ -113,10 +96,10 @@ public class DataManager extends XMLManager {
         context = ctx;
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
-        DataManager.databaseINI = new INIProperties(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
+        DataManager.databaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         boolean res;
         try {
-            res = databaseINI.load();
+            res = databaseConfig.load();
         } catch (Exception ex) {
             LogManager.addLog(ex);
             return false;
@@ -236,20 +219,11 @@ public class DataManager extends XMLManager {
      * Проверка введенного пароля с сохраненным хэшем.
      * @param pass
      * @return
-     * @throws EmptyFieldException
+     * @throws DatabaseConfig.EmptyFieldException
      */
-    public static boolean checkPass(String pass) throws EmptyFieldException {
-        // TODO: нужно также обработать варианты, когда эти поля пустые (!)
-        //  ...
-        String salt = databaseINI.getWithoutQuotes(INI_CRYPT_CHECK_SALT);
-        if (TextUtils.isEmpty(salt)) {
-            throw new EmptyFieldException(INI_CRYPT_CHECK_SALT);
-        }
-        String checkhash = databaseINI.getWithoutQuotes(INI_CRYPT_CHECK_HASH);
-        if (TextUtils.isEmpty(checkhash)) {
-            throw new EmptyFieldException(INI_CRYPT_CHECK_HASH);
-        }
-        // ...
+    public static boolean checkPass(String pass) throws DatabaseConfig.EmptyFieldException {
+        String salt = databaseConfig.getCryptCheckSalt();
+        String checkhash = databaseConfig.getCryptCheckHash();
         return CryptManager.checkPass(pass, salt, checkhash);
     }
 
@@ -268,7 +242,7 @@ public class DataManager extends XMLManager {
                 LogManager.addLog(wrongPassRes, Toast.LENGTH_LONG);
                 return false;
             }
-        } catch (DataManager.EmptyFieldException e) {
+        } catch (DatabaseConfig.EmptyFieldException e) {
             // если поля в INI-файле для проверки пустые
             LogManager.addLog(e);
             // спрашиваем "continue anyway?"
@@ -295,19 +269,6 @@ public class DataManager extends XMLManager {
             CryptManager.setMiddlePassHash(passHash);
 
         initCryptPass(pass, false);
-    }
-
-    /**
-     * TODO: как сохранять хэш и соль ?
-     * @param pass
-     * @return
-     */
-    public static boolean savePass(String pass) {
-        /*String passHash = "";
-        databaseINI.set(INI_CRYPT_CHECK_HASH, passHash);
-        String salt = "";
-        databaseINI.set(INI_CRYPT_CHECK_SALT, salt);*/
-        return databaseINI.save();
     }
 
     /**
@@ -345,10 +306,28 @@ public class DataManager extends XMLManager {
             return false;
         }
 
-        // TODO: сохраняем в database.ini ?
+        // сохраняем в database.ini
         savePass(newPass);
 
         return true;
+    }
+
+    /**
+     * Генерируем
+     * @param newPass
+     * @return
+     */
+    public static boolean savePass(String newPass) {
+        byte[] salt = createRandomBytes(32);
+        byte[] passHash = null;
+        try {
+            passHash = Crypter.calculatePBKDF2Hash(newPass, salt);
+        } catch (Exception ex) {
+            LogManager.addLog(ex);
+            return false;
+        }
+        return databaseConfig.savePass(Base64.encodeToString(passHash, false),
+                Base64.encodeToString(salt, false), true);
     }
 
     /**
@@ -357,20 +336,17 @@ public class DataManager extends XMLManager {
      */
     public static boolean clearPass() {
         SettingsManager.setMiddlePassHash(null);
-        return savePass(null);
+        return databaseConfig.savePass(null, null, false);
     }
 
     /**
      * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
      * @param passHash
      * @return
-     * @throws EmptyFieldException
+     * @throws DatabaseConfig.EmptyFieldException
      */
-    public static boolean checkMiddlePassHash(String passHash) throws EmptyFieldException {
-        String checkdata = databaseINI.get(INI_MIDDLE_HASH_CHECK_DATA);
-        if (TextUtils.isEmpty(checkdata) || QUOTES_PARAM_STRING.equals(checkdata)) {
-            throw new EmptyFieldException(INI_MIDDLE_HASH_CHECK_DATA);
-        }
+    public static boolean checkMiddlePassHash(String passHash) throws DatabaseConfig.EmptyFieldException {
+        String checkdata = databaseConfig.getMiddleHashCheckData();
         return CryptManager.checkMiddlePassHash(passHash, checkdata);
     }
 
@@ -800,6 +776,15 @@ public class DataManager extends XMLManager {
 
     public static String createDateTimePrefix() {
         return Utils.dateToString(new Date(), PREFIX_DATE_TIME_FORMAT);
+    }
+
+    public static byte[] createRandomBytes(int length) {
+        byte[] res = new byte[length];
+        Random rand = new Random();
+        for (int i = 0; i < length; i++){
+            res[i] = (byte) Math.abs(rand.nextInt() % 0xFF);
+        }
+        return res;
     }
 
     /**
@@ -2398,13 +2383,18 @@ public class DataManager extends XMLManager {
 
     public static boolean isCrypted() {
 //        return instance.mIsExistCryptedNodes;
-//        return (Integer.parseInt(databaseINI.get(INI_CRYPT_MODE)) == 1);
-        int iniFlag = Integer.parseInt(databaseINI.get(INI_CRYPT_MODE));
+//        return (Integer.parseInt(databaseConfig.get(INI_CRYPT_MODE)) == 1);
+        boolean iniFlag = false;
+        try {
+            iniFlag = databaseConfig.isCryptMode();
+        } catch (DatabaseConfig.EmptyFieldException ex) {
+            LogManager.addLog(ex);
+        }
         /*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
                 : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
                 : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
                 : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
-        return (iniFlag == 1 || instance.mIsExistCryptedNodes);
+        return (iniFlag || instance.mIsExistCryptedNodes);
     }
 
     public static DataManager getInstance() {

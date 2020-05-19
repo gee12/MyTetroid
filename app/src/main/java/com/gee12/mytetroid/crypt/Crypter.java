@@ -317,8 +317,7 @@ public class Crypter {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    private static byte[] calculatePBKDF2Hash(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
+    public static byte[] calculatePBKDF2Hash(String pass, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return PBKDF2.encrypt(pass, salt, CRYPT_CHECK_ROUNDS, CRYPT_CHECK_HASH_LEN);
     }
 
