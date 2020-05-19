@@ -83,14 +83,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
      */
     protected abstract boolean decryptNode(TetroidNode node);
 
-//    /**
-//     * Обработчик события о необходимости зашифровать текстовое поле
-//     * при сохранении структуры хранилища в xml.
-//     * @param field
-//     * @return
-//     */
-//    protected abstract String encryptField(TetroidObject obj, String field);
-
     /**
      * Чтение хранилища из xml-файла.
      * @param in
@@ -218,7 +210,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
         boolean crypt = false;
         String id = null;
         String name = null;
-        String iconPath = null; // например: "/Gnome/color_gnome_2_computer.svg"
+        String iconName = null; // например: "/Gnome/color_gnome_2_computer.svg"
         parser.require(XmlPullParser.START_TAG, ns, "node");
         String tagName = parser.getName();
         if (tagName.equals("node")) {
@@ -238,9 +230,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             }
             id = parser.getAttributeValue(ns, "id");
             name = parser.getAttributeValue(ns, "name");
-            iconPath = parser.getAttributeValue(ns, "icon");
+            iconName = parser.getAttributeValue(ns, "icon");
         }
-        TetroidNode node = new TetroidNode(crypt, id, name, iconPath, depthLevel);
+        TetroidNode node = new TetroidNode(crypt, id, name, iconName, depthLevel);
         node.setParentNode(parentNode);
 
         List<TetroidNode> subNodes = new ArrayList<>();
@@ -287,7 +279,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
             this.mMaxSubnodesCount = subNodes.size();
         if (depthLevel > mMaxDepthLevel)
             this.mMaxDepthLevel = depthLevel;
-        if (!TextUtils.isEmpty(iconPath)) {
+        if (!TextUtils.isEmpty(iconName)) {
             this.mIconsCount++;
         }
 
