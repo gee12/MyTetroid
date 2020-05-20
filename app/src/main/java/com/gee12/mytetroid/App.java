@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.gee12.mytetroid.utils.ViewUtils;
 
+import java.util.Locale;
+
 public class App {
 
     /**
@@ -36,4 +38,7 @@ public class App {
         ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn());
     }
 
+    public static boolean isRusLanguage() {
+        return (Locale.getDefault().getLanguage().equals("ru"));
+    }
 }
