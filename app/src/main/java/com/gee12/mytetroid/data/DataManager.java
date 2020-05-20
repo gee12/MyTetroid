@@ -385,7 +385,7 @@ public class DataManager extends XMLManager {
     @Override
     public void loadIcon(@NonNull TetroidNode node) {
         if (node.isNonCryptedOrDecrypted()) {
-            node.loadIconFromStorage(storagePath + SEPAR + ICONS_FOLDER_NAME);
+            node.loadIcon(storagePath + SEPAR + ICONS_FOLDER_NAME);
         }
     }
 
@@ -839,11 +839,11 @@ public class DataManager extends XMLManager {
         TetroidNode node = new TetroidNode(crypted, id,
                 encryptField(crypted, name),
                 null, level);
-        node.setDecryptedName(name);
         node.setParentNode(parentNode);
         node.setRecords(new ArrayList<>());
         node.setSubNodes(new ArrayList<>());
         if (crypted) {
+            node.setDecryptedName(name);
             node.setDecrypted(true);
         }
         // добавляем запись в родительскую ветку (и соответственно, в коллекцию), если она задана
@@ -962,14 +962,16 @@ public class DataManager extends XMLManager {
                 encryptField(crypted, name),
                 encryptField(crypted, iconName),
                 destParentNode.getLevel() + 1);
-        node.setDecryptedName(name);
-        node.setDecryptedIconName(iconName);
         node.setParentNode(destParentNode);
         node.setRecords(new ArrayList<>());
         node.setSubNodes(new ArrayList<>());
         if (crypted) {
+            node.setDecryptedName(name);
+            node.setDecryptedIconName(iconName);
             node.setDecrypted(true);
         }
+        // загружаем такую же иконку
+        instance.loadIcon(node);
         destParentNode.addSubNode(node);
 
         // добавляем записи
@@ -1018,8 +1020,8 @@ public class DataManager extends XMLManager {
                 encryptField(crypted, url),
                 srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
         if (crypted) {
-            record.setDecrypted(true);
             record.setDecryptedValues(name, tagsString, author, url);
+            record.setDecrypted(true);
         }
         record.setIsNew(false);
         // добавляем запись в ветку (и соответственно, в коллекцию)
@@ -1243,15 +1245,16 @@ public class DataManager extends XMLManager {
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
+            record.setDecrypted(true);
         }
 //        record.setDecryptedName(name);
 //        record.setDecryptedTagsString(tagsString);
 //        record.setDecryptedAuthor(author);
 //        record.setDecryptedUrl(url);
         record.setIsNew(true);
-        if (crypted) {
-            record.setDecrypted(true);
-        }
+//        if (crypted) {
+//            record.setDecrypted(true);
+//        }
         // создаем каталог записи
         String dirPath = getPathToRecordFolder(record);
         if (checkRecordFolder(dirPath, true) <= 0) {
@@ -1535,8 +1538,8 @@ public class DataManager extends XMLManager {
                 encryptField(crypted, url),
                 srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
         if (crypted) {
-            record.setDecrypted(true);
             record.setDecryptedValues(name, tagsString, author, url);
+            record.setDecrypted(true);
         }
         record.setIsNew(false);
 
@@ -1814,8 +1817,8 @@ public class DataManager extends XMLManager {
         TetroidFile file = new TetroidFile(crypted, id,
                 encryptField(crypted, fileDisplayName),
                 TetroidFile.DEF_FILE_TYPE, record);
-        file.setDecryptedName(fileDisplayName);
         if (crypted) {
+            file.setDecryptedName(fileDisplayName);
             file.setDecrypted(true);
         }
         // проверка каталога записи

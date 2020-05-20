@@ -41,40 +41,24 @@ public class TetroidNode extends TetroidObject {
         this.records = new ArrayList<>();
     }
 
-//    public Uri getIconUri() {
-//        return iconUri;
-//    }
-
     public Drawable getIcon() {
         return icon;
     }
 
-//    public void setIconUri(String fullFileName) {
-//        File file = new File(fullFileName);
-//        if (file.exists()) {
-//            this.iconUri = Uri.fromFile(file);
-//        }
-//    }
-
-    public void loadIcon(String fullFileName) {
-        if (fullFileName == null)
+    public void loadIcon(String iconsFolderPath) {
+        if (iconsFolderPath == null || TextUtils.isEmpty(getIconName())) {
             return;
+        }
         try {
-//            this.icon = Utils.loadSVGFromFile(Environment.getExternalStorageDirectory() + "/KateDownloads/test.svg");
-            this.icon = FileUtils.loadSVGFromFile(fullFileName);
+            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
         } catch (Exception e) {
             LogManager.addLog(e);
         }
     }
 
-    public void loadIconFromStorage(String iconsStoragePath) {
-        if (TextUtils.isEmpty(getIconName()))
-            return;
-        loadIcon(iconsStoragePath + getIconName());
-    }
+
 
     public String getIconName() {
-//        return iconName;
         return (isCrypted && isDecrypted) ? decryptedIconName : iconName;
     }
 
@@ -111,9 +95,7 @@ public class TetroidNode extends TetroidObject {
     }
 
     public void setDecryptedIconName(String value) {
-//        if (isCrypted && isDecrypted) {
-            this.decryptedIconName = value;
-//        }
+        this.decryptedIconName = value;
     }
 
     public void setSubNodes(List<TetroidNode> subNodes) {
@@ -143,7 +125,7 @@ public class TetroidNode extends TetroidObject {
     }
 
     public boolean isExpandable() {
-        return (subNodes != null && !subNodes.isEmpty()) /*&& isNonCryptedOrDecrypted()*/;
+        return (subNodes != null && !subNodes.isEmpty());
     }
 
     @Override
