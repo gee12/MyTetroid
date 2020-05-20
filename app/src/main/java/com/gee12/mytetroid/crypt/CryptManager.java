@@ -6,6 +6,8 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 
+import org.jsoup.internal.StringUtil;
+
 import java.util.List;
 
 public class CryptManager extends Crypter {
@@ -85,7 +87,7 @@ public class CryptManager extends Crypter {
         }
         // icon
         String iconName = node.getIconName();
-        if (iconName != null) {
+        if (!StringUtil.isBlank(iconName)) {
             temp = CryptManager.encryptTextBase64(iconName);
             res = res & (temp != null);
             if (temp != null) {
@@ -112,13 +114,11 @@ public class CryptManager extends Crypter {
     public static boolean encryptRecordsAndFiles(List<TetroidRecord> records, boolean isReencrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
-            if (record.isCrypted()) {
-                res = res & encryptRecordFields(record, isReencrypt);
-                if (record.getAttachedFilesCount() > 0)
-                    for (TetroidFile file : record.getAttachedFiles()) {
-                        res = res & encryptAttach(file, isReencrypt);
-                    }
-            }
+            res = res & encryptRecordFields(record, isReencrypt);
+            if (record.getAttachedFilesCount() > 0)
+                for (TetroidFile file : record.getAttachedFiles()) {
+                    res = res & encryptAttach(file, isReencrypt);
+                }
         }
         return res;
     }
@@ -139,29 +139,38 @@ public class CryptManager extends Crypter {
             }
             record.setName(temp);
         }
-        temp = CryptManager.encryptTextBase64(record.getTagsString());
-        res = res & (temp != null);
-        if (temp != null) {
-            if (!isReencrypt && !record.isCrypted()) {
-                record.setDecryptedTagsString(record.getTagsString());
+        String tagsString = record.getTagsString();
+        if (!StringUtil.isBlank(tagsString)) {
+            temp = CryptManager.encryptTextBase64(tagsString);
+            res = res & (temp != null);
+            if (temp != null) {
+                if (!isReencrypt && !record.isCrypted()) {
+                    record.setDecryptedTagsString(tagsString);
+                }
+                record.setTagsString(temp);
             }
-            record.setTagsString(temp);
         }
-        temp = CryptManager.encryptTextBase64(record.getAuthor());
-        res = res & (temp != null);
-        if (temp != null) {
-            if (!isReencrypt && !record.isCrypted()) {
-                record.setDecryptedAuthor(record.getAuthor());
+        String author = record.getAuthor();
+        if (!StringUtil.isBlank(author)) {
+            temp = CryptManager.encryptTextBase64(author);
+            res = res & (temp != null);
+            if (temp != null) {
+                if (!isReencrypt && !record.isCrypted()) {
+                    record.setDecryptedAuthor(author);
+                }
+                record.setAuthor(temp);
             }
-            record.setAuthor(temp);
         }
-        temp = CryptManager.encryptTextBase64(record.getUrl());
-        res = res & (temp != null);
-        if (temp != null) {
-            if (!isReencrypt && !record.isCrypted()) {
-                record.setDecryptedUrl(record.getUrl());
+        String url = record.getUrl();
+        if (!StringUtil.isBlank(url)) {
+            temp = CryptManager.encryptTextBase64(url);
+            res = res & (temp != null);
+            if (temp != null) {
+                if (!isReencrypt && !record.isCrypted()) {
+                    record.setDecryptedUrl(url);
+                }
+                record.setUrl(temp);
             }
-            record.setUrl(temp);
         }
         if (!isReencrypt && !record.isCrypted()) {
             record.setIsCrypted(res);

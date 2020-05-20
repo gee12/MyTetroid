@@ -151,7 +151,7 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     * Расшифровка хранилища.
+     * Расшифровка хранилища (временная).
      * @return
      */
     public static boolean decryptStorage() {
@@ -160,7 +160,7 @@ public class DataManager extends XMLManager {
     }
 
     /**
-     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * Обработчик события о необходимости (временной) расшифровки ветки (вместе с дочерними объектами)
      * сразу после загрузки ветки из xml.
      * @param node
      */
@@ -177,7 +177,11 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean nocryptNode(@NonNull TetroidNode node) {
-        return CryptManager.decryptNode(node, true, instance, true);
+        boolean res = CryptManager.decryptNode(node, true, instance, true);
+        if (res) {
+            return saveStorage();
+        }
+        return false;
     }
 
     public static String decryptField(TetroidObject obj, String field) {
@@ -187,16 +191,6 @@ public class DataManager extends XMLManager {
     public static String decryptField(boolean isCrypted, String field) {
         return (isCrypted) ? CryptManager.decryptBase64(field) : field;
     }
-
-//    /**
-//     * Обработчик события о необходимости зашифровать текстовое поле
-//     * при сохранении структуры хранилища в xml.
-//     * @param field
-//     */
-//    @Override
-//    public String encryptField(String field) {
-//        return CryptManager.encryptTextBase64(field);
-//    }
 
     public static String encryptField(TetroidObject obj, String field) {
         return encryptField(obj != null && obj.isCrypted() && obj.isDecrypted(), field); // последняя проверка не обязательна
@@ -212,7 +206,11 @@ public class DataManager extends XMLManager {
      * @return
      */
     public static boolean encryptNode(@NotNull TetroidNode node) {
-        return CryptManager.encryptNode(node, false);
+        boolean res = CryptManager.encryptNode(node, false);
+        if (res) {
+            return saveStorage();
+        }
+        return false;
     }
 
     /**
