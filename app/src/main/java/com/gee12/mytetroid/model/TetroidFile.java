@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.model;
 
+import com.gee12.mytetroid.utils.FileUtils;
+
 public class TetroidFile extends TetroidObject {
 
     public static final String PREFIX = "file";
@@ -24,6 +26,12 @@ public class TetroidFile extends TetroidObject {
 
     public TetroidRecord getRecord() {
         return record;
+    }
+
+    public String getIdName() {
+        String fileDisplayName = getName();
+        String ext = FileUtils.getExtensionWithComma(fileDisplayName);
+        return id + ext;
     }
 
     @Override
