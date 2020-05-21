@@ -1,7 +1,8 @@
 package com.gee12.mytetroid.crypt;
 
 import com.gee12.mytetroid.data.INodeIconLoader;
-import com.gee12.mytetroid.data.ITagsParseHandler;
+import com.gee12.mytetroid.data.IRecordFileCrypter;
+import com.gee12.mytetroid.data.ITagsParser;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -12,21 +13,27 @@ import java.util.List;
 
 public class CryptManager extends Crypter {
 
-    private static ITagsParseHandler tagsParser;
+    private static ITagsParser tagsParser;
+    private static IRecordFileCrypter recordFileCrypter;
 
 
-    public static void initFromPass(String pass, ITagsParseHandler tagsParser) {
+    public static void initFromPass(String pass, ITagsParser tagsParser, IRecordFileCrypter recordFileCrypter) {
         int[] key = passToKey(pass);
         // записываем в память
         setCryptKey(key);
-        CryptManager.tagsParser = tagsParser;
+        init(key, tagsParser, recordFileCrypter);
     }
 
-    public static void initFromMiddleHash(String passHash, ITagsParseHandler tagsParser) {
+    public static void initFromMiddleHash(String passHash, ITagsParser tagsParser, IRecordFileCrypter recordFileCrypter) {
         int[] key = middlePassHashToKey(passHash);
+        init(key, tagsParser, recordFileCrypter);
+    }
+
+    public static void init(int[] key, ITagsParser tagsParser, IRecordFileCrypter recordFileCrypter) {
         // записываем в память
         setCryptKey(key);
         CryptManager.tagsParser = tagsParser;
+        CryptManager.recordFileCrypter = recordFileCrypter;
     }
 
     /**
@@ -114,6 +121,10 @@ public class CryptManager extends Crypter {
     public static boolean encryptRecordsAndFiles(List<TetroidRecord> records, boolean isReencrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
+            // зашифровываем файл записи
+            if (recordFileCrypter != null) {
+                recordFileCrypter.cryptRecordFile(record, true);
+            }
             res = res & encryptRecordFields(record, isReencrypt);
             if (record.getAttachedFilesCount() > 0)
                 for (TetroidFile file : record.getAttachedFiles()) {
@@ -295,6 +306,10 @@ public class CryptManager extends Crypter {
         boolean res = true;
         for (TetroidRecord record : records) {
             if (record.isCrypted()) {
+                // расшифровываем файл записи
+                if (dropCrypt && recordFileCrypter != null) {
+                    recordFileCrypter.cryptRecordFile(record, false);
+                }
                 res = res & decryptRecordFields(record, dropCrypt);
                 if (record.getAttachedFilesCount() > 0)
                     for (TetroidFile file : record.getAttachedFiles()) {

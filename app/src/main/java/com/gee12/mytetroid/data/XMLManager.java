@@ -28,7 +28,7 @@ import java.util.TreeMap;
 /**
  *
  */
-public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
+public abstract class XMLManager implements INodeIconLoader, ITagsParser {
 
     /**
      *
