@@ -530,15 +530,15 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void deleteFile(TetroidFile file) {
         FileAskDialogs.deleteFile(getContext(), () -> {
-            int res = DataManager.deleteFile(file, false);
+            int res = DataManager.deleteAttachedFile(file, false);
             if (res == -2) {
                 FileAskDialogs.deleteAttachWithoutFile(getContext(), () -> {
-                    int res1 = DataManager.deleteFile(file, true);
+                    int res1 = DataManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
             } else if (res == -1) {
                 RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
-                    int res1 = DataManager.deleteFile(file, true);
+                    int res1 = DataManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
             } else {
@@ -576,11 +576,11 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void renameFile(TetroidFile file) {
         FileAskDialogs.createFileDialog(getContext(), file, (name) -> {
-            int res = DataManager.editFileFields(file, name);
+            int res = DataManager.editAttachedFileFields(file, name);
             if (res == -2) {
                 // если файл отсутствует на диске, предлагаем его удалить из хранилища
                 FileAskDialogs.renameAttachWithoutFile(getContext(), () -> {
-                    int res1 = DataManager.deleteFile(file, true);
+                    int res1 = DataManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
             } else if (res == -1) {

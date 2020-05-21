@@ -59,8 +59,9 @@ public class TetroidLog extends LogManager {
     }
 
     public static String addOperStartLog(Objs obj, Opers oper) {
-        String first = (App.isRusLanguage()) ? getString(oper.getResId(PRESENT_CONTINUOUS)) : getString(obj.getResId(PRESENT_CONTINUOUS));
-        String second = (App.isRusLanguage()) ? getString(obj.getResId(PRESENT_CONTINUOUS)) : getString(oper.getResId(PRESENT_CONTINUOUS));
+        // меняем местами существительное и глагол в зависимости от языка
+        String first = getString((App.isRusLanguage()) ? oper.getResId(PRESENT_CONTINUOUS) : obj.getResId(PRESENT_CONTINUOUS));
+        String second = getString((App.isRusLanguage()) ? obj.getResId(PRESENT_CONTINUOUS) : oper.getResId(PRESENT_CONTINUOUS));
         String mes = String.format(getString(R.string.log_oper_start_mask), first, second);
         LogManager.addLog(mes, Types.ERROR);
         return mes;

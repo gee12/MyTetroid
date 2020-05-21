@@ -336,7 +336,7 @@
     <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
     <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
     <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>
-    <string name="log_error_move_record_dir_mask">Ошибка перемещения каталога записи из [%s] в [%s]</string>
+    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>
     <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%s] в [%s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
@@ -439,7 +439,7 @@
     <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
     <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
-    <string name="log_record_folder_moved_mask">Каталог записи был перемещен в %s</string>
+    <string name="log_file_moved_mask">Файл/каталог был перемещен в %s</string>
     <string name="log_start_set_storage_pass">Начало установки пароля хранилища</string>
     <string name="log_storage_pass_setted">Пароль хранилища установлен</string>
     <string name="log_storage_pass_set_error">Не удалось установить пароль хранилища</string>

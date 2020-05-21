@@ -401,7 +401,7 @@
     <string name="log_error_add_record">Error add record to mytetra.xml</string>
     <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
     <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>
-    <string name="log_error_move_record_dir_mask">Error moving the record folder from [%s] to [%s]</string>
+    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%s] to [%s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
@@ -489,7 +489,7 @@
     <string name="log_error_record_file_decrypt">Error decrypting record file</string>
     <string name="log_error_record_file_encrypt">Error encrypting record file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
-    <string name="log_record_folder_moved_mask">Record folder was moved to %s</string>
+    <string name="log_file_moved_mask">File/folder was moved to %s</string>
     <string name="log_start_set_storage_pass">Start setting the storage password</string>
     <string name="log_storage_pass_setted">Storage password was set</string>
     <string name="log_storage_pass_set_error">Failed to set storage password</string>
