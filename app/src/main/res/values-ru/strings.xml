@@ -374,7 +374,8 @@
     <string name="debug_not_implemented_yet">Еще не реализовано..</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
     <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>
-    <string name="log_dailed_rename_file">Не удалось переименовать файл из %s в %s</string>
+    <string name="log_rename_file_mask">Файл был переименован в [%s]</string>
+    <string name="log_rename_file_error_mask">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="log_record_not_have_node">У записи не указана ветка</string>
     <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
     <string name="log_oper_cancel_mask">Отмена %s %s, т.к. не удалось сохранить mytetra.xml</string>
@@ -404,7 +405,6 @@
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
     <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
     <string name="title_file_name_with_ext">Имя файла с расширением</string>
-    <string name="log_rename_file_error">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
     <string name="log_start_record_file_reading">Начало чтения файла записи id=</string>
     <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
@@ -436,8 +436,8 @@
     <string name="log_receiving_intent_images_mask">Прием изображений (%d) из другого приложения</string>
     <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>
     <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
-    <string name="log_error_record_file_decrypt">Ошибка расшифровки файла записи</string>
-    <string name="log_error_record_file_encrypt">Ошибка зашифровки файла записи</string>
+    <string name="log_error_file_decrypt">Ошибка расшифровки файла записи</string>
+    <string name="log_error_file_encrypt">Ошибка зашифровки файла записи</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
     <string name="log_file_moved_mask">Файл/каталог был перемещен в %s</string>
     <string name="log_start_set_storage_pass">Начало установки пароля хранилища</string>

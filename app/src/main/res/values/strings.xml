@@ -430,7 +430,6 @@
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
     <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>
-    <string name="log_dailed_rename_file">Failed to renaming file from %s to %s</string>
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>
@@ -454,7 +453,8 @@
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
-    <string name="log_rename_file_error">File renaming error from [%s] to [%s]</string>
+    <string name="log_rename_file_mask">File renaming to [%s]</string>
+    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>
     <string name="log_record_file_is_missing">No recording file will be created when saving</string>
     <string name="log_start_record_file_reading">Start reading a file of record id=</string>
     <string name="log_start_record_file_saving">Start saving a file of record id=</string>
@@ -486,8 +486,8 @@
     <string name="log_receiving_intent_images_mask">Receiving images (%d) from another application</string>
     <string name="log_files_attach_error">Errors occurred while attaching file (s) (more in logs)</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
-    <string name="log_error_record_file_decrypt">Error decrypting record file</string>
-    <string name="log_error_record_file_encrypt">Error encrypting record file</string>
+    <string name="log_error_file_decrypt">Error decrypting file</string>
+    <string name="log_error_file_encrypt">Error encrypting file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
     <string name="log_file_moved_mask">File/folder was moved to %s</string>
     <string name="log_start_set_storage_pass">Start setting the storage password</string>
