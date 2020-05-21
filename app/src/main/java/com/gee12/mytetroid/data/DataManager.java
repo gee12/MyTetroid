@@ -1752,7 +1752,7 @@ public class DataManager extends XMLManager {
         if (record == null) {
             return 0;
         }
-        int res = moveFile(srcPath, record.getName(), destPath, newDirName);
+        int res = moveFile(srcPath, destPath, newDirName);
         if (res > 0 && newDirName != null) {
             // обновляем имя каталога для дальнейшей вставки
             record.setDirName(newDirName);
@@ -2144,20 +2144,21 @@ public class DataManager extends XMLManager {
 
     /**
      * Перемещение файла или каталога рекурсивно с дальнейшим переименованием, если нужно.
-     * @param srcPath
-     * @param srcFileName
+     * @param srcFullFileName
+//     * @param srcFileName
      * @param destPath
      * @param newFileName
      * @return 1 - успешно
      *         -2 - ошибка (не удалось переместить или переименовать)
      */
-    private static int moveFile(String srcPath, String srcFileName, String destPath, String newFileName) {
-        File srcDir = new File(srcPath);
+    private static int moveFile(String srcFullFileName,/* String srcFileName, */String destPath, String newFileName) {
+        File srcFile = new File(srcFullFileName);
+        String srcFileName = srcFile.getName();
         File destDir = new File(destPath);
         // перемещаем файл или каталог
-        if (!FileUtils.moveToDirRecursive(srcDir, destDir)) {
+        if (!FileUtils.moveToDirRecursive(srcFile, destDir)) {
             LogManager.addLog(String.format(context.getString(R.string.log_error_move_file_mask),
-                    srcPath, destPath), LogManager.Types.ERROR);
+                    srcFullFileName, destPath), LogManager.Types.ERROR);
             return -2;
         }
 
@@ -2167,14 +2168,14 @@ public class DataManager extends XMLManager {
                     destDirPath), LogManager.Types.DEBUG);
         } else {
             // добавляем к имени каталога записи уникальную приставку
-            srcDir = new File(destPath, srcFileName);
-            destDir = new File(destPath, newFileName);
-            if (srcDir.renameTo(destDir)) {
+            srcFile = new File(destPath, srcFileName);
+            File destFile = new File(destPath, newFileName);
+            if (srcFile.renameTo(destFile)) {
                 LogManager.addLog(String.format(context.getString(R.string.log_file_moved_mask),
-                        destDir.getAbsolutePath()), LogManager.Types.DEBUG);
+                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
             } else {
                 LogManager.addLog(String.format(context.getString(R.string.log_error_move_file_mask),
-                        srcDir.getAbsolutePath(), destDir.getAbsolutePath()), LogManager.Types.ERROR);
+                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
                 return -2;
             }
         }
@@ -2196,8 +2197,7 @@ public class DataManager extends XMLManager {
                 File to = new File(destPath);
                 // перемещаем старую версию файла mytetra.xml в корзину
                 String nameInTrash = createDateTimePrefix() + "_" + MYTETRA_XML_FILE_NAME;
-                if (moveFile(instance.storagePath, MYTETRA_XML_FILE_NAME,
-                        SettingsManager.getTrashPath(), nameInTrash) <= 0) {
+                if (moveFile(destPath, SettingsManager.getTrashPath(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (!to.delete()) {
                         LogManager.addLog(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
