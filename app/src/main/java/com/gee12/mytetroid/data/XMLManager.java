@@ -615,7 +615,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParseHandler {
 
     private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
             throws IOException {
-        addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : Utils.encodeXml(value));
+        addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : value);
     }
 
     /**
