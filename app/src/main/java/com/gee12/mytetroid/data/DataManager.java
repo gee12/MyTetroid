@@ -1752,7 +1752,13 @@ public class DataManager extends XMLManager {
         if (record == null) {
             return 0;
         }
-        File srcDir = new File(srcPath);
+        int res = moveFile(srcPath, record.getName(), destPath, newDirName);
+        if (res > 0 && newDirName != null) {
+            // обновляем имя каталога для дальнейшей вставки
+            record.setDirName(newDirName);
+        }
+        return res;
+        /*File srcDir = new File(srcPath);
         File destDir = new File(destPath);
         // перемещаем каталог записи
         if (!FileUtils.moveToDirRecursive(srcDir, destDir)) {
@@ -1780,7 +1786,7 @@ public class DataManager extends XMLManager {
                 return -2;
             }
         }
-        return 1;
+        return 1;*/
     }
 
     /**
@@ -1890,9 +1896,9 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      *         -2 - ошибка (отсутствует файл в каталоге записи)
      */
-    public static int editFileFields(TetroidFile file, String name) {
+    public static int editAttachedFileFields(TetroidFile file, String name) {
         if (file == null || TextUtils.isEmpty(name)) {
-            LogManager.emptyParams("DataManager.editFileFields()");
+            LogManager.emptyParams("DataManager.editAttachedFileFields()");
             return 0;
         }
 //        LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
@@ -1973,9 +1979,9 @@ public class DataManager extends XMLManager {
      *         -1 - ошибка (отсутствует каталог записи)
      *         -2 - ошибка (отсутствует файл в каталоге записи)
      */
-    public static int deleteFile(TetroidFile file, boolean withoutFile) {
+    public static int deleteAttachedFile(TetroidFile file, boolean withoutFile) {
         if (file == null) {
-            LogManager.emptyParams("DataManager.deleteFile()");
+            LogManager.emptyParams("DataManager.deleteAttachedFile()");
             return 0;
         }
 //        LogManager.addLog(context.getString(R.string.log_start_file_deleting), LogManager.Types.DEBUG);
@@ -2045,9 +2051,9 @@ public class DataManager extends XMLManager {
      * @param file
      * @return
      */
-    public static String getFileSize(Context context, @NonNull TetroidFile file) {
+    public static String getAttachedFileSize(Context context, @NonNull TetroidFile file) {
         if (context == null || file == null) {
-            LogManager.emptyParams("DataManager.getFileSize()");
+            LogManager.emptyParams("DataManager.getAttachedFileSize()");
             return null;
         }
         TetroidRecord record = file.getRecord();
@@ -2137,6 +2143,45 @@ public class DataManager extends XMLManager {
     }
 
     /**
+     * Перемещение файла или каталога рекурсивно с дальнейшим переименованием, если нужно.
+     * @param srcPath
+     * @param srcFileName
+     * @param destPath
+     * @param newFileName
+     * @return 1 - успешно
+     *         -2 - ошибка (не удалось переместить или переименовать)
+     */
+    private static int moveFile(String srcPath, String srcFileName, String destPath, String newFileName) {
+        File srcDir = new File(srcPath);
+        File destDir = new File(destPath);
+        // перемещаем файл или каталог
+        if (!FileUtils.moveToDirRecursive(srcDir, destDir)) {
+            LogManager.addLog(String.format(context.getString(R.string.log_error_move_file_mask),
+                    srcPath, destPath), LogManager.Types.ERROR);
+            return -2;
+        }
+
+        if (newFileName == null) {
+            String destDirPath = destDir.getAbsolutePath() + File.separator + srcFileName;
+            LogManager.addLog(String.format(context.getString(R.string.log_file_moved_mask),
+                    destDirPath), LogManager.Types.DEBUG);
+        } else {
+            // добавляем к имени каталога записи уникальную приставку
+            srcDir = new File(destPath, srcFileName);
+            destDir = new File(destPath, newFileName);
+            if (srcDir.renameTo(destDir)) {
+                LogManager.addLog(String.format(context.getString(R.string.log_file_moved_mask),
+                        destDir.getAbsolutePath()), LogManager.Types.DEBUG);
+            } else {
+                LogManager.addLog(String.format(context.getString(R.string.log_error_move_file_mask),
+                        srcDir.getAbsolutePath(), destDir.getAbsolutePath()), LogManager.Types.ERROR);
+                return -2;
+            }
+        }
+        return 1;
+    }
+
+    /**
      * Сохранение хранилища в файл mytetra.xml.
      * @return
      */
@@ -2148,11 +2193,16 @@ public class DataManager extends XMLManager {
         try {
             FileOutputStream fos = new FileOutputStream(tempPath, false);
             if (instance.save(fos)) {
-                // удаляем старую версию файла mytetra.xml
                 File to = new File(destPath);
-                if (!to.delete()) {
-                    LogManager.addLog(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
-                    return false;
+                // перемещаем старую версию файла mytetra.xml в корзину
+                String nameInTrash = createDateTimePrefix() + "_" + MYTETRA_XML_FILE_NAME;
+                if (moveFile(instance.storagePath, MYTETRA_XML_FILE_NAME,
+                        SettingsManager.getTrashPath(), nameInTrash) <= 0) {
+                    // если не удалось переместить в корзину, удаляем
+                    if (!to.delete()) {
+                        LogManager.addLog(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
+                        return false;
+                    }
                 }
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 File from = new File(tempPath);

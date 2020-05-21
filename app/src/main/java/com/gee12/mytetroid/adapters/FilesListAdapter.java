@@ -77,7 +77,7 @@ public class FilesListAdapter extends BaseAdapter {
         viewHolder.nameView.setText(file.getName());
         // размер
         ImageView icon = convertView.findViewById(R.id.file_view_icon);
-        String fileSize = DataManager.getFileSize(mContext, file);
+        String fileSize = DataManager.getAttachedFileSize(mContext, file);
         if (fileSize != null) {
             icon.setImageResource(R.drawable.ic_file);
             viewHolder.sizeView.setText(fileSize);
