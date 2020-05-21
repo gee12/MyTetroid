@@ -52,7 +52,7 @@ import java.util.Stack;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class DataManager extends XMLManager {
+public class DataManager extends XMLManager implements IRecordFileCrypter {
 
     public interface ICallback {
         void run();
@@ -109,9 +109,9 @@ public class DataManager extends XMLManager {
 
     public static void initCryptPass(String pass, boolean isMiddleHash) {
         if (isMiddleHash) {
-            CryptManager.initFromMiddleHash(pass, instance);
+            CryptManager.initFromMiddleHash(pass, instance, instance);
         } else {
-            CryptManager.initFromPass(pass, instance);
+            CryptManager.initFromPass(pass, instance, instance);
         }
     }
 
@@ -1644,6 +1644,12 @@ public class DataManager extends XMLManager {
             }
         }
         return false;
+    }
+
+    @Override
+    public void cryptRecordFile(TetroidRecord record, boolean isEncrypt) {
+        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
+        cryptOrDecryptFile(recordFile, record.isCrypted(), isEncrypt);
     }
 
     /**
