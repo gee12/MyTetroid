@@ -46,19 +46,19 @@ public class AskDialogs {
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(input);
 
+        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+            passResult.applyPass(input.getText().toString(), node);
+        });
+        builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> {
+//            dialog.cancel();
+            passResult.cancelPass();
+        });
+
         final AlertDialog dialog = builder.create();
         // проверка на пустоту пароля
         input.addTextChangedListener(new ViewUtils.TextChangedListener(newText -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!(TextUtils.isEmpty(newText)));
         }));
-
-        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            passResult.applyPass(input.getText().toString(), node);
-        });
-        builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> {
-            dialog.cancel();
-            passResult.cancelPass();
-        });
 
         dialog.setOnShowListener(dialogInterface -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);

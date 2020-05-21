@@ -213,9 +213,7 @@ public class CryptManager extends Crypter {
                                        boolean dropCrypt) {
         boolean res = true;
         for (TetroidNode node : nodes) {
-            if (node.isCrypted()) {
-                res = res & decryptNode(node, isDecryptSubNodes, iconLoader, dropCrypt);
-            }
+            res = res & decryptNode(node, isDecryptSubNodes, iconLoader, dropCrypt);
         }
         return res;
     }
@@ -232,17 +230,19 @@ public class CryptManager extends Crypter {
                                       boolean dropCrypt) {
         if (node == null)
             return false;
-        boolean res;
-        // расшифровываем поля
-        res = decryptNodeFields(node, dropCrypt);
-        // загружаем иконку
-        if (iconLoader != null) {
-            iconLoader.loadIcon(node);
-        }
-        // TODO: расшифровывать список записей сразу или при выделении ?
-        //  (пока сразу)
-        if (node.getRecordsCount() > 0) {
-            res = res & decryptRecordsAndFiles(node.getRecords(), dropCrypt);
+        boolean res = true;
+        if (node.isCrypted() && !node.isDecrypted()) {
+            // расшифровываем поля
+            res = decryptNodeFields(node, dropCrypt);
+            // загружаем иконку
+            if (iconLoader != null) {
+                iconLoader.loadIcon(node);
+            }
+            // TODO: расшифровывать список записей сразу или при выделении ?
+            //  (пока сразу)
+            if (node.getRecordsCount() > 0) {
+                res = res & decryptRecordsAndFiles(node.getRecords(), dropCrypt);
+            }
         }
         // расшифровываем подветки
         if (isDecryptSubNodes && node.getSubNodesCount() > 0) {
