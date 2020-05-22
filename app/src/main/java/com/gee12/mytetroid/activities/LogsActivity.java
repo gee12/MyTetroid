@@ -71,7 +71,16 @@ public class LogsActivity extends AppCompatActivity {
 //            mTextViewLogs.setVisibility(View.VISIBLE);
 //            setText(curLogs);
             mRecycleView.setVisibility(View.VISIBLE);
-            mTextAdapter.setItem(curLogs);
+//            mTextAdapter.setItem(curLogs);
+//            mTextAdapter.setItems(Arrays.asList(curLogs.split("\n")));
+            try {
+                // разбиваем весь поток строк логов на блоки
+                List<String> logsBlocks = FileUtils.splitToBlocks(curLogs, LINES_IN_RECYCLER_VIEW_ITEM);
+                mTextAdapter.setItems(logsBlocks);
+            } catch (IOException e) {
+                LogManager.addLog(R.string.log_error_logs_reading_from_memory, LogManager.Types.ERROR);
+                mTextAdapter.setItem(curLogs);
+            }
             scrollToBottom();
         } else {
             LogManager.addLog(getString(R.string.log_logs_is_missing), LogManager.Types.WARNING, Toast.LENGTH_SHORT);
@@ -88,7 +97,17 @@ public class LogsActivity extends AppCompatActivity {
     private void scrollToBottom() {
         /*ScrollView scrollView = findViewById(R.id.scroll_view_logs);
         scrollView.postDelayed(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN), 100);*/
-        mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1);
+        /*int itemsCount = mTextAdapter.getItemCount();
+        if (itemsCount == 1) {
+            mRecycleView.scrollTo(0, mRecycleView.getMeasuredHeight());
+//            final int scrollAmount = mRecycleView.getLayout().getLineTop(mTextView.getLineCount()) - mTextView.getHeight();
+//            if (scrollAmount > 0)
+//                mTextView.scrollTo(0, scrollAmount);
+        } else {
+            mRecycleView.scrollToPosition(itemsCount - 1);
+        }*/
+//        mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1);
+        mRecycleView.postDelayed(() -> mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1), 100);
     }
 
     private void setProgresVisible(boolean isVis) {

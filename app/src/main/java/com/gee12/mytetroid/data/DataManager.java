@@ -992,7 +992,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
-     *
+     * Перемещение или копирование записи в ветку.
      * @param srcRecord
      * @param node
      * @param isCutted
@@ -1023,6 +1023,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             record.setDecryptedValues(name, tagsString, author, url);
             record.setDecrypted(true);
         }
+        // добавляем прикрепленные файлы в запись
+        cloneAttachesToRecord(srcRecord, record, isCutted);
         record.setIsNew(false);
         // добавляем запись в ветку (и соответственно, в коллекцию)
         node.addRecord(record);
@@ -1061,6 +1063,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 if (FileUtils.copyDirRecursive(srcDir, destDir)) {
                     LogManager.addLog(String.format(context.getString(R.string.log_copy_record_dir_mask),
                             destDirPath), LogManager.Types.ERROR);
+                    // переименовываем прикрепленные файлы
+                    renameRecordAttaches(srcRecord, record);
                 } else {
                     LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir_mask),
                             srcDirPath, destDirPath), LogManager.Types.ERROR);
@@ -1081,6 +1085,64 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
 
         return record;
+    }
+
+    /**
+     * Перемещение или копирование прикрепленных файлов в другую запись.
+     * @param srcRecord
+     * @param destRecord
+     * @param isCutted
+     */
+    private static void cloneAttachesToRecord(TetroidRecord srcRecord, TetroidRecord destRecord, boolean isCutted) {
+        boolean crypted = destRecord.isCrypted();
+        String name;
+        if (destRecord.getAttachedFilesCount() > 0) {
+            if (isCutted) {
+                destRecord.setAttachedFiles(srcRecord.getAttachedFiles());
+            } else {
+                // копируем
+                List<TetroidFile> attaches = new ArrayList<>();
+                for (TetroidFile srcAttach : srcRecord.getAttachedFiles()) {
+                    name = srcAttach.getName();
+                    TetroidFile attach = new TetroidFile(crypted, createUniqueId(),
+                            encryptField(crypted, name), srcAttach.getFileType(), srcRecord);
+                    if (crypted) {
+                        attach.setDecryptedName(name);
+                        attach.setIsCrypted(true);
+                    }
+                    attaches.add(attach);
+                }
+                destRecord.setAttachedFiles(attaches);
+            }
+        }
+    }
+
+    /**
+     * Переименование скопированных прикрепленных файлов в каталоге записи.
+     * @param srcRecord
+     * @param destRecord
+     */
+    private static void renameRecordAttaches(TetroidRecord srcRecord, TetroidRecord destRecord) {
+        for (int i = 0; i < srcRecord.getAttachedFilesCount(); i++) {
+            TetroidFile srcAttach = srcRecord.getAttachedFiles().get(i);
+            TetroidFile destAttach = destRecord.getAttachedFiles().get(i);
+
+            String srcFileDisplayName = srcAttach.getName();
+            String ext = FileUtils.getExtensionWithComma(srcFileDisplayName);
+            String srcFileIdName = srcAttach.getId() + ext;
+            String destFileIdName = destAttach.getId() + ext;
+            // переименовываем
+            String destPath = getPathToRecordFolder(destRecord);
+            File srcFile = new File(destPath, srcFileIdName);
+            File destFile = new File(destPath, destFileIdName);
+            if (srcFile.renameTo(destFile)) {
+                LogManager.addLog(String.format(context.getString(R.string.log_rename_file_mask),
+                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
+            } else {
+                LogManager.addLog(String.format(context.getString(R.string.log_rename_file_error_mask),
+                        srcFile.getAbsolutePath(), destFile.getName()), LogManager.Types.ERROR);
+            }
+        }
     }
 
     /**
@@ -1475,14 +1537,15 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             record.setDecrypted(true);
         }
         // прикрепленные файлы
-        if (srcRecord.getAttachedFilesCount() > 0) {
+        cloneAttachesToRecord(srcRecord, record, isCutted);
+        /*if (srcRecord.getAttachedFilesCount() > 0) {
             if (isCutted) {
                 record.setAttachedFiles(srcRecord.getAttachedFiles());
             } else {
                 // копируем
                 List<TetroidFile> attaches = new ArrayList<>();
                 for (TetroidFile srcAttach : srcRecord.getAttachedFiles()) {
-                    name = srcRecord.getName();
+                    name = srcAttach.getName();
                     TetroidFile attach = new TetroidFile(crypted, createUniqueId(),
                             encryptField(crypted, name), srcAttach.getFileType(), srcRecord);
                     if (crypted) {
@@ -1493,7 +1556,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 }
                 record.setAttachedFiles(attaches);
             }
-        }
+        }*/
         record.setIsNew(false);
 
         String destDirPath = getPathToRecordFolder(record);
@@ -1514,28 +1577,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
                         LogManager.addLog(String.format(context.getString(R.string.log_copy_record_dir_mask),
                                 destDirPath), LogManager.Types.DEBUG);
-
                         // переименовываем прикрепленные файлы
-                        for (int i = 0; i < srcRecord.getAttachedFilesCount(); i++) {
-                            TetroidFile srcAttach = srcRecord.getAttachedFiles().get(i);
-                            TetroidFile destAttach = record.getAttachedFiles().get(i);
-
-                            String srcFileDisplayName = srcAttach.getName();
-                            String ext = FileUtils.getExtensionWithComma(srcFileDisplayName);
-                            String srcFileIdName = srcAttach.getId() + ext;
-                            String destFileIdName = destAttach.getId() + ext;
-                            // переименовываем
-                            File srcFile = new File(destDir.getAbsolutePath(), srcFileIdName);
-                            File destFile = new File(destDir.getAbsolutePath(), destFileIdName);
-                            if (srcFile.renameTo(destFile)) {
-                                LogManager.addLog(String.format(context.getString(R.string.log_rename_file_mask),
-                                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
-                            } else {
-                                LogManager.addLog(String.format(context.getString(R.string.log_rename_file_error_mask),
-                                        srcFile.getAbsolutePath(), destFile.getName()), LogManager.Types.ERROR);
-                            }
-                        }
-                } else {
+                        renameRecordAttaches(srcRecord, record);
+                    } else {
                         LogManager.addLog(String.format(context.getString(R.string.log_error_copy_record_dir_mask),
                                 srcDirPath, destDirPath), LogManager.Types.ERROR);
                         return -2;
@@ -1597,23 +1641,25 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param destCrypted
      * @return
      */
-    private static boolean cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
+    private static int cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
         if (srcCrypted && !destCrypted) {
             try {
                 // расшифровуем файл записи
-                return Crypter.decryptFile(file, file);
+                return (Crypter.decryptFile(file, file)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.addLog(context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
+                return -1;
             }
         } else if (!srcCrypted && destCrypted) {
             try {
                 // зашифровуем файл записи
-                return Crypter.encryptFile(file, file);
+                return (Crypter.encryptFile(file, file)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.addLog(context.getString(R.string.log_error_file_encrypt) + file.getAbsolutePath(), ex);
+                return -1;
             }
         }
-        return false;
+        return 0;
     }
 
     /**
@@ -1626,14 +1672,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         // файл записи
         String recordFolderPath = getPathToRecordFolder(record);
         File file = new File(recordFolderPath, record.getFileName());
-        if (!cryptOrDecryptFile(file, record.isCrypted(), isEncrypt)) {
+        if (cryptOrDecryptFile(file, record.isCrypted(), isEncrypt) < 0) {
             return false;
         }
         // прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             for (TetroidFile attach : record.getAttachedFiles()) {
                 file = new File(recordFolderPath, attach.getIdName());
-                if (!cryptOrDecryptFile(file, record.isCrypted(), isEncrypt)) {
+                if (cryptOrDecryptFile(file, record.isCrypted(), isEncrypt) < 0) {
                     return false;
                 }
             }
@@ -1716,7 +1762,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     private static int moveOrDeleteRecordFolder(TetroidRecord record, String dirPath, String movePath) {
         if (record == null || dirPath == null)
             return 0;
-//        String dirPath = recordDir.getPath();
         if (movePath == null) {
             // удаляем каталог записи
             File dir = new File(dirPath);
@@ -1869,7 +1914,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         if (saveStorage()) {
          /*   instance.mFilesCount++;*/
         } else {
-//            LogManager.addLog(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
             TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
             // удаляем файл из записи
             files.remove(file);
@@ -1896,7 +1940,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.emptyParams("DataManager.editAttachedFileFields()");
             return 0;
         }
-//        LogManager.addLog(context.getString(R.string.log_start_file_fields_editing), LogManager.Types.DEBUG);
         TetroidLog.addOperStartLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
 
         TetroidRecord record = file.getRecord();
@@ -1940,11 +1983,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-//            LogManager.addLog(context.getString(R.string.log_cancel_file_fields_editing), LogManager.Types.ERROR);
             TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             file.setName(oldName);
-//            file.setDecryptedName(decryptField(file, oldName));
             if (crypted) {
                 file.setDecryptedName(decryptField(crypted, oldName));
             }
@@ -1979,7 +2020,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.emptyParams("DataManager.deleteAttachedFile()");
             return 0;
         }
-//        LogManager.addLog(context.getString(R.string.log_start_file_deleting), LogManager.Types.DEBUG);
         TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
 
         TetroidRecord record = file.getRecord();
