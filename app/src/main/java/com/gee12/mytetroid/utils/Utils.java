@@ -199,7 +199,7 @@ public class Utils {
      * @param size Количество байт
      * @return
      */
-    public static String sizeToString(Context context, long size) {
+    public static String fileSizeToString(Context context, long size) {
         if (size == 0) {
             return null;
         } else if (size >= 1073741824) {
@@ -209,7 +209,7 @@ public class Utils {
         } else if (size >= 1024) {
             return (size / 1024) + context.getString(R.string.k_bytes);
         } else {
-            return String.valueOf(size);
+            return size + context.getString(R.string.bytes);
         }
     }
 

@@ -7,8 +7,8 @@ public class TetroidFile extends TetroidObject {
     public static final String PREFIX = "file";
     public static final String DEF_FILE_TYPE = "file";
 
-    private String fileType;
-    private TetroidRecord record;
+    private String mFileType;
+    private TetroidRecord mRecord;
 
     public TetroidFile() {
         super(FoundType.TYPE_FILE, "");
@@ -16,22 +16,26 @@ public class TetroidFile extends TetroidObject {
 
     public TetroidFile(boolean isCrypted, String id, String name, String fileType, TetroidRecord record) {
         super(FoundType.TYPE_FILE, isCrypted, id, name);
-        this.fileType = fileType;
-        this.record = record;
+        this.mFileType = fileType;
+        this.mRecord = record;
     }
 
     public String getFileType() {
-        return fileType;
+        return mFileType;
     }
 
     public TetroidRecord getRecord() {
-        return record;
+        return mRecord;
     }
 
     public String getIdName() {
         String fileDisplayName = getName();
         String ext = FileUtils.getExtensionWithComma(fileDisplayName);
         return id + ext;
+    }
+
+    public void setRecord(TetroidRecord record) {
+        this.mRecord = record;
     }
 
     @Override

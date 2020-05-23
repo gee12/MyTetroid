@@ -206,7 +206,7 @@ public class CryptManager extends Crypter {
             file.setName(temp);
         }
         if (!isReencrypt && !file.isCrypted()) {
-            file.setIsCrypted(!res);
+            file.setIsCrypted(res);
             file.setDecrypted(res);
         }
         return res;
@@ -242,7 +242,7 @@ public class CryptManager extends Crypter {
         if (node == null)
             return false;
         boolean res = true;
-        if (node.isCrypted() && !node.isDecrypted()) {
+        if (node.isCrypted() && (!node.isDecrypted() || dropCrypt)) {
             // расшифровываем поля
             res = decryptNodeFields(node, dropCrypt);
             // загружаем иконку
@@ -257,7 +257,7 @@ public class CryptManager extends Crypter {
         }
         // расшифровываем подветки
         if (isDecryptSubNodes && node.getSubNodesCount() > 0) {
-            res = res & decryptNodes(node.getSubNodes(), isDecryptSubNodes, iconLoader, dropCrypt);
+            res = res & decryptNodes(node.getSubNodes(), true, iconLoader, dropCrypt);
         }
         return res;
     }
@@ -271,27 +271,30 @@ public class CryptManager extends Crypter {
     public static boolean decryptNodeFields(TetroidNode node, boolean dropCrypt) {
         boolean res;
         // name
-        String temp = CryptManager.decryptBase64(node.getName());
+        String temp = CryptManager.decryptBase64(node.getName(true));
         res = (temp != null);
         if (res) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 node.setName(temp);
-            else
+                node.setDecryptedName(null);
+            } else
                 node.setDecryptedName(temp);
         }
         // icon
-        temp = CryptManager.decryptBase64(node.getIconName());
+        temp = CryptManager.decryptBase64(node.getIconName(true));
         res = res & (temp != null);
         if (temp != null) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 node.setIconName(temp);
-            else
+                node.setDecryptedIconName(null);
+            } else
                 node.setDecryptedIconName(temp);
         }
         // decryption result
-        if (dropCrypt)
+        if (dropCrypt) {
             node.setIsCrypted(!res);
-        else
+            node.setDecrypted(!res);
+        } else
             node.setDecrypted(res);
         return res;
     }
@@ -305,7 +308,7 @@ public class CryptManager extends Crypter {
     public static boolean decryptRecordsAndFiles(List<TetroidRecord> records, boolean dropCrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
-            if (record.isCrypted()) {
+//            if (record.isCrypted()) {
                 // расшифровываем файл записи
                 if (dropCrypt && recordFileCrypter != null) {
                     recordFileCrypter.cryptRecordFile(record, false);
@@ -315,7 +318,7 @@ public class CryptManager extends Crypter {
                     for (TetroidFile file : record.getAttachedFiles()) {
                         res = res & decryptAttach(file, dropCrypt);
                     }
-            }
+//            }
         }
         return res;
     }
@@ -328,44 +331,49 @@ public class CryptManager extends Crypter {
      */
     public static boolean decryptRecordFields(TetroidRecord record, boolean dropCrypt) {
         boolean res;
-        String temp = CryptManager.decryptBase64(record.getName());
+        String temp = CryptManager.decryptBase64(record.getName(true));
         res = (temp != null);
         if (res) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 record.setName(temp);
-            else
+                record.setDecryptedName(null);
+            } else
                 record.setDecryptedName(temp);
         }
-        temp = CryptManager.decryptBase64(record.getTagsString());
+        temp = CryptManager.decryptBase64(record.getTagsString(true));
         res = res & (temp != null);
         if (temp != null) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 record.setTagsString(temp);
-            else
+                record.setDecryptedTagsString(null);
+            } else
                 record.setDecryptedTagsString(temp);
             if (tagsParser != null) {
                 tagsParser.parseRecordTags(record, temp);
             }
         }
-        temp = CryptManager.decryptBase64(record.getAuthor());
+        temp = CryptManager.decryptBase64(record.getAuthor(true));
         res = res & (temp != null);
         if (temp != null) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 record.setAuthor(temp);
-            else
+                record.setDecryptedAuthor(null);
+            } else
                 record.setDecryptedAuthor(temp);
         }
-        temp = CryptManager.decryptBase64(record.getUrl());
+        temp = CryptManager.decryptBase64(record.getUrl(true));
         res = res & (temp != null);
         if (temp != null) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 record.setUrl(temp);
-            else
+                record.setDecryptedUrl(null);
+            } else
                 record.setDecryptedUrl(temp);
         }
-        if (dropCrypt)
+        if (dropCrypt) {
             record.setIsCrypted(!res);
-        else
+            record.setDecrypted(!res);
+        } else
             record.setDecrypted(res);
         return res;
     }
@@ -377,17 +385,19 @@ public class CryptManager extends Crypter {
      * @return
      */
     public static boolean decryptAttach(TetroidFile file, boolean dropCrypt) {
-        String temp = CryptManager.decryptBase64(file.getName());
+        String temp = CryptManager.decryptBase64(file.getName(true));
         boolean res = (temp != null);
         if (res) {
-            if (dropCrypt)
+            if (dropCrypt) {
                 file.setName(temp);
-            else
+                file.setDecryptedName(null);
+            } else
                 file.setDecryptedName(temp);
         }
-        if (dropCrypt)
+        if (dropCrypt) {
             file.setIsCrypted(!res);
-        else
+            file.setDecrypted(!res);
+        } else
             file.setDecrypted(res);
         return res;
     }

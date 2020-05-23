@@ -50,10 +50,6 @@ public class MainPageFragment extends TetroidFragment {
     private ListView mListViewFiles;
     private TextView mTextViewRecordsEmpty;
     private TextView mTextViewFilesEmpty;
-//    private MenuItem mMenuItemCurNode;
-//    private MenuItem mMenuItemCurRecord;
-//    private MenuItem mMenuItemCurRecordFolder;
-//    private MenuItem mMenuItemInsertRecord;
     private FloatingActionButton mButtonAddRecord;
     private FloatingActionButton mButtonAddFile;
 
@@ -713,9 +709,9 @@ public class MainPageFragment extends TetroidFragment {
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
-        if (record != null) {
+       /* if (record != null) {
             activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
-        }
+        }*/
     }
 
     /**

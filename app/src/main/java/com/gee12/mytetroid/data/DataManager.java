@@ -167,7 +167,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     @Override
     protected boolean decryptNode(@NonNull TetroidNode node) {
         // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
-        // и расшифровка каждой из них запустится сама после их загрузки по очереди
+        // и расшифровка каждой из них запустится сама при их загрузке по очереди в XMLManager
         return CryptManager.decryptNode(node, false, this, false);
     }
 
@@ -998,7 +998,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param isCutted
      * @return
      */
-    private static TetroidRecord cloneRecordToNode(TetroidRecord srcRecord, TetroidNode node, boolean isCutted, boolean breakOnFSErrors) {
+    private static TetroidRecord cloneRecordToNode(TetroidRecord srcRecord, TetroidNode node,
+                                                   boolean isCutted, boolean breakOnFSErrors) {
         if (srcRecord == null)
             return null;
         TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
@@ -1012,7 +1013,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         String url = srcRecord.getUrl();
 
         // создаем копию записи
-        boolean crypted = srcRecord.isCrypted();
+        boolean crypted = node.isCrypted();
         TetroidRecord record = new TetroidRecord(crypted, id,
                 encryptField(crypted, name),
                 encryptField(crypted, tagsString),
@@ -1080,7 +1081,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         // зашифровываем или расшифровываем файл записи
 //        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
-        if (!instance.cryptRecordFile(record, crypted) && breakOnFSErrors) {
+        if (!instance.cryptRecordFile(record, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
             return errorRes;
         }
 
@@ -1094,26 +1095,23 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param isCutted
      */
     private static void cloneAttachesToRecord(TetroidRecord srcRecord, TetroidRecord destRecord, boolean isCutted) {
-        boolean crypted = destRecord.isCrypted();
-        String name;
-        if (destRecord.getAttachedFilesCount() > 0) {
-            if (isCutted) {
-                destRecord.setAttachedFiles(srcRecord.getAttachedFiles());
-            } else {
-                // копируем
-                List<TetroidFile> attaches = new ArrayList<>();
-                for (TetroidFile srcAttach : srcRecord.getAttachedFiles()) {
-                    name = srcAttach.getName();
-                    TetroidFile attach = new TetroidFile(crypted, createUniqueId(),
-                            encryptField(crypted, name), srcAttach.getFileType(), srcRecord);
-                    if (crypted) {
-                        attach.setDecryptedName(name);
-                        attach.setIsCrypted(true);
-                    }
-                    attaches.add(attach);
+        if (srcRecord.getAttachedFilesCount() > 0) {
+            boolean crypted = destRecord.isCrypted();
+            List<TetroidFile> attaches = new ArrayList<>();
+            for (TetroidFile srcAttach : srcRecord.getAttachedFiles()) {
+                // генерируем уникальные идентификаторы, если запись копируется
+                String id = (isCutted) ? srcAttach.getId() : createUniqueId();
+                String name = srcAttach.getName();
+                TetroidFile attach = new TetroidFile(crypted, id,
+                        encryptField(crypted, name), srcAttach.getFileType(), destRecord);
+                if (crypted) {
+                    attach.setDecryptedName(name);
+                    attach.setIsCrypted(true);
+                    attach.setDecrypted(true);
                 }
-                destRecord.setAttachedFiles(attaches);
+                attaches.add(attach);
             }
+            destRecord.setAttachedFiles(attaches);
         }
     }
 
@@ -1538,25 +1536,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
         // прикрепленные файлы
         cloneAttachesToRecord(srcRecord, record, isCutted);
-        /*if (srcRecord.getAttachedFilesCount() > 0) {
-            if (isCutted) {
-                record.setAttachedFiles(srcRecord.getAttachedFiles());
-            } else {
-                // копируем
-                List<TetroidFile> attaches = new ArrayList<>();
-                for (TetroidFile srcAttach : srcRecord.getAttachedFiles()) {
-                    name = srcAttach.getName();
-                    TetroidFile attach = new TetroidFile(crypted, createUniqueId(),
-                            encryptField(crypted, name), srcAttach.getFileType(), srcRecord);
-                    if (crypted) {
-                        attach.setDecryptedName(name);
-                        attach.setIsCrypted(true);
-                    }
-                    attaches.add(attach);
-                }
-                record.setAttachedFiles(attaches);
-            }
-        }*/
         record.setIsNew(false);
 
         String destDirPath = getPathToRecordFolder(record);
@@ -1604,7 +1583,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 // FIXME: обрабатывать результат ?
 //                File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //                cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted);
-                instance.cryptRecordFile(record, crypted);
+                instance.cryptRecordFile(record, srcRecord.isCrypted(), crypted);
             }
         } else {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
@@ -1637,12 +1616,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     /**
      * Зашифровка или расшифровка файла при необходимости.
      * @param file
-     * @param srcCrypted
-     * @param destCrypted
+     * @param isCrypted
+     * @param isEncrypt
      * @return
      */
-    private static int cryptOrDecryptFile(File file, boolean srcCrypted, boolean destCrypted) {
-        if (srcCrypted && !destCrypted) {
+    private static int cryptOrDecryptFile(File file, boolean isCrypted, boolean isEncrypt) {
+        if (isCrypted && !isEncrypt) {
             try {
                 // расшифровуем файл записи
                 return (Crypter.decryptFile(file, file)) ? 1 : -1;
@@ -1650,7 +1629,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 LogManager.addLog(context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
                 return -1;
             }
-        } else if (!srcCrypted && destCrypted) {
+        } else if (!isCrypted && isEncrypt) {
             try {
                 // зашифровуем файл записи
                 return (Crypter.encryptFile(file, file)) ? 1 : -1;
@@ -1667,24 +1646,33 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param record
      * @param isEncrypt
      */
-    @Override
-    public boolean cryptRecordFile(TetroidRecord record, boolean isEncrypt) {
+    public boolean cryptRecordFile(TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
         // файл записи
         String recordFolderPath = getPathToRecordFolder(record);
         File file = new File(recordFolderPath, record.getFileName());
-        if (cryptOrDecryptFile(file, record.isCrypted(), isEncrypt) < 0) {
+        if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
             return false;
         }
         // прикрепленные файлы
         if (record.getAttachedFilesCount() > 0) {
             for (TetroidFile attach : record.getAttachedFiles()) {
                 file = new File(recordFolderPath, attach.getIdName());
-                if (cryptOrDecryptFile(file, record.isCrypted(), isEncrypt) < 0) {
+                if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
+     * @param record
+     * @param isEncrypt
+     */
+    @Override
+    public boolean cryptRecordFile(TetroidRecord record, boolean isEncrypt) {
+        return cryptRecordFile(record, record.isCrypted(), isEncrypt);
     }
 
     /**
@@ -2116,7 +2104,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.addLog(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
             return null;
         }
-        return Utils.sizeToString(context, size);
+        return Utils.fileSizeToString(context, size);
     }
 
     /**
