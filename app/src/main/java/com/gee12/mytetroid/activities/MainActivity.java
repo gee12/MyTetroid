@@ -554,11 +554,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.decryptStorage()) {
                 LogManager.addLog(R.string.log_storage_decrypted);
             } else {
-                LogManager.addLog(getString(R.string.log_errors_during_decryption),
-//                                + (SettingsManager.isWriteLogToFile()
-//                                ? getString(R.string.details_in_logs)
-//                                : getString(R.string.for_more_info_enable_log)),
-                        Toast.LENGTH_LONG);
+                LogManager.addLog(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
             }
             mListAdapterNodes.notifyDataSetChanged();
             mListAdapterTags.setDataItems(DataManager.getTags());
@@ -1345,6 +1341,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void encryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
+            // сначала расшифровываем хранилище
+            if (DataManager.isCrypted()) {
+                initStorage(null, true);
+            }
             if (DataManager.encryptNode(node)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
             } else {
@@ -1356,6 +1356,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void noEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
+            // сначала расшифровываем хранилище
+            if (DataManager.isCrypted()) {
+                initStorage(null, true);
+            }
             if (DataManager.nocryptNode(node)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
             } else {
@@ -1511,7 +1515,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         activateMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
         activateMenuItem(menu.findItem(R.id.action_insert), canInsert);
-        activateMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert);
+        activateMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_copy), isNonCrypted);
         boolean canCutDel = node.getLevel() > 0 || DataManager.getRootNodes().size() > 1;
         activateMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);

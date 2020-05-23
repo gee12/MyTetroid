@@ -201,6 +201,7 @@
     <string name="g_bytes">Гб</string>
     <string name="m_bytes">Мб</string>
     <string name="k_bytes">Кб</string>
+    <string name="bytes">б</string>
 
     <string name="create">создать</string>
     <string name="add">добавить</string>

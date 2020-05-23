@@ -116,6 +116,9 @@ public class RC5Simple {
      * @param key
      */
     public void setKey(int[] key) {
+        if (key == null) {
+            return;
+        }
         if (key.length != RC5_B) {
             this.mErrorCode = RC5_ERROR_CODE_1;
             return;

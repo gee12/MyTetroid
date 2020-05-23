@@ -29,7 +29,6 @@ public class LogsActivity extends AppCompatActivity {
 
     public static final int LINES_IN_RECYCLER_VIEW_ITEM = 10;
     
-    //    private AppCompatTextView mTextViewLogs;
     private RecyclerView mRecycleView;
     private LinearLayout mLayoutError;
     private TextAdapter mTextAdapter;
@@ -42,8 +41,7 @@ public class LogsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        /*this.mTextViewLogs = findViewById(R.id.text_view_logs);
-        // убираем перенос слов, замедляющий работу
+        /*// убираем перенос слов, замедляющий работу
         if (Build.VERSION.SDK_INT >= 23) {
             mTextViewLogs.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);
             mTextViewLogs.setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE);
@@ -68,11 +66,8 @@ public class LogsActivity extends AppCompatActivity {
         String curLogs = LogManager.getBufferString();
         if (!TextUtils.isEmpty(curLogs)) {
             mLayoutError.setVisibility(View.GONE);
-//            mTextViewLogs.setVisibility(View.VISIBLE);
-//            setText(curLogs);
             mRecycleView.setVisibility(View.VISIBLE);
 //            mTextAdapter.setItem(curLogs);
-//            mTextAdapter.setItems(Arrays.asList(curLogs.split("\n")));
             try {
                 // разбиваем весь поток строк логов на блоки
                 List<String> logsBlocks = FileUtils.splitToBlocks(curLogs, LINES_IN_RECYCLER_VIEW_ITEM);
@@ -87,26 +82,10 @@ public class LogsActivity extends AppCompatActivity {
         }
     }
 
-/*    private void setText(String text) {
-        mTextViewLogs.setText(text);
-    }*/
-
     /**
      * Пролистывание в конец.
      */
     private void scrollToBottom() {
-        /*ScrollView scrollView = findViewById(R.id.scroll_view_logs);
-        scrollView.postDelayed(() -> scrollView.fullScroll(ScrollView.FOCUS_DOWN), 100);*/
-        /*int itemsCount = mTextAdapter.getItemCount();
-        if (itemsCount == 1) {
-            mRecycleView.scrollTo(0, mRecycleView.getMeasuredHeight());
-//            final int scrollAmount = mRecycleView.getLayout().getLineTop(mTextView.getLineCount()) - mTextView.getHeight();
-//            if (scrollAmount > 0)
-//                mTextView.scrollTo(0, scrollAmount);
-        } else {
-            mRecycleView.scrollToPosition(itemsCount - 1);
-        }*/
-//        mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1);
         mRecycleView.postDelayed(() -> mRecycleView.scrollToPosition(mTextAdapter.getItemCount() - 1), 100);
     }
 
@@ -174,7 +153,6 @@ public class LogsActivity extends AppCompatActivity {
                 LogManager.addLog(mes, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 ((TextView) findViewById(R.id.text_view_error)).setText(mes);
                 mLayoutError.setVisibility(View.VISIBLE);
-//                mTextViewLogs.setVisibility(View.GONE);
                 mRecycleView.setVisibility(View.GONE);
                 // выводим логи текущего сеанса запуска приложения
                 (findViewById(R.id.button_show_cur_logs)).setOnClickListener(v -> {
