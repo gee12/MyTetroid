@@ -86,8 +86,8 @@ public class PassManager extends DataManager {
      * @return
      */
     public static void setupPass(Context context) {
-        LogManager.addLog(R.string.log_start_pass_change);
-        // вводим пароли (с проверкой на пустоту и равенство)
+        LogManager.addLog(R.string.log_start_pass_setup);
+        // вводим пароль
         AskDialogs.showPassEnterDialog(context, null, true, new AskDialogs.IPassInputResult() {
             @Override
             public void applyPass(String pass, TetroidNode node) {
@@ -106,10 +106,10 @@ public class PassManager extends DataManager {
     public static void setupPass(String pass) {
         // сохраняем в database.ini
         if (savePass(pass)) {
-            LogManager.addLog(R.string.log_storage_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.addLog(R.string.log_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             initPass(pass);
         } else {
-            LogManager.addLog(R.string.log_storage_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.addLog(R.string.log_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -123,7 +123,11 @@ public class PassManager extends DataManager {
         AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
             // проверяем пароль
             return checkPass(context, curPass, () -> {
-                changePass(newPass);
+                if (changePass(curPass, newPass)) {
+                    LogManager.addLog(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                } else {
+                    LogManager.addLog(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                }
             }, R.string.log_cur_pass_is_incorrect);
         });
     }
@@ -132,8 +136,10 @@ public class PassManager extends DataManager {
      * Смена пароля хранилища.
      * @return
      */
-    public static boolean changePass(String newPass) {
-        // сначала расшифровываем хранилище
+    public static boolean changePass(String curPass, String newPass) {
+        // сначала устанавливаем текущий пароль
+        initPass(curPass);
+        // и расшифровываем хранилище
         if (DataManager.decryptStorage()) {
             LogManager.addLog(R.string.log_storage_decrypted);
         } else {
