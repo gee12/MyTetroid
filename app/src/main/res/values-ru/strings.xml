@@ -449,6 +449,8 @@
     <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>
     <string name="pref_change_pass">Сменить пароль</string>
     <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
+    <string name="pref_setup_pass">Установить пароль</string>
+    <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
     <string name="log_pass_confirm_not_match">Подтверждение пароля не совпадает</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
 

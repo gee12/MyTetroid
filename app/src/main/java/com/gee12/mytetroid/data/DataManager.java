@@ -18,7 +18,6 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidLog;
-import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.model.TetroidFile;
@@ -30,7 +29,6 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.AskDialogs;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -75,17 +73,22 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     /**
      *
      */
-    private String storagePath;
+    protected String storagePath;
+
+    /**
+     * Расшифровано ли в данный момент хранилище (временно).
+     */
+    protected boolean isDecrypted;
 
     /**
      *
      */
-    private static DatabaseConfig databaseConfig;
+    protected static DatabaseConfig databaseConfig;
 
     /**
      *
      */
-    private static DataManager instance;
+    protected static DataManager instance;
 
     /**
      * Загрузка параметров из файла database.ini и инициализация переменных.
@@ -156,7 +159,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     public static boolean decryptStorage() {
         LogManager.addLog(R.string.log_start_storage_decrypt);
-        return CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false);
+        boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false);
+        instance.isDecrypted = res;
+        return res;
     }
 
     /**
@@ -176,7 +181,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param node
      * @return
      */
-    public static boolean nocryptNode(@NonNull TetroidNode node) {
+    public static boolean dropCryptNode(@NonNull TetroidNode node) {
         boolean res = CryptManager.decryptNode(node, true, instance, true);
         if (res) {
             return saveStorage();
@@ -211,141 +216,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             return saveStorage();
         }
         return false;
-    }
-
-    /**
-     * Проверка введенного пароля с сохраненным хэшем.
-     * @param pass
-     * @return
-     * @throws DatabaseConfig.EmptyFieldException
-     */
-    public static boolean checkPass(String pass) throws DatabaseConfig.EmptyFieldException {
-        String salt = databaseConfig.getCryptCheckSalt();
-        String checkhash = databaseConfig.getCryptCheckHash();
-        return CryptManager.checkPass(pass, salt, checkhash);
-    }
-
-    /**
-     * Каркас проверки введенного пароля.
-     * @param context
-     * @param pass
-     * @param callback
-     * @param wrongPassRes
-     */
-    public static boolean checkPass(Context context, String pass, ICallback callback, int wrongPassRes) {
-        try {
-            if (checkPass(pass)) {
-                callback.run();
-            } else {
-                LogManager.addLog(wrongPassRes, Toast.LENGTH_LONG);
-                return false;
-            }
-        } catch (DatabaseConfig.EmptyFieldException e) {
-            // если поля в INI-файле для проверки пустые
-            LogManager.addLog(e);
-            // спрашиваем "continue anyway?"
-            AskDialogs.showEmptyPassCheckingFieldDialog(context, e.getFieldName(), () -> {
-
-                // TODO: спрашиваем нормально ли расшифровались данные
-                if (callback != null)
-                    callback.run();
-            });
-        }
-        return true;
-    }
-
-    /**
-     * Сохранение пароля в настройках и его установка для шифрования.
-     * @param pass
-     */
-    public static void setStoragePass(String pass) {
-        String passHash = CryptManager.passToHash(pass);
-        // сохраняем хэш пароля
-        if (SettingsManager.isSaveMiddlePassHashLocal())
-            SettingsManager.setMiddlePassHash(passHash);
-        else
-            CryptManager.setMiddlePassHash(passHash);
-
-        initCryptPass(pass, false);
-    }
-
-    /**
-     * Смена пароля.
-     * @return
-     */
-    public static void changePass(Context context) {
-        LogManager.addLog(R.string.log_start_pass_change);
-        // вводим пароли (с проверкой на пустоту и равенство)
-        AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
-            // проверяем пароль
-            return checkPass(context, curPass, () -> {
-                changePass(newPass);
-            }, R.string.log_cur_pass_is_incorrect);
-        });
-    }
-
-    public static boolean changePass(String newPass) {
-
-        // сначала расшифровываем хранилище
-        if (DataManager.decryptStorage()) {
-            LogManager.addLog(R.string.log_storage_decrypted);
-        } else {
-            LogManager.addLog(R.string.log_errors_during_decryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
-            return false;
-        }
-
-        // устанавливаем новый пароль
-        setStoragePass(newPass);
-        // перешифровываем зашифрованные ветки
-        if (reencryptStorage()) {
-            LogManager.addLog(R.string.log_storage_reencrypted);
-        } else {
-            LogManager.addLog(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, LogManager.DURATION_NONE);
-            return false;
-        }
-
-        // сохраняем в database.ini
-        savePass(newPass);
-
-        return true;
-    }
-
-    /**
-     * Генерируем
-     * @param newPass
-     * @return
-     */
-    public static boolean savePass(String newPass) {
-        byte[] salt = createRandomBytes(32);
-        byte[] passHash = null;
-        try {
-            passHash = Crypter.calculatePBKDF2Hash(newPass, salt);
-        } catch (Exception ex) {
-            LogManager.addLog(ex);
-            return false;
-        }
-        return databaseConfig.savePass(Base64.encodeToString(passHash, false),
-                Base64.encodeToString(salt, false), true);
-    }
-
-    /**
-     * Очистка установленного пароля.
-     * @return
-     */
-    public static boolean clearPass() {
-        SettingsManager.setMiddlePassHash(null);
-        return databaseConfig.savePass(null, null, false);
-    }
-
-    /**
-     * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
-     * @param passHash
-     * @return
-     * @throws DatabaseConfig.EmptyFieldException
-     */
-    public static boolean checkMiddlePassHash(String passHash) throws DatabaseConfig.EmptyFieldException {
-        String checkdata = databaseConfig.getMiddleHashCheckData();
-        return CryptManager.checkMiddlePassHash(passHash, checkdata);
     }
 
     /**
@@ -2470,6 +2340,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
                 : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
         return (iniFlag || instance.mIsExistCryptedNodes);
+    }
+
+    public static boolean isDecrypted() {
+        return instance.isDecrypted;
+    }
+
+    public static DatabaseConfig getDatabaseConfig() {
+        return databaseConfig;
     }
 
     public static DataManager getInstance() {
