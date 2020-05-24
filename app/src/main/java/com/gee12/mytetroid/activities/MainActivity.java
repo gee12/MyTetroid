@@ -1433,7 +1433,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 if (isNewPass) {
-                    LogManager.addLog(R.string.log_start_set_storage_pass);
+                    LogManager.addLog(R.string.log_start_pass_setup);
 
                     // TODO: сохраняем пароль в database.ini
 

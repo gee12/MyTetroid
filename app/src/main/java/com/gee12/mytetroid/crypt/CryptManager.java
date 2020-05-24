@@ -46,9 +46,9 @@ public class CryptManager extends Crypter {
     public static boolean encryptNodes(List<TetroidNode> nodes, boolean isReencrypt) {
         boolean res = true;
         for (TetroidNode node : nodes) {
-            if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
+//            if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
                 res = res & encryptNode(node, isReencrypt);
-            }
+//            }
         }
         return res;
     }
@@ -62,11 +62,13 @@ public class CryptManager extends Crypter {
     public static boolean encryptNode(TetroidNode node, boolean isReencrypt) {
         if (node == null)
             return false;
-        boolean res;
-        // засшифровываем поля
-        res = encryptNodeFields(node, isReencrypt);
-        if (node.getRecordsCount() > 0) {
-            res = res & encryptRecordsAndFiles(node.getRecords(), isReencrypt);
+        boolean res = true;
+        if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
+            // засшифровываем поля
+            res = encryptNodeFields(node, isReencrypt);
+            if (node.getRecordsCount() > 0) {
+                res = res & encryptRecordsAndFiles(node.getRecords(), isReencrypt);
+            }
         }
         // расшифровываем подветки
         if (node.getSubNodesCount() > 0) {

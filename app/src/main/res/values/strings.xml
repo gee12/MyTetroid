@@ -485,16 +485,16 @@
     <string name="log_receiving_intent_text">Receiving text from another application</string>
     <string name="log_receiving_intent_image_mask">Receiving image from another application: [%s]</string>
     <string name="log_receiving_intent_images_mask">Receiving images (%d) from another application</string>
-    <string name="log_files_attach_error">Errors occurred while attaching file (s) (more in logs)</string>
+    <string name="log_files_attach_error">Errors occurred while attaching file(s) (more in logs)</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
     <string name="log_error_file_decrypt">Error decrypting file</string>
     <string name="log_error_file_encrypt">Error encrypting file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
     <string name="log_file_moved_mask">File/folder was moved to %s</string>
-    <string name="log_start_set_storage_pass">Start setting the storage password</string>
-    <string name="log_storage_pass_setted">Storage password was set</string>
-    <string name="log_storage_pass_set_error">Failed to set storage password</string>
-    <string name="log_start_pass_change">Start password changing</string>
+    <string name="log_start_pass_setup">Start setup the storage password</string>
+    <string name="log_pass_setted">Storage password was setup</string>
+    <string name="log_pass_set_error">Failed to set storage password</string>
+    <string name="log_start_pass_change">Start storage password changing</string>
     <string name="log_start_storage_decrypt">Start storage decrypting</string>
     <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>
     <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
@@ -504,5 +504,7 @@
     <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
+    <string name="log_pass_changed">Password was changed</string>
+    <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>
 
 </resources>
