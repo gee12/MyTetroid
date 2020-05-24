@@ -47,6 +47,7 @@ import com.gee12.mytetroid.adapters.TagsListAdapter;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.DatabaseConfig;
+import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
@@ -432,7 +433,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
             // проверяем
             try {
-                if (DataManager.checkMiddlePassHash(middlePassHash)) {
+                if (PassManager.checkMiddlePassHash(middlePassHash)) {
 //                    decryptStorage(middlePassHash, true, null);
                     DataManager.initCryptPass(middlePassHash, true);
                     initStorage(null, true);
@@ -473,8 +474,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 // подтверждение введенного пароля
-                DataManager.checkPass(MainActivity.this, pass, () -> {
-                    DataManager.setStoragePass(pass);
+                PassManager.checkPass(MainActivity.this, pass, () -> {
+                    PassManager.initPass(pass);
                     initStorage(node, true);
                 }, R.string.log_pass_is_incorrect);
 
@@ -1345,27 +1346,31 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.isCrypted()) {
                 initStorage(null, true);
             }
-            if (DataManager.encryptNode(node)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
-            } else {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+            if (DataManager.isDecrypted()) {
+                if (DataManager.encryptNode(node)) {
+                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+                } else {
+                    TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+                }
+                mListAdapterNodes.notifyDataSetChanged();
             }
-            mListAdapterNodes.notifyDataSetChanged();
         });
     }
 
-    private void noEncryptNode(TetroidNode node) {
+    private void dropEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
             // сначала расшифровываем хранилище
             if (DataManager.isCrypted()) {
                 initStorage(null, true);
             }
-            if (DataManager.nocryptNode(node)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-            } else {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+            if (DataManager.isDecrypted()) {
+                if (DataManager.dropCryptNode(node)) {
+                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                } else {
+                    TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                }
+                mListAdapterNodes.notifyDataSetChanged();
             }
-            mListAdapterNodes.notifyDataSetChanged();
         });
     }
 
@@ -1382,7 +1387,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 || (middlePassHash = CryptManager.getMiddlePassHash()) != null) {
                 // пароль сохранен, проверяем
                 try {
-                    if (DataManager.checkMiddlePassHash(middlePassHash)) {
+                    if (PassManager.checkMiddlePassHash(middlePassHash)) {
                         DataManager.initCryptPass(middlePassHash, true);
                         callback.onApply();
                     } else {
@@ -1416,7 +1421,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
-
     /**
      * Отображения запроса пароля от хранилища.
      * @param node
@@ -1433,16 +1437,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
                     // TODO: сохраняем пароль в database.ini
 
-                    if (DataManager.savePass(pass)) {
-                        LogManager.addLog(R.string.log_storage_pass_setted);
-                    } else {
-                        LogManager.addLog(R.string.log_storage_pass_set_error, LogManager.Types.ERROR);
-                    }
-                    DataManager.setStoragePass(pass);
                     callback.onApply();
                 } else {
-                    DataManager.checkPass(MainActivity.this, pass, () -> {
-                        DataManager.setStoragePass(pass);
+                    PassManager.checkPass(MainActivity.this, pass, () -> {
+                        PassManager.initPass(pass);
                         callback.onApply();
                     }, R.string.log_pass_is_incorrect);
 
@@ -1547,7 +1545,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     encryptNode(node);
                     return true;
                 case R.id.action_no_encrypt_node:
-                    noEncryptNode(node);
+                    dropEncryptNode(node);
                     return true;
                 case R.id.action_expand_node:
                     expandSubNodes(pos);

@@ -22,6 +22,7 @@ import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.views.AskDialogs;
 
 import org.jsoup.internal.StringUtil;
@@ -97,9 +98,15 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     return true;
                 });
 
-        findPreference(getString(R.string.pref_key_change_pass))
-                .setOnPreferenceClickListener(pref -> {
-                    DataManager.changePass(this);
+        Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
+        boolean crypted = DataManager.isCrypted();
+        passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
+        passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
+        passPref.setOnPreferenceClickListener(pref -> {
+                    if (crypted)
+                        PassManager.changePass(this);
+                    else
+                        PassManager.setupPass(this);
                     return true;
                 });
 
