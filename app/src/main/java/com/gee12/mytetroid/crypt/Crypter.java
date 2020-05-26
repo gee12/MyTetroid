@@ -38,19 +38,19 @@ public class Crypter {
     /***
      * Сверяем пароль с проверочным хешем в database.ini
      * @param pass Введенный пароль в виде строки
-     * @param salt Сохраненная соль в Base64
+     * @param checkSalt Сохраненная соль в Base64
      * @param checkHash Сохраненный хеш пароля в Base64
      * @return
      */
-    public static boolean checkPass(String pass, String salt, String checkHash) {
-        if (salt == null || checkHash == null)
+    public static boolean checkPass(String pass, String checkSalt, String checkHash) {
+        if (checkSalt == null || checkHash == null)
             return false;
-        byte[] saltSigned = decodeBase64(salt);
+        byte[] checkSaltSigned = decodeBase64(checkSalt);
         byte[] checkHashSigned = decodeBase64(checkHash);
         // получим хэш пароля и соли
         byte[] passHash = null;
         try {
-            passHash = calculatePBKDF2Hash(pass, saltSigned);
+            passHash = calculatePBKDF2Hash(pass, checkSaltSigned);
         } catch (Exception e) {
             addLog(e);
         }
@@ -65,8 +65,8 @@ public class Crypter {
      */
     public static boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
-        byte[] checDataSigned = decodeBase64(checkData);
-        String line = decryptString(key, checDataSigned);
+        byte[] checkDataSigned = decodeBase64(checkData);
+        String line = decryptString(key, checkDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
     }

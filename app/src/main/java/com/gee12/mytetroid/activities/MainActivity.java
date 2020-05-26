@@ -552,7 +552,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initStorage(TetroidNode node, boolean isDecrypt) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
-            if (DataManager.decryptStorage()) {
+            if (DataManager.decryptStorage(false)) {
                 LogManager.addLog(R.string.log_storage_decrypted);
             } else {
                 LogManager.addLog(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);

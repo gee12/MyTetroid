@@ -15,7 +15,7 @@ import com.gee12.mytetroid.views.AskDialogs;
 public class PassManager extends DataManager {
 
     /**
-     * Проверка введенного пароля с сохраненным хэшем.
+     * Проверка введенного пароля с сохраненным проверочным хэшем.
      * @param pass
      * @return
      * @throws DatabaseConfig.EmptyFieldException
@@ -140,7 +140,7 @@ public class PassManager extends DataManager {
         // сначала устанавливаем текущий пароль
         initPass(curPass);
         // и расшифровываем хранилище
-        if (DataManager.decryptStorage()) {
+        if (DataManager.decryptStorage(true)) {
             LogManager.addLog(R.string.log_storage_decrypted);
         } else {
             LogManager.addLog(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -154,6 +154,12 @@ public class PassManager extends DataManager {
         } else {
             LogManager.addLog(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return false;
+        }
+        // сохраняем mytetra.xml
+        if (DataManager.saveStorage()) {
+            LogManager.addLog(R.string.log_mytetra_xml_was_saved);
+        } else {
+            LogManager.addLog(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
         // сохраняем в database.ini
         savePass(newPass);

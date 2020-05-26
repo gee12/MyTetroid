@@ -157,9 +157,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * Расшифровка хранилища (временная).
      * @return
      */
-    public static boolean decryptStorage() {
+    public static boolean decryptStorage(boolean decryptFiles) {
         LogManager.addLog(R.string.log_start_storage_decrypt);
-        boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false);
+        boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false, decryptFiles);
         instance.isDecrypted = res;
         return res;
     }
@@ -173,7 +173,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     protected boolean decryptNode(@NonNull TetroidNode node) {
         // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
         // и расшифровка каждой из них запустится сама при их загрузке по очереди в XMLManager
-        return CryptManager.decryptNode(node, false, this, false);
+        return CryptManager.decryptNode(node, false, this, false, false);
     }
 
     /**
@@ -182,7 +182,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean dropCryptNode(@NonNull TetroidNode node) {
-        boolean res = CryptManager.decryptNode(node, true, instance, true);
+        boolean res = CryptManager.decryptNode(node, true, instance, true, false);
         if (res) {
             return saveStorage();
         }
@@ -951,7 +951,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         // зашифровываем или расшифровываем файл записи
 //        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
-        if (!instance.cryptRecordFile(record, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
+        if (!instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
             return errorRes;
         }
 
@@ -1453,7 +1453,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 // FIXME: обрабатывать результат ?
 //                File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //                cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted);
-                instance.cryptRecordFile(record, srcRecord.isCrypted(), crypted);
+                instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted);
             }
         } else {
             TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
@@ -1516,7 +1516,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param record
      * @param isEncrypt
      */
-    public boolean cryptRecordFile(TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
+    public boolean cryptRecordFiles(TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
         // файл записи
         String recordFolderPath = getPathToRecordFolder(record);
         File file = new File(recordFolderPath, record.getFileName());
@@ -1540,10 +1540,23 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param record
      * @param isEncrypt
      */
-    @Override
-    public boolean cryptRecordFile(TetroidRecord record, boolean isEncrypt) {
-        return cryptRecordFile(record, record.isCrypted(), isEncrypt);
+/*    @Override
+    public boolean cryptRecordFiles(TetroidRecord record, boolean isEncrypt) {
+        return cryptRecordFiles(record, record.isCrypted(), isEncrypt);
     }
+
+    *//**
+     * Перешифровка файла записи и прикрепленных файлов при необходимости.
+     * Файлы уже должны быть расшифрованы.
+     * @param record
+     * @return
+     *//*
+    @Override
+    public boolean reencryptRecordFiles(TetroidRecord record) {
+        if (!record.isCrypted() || !record.isDecrypted())
+            return false;
+        return cryptRecordFiles(record, false, true);
+    }*/
 
     /**
      * Удаление/вырезание записи из ветки.

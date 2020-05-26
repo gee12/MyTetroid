@@ -455,5 +455,7 @@
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
     <string name="log_pass_changed">Пароль изменен</string>
     <string name="log_pass_change_error">Не удалось изменить пароль (подробнее в логах)</string>
+    <string name="log_mytetra_xml_was_saved">Структура хранилища сохранена в mytetra.xml</string>
+    <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилиша в mytetra.xml (подробнее в логах)</string>
 
 </resources>
