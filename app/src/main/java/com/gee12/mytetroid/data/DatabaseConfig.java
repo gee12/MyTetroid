@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data;
 
-public class DatabaseConfig extends INIProperties {
+public class DatabaseConfig extends INIConfig {
 
     public class EmptyFieldException extends Exception {
 
@@ -16,18 +16,15 @@ public class DatabaseConfig extends INIProperties {
         }
     }
 
+    public static final String INI_SECTION_GENERAL = "General";
     public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
     public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
     public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
     public static final String INI_CRYPT_MODE = "crypt_mode";
 
-    /*private String cryptCheckHash;
-    private String cryptCheckSalt;
-    private String middleHashCheckData;
-    private boolean cryptMode;*/
-
     public DatabaseConfig(String fileName) {
         super(fileName);
+        config.getConfig().setEscape(false);
     }
 
     public String getCryptCheckHash() throws EmptyFieldException {
@@ -43,7 +40,7 @@ public class DatabaseConfig extends INIProperties {
     }
 
     public boolean isCryptMode() throws EmptyFieldException {
-        return getValue(INI_CRYPT_MODE).equals("1");
+        return getValueFromGeneral(INI_CRYPT_MODE).equals("1");
     }
 
     /**
@@ -53,9 +50,9 @@ public class DatabaseConfig extends INIProperties {
      * @return
      */
     public boolean savePass(String passHash, String salt, boolean cryptMode) {
-        set(INI_CRYPT_CHECK_HASH, (passHash != null) ? passHash : "");
-        set(INI_CRYPT_CHECK_SALT, (salt != null) ? salt : "");
-        set(INI_CRYPT_MODE, (cryptMode) ? "1" : "");
+        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash);
+        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt);
+        setValueToGeneral(INI_CRYPT_MODE, (cryptMode) ? "1" : "");
         return save();
     }
 
@@ -64,19 +61,28 @@ public class DatabaseConfig extends INIProperties {
      * @param key
      * @return
      */
-    public String getValue(String key) throws EmptyFieldException {
-        String res = get(key);
+    public String getValueFromGeneral(String key) throws EmptyFieldException {
+        String res = get(INI_SECTION_GENERAL, key);
         if (res == null || res.isEmpty()) {
             throw new EmptyFieldException(key);
         }
         return res;
     }
+
     /**
      * Получение значения по ключу без двойных кавычек вначале и вконце.
      * @param key
      * @return
      */
     public String getWithoutQuotes(String key) throws EmptyFieldException {
-        return getValue(key).replaceAll("^\"|\"$", "");
+        return getValueFromGeneral(key).replaceAll("^\"|\"$", "");
+    }
+
+    public void setValueToGeneral(String key, String value) {
+        set(INI_SECTION_GENERAL, key, (value != null) ? value : "");
+    }
+
+    public void setValueToGeneralWithQuotes(String key, String value) {
+        setValueToGeneral(key, (value != null) ? "\"" + value + "\"" : "");
     }
 }

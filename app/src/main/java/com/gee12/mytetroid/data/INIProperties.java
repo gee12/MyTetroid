@@ -8,11 +8,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class INIProperties {
-    private Properties configuration;
+
+    private Properties config;
     private String fileName;
 
+    /**
+     *
+     * @param fileName
+     */
     public INIProperties(String fileName) {
-        this.configuration = new Properties();
+        this.config = new Properties();
         this.fileName = fileName;
     }
 
@@ -21,16 +26,13 @@ public class INIProperties {
      * @return
      */
     public boolean load() {
-        boolean retval = false;
-
         try {
-            configuration.load(new FileInputStream(fileName));
-            retval = true;
+            config.load(new FileInputStream(fileName));
         } catch (IOException e) {
             LogManager.addLog("Configuration error: ", e);
+            return false;
         }
-
-        return retval;
+        return true;
     }
 
     /**
@@ -38,16 +40,13 @@ public class INIProperties {
      * @return
      */
     public boolean save() {
-        boolean retval = false;
-
         try {
-            configuration.store(new FileOutputStream(fileName), null);
-            retval = true;
+            config.store(new FileOutputStream(fileName), null);
         } catch (IOException e) {
             LogManager.addLog("Configuration error: ", e);
+            return false;
         }
-
-        return retval;
+        return true;
     }
 
     /**
@@ -56,7 +55,7 @@ public class INIProperties {
      * @param value
      */
     public void set(String key, String value) {
-        configuration.setProperty(key, value);
+        config.setProperty(key, value);
     }
 
     /**
@@ -65,7 +64,7 @@ public class INIProperties {
      * @return
      */
     public String get(String key) {
-        return configuration.getProperty(key);
+        return config.getProperty(key);
     }
 
 }
