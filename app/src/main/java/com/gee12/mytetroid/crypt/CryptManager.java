@@ -117,13 +117,14 @@ public class CryptManager extends Crypter {
     /**
      * Зашифровка полей списка записей и полей их прикрепленных прифайлов.
      * @param records
-     * @param isReencrypt
+     * @param isReencrypt Флаг, заставляющий шифровать файлы записи даже тогда, когда запись
+     *                    уже зашифрована.
      * @return
      */
     public static boolean encryptRecordsAndFiles(List<TetroidRecord> records, boolean isReencrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
-            // зашифровываем файл записи
+            // зашифровываем файлы записи
             if (recordFileCrypter != null) {
                 recordFileCrypter.cryptRecordFiles(record, record.isCrypted() && !isReencrypt, true);
             }
@@ -244,7 +245,7 @@ public class CryptManager extends Crypter {
         if (node == null)
             return false;
         boolean res = true;
-        if (node.isCrypted() && (!node.isDecrypted() || dropCrypt)) {
+        if (node.isCrypted() && (!node.isDecrypted() || dropCrypt || decryptFiles)) {
             // расшифровываем поля
             res = decryptNodeFields(node, dropCrypt);
             // загружаем иконку
@@ -310,17 +311,15 @@ public class CryptManager extends Crypter {
     public static boolean decryptRecordsAndFiles(List<TetroidRecord> records, boolean dropCrypt, boolean decryptFiles) {
         boolean res = true;
         for (TetroidRecord record : records) {
-//            if (record.isCrypted()) {
-                // расшифровываем файл записи
-                if ((dropCrypt || decryptFiles) && recordFileCrypter != null) {
-                    recordFileCrypter.cryptRecordFiles(record, true,false);
+            res = res & decryptRecordFields(record, dropCrypt);
+            if (record.getAttachedFilesCount() > 0)
+                for (TetroidFile file : record.getAttachedFiles()) {
+                    res = res & decryptAttach(file, dropCrypt);
                 }
-                res = res & decryptRecordFields(record, dropCrypt);
-                if (record.getAttachedFilesCount() > 0)
-                    for (TetroidFile file : record.getAttachedFiles()) {
-                        res = res & decryptAttach(file, dropCrypt);
-                    }
-//            }
+            // расшифровываем файлы записи
+            if ((dropCrypt || decryptFiles) && recordFileCrypter != null) {
+                recordFileCrypter.cryptRecordFiles(record, true,false);
+            }
         }
         return res;
     }

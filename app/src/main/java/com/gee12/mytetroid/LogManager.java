@@ -129,7 +129,7 @@ public class LogManager {
     }
 
     public static void addLog(String s, Exception ex) {
-        addLog(s + getExceptionInfo(ex), Types.ERROR);
+        addLog(s + ": " + getExceptionInfo(ex), Types.ERROR);
     }
 
     public static void addLog(Exception ex, int duration) {
@@ -137,7 +137,7 @@ public class LogManager {
     }
 
     public static void addLog(String s, Exception ex, int duration) {
-        addLog(s + getExceptionInfo(ex), Types.ERROR, duration);
+        addLog(s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
     }
 
     public static void showMessage(String s, int duration) {

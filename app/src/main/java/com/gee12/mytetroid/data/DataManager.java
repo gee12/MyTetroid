@@ -219,6 +219,82 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
+     * Зашифровка или расшифровка файла при необходимости.
+     * @param file
+     * @param isCrypted
+     * @param isEncrypt
+     * @return
+     */
+    private static int cryptOrDecryptFile(File file, boolean isCrypted, boolean isEncrypt) {
+        if (isCrypted && !isEncrypt) {
+            try {
+                // расшифровуем файл записи
+                return (Crypter.decryptFile(file, file)) ? 1 : -1;
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
+                return -1;
+            }
+        } else if (!isCrypted && isEncrypt) {
+            try {
+                // зашифровуем файл записи
+                return (Crypter.encryptFile(file, file)) ? 1 : -1;
+            } catch (Exception ex) {
+                LogManager.addLog(context.getString(R.string.log_error_file_encrypt) + file.getAbsolutePath(), ex);
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
+     * @param record
+     * @param isEncrypt
+     */
+    @Override
+    public boolean cryptRecordFiles(TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
+        // файл записи
+        String recordFolderPath = getPathToRecordFolder(record);
+        File file = new File(recordFolderPath, record.getFileName());
+        if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
+            return false;
+        }
+        // прикрепленные файлы
+        if (record.getAttachedFilesCount() > 0) {
+            for (TetroidFile attach : record.getAttachedFiles()) {
+                file = new File(recordFolderPath, attach.getIdName());
+                if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
+     * @param record
+     * @param isEncrypt
+     */
+/*    @Override
+    public boolean cryptRecordFiles(TetroidRecord record, boolean isEncrypt) {
+        return cryptRecordFiles(record, record.isCrypted(), isEncrypt);
+    }
+
+    *//**
+     * Перешифровка файла записи и прикрепленных файлов при необходимости.
+     * Файлы уже должны быть расшифрованы.
+     * @param record
+     * @return
+     *//*
+    @Override
+    public boolean reencryptRecordFiles(TetroidRecord record) {
+        if (!record.isCrypted() || !record.isDecrypted())
+            return false;
+        return cryptRecordFiles(record, false, true);
+    }*/
+
+    /**
      * Получение пути к файлу с содержимым записи.
      * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
      * @return
@@ -363,10 +439,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
         return true;
     }
-
-//    public static boolean shareRecordText(Context context, TetroidRecord record) {
-//
-//    }
 
     public static boolean shareText(Context context, String subject, String text) {
         if (context == null)
@@ -1482,81 +1554,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //        clipboard.setObjForInsert(record);
         return 1;
     }
-
-    /**
-     * Зашифровка или расшифровка файла при необходимости.
-     * @param file
-     * @param isCrypted
-     * @param isEncrypt
-     * @return
-     */
-    private static int cryptOrDecryptFile(File file, boolean isCrypted, boolean isEncrypt) {
-        if (isCrypted && !isEncrypt) {
-            try {
-                // расшифровуем файл записи
-                return (Crypter.decryptFile(file, file)) ? 1 : -1;
-            } catch (Exception ex) {
-                LogManager.addLog(context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
-                return -1;
-            }
-        } else if (!isCrypted && isEncrypt) {
-            try {
-                // зашифровуем файл записи
-                return (Crypter.encryptFile(file, file)) ? 1 : -1;
-            } catch (Exception ex) {
-                LogManager.addLog(context.getString(R.string.log_error_file_encrypt) + file.getAbsolutePath(), ex);
-                return -1;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
-     * @param record
-     * @param isEncrypt
-     */
-    public boolean cryptRecordFiles(TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
-        // файл записи
-        String recordFolderPath = getPathToRecordFolder(record);
-        File file = new File(recordFolderPath, record.getFileName());
-        if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
-            return false;
-        }
-        // прикрепленные файлы
-        if (record.getAttachedFilesCount() > 0) {
-            for (TetroidFile attach : record.getAttachedFiles()) {
-                file = new File(recordFolderPath, attach.getIdName());
-                if (cryptOrDecryptFile(file, isCrypted, isEncrypt) < 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
-     * @param record
-     * @param isEncrypt
-     */
-/*    @Override
-    public boolean cryptRecordFiles(TetroidRecord record, boolean isEncrypt) {
-        return cryptRecordFiles(record, record.isCrypted(), isEncrypt);
-    }
-
-    *//**
-     * Перешифровка файла записи и прикрепленных файлов при необходимости.
-     * Файлы уже должны быть расшифрованы.
-     * @param record
-     * @return
-     *//*
-    @Override
-    public boolean reencryptRecordFiles(TetroidRecord record) {
-        if (!record.isCrypted() || !record.isDecrypted())
-            return false;
-        return cryptRecordFiles(record, false, true);
-    }*/
 
     /**
      * Удаление/вырезание записи из ветки.

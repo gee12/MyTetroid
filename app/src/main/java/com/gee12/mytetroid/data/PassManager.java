@@ -77,7 +77,8 @@ public class PassManager extends DataManager {
             SettingsManager.setMiddlePassHash(passHash);
         else
             CryptManager.setMiddlePassHash(passHash);
-
+        // здесь, по идее, можно сохранять сразу passHash (с параметром isMiddleHash=true),
+        // но сделал так
         DataManager.initCryptPass(pass, false);
     }
 
