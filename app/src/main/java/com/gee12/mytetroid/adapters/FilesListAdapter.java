@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.model.TetroidFile;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class FilesListAdapter extends BaseAdapter {
         viewHolder.nameView.setText(file.getName());
         // размер
         ImageView icon = convertView.findViewById(R.id.file_view_icon);
-        String fileSize = DataManager.getAttachedFileSize(mContext, file);
+        String fileSize = AttachesManager.getAttachedFileSize(mContext, file);
         if (fileSize != null) {
             icon.setImageResource(R.drawable.ic_file);
             viewHolder.sizeView.setText(fileSize);

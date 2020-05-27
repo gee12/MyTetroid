@@ -457,5 +457,6 @@
     <string name="log_pass_change_error">Не удалось изменить пароль (подробнее в логах)</string>
     <string name="log_mytetra_xml_was_saved">Структура хранилища сохранена в mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилиша в mytetra.xml (подробнее в логах)</string>
+    <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
 
 </resources>

@@ -10,6 +10,7 @@ import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.AskDialogs;
 
 public class PassManager extends DataManager {
@@ -172,12 +173,21 @@ public class PassManager extends DataManager {
     }
 
     /**
+     * Сброс сохраненного хэша пароля и его проверочных данных.
+     */
+    public static void clearSavedPass() {
+        SettingsManager.setMiddlePassHash(null);
+        clearPassCheckData();
+        clearMiddlePassCheckData();
+    }
+
+    /**
      * Сохранение проверочного хэша пароля и сопутствующих данных в database.ini.
      * @param newPass
      * @return
      */
     public static boolean savePassCheckData(String newPass) {
-        byte[] salt = DataManager.createRandomBytes(32);
+        byte[] salt = Utils.createRandomBytes(32);
         byte[] passHash = null;
         try {
             passHash = Crypter.calculatePBKDF2Hash(newPass, salt);
