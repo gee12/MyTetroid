@@ -220,7 +220,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
-        LogManager.addLog(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
+        LogManager.log(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
         startInitStorage();
     }
 
@@ -328,7 +328,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         String command = SettingsManager.getSyncCommand();
         Intent intent = SyncManager.createCommandSender(this, storagePath, command);
 
-        LogManager.addLog(getString(R.string.log_start_storage_sync) + command);
+        LogManager.log(getString(R.string.log_start_storage_sync) + command);
         if (!SettingsManager.isNotRememberSyncApp()) {
             // использовать стандартный механизм запоминания используемого приложения
             startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
@@ -345,7 +345,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void onSyncStorageFinish(boolean res) {
         final String storagePath = SettingsManager.getStoragePath();
         if (res) {
-            LogManager.addLog(R.string.log_sync_successful, Toast.LENGTH_SHORT);
+            LogManager.log(R.string.log_sync_successful, Toast.LENGTH_SHORT);
             if (mIsLoadStorageAfterSync)
                 initStorage(storagePath);
             else {
@@ -357,7 +357,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 });
             }
         } else {
-            LogManager.addLog(getString(R.string.log_sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             if (mIsLoadStorageAfterSync) {
                 AskDialogs.showSyncDoneDialog(this, false, new AskDialogs.IApplyResult() {
                     @Override
@@ -376,7 +376,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void initStorage(String storagePath) {
         if (DataManager.init(this, storagePath)) {
-            LogManager.addLog(getString(R.string.log_storage_settings_inited) + storagePath);
+            LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
             if (SettingsManager.isLoadLastStoragePath()) {
@@ -413,7 +413,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 initStorage(null, false);
             }
         } else {
-            LogManager.addLog(getString(R.string.log_failed_storage_init) + DataManager.getStoragePath(),
+            LogManager.log(getString(R.string.log_failed_storage_init) + DataManager.getStoragePath(),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
@@ -438,7 +438,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     DataManager.initCryptPass(middlePassHash, true);
                     initStorage(null, true);
                 } else {
-                    LogManager.addLog(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
+                    LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!mIsAlreadyTryDecrypt) {
                         mIsAlreadyTryDecrypt = true;
                         initStorage(null, false);
@@ -468,7 +468,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     void askPassword(final TetroidNode node) {
-        LogManager.addLog(R.string.log_show_pass_dialog);
+        LogManager.log(R.string.log_show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
         AskDialogs.showPassEnterDialog(this, node, false, new AskDialogs.IPassInputResult() {
             @Override
@@ -492,12 +492,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         DataManager.initCryptPass(pass, false);
                         initStorage(node, true);
                     } else {
-                        LogManager.addLog(R.string.log_pass_is_incorrect, Toast.LENGTH_LONG);
+                        LogManager.log(R.string.log_pass_is_incorrect, Toast.LENGTH_LONG);
                         askPassword(node);
                     }
                 } catch (DataManager.EmptyFieldException e) {
                     // если поля в INI-файле для проверки пустые
-                    LogManager.addLog(e);
+                    LogManager.log(e);
                     // спрашиваем "continue anyway?"
                     AskDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), () -> {
                         // TODO: пароль не сохраняем
@@ -530,21 +530,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Расшифровка хранилища.
-     * @param pass
-     * @param isMiddleHash
-     * @param nodeToSelect Ветка для выбора при удачной расшифровке
-     */
-    /*private void decryptStorage(String pass, boolean isMiddleHash, TetroidNode nodeToSelect) {
-        if (isMiddleHash) {
-            CryptManager.initFromMiddleHash(pass, DataManager.getInstance());
-        } else {
-            CryptManager.initFromPass(pass, DataManager.getInstance());
-        }
-        initStorage(nodeToSelect, true);
-    }*/
-
-    /**
      * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища.
      * @param node
      * @param isDecrypt
@@ -553,9 +538,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
             if (DataManager.decryptStorage(false)) {
-                LogManager.addLog(R.string.log_storage_decrypted);
+                LogManager.log(R.string.log_storage_decrypted);
             } else {
-                LogManager.addLog(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
+                LogManager.log(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
             }
             mListAdapterNodes.notifyDataSetChanged();
             mListAdapterTags.setDataItems(DataManager.getTags());
@@ -564,7 +549,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showNode(node);
             }
         } else {
-            LogManager.addLog(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
+            LogManager.log(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
             new MainActivity.ReadStorageTask().execute(isDecrypt);
         }
     }
@@ -655,7 +640,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (node != null) {
             showNode(node);
         } else {
-            LogManager.addLog(getString(R.string.log_not_found_node_id) + nodeId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_not_found_node_id) + nodeId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -673,7 +658,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
-        LogManager.addLog(getString(R.string.log_open_node) + node.getId());
+        LogManager.log(getString(R.string.log_open_node) + node.getId());
         // сбрасываем фильтрацию при открытии ветки
         if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
@@ -703,12 +688,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showTag(TetroidTag tag) {
         if (tag == null) {
-            LogManager.addLog("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
         this.mCurNode = null;
         this.mCurTag = tag;
-        LogManager.addLog(getString(R.string.log_open_tag_records) + tag);
+        LogManager.log(getString(R.string.log_open_tag_records) + tag);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
@@ -842,7 +827,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         TetroidNode node = (TetroidNode) item;
         if (node == null) {
-            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
         showNodePopupMenu(view, node, pos);
@@ -921,7 +906,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInNodesNames(String query) {
-        LogManager.addLog(String.format(getString(R.string.search_nodes_by_query), query));
+        LogManager.log(String.format(getString(R.string.search_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
@@ -973,7 +958,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        List<TetroidTag> tags;
         Map<String,TetroidTag> tags;
         if (isSearch) {
-            LogManager.addLog(String.format(getString(R.string.search_tags_by_query), query));
+            LogManager.log(String.format(getString(R.string.search_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
         } else {
             tags = DataManager.getTags();
@@ -1132,13 +1117,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode node = DataManager.createNode(name, trueParentNode);
             if (node != null) {
                 if (mListAdapterNodes.addItem(pos, isSubNode)) {
-//                    LogManager.addLog(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                    LogManager.log(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                     TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
                 } else {
-                    LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
-//                LogManager.addLog(getString(R.string.log_create_node_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.log(getString(R.string.log_create_node_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }
         });
@@ -1151,9 +1136,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (node != null) {
             String url = node.createUrl();
             Utils.writeToClipboard(this, getString(R.string.link_to_node), url);
-            LogManager.addLog(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.log(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
-            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -1164,9 +1149,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (tag != null) {
             String url = tag.createUrl();
             Utils.writeToClipboard(this, getString(R.string.link_to_tag), url);
-            LogManager.addLog(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.log(getString(R.string.title_link_was_copied) + url, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
-            LogManager.addLog(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_get_item_is_null), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -1177,14 +1162,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void renameNode(TetroidNode node) {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (DataManager.editNodeFields(node, name)) {
-//                LogManager.addLog(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//                LogManager.log(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
                 mListAdapterNodes.notifyDataSetChanged();
                 if (mCurNode == node) {
                     setTitle(name);
                 }
             } else {
-//                LogManager.addLog(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.log(getString(R.string.log_record_edit_fields_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
             }
         });
@@ -1199,7 +1184,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         // запрет на удаление последней ветки в корне
         if (node.getLevel() == 0 && DataManager.getRootNodes().size() == 1) {
-            LogManager.addLog(R.string.log_cannot_delete_root_node, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            LogManager.log(R.string.log_cannot_delete_root_node, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             return;
         }
 
@@ -1215,7 +1200,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (mListAdapterNodes.deleteItem(pos)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
             } else {
-                LogManager.addLog(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.log(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
             // убираем список записей удаляемой ветки
             if (mCurNode == node || isNodeInNode(mCurNode, node)) {
@@ -1264,7 +1249,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
                     TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
                 } else {
-                    LogManager.addLog(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    LogManager.log(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else if (res < 0) {
                 TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
@@ -1333,7 +1318,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (mListAdapterNodes.addItem(pos, isSubNode)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             } else {
-                LogManager.addLog(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
@@ -1391,7 +1376,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         DataManager.initCryptPass(middlePassHash, true);
                         callback.onApply();
                     } else {
-                        LogManager.addLog(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
+                        LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                         // спрашиваем пароль
                         askPassword(node, callback);
                     }
@@ -1426,14 +1411,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     void askPassword(final TetroidNode node, AskDialogs.IApplyResult callback) {
-        LogManager.addLog(R.string.log_show_pass_dialog);
+        LogManager.log(R.string.log_show_pass_dialog);
         boolean isNewPass = !DataManager.isCrypted();
         // выводим окно с запросом пароля в асинхронном режиме
         AskDialogs.showPassEnterDialog(this, node, isNewPass, new AskDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 if (isNewPass) {
-                    LogManager.addLog(R.string.log_start_pass_setup);
+                    LogManager.log(R.string.log_start_pass_setup);
 
                     // TODO: сохраняем пароль в database.ini
 
@@ -1457,12 +1442,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             DataManager.initCryptPass(pass, false);
                             callback.onApply();
                         } else {
-                            LogManager.addLog(R.string.log_pass_is_incorrect, Toast.LENGTH_LONG);
+                            LogManager.log(R.string.log_pass_is_incorrect, Toast.LENGTH_LONG);
                             askPassword(node, callback);
                         }
                     } catch (DataManager.EmptyFieldException e) {
                         // если поля в INI-файле для проверки пустые
-                        LogManager.addLog(e);
+                        LogManager.log(e);
                         // спрашиваем "continue anyway?"
                         AskDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, e.getFieldName(), () -> {
                             // TODO: пароль не сохраняем
@@ -1718,7 +1703,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (tag != null) {
                     showTag(tag);
                 } else {
-                    LogManager.addLog(String.format(getString(R.string.search_tag_not_found_mask), tagName),
+                    LogManager.log(String.format(getString(R.string.search_tag_not_found_mask), tagName),
                             LogManager.Types.WARNING, Toast.LENGTH_LONG);
                 }
                 break;
@@ -1789,14 +1774,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (permGranted) {
                     startInitStorage();
                 } else {
-                    LogManager.addLog(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
             case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
                     openAttach(mTempFileToOpen);
                 } else {
-                    LogManager.addLog(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             }
         }
@@ -1839,18 +1824,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 isText = true;
                 text = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (text == null) {
-                    LogManager.addLog(R.string.log_not_passed_text, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.log(R.string.log_not_passed_text, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
+                LogManager.log(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
             } else if (type.startsWith("image/")) {
                 // изображение
                 Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (imageUri == null) {
-                    LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.log(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_image_mask), imageUri), LogManager.Types.INFO);
+                LogManager.log(String.format(getString(R.string.log_receiving_intent_image_mask), imageUri), LogManager.Types.INFO);
                 uris = new ArrayList<>();
                 uris.add(imageUri);
             }
@@ -1865,10 +1850,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (type.startsWith("image/")) {
                 ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                 if (uris == null) {
-                    LogManager.addLog(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.log(R.string.log_not_passed_image_uri, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     return;
                 }
-                LogManager.addLog(String.format(getString(R.string.log_receiving_intent_images_mask), uris.size()), LogManager.Types.INFO);
+                LogManager.log(String.format(getString(R.string.log_receiving_intent_images_mask), uris.size()), LogManager.Types.INFO);
                 showIntentDialog(intent, false, null, uris);
             }
         }
@@ -1908,7 +1893,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             }
                         }
                         if (hasError) {
-                            LogManager.addLog(R.string.log_files_attach_error, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                            LogManager.log(R.string.log_files_attach_error, LogManager.Types.WARNING, Toast.LENGTH_LONG);
                         }
                         // обновляем список файлов
                         mDrawerLayout.closeDrawers();
@@ -1954,7 +1939,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (mCurNode != null) {
             searchInRecords(query, mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
         } else {
-            LogManager.addLog(R.string.search_records_search_select_node, Toast.LENGTH_LONG);
+            LogManager.log(R.string.search_records_search_select_node, Toast.LENGTH_LONG);
         }
     }
 
@@ -1962,7 +1947,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (mCurTag != null) {
             searchInRecords(query, mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
         } else {
-            LogManager.addLog(R.string.search_records_select_tag, Toast.LENGTH_LONG);
+            LogManager.log(R.string.search_records_select_tag, Toast.LENGTH_LONG);
         }
     }
 
@@ -1970,7 +1955,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         String log = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
                 ? String.format(getString(R.string.search_records_in_node_by_query), mCurNode.getName(), query)
                 : String.format(getString(R.string.search_records_in_tag_by_query), mCurTag.getName(), query);
-        LogManager.addLog(log);
+        LogManager.log(log);
         List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
 //        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
         showRecords(found, viewId, true);
@@ -1987,12 +1972,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (curRecord != null) {
             searchInFiles(query, curRecord);
         } else {
-            LogManager.addLog(getString(R.string.log_cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_cur_record_is_not_set), LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
     private void searchInFiles(String query, TetroidRecord record) {
-        LogManager.addLog(String.format(getString(R.string.search_files_by_query), record.getName(), query));
+        LogManager.log(String.format(getString(R.string.search_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
         mViewPagerAdapter.getMainFragment().showRecordFiles(found);
         if (found.isEmpty()) {
@@ -2174,9 +2159,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mLayoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 MainActivity.this.mIsStorageLoaded = true;
-                LogManager.addLog(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
+                LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
             } else {
-                LogManager.addLog(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
+                LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
@@ -2187,7 +2172,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
 //            if (BuildConfig.DEBUG) {
-//                LogManager.addLog("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
+//                LogManager.log("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
 //            }
         }
     }
@@ -2211,7 +2196,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mTextViewProgress.setText(R.string.global_searching);
             mLayoutProgress.setVisibility(View.VISIBLE);
 
-            LogManager.addLog(String.format(getString(R.string.global_search_start), scan.getQuery()));
+            LogManager.log(String.format(getString(R.string.global_search_start), scan.getQuery()));
         }
 
         @Override
@@ -2227,17 +2212,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //            mDrawerLayout.openDrawer(Gravity.LEFT);
             mLayoutProgress.setVisibility(View.INVISIBLE);
             if (found == null) {
-                LogManager.addLog(getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
+                LogManager.log(getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
                 return;
             } else if (scan.isSearchInNode() && scan.getNode() != null) {
-                LogManager.addLog(String.format(getString(R.string.global_search_by_node_result),
+                LogManager.log(String.format(getString(R.string.global_search_by_node_result),
                         scan.getNode().getName()), Toast.LENGTH_LONG);
             }
             // уведомляем, если не смогли поискать в зашифрованных ветках
             if (scan.isExistCryptedNodes()) {
-                LogManager.addLog(R.string.log_found_crypted_nodes, Toast.LENGTH_SHORT);
+                LogManager.log(R.string.log_found_crypted_nodes, Toast.LENGTH_SHORT);
             }
-            LogManager.addLog(String.format(getString(R.string.global_search_end), found.size()));
+            LogManager.log(String.format(getString(R.string.global_search_end), found.size()));
             mViewPagerAdapter.getFoundFragment().setFounds(found, scan);
             mViewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
             setFoundPageVisibility(true);

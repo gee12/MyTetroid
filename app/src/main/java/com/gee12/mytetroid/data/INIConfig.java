@@ -31,7 +31,7 @@ public class INIConfig {
         try {
             config.load(new FileReader(fileName));
         } catch (IOException e) {
-            LogManager.addLog("Configuration error: ", e);
+            LogManager.log("Configuration error: ", e);
             return false;
         }
         return true;
@@ -45,7 +45,7 @@ public class INIConfig {
         try {
             config.store(new FileWriter(fileName));
         } catch (IOException e) {
-            LogManager.addLog("Configuration error: ", e);
+            LogManager.log("Configuration error: ", e);
             return false;
         }
         return true;

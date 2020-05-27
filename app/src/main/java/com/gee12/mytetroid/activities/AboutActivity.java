@@ -62,7 +62,7 @@ public class AboutActivity extends AppCompatActivity {
         try {
             startActivity(goToMarket);
         } catch (ActivityNotFoundException e) {
-            LogManager.addLog(e);
+            LogManager.log(e);
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName())));
         }

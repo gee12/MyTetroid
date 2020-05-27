@@ -20,7 +20,7 @@ public class Crypter {
 
     private static final int CRYPT_CHECK_ROUNDS = 1000;
     private static final int  CRYPT_CHECK_HASH_LEN = 160;
-    private static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
+    protected static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
 
     private static RC5Simple rc5 = new RC5Simple();
     protected static int[] mCryptKey;
@@ -69,6 +69,17 @@ public class Crypter {
         String line = decryptString(key, checkDataSigned);
         // сравнение проверочных данных
         return (SAVED_PASSWORD_CHECKING_LINE.equals(line));
+    }
+
+    /**
+     * Получение зашифрованной проверочной строки промежуточного хэша пароля.
+     * @param passHash
+     * @return
+     */
+    public static String createMiddlePassHashCheckData(String passHash) {
+        int[] key = middlePassHashToKey(passHash);
+        byte[] out = encrypt(key, SAVED_PASSWORD_CHECKING_LINE.getBytes(CHARSET_UTF_8));
+        return  (out != null) ? Base64.encodeToString(out, false) : null;
     }
 
     /**
@@ -261,22 +272,8 @@ public class Crypter {
     }
 
     /**
-     * Установка пароля в виде ключа шифрования
+     * Установка пароля в виде ключа шифрования.
      */
-//    public static void setCryptKeyToMemory(String pass)
-//    {
-//        int[] key = passToKey(pass);
-//        // записываем в память
-//        setCryptKey(key);
-//    }
-//
-//    private static void setCryptKeyToMemoryFromMiddleHash(String passHash)
-//    {
-//        int[] key = middlePassHashToKey(passHash);
-//        // записываем в память
-//        setCryptKey(key);
-//    }
-
     protected static int[] passToKey(String pass) {
         int[] res = null;
         try {
@@ -380,11 +377,11 @@ public class Crypter {
     }
 
     private static void addLog(String s) {
-        LogManager.addLog(s, Toast.LENGTH_LONG);
+        LogManager.log(s, Toast.LENGTH_LONG);
     }
 
     private static void addLog(Exception e) {
-        LogManager.addLog(e, Toast.LENGTH_LONG);
+        LogManager.log(e, Toast.LENGTH_LONG);
     }
 
     public static int getErrorCode() {

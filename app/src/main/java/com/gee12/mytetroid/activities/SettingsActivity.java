@@ -80,9 +80,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 .setOnPreferenceClickListener(preference -> {
                     AskDialogs.showYesDialog(this, () -> {
                         if (DataManager.clearTrashFolder()) {
-                            LogManager.addLog(R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                            LogManager.log(R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                         } else {
-                            LogManager.addLog(R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                            LogManager.log(R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                         }
                     }, R.string.ask_clear_trash);
                     return true;
@@ -93,7 +93,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     AskDialogs.showYesDialog(this, () -> {
                         TetroidSuggestionProvider.clearHistory(this);
                         SettingsManager.clearSearchOptions();
-                        LogManager.addLog(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                        LogManager.log(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                     }, R.string.ask_clear_search_history);
                     return true;
                 });

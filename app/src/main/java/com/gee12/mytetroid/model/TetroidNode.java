@@ -52,7 +52,7 @@ public class TetroidNode extends TetroidObject {
         try {
             this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
         } catch (Exception e) {
-            LogManager.addLog(e);
+            LogManager.log(e);
         }
     }
 
