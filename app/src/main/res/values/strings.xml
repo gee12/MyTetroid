@@ -508,5 +508,6 @@
     <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>
+    <string name="ask_clear_pass">There are no encrypted nodes left. Clear encrypted password?</string>
 
 </resources>

@@ -229,7 +229,7 @@ public class ScanManager implements Parcelable {
             }
             // поиск по тексту записи (читаем текст html файла)
             if (inText) {
-                String text = DataManager.getRecordTextDecrypted(record);
+                String text = RecordsManager.getRecordTextDecrypted(record);
                 if (text != null && text.matches(regex)) {
                     addFoundObject(record, FoundType.TYPE_RECORD_TEXT);
                 }

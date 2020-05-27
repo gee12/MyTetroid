@@ -45,9 +45,12 @@ import com.gee12.mytetroid.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.adapters.NodesListAdapter;
 import com.gee12.mytetroid.adapters.TagsListAdapter;
 import com.gee12.mytetroid.crypt.CryptManager;
+import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.DatabaseConfig;
+import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.PassManager;
+import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
@@ -575,10 +578,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
                 String nodeId = SettingsManager.getSelectedNodeId();
                 if (nodeId != null) {
-                    nodeToSelect = DataManager.getNode(nodeId);
+                    nodeToSelect = NodesManager.getNode(nodeId);
                     if (nodeToSelect != null) {
 //                        mListAdapterNodes.extendNode();
-                        Stack<TetroidNode> expandNodes = DataManager.createNodesHierarchy(nodeToSelect);
+                        Stack<TetroidNode> expandNodes = NodesManager.createNodesHierarchy(nodeToSelect);
                         mListAdapterNodes.setDataItems(rootNodes, expandNodes);
                         nodesAdapterInited = true;
                     }
@@ -636,7 +639,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param nodeId
      */
     public void showNode(String nodeId) {
-        TetroidNode node = DataManager.getNode(nodeId);
+        TetroidNode node = NodesManager.getNode(nodeId);
         if (node != null) {
             showNode(node);
         } else {
@@ -771,7 +774,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        }
         // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения
         // уже были выданы при установке приложения
-        DataManager.openAttach(this, file);
+        AttachesManager.openAttach(this, file);
     }
 
     /**
@@ -1114,7 +1117,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         NodeAskDialogs.createNodeDialog(this, null, (name) -> {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
-            TetroidNode node = DataManager.createNode(name, trueParentNode);
+            TetroidNode node = NodesManager.createNode(name, trueParentNode);
             if (node != null) {
                 if (mListAdapterNodes.addItem(pos, isSubNode)) {
 //                    LogManager.log(getString(R.string.node_was_created), LogManager.Types.INFO, Toast.LENGTH_SHORT);
@@ -1161,7 +1164,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void renameNode(TetroidNode node) {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
-            if (DataManager.editNodeFields(node, name)) {
+            if (NodesManager.editNodeFields(node, name)) {
 //                LogManager.log(getString(R.string.node_was_renamed), LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
                 mListAdapterNodes.notifyDataSetChanged();
@@ -1189,7 +1192,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         NodeAskDialogs.deleteNode(this, () -> {
-            boolean res = DataManager.deleteNode(node);
+            boolean res = NodesManager.deleteNode(node);
             onDeleteNodeResult(node, res, pos, false);
         });
     }
@@ -1207,6 +1210,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 mViewPagerAdapter.getMainFragment().clearView();
                 this.mCurNode = null;
             }
+            // проверяем существование зашифрованных веток
+            checkExistenceCryptedNodes();
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
         }
@@ -1293,7 +1298,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // добавляем в "буфер обмена"
         TetroidClipboard.cut(node);
         // удаляем ветку из родительской ветки вместе с записями
-        boolean res = DataManager.cutNode(node);
+        boolean res = NodesManager.cutNode(node);
         onDeleteNodeResult(node, res, pos, false);
     }
 
@@ -1314,7 +1319,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         boolean isCutted = clipboard.isCutted();
         TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
 
-        if (DataManager.insertNode(node, trueParentNode, isCutted)) {
+        if (NodesManager.insertNode(node, trueParentNode, isCutted)) {
             if (mListAdapterNodes.addItem(pos, isSubNode)) {
                 TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             } else {
@@ -1351,12 +1356,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.isDecrypted()) {
                 if (DataManager.dropCryptNode(node)) {
                     TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                    // проверяем существование зашифрованных веток
+                    checkExistenceCryptedNodes();
                 } else {
                     TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }
                 mListAdapterNodes.notifyDataSetChanged();
             }
         });
+    }
+
+    /**
+     * Проверка существования зашифрованных веток.
+     */
+    private void checkExistenceCryptedNodes() {
+        if (!NodesManager.isExistCryptedNodes(true)) {
+            AskDialogs.showYesDialog(this, () -> PassManager.clearSavedPass(),
+                    R.string.ask_clear_pass);
+        }
     }
 
     /**
@@ -1692,7 +1709,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 break;
             case RecordActivity.RESULT_SHOW_FILES:
                 String recordId2 = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
-                TetroidRecord record = DataManager.getRecord(recordId2);
+                TetroidRecord record = RecordsManager.getRecord(recordId2);
                 if (record != null) {
                     mViewPagerAdapter.getMainFragment().showRecordFiles(record);
                 }
@@ -1710,7 +1727,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case RecordActivity.RESULT_DELETE_RECORD:
                 String recordId3 = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (recordId3 != null) {
-                    TetroidRecord record2 = DataManager.getRecord(recordId3);
+                    TetroidRecord record2 = RecordsManager.getRecord(recordId3);
                     mViewPagerAdapter.getMainFragment().deleteRecordExactly(record2);
                 }
                 break;
@@ -1870,7 +1887,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
                 }
                 // создаем запись
-                TetroidRecord record = DataManager.createRecord(subject, url, text);
+                TetroidRecord record = RecordsManager.createRecord(subject, url, text);
                 if (record == null) {
                     return;
                 }
@@ -1888,7 +1905,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         // прикрепляем изображения как файлы
                         boolean hasError = false;
                         for (Uri uri : imagesUri) {
-                            if (DataManager.attachFile(FileUtils.getPathFromUri(this, uri), record) == null) {
+                            if (AttachesManager.attachFile(FileUtils.getPathFromUri(this, uri), record) == null) {
                                 hasError = true;
                             }
                         }

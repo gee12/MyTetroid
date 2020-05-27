@@ -40,6 +40,8 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.data.NodesManager;
+import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -147,7 +149,7 @@ public class RecordActivity extends TetroidActivity implements
             String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
             if (recordId != null) {
                 // получаем запись
-                this.mRecord = DataManager.getRecord(recordId);
+                this.mRecord = RecordsManager.getRecord(recordId);
                 if (mRecord == null) {
                     LogManager.log(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     finish();
@@ -295,7 +297,7 @@ public class RecordActivity extends TetroidActivity implements
             textHtml = mEditTextHtml.getText().toString();
         } else {
             if (!record.isNew()) {
-                textHtml = DataManager.getRecordHtmlTextDecrypted(record);
+                textHtml = RecordsManager.getRecordHtmlTextDecrypted(record);
                 if (textHtml == null) {
                     if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
                         LogManager.log(R.string.log_error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -306,7 +308,7 @@ public class RecordActivity extends TetroidActivity implements
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
         final String text = textHtml;
-        mEditor.getWebView().loadDataWithBaseURL(DataManager.getRecordDirUri(record),
+        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getRecordDirUri(record),
                 text, "text/html", "UTF-8", null);
     }
 
@@ -395,7 +397,7 @@ public class RecordActivity extends TetroidActivity implements
             // обрабатываем внутреннюю ссылку
             switch (obj.getType()) {
                 case FoundType.TYPE_RECORD: {
-                    TetroidRecord record = DataManager.getRecord(obj.getId());
+                    TetroidRecord record = RecordsManager.getRecord(obj.getId());
                     if (record != null) {
                         openAnotherRecord(record, true);
                     } else {
@@ -404,7 +406,7 @@ public class RecordActivity extends TetroidActivity implements
                     break;
                 }
                 case FoundType.TYPE_NODE:
-                    TetroidNode node = DataManager.getNode(obj.getId());
+                    TetroidNode node = NodesManager.getNode(obj.getId());
                     if (node != null) {
                         openAnotherNode(node, true);
                     } else {
@@ -594,7 +596,7 @@ public class RecordActivity extends TetroidActivity implements
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
                 ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
-        if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
+        if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
 //            LogManager.log(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
@@ -906,7 +908,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void editFields() {
         RecordAskDialogs.createRecordFieldsDialog(this, mRecord, (name, tags, author, url) -> {
-            if (DataManager.editRecordFields(mRecord, name, tags, author, url)) {
+            if (RecordsManager.editRecordFields(mRecord, name, tags, author, url)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);

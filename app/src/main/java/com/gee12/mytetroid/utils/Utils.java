@@ -18,9 +18,11 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 public class Utils {
 
@@ -223,5 +225,43 @@ public class Utils {
         ClipboardManager clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(label, text);
         clipboard.setPrimaryClip(clip);
+    }
+
+    /**
+     *
+     * @param length
+     * @return
+     */
+    public static byte[] createRandomBytes(int length) {
+        byte[] res = new byte[length];
+        Random rand = new Random();
+        for (int i = 0; i < length; i++){
+            res[i] = (byte) Math.abs(rand.nextInt() % 0xFF);
+        }
+        return res;
+    }
+
+    /**
+     *
+     * @param list
+     * @param pos
+     * @param isUp
+     * @return
+     */
+    public static boolean swapListItems(List list, int pos, boolean isUp) {
+        if (list == null)
+            return false;
+        if (isUp) {
+            if (pos > 0) {
+                Collections.swap(list, pos-1, pos);
+                return true;
+            }
+        } else {
+            if (pos < list.size() - 1) {
+                Collections.swap(list, pos, pos+1);
+                return true;
+            }
+        }
+        return false;
     }
 }
