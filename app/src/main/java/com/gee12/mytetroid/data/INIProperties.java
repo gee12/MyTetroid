@@ -29,7 +29,7 @@ public class INIProperties {
         try {
             config.load(new FileInputStream(fileName));
         } catch (IOException e) {
-            LogManager.addLog("Configuration error: ", e);
+            LogManager.log("Configuration error: ", e);
             return false;
         }
         return true;
@@ -43,7 +43,7 @@ public class INIProperties {
         try {
             config.store(new FileOutputStream(fileName), null);
         } catch (IOException e) {
-            LogManager.addLog("Configuration error: ", e);
+            LogManager.log("Configuration error: ", e);
             return false;
         }
         return true;

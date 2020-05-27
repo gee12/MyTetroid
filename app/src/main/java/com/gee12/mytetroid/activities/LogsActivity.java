@@ -54,7 +54,7 @@ public class LogsActivity extends AppCompatActivity {
 
         if (SettingsManager.isWriteLogToFile()) {
             // читаем лог-файл
-            LogManager.addLog(getString(R.string.log_open_log_file), LogManager.Types.INFO);
+            LogManager.log(getString(R.string.log_open_log_file), LogManager.Types.INFO);
             new FileReadTask().execute(LogManager.getFullFileName());
         } else {
             // выводим логи текущего сеанса запуска приложения
@@ -73,12 +73,12 @@ public class LogsActivity extends AppCompatActivity {
                 List<String> logsBlocks = FileUtils.splitToBlocks(curLogs, LINES_IN_RECYCLER_VIEW_ITEM);
                 mTextAdapter.setItems(logsBlocks);
             } catch (IOException e) {
-                LogManager.addLog(R.string.log_error_logs_reading_from_memory, LogManager.Types.ERROR);
+                LogManager.log(R.string.log_error_logs_reading_from_memory, LogManager.Types.ERROR);
                 mTextAdapter.setItem(curLogs);
             }
             scrollToBottom();
         } else {
-            LogManager.addLog(getString(R.string.log_logs_is_missing), LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+            LogManager.log(getString(R.string.log_logs_is_missing), LogManager.Types.WARNING, Toast.LENGTH_SHORT);
         }
     }
 
@@ -150,7 +150,7 @@ public class LogsActivity extends AppCompatActivity {
             } else {
                 String mes = String.format(Locale.getDefault(), "%s%s\n\n%s",
                         getString(R.string.log_file_read_error), LogManager.getFullFileName(), res.text);
-                LogManager.addLog(mes, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.log(mes, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 ((TextView) findViewById(R.id.text_view_error)).setText(mes);
                 mLayoutError.setVisibility(View.VISIBLE);
                 mRecycleView.setVisibility(View.GONE);

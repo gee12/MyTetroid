@@ -63,14 +63,14 @@ public class TetroidLog extends LogManager {
         String first = getString((App.isRusLanguage()) ? oper.getResId(PRESENT_CONTINUOUS) : obj.getResId(PRESENT_CONTINUOUS));
         String second = getString((App.isRusLanguage()) ? obj.getResId(PRESENT_CONTINUOUS) : oper.getResId(PRESENT_CONTINUOUS));
         String mes = String.format(getString(R.string.log_oper_start_mask), first, second);
-        LogManager.addLog(mes, Types.ERROR);
+        LogManager.log(mes, Types.ERROR);
         return mes;
     }
 
     public static String addOperCancelLog(Objs obj, Opers oper) {
         String mes = String.format(getString(R.string.log_oper_cancel_mask),
                 getString(obj.getResId(PRESENT_CONTINUOUS)), getString(oper.getResId(PRESENT_CONTINUOUS)));
-        LogManager.addLog(mes, Types.DEBUG);
+        LogManager.log(mes, Types.DEBUG);
         return mes;
     }
 
@@ -80,7 +80,7 @@ public class TetroidLog extends LogManager {
 
     public static String addOperResLog(Objs obj, Opers oper, int length) {
         String mes = getString(obj.getResId(PAST_PERFECT)) + getString(oper.getResId(PAST_PERFECT));
-        LogManager.addLog(mes, Types.INFO, length);
+        LogManager.log(mes, Types.INFO, length);
         return mes;
     }
 
@@ -91,7 +91,7 @@ public class TetroidLog extends LogManager {
     public static String addOperErrorLog(Objs obj, Opers oper, int length) {
         String mes = String.format(getString(R.string.log_oper_error_mask),
                 getString(obj.getResId(PRESENT_SIMPLE)), getString(oper.getResId(PRESENT_SIMPLE)));
-        LogManager.addLog(mes, Types.ERROR, length);
+        LogManager.log(mes, Types.ERROR, length);
         return mes;
     }
 

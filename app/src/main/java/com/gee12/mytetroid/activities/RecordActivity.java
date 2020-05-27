@@ -149,14 +149,14 @@ public class RecordActivity extends TetroidActivity implements
                 // получаем запись
                 this.mRecord = DataManager.getRecord(recordId);
                 if (mRecord == null) {
-                    LogManager.addLog(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    LogManager.log(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     finish();
                     return;
                 } else {
                     setTitle(mRecord.getName());
                 }
             } else {
-                LogManager.addLog(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                LogManager.log(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 finish();
                 return;
             }
@@ -241,7 +241,7 @@ public class RecordActivity extends TetroidActivity implements
     public void openRecord(TetroidRecord record) {
         if (record == null)
             return;
-        LogManager.addLog(getString(R.string.log_record_loading) + record.getId(), LogManager.Types.INFO);
+        LogManager.log(getString(R.string.log_record_loading) + record.getId(), LogManager.Types.INFO);
         loadFields(record);
         // текст
         loadRecordText(record, false);
@@ -298,7 +298,7 @@ public class RecordActivity extends TetroidActivity implements
                 textHtml = DataManager.getRecordHtmlTextDecrypted(record);
                 if (textHtml == null) {
                     if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
-                        LogManager.addLog(R.string.log_error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                        LogManager.log(R.string.log_error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                     }
                 }
             }
@@ -399,7 +399,7 @@ public class RecordActivity extends TetroidActivity implements
                     if (record != null) {
                         openAnotherRecord(record, true);
                     } else {
-                        LogManager.addLog(getString(R.string.log_not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.log(getString(R.string.log_not_found_record) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
                 }
@@ -408,7 +408,7 @@ public class RecordActivity extends TetroidActivity implements
                     if (node != null) {
                         openAnotherNode(node, true);
                     } else {
-                        LogManager.addLog(getString(R.string.log_not_found_node_id) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.log(getString(R.string.log_not_found_node_id) + obj.getId(), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
                 case FoundType.TYPE_TAG:
@@ -416,14 +416,14 @@ public class RecordActivity extends TetroidActivity implements
                     if (!TextUtils.isEmpty(tag)) {
                         openTag(tag, true);
                     } else {
-                        LogManager.addLog(getString(R.string.title_tag_name_is_empty), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        LogManager.log(getString(R.string.title_tag_name_is_empty), LogManager.Types.WARNING, Toast.LENGTH_LONG);
                     }
                     break;
                 case FoundType.TYPE_AUTHOR:
                 case FoundType.TYPE_FILE:
                     break;
                 default:
-                    LogManager.addLog(getString(R.string.log_link_to_obj_parsing_error), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.log(getString(R.string.log_link_to_obj_parsing_error), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
         } else {
             // обрабатываем внешнюю ссылку
@@ -431,7 +431,7 @@ public class RecordActivity extends TetroidActivity implements
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 startActivity(browserIntent);
             } catch (Exception ex) {
-                LogManager.addLog(ex, Toast.LENGTH_LONG);
+                LogManager.log(ex, Toast.LENGTH_LONG);
             }
         }
         return true;
@@ -456,7 +456,7 @@ public class RecordActivity extends TetroidActivity implements
         try {
             decodedUrl = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
-            LogManager.addLog(getString(R.string.log_url_decode_error) + url, ex);
+            LogManager.log(getString(R.string.log_url_decode_error) + url, ex);
             return;
         }
         if (decodedUrl.startsWith(TetroidTag.LINKS_PREFIX)) {
@@ -464,7 +464,7 @@ public class RecordActivity extends TetroidActivity implements
             String tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length());
             openTag(tagName, true);
         } else {
-            LogManager.addLog(getString(R.string.log_wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_wrong_tag_link_format), LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
     }
 
@@ -591,16 +591,16 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void saveRecord() {
-        LogManager.addLog(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
+        LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
                 ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (DataManager.saveRecordHtmlText(mRecord, htmlText)) {
-//            LogManager.addLog(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            LogManager.log(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
         } else {
-//            LogManager.addLog(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.log(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
         }
     }
@@ -662,7 +662,7 @@ public class RecordActivity extends TetroidActivity implements
     private void saveSelectedImages(Intent data, boolean isCamera) {
         List<Image> images = ImagePicker.getImages(data);
         if (images == null) {
-            LogManager.addLog(getString(R.string.log_selected_files_is_missing), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(getString(R.string.log_selected_files_is_missing), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
         List<Uri> uris = new ArrayList<>();
@@ -686,7 +686,7 @@ public class RecordActivity extends TetroidActivity implements
             }
         }
         if (errorCount > 0) {
-            LogManager.addLog(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
+            LogManager.log(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
                     LogManager.Types.WARNING, Toast.LENGTH_LONG);
         }
         if (!savedImages.isEmpty()) {
@@ -703,7 +703,7 @@ public class RecordActivity extends TetroidActivity implements
         //
         // TODO: реализовать поиск по тексту записи
         //
-        LogManager.addLog(String.format(getString(R.string.search_text_by_query), record.getName(), query));
+        LogManager.log(String.format(getString(R.string.search_text_by_query), record.getName(), query));
     }
 
     /**
@@ -982,10 +982,10 @@ public class RecordActivity extends TetroidActivity implements
 
     public void onFindTextResult(int matches) {
         if (matches > 0) {
-            LogManager.addLog(String.format(getString(R.string.log_n_matches_found), matches),
+            LogManager.log(String.format(getString(R.string.log_n_matches_found), matches),
                     LogManager.Types.INFO, false, Toast.LENGTH_LONG);
         } else {
-            LogManager.addLog(getString(R.string.log_matches_not_found),
+            LogManager.log(getString(R.string.log_matches_not_found),
                     LogManager.Types.INFO, false, Toast.LENGTH_LONG);
         }
     }
@@ -1195,7 +1195,7 @@ public class RecordActivity extends TetroidActivity implements
                 if (permGranted) {
                     startCamera();
                 } else {
-                    LogManager.addLog(R.string.log_missing_camera_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_missing_camera_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
         }

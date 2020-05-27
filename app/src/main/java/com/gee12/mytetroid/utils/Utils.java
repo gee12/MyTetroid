@@ -188,7 +188,7 @@ public class Utils {
             PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return pInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
-            LogManager.addLog(e);
+            LogManager.log(e);
         }
         return null;
     }

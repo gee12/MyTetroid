@@ -24,7 +24,10 @@ public class DatabaseConfig extends INIConfig {
 
     public DatabaseConfig(String fileName) {
         super(fileName);
+        // отключаем экранирование символов, т.к. сохраняем значения в кавычках
         config.getConfig().setEscape(false);
+        // убираем пробелы между ключем и значением
+        config.getConfig().setStrictOperator(true);
     }
 
     public String getCryptCheckHash() throws EmptyFieldException {
@@ -53,6 +56,11 @@ public class DatabaseConfig extends INIConfig {
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash);
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt);
         setValueToGeneral(INI_CRYPT_MODE, (cryptMode) ? "1" : "");
+        return save();
+    }
+
+    public boolean saveCheckData(String checkData) {
+        setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData);
         return save();
     }
 

@@ -49,12 +49,12 @@ public class PassManager extends DataManager {
             if (checkPass(pass)) {
                 callback.run();
             } else {
-                LogManager.addLog(wrongPassRes, Toast.LENGTH_LONG);
+                LogManager.log(wrongPassRes, Toast.LENGTH_LONG);
                 return false;
             }
         } catch (DatabaseConfig.EmptyFieldException e) {
             // если поля в INI-файле для проверки пустые
-            LogManager.addLog(e);
+            LogManager.log(e);
             // спрашиваем "continue anyway?"
             AskDialogs.showEmptyPassCheckingFieldDialog(context, e.getFieldName(), () -> {
 
@@ -72,11 +72,15 @@ public class PassManager extends DataManager {
      */
     public static void initPass(String pass) {
         String passHash = CryptManager.passToHash(pass);
-        // сохраняем хэш пароля
-        if (SettingsManager.isSaveMiddlePassHashLocal())
+        if (SettingsManager.isSaveMiddlePassHashLocal()) {
+            // сохраняем хэш пароля
             SettingsManager.setMiddlePassHash(passHash);
-        else
+            // записываем проверочную строку
+            saveMiddlePassCheckData(passHash);
+        } else {
+            // сохраняем хэш пароля просто для текущего сеанса запуска
             CryptManager.setMiddlePassHash(passHash);
+        }
         // здесь, по идее, можно сохранять сразу passHash (с параметром isMiddleHash=true),
         // но сделал так
         DataManager.initCryptPass(pass, false);
@@ -87,7 +91,7 @@ public class PassManager extends DataManager {
      * @return
      */
     public static void setupPass(Context context) {
-        LogManager.addLog(R.string.log_start_pass_setup);
+        LogManager.log(R.string.log_start_pass_setup);
         // вводим пароль
         AskDialogs.showPassEnterDialog(context, null, true, new AskDialogs.IPassInputResult() {
             @Override
@@ -106,11 +110,11 @@ public class PassManager extends DataManager {
      */
     public static void setupPass(String pass) {
         // сохраняем в database.ini
-        if (savePass(pass)) {
-            LogManager.addLog(R.string.log_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+        if (savePassCheckData(pass)) {
+            LogManager.log(R.string.log_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             initPass(pass);
         } else {
-            LogManager.addLog(R.string.log_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(R.string.log_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -119,15 +123,15 @@ public class PassManager extends DataManager {
      * @return
      */
     public static void changePass(Context context) {
-        LogManager.addLog(R.string.log_start_pass_change);
+        LogManager.log(R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
         AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
             // проверяем пароль
             return checkPass(context, curPass, () -> {
                 if (changePass(curPass, newPass)) {
-                    LogManager.addLog(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 } else {
-                    LogManager.addLog(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 }
             }, R.string.log_cur_pass_is_incorrect);
         });
@@ -142,43 +146,43 @@ public class PassManager extends DataManager {
         initPass(curPass);
         // и расшифровываем хранилище
         if (DataManager.decryptStorage(true)) {
-            LogManager.addLog(R.string.log_storage_decrypted);
+            LogManager.log(R.string.log_storage_decrypted);
         } else {
-            LogManager.addLog(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return false;
         }
         // устанавливаем новый пароль
         initPass(newPass);
         // перешифровываем зашифрованные ветки
         if (DataManager.reencryptStorage()) {
-            LogManager.addLog(R.string.log_storage_reencrypted);
+            LogManager.log(R.string.log_storage_reencrypted);
         } else {
-            LogManager.addLog(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return false;
         }
         // сохраняем mytetra.xml
         if (DataManager.saveStorage()) {
-            LogManager.addLog(R.string.log_mytetra_xml_was_saved);
+            LogManager.log(R.string.log_mytetra_xml_was_saved);
         } else {
-            LogManager.addLog(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
         // сохраняем в database.ini
-        savePass(newPass);
+        savePassCheckData(newPass);
         return true;
     }
 
     /**
-     * Сохранение хэша пароля и сопутствующих данных в database.ini.
+     * Сохранение проверочного хэша пароля и сопутствующих данных в database.ini.
      * @param newPass
      * @return
      */
-    public static boolean savePass(String newPass) {
+    public static boolean savePassCheckData(String newPass) {
         byte[] salt = DataManager.createRandomBytes(32);
         byte[] passHash = null;
         try {
             passHash = Crypter.calculatePBKDF2Hash(newPass, salt);
         } catch (Exception ex) {
-            LogManager.addLog(ex);
+            LogManager.log(ex);
             return false;
         }
         return databaseConfig.savePass(Base64.encodeToString(passHash, false),
@@ -186,11 +190,30 @@ public class PassManager extends DataManager {
     }
 
     /**
-     * Очистка установленного пароля.
+     * Сохранение проверочной строки промежуточного хэша пароля в database.ini.
+     * @param passHash
      * @return
      */
-    public static boolean clearPass() {
+    public static boolean saveMiddlePassCheckData(String passHash) {
+        String checkData = Crypter.createMiddlePassHashCheckData(passHash);
+        return databaseConfig.saveCheckData(checkData);
+    }
+
+    /**
+     * Очистка сохраненного проверочнго хэша пароля.
+     * @return
+     */
+    public static boolean clearPassCheckData() {
         SettingsManager.setMiddlePassHash(null);
         return databaseConfig.savePass(null, null, false);
     }
+
+    /**
+     * Очистка сохраненной проверочной строки промежуточного хэша пароля.
+     * @return
+     */
+    public static boolean clearMiddlePassCheckData() {
+        return databaseConfig.saveCheckData(null);
+    }
+
 }

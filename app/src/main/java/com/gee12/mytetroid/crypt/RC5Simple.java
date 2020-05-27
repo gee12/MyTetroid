@@ -530,15 +530,15 @@ public class RC5Simple {
     }
 
     private static void addErrorLog(Exception e) {
-        LogManager.addLog(e);
+        LogManager.log(e);
     }
 
     private static void addErrorLog(String s) {
-        LogManager.addLog(s, LogManager.Types.ERROR);
+        LogManager.log(s, LogManager.Types.ERROR);
     }
 
     private static void addDebugLog(String s) {
-        LogManager.addLog(s, LogManager.Types.DEBUG);
+        LogManager.log(s, LogManager.Types.DEBUG);
     }
 
     public int getErrorCode() {

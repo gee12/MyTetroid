@@ -60,7 +60,7 @@ public class LogManager {
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
-    public static void addLog(String mes, Types type, boolean isWriteToFile, int duration) {
+    public static void log(String mes, Types type, boolean isWriteToFile, int duration) {
         if (type == Types.DEBUG && !BuildConfig.DEBUG)
             return;
         String typeTag;
@@ -92,52 +92,52 @@ public class LogManager {
         }
     }
 
-    public static void addLog(String s, Types type, int duration) {
-        addLog(s, type, isWriteToFile, duration);
+    public static void log(String s, Types type, int duration) {
+        log(s, type, isWriteToFile, duration);
     }
 
-    public static void addLog(String s, Types type) {
-        addLog(s, type, isWriteToFile, DURATION_NONE);
+    public static void log(String s, Types type) {
+        log(s, type, isWriteToFile, DURATION_NONE);
     }
 
-    public static void addLog(String s) {
-        addLog(s, Types.INFO);
+    public static void log(String s) {
+        log(s, Types.INFO);
     }
 
-    public static void addLog(int sId) {
-        addLog(context.getString(sId), Types.INFO);
+    public static void log(int sId) {
+        log(context.getString(sId), Types.INFO);
     }
 
-    public static void addLog(String s, int duration) {
-        addLog(s, Types.INFO, duration);
+    public static void log(String s, int duration) {
+        log(s, Types.INFO, duration);
     }
 
-    public static void addLog(int sId, int duration) {
-        addLog(context.getString(sId), duration);
+    public static void log(int sId, int duration) {
+        log(context.getString(sId), duration);
     }
 
-    public static void addLog(int sId, Types type) {
-        addLog(context.getString(sId), type, DURATION_NONE);
+    public static void log(int sId, Types type) {
+        log(context.getString(sId), type, DURATION_NONE);
     }
 
-    public static void addLog(int sId, Types type, int duration) {
-        addLog(context.getString(sId), type, duration);
+    public static void log(int sId, Types type, int duration) {
+        log(context.getString(sId), type, duration);
     }
 
-    public static void addLog(Exception ex) {
-        addLog(getExceptionInfo(ex), Types.ERROR);
+    public static void log(Exception ex) {
+        log(getExceptionInfo(ex), Types.ERROR);
     }
 
-    public static void addLog(String s, Exception ex) {
-        addLog(s + ": " + getExceptionInfo(ex), Types.ERROR);
+    public static void log(String s, Exception ex) {
+        log(s + ": " + getExceptionInfo(ex), Types.ERROR);
     }
 
-    public static void addLog(Exception ex, int duration) {
-        addLog(getExceptionInfo(ex), Types.ERROR, duration);
+    public static void log(Exception ex, int duration) {
+        log(getExceptionInfo(ex), Types.ERROR, duration);
     }
 
-    public static void addLog(String s, Exception ex, int duration) {
-        addLog(s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
+    public static void log(String s, Exception ex, int duration) {
+        log(s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
     }
 
     public static void showMessage(String s, int duration) {
@@ -153,7 +153,7 @@ public class LogManager {
     }
 
     private static void addLogWithoutFile(String s, int duration) {
-        addLog(s, Types.ERROR, false, duration);
+        log(s, Types.ERROR, false, duration);
     }
 
     private static String addTime(String s) {
@@ -167,14 +167,14 @@ public class LogManager {
      */
     public static void emptyParams(String methodName) {
         String start = (!TextUtils.isEmpty(methodName)) ? methodName + ": " : "";
-        addLog(start + "Some required parameter(s) is null", LogManager.Types.WARNING);
+        log(start + "Some required parameter(s) is null", LogManager.Types.WARNING);
     }
 
     /**
      * Сообщение о параметре context=null
      */
     public static void emptyContextLog() {
-        addLog("Parameter <context> is null", LogManager.Types.WARNING);
+        log("Parameter <context> is null", LogManager.Types.WARNING);
     }
 
     /**
@@ -214,14 +214,14 @@ public class LogManager {
                 File dir = new File(dirPath);
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
-//                        addLog(context.getString(R.string.log_dir_creating_error) + dirPath,
+//                        log(context.getString(R.string.log_dir_creating_error) + dirPath,
 //                                Types.ERROR, false, Toast.LENGTH_LONG);
                         addLogWithoutFile(context.getString(R.string.log_dir_creating_error) + dirPath, Toast.LENGTH_LONG);
                         //
 //                        writeToBuffer(mes);
                         return;
                     } else {
-                        addLog(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
+                        log(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
                     }
                 }
                 // попытка создания лог-файла
