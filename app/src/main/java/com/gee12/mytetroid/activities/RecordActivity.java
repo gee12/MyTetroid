@@ -871,7 +871,7 @@ public class RecordActivity extends TetroidActivity implements
      * Открытие каталога записи.
      */
     public void openRecordFolder() {
-        DataManager.openRecordFolder(this, mRecord);
+        RecordsManager.openRecordFolder(this, mRecord);
     }
 
 

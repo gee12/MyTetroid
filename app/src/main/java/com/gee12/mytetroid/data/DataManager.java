@@ -260,29 +260,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
-     * Зашифровка или расшифровка файла записи и прикрепленных файлов при необходимости.
-     * @param record
-     * @param isEncrypt
-     */
-/*    @Override
-    public boolean cryptRecordFiles(TetroidRecord record, boolean isEncrypt) {
-        return cryptRecordFiles(record, record.isCrypted(), isEncrypt);
-    }
-
-    *//**
-     * Перешифровка файла записи и прикрепленных файлов при необходимости.
-     * Файлы уже должны быть расшифрованы.
-     * @param record
-     * @return
-     *//*
-    @Override
-    public boolean reencryptRecordFiles(TetroidRecord record) {
-        if (!record.isCrypted() || !record.isDecrypted())
-            return false;
-        return cryptRecordFiles(record, false, true);
-    }*/
-
-    /**
      * Обработчик события, когда необходимо загрузить иконку ветки.
      * @param node
      */
@@ -318,25 +295,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Открытие каталога записи.
-     * @param context
-     * @param record
-     * @return
-     */
-    public static void openRecordFolder(Context context, @NotNull TetroidRecord record){
-        if (context == null || record == null) {
-            LogManager.emptyParams("DataManager.openRecordFolder()");
-            return;
-        }
-        LogManager.log(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
-        Uri uri = Uri.parse(RecordsManager.getRecordDirUri(record));
-        if (!openFolder(context, uri)) {
-            Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), uri.getPath());
-            LogManager.log(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
-        }
     }
 
     /**
