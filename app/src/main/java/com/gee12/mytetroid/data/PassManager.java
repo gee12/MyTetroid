@@ -58,8 +58,8 @@ public class PassManager extends DataManager {
             LogManager.log(e);
             // спрашиваем "continue anyway?"
             AskDialogs.showEmptyPassCheckingFieldDialog(context, e.getFieldName(), () -> {
-
-                // TODO: спрашиваем нормально ли расшифровались данные
+                // TODO: тут спрашиваем нормально ли расшифровались данные
+                //  ...
                 if (callback != null)
                     callback.run();
             });
@@ -79,7 +79,7 @@ public class PassManager extends DataManager {
             // записываем проверочную строку
             saveMiddlePassCheckData(passHash);
         } else {
-            // сохраняем хэш пароля просто для текущего сеанса запуска
+            // сохраняем хэш пароля в оперативную память, может еще понадобится
             CryptManager.setMiddlePassHash(passHash);
         }
         // здесь, по идее, можно сохранять сразу passHash (с параметром isMiddleHash=true),

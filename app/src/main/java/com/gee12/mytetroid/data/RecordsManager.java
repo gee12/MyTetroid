@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 
 import java.io.File;
@@ -865,6 +867,25 @@ public class RecordsManager extends DataManager {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Открытие каталога записи.
+     * @param context
+     * @param record
+     * @return
+     */
+    public static void openRecordFolder(Context context, @NotNull TetroidRecord record){
+        if (context == null || record == null) {
+            LogManager.emptyParams("DataManager.openRecordFolder()");
+            return;
+        }
+        LogManager.log(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
+        Uri uri = Uri.parse(getRecordDirUri(record));
+        if (!openFolder(context, uri)) {
+            Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), uri.getPath());
+            LogManager.log(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
     }
 
     public static String getRecordDirUri(@NonNull TetroidRecord record) {
