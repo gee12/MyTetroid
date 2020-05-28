@@ -97,7 +97,7 @@ public class IntentsAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         IntentsViewHolder viewHolder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.list_item_intent, null);
+            convertView = mInflater.inflate(R.layout.list_item_dialog, null);
             viewHolder = new IntentsViewHolder(convertView);
             convertView.setTag(viewHolder);
         } else {

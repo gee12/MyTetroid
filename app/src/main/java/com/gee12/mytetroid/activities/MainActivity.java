@@ -70,6 +70,7 @@ import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.SearchViewXListener;
+import com.gee12.mytetroid.views.StorageChooserDialog;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
@@ -92,11 +93,12 @@ import pl.openrnd.multilevellistview.OnItemLongClickListener;
 public class MainActivity extends TetroidActivity implements IMainView {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
-    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 2;
-    public static final int REQUEST_CODE_RECORD_ACTIVITY = 3;
-    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 4;
-    public static final int REQUEST_CODE_SYNC_STORAGE = 5;
-    public static final int REQUEST_CODE_FILE_PICKER = 6;
+    public static final int REQUEST_CODE_CREATE_STORAGE = 2;
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
+    public static final int REQUEST_CODE_RECORD_ACTIVITY = 4;
+    public static final int REQUEST_CODE_SEARCH_ACTIVITY = 5;
+    public static final int REQUEST_CODE_SYNC_STORAGE = 6;
+    public static final int REQUEST_CODE_FILE_PICKER = 7;
 
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
@@ -233,7 +235,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void startInitStorage() {
         this.mIsStorageLoaded = false;
         this.mIsAlreadyTryDecrypt = false;
-        String storagePath = SettingsManager.getStoragePath();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkWriteExtStoragePermission()) {
@@ -241,10 +242,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
 
+        String storagePath = SettingsManager.getStoragePath();
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
             initOrSyncStorage(storagePath);
         } else {
-            showFolderChooser();
+            showStorageChooserDialog();
         }
     }
 
@@ -588,14 +590,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
     }
 
+    private void showStorageChooserDialog() {
+        StorageChooserDialog.createDialog(this, isNew -> showStorageFolderChooser(isNew));
+    }
+
     /**
      * Открытие активности для первоначального выбора пути хранилища в файловой системе.
      */
-    private void showFolderChooser() {
+    private void showStorageFolderChooser(boolean isNew) {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra("title", getString(R.string.title_storage_folder));
         intent.putExtra("location", SettingsManager.getStoragePath());
-        startActivityForResult(intent, REQUEST_CODE_OPEN_STORAGE);
+        startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
     }
 
     /**
