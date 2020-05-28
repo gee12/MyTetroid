@@ -299,6 +299,7 @@
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
     <string name="log_storage_reencrypted">Хранилище перешифровано</string>
+    <string name="log_storage_created">Хранилище создано:&#160;</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="title_file_is_missing">Файл отсутствует&#160;</string>
@@ -327,6 +328,7 @@
     <string name="log_no_app_found_for_share_text">Не найдено подходящего приложения для отправки текста</string>
     <string name="log_error_file_open">Ошибка открытия файла&#160;</string>
     <string name="log_failed_storage_load">Не удалось загрузить хранилище:&#160;</string>
+    <string name="log_failed_storage_create">Не удалось создать хранилище:&#160;</string>
     <string name="log_failed_storage_init">Не удалось инициализировать хранилище:&#160;</string>
     <string name="log_found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
@@ -460,7 +462,8 @@
     <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="title_open_storage">Выбрать хранилище</string>
     <string name="title_create_storage">Создать хранилище</string>
-    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища</string>
     <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
+    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища</string>
+    <string name="title_first_node">Первая ветка</string>
 
 </resources>

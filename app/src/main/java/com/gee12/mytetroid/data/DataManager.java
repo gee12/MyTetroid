@@ -83,14 +83,27 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param storagePath
      * @return
      */
-    public static boolean init(Context ctx, String storagePath) {
-        context = ctx;
+    public static boolean init(Context ctx, String storagePath, boolean isNew) {
+        DataManager.context = ctx;
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
         DataManager.databaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         boolean res;
         try {
-            res = databaseConfig.load();
+            if (isNew) {
+                // сохраняем новый database.ini
+                res = databaseConfig.saveDefault();
+                // создаем каталог base
+                File baseDir = new File(storagePath, BASE_FOLDER_NAME);
+                if (!baseDir.mkdir()) {
+                    return false;
+                }
+                // создаем первую ветку
+                instance.init();
+            } else {
+                // загружаем database.ini
+                res = databaseConfig.load();
+            }
         } catch (Exception ex) {
             LogManager.log(ex);
             return false;
@@ -106,6 +119,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
     }
 
+    public static boolean createDefault() {
+        return (NodesManager.createNode(context.getString(R.string.title_first_node), XMLManager.ROOT_NODE) != null);
+    }
+    
     /**
      * Загрузка хранилища из файла mytetra.xml.
      * @param isDecrypt Расшифровывать ли ветки

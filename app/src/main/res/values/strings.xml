@@ -380,6 +380,7 @@
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_decrypted">Storage is decrypted</string>
     <string name="log_storage_reencrypted">Storage is re-encrypted</string>
+    <string name="log_storage_created">Storage is created:&#160;</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_start_storage_loading">Start storage loading:&#160;</string>
@@ -391,6 +392,7 @@
     <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
     <string name="log_failed_storage_load">Failed to load storage:&#160;</string>
+    <string name="log_failed_storage_create">Failed to create storage:&#160;</string>
     <string name="log_failed_storage_init">Failed to init storage:&#160;</string>
     <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
@@ -509,9 +511,10 @@
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>
     <string name="ask_clear_pass">There are no encrypted nodes left. Clear encrypted password?</string>
-    <string name="title_open_storage">Выбрать хранилище</string>
-    <string name="title_create_storage">Создать хранилище</string>
-    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища</string>
-    <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
+    <string name="title_open_storage">Choose storage</string>
+    <string name="title_create_storage">Create storage</string>
+    <string name="title_open_storage_summ">Select an existing storage directory in the phone memory</string>
+    <string name="title_create_storage_summ">Select a directory in the phone memory to create a new storage</string>
+    <string name="title_first_node">First node</string>
 
 </resources>

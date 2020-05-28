@@ -25,7 +25,6 @@ public class NodesManager extends DataManager {
             LogManager.emptyParams("DataManager.createNode()");
             return null;
         }
-//        LogManager.log(context.getString(R.string.log_start_node_creating), LogManager.Types.DEBUG);
         TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
 
         // генерируем уникальные идентификаторы
@@ -33,7 +32,6 @@ public class NodesManager extends DataManager {
 
         boolean crypted = (parentNode != null && parentNode.isCrypted());
         int level = (parentNode != null) ? parentNode.getLevel() + 1 : 0;
-//        TetroidNode node = new TetroidNode(crypted, id, name, null, level);
         TetroidNode node = new TetroidNode(crypted, id,
                 encryptField(crypted, name),
                 null, level);
@@ -49,7 +47,6 @@ public class NodesManager extends DataManager {
         list.add(node);
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-//            LogManager.log(context.getString(R.string.log_cancel_node_creating), LogManager.Types.ERROR);
             TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             // удаляем запись из коллекции
             list.remove(node);
