@@ -458,5 +458,9 @@
     <string name="log_mytetra_xml_was_saved">Структура хранилища сохранена в mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилиша в mytetra.xml (подробнее в логах)</string>
     <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
+    <string name="title_open_storage">Выбрать хранилище</string>
+    <string name="title_create_storage">Создать хранилище</string>
+    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища</string>
+    <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
 
 </resources>
