@@ -297,6 +297,27 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Создание нового хранилища.
+     * @param storagePath
+     */
+    private void createStorage(String storagePath) {
+        if (DataManager.init(this, storagePath, true)) {
+            LogManager.log(getString(R.string.log_storage_created) + storagePath);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+            // сохраняем путь к хранилищу
+            if (SettingsManager.isLoadLastStoragePath()) {
+                SettingsManager.setStoragePath(storagePath);
+            }
+            initGUI(DataManager.createDefault());
+        } else {
+            LogManager.log(getString(R.string.log_failed_storage_create) + DataManager.getStoragePath(),
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+            initGUI(false);
+        }
+    }
+
+    /**
      * Проверка нужно ли синхронизировать хранилище перед загрузкой.
      * @param storagePath
      */
@@ -310,7 +331,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         MainActivity.this.mIsLoadStorageAfterSync = true;
                         startStorageSync(storagePath);
                     }
-
                     @Override
                     public void onCancel() {
                         initStorage(storagePath);
@@ -354,22 +374,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (mIsLoadStorageAfterSync)
                 initStorage(storagePath);
             else {
-                AskDialogs.showSyncDoneDialog(this, true, new AskDialogs.IApplyResult() {
-                    @Override
-                    public void onApply() {
-                        initStorage(storagePath);
-                    }
-                });
+                AskDialogs.showSyncDoneDialog(this, true, () -> initStorage(storagePath));
             }
         } else {
             LogManager.log(getString(R.string.log_sync_failed), LogManager.Types.WARNING, Toast.LENGTH_LONG);
             if (mIsLoadStorageAfterSync) {
-                AskDialogs.showSyncDoneDialog(this, false, new AskDialogs.IApplyResult() {
-                    @Override
-                    public void onApply() {
-                        initStorage(storagePath);
-                    }
-                });
+                AskDialogs.showSyncDoneDialog(this, false, () -> initStorage(storagePath));
             }
         }
         this.mIsLoadStorageAfterSync = false;
@@ -380,7 +390,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param storagePath Путь хранилища
      */
     private void initStorage(String storagePath) {
-        if (DataManager.init(this, storagePath)) {
+        if (DataManager.init(this, storagePath, false)) {
             LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу, если загрузили его в первый раз
@@ -419,7 +429,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         } else {
             LogManager.log(getString(R.string.log_failed_storage_init) + DataManager.getStoragePath(),
-                    LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
         }
@@ -1577,11 +1587,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
-        } else if (requestCode == REQUEST_CODE_OPEN_STORAGE && resultCode == RESULT_OK) {
-            String folderFullName = data.getStringExtra("data");
-            initOrSyncStorage(folderFullName);
+        } else if ((requestCode == REQUEST_CODE_OPEN_STORAGE || requestCode == REQUEST_CODE_CREATE_STORAGE)
+                && resultCode == RESULT_OK) {
+            String folderPath = data.getStringExtra("data");
+            if (requestCode == REQUEST_CODE_OPEN_STORAGE)
+                initOrSyncStorage(folderPath);
+            else
+                createStorage(folderPath);
             // сохраняем путь
-            SettingsManager.setLastChoosedFolder(folderFullName);
+            SettingsManager.setLastChoosedFolder(folderPath);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {

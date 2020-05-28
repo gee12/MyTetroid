@@ -21,6 +21,10 @@ public class DatabaseConfig extends INIConfig {
     public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
     public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
     public static final String INI_CRYPT_MODE = "crypt_mode";
+    public static final String INI_VERSION = "version";
+
+    public static final String DEF_VERSION = "1";
+
 
     public DatabaseConfig(String fileName) {
         super(fileName);
@@ -61,6 +65,15 @@ public class DatabaseConfig extends INIConfig {
 
     public boolean saveCheckData(String checkData) {
         setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData);
+        return save();
+    }
+
+    public boolean saveDefault() {
+        setValueToGeneral(INI_CRYPT_CHECK_HASH, null);
+        setValueToGeneral(INI_CRYPT_CHECK_SALT, null);
+        setValueToGeneral(INI_CRYPT_MODE, null);
+        setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null);
+        setValueToGeneral(INI_CRYPT_MODE, DEF_VERSION);
         return save();
     }
 

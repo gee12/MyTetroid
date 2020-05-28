@@ -45,6 +45,8 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      */
     static final String TAGS_SEPAR = "\\s*,\\s*";
 
+    public static final TetroidNode ROOT_NODE = new TetroidNode("", "", -1);
+
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
@@ -84,14 +86,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected abstract boolean decryptNode(TetroidNode node);
 
     /**
-     * Чтение хранилища из xml-файла.
-     * @param in
-     * @return Иерархический список веток с записями и документами
-     * @throws XmlPullParserException
-     * @throws IOException
+     * Первоначальная инициализация переменных.
      */
-    public boolean parse(InputStream in, boolean isNeedDecrypt) throws XmlPullParserException, IOException {
-        this.mIsNeedDecrypt = isNeedDecrypt;
+    public void init() {
         this.mRootNodesList = new ArrayList<>();
         this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
         this.mNodesCount = 0;
@@ -105,6 +102,18 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         this.mIconsCount = 0;
         this.mMaxSubnodesCount = 0;
         this.mMaxDepthLevel = 0;
+    }
+
+    /**
+     * Чтение хранилища из xml-файла.
+     * @param in
+     * @return Иерархический список веток с записями и документами
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
+    public boolean parse(InputStream in, boolean isNeedDecrypt) throws XmlPullParserException, IOException {
+        this.mIsNeedDecrypt = isNeedDecrypt;
+        init();
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -172,14 +181,13 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "content");
-        TetroidNode rootNode = new TetroidNode("", "", -1);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                TetroidNode node = readNode(parser, 0, rootNode);
+                TetroidNode node = readNode(parser, 0, ROOT_NODE);
                 if (node != null) {
                     nodes.add(node);
                 }
@@ -191,7 +199,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
                 skip(parser);
             }
         }
-        rootNode.setSubNodes(nodes);
+        ROOT_NODE.setSubNodes(nodes);
         this.mRootNodesList = nodes;
         return true;
     }
