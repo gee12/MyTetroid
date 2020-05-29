@@ -262,6 +262,8 @@
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="ask_clear_trash">Очистить корзину?</string>
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
+    <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
+    <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -288,7 +290,6 @@
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
     <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
-    <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_errors_during_reencryption">При перешифровке произошли ошибки (подробнее в логах)</string>
@@ -463,7 +464,10 @@
     <string name="title_open_storage">Выбрать хранилище</string>
     <string name="title_create_storage">Создать хранилище</string>
     <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
-    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища</string>
+    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b></string>
     <string name="title_first_node">Первая ветка</string>
+    <string name="log_clear_storage_dir">Очистка каталога</string>
+    <string name="log_start_storage_creating">Начало создания хранилища</string>
+    <string name="log_dir_is_missing">Каталог не существует</string>
 
 </resources>

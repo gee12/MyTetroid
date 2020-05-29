@@ -350,6 +350,7 @@
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
+    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -514,7 +515,10 @@
     <string name="title_open_storage">Choose storage</string>
     <string name="title_create_storage">Create storage</string>
     <string name="title_open_storage_summ">Select an existing storage directory in the phone memory</string>
-    <string name="title_create_storage_summ">Select a directory in the phone memory to create a new storage</string>
+    <string name="title_create_storage_summ">Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b></string>
     <string name="title_first_node">First node</string>
+    <string name="log_clear_storage_dir">Clear storage folder</string>
+    <string name="log_start_storage_creating">Start storage creating</string>
+    <string name="log_dir_is_missing">Folder is missing</string>
 
 </resources>

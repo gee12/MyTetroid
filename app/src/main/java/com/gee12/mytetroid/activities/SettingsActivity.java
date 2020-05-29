@@ -54,8 +54,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
-//            SettingsManager.isAskReloadStorage = false;
-            // спрашиваем создать или выбрать хранилище ?
+            // спрашиваем: создать или выбрать хранилище ?
             StorageChooserDialog.createDialog(this, isNew -> {
                 openFolderPicker(getString(R.string.title_storage_folder),
                         SettingsManager.getStoragePath(),
@@ -141,12 +140,13 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         if (resultCode != Activity.RESULT_OK)
             return;
         String folderPath = data.getStringExtra("data");
-        if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || requestCode == REQUEST_CODE_CREATE_STORAGE_PATH) {
-            if (!folderPath.equals(SettingsManager.getStoragePath())) {
-//                SettingsManager.isAskReloadStorage = true;
+        boolean isCreate = requestCode == REQUEST_CODE_CREATE_STORAGE_PATH;
+        if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
+            // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
+            if (!folderPath.equals(SettingsManager.getStoragePath()) || isCreate) {
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_IS_RELOAD_STORAGE, true);
-                if (requestCode == REQUEST_CODE_CREATE_STORAGE_PATH) {
+                if (isCreate) {
                     intent.putExtra(EXTRA_IS_CREATE_STORAGE, true);
                 }
                 setResult(RESULT_OK, intent);

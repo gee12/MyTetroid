@@ -73,7 +73,7 @@ public class DatabaseConfig extends INIConfig {
         setValueToGeneral(INI_CRYPT_CHECK_SALT, null);
         setValueToGeneral(INI_CRYPT_MODE, null);
         setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null);
-        setValueToGeneral(INI_CRYPT_MODE, DEF_VERSION);
+        setValueToGeneral(INI_VERSION, DEF_VERSION);
         return save();
     }
 

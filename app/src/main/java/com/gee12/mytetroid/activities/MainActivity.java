@@ -303,6 +303,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void createStorage(String storagePath) {
         if (DataManager.init(this, storagePath, true)) {
             LogManager.log(getString(R.string.log_storage_created) + storagePath);
+            closeFoundFragment();
+            mViewPagerAdapter.getMainFragment().clearView();
             mDrawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу
             if (SettingsManager.isLoadLastStoragePath()) {
@@ -1572,9 +1574,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             // перезагружаем хранилище, если изменили путь
-            if (SettingsManager.isAskReloadStorage) {
-                SettingsManager.isAskReloadStorage = false;
-                AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
+            if (data != null && data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
+                boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
+                    if (isCreate) {
+                        createStorage(SettingsManager.getStoragePath());
+                    } else {
+                        reinitStorage();
+                    }
+                });
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
@@ -1618,7 +1626,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
-                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
+                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false)) {
+                    createStorage(SettingsManager.getStoragePath());
+                } else {
                     reinitStorage();
                 }
                 break;
