@@ -246,7 +246,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
             initOrSyncStorage(storagePath);
         } else {
-            showStorageChooserDialog();
+            StorageChooserDialog.createDialog(this, isNew -> showStorageFolderChooser(isNew));
         }
     }
 
@@ -598,10 +598,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         ViewUtils.setEnabledIfNotNull(mMenuItemStorageSync, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemStorageInfo, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
-    }
-
-    private void showStorageChooserDialog() {
-        StorageChooserDialog.createDialog(this, isNew -> showStorageFolderChooser(isNew));
     }
 
     /**

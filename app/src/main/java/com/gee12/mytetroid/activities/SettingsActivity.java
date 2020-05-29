@@ -24,6 +24,7 @@ import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.StorageChooserDialog;
 
 import org.jsoup.internal.StringUtil;
 
@@ -32,8 +33,9 @@ import lib.folderpicker.FolderPicker;
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final int REQUEST_CODE_OPEN_STORAGE_PATH = 1;
-    public static final int REQUEST_CODE_OPEN_TEMP_PATH = 2;
-    public static final int REQUEST_CODE_OPEN_LOG_PATH = 3;
+    public static final int REQUEST_CODE_CREATE_STORAGE_PATH = 2;
+    public static final int REQUEST_CODE_OPEN_TEMP_PATH = 3;
+    public static final int REQUEST_CODE_OPEN_LOG_PATH = 4;
 
     private AppCompatDelegate mDelegate;
 
@@ -49,14 +51,13 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
-//            String path = SettingsManager.getStoragePath();
-//            if (StringUtil.isBlank(path)) {
-//                path = FileUtils.getExternalPublicDocsDir();
-//            }
             SettingsManager.isAskReloadStorage = false;
-            openFolderPicker(getString(R.string.title_storage_folder),
-                    SettingsManager.getStoragePath(),
-                    REQUEST_CODE_OPEN_STORAGE_PATH);
+            // спрашиваем создать или выбрать хранилище ?
+            StorageChooserDialog.createDialog(this, isNew -> {
+                openFolderPicker(getString(R.string.title_storage_folder),
+                        SettingsManager.getStoragePath(),
+                        (isNew) ? REQUEST_CODE_CREATE_STORAGE_PATH : REQUEST_CODE_OPEN_STORAGE_PATH);
+            });
             return true;
         });
 
@@ -134,26 +135,27 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) return;
-        String folderFullName = data.getStringExtra("data");
-        if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH) {
-            if (!folderFullName.equals(SettingsManager.getStoragePath())) {
+        if (resultCode != Activity.RESULT_OK)
+            return;
+        String folderPath = data.getStringExtra("data");
+        if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || requestCode == REQUEST_CODE_CREATE_STORAGE_PATH) {
+            if (!folderPath.equals(SettingsManager.getStoragePath())) {
                 SettingsManager.isAskReloadStorage = true;
             }
-            SettingsManager.setStoragePath(folderFullName);
-            SettingsManager.setLastChoosedFolder(folderFullName);
-            updateSummary(R.string.pref_key_storage_path, folderFullName);
+            SettingsManager.setStoragePath(folderPath);
+            SettingsManager.setLastChoosedFolder(folderPath);
+            updateSummary(R.string.pref_key_storage_path, folderPath);
         }
         else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
-            SettingsManager.setTrashPath(folderFullName);
-            SettingsManager.setLastChoosedFolder(folderFullName);
-            updateSummary(R.string.pref_key_temp_path, folderFullName);
+            SettingsManager.setTrashPath(folderPath);
+            SettingsManager.setLastChoosedFolder(folderPath);
+            updateSummary(R.string.pref_key_temp_path, folderPath);
         }
         else if (requestCode == REQUEST_CODE_OPEN_LOG_PATH) {
-            SettingsManager.setLogPath(folderFullName);
-            SettingsManager.setLastChoosedFolder(folderFullName);
-            LogManager.setLogPath(folderFullName);
-            updateSummary(R.string.pref_key_log_path, folderFullName);
+            SettingsManager.setLogPath(folderPath);
+            SettingsManager.setLastChoosedFolder(folderPath);
+            LogManager.setLogPath(folderPath);
+            updateSummary(R.string.pref_key_log_path, folderPath);
         }
     }
 
