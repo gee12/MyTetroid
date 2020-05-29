@@ -32,6 +32,9 @@ import lib.folderpicker.FolderPicker;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
+    public static final String EXTRA_IS_CREATE_STORAGE = "EXTRA_IS_CREATE_STORAGE";
+
     public static final int REQUEST_CODE_OPEN_STORAGE_PATH = 1;
     public static final int REQUEST_CODE_CREATE_STORAGE_PATH = 2;
     public static final int REQUEST_CODE_OPEN_TEMP_PATH = 3;
@@ -51,7 +54,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
-            SettingsManager.isAskReloadStorage = false;
+//            SettingsManager.isAskReloadStorage = false;
             // спрашиваем создать или выбрать хранилище ?
             StorageChooserDialog.createDialog(this, isNew -> {
                 openFolderPicker(getString(R.string.title_storage_folder),
@@ -140,7 +143,13 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         String folderPath = data.getStringExtra("data");
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || requestCode == REQUEST_CODE_CREATE_STORAGE_PATH) {
             if (!folderPath.equals(SettingsManager.getStoragePath())) {
-                SettingsManager.isAskReloadStorage = true;
+//                SettingsManager.isAskReloadStorage = true;
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_IS_RELOAD_STORAGE, true);
+                if (requestCode == REQUEST_CODE_CREATE_STORAGE_PATH) {
+                    intent.putExtra(EXTRA_IS_CREATE_STORAGE, true);
+                }
+                setResult(RESULT_OK, intent);
             }
             SettingsManager.setStoragePath(folderPath);
             SettingsManager.setLastChoosedFolder(folderPath);

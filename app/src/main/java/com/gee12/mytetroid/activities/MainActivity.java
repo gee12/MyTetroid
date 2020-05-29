@@ -1618,7 +1618,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
-                if (data.getBooleanExtra(RecordActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
+                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
                     reinitStorage();
                 }
                 break;

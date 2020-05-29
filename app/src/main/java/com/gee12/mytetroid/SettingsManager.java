@@ -25,7 +25,7 @@ public class SettingsManager {
     private static SharedPreferences settings;
     private static Context context;
 
-    public static boolean isAskReloadStorage;
+//    public static boolean isAskReloadStorage;
     public static boolean IsHighlightAttachCache;
     @ColorInt
     public static int HighlightAttachColorCache;

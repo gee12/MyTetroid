@@ -81,7 +81,6 @@ public class RecordActivity extends TetroidActivity implements
     public static final int REQUEST_CODE_CAMERA = 2;
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
-    public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
     public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
     public static final String EXTRA_IMAGES_URI = "EXTRA_IMAGES_URI";
 
@@ -851,13 +850,6 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
-    /**
-     * Перезагрузка хранилища в главной активности.
-     */
-    private void reinitStorage() {
-        finishWithResult(RESULT_REINIT_STORAGE, null);
-    }
-
     @Override
     public boolean toggleFullscreen() {
         boolean isFullscreen = super.toggleFullscreen();
@@ -1025,9 +1017,18 @@ public class RecordActivity extends TetroidActivity implements
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             // перезагружаем хранилище, если изменили путь
-            if (SettingsManager.isAskReloadStorage) {
+            /*if (SettingsManager.isAskReloadStorage) {
                 SettingsManager.isAskReloadStorage = false;
-                AskDialogs.showReloadStorageDialog(this, () -> reinitStorage());
+                AskDialogs.showReloadStorageDialog(this, () -> {
+                    // перезагрузка хранилища в главной активности
+                    finishWithResult(RESULT_REINIT_STORAGE, null);
+                });
+            }*/
+            if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
+                AskDialogs.showReloadStorageDialog(this, () -> {
+                    // перезагрузка хранилища в главной активности
+                    finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
+                });
             }
             // не гасим экран, если установили опцию
             App.setKeepScreenOn(this);
