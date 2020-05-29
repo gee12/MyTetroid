@@ -1025,7 +1025,8 @@ public class RecordActivity extends TetroidActivity implements
                 });
             }*/
             if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
-                AskDialogs.showReloadStorageDialog(this, () -> {
+                boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
                     // перезагрузка хранилища в главной активности
                     finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                 });

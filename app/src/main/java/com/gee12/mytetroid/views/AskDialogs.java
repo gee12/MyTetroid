@@ -124,8 +124,9 @@ public class AskDialogs {
         AskDialogs.showYesDialog(context, applyHandler, R.string.ask_request_camera);
     }
 
-    public static void showReloadStorageDialog(Context context, final IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_storage_path_was_changed);
+    public static void showReloadStorageDialog(Context context, boolean isCreate, final IApplyResult applyHandler) {
+        AskDialogs.showYesDialog(context, applyHandler,
+                (isCreate) ? R.string.ask_storage_folder_clear : R.string.ask_storage_path_was_changed);
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {

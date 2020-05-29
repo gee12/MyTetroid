@@ -91,6 +91,16 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         boolean res;
         try {
             if (isNew) {
+                LogManager.log(R.string.log_start_storage_creating, LogManager.Types.DEBUG);
+                File storageDir = new File(storagePath);
+                if (storageDir.exists()) {
+                    // очищаем каталог
+                    LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
+                    FileUtils.clearDir(storageDir);
+                } else {
+                    LogManager.log(R.string.log_dir_is_missing, LogManager.Types.ERROR);
+                    return false;
+                }
                 // сохраняем новый database.ini
                 res = databaseConfig.saveDefault();
                 // создаем каталог base
@@ -515,11 +525,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             FileOutputStream fos = new FileOutputStream(tempPath, false);
             if (instance.save(fos)) {
                 File to = new File(destPath);
+//                if (moveOld) {
                 // перемещаем старую версию файла mytetra.xml в корзину
                 String nameInTrash = createDateTimePrefix() + "_" + MYTETRA_XML_FILE_NAME;
                 if (moveFile(destPath, SettingsManager.getTrashPath(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
-                    if (!to.delete()) {
+                    if (to.exists() && !to.delete()) {
                         LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
                         return false;
                     }

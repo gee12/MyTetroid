@@ -43,7 +43,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     /**
      * Разделитель меток - запятая или запятая с пробелами.
      */
-    static final String TAGS_SEPAR = "\\s*,\\s*";
+    protected static final String TAGS_SEPAR = "\\s*,\\s*";
+
+    public static final Version DEF_VERSION = new Version(1, 2);
 
     public static final TetroidNode ROOT_NODE = new TetroidNode("", "", -1);
 
@@ -90,7 +92,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      */
     public void init() {
         this.mRootNodesList = new ArrayList<>();
+        ROOT_NODE.setSubNodes(mRootNodesList);
         this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
+        this.mFormatVersion = DEF_VERSION;
+        // счетчики
         this.mNodesCount = 0;
         this.mCryptedNodesCount = 0;
         this.mRecordsCount = 0;
