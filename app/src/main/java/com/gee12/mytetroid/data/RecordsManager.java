@@ -35,7 +35,7 @@ public class RecordsManager extends DataManager {
      * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
      * @return
      */
-    public static String getRecordTextUri(@NonNull TetroidRecord record) {
+    public static String getRecordFilePath(@NonNull TetroidRecord record) {
         if (record == null) {
             LogManager.emptyParams("DataManager.getRecordTextUri()");
             return null;
@@ -48,9 +48,10 @@ public class RecordsManager extends DataManager {
                 path = getPathToRecordFolderInTrash(record) + SEPAR + record.getFileName();
             }
         } else {
-            path = SettingsManager.getStoragePath() + SEPAR + BASE_FOLDER_NAME
-                    + SEPAR + record.getDirName()
-                    + SEPAR + record.getFileName();
+//            path = SettingsManager.getStoragePath() + SEPAR + BASE_FOLDER_NAME
+//                    + SEPAR + record.getDirName()
+//                    + SEPAR + record.getFileName();
+            path = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
