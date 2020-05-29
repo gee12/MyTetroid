@@ -2006,7 +2006,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showGlobalSearchActivity();
                 return true;
             case R.id.action_storage_sync:
-                startStorageSync(SettingsManager.getStoragePath());
+                startStorageSync(DataManager.getStoragePath());
                 return true;
             case R.id.action_storage_info:
                 ViewUtils.startActivity(this, InfoActivity.class, null);
