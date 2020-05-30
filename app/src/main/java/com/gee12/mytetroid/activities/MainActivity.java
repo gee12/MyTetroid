@@ -57,6 +57,7 @@ import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
+import com.gee12.mytetroid.model.ReceivedData;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -302,7 +303,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void createStorage(String storagePath) {
         if (DataManager.init(this, storagePath, true)) {
-            LogManager.log(getString(R.string.log_storage_created) + storagePath);
             closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();
             mDrawerLayout.openDrawer(Gravity.LEFT);
@@ -311,11 +311,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 SettingsManager.setStoragePath(storagePath);
             }
             initGUI(DataManager.createDefault());
+            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
         } else {
-            LogManager.log(getString(R.string.log_failed_storage_create) + DataManager.getStoragePath(),
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
+            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
@@ -1398,9 +1398,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             public void applyPass(final String pass, TetroidNode node) {
                 if (isNewPass) {
                     LogManager.log(R.string.log_start_pass_setup);
-
-                    // TODO: сохраняем пароль в database.ini
-
+                    PassManager.setupPass(pass);
                     callback.onApply();
                 } else {
                     PassManager.checkPass(MainActivity.this, pass, () -> {
@@ -1815,50 +1813,73 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showIntentDialog(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri) {
 
-        IntentDialog.createDialog(this, isText, item -> {
-            if (item.isCreate()) {
-                // имя записи
-                String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-                String url = null;
-                if (Build.VERSION.SDK_INT >= 17) {
-                    url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
-                }
-                // создаем запись
-                TetroidRecord record = RecordsManager.createRecord(subject, url, text);
-                if (record == null) {
-                    return;
-                }
-                // открываем ветку, в которую добавили запись
-                showNode(record.getNode());
-                // обновляем список записей, меток, и количества записей ветки
-                mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !item.isAttach());
-                // загружаем изображения в каталоги записи
-                if (!isText) {
-                    if (!item.isAttach()) {
-                        // запускаем активность записи с командой вставки изображений после загрузки
-                        openRecord(record, imagesUri);
-
-                    } else {
-                        // прикрепляем изображения как файлы
-                        boolean hasError = false;
-                        for (Uri uri : imagesUri) {
-                            if (AttachesManager.attachFile(FileUtils.getPathFromUri(this, uri), record) == null) {
-                                hasError = true;
+        IntentDialog.createDialog(this, isText, receivedData -> {
+            if (receivedData.isCreate()) {
+                // получаем какую-нибудь ветку
+                final TetroidNode node = NodesManager.getDefaultNode();
+                if (node != null) {
+                    if (node.isCrypted()) {
+                        checkStoragePass(node, () -> {
+                            // расшифровуем хранилище, если ветка зашифрована
+                            if (DataManager.isCrypted()) {
+                                initStorage(null, true);
                             }
-                        }
-                        if (hasError) {
-                            LogManager.log(R.string.log_files_attach_error, LogManager.Types.WARNING, Toast.LENGTH_LONG);
-                        }
-                        // обновляем список файлов
-                        mDrawerLayout.closeDrawers();
-                        mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+                            if (DataManager.isDecrypted()) {
+                                createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
+                            }
+                        });
+                    } else {
+                        createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
                     }
+                } else {
+                    LogManager.log(R.string.log_no_nodes_in_storage, LogManager.Types.ERROR);
                 }
             } else {
                 // TODO: реализовать выбор имеющихся записей
             }
         });
 
+    }
+
+    private void createRecordFromIntent(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri,
+                                        ReceivedData receivedData, TetroidNode node) {
+        // имя записи
+        String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+        String url = null;
+        if (Build.VERSION.SDK_INT >= 17) {
+            url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
+        }
+        // создаем запись
+        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
+        if (record == null) {
+            return;
+        }
+        // открываем ветку, в которую добавили запись
+        showNode(record.getNode());
+        // обновляем список записей, меток, и количества записей ветки
+        mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !receivedData.isAttach());
+        // загружаем изображения в каталоги записи
+        if (!isText) {
+            if (!receivedData.isAttach()) {
+                // запускаем активность записи с командой вставки изображений после загрузки
+                openRecord(record, imagesUri);
+
+            } else {
+                // прикрепляем изображения как файлы
+                boolean hasError = false;
+                for (Uri uri : imagesUri) {
+                    if (AttachesManager.attachFile(FileUtils.getPathFromUri(this, uri), record) == null) {
+                        hasError = true;
+                    }
+                }
+                if (hasError) {
+                    LogManager.log(R.string.log_files_attach_error, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                }
+                // обновляем список файлов
+                mDrawerLayout.closeDrawers();
+                mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+            }
+        }
     }
 
     /**

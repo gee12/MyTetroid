@@ -2,9 +2,9 @@
 
     <string name="app_name">MyTetroid</string>
     <string name="main_header_title" translatable="false">MyTetroid</string>
-    <string name="app_summ_html"><![CDATA[Storage viewer full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
-    <string name="project_url"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
-    <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
+    <string name="app_summ_html"><![CDATA[Android-client for full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
+    <string name="project_url_html"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
+    <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 
     <string name="title_settings">Settings</string>
     <string name="title_password_enter">Enter password</string>
@@ -57,12 +57,6 @@
     <string name="title_insert_record">Insert record</string>
     <string name="title_share">Share</string>
     <string name="title_intent_send">Mytetroid</string>
-    <string name="title_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
-    <string name="title_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
-    <string name="title_intent_create_image_attach">Attach to a new record; Create a new record and attach the transferred image (s) as file (s)</string>
-    <string name="title_intent_exist_text">Paste into existing record; Select existing record and add transferred text</string>
-    <string name="title_intent_exist_image">Insert into an existing entry; Select an existing entry and add the transferred image (s) to its text</string>
-    <string name="title_intent_exist_image_attach">Attach to an existing entry; Select an existing entry and attach the transferred image (s) as file (s)</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>
     <string name="title_trash_cleared">Trash folder was cleared</string>
     <string name="title_trash_clear_error">Failed to empty trash folder</string>
@@ -91,8 +85,19 @@
     <string name="title_tag_name_is_empty">Tag name is empty</string>
     <string name="title_open_file">Open file</string>
     <string name="title_link_was_copied">Link was copied:&#160;</string>
+    <string name="title_open_storage">Choose storage</string>
+    <string name="title_create_storage">Create storage</string>
+    <string name="title_open_storage_summ">Select an existing storage directory in the phone memory</string>
+    <string name="title_first_node">First node</string>
 
-    <string name="text_pass_change_warning_html" formatted="true"><b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.</string>
+    <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
+    <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
+    <string name="text_intent_create_image_attach">Attach to a new record; Create a new record and attach the transferred image (s) as file (s)</string>
+    <string name="text_intent_exist_text">Paste into existing record; Select existing record and add transferred text</string>
+    <string name="text_intent_exist_image">Insert into an existing entry; Select an existing entry and add the transferred image (s) to its text</string>
+    <string name="text_intent_exist_image_attach">Attach to an existing entry; Select an existing entry and attach the transferred image (s) as file (s)</string>
+    <string name="text_pass_change_warning_html"><![CDATA[<b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.]]></string>
+    <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -190,6 +195,11 @@
     <string name="pref_record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="pref_decrypt_files_to_trash_dir">Decrypt files to directory</string>
     <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when previewing</string>
+    <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
+    <string name="pref_change_pass">Change password</string>
+    <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
+    <string name="pref_setup_pass">Setup password</string>
+    <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
 
     <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
     <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
@@ -351,6 +361,7 @@
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
+    <string name="ask_clear_pass">There are no encrypted nodes left. Clear encrypted password?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -360,12 +371,11 @@
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
     <string name="details_in_logs">Details in the logs</string>
-<!--    <string name="for_more_info_enable_log">For more information, enable logging</string>-->
 
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
     <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
     <string name="log_missing_camera_permissions">Not enough permissions to camera</string>
-    <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Anyway decrypt with this password?</string>
+    <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Continue anyway with this password?</string>
     <string name="log_wrong_saved_pass">Wrong saved pass (value does not match middle_hash_check_data)</string>
     <string name="log_pass_is_incorrect">Password is incorrect</string>
     <string name="log_cur_pass_is_incorrect">Current password is incorrect</string>
@@ -500,25 +510,15 @@
     <string name="log_start_pass_change">Start storage password changing</string>
     <string name="log_start_storage_decrypt">Start storage decrypting</string>
     <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>
-    <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
-    <string name="pref_change_pass">Change password</string>
-    <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
-    <string name="pref_setup_pass">Setup password</string>
-    <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
     <string name="log_pass_changed">Password was changed</string>
     <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>
-    <string name="ask_clear_pass">There are no encrypted nodes left. Clear encrypted password?</string>
-    <string name="title_open_storage">Choose storage</string>
-    <string name="title_create_storage">Create storage</string>
-    <string name="title_open_storage_summ">Select an existing storage directory in the phone memory</string>
-    <string name="title_create_storage_summ">Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b></string>
-    <string name="title_first_node">First node</string>
     <string name="log_clear_storage_dir">Clear storage folder</string>
     <string name="log_start_storage_creating">Start storage creating</string>
     <string name="log_dir_is_missing">Folder is missing</string>
+    <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
 
 </resources>

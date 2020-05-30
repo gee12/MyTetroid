@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +42,7 @@ public class StorageChooserAdapter extends BaseAdapter {
         void bind(int pos) {
             TitleData item = mDataSet.get(pos);
             titleView.setText(item.title);
-            summView.setText(item.summ);
+            summView.setText(Utils.fromHtml(item.summ));
         }
     }
 
@@ -61,7 +62,7 @@ public class StorageChooserAdapter extends BaseAdapter {
         mDataSet.add(new TitleData(context.getString(R.string.title_open_storage),
                 context.getString(R.string.title_open_storage_summ)));
         mDataSet.add(new TitleData(context.getString(R.string.title_create_storage),
-                context.getString(R.string.title_create_storage_summ)));
+                context.getString(R.string.text_create_storage_summ_html)));
     }
 
 

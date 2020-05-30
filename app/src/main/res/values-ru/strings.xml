@@ -2,8 +2,10 @@
 <resources>
 
     <string name="app_name" translatable="false">MyTetroid</string>
-    <string name="app_summ_html"><![CDATA[Просмотрщик хранилища полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
-    <string name="project_url"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
+    <string name="app_summ_html"><![CDATA[Android-клиент полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
+    <string name="project_url_html"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
+    <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
+    <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
     <string name="title_settings">Настройки</string>
     <string name="title_show_node">Открыть ветку</string>
@@ -54,12 +56,6 @@
     <string name="title_insert_record">Вставить запись</string>
     <string name="title_share">Отправить</string>
     <string name="title_intent_send">Mytetroid</string>
-    <string name="title_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
-    <string name="title_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
-    <string name="title_intent_create_image_attach">Прикрепить к новой записи;Создать новую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
-    <string name="title_intent_exist_text">Вставить в существующую запись;Выбрать существующую запись и добавить переданный текст</string>
-    <string name="title_intent_exist_image">Вставить в существующую запись;Выбрать существующую запись и добавить переданное(ые) изображение(я) в ее текст</string>
-    <string name="title_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
     <string name="title_trash_cleared">Корзина очищена</string>
     <string name="title_trash_clear_error">Не удалось очистить корзину</string>
@@ -69,8 +65,40 @@
     <string name="title_delete_record">Удалить запись</string>
     <string name="title_select_file_to_upload">Выберите файл</string>
     <string name="title_confirm_selected_images">Выбрать</string>
+    <string name="title_open_storage">Выбрать хранилище</string>
+    <string name="title_create_storage">Создать хранилище</string>
+    <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
+    <string name="title_first_node">Первая ветка</string>
+    <string name="title_file_name_with_ext">Имя файла с расширением</string>
+    <string name="title_license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
+    <string name="title_rate_app">Оценить приложение</string>
+    <string name="title_version_label">Версия</string>
+    <string name="title_records_is_missing">Записей нет</string>
+    <string name="title_select_the_node">Выберите ветку…</string>
+    <string name="title_files_is_missing">Прикрепленных файлов нет</string>
+    <string name="title_file_is_missing">Файл отсутствует&#160;</string>
+    <string name="title_storage_loading">Загрузка хранилища…</string>
+    <string name="title_fullscreen">Полноэкранный режим</string>
+    <string name="title_show_node_records">Записи ветки</string>
+    <string name="title_enter_query">Введите запрос для поиска</string>
+    <string name="title_tags_search_hint">Поиск по меткам</string>
+    <string name="title_nodes_search_hint">Поиск по веткам</string>
+    <string name="title_nodes_is_missing">Ветки отсутствуют</string>
+    <string name="title_open_file">Открыть файл</string>
+    <string name="title_link_was_copied">Ссылка скопирована:&#160;</string>
+    <string name="title_tag_name_is_empty">Имя метки пусто</string>
+    <string name="title_recod_edit_mode">Режим редактирования</string>
+    <string name="title_record_save">Сохранить</string>
+    <string name="title_crypted_node_name">Закрыто</string>
 
-    <string name="text_pass_change_warning_html"><b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.</string>
+    <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
+    <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
+    <string name="text_intent_create_image_attach">Прикрепить к новой записи;Создать новую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
+    <string name="text_intent_exist_text">Вставить в существующую запись;Выбрать существующую запись и добавить переданный текст</string>
+    <string name="text_intent_exist_image">Вставить в существующую запись;Выбрать существующую запись и добавить переданное(ые) изображение(я) в ее текст</string>
+    <string name="text_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
+    <string name="text_pass_change_warning_html"><![CDATA[<b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.]]></string>
+    <string name="text_create_storage_summ_html"><![CDATA[Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b>]]></string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -124,6 +152,13 @@
     <string name="pref_clear_trash">Очистить корзину</string>
     <string name="pref_clear_trash_summ">Удалить содержимое каталога корзины</string>
     <string name="pref_clear_search_history_summ">Удалить подсказки при вводе запроса и параметры глобального поиска</string>
+    <string name="pref_change_pass">Сменить пароль</string>
+    <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
+    <string name="pref_setup_pass">Установить пароль</string>
+    <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
+    <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
+    <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
 
     <string name="label_record_name">Название:</string>
     <string name="label_record_tags">Метки:</string>
@@ -153,6 +188,15 @@
     <string name="search_submit_title">Начать поиск</string>
     <string name="search_text_hint">Найти</string>
     <string name="search_records_hint">Поиск по записям</string>
+    <string name="search_records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
+    <string name="search_records_in_node_not_found_mask">По запросу \"%s\" в ветке [%s] не найдено записей…</string>
+    <string name="search_records_in_tag_not_found_mak">По запросу \"%s\" в записях метки [%s] не найдено записей…</string>
+    <string name="search_files_not_found_mask">По запросу \"%s\" не найдено файлов…</string>
+    <string name="search_nodes_not_found_mask">По запросу \"%s\" не найдено веток…</string>
+    <string name="search_nodes_by_query">Поиск веток по запросу "%s"…</string>
+    <string name="search_tags_not_found_mask">По запросу \"%s\" не найдено меток…</string>
+    <string name="search_found_mask">Найдено: %d</string>
+    <string name="search_tag_not_found_mask">Не найдена метка [%s]..</string>
     <string name="global_search_not_found">По запросу \"%s\" ничего не найдено…</string>
     <string name="global_search_not_found_in_node">По запросу \"%s\" в ветке \"%s\" ничего не найдено…</string>
     <string name="global_search_in_cur_node">В текущей ветке</string>
@@ -264,6 +308,8 @@
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
+    <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
+    <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -271,30 +317,26 @@
     <string name="subtitle_tags">МЕТКИ</string>
     <string name="subtitle_nodes">ВЕТКИ</string>
 
-    <string name="title_records_is_missing">Записей нет</string>
-    <string name="title_select_the_node">Выберите ветку…</string>
-    <string name="title_files_is_missing">Прикрепленных файлов нет</string>
+    <string name="link_to_record">Ссылка на запись MyTetroid</string>
+    <string name="link_to_node">Ссылка на ветку MyTetroid</string>
+    <string name="link_to_tag">Ссылка на метку MyTetroid</string>
+
+    <string name="debug_not_implemented_yet">Еще не реализовано..</string>
+    <string name="details_in_logs">Подробности в логах</string>
     <string name="log_missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
     <string name="log_missing_write_ext_storage_permissions">Недостаточно прав для записи во внешнее файловое хранилище</string>
     <string name="log_missing_camera_permissions">Недостаточно прав для использования камеры</string>
-    <string name="log_empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно расшифровать с этим паролем?</string>
+    <string name="log_empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s пустое в database.ini). Все равно продалжить с этим паролем?</string>
     <string name="log_wrong_saved_pass">Неверный сохраненный пароль (значение не совпадает с middle_hash_check_data)</string>
-    <string name="title_license_gnu_gpl_v3_0">Лицензия GNU GPL v3.0</string>
-    <string name="title_rate_app">Оценить приложение</string>
-    <string name="title_version_label">Версия</string>
     <string name="log_pass_is_incorrect">Введен неверный пароль</string>
     <string name="log_cur_pass_is_incorrect">Введен неверный текущий пароль</string>
     <string name="log_viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
     <string name="log_could_not_decrypt_file">Не удалось расшифровать файл</string>
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
-    <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_errors_during_reencryption">При перешифровке произошли ошибки (подробнее в логах)</string>
-    <string name="details_in_logs">Подробности в логах</string>
-<!--    <string name="for_more_info_enable_log">Для подробной информации включите запись логов</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded">Хранилище загружено:&#160;</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
@@ -303,26 +345,9 @@
     <string name="log_storage_created">Хранилище создано:&#160;</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
-    <string name="title_file_is_missing">Файл отсутствует&#160;</string>
-    <string name="title_storage_loading">Загрузка хранилища…</string>
     <string name="log_start_storage_loading">Начало загрузки хранилища:&#160;</string>
-    <string name="search_records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
-    <string name="search_records_in_node_not_found_mask">По запросу \"%s\" в ветке [%s] не найдено записей…</string>
-    <string name="search_records_in_tag_not_found_mak">По запросу \"%s\" в записях метки [%s] не найдено записей…</string>
-    <string name="search_files_not_found_mask">По запросу \"%s\" не найдено файлов…</string>
-    <string name="title_tags_search_hint">Поиск по меткам</string>
-    <string name="title_nodes_search_hint">Поиск по веткам</string>
-    <string name="title_nodes_is_missing">Ветки отсутствуют</string>
-    <string name="search_nodes_not_found_mask">По запросу \"%s\" не найдено веток…</string>
-    <string name="search_nodes_by_query">Поиск веток по запросу "%s"…</string>
-    <string name="search_tags_not_found_mask">По запросу \"%s\" не найдено меток…</string>
-    <string name="search_found_mask">Найдено: %d</string>
-    <string name="title_show_node_records">Записи ветки</string>
-    <string name="title_enter_query">Введите запрос для поиска</string>
     <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>
     <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана</string>
-    <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
-    <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="log_incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
     <string name="log_cur_record_is_not_set">Не указана текущая запись</string>
     <string name="log_no_app_found_for_open_file">Не найдено подходящего приложения для открытия файла&#160;</string>
@@ -355,27 +380,19 @@
     <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
     <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
     <string name="log_file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>
-    <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
     <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>
     <string name="log_not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
     <string name="log_error_write_to_record_file">Ошибка записи в файл:&#160;</string>
-    <string name="title_recod_edit_mode">Режим редактирования</string>
-    <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
-    <string name="title_record_save">Сохранить</string>
     <string name="log_not_found_node_id">Не найдена ветка с id=</string>
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
     <string name="log_editing_crypted_records">Редактирование зашифрованных записей пока не реализовано..</string>
     <string name="log_url_decode_error">Ошибка декодирования url:&#160;</string>
     <string name="log_before_record_save">Сохранение текста записи id=</string>
-    <string name="policy_link"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="log_oper_start_mask">Начало %s %s</string>
-    <string name="title_crypted_node_name">Закрыто</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
-    <string name="search_tag_not_found_mask">Не найдена метка [%s]..</string>
-    <string name="debug_not_implemented_yet">Еще не реализовано..</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
     <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>
     <string name="log_rename_file_mask">Файл был переименован в [%s]</string>
@@ -385,18 +402,13 @@
     <string name="log_oper_cancel_mask">Отмена %s %s, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="log_get_item_is_null">Не удается получить текущий элемент списка</string>
-    <string name="link_to_record">Ссылка на запись MyTetroid</string>
-    <string name="link_to_node">Ссылка на ветку MyTetroid</string>
-    <string name="link_to_tag">Ссылка на метку MyTetroid</string>
     <string name="log_record_loading">Загрузка записи id=</string>
     <string name="log_node_delete_list_error">Ветка удалена из хранилища, но произогла ошибка удаления ветки из списка</string>
     <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
-    <string name="title_link_was_copied">Ссылка скопирована:&#160;</string>
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
-    <string name="title_tag_name_is_empty">Имя метки пусто</string>
     <string name="log_oper_error_mask">Не удалось %s %s (подробнее в логах)</string>
     <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
     <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
@@ -405,10 +417,8 @@
     <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>
     <string name="log_file_attaching_error">Не удается прикрепить файл к записи (подробнее в логах)</string>
     <string name="log_file_was_attached">Файл прикреплен</string>
-    <string name="title_open_file">Открыть файл</string>
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
     <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
-    <string name="title_file_name_with_ext">Имя файла с расширением</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
     <string name="log_start_record_file_reading">Начало чтения файла записи id=</string>
     <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
@@ -450,24 +460,15 @@
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
     <string name="log_start_storage_decrypt">Начало расшифровки хранилища</string>
     <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>
-    <string name="pref_change_pass">Сменить пароль</string>
-    <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
-    <string name="pref_setup_pass">Установить пароль</string>
-    <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
     <string name="log_pass_confirm_not_match">Неверно введен повтор пароля</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
     <string name="log_pass_changed">Пароль изменен</string>
     <string name="log_pass_change_error">Не удалось изменить пароль (подробнее в логах)</string>
     <string name="log_mytetra_xml_was_saved">Структура хранилища сохранена в mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилиша в mytetra.xml (подробнее в логах)</string>
-    <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
-    <string name="title_open_storage">Выбрать хранилище</string>
-    <string name="title_create_storage">Создать хранилище</string>
-    <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>
-    <string name="title_create_storage_summ">Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b></string>
-    <string name="title_first_node">Первая ветка</string>
     <string name="log_clear_storage_dir">Очистка каталога</string>
     <string name="log_start_storage_creating">Начало создания хранилища</string>
     <string name="log_dir_is_missing">Каталог не существует</string>
+    <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
 
 </resources>

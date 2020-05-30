@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android_ex="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -71,7 +72,7 @@
             android:paddingLeft="5dp"
             android:text="1.0" />
 
-        <TextView
+        <com.gee12.mytetroid.views.TextViewHtml
             android:id="@+id/text_view_app_summ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,6 +80,8 @@
             android:paddingTop="12dp"
             android:linksClickable="true"
             android:text="@string/app_summ_html"
+            android_ex:isHtml="true"
+            android_ex:withLinks="true"
             android:textColorLink="@color/colorBlueDark"
             />
 
@@ -90,23 +93,27 @@
             android:paddingTop="10dp"
             android:text="@string/title_license_gnu_gpl_v3_0" />
 
-        <TextView
+        <com.gee12.mytetroid.views.TextViewHtml
             android:id="@+id/text_view_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_lic"
             android:paddingTop="10dp"
-            android:text="@string/project_url"
+            android:text="@string/project_url_html"
+            android_ex:isHtml="true"
+            android_ex:withLinks="true"
             android:textColorLink="@color/colorBlueDark"
             android:focusable="true" />
 
-        <TextView
+        <com.gee12.mytetroid.views.TextViewHtml
             android:id="@+id/text_view_policy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_url"
             android:paddingTop="10dp"
-            android:text="@string/policy_link"
+            android:text="@string/policy_link_html"
+            android_ex:isHtml="true"
+            android_ex:withLinks="true"
             android:textColorLink="@color/colorBlueDark"
             android:focusable="true" />
 
