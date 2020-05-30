@@ -178,6 +178,10 @@ public class NodesManager extends DataManager {
         }
         // добавляем подветки
         for (TetroidNode srcSubNode : srcNode.getSubNodes()) {
+            // если srcNode=destParentNode (копируем ветку как подветку той же ветки),
+            // то не нужно копировать самого себя рекурсивно еще раз (бесконечно)
+            if (srcSubNode == node)
+                continue;
             if (insertNodeRecursively(srcSubNode, node, isCutted, breakOnFSErrors) == null && breakOnFSErrors) {
                 return null;
             }
