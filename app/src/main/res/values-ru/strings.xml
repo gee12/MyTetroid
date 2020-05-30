@@ -338,11 +338,11 @@
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_errors_during_reencryption">При перешифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
-    <string name="log_storage_loaded">Хранилище загружено:&#160;</string>
+    <string name="log_storage_loaded">Хранилище загружено:\n</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
     <string name="log_storage_reencrypted">Хранилище перешифровано</string>
-    <string name="log_storage_created">Хранилище создано:&#160;</string>
+    <string name="log_storage_created">Хранилище создано:\n</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="log_start_storage_loading">Начало загрузки хранилища:&#160;</string>

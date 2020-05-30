@@ -607,8 +607,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void showStorageFolderChooser(boolean isNew) {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", getString(R.string.title_storage_folder));
-        intent.putExtra("location", SettingsManager.getStoragePath());
+        intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_storage_folder));
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, SettingsManager.getStoragePath());
         startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
     }
 
@@ -1554,9 +1554,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void openFilePicker() {
         Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra("title", R.string.title_select_file_to_upload);
-        intent.putExtra("location", DataManager.getLastFolderOrDefault(this, false));
-        intent.putExtra("pickFiles", true);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_select_file_to_upload));
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderOrDefault(this, false));
+        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, true);
         startActivityForResult(intent, REQUEST_CODE_FILE_PICKER);
     }
 
@@ -1591,7 +1591,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             startGlobalSearch(scan);
         } else if ((requestCode == REQUEST_CODE_OPEN_STORAGE || requestCode == REQUEST_CODE_CREATE_STORAGE)
                 && resultCode == RESULT_OK) {
-            String folderPath = data.getStringExtra("data");
+            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
             if (requestCode == REQUEST_CODE_OPEN_STORAGE)
                 initOrSyncStorage(folderPath);
             else
@@ -1601,7 +1601,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
-            String fileFullName = data.getStringExtra("data");
+            String fileFullName = data.getStringExtra(FolderPicker.EXTRA_DATA);
             mViewPagerAdapter.getMainFragment().attachFile(fileFullName);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(FileUtils.getFileFolder(fileFullName));

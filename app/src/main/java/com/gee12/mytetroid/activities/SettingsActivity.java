@@ -130,8 +130,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private void openFolderPicker(String title, String location, int requestCode) {
         String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderOrDefault(this, true);
         Intent intent = new Intent(SettingsActivity.this, FolderPicker.class);
-        intent.putExtra("title", title);
-        intent.putExtra("location", path);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, title);
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
         startActivityForResult(intent, requestCode);
     }
 
@@ -139,7 +139,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK)
             return;
-        String folderPath = data.getStringExtra("data");
+        String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
         boolean isCreate = requestCode == REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем

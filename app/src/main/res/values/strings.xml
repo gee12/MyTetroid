@@ -387,11 +387,11 @@
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
     <string name="log_errors_during_reencryption">Errors occurred during re-encryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
-    <string name="log_storage_loaded">Storage is loaded:&#160;</string>
+    <string name="log_storage_loaded">Storage was loaded:\n</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_decrypted">Storage is decrypted</string>
     <string name="log_storage_reencrypted">Storage is re-encrypted</string>
-    <string name="log_storage_created">Storage is created:&#160;</string>
+    <string name="log_storage_created">Storage is created:\n</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_start_storage_loading">Start storage loading:&#160;</string>
