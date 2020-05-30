@@ -380,7 +380,7 @@
     <string name="log_pass_is_incorrect">Password is incorrect</string>
     <string name="log_cur_pass_is_incorrect">Current password is incorrect</string>
     <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
-    <string name="log_could_not_decrypt_file">Could not decrypt file</string>
+    <string name="log_could_not_decrypt_file">Could not decrypt file&#160;</string>
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
