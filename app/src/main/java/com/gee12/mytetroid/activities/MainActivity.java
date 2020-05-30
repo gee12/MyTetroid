@@ -399,31 +399,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-            // нужно ли выделять ветку, выбранную в прошлый раз
-            // (обязательно после initGUI)
-//            TetroidNode nodeToSelect = null;
-  /*          String nodeId = SettingsManager.getSelectedNodeId();
-            if (nodeId != null) {
-                nodeToSelect = DataManager.getNode(nodeId);
-                // если нашли, отображаем
-//                if (nodeToSelect != null) {
-//                    showNode(nodeToSelect);
-//                }
-            }*/
-            // Если хранилище зашифровано, то пытаемся расшифровать его сразу, если:
-            // 1) хэш пароля сохранен локально
-            // или
-            // 2) установлена опция "Спрашивать пароль при старте"
-//            if (DataManager.isExistsCryptedNodes()) {
-
-            /*if (DataManager.isCrypted()
-                    && (SettingsManager.isSaveMiddlePassHashLocal()
-                    || SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start)))) {
-                    decryptStorage(nodeToSelect);
-            } else {
-                // иначе просто загружаем хранилище, даже если оно зашифровано
-                initStorage(nodeToSelect, false);
-            }*/
             if (DataManager.isCrypted()) {
                 decryptStorage();
             } else {
@@ -451,7 +426,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // проверяем
             try {
                 if (PassManager.checkMiddlePassHash(middlePassHash)) {
-//                    decryptStorage(middlePassHash, true, null);
                     DataManager.initCryptPass(middlePassHash, true);
                     initStorage(null, true);
                 } else {
@@ -465,7 +439,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // если поля в INI-файле для проверки пустые
                 // спрашиваем "continue anyway?"
                 AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(),
-//                        node -> decryptStorage(SettingsManager.getMiddlePassHash(), true, null));
                         () -> {
                             DataManager.initCryptPass(middlePassHash, true);
                             initStorage(null, true);
@@ -837,27 +810,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
 
-//        int searchCloseButtonId = searchView.getContext().getResources()
-//                .getIdentifier("android:id/search_close_btn", null, null);
-//        ImageView clearButton = (ImageView) searchView.findViewById(searchCloseButtonId);
-//        clearButton.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                EditText et = (EditText) findViewById(R.id.search_src_text);
-//
-//                //Clear the text from EditText view
-//                et.setText("");
-//
-//                //Clear query
-//                searchView.setQuery("", false);
-//                //Collapse the action view
-//                searchView.onActionViewCollapsed();
-//                //Collapse the search widget
-////                searchView.collapseActionView();
-//            }
-//        });
-
         new SearchViewListener(mSearchViewNodes) {
             @Override
             public void onClose() {
@@ -1180,8 +1132,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 mViewPagerAdapter.getMainFragment().clearView();
                 this.mCurNode = null;
             }
-            // проверяем существование зашифрованных веток
-            checkExistenceCryptedNodes();
+            if (node.isCrypted()) {
+                // проверяем существование зашифрованных веток
+                checkExistenceCryptedNodes();
+            }
         } else {
             TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
         }
@@ -1316,8 +1270,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.isDecrypted()) {
                 if (DataManager.dropCryptNode(node)) {
                     TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-                    // проверяем существование зашифрованных веток
-                    checkExistenceCryptedNodes();
+                    if (node.isCrypted()) {
+                        // проверяем существование зашифрованных веток
+                        checkExistenceCryptedNodes();
+                    }
                 } else {
                     TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }

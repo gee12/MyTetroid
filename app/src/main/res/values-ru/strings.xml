@@ -331,7 +331,7 @@
     <string name="log_pass_is_incorrect">Введен неверный пароль</string>
     <string name="log_cur_pass_is_incorrect">Введен неверный текущий пароль</string>
     <string name="log_viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
-    <string name="log_could_not_decrypt_file">Не удалось расшифровать файл</string>
+    <string name="log_could_not_decrypt_file">Не удалось расшифровать файл&#160;</string>
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
