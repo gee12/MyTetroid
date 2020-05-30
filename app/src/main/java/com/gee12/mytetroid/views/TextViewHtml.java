@@ -3,6 +3,7 @@ package com.gee12.mytetroid.views;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -29,12 +30,16 @@ public class TextViewHtml extends androidx.appcompat.widget.AppCompatTextView {
     public void init(Context context, @Nullable AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.TextViewHtml, 0, 0);
         try {
-            boolean isHtml = a.getBoolean(R.styleable.TextViewHtml_isHtml, false);
-            if (isHtml) {
+            // isHtml
+            if (a.getBoolean(R.styleable.TextViewHtml_isHtml, false)) {
                 String text = a.getString(R.styleable.TextViewHtml_android_text);
                 if (text != null) {
                     setText(Html.fromHtml(text));
                 }
+            }
+            // withLinks
+            if (a.getBoolean(R.styleable.TextViewHtml_withLinks, false)) {
+                setMovementMethod(LinkMovementMethod.getInstance());
             }
         } catch (Exception e) {
             e.printStackTrace();

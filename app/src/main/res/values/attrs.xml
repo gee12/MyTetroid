@@ -9,6 +9,7 @@
 
     <declare-styleable name="TextViewHtml">
         <attr name="isHtml" format="boolean"/>
+        <attr name="withLinks" format="boolean"/>
         <attr name="android:text" />
     </declare-styleable>
 </resources>

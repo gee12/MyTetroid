@@ -469,20 +469,12 @@ public class RecordsManager extends DataManager {
      * @param url
      * @return
      */
-    public static TetroidRecord createRecord(String name, String url, String text) {
+    public static TetroidRecord createRecord(String name, String url, String text, TetroidNode node) {
         TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         if (TextUtils.isEmpty(name)) {
             name = Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss");
         }
-
-        if (instance.mRootNodesList.isEmpty()) {
-            LogManager.log("В хранилище не загружено ни одной ветки", LogManager.Types.ERROR);
-            return null;
-        }
-
-        // TODO: пока что выбираем просто первую ветку в хранилище
-        TetroidNode node = instance.mRootNodesList.get(0);
 
         TetroidRecord record = createRecord(name, null, null, url, node);
         if (record == null) {

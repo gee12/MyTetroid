@@ -356,4 +356,17 @@ public class NodesManager extends DataManager {
         }
         return null;
     }
+
+    /**
+     * Получение какой-нибудь ветки, в которую нужно добавить новую запись "извне".
+     * @return
+     */
+    public static TetroidNode getDefaultNode() {
+        TetroidNode res = null;
+        if (!instance.mRootNodesList.isEmpty()) {
+            // TODO: пока что выбираем просто первую ветку в хранилище
+            res = instance.mRootNodesList.get(0);
+        }
+        return res;
+    }
 }

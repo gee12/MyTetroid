@@ -4,9 +4,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -30,25 +27,8 @@ public class AboutActivity extends AppCompatActivity {
         TextView tvVersion = findViewById(R.id.text_view_version);
         tvVersion.setText(Utils.getVersionName(this));
 
-        TextView tvappSumm = findViewById(R.id.text_view_app_summ);
-        tvappSumm.setText(Html.fromHtml(getString(R.string.app_summ_html)));
-        tvappSumm.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView tvUrl = findViewById(R.id.text_view_url);
-        tvUrl.setText(Html.fromHtml(getString(R.string.project_url)));
-        tvUrl.setMovementMethod(LinkMovementMethod.getInstance());
-
-        TextView tvPolicy = findViewById(R.id.text_view_policy);
-        tvPolicy.setText(Html.fromHtml(getString(R.string.policy_link)));
-        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
-
         Button bRateApp = findViewById(R.id.button_rate_app);
-        bRateApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rateApp();
-            }
-        });
+        bRateApp.setOnClickListener(v -> rateApp());
     }
 
     void rateApp() {
