@@ -150,6 +150,10 @@ public class SettingsManager {
         return getBoolean(R.string.pref_key_is_save_pass_hash_local, true);
     }
 
+    public static void setIsSaveMiddlePassHashLocal(boolean value) {
+        setBoolean(R.string.pref_key_is_save_pass_hash_local, value);
+    }
+
     /**
      * Хэш пароля
      * @return

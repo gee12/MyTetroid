@@ -285,7 +285,7 @@
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
-    <string name="ask_clear_pass">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
+    <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
@@ -448,5 +448,6 @@
     <string name="log_start_storage_creating">Начало создания хранилища:\n</string>
     <string name="log_dir_is_missing">Каталог не существует</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
+    <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
 
 </resources>

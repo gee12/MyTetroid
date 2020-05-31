@@ -1308,7 +1308,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void checkExistenceCryptedNodes() {
         if (!NodesManager.isExistCryptedNodes(true)) {
             AskDialogs.showYesDialog(this, () -> PassManager.clearSavedPass(),
-                    R.string.ask_clear_pass);
+                    R.string.ask_clear_pass_database_ini);
         }
     }
 

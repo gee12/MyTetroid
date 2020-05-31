@@ -40,6 +40,7 @@
             android:defaultValue="true" />
 
         <ListPreference
+            android:enabled="false"
             android:key="@string/pref_key_when_ask_password"
             android:title="@string/pref_when_ask_password"
             android:entries="@array/when_ask_password_entries"
@@ -131,7 +132,6 @@
             android:defaultValue="false" />
 
         <yuku.ambilwarna.widget.AmbilWarnaPreference
-            android:id="@+id/pref_key_highlight_attach_color"
             android:enabled="false"
             android:key="@string/pref_key_highlight_attach_color"
             android:title="@string/pref_highlight_attach_color"
