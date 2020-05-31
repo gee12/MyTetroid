@@ -501,8 +501,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                LogManager.log(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }
-            mListAdapterNodes.notifyDataSetChanged();
-            mListAdapterTags.setDataItems(DataManager.getTags());
+//            mListAdapterNodes.notifyDataSetChanged();
+//            mListAdapterTags.setDataItems(DataManager.getTags());
+            updateNodes();
+            updateTags();
 
             if (node != null) {
                 showNode(node);
@@ -1095,7 +1097,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (NodesManager.editNodeFields(node, name)) {
                 TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
-                mListAdapterNodes.notifyDataSetChanged();
+//                mListAdapterNodes.notifyDataSetChanged();
+                updateNodes();
                 if (mCurNode == node) {
                     setTitle(name);
                 }
@@ -1261,7 +1264,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 } else {
                     TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 }
-                mListAdapterNodes.notifyDataSetChanged();
+//                mListAdapterNodes.notifyDataSetChanged();
+                updateNodes();
             }
         });
     }
@@ -1281,9 +1285,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
                 } else {
                     TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }
-                mListAdapterNodes.notifyDataSetChanged();
+//                mListAdapterNodes.notifyDataSetChanged();
+                updateNodes();
             }
         });
     }
@@ -1533,16 +1537,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
-            // перезагружаем хранилище, если изменили путь
-            if (data != null && data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
-                boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
-                AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
-                    if (isCreate) {
-                        createStorage(SettingsManager.getStoragePath());
-                    } else {
-                        reinitStorage();
-                    }
-                });
+            if (data != null) {
+                // перезагружаем хранилище, если изменили путь
+                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
+                    boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                    AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
+                        if (isCreate) {
+                            createStorage(SettingsManager.getStoragePath());
+                        } else {
+                            reinitStorage();
+                        }
+                    });
+                } else if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                    // обновляем списки, т.к. хранилище должно было расшифроваться
+                    updateNodes();
+                    updateTags();
+                }
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
@@ -1590,6 +1600,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     createStorage(SettingsManager.getStoragePath());
                 } else {
                     reinitStorage();
+                }
+                break;
+            case RecordActivity.RESULT_PASS_CHANGED:
+                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                    // обновляем списки, т.к. хранилище должно было расшифроваться
+                    updateNodes();
+                    updateTags();
                 }
                 break;
             case RecordActivity.RESULT_OPEN_RECORD:

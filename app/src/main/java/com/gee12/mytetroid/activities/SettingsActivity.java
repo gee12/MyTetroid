@@ -33,8 +33,9 @@ import lib.folderpicker.FolderPicker;
 
 public class SettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static final String EXTRA_IS_RELOAD_STORAGE = "EXTRA_IS_RELOAD_STORAGE";
+    public static final String EXTRA_IS_REINIT_STORAGE = "EXTRA_IS_REINIT_STORAGE";
     public static final String EXTRA_IS_CREATE_STORAGE = "EXTRA_IS_CREATE_STORAGE";
+    public static final String EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED";
 
     public static final int REQUEST_CODE_OPEN_STORAGE_PATH = 1;
     public static final int REQUEST_CODE_CREATE_STORAGE_PATH = 2;
@@ -111,6 +112,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                         PassManager.changePass(this);
                     else
                         PassManager.setupPass(this);
+                    // устанавливаем флаг для MsainActivity
+                    Intent intent = new Intent();
+                    intent.putExtra(EXTRA_IS_PASS_CHANGED, true);
+                    setResult(RESULT_OK, intent);
                     return true;
                 });
 
@@ -144,9 +149,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         boolean isCreate = requestCode == REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
-            if (!folderPath.equals(SettingsManager.getStoragePath()) || isCreate) {
+            boolean pathChanged = !folderPath.equals(SettingsManager.getStoragePath()) || isCreate;
+            if (pathChanged) {
                 Intent intent = new Intent();
-                intent.putExtra(EXTRA_IS_RELOAD_STORAGE, true);
+                intent.putExtra(EXTRA_IS_REINIT_STORAGE, true);
                 if (isCreate) {
                     intent.putExtra(EXTRA_IS_CREATE_STORAGE, true);
                 }
@@ -155,6 +161,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             SettingsManager.setStoragePath(folderPath);
             SettingsManager.setLastChoosedFolder(folderPath);
             updateSummary(R.string.pref_key_storage_path, folderPath);
+            if (pathChanged) {
+                // закрываем настройки для немедленной перезагрузки хранилища
+                finish();
+            }
         }
         else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
             SettingsManager.setTrashPath(folderPath);

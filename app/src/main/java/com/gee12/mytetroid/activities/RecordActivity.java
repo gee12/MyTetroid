@@ -89,11 +89,12 @@ public class RecordActivity extends TetroidActivity implements
     public static final int MODE_HTML = 3;
 
     public static final int RESULT_REINIT_STORAGE = 1;
-    public static final int RESULT_OPEN_RECORD = 2;
-    public static final int RESULT_OPEN_NODE = 3;
-    public static final int RESULT_SHOW_FILES = 4;
-    public static final int RESULT_SHOW_TAG = 5;
-    public static final int RESULT_DELETE_RECORD = 6;
+    public static final int RESULT_PASS_CHANGED = 2;
+    public static final int RESULT_OPEN_RECORD = 3;
+    public static final int RESULT_OPEN_NODE = 4;
+    public static final int RESULT_SHOW_FILES = 5;
+    public static final int RESULT_SHOW_TAG = 6;
+    public static final int RESULT_DELETE_RECORD = 7;
 
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
 
@@ -229,7 +230,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mHtmlProgressBar = findViewById(R.id.progress_bar);
 
         // не гасим экран, если установлена опция
-        App.setKeepScreenOn(this);
+        App.checkKeepScreenOn(this);
     }
 
     private void onMenuLoaded() {
@@ -1024,15 +1025,17 @@ public class RecordActivity extends TetroidActivity implements
                     finishWithResult(RESULT_REINIT_STORAGE, null);
                 });
             }*/
-            if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_RELOAD_STORAGE, false)) {
+            if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
                 boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
                 AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
                     // перезагрузка хранилища в главной активности
                     finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                 });
+            } else if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                finishWithResult(RESULT_PASS_CHANGED, data.getExtras());
             }
             // не гасим экран, если установили опцию
-            App.setKeepScreenOn(this);
+            App.checkKeepScreenOn(this);
         } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
