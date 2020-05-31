@@ -53,15 +53,21 @@ public class PassManager extends DataManager {
                 LogManager.log(wrongPassRes, Toast.LENGTH_LONG);
                 return false;
             }
-        } catch (DatabaseConfig.EmptyFieldException e) {
+        } catch (DatabaseConfig.EmptyFieldException ex) {
             // если поля в INI-файле для проверки пустые
-            LogManager.log(e);
+            LogManager.log(ex);
             // спрашиваем "continue anyway?"
-            AskDialogs.showEmptyPassCheckingFieldDialog(context, e.getFieldName(), () -> {
-                // TODO: тут спрашиваем нормально ли расшифровались данные
-                //  ...
-                if (callback != null)
-                    callback.run();
+            AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new AskDialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    // TODO: тут спрашиваем нормально ли расшифровались данные
+                    //  ...
+                    if (callback != null)
+                        callback.run();
+                }
+                @Override
+                public void onCancel() {
+                }
             });
         }
         return true;

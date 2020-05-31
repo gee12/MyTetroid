@@ -34,7 +34,7 @@
     <string-array name="obj_storage">
         <item>хранилище</item>
         <item>Хранилище&#160;</item>
-        <item>storage</item>
+        <item>хранилища</item>
     </string-array>
     <string-array name="obj_node">
         <item>ветку</item>
@@ -134,17 +134,17 @@
     </string-array>
     <string-array name="oper_encrypt">
         <item>зашифровать</item>
-        <item>зашифрована(а)</item>
+        <item>зашифрован(а)</item>
         <item>зашифровки</item>
     </string-array>
     <string-array name="oper_decrypt">
         <item>расшифровать</item>
-        <item>расшифрована(а)</item>
+        <item>расшифрован(а)</item>
         <item>расшифровки</item>
     </string-array>
     <string-array name="oper_reencrypt">
         <item>перешифровать</item>
-        <item>перешифрована(а)</item>
+        <item>перешифрован(а)</item>
         <item>перешифровки</item>
     </string-array>
 </resources>

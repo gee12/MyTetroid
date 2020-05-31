@@ -20,7 +20,6 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
-import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -196,11 +195,11 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //                SettingsManager.setMiddlePassHash(null);
 //            }
         } else*/ if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            if (SettingsManager.isSaveMiddlePassHashLocal()) {
-                // сохраняем хеш пароля локально в настройках
+            if (!SettingsManager.isSaveMiddlePassHashLocal()) {
+                /*// сохраняем хеш пароля локально в настройках
                 SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());
             }
-            else  {
+            else  {*/
                 // удаляем хэш пароля, если сняли галку
                 SettingsManager.setMiddlePassHash(null);
             }

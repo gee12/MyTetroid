@@ -2,12 +2,15 @@ package com.gee12.mytetroid.data;
 
 public class DatabaseConfig extends INIConfig {
 
+    /**
+     *
+     */
     public class EmptyFieldException extends Exception {
 
         private String fieldName;
 
         public EmptyFieldException(String fieldName) {
-            super();
+            super("Field '" + fieldName + "' is empty in database.ini");
             this.fieldName = fieldName;
         }
 
