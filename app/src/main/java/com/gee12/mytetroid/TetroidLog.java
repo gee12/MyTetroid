@@ -42,6 +42,7 @@ public class TetroidLog extends LogManager {
     }
 
     public enum Opers {
+        LOAD(R.array.oper_load),
         CREATE(R.array.oper_create),//CREATE (R.string.create, R.string.created, R.string.creating),
         ADD(R.array.oper_add),//ADD (R.string.add, R.string.added, R.string.adding),
         CHANGE(R.array.oper_change),//CHANGE (R.string.change, R.string.changed, R.string.changing),
@@ -54,7 +55,8 @@ public class TetroidLog extends LogManager {
         SAVE(R.array.oper_save),//SAVE (R.string.save, R.string.saved, R.string.saving),
         ATTACH(R.array.oper_attach),//ATTACH (R.string.attach, R.string.attached, R.string.attaching),
         ENCRYPT(R.array.oper_encrypt),//ENCRYPT (R.string.encrypt, R.string.encrypted, R.string.encrypting),
-        DECRYPT(R.array.oper_decrypt);//DECRYPT (R.string.decrypt, R.string.decrypted, R.string.decrypting);
+        DECRYPT(R.array.oper_decrypt),//DECRYPT (R.string.decrypt, R.string.decrypted, R.string.decrypting);
+        REENCRYPT(R.array.oper_reencrypt);
 
 //        int[] mRes = new int[3];
 //

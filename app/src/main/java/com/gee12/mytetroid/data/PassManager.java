@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
@@ -146,18 +147,22 @@ public class PassManager extends DataManager {
         initPass(curPass);
         // и расшифровываем хранилище
         if (DataManager.decryptStorage(true)) {
-            LogManager.log(R.string.log_storage_decrypted);
+//            LogManager.log(R.string.log_storage_decrypted);
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         } else {
-            LogManager.log(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.log(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             return false;
         }
-        // устанавливаем новый пароль
+        // теперь устанавливаем новый пароль
         initPass(newPass);
-        // перешифровываем зашифрованные ветки
+        // и перешифровываем зашифрованные ветки
         if (DataManager.reencryptStorage()) {
-            LogManager.log(R.string.log_storage_reencrypted);
+//            LogManager.log(R.string.log_storage_reencrypted);
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT);
         } else {
-            LogManager.log(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.log(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, Toast.LENGTH_LONG);
             return false;
         }
         // сохраняем mytetra.xml
@@ -166,7 +171,7 @@ public class PassManager extends DataManager {
         } else {
             LogManager.log(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
-        // сохраняем в database.ini
+        // сохраняем данные в database.ini
         savePassCheckData(newPass);
         return true;
     }

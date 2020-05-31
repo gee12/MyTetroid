@@ -311,11 +311,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 SettingsManager.setStoragePath(storagePath);
             }
             initGUI(DataManager.createDefault());
-            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_SHORT);
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
-            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            TetroidLog.logOperError(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
     }
 
@@ -405,7 +407,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 initStorage(null, false);
             }
         } else {
-            LogManager.log(getString(R.string.log_failed_storage_init) + DataManager.getStoragePath(),
+            LogManager.log(getString(R.string.log_failed_storage_init) + storagePath,
                     LogManager.Types.ERROR, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
@@ -493,9 +495,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем зашифрованные ветки уже загруженного дерева
             if (DataManager.decryptStorage(false)) {
-                LogManager.log(R.string.log_storage_decrypted);
+//                LogManager.log(R.string.log_storage_decrypted);
+                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_SHORT);
             } else {
-                LogManager.log(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
+//                LogManager.log(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
+                TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }
             mListAdapterNodes.notifyDataSetChanged();
             mListAdapterTags.setDataItems(DataManager.getTags());
@@ -504,7 +508,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showNode(node);
             }
         } else {
-            LogManager.log(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
+//            LogManager.log(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
             new MainActivity.ReadStorageTask().execute(isDecrypt);
         }
     }

@@ -363,16 +363,16 @@
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
-    <string name="log_errors_during_reencryption">Errors occurred during re-encryption (more in logs)</string>
+<!--    <string name="log_errors_during_reencryption">Errors occurred during re-encryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded">Storage was loaded:\n</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-    <string name="log_storage_decrypted">Storage is decrypted</string>
-    <string name="log_storage_reencrypted">Storage is re-encrypted</string>
+<!--    <string name="log_storage_decrypted">Storage is decrypted</string>-->
+<!--    <string name="log_storage_reencrypted">Storage is re-encrypted</string>-->
     <string name="log_storage_created">Storage is created:\n</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
-    <string name="log_start_storage_loading">Start storage loading:&#160;</string>
+<!--    <string name="log_start_storage_loading">Start storage loading:&#160;</string>-->
     <string name="log_global_search_return_null">Some error in global search…</string>
     <string name="log_cur_node_is_not_selected">Current node is not selected</string>
     <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
@@ -380,9 +380,9 @@
     <string name="log_no_app_found_for_open_file">No suitable application was found to open the file&#160;</string>
     <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
-    <string name="log_failed_storage_load">Failed to load storage:&#160;</string>
-    <string name="log_failed_storage_create">Failed to create storage:&#160;</string>
-    <string name="log_failed_storage_init">Failed to init storage:&#160;</string>
+    <string name="log_failed_storage_load">Failed to load storage:\n</string>
+<!--    <string name="log_failed_storage_create">Failed to create storage:&#160;</string>-->
+    <string name="log_failed_storage_init">Failed to init storage:\n</string>
     <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
     <string name="log_error_read_record_file">Error reading record file:&#160;</string>
@@ -496,7 +496,7 @@
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
     <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>
     <string name="log_clear_storage_dir">Clear storage folder</string>
-    <string name="log_start_storage_creating">Start storage creating</string>
+    <string name="log_start_storage_creating">Start storage creating:\n</string>
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
 

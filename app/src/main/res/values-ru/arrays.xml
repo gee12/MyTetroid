@@ -72,6 +72,11 @@
         <item>свойств файла</item>
     </string-array>
 
+    <string-array name="oper_load">
+        <item>загрузить</item>
+        <item>загружен(а/о)</item>
+        <item>загрузки</item>
+    </string-array>
     <string-array name="oper_create">
         <item>создать</item>
         <item>создан(а)</item>
@@ -136,5 +141,10 @@
         <item>расшифровать</item>
         <item>расшифрована(а)</item>
         <item>расшифровки</item>
+    </string-array>
+    <string-array name="oper_reencrypt">
+        <item>перешифровать</item>
+        <item>перешифрована(а)</item>
+        <item>перешифровки</item>
     </string-array>
 </resources>
