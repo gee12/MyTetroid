@@ -1277,9 +1277,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 initStorage(null, true);
             }
             if (DataManager.isDecrypted()) {
+                boolean wasCrypted = node.isCrypted();
                 if (DataManager.dropCryptNode(node)) {
                     TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-                    if (node.isCrypted()) {
+                    if (wasCrypted) {
                         // проверяем существование зашифрованных веток
                         checkExistenceCryptedNodes();
                     }

@@ -195,7 +195,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //            if (TextUtils.isEmpty(newStoragePath) || !newStoragePath.equals(SettingsManager.LastStoragePath)) {
 //                SettingsManager.setMiddlePassHash(null);
 //            }
-
         } else*/ if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             if (SettingsManager.isSaveMiddlePassHashLocal()) {
                 // сохраняем хеш пароля локально в настройках
@@ -207,15 +206,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             }
 //        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {
 //            // меняем список полей для отображения
-
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
             App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach();
-
+            setHighlightPrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_is_highlight_crypted_nodes))) {
             // включаем/выключаем выделение зашифрованных веток
             App.IsHighlightCryptedNodes = SettingsManager.isHighlightEncryptedNodes();
-
+            setHighlightPrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
             App.HighlightAttachColor = SettingsManager.getHighlightColor();
@@ -228,6 +226,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         } else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         }
+    }
+
+    public void setHighlightPrefAvailability() {
+        findViewById(R.id.pref_key_highlight_attach_color).setEnabled(
+                SettingsManager.isHighlightRecordWithAttach()
+                || SettingsManager.isHighlightEncryptedNodes());
     }
 
     @Override
