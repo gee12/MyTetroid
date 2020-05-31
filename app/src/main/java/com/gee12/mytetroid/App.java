@@ -42,7 +42,7 @@ public class App {
      * Переключатель блокировки выключения экрана.
      * @param activity
      */
-    public static void setKeepScreenOn(Activity activity) {
+    public static void checkKeepScreenOn(Activity activity) {
         ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn());
     }
 
