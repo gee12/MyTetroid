@@ -123,7 +123,7 @@
             android:key="@string/pref_key_is_highlight_attach"
             android:title="@string/pref_is_highlight_attach"
             android:summary="@string/pref_is_highlight_attach_summ"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_highlight_crypted_nodes"
@@ -131,10 +131,12 @@
             android:defaultValue="false" />
 
         <yuku.ambilwarna.widget.AmbilWarnaPreference
-            android:dependency="@string/pref_key_is_highlight_attach"
+            android:id="@+id/pref_key_highlight_attach_color"
+            android:enabled="false"
             android:key="@string/pref_key_highlight_attach_color"
             android:title="@string/pref_highlight_attach_color"
             android:defaultValue="@color/colorHighlight" />
+<!--        android:dependency="@string/pref_key_is_highlight_attach"-->
 
         <com.gee12.mytetroid.views.DateTimeFormatPreference
             android:key="@string/pref_key_date_format_string"
