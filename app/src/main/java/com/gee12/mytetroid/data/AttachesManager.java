@@ -154,7 +154,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.attachFile()");
             return null;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
 
         String id = createUniqueId();
         // проверка исходного файла
@@ -228,7 +228,7 @@ public class AttachesManager extends DataManager {
         if (saveStorage()) {
          /*   instance.mFilesCount++;*/
         } else {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
+            TetroidLog.logOperCancel(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
             // удаляем файл из записи
             files.remove(file);
             // удаляем файл
@@ -254,7 +254,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.editAttachedFileFields()");
             return 0;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
@@ -297,7 +297,7 @@ public class AttachesManager extends DataManager {
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             file.setName(oldName);
             if (crypted) {
@@ -334,7 +334,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.deleteAttachedFile()");
             return 0;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
@@ -380,7 +380,7 @@ public class AttachesManager extends DataManager {
             /*instance.mFilesCount--;*/
         } else {
 //            LogManager.log(context.getString(R.string.log_cancel_file_deleting), LogManager.Types.ERROR);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
             return 0;
         }
 

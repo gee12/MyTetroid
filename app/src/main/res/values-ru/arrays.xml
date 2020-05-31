@@ -30,4 +30,111 @@
         <item>Метка</item>
         <item>Ветка</item>
     </string-array>
+
+    <string-array name="obj_storage">
+        <item>хранилище</item>
+        <item>Хранилище&#160;</item>
+        <item>storage</item>
+    </string-array>
+    <string-array name="obj_node">
+        <item>ветку</item>
+        <item>Ветка&#160;</item>
+        <item>ветки</item>
+    </string-array>
+    <string-array name="obj_node_fields">
+        <item>свойства ветки</item>
+        <item>Свойста ветки&#160;</item>
+        <item>свойств ветки</item>
+    </string-array>
+    <string-array name="obj_record">
+        <item>запись</item>
+        <item>Запись&#160;</item>
+        <item>записи</item>
+    </string-array>
+    <string-array name="obj_record_fields">
+        <item>свойства записи</item>
+        <item>Свойста записи&#160;</item>
+        <item>свойств записи</item>
+    </string-array>
+    <string-array name="obj_record_dir">
+        <item>каталог записи</item>
+        <item>Каталог записи&#160;</item>
+        <item>>каталога записи</item>
+    </string-array>
+    <string-array name="obj_file">
+        <item>файл</item>
+        <item>Файл&#160;</item>
+        <item>файла</item>
+    </string-array>
+    <string-array name="obj_file_fields">
+        <item>свойства файла</item>
+        <item>Свойства файла&#160;</item>
+        <item>свойств файла</item>
+    </string-array>
+
+    <string-array name="oper_create">
+        <item>создать</item>
+        <item>создан(а)</item>
+        <item>создания</item>
+    </string-array>
+    <string-array name="oper_add">
+        <item>добавить</item>
+        <item>добавлен(а)</item>
+        <item>добавления</item>
+    </string-array>
+    <string-array name="oper_change">
+        <item>изменить</item>
+        <item>изменен(а)</item>
+        <item>изменения</item>
+    </string-array>
+    <string-array name="oper_rename">
+        <item>переименовать</item>
+        <item>переименован(а)</item>
+        <item>переименования</item>
+    </string-array>
+    <string-array name="oper_delete">
+        <item>удалить</item>
+        <item>удален(а)</item>
+        <item>удаления</item>
+    </string-array>
+    <string-array name="oper_copy">
+        <item>скопировать</item>
+        <item>скопирован(а)</item>
+        <item>копирования</item>
+    </string-array>
+    <string-array name="oper_cut">
+        <item>вырезать</item>
+        <item>вырезан(а)</item>
+        <item>вырезания</item>
+    </string-array>
+    <string-array name="oper_insert">
+        <item>вставить</item>
+        <item>вставлен(а)</item>
+        <item>вставки</item>
+    </string-array>
+    <string-array name="oper_move">
+        <item>переместить</item>
+        <item>перемещен(а)</item>
+        <item>перемещения</item>
+    </string-array>
+    <string-array name="oper_save">
+        <item>сохранить</item>
+        <item>сохранен(а)</item>
+        <item>сохранения</item>
+    </string-array>
+    <string-array name="oper_attach">
+        <item>присоединить</item>
+        <item>присоединен(а)</item>
+        <item>присоединения</item>
+    </string-array>
+    <string-array name="oper_encrypt">
+        <item>зашифровать</item>
+        <item>зашифрована(а)</item>
+        <item>зашифровки</item>
+    </string-array>
+    <string-array name="oper_decrypt">
+        <item>расшифровать</item>
+        <item>расшифрована(а)</item>
+        <item>расшифровки</item>
+    </string-array>
 </resources>

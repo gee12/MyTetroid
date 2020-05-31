@@ -200,18 +200,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
-            App.IsHighlightAttachCache = SettingsManager.isHighlightRecordWithAttach();
+            App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach();
 
         } else if (key.equals(getString(R.string.pref_key_is_highlight_crypted_nodes))) {
             // включаем/выключаем выделение зашифрованных веток
-            App.IsHighlightCryptedNodesCache = SettingsManager.isHighlightEncryptedNodes();
+            App.IsHighlightCryptedNodes = SettingsManager.isHighlightEncryptedNodes();
 
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
-            App.HighlightAttachColorCache = SettingsManager.getHighlightColor();
+            App.HighlightAttachColor = SettingsManager.getHighlightColor();
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
-            App.DateFormatStringCache = SettingsManager.getDateFormatString();
+            App.DateFormatString = SettingsManager.getDateFormatString();
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());

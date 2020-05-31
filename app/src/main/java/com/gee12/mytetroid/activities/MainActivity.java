@@ -1046,12 +1046,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode node = NodesManager.createNode(name, trueParentNode);
             if (node != null) {
                 if (mListAdapterNodes.addItem(pos, isSubNode)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
                 } else {
                     LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }
         });
     }
@@ -1089,13 +1089,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void renameNode(TetroidNode node) {
         NodeAskDialogs.createNodeDialog(this, node, (name) -> {
             if (NodesManager.editNodeFields(node, name)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
+                TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
                 mListAdapterNodes.notifyDataSetChanged();
                 if (mCurNode == node) {
                     setTitle(name);
                 }
             } else {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
+                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
             }
         });
     }
@@ -1123,7 +1123,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (res) {
             // удаляем элемент внутри списка
             if (mListAdapterNodes.deleteItem(pos)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
+                TetroidLog.logOperRes(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
             } else {
                 LogManager.log(getString(R.string.log_node_delete_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
@@ -1137,7 +1137,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 checkExistenceCryptedNodes();
             }
         } else {
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
+            TetroidLog.logOperError(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
         }
     }
 
@@ -1176,12 +1176,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (res > 0) {
                 // меняем местами элементы внутри списка
                 if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
+                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
                 } else {
                     LogManager.log(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else if (res < 0) {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
+                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
             }
         }
     }
@@ -1201,7 +1201,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void copyNode(TetroidNode node) {
         // добавляем в "буфер обмена"
         TetroidClipboard.copy(node);
-        TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.COPY);
+        TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.COPY);
     }
 
     /**
@@ -1235,12 +1235,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         if (NodesManager.insertNode(node, trueParentNode, isCutted)) {
             if (mListAdapterNodes.addItem(pos, isSubNode)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+                TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             } else {
                 LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         } else {
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
         }
     }
 
@@ -1252,9 +1252,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             if (DataManager.isDecrypted()) {
                 if (DataManager.encryptNode(node)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 } else {
-                    TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 }
                 mListAdapterNodes.notifyDataSetChanged();
             }
@@ -1269,13 +1269,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             if (DataManager.isDecrypted()) {
                 if (DataManager.dropCryptNode(node)) {
-                    TetroidLog.addOperResLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                     if (node.isCrypted()) {
                         // проверяем существование зашифрованных веток
                         checkExistenceCryptedNodes();
                     }
                 } else {
-                    TetroidLog.addOperErrorLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }
                 mListAdapterNodes.notifyDataSetChanged();
             }
@@ -1388,7 +1389,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         TetroidNode parentNode = node.getParentNode();
         boolean isNonCrypted = node.isNonCryptedOrDecrypted();
         activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable() && isNonCrypted);
-        activateMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
+//        activateMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
 //        activateMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());

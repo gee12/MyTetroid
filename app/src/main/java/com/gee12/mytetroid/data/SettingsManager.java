@@ -39,10 +39,10 @@ public class SettingsManager {
         if (getLogPath() == null) {
             setLogPath(FileUtils.getAppExternalFilesDir(context));
         }
-        App.IsHighlightAttachCache = isHighlightRecordWithAttach();
-        App.IsHighlightCryptedNodesCache = isHighlightEncryptedNodes();
-        App.HighlightAttachColorCache = getHighlightColor();
-        App.DateFormatStringCache = getDateFormatString();
+        App.IsHighlightAttach = isHighlightRecordWithAttach();
+        App.IsHighlightCryptedNodes = isHighlightEncryptedNodes();
+        App.HighlightAttachColor = getHighlightColor();
+        App.DateFormatString = getDateFormatString();
     }
 
     /**

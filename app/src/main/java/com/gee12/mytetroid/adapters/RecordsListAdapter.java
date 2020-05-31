@@ -112,8 +112,8 @@ public class RecordsListAdapter extends BaseAdapter {
         RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон
-            if (App.IsHighlightAttachCache) {
-                convertView.setBackgroundColor(App.HighlightAttachColorCache);
+            if (App.IsHighlightAttach) {
+                convertView.setBackgroundColor(App.HighlightAttachColor);
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
             viewHolder.attachedView.setOnClickListener(v -> onRecordAttachmentClickListener.onClick(record));
