@@ -16,13 +16,14 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.PassManager;
+import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
@@ -199,14 +200,18 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
-            SettingsManager.IsHighlightAttachCache = SettingsManager.isHighlightRecordWithAttach();
+            App.IsHighlightAttachCache = SettingsManager.isHighlightRecordWithAttach();
+
+        } else if (key.equals(getString(R.string.pref_key_is_highlight_crypted_nodes))) {
+            // включаем/выключаем выделение зашифрованных веток
+            App.IsHighlightCryptedNodesCache = SettingsManager.isHighlightEncryptedNodes();
 
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
-            SettingsManager.HighlightAttachColorCache = SettingsManager.getHighlightAttachColor();
+            App.HighlightAttachColorCache = SettingsManager.getHighlightColor();
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
-            SettingsManager.DateFormatStringCache = SettingsManager.getDateFormatString();
+            App.DateFormatStringCache = SettingsManager.getDateFormatString();
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());

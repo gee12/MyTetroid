@@ -10,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.TetroidRecord;
 
@@ -109,20 +109,20 @@ public class RecordsListAdapter extends BaseAdapter {
         if (record.getCreated() != null)
             viewHolder.infoView.setText(record.getCreatedString(dateTimeFormat));
         // есть ли прикрепленные файлы
+        RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();
         if (record.getAttachedFilesCount() > 0) {
             // если установлено в настройках, меняем фон
-            if (SettingsManager.IsHighlightAttachCache) {
-                convertView.setBackgroundColor(SettingsManager.HighlightAttachColorCache);
+            if (App.IsHighlightAttachCache) {
+                convertView.setBackgroundColor(App.HighlightAttachColorCache);
             }
             viewHolder.attachedView.setVisibility(View.VISIBLE);
             viewHolder.attachedView.setOnClickListener(v -> onRecordAttachmentClickListener.onClick(record));
-            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,
-                    context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width),0);
+            nameParams.setMargins(0,0, context.getResources().getDimensionPixelOffset(R.dimen.record_attached_image_width),0);
         }
         else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
             viewHolder.attachedView.setVisibility(View.GONE);
-            ((RelativeLayout.LayoutParams)viewHolder.nameView.getLayoutParams()).setMargins(0,0,0,0);
+            nameParams.setMargins(0,0,0,0);
         }
 
         return convertView;

@@ -2,13 +2,22 @@ package com.gee12.mytetroid;
 
 import android.app.Activity;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.utils.ViewUtils;
 
 import java.util.Locale;
 
 public class App {
+
+    public static boolean IsHighlightAttachCache;
+    public static boolean IsHighlightCryptedNodesCache;
+    @ColorInt
+    public static int HighlightAttachColorCache;
+    public static String DateFormatStringCache;
+    public static boolean IsFullScreen;
 
     /**
      * Проверка - полная ли версия
@@ -24,8 +33,8 @@ public class App {
      * @return текущий режим
      */
     public static boolean toggleFullscreen(AppCompatActivity activity) {
-        boolean newValue = !SettingsManager.IsFullScreen;
-        SettingsManager.IsFullScreen = newValue;
+        boolean newValue = !IsFullScreen;
+        IsFullScreen = newValue;
         ViewUtils.setFullscreen(activity, newValue);
         return newValue;
     }
@@ -41,4 +50,5 @@ public class App {
     public static boolean isRusLanguage() {
         return (Locale.getDefault().getLanguage().equals("ru"));
     }
+
 }

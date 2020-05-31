@@ -125,6 +125,11 @@
             android:summary="@string/pref_is_highlight_attach_summ"
             android:defaultValue="true" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_highlight_crypted_nodes"
+            android:title="@string/pref_is_highlight_crypted_nodes"
+            android:defaultValue="false" />
+
         <yuku.ambilwarna.widget.AmbilWarnaPreference
             android:dependency="@string/pref_key_is_highlight_attach"
             android:key="@string/pref_key_highlight_attach_color"
