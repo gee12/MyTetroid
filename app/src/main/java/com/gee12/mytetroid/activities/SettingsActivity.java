@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
@@ -118,6 +119,34 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     return true;
                 });
 
+        findPreference(getString(R.string.pref_key_when_ask_password)).
+                setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
+
+        findPreference(getString(R.string.pref_key_is_save_pass_hash_local)).
+                setOnPreferenceChangeListener((preference, newValue) -> {
+                    if (!((boolean)newValue) && SettingsManager.isSaveMiddlePassHashLocal()) {
+                        // удалить сохраненный хэш пароля?
+                        AskDialogs.showYesNoDialog(this, new AskDialogs.IApplyCancelResult() {
+                            @Override
+                            public void onApply() {
+                                // удаляем хэш пароля, если сняли галку
+                                SettingsManager.setMiddlePassHash(null);
+                                // сбрасываем галку
+                                SettingsManager.setIsSaveMiddlePassHashLocal(false);
+                                ((CheckBoxPreference)preference).setChecked(false);
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                // устанавливаем галку обратно
+//                                SettingsManager.setIsSaveMiddlePassHashLocal(true);
+                            }
+                        }, R.string.ask_clear_saved_pass_hash);
+                        return false;
+                    }
+                    return true;
+                });
+
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
@@ -195,14 +224,16 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //                SettingsManager.setMiddlePassHash(null);
 //            }
         } else*/ if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            if (!SettingsManager.isSaveMiddlePassHashLocal()) {
-                /*// сохраняем хеш пароля локально в настройках
-                SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());
-            }
-            else  {*/
-                // удаляем хэш пароля, если сняли галку
-                SettingsManager.setMiddlePassHash(null);
-            }
+//            final Preference prefWhenAskPass = findPreference(getString(R.string.pref_key_when_ask_password));
+//            if (SettingsManager.isSaveMiddlePassHashLocal()) {
+//                /*// сохраняем хеш пароля локально в настройках
+//                SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());*/
+//                prefWhenAskPass.setEnabled(false);
+//            }
+//            else  {
+//            }
+            findPreference(getString(R.string.pref_key_when_ask_password)).
+                    setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
 //        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {
 //            // меняем список полей для отображения
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
@@ -228,7 +259,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     }
 
     public void setHighlightPrefAvailability() {
-        findViewById(R.id.pref_key_highlight_attach_color).setEnabled(
+        findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
                 SettingsManager.isHighlightRecordWithAttach()
                 || SettingsManager.isHighlightEncryptedNodes());
     }

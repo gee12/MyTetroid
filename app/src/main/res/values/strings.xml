@@ -339,7 +339,7 @@
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
-    <string name="ask_clear_pass">There are no encrypted nodes left. Clear encrypted password?</string>
+    <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -499,5 +499,6 @@
     <string name="log_start_storage_creating">Start storage creating:\n</string>
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
+    <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
 
 </resources>
