@@ -12,11 +12,10 @@ import java.util.Locale;
 
 public class App {
 
-    public static boolean IsHighlightAttachCache;
-    public static boolean IsHighlightCryptedNodesCache;
-    @ColorInt
-    public static int HighlightAttachColorCache;
-    public static String DateFormatStringCache;
+    public static boolean IsHighlightAttach;
+    public static boolean IsHighlightCryptedNodes;
+    @ColorInt public static int HighlightAttachColor;
+    public static String DateFormatString;
     public static boolean IsFullScreen;
 
     /**

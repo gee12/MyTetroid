@@ -126,7 +126,7 @@ public class CryptManager extends Crypter {
         for (TetroidRecord record : records) {
             // зашифровываем файлы записи
             if (recordFileCrypter != null) {
-                recordFileCrypter.cryptRecordFiles(record, record.isCrypted() && !isReencrypt, true);
+                res = res & recordFileCrypter.cryptRecordFiles(record, record.isCrypted() && !isReencrypt, true);
             }
             res = res & encryptRecordFields(record, isReencrypt);
             if (record.getAttachedFilesCount() > 0)
@@ -318,7 +318,7 @@ public class CryptManager extends Crypter {
                 }
             // расшифровываем файлы записи
             if ((dropCrypt || decryptFiles) && recordFileCrypter != null) {
-                recordFileCrypter.cryptRecordFiles(record, true,false);
+                res = res & recordFileCrypter.cryptRecordFiles(record, true,false);
             }
         }
         return res;

@@ -34,4 +34,111 @@
         <item>Tag</item>
         <item>Node</item>
     </string-array>
+
+    <string-array name="obj_storage">
+        <item>storage</item>
+        <item>Storage was&#160;</item>
+        <item>storage</item>
+    </string-array>
+    <string-array name="obj_node">
+        <item>node</item>
+        <item>Node was&#160;</item>
+        <item>node</item>
+    </string-array>
+    <string-array name="obj_node_fields">
+        <item>node fields</item>
+        <item>Node fields was&#160;</item>
+        <item>node fields</item>
+    </string-array>
+    <string-array name="obj_record">
+        <item>record</item>
+        <item>Record was&#160;</item>
+        <item>record</item>
+    </string-array>
+    <string-array name="obj_record_fields">
+        <item>record fields</item>
+        <item>Record fields was&#160;</item>
+        <item>record fields</item>
+    </string-array>
+    <string-array name="obj_record_dir">
+        <item>record catalog</item>
+        <item>Record catalog was&#160;</item>
+        <item>>record catalog</item>
+    </string-array>
+    <string-array name="obj_file">
+        <item>file</item>
+        <item>File was&#160;</item>
+        <item>file</item>
+    </string-array>
+    <string-array name="obj_file_fields">
+        <item>file fields</item>
+        <item>File fields was&#160;</item>
+        <item>file fields</item>
+    </string-array>
+
+    <string-array name="oper_create">
+        <item>create</item>
+        <item>created</item>
+        <item>creating</item>
+    </string-array>
+    <string-array name="oper_add">
+        <item>add</item>
+        <item>added</item>
+        <item>adding</item>
+    </string-array>
+    <string-array name="oper_change">
+        <item>change</item>
+        <item>changed</item>
+        <item>changing</item>
+    </string-array>
+    <string-array name="oper_rename">
+        <item>rename</item>
+        <item>renamed</item>
+        <item>renaming</item>
+    </string-array>
+    <string-array name="oper_delete">
+        <item>delete</item>
+        <item>deleted</item>
+        <item>deleting</item>
+    </string-array>
+    <string-array name="oper_copy">
+        <item>copy</item>
+        <item>copied</item>
+        <item>copying</item>
+    </string-array>
+    <string-array name="oper_cut">
+        <item>cut</item>
+        <item>cutted</item>
+        <item>cutting</item>
+    </string-array>
+    <string-array name="oper_insert">
+        <item>insert</item>
+        <item>inserted</item>
+        <item>inserting</item>
+    </string-array>
+    <string-array name="oper_move">
+        <item>move</item>
+        <item>moved</item>
+        <item>moving</item>
+    </string-array>
+    <string-array name="oper_save">
+        <item>save</item>
+        <item>saved</item>
+        <item>saving</item>
+    </string-array>
+    <string-array name="oper_attach">
+        <item>attach</item>
+        <item>attached</item>
+        <item>attaching</item>
+    </string-array>
+    <string-array name="oper_encrypt">
+        <item>encrypt</item>
+        <item>encrypted</item>
+        <item>encrypting</item>
+    </string-array>
+    <string-array name="oper_decrypt">
+        <item>decrypt</item>
+        <item>decrypted</item>
+        <item>decrypting</item>
+    </string-array>
 </resources>

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
@@ -140,6 +142,12 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         }
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.headerView.getLayoutParams();
         layoutParams.setMargins(20 * node.getLevel(),0,rightMargin,0);
+        // подсветка
+        if (node.isCrypted() && App.IsHighlightCryptedNodes) {
+            convertView.setBackgroundColor(App.HighlightAttachColor);
+        } else {
+            convertView.setBackgroundColor(Color.TRANSPARENT);
+        }
 
         return convertView;
     }

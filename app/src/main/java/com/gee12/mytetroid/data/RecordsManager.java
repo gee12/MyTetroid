@@ -185,7 +185,7 @@ public class RecordsManager extends DataManager {
                             LogManager.Types.WARNING);
                     if (folder.mkdirs()) {
 //                        LogManager.log(context.getString(R.string.log_record_dir_created), LogManager.Types.DEBUG, duration);
-                        TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.CREATE, duration);
+                        TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.CREATE, duration);
                         return 1;
                     } else {
                         LogManager.log(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR, duration);
@@ -226,7 +226,7 @@ public class RecordsManager extends DataManager {
                                                    boolean isCutted, boolean breakOnFSErrors) {
         if (srcRecord == null)
             return null;
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
 
         // генерируем уникальные идентификаторы, если запись копируется
         String id = (isCutted) ? srcRecord.getId() : createUniqueId();
@@ -385,7 +385,7 @@ public class RecordsManager extends DataManager {
             return null;
         }
 //        LogManager.log(context.getString(R.string.log_start_record_creating), LogManager.Types.DEBUG);
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -450,7 +450,7 @@ public class RecordsManager extends DataManager {
 
         } else {
 //            LogManager.log(context.getString(R.string.log_cancel_record_creating), LogManager.Types.ERROR);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
             node.getRecords().remove(record);
             // удаляем файл записи
@@ -469,7 +469,7 @@ public class RecordsManager extends DataManager {
      * @return
      */
     public static TetroidRecord createRecord(String name, String url, String text, TetroidNode node) {
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         if (TextUtils.isEmpty(name)) {
             name = Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss");
@@ -477,14 +477,14 @@ public class RecordsManager extends DataManager {
 
         TetroidRecord record = createRecord(name, null, null, url, node);
         if (record == null) {
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
             return null;
         }
 
         if (saveRecordHtmlText(record, text)) {
             record.setIsNew(false);
         } else {
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
             return null;
         }
 
@@ -505,7 +505,7 @@ public class RecordsManager extends DataManager {
             LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
 
         String oldName = record.getName(true);
         String oldAuthor = record.getAuthor(true);
@@ -531,7 +531,7 @@ public class RecordsManager extends DataManager {
                 instance.parseRecordTags(record, tagsString);
             }
         } else {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             record.setName(oldName);
             record.setTagsString(oldTagsString);
@@ -584,7 +584,7 @@ public class RecordsManager extends DataManager {
             LogManager.emptyParams("DataManager.insertRecord()");
             return 0;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
 
         String srcDirPath = null;
         File srcDir = null;
@@ -638,7 +638,7 @@ public class RecordsManager extends DataManager {
                 // копируем каталог записи
                 try {
                     if (FileUtils.copyDirRecursive(srcDir, destDir)) {
-//                    TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
+//                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.COPY);
                         LogManager.log(String.format(context.getString(R.string.log_copy_record_dir_mask),
                                 destDirPath), LogManager.Types.DEBUG);
                         // переименовываем прикрепленные файлы
@@ -671,7 +671,7 @@ public class RecordsManager extends DataManager {
                 instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted);
             }
         } else {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             // удаляем запись из ветки
             node.getRecords().remove(record);
 
@@ -682,7 +682,7 @@ public class RecordsManager extends DataManager {
                 } else {
                     // удаляем только что скопированный каталог записи
                     if (FileUtils.deleteRecursive(destDir)) {
-                        TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
+                        TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
                     } else {
                         LogManager.log(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
                         return 0;
@@ -714,7 +714,7 @@ public class RecordsManager extends DataManager {
             LogManager.emptyParams("DataManager.deleteRecord()");
             return 0;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
 
         String dirPath = null;
 //        File dir = null;
@@ -757,7 +757,7 @@ public class RecordsManager extends DataManager {
             instance.deleteRecordTags(record);
         } else {
 //            LogManager.log(context.getString(R.string.log_cancel_record_deleting), LogManager.Types.ERROR);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
             return 0;
         }
 
@@ -777,7 +777,7 @@ public class RecordsManager extends DataManager {
             // удаляем каталог записи
             File dir = new File(dirPath);
             if (FileUtils.deleteRecursive(dir)) {
-                TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
+                TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
                 return 1;
             } else {
                 LogManager.log(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
@@ -846,7 +846,7 @@ public class RecordsManager extends DataManager {
      * @return
      */
     public boolean deleteRecordFolder(TetroidRecord record) {
-        TetroidLog.addOperStartLog(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
         // проверяем существование каталога
         String dirPath = RecordsManager.getPathToRecordFolder(record);
         if (RecordsManager.checkRecordFolder(dirPath, false) <= 0) {

@@ -249,30 +249,6 @@
     <string name="label_new_pass">New password:</string>
     <string name="label_confirm_pass">Confirm:</string>
 
-    <string name="oper_simple_node">node</string>
-    <string name="oper_simple_node_fields">node fields</string>
-    <string name="oper_simple_record">record</string>
-    <string name="oper_simple_record_fields">record fields</string>
-    <string name="oper_simple_record_dir">record catalog</string>
-    <string name="oper_simple_file">file</string>
-    <string name="oper_simple_file_fields">file fields</string>
-
-    <string name="oper_past_node">Node was&#160;</string>
-    <string name="oper_past_node_fields">Node fields was&#160;</string>
-    <string name="oper_past_record">Record was&#160;</string>
-    <string name="oper_past_record_fields">Record fields was&#160;</string>
-    <string name="oper_past_record_dir">Record catalog was&#160;</string>
-    <string name="oper_past_file">File was&#160;</string>
-    <string name="oper_past_file_fields">File fields was&#160;</string>
-
-    <string name="oper_continuous_node">@string/oper_simple_node</string>
-    <string name="oper_continuous_node_fields">@string/oper_simple_node_fields</string>
-    <string name="oper_continuous_record">@string/oper_simple_record</string>
-    <string name="oper_continuous_record_fields">@string/oper_simple_record_fields</string>
-    <string name="oper_continuous_record_dir">@string/oper_simple_record_dir</string>
-    <string name="oper_continuous_file">@string/oper_simple_file</string>
-    <string name="oper_continuous_file_fields">@string/oper_simple_file_fields</string>
-
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
     <string name="stats_icons_count">Of them with icons:</string>
@@ -300,47 +276,47 @@
     <string name="subtitle_record_edit">EDITOR</string>
     <string name="subtitle_record_html">HTML</string>
 
-    <string name="create">create</string>
-    <string name="add">add</string>
-    <string name="change">change</string>
-    <string name="rename">rename</string>
-    <string name="delete">delete</string>
-    <string name="copy">copy</string>
-    <string name="cut">cut</string>
-    <string name="insert">insert</string>
-    <string name="move">move</string>
-    <string name="save">save</string>
-    <string name="attach">attach</string>
-    <string name="encrypt">encrypt</string>
-    <string name="decrypt">decrypt</string>
+<!--    <string name="create">create</string>-->
+<!--    <string name="add">add</string>-->
+<!--    <string name="change">change</string>-->
+<!--    <string name="rename">rename</string>-->
+<!--    <string name="delete">delete</string>-->
+<!--    <string name="copy">copy</string>-->
+<!--    <string name="cut">cut</string>-->
+<!--    <string name="insert">insert</string>-->
+<!--    <string name="move">move</string>-->
+<!--    <string name="save">save</string>-->
+<!--    <string name="attach">attach</string>-->
+<!--    <string name="encrypt">encrypt</string>-->
+<!--    <string name="decrypt">decrypt</string>-->
 
-    <string name="created">created</string>
-    <string name="added">added</string>
-    <string name="changed">changed</string>
-    <string name="renamed">renamed</string>
-    <string name="deleted">deleted</string>
-    <string name="copied">copied</string>
-    <string name="cutted">cutted</string>
-    <string name="inserted">inserted</string>
-    <string name="moved">moved</string>
-    <string name="saved">saved</string>
-    <string name="attached">attached</string>
-    <string name="encrypted">encrypted</string>
-    <string name="decrypted">decrypted</string>
+<!--    <string name="created">created</string>-->
+<!--    <string name="added">added</string>-->
+<!--    <string name="changed">changed</string>-->
+<!--    <string name="renamed">renamed</string>-->
+<!--    <string name="deleted">deleted</string>-->
+<!--    <string name="copied">copied</string>-->
+<!--    <string name="cutted">cutted</string>-->
+<!--    <string name="inserted">inserted</string>-->
+<!--    <string name="moved">moved</string>-->
+<!--    <string name="saved">saved</string>-->
+<!--    <string name="attached">attached</string>-->
+<!--    <string name="encrypted">encrypted</string>-->
+<!--    <string name="decrypted">decrypted</string>-->
 
-    <string name="creating">creating</string>
-    <string name="adding">adding</string>
-    <string name="changing">changing</string>
-    <string name="renaming">renaming</string>
-    <string name="deleting">deleting</string>
-    <string name="copying">copying</string>
-    <string name="cutting">cutting</string>
-    <string name="inserting">inserting</string>
-    <string name="moving">moving</string>
-    <string name="saving">saving</string>
-    <string name="attaching">attaching</string>
-    <string name="encrypting">encrypting</string>
-    <string name="decrypting">decrypting</string>
+<!--    <string name="creating">creating</string>-->
+<!--    <string name="adding">adding</string>-->
+<!--    <string name="changing">changing</string>-->
+<!--    <string name="renaming">renaming</string>-->
+<!--    <string name="deleting">deleting</string>-->
+<!--    <string name="copying">copying</string>-->
+<!--    <string name="cutting">cutting</string>-->
+<!--    <string name="inserting">inserting</string>-->
+<!--    <string name="moving">moving</string>-->
+<!--    <string name="saving">saving</string>-->
+<!--    <string name="attaching">attaching</string>-->
+<!--    <string name="encrypting">encrypting</string>-->
+<!--    <string name="decrypting">decrypting</string>-->
 
     <string name="ask_record_delete">Delete record ?</string>
     <!--    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>-->
@@ -451,6 +427,7 @@
     <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
+    <string name="log_during_oper_errors_mask">Errors occurred during %s the %s (more in the logs)</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="log_record_loading">Record loading id=</string>
     <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>

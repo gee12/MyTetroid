@@ -597,12 +597,12 @@ public class RecordActivity extends TetroidActivity implements
                 ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
 //            LogManager.log(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            TetroidLog.addOperResLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
+            TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
         } else {
 //            LogManager.log(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
         }
     }
 
@@ -904,9 +904,9 @@ public class RecordActivity extends TetroidActivity implements
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
-                TetroidLog.addOperResLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-                TetroidLog.addOperErrorLog(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                TetroidLog.logOperError(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }

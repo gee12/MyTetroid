@@ -24,7 +24,7 @@ public class NodesManager extends DataManager {
             LogManager.emptyParams("DataManager.createNode()");
             return null;
         }
-        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
 
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
@@ -46,7 +46,7 @@ public class NodesManager extends DataManager {
         list.add(node);
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             // удаляем запись из коллекции
             list.remove(node);
             return null;
@@ -66,7 +66,7 @@ public class NodesManager extends DataManager {
             return false;
         }
 //        LogManager.log(context.getString(R.string.log_start_node_fields_editing), LogManager.Types.DEBUG);
-        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
 
         String oldName = node.getName(true);
         // обновляем поля
@@ -78,7 +78,7 @@ public class NodesManager extends DataManager {
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
 //            LogManager.log(context.getString(R.string.log_cancel_node_changing), LogManager.Types.ERROR);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             node.setName(oldName);
 //            node.setDecryptedName(decryptField(node, oldName));
@@ -120,13 +120,13 @@ public class NodesManager extends DataManager {
             LogManager.emptyParams("DataManager.insertNode()");
             return false;
         }
-//        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+//        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
 
         TetroidNode newNode = insertNodeRecursively(srcNode, destParentNode, isCutted, false);
 
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperCancel(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             // удаляем запись из коллекции
             destParentNode.getSubNodes().remove(newNode);
             return false;
@@ -142,7 +142,7 @@ public class NodesManager extends DataManager {
     public static TetroidNode insertNodeRecursively(TetroidNode srcNode, TetroidNode destParentNode, boolean isCutted, boolean breakOnFSErrors) {
         if (srcNode == null || destParentNode == null)
             return null;
-        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
 
         // генерируем уникальный идентификатор, если ветка копируется
         String id = (isCutted) ? srcNode.getId() : createUniqueId();
@@ -198,8 +198,8 @@ public class NodesManager extends DataManager {
             LogManager.emptyParams("DataManager.deleteNode()");
             return false;
         }
-//        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
-        TetroidLog.addOperStartLog(TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
+//        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
 
         // удаляем ветку из коллекции
         List<TetroidNode> parentNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : getRootNodes();
@@ -217,8 +217,8 @@ public class NodesManager extends DataManager {
             // удаление всех объектов ветки рекурсивно
             deleteNodeRecursively(node, movePath, false);
         } else {
-//            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
-            TetroidLog.addOperCancelLog(TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
+//            TetroidLog.logOperCancel(TetroidLog.Objs.NODE, TetroidLog.Opers.DELETE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
             return false;
         }
         return true;
