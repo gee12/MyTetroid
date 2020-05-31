@@ -1,12 +1,12 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import androidx.annotation.ColorInt;
-
+import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.FileUtils;
 
 public class SettingsManager {
@@ -25,13 +25,6 @@ public class SettingsManager {
     private static SharedPreferences settings;
     private static Context context;
 
-//    public static boolean isAskReloadStorage;
-    public static boolean IsHighlightAttachCache;
-    @ColorInt
-    public static int HighlightAttachColorCache;
-    public static String DateFormatStringCache;
-    public static boolean IsFullScreen;
-
     public static void init(Context ctx) {
         SettingsManager.context = ctx;
         SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(ctx);
@@ -46,9 +39,10 @@ public class SettingsManager {
         if (getLogPath() == null) {
             setLogPath(FileUtils.getAppExternalFilesDir(context));
         }
-        SettingsManager.HighlightAttachColorCache = getHighlightAttachColor();
-        SettingsManager.IsHighlightAttachCache = isHighlightRecordWithAttach();
-        SettingsManager.DateFormatStringCache = getDateFormatString();
+        App.IsHighlightAttachCache = isHighlightRecordWithAttach();
+        App.IsHighlightCryptedNodesCache = isHighlightEncryptedNodes();
+        App.HighlightAttachColorCache = getHighlightColor();
+        App.DateFormatStringCache = getDateFormatString();
     }
 
     /**
@@ -221,21 +215,30 @@ public class SettingsManager {
 
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы?
-     * По-умолчанию - да
+     * По-умолчанию - нет
      * @return
      */
     public static boolean isHighlightRecordWithAttach() {
-        return getBoolean(R.string.pref_key_is_highlight_attach, true);
+        return getBoolean(R.string.pref_key_is_highlight_attach, false);
     }
 
     /**
-     * Цвет записей в списке с прикрепленными файлами.
+     * Выделять зашифрованные ветки в списке?
+     * По-умолчанию - нет
+     * @return
+     */
+    public static boolean isHighlightEncryptedNodes() {
+        return getBoolean(R.string.pref_key_is_highlight_crypted_nodes, false);
+    }
+
+    /**
+     * Цвет подсветки.
      * По-умолчанию - светло зеленый.
      * @return
      */
-    public static int getHighlightAttachColor() {
+    public static int getHighlightColor() {
         final int def = R.color.colorHighlight;
-        if(settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
+        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
             return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
         }
         return def;

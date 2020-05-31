@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;

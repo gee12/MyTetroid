@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SettingsManager;
 import com.gee12.mytetroid.adapters.TextAdapter;
+import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import java.io.IOException;

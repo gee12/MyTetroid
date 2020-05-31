@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.data;
 
 import java.util.ArrayList;
 import java.util.List;
