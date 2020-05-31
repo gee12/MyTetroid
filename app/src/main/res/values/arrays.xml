@@ -76,6 +76,11 @@
         <item>file fields</item>
     </string-array>
 
+    <string-array name="oper_load">
+        <item>load</item>
+        <item>loaded</item>
+        <item>loading</item>
+    </string-array>
     <string-array name="oper_create">
         <item>create</item>
         <item>created</item>
@@ -140,5 +145,10 @@
         <item>decrypt</item>
         <item>decrypted</item>
         <item>decrypting</item>
+    </string-array>
+    <string-array name="oper_reencrypt">
+        <item>re-encrypt</item>
+        <item>re-encrypted</item>
+        <item>re-encrypting</item>
     </string-array>
 </resources>

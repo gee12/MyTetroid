@@ -90,7 +90,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         boolean res;
         try {
             if (isNew) {
-                LogManager.log(R.string.log_start_storage_creating, LogManager.Types.DEBUG);
+                LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
                 File storageDir = new File(storagePath);
                 if (storageDir.exists()) {
                     // очищаем каталог
