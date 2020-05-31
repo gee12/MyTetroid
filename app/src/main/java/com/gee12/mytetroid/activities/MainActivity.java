@@ -439,12 +439,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
                 // если поля в INI-файле для проверки пустые
+                LogManager.log(ex);
                 // спрашиваем "continue anyway?"
-                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(),
-                        () -> {
+                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new AskDialogs.IApplyCancelResult() {
+                        @Override
+                        public void onApply() {
                             DataManager.initCryptPass(middlePassHash, true);
                             initStorage(null, true);
-                        });
+                        }
+                        @Override
+                        public void onCancel() {
+                            // загружаем хранилище без пароля
+                            initStorage(null, false);
+                        }
+                    }
+                );
             }
         } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
             // спрашиваем пароль, если нужно расшифровывать на старте
@@ -511,7 +520,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         } else {
 //            LogManager.log(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
-            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
+            TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
             new MainActivity.ReadStorageTask().execute(isDecrypt);
         }
     }
@@ -1328,13 +1337,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
                 } catch (DatabaseConfig.EmptyFieldException ex) {
                     // если поля в INI-файле для проверки пустые
+                    LogManager.log(ex);
     //                if (DataManager.isExistsCryptedNodes()) {
                     if (DataManager.isCrypted()) {
                         final String hash = middlePassHash;
                         // спрашиваем "continue anyway?"
-                        AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), () -> {
-                            DataManager.initCryptPass(hash, true);
-                            callback.onApply();
+                        AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(),
+                                new AskDialogs.IApplyCancelResult() {
+                            @Override
+                            public void onApply() {
+                                DataManager.initCryptPass(hash, true);
+                                callback.onApply();
+                            }
+                            @Override
+                            public void onCancel() {
+                            }
                         });
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
@@ -1356,7 +1373,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Отображения запроса пароля от хранилища.
      * @param node
      */
-    void askPassword(final TetroidNode node, AskDialogs.IApplyResult callback) {
+    private void askPassword(final TetroidNode node, AskDialogs.IApplyResult callback) {
         LogManager.log(R.string.log_show_pass_dialog);
         boolean isNewPass = !DataManager.isCrypted();
         // выводим окно с запросом пароля в асинхронном режиме

@@ -110,10 +110,10 @@ public class AskDialogs {
         dialog.show();
     }
 
-    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyResult applyHandler) {
+    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyCancelResult applyHandler) {
         Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
                 (dialog, which) -> applyHandler.onApply(),
-                null);
+                (dialog, which) -> applyHandler.onCancel());
     }
 
     public static void showRequestWriteExtStorageDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
