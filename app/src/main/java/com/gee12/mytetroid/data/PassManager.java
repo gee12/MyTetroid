@@ -62,8 +62,9 @@ public class PassManager extends DataManager {
                 public void onApply() {
                     // TODO: тут спрашиваем нормально ли расшифровались данные
                     //  ...
-                    if (callback != null)
+                    if (callback != null) {
                         callback.run();
+                    }
                 }
                 @Override
                 public void onCancel() {
@@ -187,6 +188,7 @@ public class PassManager extends DataManager {
      */
     public static void clearSavedPass() {
         SettingsManager.setMiddlePassHash(null);
+        CryptManager.setMiddlePassHash(null);
         clearPassCheckData();
         clearMiddlePassCheckData();
     }

@@ -2076,6 +2076,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void onBeforeExit() {
+        LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
         if (SettingsManager.isKeepSelectedNode()) {
             String nodeId = (mCurNode != null) ? mCurNode.getId() : null;

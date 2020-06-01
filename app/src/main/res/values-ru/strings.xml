@@ -449,5 +449,6 @@
     <string name="log_dir_is_missing">Каталог не существует</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
+    <string name="log_app_exit">Выход из приложения</string>
 
 </resources>

@@ -500,5 +500,6 @@
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
+    <string name="log_app_exit">Exit from app</string>
 
 </resources>

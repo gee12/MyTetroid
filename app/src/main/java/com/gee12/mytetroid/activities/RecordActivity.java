@@ -1017,19 +1017,11 @@ public class RecordActivity extends TetroidActivity implements
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
-            // перезагружаем хранилище, если изменили путь
-            /*if (SettingsManager.isAskReloadStorage) {
-                SettingsManager.isAskReloadStorage = false;
-                AskDialogs.showReloadStorageDialog(this, () -> {
-                    // перезагрузка хранилища в главной активности
-                    finishWithResult(RESULT_REINIT_STORAGE, null);
-                });
-            }*/
             if (data != null) {
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
                     boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
                     AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
-                        // перезагрузка хранилища в главной активности
+                        // перезагружаем хранилища в главной активности, если изменили путь
                         finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                     });
                 } else if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {

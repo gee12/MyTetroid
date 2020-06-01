@@ -62,7 +62,7 @@ public class DatabaseConfig extends INIConfig {
     public boolean savePass(String passHash, String salt, boolean cryptMode) {
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash);
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt);
-        setValueToGeneral(INI_CRYPT_MODE, (cryptMode) ? "1" : "");
+        setValueToGeneral(INI_CRYPT_MODE, (cryptMode) ? "1" : "0");
         return save();
     }
 
@@ -74,7 +74,7 @@ public class DatabaseConfig extends INIConfig {
     public boolean saveDefault() {
         setValueToGeneral(INI_CRYPT_CHECK_HASH, null);
         setValueToGeneral(INI_CRYPT_CHECK_SALT, null);
-        setValueToGeneral(INI_CRYPT_MODE, null);
+        setValueToGeneral(INI_CRYPT_MODE, "0");
         setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null);
         setValueToGeneral(INI_VERSION, DEF_VERSION);
         return save();
