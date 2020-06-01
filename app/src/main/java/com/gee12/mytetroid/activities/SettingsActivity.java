@@ -124,6 +124,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         findPreference(getString(R.string.pref_key_is_save_pass_hash_local)).
                 setOnPreferenceChangeListener((preference, newValue) -> {
+                    if (SettingsManager.getMiddlePassHash() == null) {
+                        // если пароль не задан, то нечего очищать, не задаем вопрос
+                        return true;
+                    }
                     if (!((boolean)newValue) && SettingsManager.isSaveMiddlePassHashLocal()) {
                         // удалить сохраненный хэш пароля?
                         AskDialogs.showYesNoDialog(this, new AskDialogs.IApplyCancelResult() {
