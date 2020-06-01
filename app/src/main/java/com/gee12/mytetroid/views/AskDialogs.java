@@ -71,6 +71,7 @@ public class AskDialogs {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pass_change);
         builder.setTitle(context.getString(R.string.title_password_change));
         builder.setPositiveButton(R.string.answer_ok, null);
+        builder.setNegativeButton(R.string.answer_cancel, null);
 
         EditText tvCurPass = builder.getView().findViewById(R.id.edit_text_cur_pass);
         EditText tvNewPass = builder.getView().findViewById(R.id.edit_text_new_pass);

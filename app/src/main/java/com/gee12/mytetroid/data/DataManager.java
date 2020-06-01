@@ -666,12 +666,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static Map<String,TetroidTag> getTags() {
-//        return mInstance.tagsList;
         return instance.mTagsMap;
     }
 
     public static Collection<TetroidTag> getTagsValues() {
-//        return mInstance.tagsList;
         return instance.mTagsMap.values();
     }
 
@@ -684,8 +682,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static boolean isCrypted() {
-//        return instance.mIsExistCryptedNodes;
-//        return (Integer.parseInt(databaseConfig.get(INI_CRYPT_MODE)) == 1);
         boolean iniFlag = false;
         try {
             iniFlag = databaseConfig.isCryptMode();
