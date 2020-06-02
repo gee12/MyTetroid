@@ -80,7 +80,8 @@ public class AttachesManager extends DataManager {
 
                 // расшифровываем во временный файл
                 try {
-                    if ((tempFile.exists() || tempFile.createNewFile()) && CryptManager.decryptFile(srcFile, tempFile)) {
+                    if ((tempFile.exists() || tempFile.createNewFile())
+                            && CryptManager.encryptDecryptFile(srcFile, tempFile, false)) {
                         srcFile = tempFile;
                     } else {
                         LogManager.log(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
@@ -199,7 +200,7 @@ public class AttachesManager extends DataManager {
         File destFile = new File(destFileUri.getPath());
         try {
             if (record.isCrypted()) {
-                if (!CryptManager.encryptFile(srcFile, destFile)) {
+                if (!CryptManager.encryptDecryptFile(srcFile, destFile, true)) {
                     LogManager.log(String.format(Locale.getDefault(),
                             context.getString(R.string.log_error_encrypt_file), fullName, destFilePath), LogManager.Types.ERROR);
                     return null;

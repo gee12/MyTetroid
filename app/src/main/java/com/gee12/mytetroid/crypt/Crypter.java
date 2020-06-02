@@ -136,75 +136,6 @@ public class Crypter {
     }
 
     /**
-     * Побайтовая зашифровка файла.
-     *
-     * @param srcFile Исходный файл, который нужно зашифровать
-     * @param destFile Результирующий файл, который должен быть зашифрован
-     * @return
-     * @throws IOException
-     */
-    public static boolean encryptFile(File srcFile, File destFile) throws IOException {
-        int size = (int) srcFile.length();
-        byte[] bytes = new byte[size];
-
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
-        int readed = bis.read(bytes, 0, size);
-        bis.close();
-
-        if (readed > 0) {
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
-            byte[] data = encryptBytes(bytes);
-            if (data == null) {
-                bos.close();
-                return false;
-            }
-            bos.write(data);
-            bos.flush();
-            bos.close();
-        } else {
-            addLog("File is empty");
-        }
-        return true;
-    }
-
-    /**
-     * Побайтовая "поблочная" зашифровка файла (работает неверно).
-     *
-     * FIXME: Написать метод RC5Simple.encryptByBlocks() для "поблочного" шифрования массива байт,
-     *  когда заранее неизвестно количество блоков (если такое вообще возможно в RC5Simple)
-     *
-     * @param srcFile
-     * @param destFile
-     * @return
-     * @throws IOException
-     */
-    public static boolean encryptFileByBlocks(File srcFile, File destFile) throws IOException {
-        if (srcFile == null || destFile == null)
-            return false;
-        try (FileInputStream fis = new FileInputStream(srcFile);
-             FileOutputStream fos = new FileOutputStream(destFile)) {
-
-            byte[] buffer = new byte[1024];
-            byte[] res;
-            rc5.setKey(mCryptKey);
-            while (fis.read(buffer) > 0) {
-                try {
-                    // неверно, т.к. перед каждым блоком вставляется "преамбула",
-                    // которая должна быть только 1 раз в начале файла
-                    res = rc5.encrypt(buffer);
-                } catch (Exception e) {
-                    addLog(e);
-                    return false;
-                }
-                if (res != null) {
-                    fos.write(res);
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * Расшифровка текста.
      * @param text
      * @return
@@ -223,15 +154,16 @@ public class Crypter {
     }
 
     /**
-     * Расшифровка файла.
+     * Зашифровка или расшифровка файла.
      *
      * TODO: Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком.
      *
      * @param srcFile Исходный зашифрованный файл
      * @param destFile Результирующий файл, который должен быть расшифрован
+     * @param isEncrypt Если true - зашифровываем файл, иначе - расшифровываем
      * @return
      */
-    public static boolean decryptFile(File srcFile, File destFile) throws IOException {
+    public static boolean encryptDecryptFile(File srcFile, File destFile, boolean isEncrypt) throws IOException {
         int size = (int) srcFile.length();
         byte[] bytes = new byte[size];
 
@@ -241,7 +173,7 @@ public class Crypter {
 
         if (readed > 0) {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
-            byte[] data = decryptBytes(bytes);
+            byte[] data = (isEncrypt) ? encryptBytes(bytes) : decryptBytes(bytes);
             if (data == null) {
                 bos.close();
                 return false;

@@ -243,7 +243,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         if (isCrypted && !isEncrypt) {
             try {
                 // расшифровуем файл записи
-                return (Crypter.decryptFile(file, file)) ? 1 : -1;
+                return (Crypter.encryptDecryptFile(file, file, false)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.log(context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
                 return -1;
@@ -251,7 +251,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         } else if (!isCrypted && isEncrypt) {
             try {
                 // зашифровуем файл записи
-                return (Crypter.encryptFile(file, file)) ? 1 : -1;
+                return (Crypter.encryptDecryptFile(file, file, true)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.log(context.getString(R.string.log_error_file_encrypt) + file.getAbsolutePath(), ex);
                 return -1;
