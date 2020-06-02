@@ -3,11 +3,16 @@ package com.gee12.mytetroid.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
@@ -43,6 +48,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     public static final int REQUEST_CODE_OPEN_LOG_PATH = 4;
 
     private AppCompatDelegate mDelegate;
+    private LinearLayout mLayoutProgress;
+    private TextView mTextViewProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         setSupportActionBar(findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         addPreferencesFromResource(R.xml.prefs);
+
+        this.mLayoutProgress = findViewById(R.id.layout_progress);
+        this.mTextViewProgress = findViewById(R.id.progress_text);
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
@@ -108,10 +118,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
         passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
         passPref.setOnPreferenceClickListener(pref -> {
-                    if (crypted)
-                        PassManager.changePass(this);
-                    else
+                    if (crypted) {
+//                        PassManager.changePass(this);
+                        new ChangePassTask().execute();
+                    } else {
                         PassManager.setupPass(this);
+                    }
                     // устанавливаем флаг для MsainActivity
                     Intent intent = new Intent();
                     intent.putExtra(EXTRA_IS_PASS_CHANGED, true);
@@ -337,5 +349,31 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             mDelegate = AppCompatDelegate.create(this, null);
         }
         return mDelegate;
+    }
+
+    /**
+     * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
+     */
+    private class ChangePassTask extends AsyncTask<Void,Void,Void> {
+        @Override
+        protected void onPreExecute() {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            mTextViewProgress.setText("");
+            mLayoutProgress.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            PassManager.changePass(SettingsActivity.this,
+                    stageName -> runOnUiThread(() -> mTextViewProgress.setText(stageName)));
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void res) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            mLayoutProgress.setVisibility(View.INVISIBLE);
+        }
     }
 }

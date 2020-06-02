@@ -146,6 +146,11 @@
         <item>decrypted</item>
         <item>decrypting</item>
     </string-array>
+    <string-array name="oper_dropcrypt">
+        <item>drop encryption</item>
+        <item>encryption dropped</item>
+        <item>dropping encryption</item>
+    </string-array>
     <string-array name="oper_reencrypt">
         <item>re-encrypt</item>
         <item>re-encrypted</item>
