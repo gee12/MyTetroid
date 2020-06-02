@@ -255,7 +255,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.editAttachedFileFields()");
             return 0;
         }
-        TetroidLog.logOperStart(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE, file);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
@@ -335,7 +335,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.deleteAttachedFile()");
             return 0;
         }
-        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE, file);
 
         TetroidRecord record = file.getRecord();
         if (record == null) {

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.model.TetroidFile;
@@ -196,6 +197,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean dropCryptNode(@NonNull TetroidNode node) {
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
         boolean res = CryptManager.decryptNode(node, true, instance, true, false);
         if (res) {
             return saveStorage();
@@ -225,6 +227,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean encryptNode(@NotNull TetroidNode node) {
+        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
         boolean res = CryptManager.encryptNode(node, false);
         if (res) {
             return saveStorage();
@@ -706,4 +709,5 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     public static DataManager getInstance() {
         return instance;
     }
+
 }

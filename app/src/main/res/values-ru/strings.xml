@@ -450,5 +450,9 @@
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="log_app_exit">Выход из приложения</string>
+    <string name="log_obj_id_name_mask">id=%s, имя=\"%s\"</string>
+    <string name="stage_decrypt_old_pass">Расшифровка хранилиша старым паролем</string>
+    <string name="stage_reencrypt_new_pass">Перешифровка хранилиша новым паролем</string>
+    <string name="stage_save_storage">Сохранение структуры хранилища</string>
 
 </resources>

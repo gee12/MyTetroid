@@ -2,6 +2,13 @@ package com.gee12.mytetroid;
 
 import android.widget.Toast;
 
+import androidx.annotation.StringRes;
+
+import com.gee12.mytetroid.model.TetroidObject;
+import com.gee12.mytetroid.utils.Utils;
+
+import org.jetbrains.annotations.NotNull;
+
 public class TetroidLog extends LogManager {
 
     public static final int PRESENT_SIMPLE = 0;
@@ -44,6 +51,7 @@ public class TetroidLog extends LogManager {
         ATTACH(R.array.oper_attach),
         ENCRYPT(R.array.oper_encrypt),
         DECRYPT(R.array.oper_decrypt),
+        DROPCRYPT(R.array.oper_dropcrypt),
         REENCRYPT(R.array.oper_reencrypt);
 
         int maRes;
@@ -58,10 +66,14 @@ public class TetroidLog extends LogManager {
     }
 
     public static String logOperStart(Objs obj, Opers oper) {
+        return logOperStart(obj, oper, null);
+    }
+
+    public static String logOperStart(Objs obj, Opers oper, TetroidObject o) {
         // меняем местами существительное и глагол в зависимости от языка
         String first = ((App.isRusLanguage()) ? oper.getString(PRESENT_CONTINUOUS) : obj.getString(PRESENT_CONTINUOUS));
         String second = ((App.isRusLanguage()) ? obj.getString(PRESENT_CONTINUOUS) : oper.getString(PRESENT_CONTINUOUS));
-        String mes = String.format(getString(R.string.log_oper_start_mask), first, second);
+        String mes = String.format(getString(R.string.log_oper_start_mask), first, second) + addIdName(o);
         LogManager.log(mes, Types.INFO);
         return mes;
     }
@@ -74,11 +86,15 @@ public class TetroidLog extends LogManager {
     }
 
     public static String logOperRes(Objs obj, Opers oper) {
-        return logOperRes(obj, oper, Toast.LENGTH_SHORT);
+        return logOperRes(obj, oper, Toast.LENGTH_SHORT, null);
     }
 
-    public static String logOperRes(Objs obj, Opers oper, int length) {
-        String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT));
+    public static String logOperRes(Objs obj, Opers oper, TetroidObject o) {
+        return logOperRes(obj, oper, Toast.LENGTH_SHORT, o);
+    }
+
+    public static String logOperRes(Objs obj, Opers oper, int length, TetroidObject o) {
+        String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT)) + addIdName(o);
         LogManager.log(mes, Types.INFO, length);
         return mes;
     }
@@ -103,5 +119,26 @@ public class TetroidLog extends LogManager {
 
     private static String getString(int resId) {
         return context.getString(resId);
+    }
+
+    private static String addIdName(TetroidObject o) {
+        return (o != null) ? ": " + getIdNameString(o) : "";
+    }
+
+    /**
+     * Формирование строки с именем и id объекта хранилища.
+     * @param obj
+     * @return
+     */
+    public static String getIdNameString(@NotNull TetroidObject obj) {
+        return getStringFormat(R.string.log_obj_id_name_mask, obj.getId(), obj.getName());
+    }
+
+    public static String getStringFormat(@StringRes int formatRes, String... args) {
+        return getStringFormat(context.getString(formatRes), args);
+    }
+
+    public static String getStringFormat(String formatRes, String... args) {
+        return Utils.getStringFormat(formatRes, args);
     }
 }

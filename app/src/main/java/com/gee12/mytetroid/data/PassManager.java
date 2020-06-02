@@ -130,13 +130,13 @@ public class PassManager extends DataManager {
      * Смена пароля хранилища.
      * @return
      */
-    public static void changePass(Context context) {
+    public static void changePass(Context context, ITaskProgress taskProgress) {
         LogManager.log(R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
         AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
             // проверяем пароль
             return checkPass(context, curPass, () -> {
-                if (changePass(curPass, newPass)) {
+                if (changePass(curPass, newPass, taskProgress)) {
                     LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 } else {
                     LogManager.log(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
@@ -149,30 +149,29 @@ public class PassManager extends DataManager {
      * Смена пароля хранилища.
      * @return
      */
-    public static boolean changePass(String curPass, String newPass) {
+    public static boolean changePass(String curPass, String newPass, ITaskProgress taskProgress) {
         // сначала устанавливаем текущий пароль
         initPass(curPass);
         // и расшифровываем хранилище
+        taskProgress.nextStage(context.getString(R.string.stage_decrypt_old_pass));
         if (DataManager.decryptStorage(true)) {
-//            LogManager.log(R.string.log_storage_decrypted);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         } else {
-//            LogManager.log(R.string.log_errors_during_decryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             return false;
         }
         // теперь устанавливаем новый пароль
         initPass(newPass);
         // и перешифровываем зашифрованные ветки
+        taskProgress.nextStage(context.getString(R.string.stage_reencrypt_new_pass));
         if (DataManager.reencryptStorage()) {
-//            LogManager.log(R.string.log_storage_reencrypted);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT);
         } else {
-//            LogManager.log(R.string.log_errors_during_reencryption, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, Toast.LENGTH_LONG);
             return false;
         }
         // сохраняем mytetra.xml
+        taskProgress.nextStage(context.getString(R.string.stage_save_storage));
         if (DataManager.saveStorage()) {
             LogManager.log(R.string.log_mytetra_xml_was_saved);
         } else {

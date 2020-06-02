@@ -96,6 +96,10 @@ public class Utils {
         return HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY);
     }
 
+    public static String getStringFormat(String format, String... args) {
+        return String.format(Locale.getDefault(), format, args);
+    }
+
     /**
      * Преобразование текста в MD5.
      * @param data Массив байт данных (можно signed, не имеет значение)
