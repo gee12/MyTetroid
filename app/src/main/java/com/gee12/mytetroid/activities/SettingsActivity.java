@@ -389,22 +389,39 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             String curPass = values[0];
             String newPass = values[1];
             return PassManager.changePass(curPass, newPass, new ITaskProgress() {
-                @Override
-                public void nextStage(String stageName) {
-                    publishProgress(stageName);
-                }
-                @Override
-                public void stageResult(TetroidLog.Opers oper, boolean res) {
 
+                private TaskStage taskStage = new TaskStage();
+
+                private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+                    taskStage.setValues(obj, oper, stage);
+                    publishProgress(taskStage);
                 }
+
+                @Override
+                public void nextStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+                    setStage(obj, oper, stage);
+                }
+
+                @Override
+                public boolean nextStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.ITaskStageExecutor stageExecutor) {
+                    setStage(obj, oper, TaskStage.Stages.START);
+                    if (stageExecutor.execute()) {
+                        setStage(obj, oper, TaskStage.Stages.SUCCESS);
+                        return true;
+                    } else {
+                        setStage(obj, oper, TaskStage.Stages.FAILED);
+                        return false;
+                    }
+                }
+
             });
         }
 
         @Override
         protected void onProgressUpdate(TaskStage... values) {
             TaskStage taskStage = values[0];
-            if (taskStage.)
-            mTextViewProgress.setText(values[0]);
+            String mes = TetroidLog.logTaskStage(taskStage);
+            mTextViewProgress.setText(mes);
         }
 
         @Override

@@ -436,8 +436,8 @@
     <string name="log_pass_setted">Пароль хранилища установлен</string>
     <string name="log_pass_set_error">Не удалось установить пароль хранилища</string>
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
-    <string name="log_start_storage_decrypt">Начало расшифровки хранилища</string>
-    <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>
+<!--    <string name="log_start_storage_decrypt">Начало расшифровки хранилища</string>-->
+<!--    <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>-->
     <string name="log_pass_confirm_not_match">Неверно введен повтор пароля</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
     <string name="log_pass_changed">Пароль изменен</string>
@@ -451,8 +451,11 @@
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="log_app_exit">Выход из приложения</string>
     <string name="log_obj_id_name_mask">id=%s, имя=\"%s\"</string>
-    <string name="stage_decrypt_old_pass">Расшифровка хранилиша старым паролем</string>
-    <string name="stage_reencrypt_new_pass">Перешифровка хранилиша новым паролем</string>
+    <string name="stage_decrypt_old_pass">Расшифровка хранилища старым паролем</string>
+    <string name="stage_reencrypt_new_pass">Перешифровка хранилища новым паролем</string>
     <string name="stage_save_storage">Сохранение структуры хранилища</string>
+    <string name="log_set_cur_pass">Установка текущего пароля</string>
+    <string name="log_set_new_pass">Установка нового пароля</string>
+    <string name="log_save_pass">Сохранение пароля</string>
 
 </resources>

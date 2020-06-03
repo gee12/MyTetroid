@@ -487,8 +487,8 @@
     <string name="log_pass_setted">Storage password was setup</string>
     <string name="log_pass_set_error">Failed to set storage password</string>
     <string name="log_start_pass_change">Start storage password changing</string>
-    <string name="log_start_storage_decrypt">Start storage decrypting</string>
-    <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>
+<!--    <string name="log_start_storage_decrypt">Start storage decrypting</string>-->
+<!--    <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>-->
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
     <string name="log_pass_changed">Password was changed</string>
@@ -505,5 +505,8 @@
     <string name="stage_decrypt_old_pass">Storage decryption with old password</string>
     <string name="stage_reencrypt_new_pass">Storage re-encryption with new password</string>
     <string name="stage_save_storage">Saving storage structure</string>
+    <string name="log_set_cur_pass">Setting current password</string>
+    <string name="log_set_new_pass">Setting the new password</string>
+    <string name="log_save_pass">Saving the password</string>
 
 </resources>
