@@ -130,7 +130,7 @@ public class PassManager extends DataManager {
      * Смена пароля хранилища.
      * @return
      */
-    public static void changePass(Context context, ITaskProgress taskProgress) {
+/*    public static void changePass(Context context, ITaskProgress taskProgress) {
         LogManager.log(R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
         AskDialogs.showPassChangeDialog(context, (curPass, newPass) -> {
@@ -143,12 +143,44 @@ public class PassManager extends DataManager {
                 }
             }, R.string.log_cur_pass_is_incorrect);
         });
-    }
+    }*/
 
     /**
      * Смена пароля хранилища.
      * @return
      */
+    /*public static boolean changePass(String curPass, String newPass, ITaskProgress taskProgress) {
+        // сначала устанавливаем текущий пароль
+        initPass(curPass);
+        // и расшифровываем хранилище
+        taskProgress.nextStage(context.getString(R.string.stage_decrypt_old_pass));
+        if (DataManager.decryptStorage(true)) {
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
+        } else {
+            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
+            return false;
+        }
+        // теперь устанавливаем новый пароль
+        initPass(newPass);
+        // и перешифровываем зашифрованные ветки
+        taskProgress.nextStage(context.getString(R.string.stage_reencrypt_new_pass));
+        if (DataManager.reencryptStorage()) {
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT);
+        } else {
+            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, Toast.LENGTH_LONG);
+            return false;
+        }
+        // сохраняем mytetra.xml
+        taskProgress.nextStage(context.getString(R.string.stage_save_storage));
+        if (DataManager.saveStorage()) {
+            LogManager.log(R.string.log_mytetra_xml_was_saved);
+        } else {
+            LogManager.log(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }
+        // сохраняем данные в database.ini
+        savePassCheckData(newPass);
+        return true;
+    }*/
     public static boolean changePass(String curPass, String newPass, ITaskProgress taskProgress) {
         // сначала устанавливаем текущий пароль
         initPass(curPass);
