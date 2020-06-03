@@ -25,8 +25,11 @@ import androidx.appcompat.widget.Toolbar;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TaskStage;
+import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.ITaskProgress;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.AskDialogs;
@@ -120,7 +123,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         passPref.setOnPreferenceClickListener(pref -> {
                     if (crypted) {
 //                        PassManager.changePass(this);
-                        new ChangePassTask().execute();
+//                        new ChangePassTask().execute();
+                        changePass();
                     } else {
                         PassManager.setupPass(this);
                     }
@@ -351,10 +355,27 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         return mDelegate;
     }
 
+
+    /**
+     * Смена пароля хранилища.
+     * @return
+     */
+    public void changePass() {
+        LogManager.log(R.string.log_start_pass_change);
+        // вводим пароли (с проверкой на пустоту и равенство)
+        AskDialogs.showPassChangeDialog(this, (curPass, newPass) -> {
+            // проверяем пароль
+            return PassManager.checkPass(this, curPass, () -> {
+                new ChangePassTask().execute(curPass, newPass);
+            }, R.string.log_cur_pass_is_incorrect);
+        });
+    }
+
+
     /**
      * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
      */
-    private class ChangePassTask extends AsyncTask<Void,Void,Void> {
+    private class ChangePassTask extends AsyncTask<String, TaskStage, Boolean> {
         @Override
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -364,16 +385,37 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
-            PassManager.changePass(SettingsActivity.this,
-                    stageName -> runOnUiThread(() -> mTextViewProgress.setText(stageName)));
-            return null;
+        protected Boolean doInBackground(String... values) {
+            String curPass = values[0];
+            String newPass = values[1];
+            return PassManager.changePass(curPass, newPass, new ITaskProgress() {
+                @Override
+                public void nextStage(String stageName) {
+                    publishProgress(stageName);
+                }
+                @Override
+                public void stageResult(TetroidLog.Opers oper, boolean res) {
+
+                }
+            });
         }
 
         @Override
-        protected void onPostExecute(Void res) {
+        protected void onProgressUpdate(TaskStage... values) {
+            TaskStage taskStage = values[0];
+            if (taskStage.)
+            mTextViewProgress.setText(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean res) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mLayoutProgress.setVisibility(View.INVISIBLE);
+            if (res) {
+                LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            } else {
+                LogManager.log(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            }
         }
     }
 }
