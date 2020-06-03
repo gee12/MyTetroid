@@ -2,6 +2,10 @@ package com.gee12.mytetroid;
 
 public class TaskStage {
 
+    public interface ITaskStageExecutor {
+        boolean execute();
+    }
+
     public enum Stages {
         START,
         SUCCESS,
@@ -10,10 +14,16 @@ public class TaskStage {
 
     TetroidLog.Objs obj;
     TetroidLog.Opers oper;
-    String stageName;
     Stages stage;
 
+    public TaskStage() {
+    }
+
     public TaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
+        setValues(obj, oper, stage);
+    }
+
+    public void setValues(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
         this.obj = obj;
         this.oper = oper;
         this.stage = stage;

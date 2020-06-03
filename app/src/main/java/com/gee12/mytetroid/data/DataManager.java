@@ -164,7 +164,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean reencryptStorage() {
-        LogManager.log(R.string.log_start_storage_reencrypt);
+//        LogManager.log(R.string.log_start_storage_reencrypt);
         return CryptManager.encryptNodes(instance.mRootNodesList, true);
     }
 
@@ -173,7 +173,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean decryptStorage(boolean decryptFiles) {
-        LogManager.log(R.string.log_start_storage_decrypt);
+//        LogManager.log(R.string.log_start_storage_decrypt);
         boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false, decryptFiles);
         instance.isDecrypted = res;
         return res;

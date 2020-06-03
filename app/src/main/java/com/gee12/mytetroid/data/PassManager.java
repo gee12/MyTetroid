@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
@@ -183,33 +184,47 @@ public class PassManager extends DataManager {
     }*/
     public static boolean changePass(String curPass, String newPass, ITaskProgress taskProgress) {
         // сначала устанавливаем текущий пароль
+        taskProgress.nextStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START);
         initPass(curPass);
         // и расшифровываем хранилище
-        taskProgress.nextStage(context.getString(R.string.stage_decrypt_old_pass));
+//        taskProgress.nextStage(context.getString(R.string.stage_decrypt_old_pass));
+        /*taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, TaskStage.Stages.START);
         if (DataManager.decryptStorage(true)) {
-            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
+//            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         } else {
-            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
+//            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             return false;
-        }
+        }*/
+        if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, () ->
+                DataManager.decryptStorage(true)))
+            return false;
         // теперь устанавливаем новый пароль
+        taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START);
         initPass(newPass);
         // и перешифровываем зашифрованные ветки
-        taskProgress.nextStage(context.getString(R.string.stage_reencrypt_new_pass));
+//        taskProgress.nextStage(context.getString(R.string.stage_reencrypt_new_pass));
+        /*taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, TaskStage.Stages.START);
         if (DataManager.reencryptStorage()) {
-            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT);
+//            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT);
         } else {
-            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, Toast.LENGTH_LONG);
+//            TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, Toast.LENGTH_LONG);
             return false;
-        }
+        }*/
+        if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, () ->
+                DataManager.reencryptStorage()))
+            return false;
         // сохраняем mytetra.xml
-        taskProgress.nextStage(context.getString(R.string.stage_save_storage));
+//        taskProgress.nextStage(context.getString(R.string.stage_save_storage));
+        /*taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.SAVE, TaskStage.Stages.START);
         if (DataManager.saveStorage()) {
-            LogManager.log(R.string.log_mytetra_xml_was_saved);
+//            LogManager.log(R.string.log_mytetra_xml_was_saved);
         } else {
-            LogManager.log(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-        }
+//            LogManager.log(R.string.log_mytetra_xml_saving_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+        }*/
+        taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.SAVE, () ->
+                DataManager.saveStorage());
         // сохраняем данные в database.ini
+        taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SAVE, TaskStage.Stages.START);
         savePassCheckData(newPass);
         return true;
     }

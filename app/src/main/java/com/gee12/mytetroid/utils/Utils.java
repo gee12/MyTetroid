@@ -96,7 +96,7 @@ public class Utils {
         return HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY);
     }
 
-    public static String getStringFormat(String format, String... args) {
+    public static String getStringFormat(String format, Object... args) {
         return String.format(Locale.getDefault(), format, args);
     }
 

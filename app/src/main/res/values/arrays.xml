@@ -76,6 +76,11 @@
         <item>file fields</item>
     </string-array>
 
+    <string-array name="oper_set">
+        <item>set</item>
+        <item>setted</item>
+        <item>setting</item>
+    </string-array>
     <string-array name="oper_load">
         <item>load</item>
         <item>loaded</item>

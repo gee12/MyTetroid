@@ -23,20 +23,27 @@ public class TetroidLog extends LogManager {
         RECORD_FIELDS(R.array.obj_record_fields),
         RECORD_DIR(R.array.obj_record_dir),
         FILE(R.array.obj_file),
-        FILE_FIELDS(R.array.obj_file_fields);
+        FILE_FIELDS(R.array.obj_file_fields),
+        CUR_PASS(),
+        NEW_PASS();
 
         int maRes;
 
+        Objs() {
+            this.maRes = 0;
+        }
+        
         Objs(int arrayRes) {
             this.maRes = arrayRes;
         }
 
         String getString(int tense) {
-            return (tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
+            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
         }
     }
 
     public enum Opers {
+        SET(R.array.oper_set),
         LOAD(R.array.oper_load),
         CREATE(R.array.oper_create),
         ADD(R.array.oper_add),
@@ -74,14 +81,14 @@ public class TetroidLog extends LogManager {
         String first = ((App.isRusLanguage()) ? oper.getString(PRESENT_CONTINUOUS) : obj.getString(PRESENT_CONTINUOUS));
         String second = ((App.isRusLanguage()) ? obj.getString(PRESENT_CONTINUOUS) : oper.getString(PRESENT_CONTINUOUS));
         String mes = String.format(getString(R.string.log_oper_start_mask), first, second) + addIdName(o);
-        LogManager.log(mes, Types.INFO);
+        log(mes, Types.INFO);
         return mes;
     }
 
     public static String logOperCancel(Objs obj, Opers oper) {
         String mes = String.format(getString(R.string.log_oper_cancel_mask),
                 (obj.getString(PRESENT_CONTINUOUS)), (oper.getString(PRESENT_CONTINUOUS)));
-        LogManager.log(mes, Types.DEBUG);
+        log(mes, Types.DEBUG);
         return mes;
     }
 
@@ -95,7 +102,7 @@ public class TetroidLog extends LogManager {
 
     public static String logOperRes(Objs obj, Opers oper, int length, TetroidObject o) {
         String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT)) + addIdName(o);
-        LogManager.log(mes, Types.INFO, length);
+        log(mes, Types.INFO, length);
         return mes;
     }
 
@@ -106,14 +113,14 @@ public class TetroidLog extends LogManager {
     public static String logOperError(Objs obj, Opers oper, int length) {
         String mes = String.format(getString(R.string.log_oper_error_mask),
                 (oper.getString(PRESENT_SIMPLE)), (obj.getString(PRESENT_SIMPLE)));
-        LogManager.log(mes, Types.ERROR, length);
+        log(mes, Types.ERROR, length);
         return mes;
     }
 
     public static String logDuringOperErrors(Objs obj, Opers oper, int length) {
         String mes = String.format(getString(R.string.log_during_oper_errors_mask),
                 (oper.getString(PRESENT_CONTINUOUS)), (obj.getString(PRESENT_CONTINUOUS)));
-        LogManager.log(mes, Types.ERROR, length);
+        log(mes, Types.ERROR, length);
         return mes;
     }
 
@@ -140,5 +147,47 @@ public class TetroidLog extends LogManager {
 
     public static String getStringFormat(String formatRes, String... args) {
         return Utils.getStringFormat(formatRes, args);
+    }
+
+    /**
+     *
+     * @param taskStage
+     * @return
+     */
+//    public static String logTaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+    public static String logTaskStage(TaskStage taskStage) {
+        switch (taskStage.stage) {
+            case START:
+                String mes;
+                switch (taskStage.oper) {
+                    case SET:
+                        mes = getString((taskStage.obj == Objs.CUR_PASS)
+                                ? R.string.log_set_cur_pass : R.string.log_set_new_pass);
+                        log(mes, Types.INFO);
+                        break;
+                    case DECRYPT:
+                        mes = getString(R.string.stage_decrypt_old_pass);
+                        log(mes, Types.INFO);
+                        break;
+                    case REENCRYPT:
+                        mes = getString(R.string.stage_reencrypt_new_pass);
+                        log(mes, Types.INFO);
+                        break;
+                    case SAVE:
+//                        mes = getString(R.string.stage_save_storage);
+                        mes = getString((taskStage.obj == Objs.STORAGE)
+                                ? R.string.stage_save_storage : R.string.log_save_pass);
+                        log(mes, Types.INFO);
+                        break;
+                    default:
+                        mes = logOperStart(taskStage.obj, taskStage.oper);
+                }
+                return mes;
+            case SUCCESS:
+                return logOperRes(taskStage.obj, taskStage.oper, DURATION_NONE, null);
+            case FAILED:
+                return logDuringOperErrors(taskStage.obj, taskStage.oper, DURATION_NONE);
+        }
+        return null;
     }
 }
