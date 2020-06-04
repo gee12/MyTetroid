@@ -38,6 +38,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
@@ -1274,7 +1275,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void encryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            // сначала расшифровываем хранилище
+            /*// сначала расшифровываем хранилище
             if (DataManager.isCrypted()) {
                 initStorage(null, true);
             }
@@ -1284,15 +1285,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 } else {
                     TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 }
-//                mListAdapterNodes.notifyDataSetChanged();
                 updateNodes();
-            }
+            }*/
+            new CryptNodeTask(node, true).execute();
         });
     }
 
     private void dropEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            // сначала расшифровываем хранилище
+            /*// сначала расшифровываем хранилище
             if (DataManager.isCrypted()) {
                 initStorage(null, true);
             }
@@ -1307,9 +1308,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 } else {
                     TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }
-//                mListAdapterNodes.notifyDataSetChanged();
                 updateNodes();
-            }
+            }*/
+
+            new CryptNodeTask(node, false).execute();
         });
     }
 
@@ -2166,9 +2168,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class DecryptStorageTask extends AsyncTask<Void,Void,Boolean> {
 
+        int isDrawerLocked;
         TetroidNode node;
 
         DecryptStorageTask(TetroidNode node) {
+            this.isDrawerLocked = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
             this.node = node;
         }
 
@@ -2176,6 +2180,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mTextViewProgress.setText(R.string.task_storage_decrypting);
             mLayoutProgress.setVisibility(View.VISIBLE);
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
@@ -2189,6 +2194,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected void onPostExecute(Boolean res) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            if (isDrawerLocked == DrawerLayout.LOCK_MODE_UNLOCKED) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
             mLayoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_SHORT, null);
@@ -2202,47 +2210,84 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется зашифровка/сброс шифровки веток.
      */
-    private class CryptNodeTask extends AsyncTask<TetroidNode,Void,Boolean> {
-        boolean isEncrypt;
+    public class CryptNodeTask extends AsyncTask<Void,TaskStage,Integer> {
 
-        CryptNodeTask(boolean isEncrypt) {
+        int isDrawerLocked;
+        TetroidNode node;
+        boolean isEncrypt;
+        boolean wasCrypted;
+        TetroidLog.Opers oper;
+        private TaskStage taskStage;
+
+        CryptNodeTask(TetroidNode node, boolean isEncrypt) {
+            this.isDrawerLocked = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
+            this.node = node;
             this.isEncrypt = isEncrypt;
+            this.wasCrypted = node.isCrypted();
+            this.oper = (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT;
+            this.taskStage = new TaskStage(CryptNodeTask.class);
+        }
+
+        private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+            taskStage.setValues(obj, oper, stage);
+            publishProgress(taskStage);
         }
 
         @Override
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mTextViewProgress.setText((isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_decrypting);
             mLayoutProgress.setVisibility(View.VISIBLE);
-            TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+            TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT, node);
         }
 
         @Override
-        protected Boolean doInBackground(TetroidNode... values) {
+        protected Integer doInBackground(Void... values) {
             // сначала расшифровываем хранилище
             if (DataManager.isCrypted()) {
-                initStorage(null, true);
+                setStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, TaskStage.Stages.START);
+                if (DataManager.decryptStorage(false)) {
+                    setStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, TaskStage.Stages.SUCCESS);
+                } else {
+                    setStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, TaskStage.Stages.FAILED);
+                    return -2;
+                }
             }
-            //
+            // только если хранилище расшифровано
             if (DataManager.isDecrypted()) {
-                return DataManager.encryptNode(node);
+                setStage(TetroidLog.Objs.NODE, oper, TaskStage.Stages.START);
+                if (!((isEncrypt) ? DataManager.encryptNode(node) : DataManager.dropCryptNode(node)))
+                    return -1;
             }
-            return false;
+            return 1;
         }
 
         @Override
-        protected void onPostExecute(Boolean res) {
+        protected void onProgressUpdate(TaskStage... values) {
+            TaskStage taskStage = values[0];
+            String mes = TetroidLog.logTaskStage(taskStage);
+            mTextViewProgress.setText(mes);
+        }
+
+        @Override
+        protected void onPostExecute(Integer res) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mLayoutProgress.setVisibility(View.INVISIBLE);
-            if (res) {
-                TetroidLog.logOperRes(TetroidLog.Objs.NODE,
-                        (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT);
-            } else {
-                TetroidLog.logOperError(TetroidLog.Objs.NODE,
-                        (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT);
+            if (isDrawerLocked == DrawerLayout.LOCK_MODE_UNLOCKED) {
+                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
-            updateNodes();
+            mLayoutProgress.setVisibility(View.INVISIBLE);
+            if (res > 0) {
+                TetroidLog.logOperRes(TetroidLog.Objs.NODE, oper);
+                if (!isEncrypt && wasCrypted) {
+                    // проверяем существование зашифрованных веток
+                    checkExistenceCryptedNodes();
+                }
+            } else {
+                TetroidLog.logOperError(TetroidLog.Objs.NODE, oper);
+            }
+            afterStorageDecrypted(node);
         }
     }
 

@@ -163,12 +163,13 @@
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
     <string name="task_pass_changing">Смена пароля…</string>
-    <string name="task_node_encrypting">Шифрование ветки…</string>
-    <string name="task_node_decrypting">Сброс шифрования ветки…</string>
+    <string name="task_node_encrypting">Зашифровка ветки…</string>
+    <string name="task_node_decrypting">Сброс шифровки ветки…</string>
     <string name="stage_pass_checking">Проверка пароля</string>
-    <string name="stage_decrypt_old_pass">Расшифровка хранилища старым паролем</string>
-    <string name="stage_reencrypt_new_pass">Перешифровка хранилища новым паролем</string>
-    <string name="stage_save_storage">Сохранение структуры хранилища</string>
+    <string name="stage_storage_decrypting">Расшифровка хранилища…</string>
+    <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем</string>
+    <string name="stage_new_pass_reencrypting">Перешифровка хранилища новым паролем</string>
+    <string name="stage_storage_saving">Сохранение структуры хранилища</string>
 
     <string name="label_record_name">Название:</string>
     <string name="label_record_tags">Метки:</string>

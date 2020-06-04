@@ -4,6 +4,8 @@ import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
+import com.gee12.mytetroid.activities.MainActivity;
+import com.gee12.mytetroid.activities.SettingsActivity;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 
@@ -163,35 +165,48 @@ public class TetroidLog extends LogManager {
     public static String logTaskStage(TaskStage taskStage) {
         switch (taskStage.stage) {
             case START:
-                String mes;
-                switch (taskStage.oper) {
-                    case CHECK:
-                        mes = getString(R.string.stage_pass_checking);
-                        log(mes, Types.INFO);
-                        break;
-                    case SET:
-                        mes = getString((taskStage.obj == Objs.CUR_PASS)
-                                ? R.string.log_set_cur_pass : R.string.log_set_new_pass);
-                        log(mes, Types.INFO);
-                        break;
-                    case DECRYPT:
-                        mes = getString(R.string.stage_decrypt_old_pass);
-                        log(mes, Types.INFO);
-                        break;
-                    case REENCRYPT:
-                        mes = getString(R.string.stage_reencrypt_new_pass);
-                        log(mes, Types.INFO);
-                        break;
-                    case SAVE:
-//                        mes = getString(R.string.stage_save_storage);
-                        mes = getString((taskStage.obj == Objs.STORAGE)
-                                ? R.string.stage_save_storage : R.string.log_save_pass);
-                        log(mes, Types.INFO);
-                        break;
-                    default:
-                        mes = logOperStart(taskStage.obj, taskStage.oper);
+                if (taskStage.clazz == SettingsActivity.ChangePassTask.class) {
+                    String mes;
+                    switch (taskStage.oper) {
+                        case CHECK:
+                            log(mes = getString(R.string.stage_pass_checking), Types.INFO);
+                            break;
+                        case SET:
+                            log(mes = getString((taskStage.obj == Objs.CUR_PASS)
+                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass), Types.INFO);
+                            break;
+                        case DECRYPT:
+                            log(mes = getString(R.string.stage_old_pass_decrypting), Types.INFO);
+                            break;
+                        case REENCRYPT:
+                            log(mes = getString(R.string.stage_new_pass_reencrypting), Types.INFO);
+                            break;
+                        case SAVE:
+                            log(mes = getString((taskStage.obj == Objs.STORAGE)
+                                    ? R.string.stage_storage_saving : R.string.log_save_pass), Types.INFO);
+                            break;
+                        default:
+                            mes = logOperStart(taskStage.obj, taskStage.oper);
+                    }
+                    return mes;
+                } else if (taskStage.clazz == MainActivity.CryptNodeTask.class) {
+                    String mes;
+                    switch (taskStage.oper) {
+                        case DECRYPT:
+                            log(mes = getString(R.string.stage_storage_decrypting), Types.INFO);
+                            break;
+                        case ENCRYPT:
+                            log(mes = getString(R.string.task_node_encrypting), Types.INFO);
+                            break;
+                        case DROPCRYPT:
+                            log(mes = getString(R.string.task_node_decrypting), Types.INFO);
+                            break;
+                        default:
+                            mes = logOperStart(taskStage.obj, taskStage.oper);
+                    }
+                    return mes;
                 }
-                return mes;
+                return logOperStart(taskStage.obj, taskStage.oper);
             case SUCCESS:
                 return logOperRes(taskStage.obj, taskStage.oper, DURATION_NONE, null);
             case FAILED:
