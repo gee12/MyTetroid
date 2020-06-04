@@ -59,16 +59,21 @@ public class TetroidLog extends LogManager {
         ENCRYPT(R.array.oper_encrypt),
         DECRYPT(R.array.oper_decrypt),
         DROPCRYPT(R.array.oper_dropcrypt),
-        REENCRYPT(R.array.oper_reencrypt);
+        REENCRYPT(R.array.oper_reencrypt),
+        CHECK();
 
         int maRes;
+
+        Opers() {
+            this.maRes = 0;
+        }
 
         Opers(int arrayRes) {
             this.maRes = arrayRes;
         }
 
         String getString(int tense) {
-            return (tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
+            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
         }
     }
 
@@ -160,6 +165,10 @@ public class TetroidLog extends LogManager {
             case START:
                 String mes;
                 switch (taskStage.oper) {
+                    case CHECK:
+                        mes = getString(R.string.stage_pass_checking);
+                        log(mes, Types.INFO);
+                        break;
                     case SET:
                         mes = getString((taskStage.obj == Objs.CUR_PASS)
                                 ? R.string.log_set_cur_pass : R.string.log_set_new_pass);
