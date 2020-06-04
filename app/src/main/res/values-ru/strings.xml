@@ -77,7 +77,6 @@
     <string name="title_select_the_node">Выберите ветку…</string>
     <string name="title_files_is_missing">Прикрепленных файлов нет</string>
     <string name="title_file_is_missing">Файл отсутствует&#160;</string>
-    <string name="title_storage_loading">Загрузка хранилища…</string>
     <string name="title_fullscreen">Полноэкранный режим</string>
     <string name="title_show_node_records">Записи ветки</string>
     <string name="title_enter_query">Введите запрос для поиска</string>
@@ -160,6 +159,16 @@
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
     <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
+
+    <string name="task_storage_loading">Загрузка хранилища…</string>
+    <string name="task_storage_decrypting">Расшифровка хранилища…</string>
+    <string name="task_pass_changing">Смена пароля…</string>
+    <string name="task_node_encrypting">Шифрование ветки…</string>
+    <string name="task_node_decrypting">Сброс шифрования ветки…</string>
+    <string name="stage_pass_checking">Проверка пароля</string>
+    <string name="stage_decrypt_old_pass">Расшифровка хранилища старым паролем</string>
+    <string name="stage_reencrypt_new_pass">Перешифровка хранилища новым паролем</string>
+    <string name="stage_save_storage">Сохранение структуры хранилища</string>
 
     <string name="label_record_name">Название:</string>
     <string name="label_record_tags">Метки:</string>
@@ -451,9 +460,6 @@
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="log_app_exit">Выход из приложения</string>
     <string name="log_obj_id_name_mask">id=%s, имя=\"%s\"</string>
-    <string name="stage_decrypt_old_pass">Расшифровка хранилища старым паролем</string>
-    <string name="stage_reencrypt_new_pass">Перешифровка хранилища новым паролем</string>
-    <string name="stage_save_storage">Сохранение структуры хранилища</string>
     <string name="log_set_cur_pass">Установка текущего пароля</string>
     <string name="log_set_new_pass">Установка нового пароля</string>
     <string name="log_save_pass">Сохранение пароля</string>

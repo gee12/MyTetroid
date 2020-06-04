@@ -70,7 +70,6 @@
     <string name="title_select_file_to_upload">Select file to upload</string>
     <string name="title_crypted_node_name">Closed</string>
     <string name="title_file_is_missing">File is missing&#160;</string>
-    <string name="title_storage_loading">Storage loading…</string>
     <string name="title_records_is_missing">Records is missing</string>
     <string name="title_select_the_node">Select the node…</string>
     <string name="title_files_is_missing">Attach is missing</string>
@@ -202,6 +201,16 @@
     <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
     <string name="pref_setup_pass">Setup password</string>
     <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
+
+    <string name="task_storage_loading">Storage loading…</string>
+    <string name="task_storage_decrypting">Storage decrypting…</string>
+    <string name="task_node_encrypting">Node encrypting…</string>
+    <string name="task_node_decrypting">Node encrypting…</string>
+    <string name="task_pass_changing">Password changing…</string>
+    <string name="stage_pass_checking">Password checking</string>
+    <string name="stage_decrypt_old_pass">Storage decryption with old password</string>
+    <string name="stage_reencrypt_new_pass">Storage re-encryption with new password</string>
+    <string name="stage_save_storage">Saving storage structure</string>
 
     <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
     <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
@@ -502,9 +511,6 @@
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="log_app_exit">Exit from app</string>
     <string name="log_obj_id_name_mask">id=%s, name=\"%s\"</string>
-    <string name="stage_decrypt_old_pass">Storage decryption with old password</string>
-    <string name="stage_reencrypt_new_pass">Storage re-encryption with new password</string>
-    <string name="stage_save_storage">Saving storage structure</string>
     <string name="log_set_cur_pass">Setting current password</string>
     <string name="log_set_new_pass">Setting the new password</string>
     <string name="log_save_pass">Saving the password</string>
