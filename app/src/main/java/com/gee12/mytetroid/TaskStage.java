@@ -12,11 +12,13 @@ public class TaskStage {
         FAILED
     }
 
+    Class clazz;
     TetroidLog.Objs obj;
     TetroidLog.Opers oper;
     Stages stage;
 
-    public TaskStage() {
+    public TaskStage(Class clazz) {
+        this.clazz = clazz;
     }
 
     public TaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
