@@ -603,7 +603,7 @@ public class RecordActivity extends TetroidActivity implements
             mEditor.setIsEdited(false);
         } else {
 //            LogManager.log(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
         }
     }
 
@@ -907,7 +907,7 @@ public class RecordActivity extends TetroidActivity implements
                 loadFields(mRecord);
                 TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-                TetroidLog.logOperError(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }

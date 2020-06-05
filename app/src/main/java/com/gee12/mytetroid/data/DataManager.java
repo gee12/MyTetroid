@@ -489,25 +489,36 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         File destDir = new File(destPath);
         // перемещаем файл или каталог
         if (!FileUtils.moveToDirRecursive(srcFile, destDir)) {
-            LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
-                    srcFullFileName, destPath), LogManager.Types.ERROR);
+            String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, srcFullFileName, destPath);
+//            LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
+//                    srcFullFileName, destPath), LogManager.Types.ERROR);
+            TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
+                    fromTo, false, -1);
             return -2;
         }
 
         if (newFileName == null) {
             String destDirPath = destDir.getAbsolutePath() + File.separator + srcFileName;
-            LogManager.log(String.format(context.getString(R.string.log_file_moved_mask),
-                    destDirPath), LogManager.Types.DEBUG);
+            String to = Utils.getStringFormat(context, R.string.log_to_mask, destDirPath);
+//            LogManager.log(String.format(context.getString(R.string.log_file_moved_mask),
+//                    destDirPath), LogManager.Types.DEBUG);
+            TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE, to, -1);
         } else {
             // добавляем к имени каталога записи уникальную приставку
             srcFile = new File(destPath, srcFileName);
             File destFile = new File(destPath, newFileName);
             if (srcFile.renameTo(destFile)) {
-                LogManager.log(String.format(context.getString(R.string.log_file_moved_mask),
-                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
+                String to = Utils.getStringFormat(context, R.string.log_to_mask, destFile.getAbsolutePath());
+//                LogManager.log(String.format(context.getString(R.string.log_file_moved_mask),
+//                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
+                TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE, to, -1);
             } else {
-                LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
-                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
+                String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask,
+                        srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+//                LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
+//                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
+                TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
+                        fromTo, false, -1);
                 return -2;
             }
         }
@@ -540,8 +551,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 File from = new File(tempPath);
                 if (!from.renameTo(to)) {
-                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
-                            tempPath, destPath), LogManager.Types.ERROR);
+                    String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask,
+                            tempPath, destPath);
+//                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
+//                            tempPath, destPath), LogManager.Types.ERROR);
+                    TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
+                            fromTo, false, -1);
                     return false;
                 }
                 return true;

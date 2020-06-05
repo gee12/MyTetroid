@@ -477,14 +477,14 @@ public class RecordsManager extends DataManager {
 
         TetroidRecord record = createRecord(name, null, null, url, node);
         if (record == null) {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
             return null;
         }
 
         if (saveRecordHtmlText(record, text)) {
             record.setIsNew(false);
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
             return null;
         }
 

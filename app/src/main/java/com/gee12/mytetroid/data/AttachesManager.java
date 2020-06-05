@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -155,7 +154,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.attachFile()");
             return null;
         }
-        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH, ": " + fullName);
 
         String id = createUniqueId();
         // проверка исходного файла
@@ -198,23 +197,32 @@ public class AttachesManager extends DataManager {
         }
         // копирование файла в каталог записи, зашифровуя при необходимости
         File destFile = new File(destFileUri.getPath());
+        String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, fullName, destFilePath);
         try {
             if (record.isCrypted()) {
+                TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT);
                 if (!CryptManager.encryptDecryptFile(srcFile, destFile, true)) {
-                    LogManager.log(String.format(Locale.getDefault(),
-                            context.getString(R.string.log_error_encrypt_file), fullName, destFilePath), LogManager.Types.ERROR);
+//                    LogManager.log(String.format(Locale.getDefault(),
+//                            context.getString(R.string.log_error_encrypt_file), fullName, destFilePath), LogManager.Types.ERROR);
+                    TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT,
+                            fromTo, false, -1);
                     return null;
                 }
             } else {
+                TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY);
                 if (!FileUtils.copyFile(srcFile, destFile)) {
-                    LogManager.log(String.format(Locale.getDefault(),
-                            context.getString(R.string.log_error_copy_file), fullName, destFilePath), LogManager.Types.ERROR);
+//                    LogManager.log(String.format(Locale.getDefault(),
+//                            context.getString(R.string.log_error_copy_file), fullName, destFilePath), LogManager.Types.ERROR);
+                    TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY,
+                            fromTo, false, -1);
                     return null;
                 }
             }
         } catch (IOException ex) {
-            LogManager.log(String.format(Locale.getDefault(),
-                    context.getString(R.string.log_error_copy_file), fullName, destFilePath), ex);
+//            LogManager.log(String.format(Locale.getDefault(),
+//                    context.getString(R.string.log_error_copy_file), fullName, destFilePath), ex);
+            TetroidLog.logOperError(TetroidLog.Objs.FILE, (record.isCrypted()) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.COPY,
+                    fromTo, false, -1);
             return null;
         }
 
@@ -311,9 +319,15 @@ public class AttachesManager extends DataManager {
             String newFileIdName = file.getId() + newExt;
             String newFilePath = dirPath + SEPAR + newFileIdName;
             File destFile = new File(newFilePath);
-            if (!srcFile.renameTo(destFile)) {
-                LogManager.log(String.format(Locale.getDefault(),
-                        context.getString(R.string.log_rename_file_error_mask), filePath, newFilePath), LogManager.Types.ERROR);
+            String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, filePath, newFileIdName);
+            if (srcFile.renameTo(destFile)) {
+                TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
+                        fromTo, -1);
+            } else {
+//                LogManager.log(String.format(Locale.getDefault(),
+//                        context.getString(R.string.log_rename_file_error_mask), filePath, newFilePath), LogManager.Types.ERROR);
+                TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
+                        fromTo, false, -1);
                 return 0;
             }
         }

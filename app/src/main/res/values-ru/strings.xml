@@ -165,6 +165,7 @@
     <string name="task_pass_changing">Смена пароля…</string>
     <string name="task_node_encrypting">Зашифровка ветки…</string>
     <string name="task_node_decrypting">Сброс шифровки ветки…</string>
+    <string name="task_attach_file">Загрузка файла в хранилище…</string>
     <string name="stage_pass_checking">Проверка пароля</string>
     <string name="stage_storage_decrypting">Расшифровка хранилища…</string>
     <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем</string>
@@ -234,48 +235,6 @@
     <string name="k_bytes">Кб</string>
     <string name="bytes">б</string>
 
-<!--    <string name="create">создать</string>-->
-<!--    <string name="add">добавить</string>-->
-<!--    <string name="change">изменить</string>-->
-<!--    <string name="rename">переименовать</string>-->
-<!--    <string name="delete">удалить</string>-->
-<!--    <string name="copy">скопировать</string>-->
-<!--    <string name="cut">вырезать</string>-->
-<!--    <string name="insert">вставить</string>-->
-<!--    <string name="move">переместить</string>-->
-<!--    <string name="save">сохранить</string>-->
-<!--    <string name="attach">присоединить</string>-->
-<!--    <string name="encrypt">зашифровать</string>-->
-<!--    <string name="decrypt">расшифровать</string>-->
-
-<!--    <string name="created">создан(а)</string>-->
-<!--    <string name="added">добавлен(а)</string>-->
-<!--    <string name="changed">изменен(а)</string>-->
-<!--    <string name="renamed">переименован(а)</string>-->
-<!--    <string name="deleted">удален(а)</string>-->
-<!--    <string name="copied">скопирован(а)</string>-->
-<!--    <string name="cutted">вырезан(а)</string>-->
-<!--    <string name="inserted">вставлен(а)</string>-->
-<!--    <string name="moved">перемещен(а)</string>-->
-<!--    <string name="saved">сохранен(а)</string>-->
-<!--    <string name="attached">присоединен(а)</string>-->
-<!--    <string name="encrypted">зашифрована(а)</string>-->
-<!--    <string name="decrypted">расшифрована(а)</string>-->
-
-<!--    <string name="creating">создания</string>-->
-<!--    <string name="adding">добавления</string>-->
-<!--    <string name="changing">изменения</string>-->
-<!--    <string name="renaming">переименования</string>-->
-<!--    <string name="deleting">удаления</string>-->
-<!--    <string name="copying">копирования</string>-->
-<!--    <string name="cutting">вырезания</string>-->
-<!--    <string name="inserting">вставки</string>-->
-<!--    <string name="moving">перемещения</string>-->
-<!--    <string name="saving">сохранения</string>-->
-<!--    <string name="attaching">присоединения</string>-->
-<!--    <string name="encrypting">зашифровки</string>-->
-<!--    <string name="decrypting">расшифровки</string>-->
-
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_record_delete">Удалить запись ?</string>
     <string name="ask_node_delete">Удалить ветку ?</string>
@@ -323,16 +282,12 @@
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
-<!--    <string name="log_errors_during_reencryption">При перешифровке произошли ошибки (подробнее в логах)</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded">Хранилище загружено:\n</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
-<!--    <string name="log_storage_decrypted">Хранилище расшифровано</string>-->
-<!--    <string name="log_storage_reencrypted">Хранилище перешифровано</string>-->
     <string name="log_storage_created">Хранилище создано:\n</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
-<!--    <string name="log_start_storage_loading">Начало загрузки хранилища:&#160;</string>-->
     <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>
     <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана</string>
     <string name="log_incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
@@ -341,7 +296,6 @@
     <string name="log_no_app_found_for_share_text">Не найдено подходящего приложения для отправки текста</string>
     <string name="log_error_file_open">Ошибка открытия файла&#160;</string>
     <string name="log_failed_storage_load">Не удалось загрузить хранилище:\n</string>
-<!--    <string name="log_failed_storage_create">Не удалось создать хранилище:&#160;</string>-->
     <string name="log_failed_storage_init">Не удалось инициализировать хранилище:\n</string>
     <string name="log_found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
@@ -350,9 +304,9 @@
     <string name="log_error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
     <string name="log_error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
     <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
-    <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>
-    <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>
-    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>
+<!--    <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>-->
+<!--    <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>-->
+<!--    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>-->
     <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%s] в [%s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
@@ -382,8 +336,8 @@
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
     <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>
-    <string name="log_rename_file_mask">Файл был переименован в [%s]</string>
-    <string name="log_rename_file_error_mask">Не удалось переименовать файл из [%s] в [%s]</string>
+<!--    <string name="log_rename_file_mask">Файл был переименован в [%s]</string>-->
+<!--    <string name="log_rename_file_error_mask">Не удалось переименовать файл из [%s] в [%s]</string>-->
     <string name="log_record_not_have_node">У записи не указана ветка</string>
     <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
     <string name="log_oper_cancel_mask">Отмена %s %s, т.к. не удалось сохранить mytetra.xml</string>
@@ -396,13 +350,13 @@
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
-    <string name="log_oper_error_mask">Не удалось %s %s (подробнее в логах)</string>
+    <string name="log_oper_error_mask">Не удалось %s %s%s%s</string>
     <string name="log_during_oper_errors_mask">В процессе %s %s произошли ошибки (подробнее в логах)</string>
     <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
     <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
     <string name="log_file_checking_error">Ошибка проверки существования файла:&#160;</string>
-    <string name="log_error_encrypt_file">Ошибка копирования и зашифровки файла из [%s] в [%s]</string>
-    <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>
+<!--    <string name="log_error_encrypt_file">Ошибка копирования и зашифровки файла из [%s] в [%s]</string>-->
+<!--    <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>-->
     <string name="log_file_attaching_error">Не удается прикрепить файл к записи (подробнее в логах)</string>
     <string name="log_file_was_attached">Файл прикреплен</string>
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
@@ -441,13 +395,11 @@
     <string name="log_error_file_decrypt">Ошибка расшифровки файла записи</string>
     <string name="log_error_file_encrypt">Ошибка зашифровки файла записи</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
-    <string name="log_file_moved_mask">Файл/каталог был перемещен в %s</string>
+<!--    <string name="log_file_moved_mask">Файл/каталог был перемещен в %s</string>-->
     <string name="log_start_pass_setup">Начало установки пароля хранилища</string>
     <string name="log_pass_setted">Пароль хранилища установлен</string>
     <string name="log_pass_set_error">Не удалось установить пароль хранилища</string>
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
-<!--    <string name="log_start_storage_decrypt">Начало расшифровки хранилища</string>-->
-<!--    <string name="log_start_storage_reencrypt">Начало перешифровки хранилища</string>-->
     <string name="log_pass_confirm_not_match">Неверно введен повтор пароля</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
     <string name="log_pass_changed">Пароль изменен</string>
@@ -464,5 +416,8 @@
     <string name="log_set_cur_pass">Установка текущего пароля</string>
     <string name="log_set_new_pass">Установка нового пароля</string>
     <string name="log_save_pass">Сохранение пароля</string>
+    <string name="log_from_to_mask">&#160;из "%s" в "%s"</string>
+    <string name="log_to_mask">&#160;в "%s"</string>
+    <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
 
 </resources>
