@@ -2118,17 +2118,37 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     }
 
+    private boolean taskPreExecute(int sRes) {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        mTextViewProgress.setText(sRes);
+        mLayoutProgress.setVisibility(View.VISIBLE);
+        return isDrawerOpened;
+    }
+
+    private void taskPostExecute(boolean isDrawerOpened) {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        if (isDrawerOpened) {
+            mDrawerLayout.openDrawer(Gravity.LEFT);
+        }
+        mLayoutProgress.setVisibility(View.INVISIBLE);
+    }
+
     /**
      * Задание (параллельный поток), в котором выполняется загрузка хранилища.
      */
     private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
         @Override
         protected void onPreExecute() {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mTextViewProgress.setText(R.string.task_storage_loading);
-            mLayoutProgress.setVisibility(View.VISIBLE);
+            mLayoutProgress.setVisibility(View.VISIBLE);*/
+            taskPreExecute(R.string.task_storage_loading);
         }
 
         @Override
@@ -2139,10 +2159,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            mLayoutProgress.setVisibility(View.INVISIBLE);
+            mLayoutProgress.setVisibility(View.INVISIBLE);*/
+            taskPostExecute(true);
             if (res) {
                 MainActivity.this.mIsStorageLoaded = true;
                 LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
@@ -2156,10 +2177,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (res) {
                 afterStorageInited();
             }
-
-//            if (BuildConfig.DEBUG) {
-//                LogManager.log("is full version: " + App.isFullVersion(), Toast.LENGTH_LONG);
-//            }
         }
     }
 
@@ -2168,21 +2185,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class DecryptStorageTask extends AsyncTask<Void,Void,Boolean> {
 
-        int isDrawerLocked;
+        boolean isDrawerOpened;
         TetroidNode node;
 
         DecryptStorageTask(TetroidNode node) {
-            this.isDrawerLocked = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
             this.node = node;
         }
 
         @Override
         protected void onPreExecute() {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mTextViewProgress.setText(R.string.task_storage_decrypting);
-            mLayoutProgress.setVisibility(View.VISIBLE);
+            mLayoutProgress.setVisibility(View.VISIBLE);*/
+            this.isDrawerOpened = taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
 
@@ -2193,11 +2210,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            if (isDrawerLocked == DrawerLayout.LOCK_MODE_UNLOCKED) {
+            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            if (isDrawerOpened == DrawerLayout.LOCK_MODE_UNLOCKED) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
-            mLayoutProgress.setVisibility(View.INVISIBLE);
+            mLayoutProgress.setVisibility(View.INVISIBLE);*/
+            taskPostExecute(isDrawerOpened);
             if (res) {
                 TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_SHORT, null);
             } else {
@@ -2212,7 +2230,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class CryptNodeTask extends AsyncTask<Void,TaskStage,Integer> {
 
-        int isDrawerLocked;
+        boolean isDrawerOpened;
         TetroidNode node;
         boolean isEncrypt;
         boolean wasCrypted;
@@ -2220,7 +2238,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         private TaskStage taskStage;
 
         CryptNodeTask(TetroidNode node, boolean isEncrypt) {
-            this.isDrawerLocked = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
+//            this.isDrawerOpened = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
             this.node = node;
             this.isEncrypt = isEncrypt;
             this.wasCrypted = node.isCrypted();
@@ -2235,11 +2253,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             mTextViewProgress.setText((isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_decrypting);
-            mLayoutProgress.setVisibility(View.VISIBLE);
+            mLayoutProgress.setVisibility(View.VISIBLE);*/
+            this.isDrawerOpened = taskPreExecute(
+                    (isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_decrypting);
             TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT, node);
         }
 
@@ -2273,11 +2293,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Integer res) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            if (isDrawerLocked == DrawerLayout.LOCK_MODE_UNLOCKED) {
+            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            if (isDrawerOpened == DrawerLayout.LOCK_MODE_UNLOCKED) {
                 mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             }
-            mLayoutProgress.setVisibility(View.INVISIBLE);
+            mLayoutProgress.setVisibility(View.INVISIBLE);*/
+            taskPostExecute(isDrawerOpened);
             if (res > 0) {
                 TetroidLog.logOperRes(TetroidLog.Objs.NODE, oper);
                 if (!isEncrypt && wasCrypted) {
@@ -2304,10 +2325,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mTextViewProgress.setText(R.string.global_searching);
-            mLayoutProgress.setVisibility(View.VISIBLE);
+            mLayoutProgress.setVisibility(View.VISIBLE);*/
+            taskPreExecute(R.string.global_searching);
             LogManager.log(String.format(getString(R.string.global_search_start), scan.getQuery()));
         }
 
@@ -2318,8 +2340,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mLayoutProgress.setVisibility(View.INVISIBLE);
+            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+            mLayoutProgress.setVisibility(View.INVISIBLE);*/
+            taskPostExecute(false);
             if (found == null) {
                 LogManager.log(getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
                 return;
