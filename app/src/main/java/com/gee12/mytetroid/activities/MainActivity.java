@@ -318,7 +318,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
 //            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            TetroidLog.logOperError(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
     }
 
@@ -1079,7 +1079,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else {
-                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }
         });
     }
@@ -1124,7 +1124,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     setTitle(name);
                 }
             } else {
-                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
             }
         });
     }
@@ -1166,7 +1166,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 checkExistenceCryptedNodes();
             }
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
         }
     }
 
@@ -1210,7 +1210,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     LogManager.log(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 }
             } else if (res < 0) {
-                TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
             }
         }
     }
@@ -1269,7 +1269,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 LogManager.log(getString(R.string.log_create_node_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             }
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
         }
     }
 
@@ -1283,7 +1283,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (DataManager.encryptNode(node)) {
                     TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 } else {
-                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
+                    TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
                 }
                 updateNodes();
             }*/
@@ -1306,7 +1306,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         checkExistenceCryptedNodes();
                     }
                 } else {
-                    TetroidLog.logOperError(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
+                    TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
                 }
                 updateNodes();
             }*/
@@ -1605,9 +1605,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
             String fileFullName = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            mViewPagerAdapter.getMainFragment().attachFile(fileFullName);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(FileUtils.getFileFolder(fileFullName));
+//            mViewPagerAdapter.getMainFragment().attachFile(fileFullName);
+            new AttachFileTask(mViewPagerAdapter.getMainFragment().getCurRecord()).execute(fileFullName);
         }
 
     }
@@ -2306,9 +2307,38 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     checkExistenceCryptedNodes();
                 }
             } else {
-                TetroidLog.logOperError(TetroidLog.Objs.NODE, oper);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, oper);
             }
             afterStorageDecrypted(node);
+        }
+    }
+
+    /**
+     * Задание, в котором выполняется прикрепление нового файла в записи.
+     */
+    public class AttachFileTask extends AsyncTask<String,Void,TetroidFile> {
+
+        TetroidRecord record;
+
+        AttachFileTask(TetroidRecord record) {
+            this.record = record;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            taskPreExecute(R.string.task_attach_file);
+        }
+
+        @Override
+        protected TetroidFile doInBackground(String... values) {
+            String fileFullName = values[0];
+            return AttachesManager.attachFile(fileFullName, record);
+        }
+
+        @Override
+        protected void onPostExecute(TetroidFile res) {
+            taskPostExecute(false);
+            mViewPagerAdapter.getMainFragment().attachFile(res);
         }
     }
 

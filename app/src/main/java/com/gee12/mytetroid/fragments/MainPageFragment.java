@@ -259,7 +259,7 @@ public class MainPageFragment extends TetroidFragment {
                 showRecord(record);
             }
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
         }
     }
 
@@ -307,7 +307,7 @@ public class MainPageFragment extends TetroidFragment {
         } else if (res == -2 && !isCutted) {
             LogManager.log(R.string.log_erorr_move_record_dir_when_del, LogManager.Types.WARNING, Toast.LENGTH_LONG);
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
         }
     }
 
@@ -322,7 +322,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetChanged();
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
         } else if (res < 0) {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
         }
     }
 
@@ -367,10 +367,10 @@ public class MainPageFragment extends TetroidFragment {
      * Прикрепление выбранного файла к записи.
      * @param fullName
      */
-    public void attachFile(String fullName) {
+/*    public void attachFile(String fullName) {
         TetroidFile file = AttachesManager.attachFile(fullName, mCurRecord);
         attachFile(file);
-    }
+    }*/
 
     public void attachFile(TetroidFile file) {
         if (file != null) {
@@ -410,7 +410,7 @@ public class MainPageFragment extends TetroidFragment {
                 onRecordFieldsUpdated();
                 TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             } else {
-                TetroidLog.logOperError(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }
@@ -473,7 +473,7 @@ public class MainPageFragment extends TetroidFragment {
                 onInsertRecordResult(res1, isCutted);
             });
         } else if (res == -2) {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.INSERT);
         } else {
             onInsertRecordResult(res, isCutted);
         }
@@ -490,7 +490,7 @@ public class MainPageFragment extends TetroidFragment {
                 TetroidClipboard.clear();
             }
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
         }
     }
 
@@ -547,7 +547,7 @@ public class MainPageFragment extends TetroidFragment {
             }
             TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
         }
     }
 
@@ -589,7 +589,7 @@ public class MainPageFragment extends TetroidFragment {
             TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
             mListAdapterFiles.notifyDataSetChanged();
         } else {
-            TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
         }
     }
 

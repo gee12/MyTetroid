@@ -207,6 +207,7 @@
     <string name="task_node_encrypting">Node encrypting…</string>
     <string name="task_node_decrypting">Node decrypting…</string>
     <string name="task_pass_changing">Password changing…</string>
+    <string name="task_attach_file">Uploading file to the storage…</string>
     <string name="stage_pass_checking">Password checking…</string>
     <string name="stage_storage_decrypting">Storage decryption…</string>
     <string name="stage_old_pass_decrypting">Storage decryption with old password…</string>
@@ -286,50 +287,7 @@
     <string name="subtitle_record_edit">EDITOR</string>
     <string name="subtitle_record_html">HTML</string>
 
-<!--    <string name="create">create</string>-->
-<!--    <string name="add">add</string>-->
-<!--    <string name="change">change</string>-->
-<!--    <string name="rename">rename</string>-->
-<!--    <string name="delete">delete</string>-->
-<!--    <string name="copy">copy</string>-->
-<!--    <string name="cut">cut</string>-->
-<!--    <string name="insert">insert</string>-->
-<!--    <string name="move">move</string>-->
-<!--    <string name="save">save</string>-->
-<!--    <string name="attach">attach</string>-->
-<!--    <string name="encrypt">encrypt</string>-->
-<!--    <string name="decrypt">decrypt</string>-->
-
-<!--    <string name="created">created</string>-->
-<!--    <string name="added">added</string>-->
-<!--    <string name="changed">changed</string>-->
-<!--    <string name="renamed">renamed</string>-->
-<!--    <string name="deleted">deleted</string>-->
-<!--    <string name="copied">copied</string>-->
-<!--    <string name="cutted">cutted</string>-->
-<!--    <string name="inserted">inserted</string>-->
-<!--    <string name="moved">moved</string>-->
-<!--    <string name="saved">saved</string>-->
-<!--    <string name="attached">attached</string>-->
-<!--    <string name="encrypted">encrypted</string>-->
-<!--    <string name="decrypted">decrypted</string>-->
-
-<!--    <string name="creating">creating</string>-->
-<!--    <string name="adding">adding</string>-->
-<!--    <string name="changing">changing</string>-->
-<!--    <string name="renaming">renaming</string>-->
-<!--    <string name="deleting">deleting</string>-->
-<!--    <string name="copying">copying</string>-->
-<!--    <string name="cutting">cutting</string>-->
-<!--    <string name="inserting">inserting</string>-->
-<!--    <string name="moving">moving</string>-->
-<!--    <string name="saving">saving</string>-->
-<!--    <string name="attaching">attaching</string>-->
-<!--    <string name="encrypting">encrypting</string>-->
-<!--    <string name="decrypting">decrypting</string>-->
-
     <string name="ask_record_delete">Delete record ?</string>
-    <!--    <string name="log_record_delete_without_dir">Record directory is missing. Delete anyway ?</string>-->
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="ask_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
@@ -373,16 +331,12 @@
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
-<!--    <string name="log_errors_during_reencryption">Errors occurred during re-encryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded">Storage was loaded:\n</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-<!--    <string name="log_storage_decrypted">Storage is decrypted</string>-->
-<!--    <string name="log_storage_reencrypted">Storage is re-encrypted</string>-->
     <string name="log_storage_created">Storage is created:\n</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
-<!--    <string name="log_start_storage_loading">Start storage loading:&#160;</string>-->
     <string name="log_global_search_return_null">Some error in global search…</string>
     <string name="log_cur_node_is_not_selected">Current node is not selected</string>
     <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
@@ -391,7 +345,6 @@
     <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
     <string name="log_failed_storage_load">Failed to load storage:\n</string>
-<!--    <string name="log_failed_storage_create">Failed to create storage:&#160;</string>-->
     <string name="log_failed_storage_init">Failed to init storage:\n</string>
     <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
@@ -401,9 +354,9 @@
     <string name="log_error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
     <string name="log_error_generate_file_path">Error generating the path to the attached file:&#160;</string>
     <string name="log_error_add_record">Error add record to mytetra.xml</string>
-    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>
-    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>
-    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>
+<!--    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>-->
+<!--    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>-->
+<!--    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>-->
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%s] to [%s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
@@ -436,7 +389,7 @@
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
-    <string name="log_oper_error_mask">Unable to %s the %s (more in the logs)</string>
+    <string name="log_oper_error_mask">Unable to %s the %s%s%s</string>
     <string name="log_during_oper_errors_mask">Errors occurred during %s the %s (more in the logs)</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="log_record_loading">Record loading id=</string>
@@ -449,15 +402,15 @@
     <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
     <string name="log_file_is_absent">File is absent:</string>
     <string name="log_file_checking_error">Error checking file existence:</string>
-    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>
-    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>
+<!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
+<!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
     <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
     <string name="log_file_was_attached">File was attached</string>
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
-    <string name="log_rename_file_mask">File renaming to [%s]</string>
-    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>
+<!--    <string name="log_rename_file_mask">File renaming to [%s]</string>-->
+<!--    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>-->
     <string name="log_record_file_is_missing">No recording file will be created when saving</string>
     <string name="log_start_record_file_reading">Start reading a file of record id=</string>
     <string name="log_start_record_file_saving">Start saving a file of record id=</string>
@@ -492,13 +445,12 @@
     <string name="log_error_file_decrypt">Error decrypting file</string>
     <string name="log_error_file_encrypt">Error encrypting file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
-    <string name="log_file_moved_mask">File/folder was moved to %s</string>
+<!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
+<!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
     <string name="log_start_pass_setup">Start setup the storage password</string>
     <string name="log_pass_setted">Storage password was setup</string>
     <string name="log_pass_set_error">Failed to set storage password</string>
     <string name="log_start_pass_change">Start storage password changing</string>
-<!--    <string name="log_start_storage_decrypt">Start storage decrypting</string>-->
-<!--    <string name="log_start_storage_reencrypt">Start storage re-encrypting</string>-->
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
     <string name="log_pass_changed">Password was changed</string>
@@ -515,5 +467,8 @@
     <string name="log_set_cur_pass">Setting current password</string>
     <string name="log_set_new_pass">Setting the new password</string>
     <string name="log_save_pass">Saving the password</string>
+    <string name="log_from_to_mask">&#160;from "%s" to "%s"</string>
+    <string name="log_to_mask">&#160; to "%s"</string>
+    <string name="log_more_in_logs">&#160;(more in the logs)</string>
 
 </resources>

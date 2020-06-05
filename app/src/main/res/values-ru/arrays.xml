@@ -133,9 +133,9 @@
         <item>сохранения</item>
     </string-array>
     <string-array name="oper_attach">
-        <item>присоединить</item>
-        <item>присоединен(а)</item>
-        <item>присоединения</item>
+        <item>прикрепить</item>
+        <item>прикреплен(а)</item>
+        <item>прикрепления</item>
     </string-array>
     <string-array name="oper_encrypt">
         <item>зашифровать</item>

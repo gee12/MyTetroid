@@ -80,14 +80,18 @@ public class TetroidLog extends LogManager {
     }
 
     public static String logOperStart(Objs obj, Opers oper) {
-        return logOperStart(obj, oper, null);
+        return logOperStart(obj, oper, "");
     }
 
     public static String logOperStart(Objs obj, Opers oper, TetroidObject o) {
+        return logOperStart(obj, oper, addIdName(o));
+    }
+
+    public static String logOperStart(Objs obj, Opers oper, String add) {
         // меняем местами существительное и глагол в зависимости от языка
         String first = ((App.isRusLanguage()) ? oper.getString(PRESENT_CONTINUOUS) : obj.getString(PRESENT_CONTINUOUS));
         String second = ((App.isRusLanguage()) ? obj.getString(PRESENT_CONTINUOUS) : oper.getString(PRESENT_CONTINUOUS));
-        String mes = String.format(getString(R.string.log_oper_start_mask), first, second) + addIdName(o);
+        String mes = String.format(getString(R.string.log_oper_start_mask), first, second) + add;
         log(mes, Types.INFO);
         return mes;
     }
@@ -100,26 +104,36 @@ public class TetroidLog extends LogManager {
     }
 
     public static String logOperRes(Objs obj, Opers oper) {
-        return logOperRes(obj, oper, Toast.LENGTH_SHORT, null);
+        return logOperRes(obj, oper, "", Toast.LENGTH_SHORT);
     }
 
     public static String logOperRes(Objs obj, Opers oper, TetroidObject o) {
-        return logOperRes(obj, oper, Toast.LENGTH_SHORT, o);
+        return logOperRes(obj, oper, o, Toast.LENGTH_SHORT);
     }
 
-    public static String logOperRes(Objs obj, Opers oper, int length, TetroidObject o) {
-        String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT)) + addIdName(o);
+    public static String logOperRes(Objs obj, Opers oper, TetroidObject o, int length) {
+        return logOperRes(obj, oper, addIdName(o), length);
+    }
+
+    public static String logOperRes(Objs obj, Opers oper, String add, int length) {
+        String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT)) + add;
         log(mes, Types.INFO, length);
         return mes;
     }
 
-    public static String logOperError(Objs obj, Opers oper) {
+    public static String logOperErrorMore(Objs obj, Opers oper) {
         return logOperError(obj, oper, Toast.LENGTH_LONG);
     }
 
     public static String logOperError(Objs obj, Opers oper, int length) {
+        return logOperError(obj, oper, null, length >= 0, length);
+    }
+
+    public static String logOperError(Objs obj, Opers oper, String add, boolean more, int length) {
         String mes = String.format(getString(R.string.log_oper_error_mask),
-                (oper.getString(PRESENT_SIMPLE)), (obj.getString(PRESENT_SIMPLE)));
+                (oper.getString(PRESENT_SIMPLE)), (obj.getString(PRESENT_SIMPLE)),
+                (add != null) ? add : "",
+                (more) ? getString(R.string.log_more_in_logs) : "");
         log(mes, Types.ERROR, length);
         return mes;
     }
@@ -149,11 +163,7 @@ public class TetroidLog extends LogManager {
     }
 
     public static String getStringFormat(@StringRes int formatRes, String... args) {
-        return getStringFormat(context.getString(formatRes), args);
-    }
-
-    public static String getStringFormat(String formatRes, String... args) {
-        return Utils.getStringFormat(formatRes, args);
+        return Utils.getStringFormat(context, formatRes, args);
     }
 
     /**
@@ -208,7 +218,7 @@ public class TetroidLog extends LogManager {
                 }
                 return logOperStart(taskStage.obj, taskStage.oper);
             case SUCCESS:
-                return logOperRes(taskStage.obj, taskStage.oper, DURATION_NONE, null);
+                return logOperRes(taskStage.obj, taskStage.oper, "", DURATION_NONE);
             case FAILED:
                 return logDuringOperErrors(taskStage.obj, taskStage.oper, DURATION_NONE);
         }

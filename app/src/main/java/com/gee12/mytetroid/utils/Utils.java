@@ -100,6 +100,10 @@ public class Utils {
         return String.format(Locale.getDefault(), format, args);
     }
 
+    public static String getStringFormat(Context context, int format, Object... args) {
+        return String.format(Locale.getDefault(), context.getString(format), args);
+    }
+
     /**
      * Преобразование текста в MD5.
      * @param data Массив байт данных (можно signed, не имеет значение)
