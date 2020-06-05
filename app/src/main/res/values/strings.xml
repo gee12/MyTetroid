@@ -481,7 +481,7 @@
     <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
     <string name="log_error_move_record_catalog">Error moving record directory</string>
     <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>
-    <string name="log_open_log_file">Open log file for reading</string>
+    <string name="log_open_log_file">Reading the log file</string>
     <string name="log_not_passed_text">Was not passed text</string>
     <string name="log_not_passed_image_uri">Was not passed image URI</string>
     <string name="log_receiving_intent_text">Receiving text from another application</string>

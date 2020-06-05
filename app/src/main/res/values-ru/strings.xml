@@ -430,7 +430,7 @@
     <string name="log_matches_not_found">Совпадений не найдено</string>
     <string name="log_error_move_record_catalog">Ошибка перемещения каталога записи</string>
     <string name="log_erorr_move_record_dir_when_del">Запись удалена, но при перемещении каталога в корзину возникла ошибка (подробнее в логах)</string>
-    <string name="log_open_log_file">Открытие лог-файла на чтение</string>
+    <string name="log_open_log_file">Чтение лог-файла</string>
     <string name="log_not_passed_text">Не передан текст</string>
     <string name="log_not_passed_image_uri">Не передан путь к изображению(ям)</string>
     <string name="log_receiving_intent_text">Прием текста из другого приложения</string>

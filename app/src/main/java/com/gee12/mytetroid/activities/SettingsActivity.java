@@ -380,7 +380,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         private TaskStage taskStage = new TaskStage(ChangePassTask.class);
 
         private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-            taskStage.setValues(obj, oper, stage);
+//            taskStage.setValues(obj, oper, stage);
+            taskStage = new TaskStage(obj, oper, stage);
             publishProgress(taskStage);
         }
 
