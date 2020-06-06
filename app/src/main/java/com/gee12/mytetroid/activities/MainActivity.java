@@ -313,7 +313,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             initGUI(DataManager.createDefault());
 //            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_SHORT, null);
+            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false);
@@ -1275,42 +1275,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void encryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            /*// сначала расшифровываем хранилище
-            if (DataManager.isCrypted()) {
-                initStorage(null, true);
-            }
-            if (DataManager.isDecrypted()) {
-                if (DataManager.encryptNode(node)) {
-                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
-                } else {
-                    TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT);
-                }
-                updateNodes();
-            }*/
             new CryptNodeTask(node, true).execute();
         });
     }
 
     private void dropEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            /*// сначала расшифровываем хранилище
-            if (DataManager.isCrypted()) {
-                initStorage(null, true);
-            }
-            if (DataManager.isDecrypted()) {
-                boolean wasCrypted = node.isCrypted();
-                if (DataManager.dropCryptNode(node)) {
-                    TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-                    if (wasCrypted) {
-                        // проверяем существование зашифрованных веток
-                        checkExistenceCryptedNodes();
-                    }
-                } else {
-                    TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT);
-                }
-                updateNodes();
-            }*/
-
             new CryptNodeTask(node, false).execute();
         });
     }
@@ -2195,11 +2165,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            mTextViewProgress.setText(R.string.task_storage_decrypting);
-            mLayoutProgress.setVisibility(View.VISIBLE);*/
             this.isDrawerOpened = taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
@@ -2211,14 +2176,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            if (isDrawerOpened == DrawerLayout.LOCK_MODE_UNLOCKED) {
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            }
-            mLayoutProgress.setVisibility(View.INVISIBLE);*/
             taskPostExecute(isDrawerOpened);
             if (res) {
-                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_SHORT, null);
+                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, "", Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }
@@ -2236,32 +2196,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
         boolean isEncrypt;
         boolean wasCrypted;
         TetroidLog.Opers oper;
-        private TaskStage taskStage;
 
         CryptNodeTask(TetroidNode node, boolean isEncrypt) {
-//            this.isDrawerOpened = mDrawerLayout.getDrawerLockMode(Gravity.LEFT);
             this.node = node;
             this.isEncrypt = isEncrypt;
             this.wasCrypted = node.isCrypted();
             this.oper = (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT;
-            this.taskStage = new TaskStage(CryptNodeTask.class);
-        }
-
-        private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-            taskStage.setValues(obj, oper, stage);
-            publishProgress(taskStage);
         }
 
         @Override
         protected void onPreExecute() {
-            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            mTextViewProgress.setText((isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_decrypting);
-            mLayoutProgress.setVisibility(View.VISIBLE);*/
             this.isDrawerOpened = taskPreExecute(
-                    (isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_decrypting);
-            TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DECRYPT, node);
+                    (isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_drop_crypting);
+            TetroidLog.logOperStart(TetroidLog.Objs.NODE,
+                    (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT, node);
         }
 
         @Override
@@ -2279,10 +2227,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // только если хранилище расшифровано
             if (DataManager.isDecrypted()) {
                 setStage(TetroidLog.Objs.NODE, oper, TaskStage.Stages.START);
-                if (!((isEncrypt) ? DataManager.encryptNode(node) : DataManager.dropCryptNode(node)))
-                    return -1;
+                return (((isEncrypt) ? DataManager.encryptNode(node) : DataManager.dropCryptNode(node))) ? 1 : -1;
             }
-            return 1;
+            return 0;
+        }
+
+        private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+            publishProgress(new TaskStage(CryptNodeTask.class, obj, oper, stage));
         }
 
         @Override
@@ -2294,11 +2245,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Integer res) {
-            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            if (isDrawerOpened == DrawerLayout.LOCK_MODE_UNLOCKED) {
-                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            }
-            mLayoutProgress.setVisibility(View.INVISIBLE);*/
             taskPostExecute(isDrawerOpened);
             if (res > 0) {
                 TetroidLog.logOperRes(TetroidLog.Objs.NODE, oper);
@@ -2355,10 +2301,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mTextViewProgress.setText(R.string.global_searching);
-            mLayoutProgress.setVisibility(View.VISIBLE);*/
             taskPreExecute(R.string.global_searching);
             LogManager.log(String.format(getString(R.string.global_search_start), scan.getQuery()));
         }
@@ -2370,8 +2312,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
-            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mLayoutProgress.setVisibility(View.INVISIBLE);*/
             taskPostExecute(false);
             if (found == null) {
                 LogManager.log(getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);

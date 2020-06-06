@@ -368,11 +368,12 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-//        runOnUiThread(() -> {
-        mEditTextHtml.setText(htmlText);
-        mEditTextHtml.requestFocus();
+        // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
+        runOnUiThread(() -> {
+            mEditTextHtml.setText(htmlText);
+            mEditTextHtml.requestFocus();
 //            setProgressVisibility(false);
-//        });
+        });
     }
 
     /**
@@ -381,7 +382,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public boolean onLinkLoad(String url) {
-        // раскодируем url, т.к. он может содержать кириллицу
+        // раскодируем url, т.к. он может содержать кириллицу и прочее
         try {
             url = URLDecoder.decode(url, "UTF-8");
         } catch (UnsupportedEncodingException e) {

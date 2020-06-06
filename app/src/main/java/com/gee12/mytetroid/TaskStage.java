@@ -21,11 +21,12 @@ public class TaskStage {
         this.clazz = clazz;
     }
 
-    public TaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
+    public TaskStage(Class clazz, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
+        this.clazz = clazz;
         setValues(obj, oper, stage);
     }
 
-    public void setValues(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
+    private void setValues(TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
         this.obj = obj;
         this.oper = oper;
         this.stage = stage;
