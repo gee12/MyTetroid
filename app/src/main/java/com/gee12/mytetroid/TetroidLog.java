@@ -40,7 +40,7 @@ public class TetroidLog extends LogManager {
         }
 
         String getString(int tense) {
-            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
+            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
 
@@ -75,7 +75,7 @@ public class TetroidLog extends LogManager {
         }
 
         String getString(int tense) {
-            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : null;
+            return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
 
@@ -123,6 +123,10 @@ public class TetroidLog extends LogManager {
 
     public static String logOperErrorMore(Objs obj, Opers oper) {
         return logOperError(obj, oper, Toast.LENGTH_LONG);
+    }
+
+    public static String logOperErrorMore(Objs obj, Opers oper, int length) {
+        return logOperError(obj, oper, null, true, length);
     }
 
     public static String logOperError(Objs obj, Opers oper, int length) {
@@ -209,7 +213,7 @@ public class TetroidLog extends LogManager {
                             log(mes = getString(R.string.task_node_encrypting), Types.INFO);
                             break;
                         case DROPCRYPT:
-                            log(mes = getString(R.string.task_node_decrypting), Types.INFO);
+                            log(mes = getString(R.string.task_node_drop_crypting), Types.INFO);
                             break;
                         default:
                             mes = logOperStart(taskStage.obj, taskStage.oper);

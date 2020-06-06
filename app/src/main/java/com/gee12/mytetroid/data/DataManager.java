@@ -197,7 +197,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean dropCryptNode(@NonNull TetroidNode node) {
-        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
+//        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
         boolean res = CryptManager.decryptNode(node, true, instance, true, false);
         if (res) {
             return saveStorage();
@@ -227,7 +227,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean encryptNode(@NotNull TetroidNode node) {
-        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
+//        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
         boolean res = CryptManager.encryptNode(node, false);
         if (res) {
             return saveStorage();
@@ -489,7 +489,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         File destDir = new File(destPath);
         // перемещаем файл или каталог
         if (!FileUtils.moveToDirRecursive(srcFile, destDir)) {
-            String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, srcFullFileName, destPath);
+            String fromTo = getStringFromTo(destPath, srcFullFileName);
 //            LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                    srcFullFileName, destPath), LogManager.Types.ERROR);
             TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
@@ -513,8 +513,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
                 TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE, to, -1);
             } else {
-                String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask,
-                        srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+                String fromTo = getStringFromTo(destFile.getAbsolutePath(), srcFile.getAbsolutePath());
 //                LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
                 TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
@@ -544,15 +543,15 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 if (moveFile(destPath, SettingsManager.getTrashPath(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
-                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
+//                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
+                        TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE, destPath, false, -1);
                         return false;
                     }
                 }
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 File from = new File(tempPath);
                 if (!from.renameTo(to)) {
-                    String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask,
-                            tempPath, destPath);
+                    String fromTo = getStringFromTo(destPath, tempPath);
 //                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
 //                            tempPath, destPath), LogManager.Types.ERROR);
                     TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
@@ -678,6 +677,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //        }
 //        return file;
 //    }
+
+    public static String getStringFromTo(String from, String to) {
+        return Utils.getStringFormat(context, R.string.log_from_to_mask, from, to);
+    }
+
+    public static String getStringTo(String to) {
+        return Utils.getStringFormat(context, R.string.log_to_mask, to);
+    }
 
     public static List<TetroidNode> getRootNodes() {
         return instance.mRootNodesList;

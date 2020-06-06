@@ -185,7 +185,7 @@ public class RecordsManager extends DataManager {
                             LogManager.Types.WARNING);
                     if (folder.mkdirs()) {
 //                        LogManager.log(context.getString(R.string.log_record_dir_created), LogManager.Types.DEBUG, duration);
-                        TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.CREATE, duration, null);
+                        TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.CREATE, "", duration);
                         return 1;
                     } else {
                         LogManager.log(context.getString(R.string.log_create_record_dir_error), LogManager.Types.ERROR, duration);
@@ -358,11 +358,15 @@ public class RecordsManager extends DataManager {
             File srcFile = new File(destPath, srcFileIdName);
             File destFile = new File(destPath, destFileIdName);
             if (srcFile.renameTo(destFile)) {
-                LogManager.log(String.format(context.getString(R.string.log_rename_file_mask),
-                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
+                String to = getStringTo(destFile.getAbsolutePath());
+//                LogManager.log(String.format(context.getString(R.string.log_rename_file_mask),
+//                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
+                TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, to, -1);
             } else {
-                LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
-                        srcFile.getAbsolutePath(), destFile.getName()), LogManager.Types.ERROR);
+                String fromTo = getStringFromTo(srcFile.getAbsolutePath(), destFile.getName());
+//                LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
+//                        srcFile.getAbsolutePath(), destFile.getName()), LogManager.Types.ERROR);
+                TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false,-1);
             }
         }
     }
@@ -684,7 +688,9 @@ public class RecordsManager extends DataManager {
                     if (FileUtils.deleteRecursive(destDir)) {
                         TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
                     } else {
-                        LogManager.log(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
+//                        LogManager.log(context.getString(R.string.log_error_del_record_dir) + destDirPath, LogManager.Types.ERROR);
+                        TetroidLog.logOperError(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE,
+                                ": " + destDirPath, false, -1);
                         return 0;
                     }
                 }
@@ -775,7 +781,9 @@ public class RecordsManager extends DataManager {
                 TetroidLog.logOperRes(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE);
                 return 1;
             } else {
-                LogManager.log(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
+//                LogManager.log(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
+                TetroidLog.logOperError(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE,
+                        ": " + dirPath, false, -1);
                 return 0;
             }
         } else {
@@ -850,7 +858,9 @@ public class RecordsManager extends DataManager {
         File folder = new File(dirPath);
         // удаляем каталог
         if (!FileUtils.deleteRecursive(folder)) {
-            LogManager.log(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
+//            LogManager.log(context.getString(R.string.log_error_del_record_dir) + dirPath, LogManager.Types.ERROR);
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE,
+                    ": " + dirPath, false, -1);
             return false;
         }
         return true;

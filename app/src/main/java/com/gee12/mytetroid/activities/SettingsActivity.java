@@ -377,14 +377,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     public class ChangePassTask extends AsyncTask<String, TaskStage, Boolean> {
 
-        private TaskStage taskStage = new TaskStage(ChangePassTask.class);
-
-        private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-//            taskStage.setValues(obj, oper, stage);
-            taskStage = new TaskStage(obj, oper, stage);
-            publishProgress(taskStage);
-        }
-
         @Override
         protected void onPreExecute() {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -397,7 +389,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         protected Boolean doInBackground(String... values) {
             String curPass = values[0];
             String newPass = values[1];
-            setStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.CHANGE, TaskStage.Stages.START);
+//            setStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.CHANGE, TaskStage.Stages.START);
             return PassManager.changePass(curPass, newPass, new ITaskProgress() {
 
                 @Override
@@ -418,6 +410,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 }
 
             });
+        }
+
+        private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
+            publishProgress(new TaskStage(ChangePassTask.class, obj, oper, stage));
         }
 
         @Override

@@ -205,7 +205,7 @@
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
     <string name="task_node_encrypting">Node encrypting…</string>
-    <string name="task_node_decrypting">Node decrypting…</string>
+    <string name="task_node_drop_crypting">Node drop encrypting…</string>
     <string name="task_pass_changing">Password changing…</string>
     <string name="task_attach_file">Uploading file to the storage…</string>
     <string name="stage_pass_checking">Password checking…</string>
@@ -384,7 +384,7 @@
     <string name="log_oper_start_mask">Start %s %s</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
-    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>
+<!--    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>-->
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>

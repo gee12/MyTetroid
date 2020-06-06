@@ -197,7 +197,7 @@ public class AttachesManager extends DataManager {
         }
         // копирование файла в каталог записи, зашифровуя при необходимости
         File destFile = new File(destFileUri.getPath());
-        String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, fullName, destFilePath);
+        String fromTo = getStringFromTo(fullName, destFilePath);
         try {
             if (record.isCrypted()) {
                 TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT);
@@ -319,15 +319,13 @@ public class AttachesManager extends DataManager {
             String newFileIdName = file.getId() + newExt;
             String newFilePath = dirPath + SEPAR + newFileIdName;
             File destFile = new File(newFilePath);
-            String fromTo = Utils.getStringFormat(context, R.string.log_from_to_mask, filePath, newFileIdName);
+            String fromTo = getStringFromTo(filePath, newFileIdName);
             if (srcFile.renameTo(destFile)) {
-                TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
-                        fromTo, -1);
+                TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, -1);
             } else {
 //                LogManager.log(String.format(Locale.getDefault(),
 //                        context.getString(R.string.log_rename_file_error_mask), filePath, newFilePath), LogManager.Types.ERROR);
-                TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,
-                        fromTo, false, -1);
+                TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
                 return 0;
             }
         }
