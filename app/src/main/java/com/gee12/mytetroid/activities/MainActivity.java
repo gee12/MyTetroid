@@ -2178,7 +2178,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPostExecute(Boolean res) {
             taskPostExecute(isDrawerOpened);
             if (res) {
-                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, "", Toast.LENGTH_SHORT);
+//                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, "", Toast.LENGTH_SHORT);
+                LogManager.log(R.string.log_storage_decrypted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }

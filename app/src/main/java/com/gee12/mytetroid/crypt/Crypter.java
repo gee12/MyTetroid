@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.crypt;
 
-import android.widget.Toast;
-
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.utils.Utils;
 
@@ -171,18 +169,18 @@ public class Crypter {
         int readed = bis.read(bytes, 0, size);
         bis.close();
 
-        if (readed > 0) {
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile));
-            byte[] data = (isEncrypt) ? encryptBytes(bytes) : decryptBytes(bytes);
-            if (data == null) {
-                bos.close();
-                return false;
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile))) {
+            if (readed > 0) {
+                byte[] data = (isEncrypt) ? encryptBytes(bytes) : decryptBytes(bytes);
+                if (data == null) {
+                    bos.close();
+                    return false;
+                }
+                bos.write(data);
+                bos.flush();
+            } else {
+                addLog("File " + srcFile.getAbsolutePath() + " is empty");
             }
-            bos.write(data);
-            bos.flush();
-            bos.close();
-        } else {
-            addLog("File is empty");
         }
         return true;
     }
@@ -309,11 +307,11 @@ public class Crypter {
     }
 
     private static void addLog(String s) {
-        LogManager.log(s, Toast.LENGTH_LONG);
+        LogManager.log(s);
     }
 
     private static void addLog(Exception e) {
-        LogManager.log(e, Toast.LENGTH_LONG);
+        LogManager.log(e);
     }
 
     public static int getErrorCode() {

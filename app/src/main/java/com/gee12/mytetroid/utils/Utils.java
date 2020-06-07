@@ -210,9 +210,7 @@ public class Utils {
      * @return
      */
     public static String fileSizeToString(Context context, long size) {
-        if (size == 0) {
-            return null;
-        } else if (size >= 1073741824) {
+        if (size >= 1073741824) {
             return (size / 1073741824) + context.getString(R.string.g_bytes);
         } else if (size >= 1048576) {
             return (size / 1048576) + context.getString(R.string.m_bytes);

@@ -419,5 +419,6 @@
     <string name="log_from_to_mask">&#160;из "%s" в "%s"</string>
     <string name="log_to_mask">&#160;в "%s"</string>
     <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
+    <string name="log_storage_decrypted">Хранилище расшифровано</string>
 
 </resources>
