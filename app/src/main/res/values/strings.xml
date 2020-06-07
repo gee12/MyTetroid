@@ -470,5 +470,6 @@
     <string name="log_from_to_mask">&#160;from "%s" to "%s"</string>
     <string name="log_to_mask">&#160; to "%s"</string>
     <string name="log_more_in_logs">&#160;(more in the logs)</string>
+    <string name="log_storage_decrypted">Storage was decrypted</string>
 
 </resources>

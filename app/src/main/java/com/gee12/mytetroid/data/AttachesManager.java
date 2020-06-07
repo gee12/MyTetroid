@@ -424,7 +424,6 @@ public class AttachesManager extends DataManager {
         }
 
         String ext = FileUtils.getExtensionWithComma(file.getName());
-//        String fullFileName = String.format("%s/%s/%s%s", getStoragePathBase(), record.getDirName(), file.getId(), ext);
         String fullFileName = RecordsManager.getPathToFileInRecordFolder(record, file.getId() + ext);
 
         long size;
