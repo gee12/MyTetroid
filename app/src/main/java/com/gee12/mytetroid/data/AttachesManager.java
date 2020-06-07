@@ -75,7 +75,6 @@ public class AttachesManager extends DataManager {
                     LogManager.log(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
                 }
                 File tempFile = new File(tempFolder, fileIdName);
-//                File tempFile = new File(getTrashPath()+File.separator, fileIdName);
 
                 // расшифровываем во временный файл
                 try {

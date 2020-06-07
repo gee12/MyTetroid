@@ -172,60 +172,56 @@ public class TetroidLog extends LogManager {
 
     /**
      *
-     * @param taskStage
+     * @param stage
      * @return
      */
 //    public static String logTaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-    public static String logTaskStage(TaskStage taskStage) {
-        switch (taskStage.stage) {
+    public static String logTaskStage(TaskStage stage) {
+        switch (stage.stage) {
             case START:
-                if (taskStage.clazz == SettingsActivity.ChangePassTask.class) {
-                    String mes;
-                    switch (taskStage.oper) {
+                if (stage.clazz == SettingsActivity.ChangePassTask.class) {
+                    switch (stage.oper) {
                         case CHECK:
-                            log(mes = getString(R.string.stage_pass_checking), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.stage_pass_checking, Types.INFO);
                         case SET:
-                            log(mes = getString((taskStage.obj == Objs.CUR_PASS)
-                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass), Types.INFO);
-                            break;
+                            return logTaskStage(stage, (stage.obj == Objs.CUR_PASS)
+                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass, Types.INFO);
                         case DECRYPT:
-                            log(mes = getString(R.string.stage_old_pass_decrypting), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.stage_old_pass_decrypting, Types.INFO);
                         case REENCRYPT:
-                            log(mes = getString(R.string.stage_new_pass_reencrypting), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.stage_new_pass_reencrypting, Types.INFO);
                         case SAVE:
-                            log(mes = getString((taskStage.obj == Objs.STORAGE)
-                                    ? R.string.stage_storage_saving : R.string.log_save_pass), Types.INFO);
-                            break;
+                            return logTaskStage(stage, (stage.obj == Objs.STORAGE)
+                                    ? R.string.stage_storage_saving : R.string.log_save_pass, Types.INFO);
                         default:
-                            mes = logOperStart(taskStage.obj, taskStage.oper);
+                            return logOperStart(stage.obj, stage.oper);
                     }
-                    return mes;
-                } else if (taskStage.clazz == MainActivity.CryptNodeTask.class) {
-                    String mes;
-                    switch (taskStage.oper) {
+                } else if (stage.clazz == MainActivity.CryptNodeTask.class) {
+                    switch (stage.oper) {
                         case DECRYPT:
-                            log(mes = getString(R.string.stage_storage_decrypting), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.stage_storage_decrypting, Types.INFO);
                         case ENCRYPT:
-                            log(mes = getString(R.string.task_node_encrypting), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.task_node_encrypting, Types.INFO);
                         case DROPCRYPT:
-                            log(mes = getString(R.string.task_node_drop_crypting), Types.INFO);
-                            break;
+                            return logTaskStage(stage, R.string.task_node_drop_crypting, Types.INFO);
                         default:
-                            mes = logOperStart(taskStage.obj, taskStage.oper);
+                            return logOperStart(stage.obj, stage.oper);
                     }
-                    return mes;
                 }
-                return logOperStart(taskStage.obj, taskStage.oper);
+                return logOperStart(stage.obj, stage.oper);
             case SUCCESS:
-                return logOperRes(taskStage.obj, taskStage.oper, "", DURATION_NONE);
+                return logOperRes(stage.obj, stage.oper, "", DURATION_NONE);
             case FAILED:
-                return logDuringOperErrors(taskStage.obj, taskStage.oper, DURATION_NONE);
+                return logDuringOperErrors(stage.obj, stage.oper, DURATION_NONE);
         }
         return null;
+    }
+
+    public static String logTaskStage(TaskStage taskStage, int resId, Types type) {
+        String mes = getString(resId);
+        if (taskStage.writeLog) {
+            log(mes, type);
+        }
+        return mes;
     }
 }

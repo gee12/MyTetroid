@@ -3,8 +3,6 @@ package com.gee12.mytetroid.crypt;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -177,7 +175,7 @@ public class RC5Simple {
             this.mErrorCode = RC5_ERROR_CODE_8;
             return null;
         }
-        List<Integer> inUnsigned = Utils.toUnsigned2(inSigned);
+        int[] inUnsigned = Utils.toUnsigned(inSigned);
 
         int inSize = inSigned.length;
         if (inSize == 0) {
@@ -191,12 +189,8 @@ public class RC5Simple {
             iv[i] = rand(0, 0xFF);
         }
 
-        List<Integer> in = new ArrayList<>();
-
-        // Block with data size
-        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-            in.add(i, getByteFromWord(inSize, i));
-        }
+        // define size with additional service data
+        int serviceInSize = RC5_BLOCK_LEN + inSize;
 
         // Add firsted random data
         int firstRandomDataBlocks = 0;
@@ -206,22 +200,41 @@ public class RC5Simple {
             firstRandomDataBlocks = 2; // At start at format version 3, in begin data add two blocks with random data (full width is 128 bit)
 
         if (firstRandomDataBlocks > 0) {
-            for (int n = 1; n <= firstRandomDataBlocks; n++) {
-                for (int i = 0; i < RC5_BLOCK_LEN; i++) {
-                    in.add(i, rand(0, 0xFF));
-                }
-            }
+            serviceInSize += firstRandomDataBlocks*RC5_BLOCK_LEN;
         }
-
-        in.addAll(inUnsigned);
 
         // Align end of data to block size
         int lastUnalignLength = inSize % RC5_BLOCK_LEN;
 
         if (lastUnalignLength > 0) {
+            serviceInSize += (RC5_BLOCK_LEN - lastUnalignLength);
+        }
+
+        // build array
+        int[] in = new int[serviceInSize];
+
+        if (firstRandomDataBlocks > 0) {
+//            for (int n = 1; n <= firstRandomDataBlocks; n++) {
+            for (int n = 0; n < firstRandomDataBlocks; n++) {
+                for (int i = 0; i < RC5_BLOCK_LEN; i++) {
+                    in[n*RC5_BLOCK_LEN+i] = rand(0, 0xFF);
+                }
+            }
+        }
+
+        // Block with data size
+        int start = firstRandomDataBlocks*RC5_BLOCK_LEN;
+        for (int i = 0; i < RC5_BLOCK_LEN; i++) {
+            in[start+i] = getByteFromWord(inSize, i);
+        }
+
+        System.arraycopy(inUnsigned, 0, in, firstRandomDataBlocks*RC5_BLOCK_LEN+RC5_BLOCK_LEN, inSize);
+
+        if (lastUnalignLength > 0) {
             // Add random data to end for align to block size
+            start = serviceInSize-RC5_BLOCK_LEN+lastUnalignLength;
             for (int i = 0; i < (RC5_BLOCK_LEN - lastUnalignLength); i++) {
-                in.add(rand(0, 0xFF));
+                in[start+i] = rand(0, 0xFF);
             }
         }
 
@@ -232,7 +245,7 @@ public class RC5Simple {
         if (mFormatVersion == RC5_FORMAT_VERSION_1) {
             // In format version 1 save only IV as open data in block 0
             notCryptDataSize = RC5_BLOCK_LEN;
-            out = new byte[in.size() + notCryptDataSize];
+            out = new byte[in.length + notCryptDataSize];
 
             // Save start IV to block 0 in output data
             for (int i = 0; i < RC5_BLOCK_LEN; i++) {
@@ -241,7 +254,7 @@ public class RC5Simple {
         } else if (mFormatVersion >= RC5_FORMAT_VERSION_2) {
             // In format version 2 or higth save format header (block 0) and IV (block 1)
             notCryptDataSize = RC5_BLOCK_LEN * 2;
-            out = new byte[in.size() + notCryptDataSize];
+            out = new byte[in.length + notCryptDataSize];
 
             // Signature bytes in header
             for (int i = 0; i < (RC5_BLOCK_LEN-1); i++) {
@@ -267,7 +280,7 @@ public class RC5Simple {
 
         // Encode by blocks
         int block = 0;
-        while ((RC5_BLOCK_LEN * (block + 1)) <= in.size()) {
+        while ((RC5_BLOCK_LEN * (block + 1)) <= in.length) {
             int shift = block * RC5_BLOCK_LEN;
 
             // Temp input buffer for dont modify input data
@@ -275,7 +288,7 @@ public class RC5Simple {
 
             // XOR block with current IV
             for(int i = 0; i < RC5_BLOCK_LEN; i++) {
-                tempIn[i] = in.get(shift+i) ^ iv[i];
+                tempIn[i] = in[shift+i] ^ iv[i];
             }
 
             long[] pt = new long[RC5_WORDS_IN_BLOCK];

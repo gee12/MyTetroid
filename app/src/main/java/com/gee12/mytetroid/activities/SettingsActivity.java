@@ -375,7 +375,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     /**
      * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
      */
-    public class ChangePassTask extends AsyncTask<String, TaskStage, Boolean> {
+    public class ChangePassTask extends AsyncTask<String, String, Boolean> {
 
         @Override
         protected void onPreExecute() {
@@ -413,13 +413,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         }
 
         private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-            publishProgress(new TaskStage(ChangePassTask.class, obj, oper, stage));
+            TaskStage taskStage = new TaskStage(ChangePassTask.class, obj, oper, stage);
+            String mes = TetroidLog.logTaskStage(taskStage);
+            publishProgress(mes);
         }
 
         @Override
-        protected void onProgressUpdate(TaskStage... values) {
-            TaskStage taskStage = values[0];
-            String mes = TetroidLog.logTaskStage(taskStage);
+        protected void onProgressUpdate(String... values) {
+            String mes = values[0];
             mTextViewProgress.setText(mes);
         }
 
