@@ -144,7 +144,7 @@ public class Utils {
      * @param ba
      * @return
      */
-    public static List<Integer> toUnsigned2(byte[] ba) {
+    public static List<Integer> toUnsignedList(byte[] ba) {
         if (ba == null)
             return null;
         List<Integer> res = new ArrayList<>(ba.length);

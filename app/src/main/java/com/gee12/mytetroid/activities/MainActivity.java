@@ -2189,7 +2189,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется зашифровка/сброс шифровки веток.
      */
-    public class CryptNodeTask extends AsyncTask<Void,TaskStage,Integer> {
+    public class CryptNodeTask extends AsyncTask<Void,String,Integer> {
 
         boolean isDrawerOpened;
         TetroidNode node;
@@ -2233,13 +2233,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-            publishProgress(new TaskStage(CryptNodeTask.class, obj, oper, stage));
+            TaskStage taskStage = new TaskStage(CryptNodeTask.class, obj, oper, stage);
+            String mes = TetroidLog.logTaskStage(taskStage);
+            publishProgress(mes);
         }
 
         @Override
-        protected void onProgressUpdate(TaskStage... values) {
-            TaskStage taskStage = values[0];
-            String mes = TetroidLog.logTaskStage(taskStage);
+        protected void onProgressUpdate(String... values) {
+            String mes = values[0];
             mTextViewProgress.setText(mes);
         }
 
