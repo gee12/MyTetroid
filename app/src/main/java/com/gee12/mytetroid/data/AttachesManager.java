@@ -407,6 +407,61 @@ public class AttachesManager extends DataManager {
     }
 
     /**
+     * Сохранение прикрепленного файла по указанному пути.
+     * @param file
+     * @param destPath
+     * @return
+     */
+    public static boolean saveFile(TetroidFile file, String destPath) {
+        if (file == null || TextUtils.isEmpty(destPath)) {
+            LogManager.emptyParams("DataManager.saveFile()");
+            return false;
+        }
+        String mes = TetroidLog.getIdNameString(file) + DataManager.getStringTo(destPath);
+        TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.SAVE, ": " + mes);
+
+        // проверка исходного файла
+        String fileIdName = file.getIdName();
+        String recordPath = RecordsManager.getPathToRecordFolder(file.getRecord());
+        File srcFile = new File(recordPath, fileIdName);
+        try {
+            if (!srcFile.exists()) {
+                LogManager.log(context.getString(R.string.log_file_is_absent) + fileIdName, LogManager.Types.ERROR);
+                return false;
+            }
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_file_checking_error) + fileIdName, ex);
+            return false;
+        }
+        // копирование файла в указанный каталог, расшифровуя при необходимости
+        File destFile = new File(destPath, file.getName());
+        String fromTo = getStringFromTo(srcFile.getAbsolutePath(), destFile.getAbsolutePath());
+        try {
+            if (file.isCrypted()) {
+                TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT);
+                if (!CryptManager.encryptDecryptFile(srcFile, destFile, false)) {
+                    TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT,
+                            fromTo, false, -1);
+                    return false;
+                }
+            } else {
+                TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY);
+                if (!FileUtils.copyFile(srcFile, destFile)) {
+                    TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY,
+                            fromTo, false, -1);
+                    return false;
+                }
+            }
+        } catch (IOException ex) {
+            TetroidLog.logOperError(TetroidLog.Objs.FILE,
+                    (file.isCrypted()) ? TetroidLog.Opers.DECRYPT : TetroidLog.Opers.COPY,
+                    fromTo, false, -1);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Получение размера прикрепленного файла.
      * @param context
      * @param file

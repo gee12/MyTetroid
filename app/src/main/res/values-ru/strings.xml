@@ -89,6 +89,8 @@
     <string name="title_recod_edit_mode">Режим редактирования</string>
     <string name="title_record_save">Сохранить</string>
     <string name="title_crypted_node_name">Закрыто</string>
+    <string name="title_file_save_as">Сохранить как</string>
+    <string name="title_save_file_to">Сохранить файл в..</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -166,6 +168,7 @@
     <string name="task_node_encrypting">Зашифровка ветки…</string>
     <string name="task_node_drop_crypting">Сброс шифровки ветки…</string>
     <string name="task_attach_file">Загрузка файла в хранилище…</string>
+    <string name="task_file_saving">Сохранение файла…</string>
     <string name="stage_pass_checking">Проверка пароля…</string>
     <string name="stage_storage_decrypting">Расшифровка хранилища…</string>
     <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем…</string>
@@ -420,5 +423,6 @@
     <string name="log_to_mask">&#160;в "%s"</string>
     <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
+    <string name="log_tag_is_null">Переданная метка пуста (null)</string>
 
 </resources>

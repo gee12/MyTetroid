@@ -21,22 +21,28 @@
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
-        android:id="@+id/action_move_up"
+        android:id="@+id/action_save_as"
         android:orderInCategory="40"
+        android:title="@string/title_file_save_as"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_move_up"
+        android:orderInCategory="50"
         android:title="@string/title_move_up"
         android:icon="@drawable/ic_move_up"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_move_down"
-        android:orderInCategory="50"
+        android:orderInCategory="60"
         android:title="@string/title_move_down"
         android:icon="@drawable/ic_move_down"
         android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_delete"
-        android:orderInCategory="60"
+        android:orderInCategory="70"
         android:title="@string/title_delete"
         android:icon="@drawable/ic_delete"
         app:showAsAction="ifRoom|withText" />

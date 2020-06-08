@@ -297,7 +297,7 @@ public class RecordActivity extends TetroidActivity implements
             textHtml = mEditTextHtml.getText().toString();
         } else {
             if (!record.isNew()) {
-                textHtml = RecordsManager.getRecordHtmlTextDecrypted(record);
+                textHtml = RecordsManager.getRecordHtmlTextDecrypted(record, Toast.LENGTH_LONG);
                 if (textHtml == null) {
                     if (record.isCrypted() && CryptManager.getErrorCode() > 0) {
                         LogManager.log(R.string.log_error_record_file_decrypting, LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -865,7 +865,9 @@ public class RecordActivity extends TetroidActivity implements
      * Открытие каталога записи.
      */
     public void openRecordFolder() {
-        RecordsManager.openRecordFolder(this, mRecord);
+        if (!RecordsManager.openRecordFolder(this, mRecord)) {
+            LogManager.log(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
     }
 
 

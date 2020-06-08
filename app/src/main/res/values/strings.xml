@@ -88,6 +88,8 @@
     <string name="title_create_storage">Create storage</string>
     <string name="title_open_storage_summ">Select an existing storage directory in the phone memory</string>
     <string name="title_first_node">First node</string>
+    <string name="title_file_save_as">Save as</string>
+    <string name="title_save_file_to">Save file to..</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -208,6 +210,7 @@
     <string name="task_node_drop_crypting">Node drop encrypting…</string>
     <string name="task_pass_changing">Password changing…</string>
     <string name="task_attach_file">Uploading file to the storage…</string>
+    <string name="task_file_saving">File saving…</string>
     <string name="stage_pass_checking">Password checking…</string>
     <string name="stage_storage_decrypting">Storage decryption…</string>
     <string name="stage_old_pass_decrypting">Storage decryption with old password…</string>
@@ -471,5 +474,6 @@
     <string name="log_to_mask">&#160; to "%s"</string>
     <string name="log_more_in_logs">&#160;(more in the logs)</string>
     <string name="log_storage_decrypted">Storage was decrypted</string>
+    <string name="log_tag_is_null">Tag is empty (null)</string>
 
 </resources>
