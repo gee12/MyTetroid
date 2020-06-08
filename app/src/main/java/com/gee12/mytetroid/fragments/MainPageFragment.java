@@ -61,6 +61,7 @@ public class MainPageFragment extends TetroidFragment {
     private FilesListAdapter mListAdapterFiles;
     private TetroidRecord mCurRecord;
     private TetroidNode mCurNode;
+    private TetroidFile mCurFile;
 
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
@@ -363,15 +364,6 @@ public class MainPageFragment extends TetroidFragment {
         mMainView.openFilePicker();
     }
 
-    /**
-     * Прикрепление выбранного файла к записи.
-     * @param fullName
-     */
-/*    public void attachFile(String fullName) {
-        TetroidFile file = AttachesManager.attachFile(fullName, mCurRecord);
-        attachFile(file);
-    }*/
-
     public void attachFile(TetroidFile file) {
         if (file != null) {
             mListAdapterFiles.notifyDataSetInvalidated();
@@ -574,22 +566,34 @@ public class MainPageFragment extends TetroidFragment {
                     onDeleteRecordResult(file.getRecord(), res1, false);
                 });
             } else {
-                onRenameFileResult(file, res);
+                onRenameFileResult(res);
             }
         });
     }
 
     /**
      * Обработка результата переименования файла.
-     * @param file
      * @param res
      */
-    private void onRenameFileResult(TetroidFile file, int res) {
+    private void onRenameFileResult(int res) {
         if (res > 0) {
             TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
             mListAdapterFiles.notifyDataSetChanged();
         } else {
             TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME);
+        }
+    }
+
+    private void saveFileAs(TetroidFile file) {
+        this.mCurFile = file;
+        mMainView.openFolderPicker();
+    }
+
+    public void onSaveFileResult(boolean res) {
+        if (res) {
+            TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.SAVE, "", Toast.LENGTH_SHORT);
+        } else {
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE, TetroidLog.Opers.SAVE);
         }
     }
 
@@ -691,8 +695,8 @@ public class MainPageFragment extends TetroidFragment {
         activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
-        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
-       /* if (record != null) {
+        /* TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
+       if (record != null) {
             activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
         }*/
     }
@@ -706,11 +710,12 @@ public class MainPageFragment extends TetroidFragment {
             return;
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterFiles.getCount() - 1);
+        TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(menuInfo.position);
+        activateMenuItem(menu.findItem(R.id.action_save_as), file != null
+                && AttachesManager.getAttachedFileSize(getContext(), file) != null);
     }
 
     private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
-//        menuItem.setEnabled(isActivate);
-//        menuItem.getIcon().setAlpha((isActivate) ? 255 : 130);
         menuItem.setVisible(isActivate);
     }
 
@@ -795,6 +800,9 @@ public class MainPageFragment extends TetroidFragment {
                 // TODO:
 
                 return true;
+            case R.id.action_save_as:
+                saveFileAs(file);
+                return true;
             case R.id.action_move_up:
 
                 // TODO:
@@ -848,6 +856,10 @@ public class MainPageFragment extends TetroidFragment {
 
     public TetroidRecord getCurRecord() {
         return mCurRecord;
+    }
+
+    public TetroidFile getCurFile() {
+        return mCurFile;
     }
 
     public int getCurMainViewId() {

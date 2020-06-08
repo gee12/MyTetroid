@@ -65,7 +65,7 @@ public class RecordsManager extends DataManager {
      * @param record
      * @return
      */
-    public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record) {
+    public static String getRecordHtmlTextDecrypted(@NonNull TetroidRecord record, int duration) {
         if (record == null) {
             LogManager.emptyParams("DataManager.getRecordHtmlTextDecrypted()");
             return null;
@@ -73,7 +73,7 @@ public class RecordsManager extends DataManager {
         LogManager.log(context.getString(R.string.log_start_record_file_reading) + record.getId(), LogManager.Types.DEBUG);
         // проверка существования каталога записи
         String dirPath = getPathToRecordFolder(record);
-        if (checkRecordFolder(dirPath, true, Toast.LENGTH_LONG) <= 0) {
+        if (checkRecordFolder(dirPath, true, duration) <= 0) {
             return null;
         }
         String path = dirPath + SEPAR + record.getFileName();
@@ -87,7 +87,7 @@ public class RecordsManager extends DataManager {
         // проверка существования файла записи
         File file = new File(uri.getPath());
         if (!file.exists()) {
-            LogManager.log(context.getString(R.string.log_record_file_is_missing), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            LogManager.log(context.getString(R.string.log_record_file_is_missing), LogManager.Types.WARNING, duration);
             return null;
         }
         String res = null;
@@ -208,9 +208,13 @@ public class RecordsManager extends DataManager {
      */
     public static String getRecordTextDecrypted(@NonNull TetroidRecord record) {
         String text = null;
-        String html = getRecordHtmlTextDecrypted(record);
+        String html = getRecordHtmlTextDecrypted(record, -1);
         if (html != null) {
-            text = Jsoup.parse(html).text();
+            try {
+                text = Jsoup.parse(html).text();
+            } catch (Exception ex) {
+                LogManager.log(ex);
+            }
         }
         return text;
     }
@@ -872,17 +876,18 @@ public class RecordsManager extends DataManager {
      * @param record
      * @return
      */
-    public static void openRecordFolder(Context context, @NotNull TetroidRecord record){
+    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
         if (context == null || record == null) {
             LogManager.emptyParams("DataManager.openRecordFolder()");
-            return;
+            return false;
         }
         LogManager.log(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
         Uri uri = Uri.parse(getRecordDirUri(record));
         if (!openFolder(context, uri)) {
             Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), uri.getPath());
-            LogManager.log(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+            return false;
         }
+        return true;
     }
 
     public static String getRecordDirUri(@NonNull TetroidRecord record) {

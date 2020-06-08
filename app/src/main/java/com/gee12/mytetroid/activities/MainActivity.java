@@ -101,6 +101,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 5;
     public static final int REQUEST_CODE_SYNC_STORAGE = 6;
     public static final int REQUEST_CODE_FILE_PICKER = 7;
+    public static final int REQUEST_CODE_FOLDER_PICKER = 8;
 
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
@@ -667,7 +668,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showTag(TetroidTag tag) {
         if (tag == null) {
-            LogManager.log("Переданная метка пуста (null)", LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(R.string.log_tag_is_null, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
         this.mCurNode = null;
@@ -689,7 +690,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void openRecordFolder(TetroidRecord record) {
-        RecordsManager.openRecordFolder(this, record);
+        if (!RecordsManager.openRecordFolder(this, record)) {
+            LogManager.log(R.string.log_missing_file_manager, Toast.LENGTH_LONG);
+        }
     }
 
     @Override
@@ -1528,6 +1531,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     *
+     */
+    @Override
+    public void openFolderPicker() {
+        Intent intent = new Intent(this, FolderPicker.class);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_save_file_to));
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderOrDefault(this, false));
+        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, false);
+        startActivityForResult(intent, REQUEST_CODE_FOLDER_PICKER);
+    }
+
+    /**
      * Обработка возвращаемого результата других активностей.
      * @param requestCode
      * @param resultCode
@@ -1577,8 +1592,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String fileFullName = data.getStringExtra(FolderPicker.EXTRA_DATA);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(FileUtils.getFileFolder(fileFullName));
-//            mViewPagerAdapter.getMainFragment().attachFile(fileFullName);
             new AttachFileTask(mViewPagerAdapter.getMainFragment().getCurRecord()).execute(fileFullName);
+        } else if (requestCode == REQUEST_CODE_FOLDER_PICKER && resultCode == RESULT_OK) {
+            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+            // сохраняем путь
+            SettingsManager.setLastChoosedFolder(folderPath);
+            new SaveFileTask(mViewPagerAdapter.getMainFragment().getCurFile()).execute(folderPath);
         }
 
     }
@@ -2287,6 +2306,35 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPostExecute(TetroidFile res) {
             taskPostExecute(false);
             mViewPagerAdapter.getMainFragment().attachFile(res);
+        }
+    }
+
+    /**
+     * Задание, в котором выполняется сохранение файла по выбранному пути.
+     */
+    public class SaveFileTask extends AsyncTask<String,Void,Boolean> {
+
+        TetroidFile file;
+
+        SaveFileTask(TetroidFile file) {
+            this.file = file;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            taskPreExecute(R.string.task_file_saving);
+        }
+
+        @Override
+        protected Boolean doInBackground(String... values) {
+            String path = values[0];
+            return AttachesManager.saveFile(file, path);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean res) {
+            taskPostExecute(false);
+            mViewPagerAdapter.getMainFragment().onSaveFileResult(res);
         }
     }
 

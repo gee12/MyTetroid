@@ -20,4 +20,5 @@ public interface IMainView extends Parcelable {
     void updateTags();
     void updateNodes();
     void openFilePicker();
+    void openFolderPicker();
 }
