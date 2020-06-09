@@ -424,5 +424,7 @@
     <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
     <string name="log_tag_is_null">Переданная метка пуста (null)</string>
+    <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
+    <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
 
 </resources>

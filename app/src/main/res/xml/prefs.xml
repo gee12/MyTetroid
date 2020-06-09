@@ -151,6 +151,13 @@
     <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_category_other">
 
         <CheckBoxPreference
+            android:key="@string/pref_key_is_load_favorites"
+            android:title="@string/pref_load_only_favorites"
+            android:summary="@string/pref_load_only_favorites_summ"
+            android:enabled="false"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
             android:key="@string/pref_key_is_keep_selected_node"
             android:title="@string/pref_is_keep_selected_node"
             android:summary="@string/pref_is_keep_selected_node_summ"
