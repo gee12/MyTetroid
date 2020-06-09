@@ -321,6 +321,16 @@ public class SettingsManager {
         return getBoolean(R.string.pref_key_is_load_favorites, false);
     }
 
+    public static String[] getFavorites() {
+        String value = getString(R.string.pref_key_favorites, "");
+        return value.split(";");
+    }
+
+    public static void setFavorites(String[] ids) {
+        String value = TextUtils.join(";", ids);
+        setString(R.string.pref_key_favorites, value);
+    }
+
     /**
      * Устанавливать текущей выбранную при предыдущем запуске ветку.
      * По-умолчанию - да.
