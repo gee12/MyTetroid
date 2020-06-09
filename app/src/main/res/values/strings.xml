@@ -204,6 +204,7 @@
     <string name="pref_setup_pass">Setup password</string>
     <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
     <string name="pref_key_is_load_favorites" translatable="false">pref_key_is_load_favorites</string>
+    <string name="pref_key_favorites" translatable="false">pref_key_favorites</string>
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
     <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries</string>
 

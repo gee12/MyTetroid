@@ -83,7 +83,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param storagePath
      * @return
      */
-    public static boolean init(Context ctx, String storagePath, boolean isNew) {
+    public static boolean init(Context ctx, String storagePath, boolean isNew, boolean isFavorite) {
         DataManager.context = ctx;
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
@@ -108,8 +108,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 if (!baseDir.mkdir()) {
                     return false;
                 }
-                // создаем первую ветку
+                // создаем корневую ветку
                 instance.init();
+            } else if (isFavorite) {
+                // получаем id избранных записей из настроек
+                FavoritesManager.load();
+                // и загружаем сами записи
+                instance.init(true);
+                res = true;
             } else {
                 // загружаем database.ini
                 res = databaseConfig.load();
@@ -121,6 +127,20 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return res;
     }
 
+    /**
+     * Проверка является ли запись избранной.
+     * @param id
+     * @return
+     */
+    protected boolean isRecordFavorite(String id) {
+        return FavoritesManager.isFavorite(id);
+    }
+
+    /**
+     * Инициализация ключа шифрования с помощью пароля или его хэша.
+     * @param pass
+     * @param isMiddleHash
+     */
     public static void initCryptPass(String pass, boolean isMiddleHash) {
         if (isMiddleHash) {
             CryptManager.initFromMiddleHash(pass, instance, instance);
@@ -129,6 +149,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
     }
 
+    /**
+     * Создание минимально требуемых объектов хранилища.
+     * @return
+     */
     public static boolean createDefault() {
         return (NodesManager.createNode(context.getString(R.string.title_first_node), XMLManager.ROOT_NODE) != null);
     }
