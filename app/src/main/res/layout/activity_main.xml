@@ -23,31 +23,98 @@
         android:background="#f6f6fc"
         app:headerLayout="@layout/nav_view_header_left">
 
-        <include layout="@layout/list_item_node"
-            android:id="@+id/node_favorites"/>
-
-        <pl.openrnd.multilevellistview.MultiLevelListView
-            android:id="@+id/list_view_nodes"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/nav_header_height"
-            android:layout_marginBottom="8dp"
-            android:paddingTop="5dp"
-            app:alwaysExtended="false"
-            app:nestType="multiple" />
-
-        <TextView
-            android:id="@+id/nodes_text_view_empty"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:visibility="gone"
             android:layout_marginTop="@dimen/nav_header_height"
-            android:padding="@dimen/tv_empty_padding"
-            android:textAlignment="center"
-            android:text="@string/title_nodes_is_missing"/>
+            android:layout_marginBottom="8dp">
+
+            <!--<include
+                android:id="@+id/node_favorites"
+                layout="@layout/list_item_node"/>-->
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/node_favorites"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/data_item_row_height">
+
+                <ImageView
+                    android:id="@+id/favorites_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/favorites_name"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_favorites"/>
+
+                <TextView
+                    android:id="@+id/favorites_name"
+                    app:layout_constraintLeft_toRightOf="@+id/favorites_icon"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/favorites_count"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/offset_default"
+                    android:layout_marginRight="@dimen/offset_default"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorBaseText"
+                    android:text="@string/title_favorites"
+                    android:textSize="@dimen/font_default" />
+
+                <TextView
+                    android:id="@+id/favorites_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toRightOf="@+id/favorites_name"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="@dimen/offset_default"
+                    android:layout_marginRight="@dimen/offset_default"
+                    android:textColor="@color/colorBlueDark"
+                    android:text="[0]"
+                    android:textSize="@dimen/font_small" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+            <Button
+                android:id="@+id/button_load"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/node_favorites"
+                android:text="@string/title_load_nodes"
+                android:drawableLeft="@drawable/ic_storage"
+                android:drawableStart="@drawable/ic_storage"
+                android:visibility="gone"/>
+
+            <pl.openrnd.multilevellistview.MultiLevelListView
+                android:id="@+id/list_view_nodes"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_below="@id/node_favorites"
+                android:paddingTop="5dp"
+                app:alwaysExtended="false"
+                app:nestType="multiple" />
+
+            <TextView
+                android:id="@+id/nodes_text_view_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/nav_header_height"
+                android:padding="@dimen/tv_empty_padding"
+                android:textAlignment="center"
+                android:text="@string/title_nodes_is_missing"/>
+
+        </RelativeLayout>
 
     </com.google.android.material.navigation.NavigationView>
 

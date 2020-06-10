@@ -479,5 +479,7 @@
     <string name="log_more_in_logs">&#160;(more in the logs)</string>
     <string name="log_storage_decrypted">Storage was decrypted</string>
     <string name="log_tag_is_null">Tag is empty (null)</string>
+    <string name="title_load_nodes">Load nodes</string>
+    <string name="title_favorites">Favorites</string>
 
 </resources>

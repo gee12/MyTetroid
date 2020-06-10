@@ -104,13 +104,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * Первоначальная инициализация переменных.
      */
     public void init() {
-        init(false);
-    }
-    public void init(boolean favoriteMode) {
-        if (favoriteMode) {
-            this.mFavoritesRecords = new ArrayList<>();
-        }
-        this.mIsFavoriteMode = favoriteMode;
+        this.mFavoritesRecords = new ArrayList<>();
         this.mRootNodesList = new ArrayList<>();
         ROOT_NODE.setSubNodes(mRootNodesList);
         this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
@@ -136,8 +130,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public boolean parse(InputStream in, boolean isNeedDecrypt) throws XmlPullParserException, IOException {
+    public boolean parse(InputStream in, boolean isNeedDecrypt, boolean favoriteMode)
+            throws XmlPullParserException, IOException {
         this.mIsNeedDecrypt = isNeedDecrypt;
+        this.mIsFavoriteMode = favoriteMode;
         init();
         try {
             XmlPullParser parser = Xml.newPullParser();

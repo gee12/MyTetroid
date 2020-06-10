@@ -214,7 +214,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/notification/ic_no_encryption_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/toggle/ic_star_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -224,9 +224,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="color" value="ffffff" />
-                            <entry key="opacityPercent" value="80" />
-                            <entry key="outputName" value="ic_no_encrypt" />
+                            <entry key="color" value="707070" />
+                            <entry key="outputName" value="ic_favorites" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>
