@@ -83,7 +83,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param storagePath
      * @return
      */
-    public static boolean init(Context ctx, String storagePath, boolean isNew, boolean isFavorite) {
+    public static boolean init(Context ctx, String storagePath, boolean isNew) {
         DataManager.context = ctx;
         DataManager.instance = new DataManager();
         DataManager.instance.storagePath = storagePath;
@@ -110,13 +110,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 }
                 // создаем корневую ветку
                 instance.init();
-            } else if (isFavorite) {
-                // получаем id избранных записей из настроек
-                FavoritesManager.load();
-                // и загружаем сами записи
-                instance.init(true);
-                res = true;
-            } else {
+            }  else {
                 // загружаем database.ini
                 res = databaseConfig.load();
             }
@@ -162,16 +156,20 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param isDecrypt Расшифровывать ли ветки
      * @return
      */
-    public static boolean readStorage(boolean isDecrypt) {
+    public static boolean readStorage(boolean isDecrypt, boolean isFavorite) {
         boolean res = false;
         File file = new File(instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME);
         if (!file.exists()) {
             LogManager.log(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
             return false;
         }
+        if (isFavorite) {
+            // получаем id избранных записей из настроек
+            FavoritesManager.load();
+        }
         try {
             FileInputStream fis = new FileInputStream(file);
-            res = instance.parse(fis, isDecrypt);
+            res = instance.parse(fis, isDecrypt, isFavorite);
 
 //            if (BuildConfig.DEBUG) {
 //                TestData.addNodes(mInstance.mRootNodesList, 100, 100);

@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -48,6 +49,7 @@ import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.DatabaseConfig;
+import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.RecordsManager;
@@ -80,6 +82,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
@@ -312,12 +315,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-            initGUI(DataManager.createDefault());
+            initGUI(DataManager.createDefault(), false);
 //            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false);
+            initGUI(false, false);
 //            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
@@ -396,6 +399,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param storagePath Путь хранилища
      */
     private void initStorage(String storagePath) {
+        boolean isFavorites = SettingsManager.isLoadFavorites();
+
         if (DataManager.init(this, storagePath, false)) {
             LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
             mDrawerLayout.openDrawer(Gravity.LEFT);
@@ -403,7 +408,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-            if (DataManager.isCrypted()) {
+            if (DataManager.isCrypted() && !isFavorites) {
                 decryptStorage();
             } else {
                 initStorage(null, false);
@@ -412,7 +417,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.log(getString(R.string.log_failed_storage_init) + storagePath,
                     LogManager.Types.ERROR, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false);
+            initGUI(false, isFavorites);
         }
     }
 
@@ -503,29 +508,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param isDecrypt
      */
     private void initStorage(TetroidNode node, boolean isDecrypt) {
-        if (isDecrypt && DataManager.isNodesExist()) {
-            /*TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
-            // расшифровываем зашифрованные ветки уже загруженного дерева
-            if (DataManager.decryptStorage(false)) {
-//                LogManager.log(R.string.log_storage_decrypted);
-                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_SHORT, null);
-            } else {
-//                LogManager.log(getString(R.string.log_errors_during_decryption), Toast.LENGTH_LONG);
-                TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
-            }
-//            mListAdapterNodes.notifyDataSetChanged();
-//            mListAdapterTags.setDataItems(DataManager.getTags());
-            updateNodes();
-            updateTags();
+        initStorage(node, isDecrypt,  SettingsManager.isLoadFavorites());
+    }
 
-            if (node != null) {
-                showNode(node);
-            }*/
+    private void initStorage(TetroidNode node, boolean isDecrypt, boolean isFavorites) {
+        if (isDecrypt && DataManager.isNodesExist() && !isFavorites) {
             new DecryptStorageTask(node).execute();
         } else {
-//            LogManager.log(getString(R.string.log_start_storage_loading) + DataManager.getStoragePath());
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            new ReadStorageTask().execute(isDecrypt);
+            new ReadStorageTask(isFavorites).execute(isDecrypt);
         }
     }
 
@@ -542,50 +533,74 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Первоначальная инициализация списков веток, записей, файлов, меток
      * @param res Результат загрузки хранилища.
      */
-    private void initGUI(boolean res) {
-        // добавляем к результату загрузки проверку на пустоту списка веток
-        List<TetroidNode> rootNodes = DataManager.getRootNodes();
-        res = (res && rootNodes != null);
-        if (res) {
-            boolean isEmpty = rootNodes.isEmpty();
-            // список веток
-            this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
-            mListViewNodes.setAdapter(mListAdapterNodes);
-//            mListAdapterNodes.setDataItems(rootNodes);
+    private void initGUI(boolean res, boolean isFavorites) {
+        Button buttonLoad = findViewById(R.id.button_load);
+        buttonLoad.setVisibility((isFavorites) ? View.VISIBLE : View.GONE);
 
-            // выбираем ветку, выбранную в прошлый раз
-            boolean nodesAdapterInited = false;
-            TetroidNode nodeToSelect = null;
-            if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
-                String nodeId = SettingsManager.getSelectedNodeId();
-                if (nodeId != null) {
-                    nodeToSelect = NodesManager.getNode(nodeId);
-                    if (nodeToSelect != null) {
-                        Stack<TetroidNode> expandNodes = NodesManager.createNodesHierarchy(nodeToSelect);
-                        mListAdapterNodes.setDataItems(rootNodes, expandNodes);
-                        nodesAdapterInited = true;
+        if (isFavorites) {
+            // выводим ветку Избранное
+            List<TetroidRecord> favorites = FavoritesManager.getFavoritesRecords();
+
+            TextView tvName = findViewById(R.id.favorites_name);
+            int size = favorites.size();
+            tvName.setTextColor(ContextCompat.getColor(this,
+                    (size > 0) ? R.color.colorBaseText : R.color.colorLightText));
+            TextView favoritesCountView = findViewById(R.id.favorites_count);
+            favoritesCountView.setText(String.format(Locale.getDefault(), "[%d]", size));
+
+            buttonLoad.setOnClickListener(v -> {
+
+                if (DataManager.isCrypted()) {
+                    decryptStorage();
+                } else {
+                    initStorage(null, false, false);
+                }
+            });
+
+        } else {
+            // добавляем к результату загрузки проверку на пустоту списка веток
+            List<TetroidNode> rootNodes = DataManager.getRootNodes();
+            res = (res && rootNodes != null);
+            if (res) {
+                boolean isEmpty = rootNodes.isEmpty();
+                // список веток
+                this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
+                mListViewNodes.setAdapter(mListAdapterNodes);
+
+                // выбираем ветку, выбранную в прошлый раз
+                boolean nodesAdapterInited = false;
+                TetroidNode nodeToSelect = null;
+                if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
+                    String nodeId = SettingsManager.getSelectedNodeId();
+                    if (nodeId != null) {
+                        nodeToSelect = NodesManager.getNode(nodeId);
+                        if (nodeToSelect != null) {
+                            Stack<TetroidNode> expandNodes = NodesManager.createNodesHierarchy(nodeToSelect);
+                            mListAdapterNodes.setDataItems(rootNodes, expandNodes);
+                            nodesAdapterInited = true;
+                        }
                     }
                 }
-            }
-            if (!nodesAdapterInited) {
-                mListAdapterNodes.setDataItems(rootNodes);
-            }
-
-            if (!isEmpty) {
-                // списки записей, файлов
-                mViewPagerAdapter.getMainFragment().initListAdapters(this);
-                if (nodeToSelect != null) {
-                    showNode(nodeToSelect);
+                if (!nodesAdapterInited) {
+                    mListAdapterNodes.setDataItems(rootNodes);
                 }
 
-                // список меток
-                this.mListAdapterTags = new TagsListAdapter(this, DataManager.getTags());
-                mListViewTags.setAdapter(mListAdapterTags);
-                mTextViewTagsEmpty.setText(R.string.log_tags_is_missing);
+                if (!isEmpty) {
+                    // списки записей, файлов
+                    mViewPagerAdapter.getMainFragment().initListAdapters(this);
+                    if (nodeToSelect != null) {
+                        showNode(nodeToSelect);
+                    }
+
+                    // список меток
+                    this.mListAdapterTags = new TagsListAdapter(this, DataManager.getTags());
+                    mListViewTags.setAdapter(mListAdapterTags);
+                    mTextViewTagsEmpty.setText(R.string.log_tags_is_missing);
+                }
+                setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
+            } else {
+                setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }
-            setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
-        } else {
-            setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
         }
         setMenuItemsAvailable(res);
     }
@@ -2131,6 +2146,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Задание (параллельный поток), в котором выполняется загрузка хранилища.
      */
     private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
+
+        boolean isFavorites;
+
+        ReadStorageTask (boolean isFavorites) {
+            this.isFavorites = isFavorites;
+        }
+
         @Override
         protected void onPreExecute() {
             /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
@@ -2144,7 +2166,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected Boolean doInBackground(Boolean... values) {
             boolean isDecrypt = values[0];
-            return DataManager.readStorage(isDecrypt);
+            return DataManager.readStorage(isDecrypt, isFavorites);
         }
 
         @Override
@@ -2154,15 +2176,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             mLayoutProgress.setVisibility(View.INVISIBLE);*/
             taskPostExecute(true);
-            if (res) {
-                MainActivity.this.mIsStorageLoaded = true;
-                LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
-            } else {
-                LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
-                        LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            }
+//            if (isFavorites) {
+//
+//            } else {
+                if (res) {
+                    MainActivity.this.mIsStorageLoaded = true;
+                    LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
+                } else {
+                    LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
+                            LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                }
+//            }
             // инициализация контролов
-            initGUI(res);
+            initGUI(res, isFavorites);
             // действия после загрузки хранилища
             if (res) {
                 afterStorageInited();

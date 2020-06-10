@@ -43,4 +43,9 @@ public class FavoritesManager extends RecordsManager {
             LogManager.log(String.format("Не удалось найти запись с id=%s в списке избранных записей", record.getId()), LogManager.Types.WARNING);
         }
     }
+
+    public static List<TetroidRecord> getFavoritesRecords() {
+        return instance.mFavoritesRecords;
+    }
+
 }
