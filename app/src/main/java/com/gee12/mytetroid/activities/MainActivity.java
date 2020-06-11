@@ -123,12 +123,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TextView mTextViewTagsEmpty;
     private android.widget.SearchView mSearchViewNodes;
     private android.widget.SearchView mSearchViewTags;
-    private boolean mIsRecordsFiltered;
     private SearchView mSearchViewRecords;
     private MenuItem mMenuItemSearchViewRecords;
     private MenuItem mMenuItemGlobalSearch;
     private MenuItem mMenuItemStorageSync;
     private MenuItem mMenuItemStorageInfo;
+    private boolean mIsRecordsFiltered;
     private boolean mIsAlreadyTryDecrypt;
     private boolean mIsStorageLoaded;
 
@@ -538,18 +538,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         buttonLoad.setVisibility((isFavorites) ? View.VISIBLE : View.GONE);
 
         if (isFavorites) {
-            // выводим ветку Избранное
-            List<TetroidRecord> favorites = FavoritesManager.getFavoritesRecords();
-
-            TextView tvName = findViewById(R.id.favorites_name);
-            int size = favorites.size();
-            tvName.setTextColor(ContextCompat.getColor(this,
-                    (size > 0) ? R.color.colorBaseText : R.color.colorLightText));
-            TextView favoritesCountView = findViewById(R.id.favorites_count);
-            favoritesCountView.setText(String.format(Locale.getDefault(), "[%d]", size));
+            updateFavorites();
 
             buttonLoad.setOnClickListener(v -> {
-
                 if (DataManager.isCrypted()) {
                     decryptStorage();
                 } else {
@@ -715,14 +706,35 @@ public class MainActivity extends TetroidActivity implements IMainView {
         openRecord(record.getId());
     }
 
+    /**
+     * Обновление списка веток.
+     */
+    @Override
+    public void updateNodes() {
+        mListAdapterNodes.notifyDataSetChanged();
+    }
+
+    /**
+     * Обновление списка меток.
+     */
     @Override
     public void updateTags() {
         mListAdapterTags.setDataItems(DataManager.getTags());
     }
 
+    /**
+     * Обновление ветки Избранное.
+     */
     @Override
-    public void updateNodes() {
-        mListAdapterNodes.notifyDataSetChanged();
+    public void updateFavorites() {
+        List<TetroidRecord> favorites = FavoritesManager.getFavoritesRecords();
+        int size = favorites.size();
+
+        TextView tvName = findViewById(R.id.favorites_name);
+        tvName.setTextColor(ContextCompat.getColor(this,
+                (size > 0) ? R.color.colorBaseText : R.color.colorLightText));
+        TextView favoritesCountView = findViewById(R.id.favorites_count);
+        favoritesCountView.setText(String.format(Locale.getDefault(), "[%d]", size));
     }
 
     public void openRecord(String recordId) {
@@ -1724,7 +1736,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     @Override
-    public void reSearch() {
+    public void research() {
         showGlobalSearchActivity();
     }
 

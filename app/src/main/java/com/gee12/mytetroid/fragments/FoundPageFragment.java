@@ -56,7 +56,7 @@ public class FoundPageFragment extends TetroidFragment {
         lvFound.setAdapter(listAdapter);
         setMainView(getArguments());
 
-        rootView.findViewById(R.id.button_research).setOnClickListener(view -> mMainView.reSearch());
+        rootView.findViewById(R.id.button_research).setOnClickListener(view -> mMainView.research());
         rootView.findViewById(R.id.button_close).setOnClickListener(view -> mMainView.closeFoundFragment());
 
         return rootView;

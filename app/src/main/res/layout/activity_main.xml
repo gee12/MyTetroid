@@ -33,7 +33,6 @@
                 android:id="@+id/node_favorites"
                 layout="@layout/list_item_node"/>-->
 
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/node_favorites"
                 android:layout_width="match_parent"
