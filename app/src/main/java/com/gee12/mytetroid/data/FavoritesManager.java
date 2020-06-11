@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.Arrays;
@@ -25,23 +23,23 @@ public class FavoritesManager extends RecordsManager {
         mFavoritesIds = Arrays.asList(SettingsManager.getFavorites());
     }
 
-    public static void add(TetroidRecord record) {
+    public static boolean add(TetroidRecord record) {
         if (record == null)
-            return;
+            return false;
         mFavoritesIds.add(record.getId());
         SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
-        LogManager.log("" + TetroidLog.getIdNameString(record), LogManager.Types.INFO);
+        return true;
     }
 
-    public static void remove(TetroidRecord record) {
+    public static boolean remove(TetroidRecord record) {
         if (record == null)
-            return;
+            return false;
         if (mFavoritesIds.remove(record.getId())) {
             SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
-            LogManager.log("" + TetroidLog.getIdNameString(record), LogManager.Types.INFO);
         } else {
-            LogManager.log(String.format("Не удалось найти запись с id=%s в списке избранных записей", record.getId()), LogManager.Types.WARNING);
+            return false;
         }
+        return true;
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {

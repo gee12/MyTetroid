@@ -64,11 +64,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     protected String storagePath;
 
     /**
-     * Расшифровано ли в данный момент хранилище (временно).
-     */
-    protected boolean isDecrypted;
-
-    /**
      *
      */
     protected static DatabaseConfig databaseConfig;
@@ -77,6 +72,11 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      *
      */
     protected static DataManager instance;
+
+    /**
+     * Расшифровано ли в данный момент хранилище (временно).
+     */
+    protected boolean isDecrypted;
 
     /**
      * Загрузка параметров из файла database.ini и инициализация переменных.
@@ -744,6 +744,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
     public static boolean isDecrypted() {
         return instance.isDecrypted;
+    }
+
+    public static boolean isFavoritesMode() {
+        return instance.mIsFavoritesMode;
     }
 
     public static DatabaseConfig getDatabaseConfig() {

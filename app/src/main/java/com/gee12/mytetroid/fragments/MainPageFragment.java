@@ -25,6 +25,7 @@ import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
@@ -34,6 +35,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.FileAskDialogs;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -597,6 +599,28 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    public void addFavorite(TetroidRecord record) {
+        if (FavoritesManager.add(record)) {
+            String mes = "Добавлено в избранное";
+            Message.show(getContext(), mes, Toast.LENGTH_SHORT);
+            LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+        } else {
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.ADD,
+                    String.format(" с id=%s в избранное", record.getId()), true, Toast.LENGTH_LONG);
+        }
+    }
+
+    public void removeFavorite(TetroidRecord record) {
+        if (FavoritesManager.remove(record)) {
+            String mes = "Удалено из избранного";
+            Message.show(getContext(), mes, Toast.LENGTH_SHORT);
+            LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+        } else {
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE,
+                    String.format(" с id=%s из избранного", record.getId()), true, Toast.LENGTH_LONG);
+        }
+    }
+
     /**
      * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
      * введенная строка в настройках не проверялась, что могло привести к падению приложения
@@ -627,13 +651,6 @@ public class MainPageFragment extends TetroidFragment {
      * Обработчик клика на прикрепленном файле
      */
     private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
-
-//    public void onCreateOptionsMenu(@NonNull Menu menu) {
-//        this.mMenuItemCurNode = menu.findItem(R.id.action_cur_node);
-//        this.mMenuItemCurRecord = menu.findItem(R.id.action_cur_record);
-//        this.mMenuItemCurRecordFolder = menu.findItem(R.id.action_cur_record_folder);
-//        this.mMenuItemInsertRecord = menu.findItem(R.id.action_insert);
-//    }
 
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         boolean isRecordFilesView = (mCurMainViewId == MainPageFragment.MAIN_VIEW_RECORD_FILES);

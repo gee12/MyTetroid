@@ -14,11 +14,12 @@ public interface IMainView extends Parcelable {
     void updateMainToolbar(int viewId, String title);
     void openFoundObject(ITetroidObject found);
     void openMainPage();
-    void reSearch();
+    void research();
     void closeFoundFragment();
     void openRecord(TetroidRecord record);
     void updateTags();
     void updateNodes();
     void openFilePicker();
     void openFolderPicker();
+    void updateFavorites();
 }
