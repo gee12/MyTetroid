@@ -131,7 +131,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsRecordsFiltered;
     private boolean mIsAlreadyTryDecrypt;
     private boolean mIsStorageLoaded;
-
     private Intent mReceivedIntent;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
@@ -140,6 +139,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
     private boolean isNodeOpening = false;
+    private View mFavoritesNode;
+    private Button mLoadStorageButton;
 
 
     public MainActivity() {
@@ -240,10 +241,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         };
 
         // избранное
-        (findViewById(R.id.node_favorites)).setOnClickListener(v -> {
+        this.mFavoritesNode = findViewById(R.id.node_favorites);
+        mFavoritesNode.setOnClickListener(v -> {
             showFavorites();
         });
-        findViewById(R.id.button_load).setOnClickListener(v -> {
+        this.mLoadStorageButton = findViewById(R.id.button_load);
+        mLoadStorageButton.setOnClickListener(v -> {
             if (DataManager.isCrypted()) {
                 decryptStorage(FavoritesManager.FAVORITES_NODE);
             } else {
@@ -569,9 +572,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param res Результат загрузки хранилища.
      */
     private void initGUI(boolean res, boolean isFavorites) {
-        Button buttonLoad = findViewById(R.id.button_load);
-        buttonLoad.setVisibility((isFavorites) ? View.VISIBLE : View.GONE);
-        updateFavorites();
+        mLoadStorageButton.setVisibility((res && isFavorites) ? View.VISIBLE : View.GONE);
+        if (res) {
+            updateFavorites();
+        } else {
+
+        }
 
         if (!isFavorites) {
             // добавляем к результату загрузки проверку на пустоту списка веток

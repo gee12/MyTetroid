@@ -15,7 +15,7 @@ public class FavoritesManager extends RecordsManager {
     protected static List<String> mFavoritesIds;
 
     protected static boolean isFavorite(String id) {
-        if (id == null)
+        if (id == null || mFavoritesIds == null)
             return false;
         for (String favorId : mFavoritesIds) {
             if (id.equals(favorId))
@@ -37,7 +37,7 @@ public class FavoritesManager extends RecordsManager {
             return false;
         if (!instance.mFavoritesRecords.contains(record)) {
             instance.mFavoritesRecords.add(record);
-            mFavoritesIds.add(record.getId());
+//            mFavoritesIds.add(record.getId());
             saveFavorites();
         }
         record.setIsFavorite(true);
@@ -47,7 +47,7 @@ public class FavoritesManager extends RecordsManager {
     public static boolean remove(TetroidRecord record) {
         if (record == null)
             return false;
-        if (instance.mFavoritesRecords.remove(record) && mFavoritesIds.remove(record.getId())) {
+        if (instance.mFavoritesRecords.remove(record)) {
             saveFavorites();
             record.setIsFavorite(false);
         } else {
@@ -83,7 +83,12 @@ public class FavoritesManager extends RecordsManager {
     }
 
     protected static void saveFavorites() {
-        SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
+//        SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
+        String[] ids = new String[instance.mFavoritesRecords.size()];
+        for (int i = 0; i < instance.mFavoritesRecords.size(); i++) {
+            ids[i] = instance.mFavoritesRecords.get(i).getId();
+        }
+        SettingsManager.setFavorites(ids);
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {

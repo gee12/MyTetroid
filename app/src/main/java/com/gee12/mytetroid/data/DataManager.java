@@ -163,10 +163,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.log(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
             return false;
         }
-        if (isFavorite) {
-            // получаем id избранных записей из настроек
-            FavoritesManager.load();
-        }
+        // получаем id избранных записей из настроек
+        FavoritesManager.load();
         try {
             FileInputStream fis = new FileInputStream(file);
             res = instance.parse(fis, isDecrypt, isFavorite);
