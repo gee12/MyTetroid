@@ -19,6 +19,10 @@ public class FavoritesManager extends RecordsManager {
         return false;
     }
 
+    public static boolean isFavorite(TetroidRecord record) {
+        return instance.mFavoritesRecords.contains(record);
+    }
+
     public static void load() {
         mFavoritesIds = Arrays.asList(SettingsManager.getFavorites());
     }
@@ -26,21 +30,27 @@ public class FavoritesManager extends RecordsManager {
     public static boolean add(TetroidRecord record) {
         if (record == null)
             return false;
-        mFavoritesIds.add(record.getId());
-        SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
+        if (!instance.mFavoritesRecords.contains(record)) {
+            instance.mFavoritesRecords.add(record);
+            mFavoritesIds.add(record.getId());
+            SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
+        }
+        record.setIsFavorite(true);
         return true;
     }
 
     public static boolean remove(TetroidRecord record) {
         if (record == null)
             return false;
-        if (mFavoritesIds.remove(record.getId())) {
+        if (instance.mFavoritesRecords.remove(record) && mFavoritesIds.remove(record.getId())) {
             SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
+            record.setIsFavorite(false);
         } else {
             return false;
         }
         return true;
     }
+
 
     public static List<TetroidRecord> getFavoritesRecords() {
         return instance.mFavoritesRecords;

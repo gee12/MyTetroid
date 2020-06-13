@@ -481,5 +481,7 @@
     <string name="log_tag_is_null">Tag is empty (null)</string>
     <string name="title_load_nodes">Load nodes</string>
     <string name="title_favorites">Favorites</string>
+    <string name="title_remove_favor">Remove from favorites</string>
+    <string name="title_add_favor">Add to davorites</string>
 
 </resources>

@@ -51,8 +51,18 @@
         android:title="@string/title_move_down"
         android:icon="@drawable/ic_move_down" />
     <item
-        android:id="@+id/action_delete"
+        android:id="@+id/action_add_favorite"
         android:orderInCategory="110"
+        android:title="@string/title_add_favor"
+        android:icon="@drawable/ic_favorites" />
+    <item
+        android:id="@+id/action_remove_favorite"
+        android:orderInCategory="120"
+        android:title="@string/title_remove_favor"
+        android:icon="@drawable/ic_remove_favor" />
+    <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="130"
         android:title="@string/title_delete"
         android:icon="@drawable/ic_delete" />
 </menu>

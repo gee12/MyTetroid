@@ -47,7 +47,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/favorites_name"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_favorites"/>
+                    android:src="@drawable/ic_favorites_yellow"/>
 
                 <TextView
                     android:id="@+id/favorites_name"

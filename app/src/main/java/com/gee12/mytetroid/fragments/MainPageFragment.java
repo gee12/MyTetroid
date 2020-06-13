@@ -48,6 +48,7 @@ public class MainPageFragment extends TetroidFragment {
     public static final int MAIN_VIEW_NODE_RECORDS = 1;
     public static final int MAIN_VIEW_RECORD_FILES = 2;
     public static final int MAIN_VIEW_TAG_RECORDS = 3;
+    public static final int MAIN_VIEW_FAVORITES = 4;
 
     private ViewFlipper mViewFlipperfMain;
     private ListView mListViewRecords;
@@ -464,16 +465,16 @@ public class MainPageFragment extends TetroidFragment {
             RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
                 // вставляем без каталога записи
                 int res1 = RecordsManager.insertRecord(record, isCutted, mCurNode, true);
-                onInsertRecordResult(res1, isCutted);
+                onInsertRecordResult(record, res1, isCutted);
             });
         } else if (res == -2) {
             TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.INSERT);
         } else {
-            onInsertRecordResult(res, isCutted);
+            onInsertRecordResult(record, res, isCutted);
         }
     }
 
-    private void onInsertRecordResult(int res, boolean isCutted) {
+    private void onInsertRecordResult(TetroidRecord record, int res, boolean isCutted) {
         if (res > 0) {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
@@ -482,6 +483,9 @@ public class MainPageFragment extends TetroidFragment {
             if (isCutted) {
                 // очищаем "буфер обмена"
                 TetroidClipboard.clear();
+            }
+            if (record.isFavorite()) {
+
             }
         } else {
             TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
@@ -604,6 +608,7 @@ public class MainPageFragment extends TetroidFragment {
             String mes = "Добавлено в избранное";
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
             LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+            updateFavorites(record);
         } else {
             TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.ADD,
                     String.format(" с id=%s в избранное", record.getId()), true, Toast.LENGTH_LONG);
@@ -615,9 +620,24 @@ public class MainPageFragment extends TetroidFragment {
             String mes = "Удалено из избранного";
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
             LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+            mMainView.updateFavorites();
+            updateFavoritesList();
         } else {
             TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE,
                     String.format(" с id=%s из избранного", record.getId()), true, Toast.LENGTH_LONG);
+        }
+    }
+
+    private void updateFavorites(TetroidRecord record) {
+        if (record == null || !record.isFavorite())
+            return;
+        mMainView.updateFavorites();
+        updateFavoritesList();
+    }
+
+    public void updateFavoritesList() {
+        if (mCurMainViewId == MainPageFragment.MAIN_VIEW_FAVORITES) {
+            mListAdapterRecords.notifyDataSetInvalidated();
         }
     }
 
@@ -712,10 +732,15 @@ public class MainPageFragment extends TetroidFragment {
         activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
-        /* TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
+         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
        if (record != null) {
-            activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
-        }*/
+//           boolean isFavorite = FavoritesManager.isFavorite(record);
+           boolean isFavorite = record.isFavorite();
+           boolean mIsFavoritesOpened = mCurMainViewId == MAIN_VIEW_FAVORITES;
+           activateMenuItem(menu.findItem(R.id.action_add_favorite), !mIsFavoritesOpened && !isFavorite);
+            activateMenuItem(menu.findItem(R.id.action_remove_favorite), mIsFavoritesOpened || isFavorite);
+//            activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
+        }
     }
 
     /**
@@ -790,6 +815,12 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case R.id.action_move_down:
                 moveRecord(pos, false);
+                return true;
+            case R.id.action_add_favorite:
+                addFavorite(record);
+                return true;
+            case R.id.action_remove_favorite:
+                removeFavorite(record);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);

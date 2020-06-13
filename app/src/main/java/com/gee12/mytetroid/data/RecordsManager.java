@@ -252,6 +252,9 @@ public class RecordsManager extends DataManager {
             record.setDecryptedValues(name, tagsString, author, url);
             record.setDecrypted(true);
         }
+        if (isCutted) {
+            record.setIsFavorite(srcRecord.isFavorite());
+        }
         // добавляем прикрепленные файлы в запись
         cloneAttachesToRecord(srcRecord, record, isCutted);
         record.setIsNew(false);
@@ -626,6 +629,9 @@ public class RecordsManager extends DataManager {
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
             record.setDecrypted(true);
+        }
+        if (isCutted) {
+            record.setIsFavorite(srcRecord.isFavorite());
         }
         // прикрепленные файлы
         cloneAttachesToRecord(srcRecord, record, isCutted);

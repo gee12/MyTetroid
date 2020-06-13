@@ -193,14 +193,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        // список веток
+        // ветки
         mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
 //        mListViewNodes.setEmptyView(mTextViewNodesEmpty);
-        // список меток
+
+        NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
+        View vNodesHeader = nodesNavView.getHeaderView(0);
+        this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
+        initNodesView(mSearchViewNodes, vNodesHeader);
+
+
+        // метки
         this.mListViewTags = findViewById(R.id.tags_list_view);
         mListViewTags.setOnItemClickListener(onTagClicklistener);
         mListViewTags.setOnItemLongClickListener(onTagLongClicklistener);
@@ -210,17 +217,39 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mLayoutProgress = findViewById(R.id.layout_progress);
         this.mTextViewProgress = findViewById(R.id.progress_text);
 
-        NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
-        View vNodesHeader = nodesNavView.getHeaderView(0);
-        this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
-//        this.tvNodesHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
-        initNodesView(mSearchViewNodes, vNodesHeader);
-
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
-//        this.tvTagsHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
-        initTagsView(vTagsHeader);
+        final TextView tvHeader = vTagsHeader.findViewById(R.id.text_view_tags_header);
+        new SearchViewListener(mSearchViewTags) {
+            @Override
+            public void onClose() {
+                searchInTags(null, false);
+                tvHeader.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onSearch() {
+                tvHeader.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                searchInTags(query, true);
+            }
+        };
+
+        // избранное
+        (findViewById(R.id.node_favorites)).setOnClickListener(v -> {
+            showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES);
+        });
+        findViewById(R.id.button_load).setOnClickListener(v -> {
+            if (DataManager.isCrypted()) {
+                decryptStorage();
+            } else {
+                initStorage(null, false, false);
+            }
+        });
 
     }
 
@@ -536,19 +565,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initGUI(boolean res, boolean isFavorites) {
         Button buttonLoad = findViewById(R.id.button_load);
         buttonLoad.setVisibility((isFavorites) ? View.VISIBLE : View.GONE);
+        updateFavorites();
 
-        if (isFavorites) {
-            updateFavorites();
-
-            buttonLoad.setOnClickListener(v -> {
-                if (DataManager.isCrypted()) {
-                    decryptStorage();
-                } else {
-                    initStorage(null, false, false);
-                }
-            });
-
-        } else {
+        if (!isFavorites) {
             // добавляем к результату загрузки проверку на пустоту списка веток
             List<TetroidNode> rootNodes = DataManager.getRootNodes();
             res = (res && rootNodes != null);
@@ -735,6 +754,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 (size > 0) ? R.color.colorBaseText : R.color.colorLightText));
         TextView favoritesCountView = findViewById(R.id.favorites_count);
         favoritesCountView.setText(String.format(Locale.getDefault(), "[%d]", size));
+
     }
 
     public void openRecord(String recordId) {
@@ -917,31 +937,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         tvEmpty.setText(string);
     }
 
-    /**
-     *
-     * @param tagsHeader
-     */
-    private void initTagsView(View tagsHeader) {
-        final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
-        new SearchViewListener(mSearchViewTags) {
-            @Override
-            public void onClose() {
-                searchInTags(null, false);
-                tvHeader.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onSearch() {
-                tvHeader.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onQuerySubmit(String query) {
-                searchInTags(query, true);
-            }
-        };
-    }
-
     private void searchInTags(String query, boolean isSearch) {
         Map<String,TetroidTag> tags;
         if (isSearch) {
@@ -1054,6 +1049,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
 //                showRecordsSearch = true;
 //                break;
+            case MainPageFragment.MAIN_VIEW_FAVORITES:
+                title = getString(R.string.title_favorites);
+                showRecordsSearch = true;
+                break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
             default:
                 showRecordsSearch = false;
@@ -1076,7 +1075,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             tvSubtitle.setVisibility(View.VISIBLE);
             tvSubtitle.setText(titles[titleId]);
         }
-        else if (titleId < 0) {
+        else /*if (titleId < 0)*/ {
             tvSubtitle.setVisibility(View.GONE);
         }
     }
