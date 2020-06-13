@@ -61,6 +61,10 @@ public class TetroidObject implements ITetroidObject {
         return (cryptedValue) ? name : decryptedName;
     }
 
+    public String getCryptedName(String cryptedName) {
+        return (!isCrypted || isDecrypted) ? getName() : cryptedName;
+    }
+
     @Override
     public String getId() {
         return id;

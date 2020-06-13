@@ -300,11 +300,13 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetChanged();
             mMainView.updateTags();
             mMainView.updateNodes();
+            // обновляем избранное
+            updateFavorites(record);
             this.mCurRecord = null;
             mListViewFiles.setAdapter(null);
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
             // переходим в список записей ветки после удаления
-            // (запись может быть удалена при поппытке просмотра/изменения файла, например)
+            // (запись может быть удалена при попытке просмотра/изменения файла, например)
             if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
                 showView(MAIN_VIEW_NODE_RECORDS);
             }
@@ -321,7 +323,9 @@ public class MainPageFragment extends TetroidFragment {
      * @param isUp
      */
     private void moveRecord(int pos, boolean isUp) {
-        int res = DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
+        int res = (mCurMainViewId == MAIN_VIEW_FAVORITES)
+                ? FavoritesManager.swapRecords(pos, isUp)
+                : DataManager.swapTetroidObjects(mListAdapterRecords.getDataSet(), pos, isUp);
         if (res > 0) {
             mListAdapterRecords.notifyDataSetChanged();
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
@@ -483,9 +487,8 @@ public class MainPageFragment extends TetroidFragment {
             if (isCutted) {
                 // очищаем "буфер обмена"
                 TetroidClipboard.clear();
-            }
-            if (record.isFavorite()) {
-
+                // обновляем избранное
+                updateFavorites(record);
             }
         } else {
             TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);

@@ -110,13 +110,9 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         } else {
             viewHolder.iconView.setVisibility(View.GONE);
         }
-        // имя
+        // название
         String cryptedName = context.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
-//        String name = (node.isCrypted() && !node.isDecrypted())
-//                ? context.getString(R.string.crypted_node_name)
-//                : DataManager.decryptField(node, node.getName());
-//        viewHolder.nameView.setText(name);
         // количество записей в ветке
             viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {

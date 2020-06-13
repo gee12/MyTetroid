@@ -421,7 +421,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
-     * Поменять местами 2 объекта хранилища в списке.
+     * Замена местами 2 объекта хранилища в списке.
      * @param list
      * @param pos
      * @param isUp
