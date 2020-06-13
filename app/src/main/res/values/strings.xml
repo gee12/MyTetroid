@@ -368,7 +368,7 @@
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
     <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
-    <string name="log_open_node">Open node: id=</string>
+    <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
     <string name="log_open_file">Open file:&#160;</string>
@@ -479,6 +479,7 @@
     <string name="log_more_in_logs">&#160;(more in the logs)</string>
     <string name="log_storage_decrypted">Storage was decrypted</string>
     <string name="log_tag_is_null">Tag is empty (null)</string>
+    <string name="log_record_is_null">Record is empty (null)</string>
     <string name="title_load_nodes">Load nodes</string>
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>

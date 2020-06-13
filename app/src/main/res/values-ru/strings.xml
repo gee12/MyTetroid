@@ -315,7 +315,7 @@
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
     <string name="log_attach_file_is_missing">Файл отсутствует на диске:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
-    <string name="log_open_node">Открытие ветки: id=</string>
+    <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
     <string name="log_sync_failed">Не удалось выполнить синхронизацию</string>
     <string name="log_open_file">Открытие файла:&#160;</string>
@@ -424,6 +424,7 @@
     <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
     <string name="log_tag_is_null">Переданная метка пуста (null)</string>
+    <string name="log_record_is_null">Переданная запись пуста (null)</string>
     <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="title_load_nodes">Загрузить ветки</string>

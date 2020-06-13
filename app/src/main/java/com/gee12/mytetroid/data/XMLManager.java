@@ -298,15 +298,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }
         }
 
-        if (!mIsFavoritesMode) {
-            node.setSubNodes(subNodes);
-            node.setRecords(records);
+        node.setSubNodes(subNodes);
+        node.setRecords(records);
 
-            // расшифровка
-            if (crypt && mIsNeedDecrypt) {
-                decryptNode(node);
-            }
+        // расшифровка
+        if (crypt && mIsNeedDecrypt) {
+            decryptNode(node);
+        }
             //else if (!crypt) {
+        if (!mIsFavoritesMode) {
             if (node.isNonCryptedOrDecrypted()) {
                 // парсим метки, если запись не зашифрована
                 parseNodeTags(node);

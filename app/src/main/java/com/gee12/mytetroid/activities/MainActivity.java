@@ -241,11 +241,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // избранное
         (findViewById(R.id.node_favorites)).setOnClickListener(v -> {
-            showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES);
+            showFavorites();
         });
         findViewById(R.id.button_load).setOnClickListener(v -> {
             if (DataManager.isCrypted()) {
-                decryptStorage();
+                decryptStorage(FavoritesManager.FAVORITES_NODE);
             } else {
                 initStorage(null, false, false);
             }
@@ -437,9 +437,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-            if (DataManager.isCrypted() && !isFavorites) {
-                decryptStorage();
+            if (DataManager.isCrypted() /*&& !isFavorites*/) {
+                // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
+                decryptStorage(null);
             } else {
+                // загружаем
                 initStorage(null, false);
             }
         } else {
@@ -452,11 +454,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Получение пароля и расшифровка хранилища. Вызывается при:
-     * 1) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
-     * 2) запуске приложения, если выделение было сохранено на зашифрованной ветке
-     * 3) при выделении зашифрованной ветки
+     * 1) запуске приложения, если есть зашифрованные ветки и сохранен пароль
+     * 2) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
+     * 3) запуске приложения, если выделение было сохранено на зашифрованной ветке
+     * 4) выборе зашифрованной ветки
+     * 5) выборе зашифрованной записи в избранном
      */
-    private void decryptStorage() {
+    private void decryptStorage(TetroidNode node) {
         String middlePassHash;
         // пароль сохранен локально?
         if (SettingsManager.isSaveMiddlePassHashLocal()
@@ -465,12 +469,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             try {
                 if (PassManager.checkMiddlePassHash(middlePassHash)) {
                     DataManager.initCryptPass(middlePassHash, true);
-                    initStorage(null, true);
+                    initStorage(node, true);
                 } else {
                     LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!mIsAlreadyTryDecrypt) {
                         mIsAlreadyTryDecrypt = true;
-                        initStorage(null, false);
+                        initStorage(node, false);
                     }
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
@@ -481,22 +485,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         @Override
                         public void onApply() {
                             DataManager.initCryptPass(middlePassHash, true);
-                            initStorage(null, true);
+                            initStorage(node, true);
                         }
                         @Override
                         public void onCancel() {
                             // загружаем хранилище без пароля
-                            initStorage(null, false);
+                            initStorage(node, false);
                         }
                     }
                 );
             }
         } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
             // спрашиваем пароль, если нужно расшифровывать на старте
-            askPassword(null);
+            askPassword(node);
         } else {
             // просто загружаем без расшифровки, если не сохранен пароль и его не нужно спрашивать на старте
-            initStorage(null, false);
+            initStorage(node, false);
         }
     }
 
@@ -541,9 +545,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void initStorage(TetroidNode node, boolean isDecrypt, boolean isFavorites) {
-        if (isDecrypt && DataManager.isNodesExist() && !isFavorites) {
+        if (isDecrypt && DataManager.isNodesExist()) {
+            // расшифровываем уже загруженное хранилище
             new DecryptStorageTask(node).execute();
         } else {
+            // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
             new ReadStorageTask(isFavorites).execute(isDecrypt);
         }
@@ -665,7 +671,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
-        LogManager.log(getString(R.string.log_open_node) + node.getId());
+        LogManager.log(getString(R.string.log_open_node) + TetroidLog.getIdNameString(node));
         // сбрасываем фильтрацию при открытии ветки
         if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
@@ -680,6 +686,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mCurNode = node;
         mViewPagerAdapter.getMainFragment().setCurNode(node);
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
+    }
+
+    /**
+     * Отображение списка избранных записей.
+     */
+    private void showFavorites() {
+        // проверка нужно ли расшифровать ветку перед отображением
+        /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
+            // запрос пароля в асинхронном режиме
+            askPassword(FavoritesManager.FAVORITES_NODE);
+        } else*/ {
+            showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES);
+        }
     }
 
     /**
@@ -722,7 +741,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void openRecord(TetroidRecord record) {
-        openRecord(record.getId());
+        if (record == null) {
+            LogManager.log(R.string.log_record_is_null, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return;
+        }
+        // проверка нужно ли расшифровать избранную запись перед отображением
+        // (т.к. в "избранной" ветке записи могут быть нерасшифрованные)
+        if (record.isFavorite() && !record.isNonCryptedOrDecrypted()) {
+            // запрос пароля в асинхронном режиме
+            askPassword(FavoritesManager.FAVORITES_NODE);
+        } else {
+            openRecord(record.getId());
+        }
     }
 
     /**
@@ -2166,11 +2196,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-            mTextViewProgress.setText(R.string.task_storage_loading);
-            mLayoutProgress.setVisibility(View.VISIBLE);*/
             taskPreExecute(R.string.task_storage_loading);
         }
 
@@ -2182,22 +2207,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            /*getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            mDrawerLayout.openDrawer(Gravity.LEFT);
-            mLayoutProgress.setVisibility(View.INVISIBLE);*/
             taskPostExecute(true);
-//            if (isFavorites) {
-//
-//            } else {
-                if (res) {
-                    MainActivity.this.mIsStorageLoaded = true;
-                    LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
-                } else {
-                    LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
-                            LogManager.Types.WARNING, Toast.LENGTH_LONG);
-                }
-//            }
+            if (res) {
+                MainActivity.this.mIsStorageLoaded = true;
+                LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
+            } else {
+                LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
+                        LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            }
             // инициализация контролов
             initGUI(res, isFavorites);
             // действия после загрузки хранилища

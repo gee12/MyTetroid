@@ -66,10 +66,6 @@ public class TetroidNode extends TetroidObject {
         return (cryptedValue) ? iconName : decryptedIconName;
     }
 
-    public String getCryptedName(String cryptedName) {
-        return (!isCrypted || isDecrypted) ? getName() : cryptedName;
-    }
-
     public int getLevel() {
         return level;
     }

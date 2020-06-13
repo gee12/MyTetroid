@@ -34,6 +34,7 @@ public class RecordsListAdapter extends BaseAdapter {
      */
     private class RecordViewHolder {
         TextView lineNumView;
+        ImageView iconView;
         TextView nameView;
         TextView nodeNameView;
         TextView infoView;
@@ -57,7 +58,8 @@ public class RecordsListAdapter extends BaseAdapter {
 
     public void setDataItems(List<TetroidRecord> dataSet, int viewId, String dateTimeFormat) {
         this.dataSet = dataSet;
-        this.isShowNodeName = (viewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+        this.isShowNodeName = (viewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS
+                || viewId == MainPageFragment.MAIN_VIEW_FAVORITES);
         this.dateTimeFormat = dateTimeFormat;
         notifyDataSetChanged();
     }
@@ -84,6 +86,7 @@ public class RecordsListAdapter extends BaseAdapter {
             viewHolder = new RecordViewHolder();
             convertView = inflater.inflate(R.layout.list_item_record, null);
             viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
+            viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
             viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
             viewHolder.infoView = convertView.findViewById(R.id.record_view_info);
@@ -94,23 +97,30 @@ public class RecordsListAdapter extends BaseAdapter {
         }
 
         final TetroidRecord record = dataSet.get(position);
+        boolean nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted();
+        // иконка
+        viewHolder.iconView.setVisibility((!nonCryptedOrDecrypted) ? View.VISIBLE : View.GONE);
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
-        // название записи
-        viewHolder.nameView.setText(record.getName());
-        // название ветки
-        if (isShowNodeName) {
+        // название
+        String cryptedName = context.getString(R.string.title_crypted_node_name);
+        viewHolder.nameView.setText(record.getCryptedName(cryptedName));
+        // ветка
+        if (isShowNodeName && nonCryptedOrDecrypted) {
             viewHolder.nodeNameView.setVisibility(View.VISIBLE);
             viewHolder.nodeNameView.setText(record.getNode().getName());
         } else {
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }
-        // другая информация о записи
-        if (record.getCreated() != null)
+        // дата создания
+        if (record.getCreated() != null && nonCryptedOrDecrypted) {
             viewHolder.infoView.setText(record.getCreatedString(dateTimeFormat));
-        // есть ли прикрепленные файлы
+        } else {
+            viewHolder.infoView.setText(null);
+        }
+        // прикрепленные файлы
         RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();
-        if (record.getAttachedFilesCount() > 0) {
+        if (record.getAttachedFilesCount() > 0 && nonCryptedOrDecrypted) {
             // если установлено в настройках, меняем фон
             if (App.IsHighlightAttach) {
                 convertView.setBackgroundColor(App.HighlightAttachColor);
