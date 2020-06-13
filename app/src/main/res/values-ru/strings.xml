@@ -428,5 +428,7 @@
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="title_load_nodes">Загрузить ветки</string>
     <string name="title_favorites">Избранное</string>
+    <string name="title_remove_favor">Убрать из избранного</string>
+    <string name="title_add_favor">Добавить в избранное</string>
 
 </resources>

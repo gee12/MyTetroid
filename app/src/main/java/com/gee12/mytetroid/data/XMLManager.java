@@ -53,6 +53,10 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
     protected boolean mIsNeedDecrypt;
+
+    /**
+     * Режим, когда загружаются только избранные записи.
+     */
     protected boolean mIsFavoritesMode;
 
     /**
@@ -401,6 +405,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         Date created = null;
         String dirName = null;
         String fileName = null;
+        boolean isFavorite = false;
 
         parser.require(XmlPullParser.START_TAG, ns, "record");
         String tagName = parser.getName();
@@ -418,12 +423,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }*/
             id = parser.getAttributeValue(ns, "id");
 
-            if (mIsFavoritesMode) {
-                // проверяем id на избранность
-                if (!isRecordFavorite(id)) {
-                    // не загружаем, т.к. нужны только избранные записи
-                    return null;
-                }
+            // проверяем id на избранность
+            isFavorite = isRecordFavorite(id);
+            if (mIsFavoritesMode && !isFavorite) {
+                // выходим, т.к. загружаем только избранные записи
+                return null;
             }
 
             name = parser.getAttributeValue(ns, "name");
@@ -457,12 +461,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         if (files != null) {
             record.setAttachedFiles(files);
         }
-        parser.require(XmlPullParser.END_TAG, ns, "record");
-
-        if (mIsFavoritesMode) {
+        record.setIsFavorite(isFavorite);
+        if (isFavorite) {
             // добавляем избранную запись
             mFavoritesRecords.add(record);
-        } else {
+        }
+
+        parser.require(XmlPullParser.END_TAG, ns, "record");
+
+        if (!mIsFavoritesMode) {
             this.mRecordsCount++;
             if (crypt)
                 this.mCryptedRecordsCount++;

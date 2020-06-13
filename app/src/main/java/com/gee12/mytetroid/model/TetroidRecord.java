@@ -14,21 +14,22 @@ public class TetroidRecord extends TetroidObject {
     public static int FIELD_DIR_NAME = 2;
     public static final String DEF_FILE_NAME = "text.html";
 
-    private TetroidNode node;
-    private String tagsString;
-    private String author;
-    private String url;
-    private Date created;
-    protected boolean isNew;
+    private TetroidNode mNode;
+    private String mTagsString;
+    private String mAuthor;
+    private String mUrl;
+    private Date mCreated;
+    protected boolean mIsNew;
+    protected boolean mIsFavorite;
 
-    private String dirName;
-    private String fileName;
-    List<TetroidFile> files;
-    List<TetroidTag> tags;
+    private String mDirName;
+    private String mFileName;
+    private List<TetroidFile> mFiles;
+    private List<TetroidTag> mTags;
 
-    private String decryptedTagsString;
-    private String decryptedAuthor;
-    private String decryptedUrl;
+    private String mDecryptedTagsString;
+    private String mDecryptedAuthor;
+    private String mDecryptedUrl;
 
     public TetroidRecord(boolean isCrypted, String id, String name, String tagsString, String author, String url,
                          Date created, String dirName, String fileName, TetroidNode node) {
@@ -43,79 +44,79 @@ public class TetroidRecord extends TetroidObject {
     }
 
     private void init(String tagsString, String author, String url, Date created, String dirName, String fileName, TetroidNode node) {
-        this.tagsString = tagsString;
-        this.author = author;
-        this.url = url;
-        this.created = created;
-        this.dirName = dirName;
-        this.fileName = fileName;
-        this.files = new ArrayList<>();
-        this.tags = new ArrayList<>();
-        this.node = node;
-        this.isNew = false;
+        this.mTagsString = tagsString;
+        this.mAuthor = author;
+        this.mUrl = url;
+        this.mCreated = created;
+        this.mDirName = dirName;
+        this.mFileName = fileName;
+        this.mFiles = new ArrayList<>();
+        this.mTags = new ArrayList<>();
+        this.mNode = node;
+        this.mIsNew = false;
     }
 
     public void setDecryptedValues(String name, String tagsString, String author, String url) {
         this.decryptedName = name;
-        this.decryptedTagsString = tagsString;
-        this.decryptedAuthor = author;
-        this.decryptedUrl = url;
+        this.mDecryptedTagsString = tagsString;
+        this.mDecryptedAuthor = author;
+        this.mDecryptedUrl = url;
     }
 
     public TetroidNode getNode() {
-        return node;
+        return mNode;
     }
 
     public String getTagsString() {
-        return (isCrypted && isDecrypted) ? decryptedTagsString : tagsString;
+        return (isCrypted && isDecrypted) ? mDecryptedTagsString : mTagsString;
     }
 
     public String getTagsString(boolean cryptedValue) {
-        return (cryptedValue) ? tagsString : decryptedTagsString;
+        return (cryptedValue) ? mTagsString : mDecryptedTagsString;
     }
 
     public String getAuthor() {
-        return (isCrypted && isDecrypted) ? decryptedAuthor : author;
+        return (isCrypted && isDecrypted) ? mDecryptedAuthor : mAuthor;
     }
 
     public String getAuthor(boolean cryptedValue) {
-        return (cryptedValue) ? author : decryptedAuthor;
+        return (cryptedValue) ? mAuthor : mDecryptedAuthor;
     }
 
     public String getUrl() {
-        return (isCrypted && isDecrypted) ? decryptedUrl : url;
+        return (isCrypted && isDecrypted) ? mDecryptedUrl : mUrl;
     }
 
     public String getUrl(boolean cryptedValue) {
-        return (cryptedValue) ? url : decryptedUrl;
+        return (cryptedValue) ? mUrl : mDecryptedUrl;
     }
 
     public Date getCreated() {
-        return created;
+        return mCreated;
     }
 
     public String getCreatedString(String format) {
-        return (created != null) ? Utils.dateToString(created, format) : "";
+        return (mCreated != null) ? Utils.dateToString(mCreated, format) : "";
     }
 
     public String getDirName() {
-        return dirName;
+        return mDirName;
     }
 
     public String getFileName() {
-        return fileName;
+        return mFileName;
     }
 
     public List<TetroidFile> getAttachedFiles() {
-        return files;
+        return mFiles;
     }
 
     public int getAttachedFilesCount() {
-        return files.size();
+        return mFiles.size();
     }
 
     public List<TetroidTag> getTags() {
-        return tags;
+        return mTags;
     }
 
     /**
@@ -127,59 +128,67 @@ public class TetroidRecord extends TetroidObject {
     }
 
     public void setTagsString(String tagsString) {
-        this.tagsString = tagsString;
+        this.mTagsString = tagsString;
     }
 
     public void setDecryptedTagsString(String value) {
-        this.decryptedTagsString = value;
+        this.mDecryptedTagsString = value;
     }
 
     public void setAuthor(String author) {
-        this.author = author;
+        this.mAuthor = author;
     }
 
     public void setDecryptedAuthor(String value) {
-        this.decryptedAuthor = value;
+        this.mDecryptedAuthor = value;
     }
 
     public void setUrl(String url) {
-        this.url = url;
+        this.mUrl = url;
     }
 
     public void setDecryptedUrl(String value) {
-        this.decryptedUrl = value;
+        this.mDecryptedUrl = value;
     }
 
     public void setCreated(Date created) {
-        this.created = created;
+        this.mCreated = created;
     }
 
     public void setDirName(String dirName) {
-        this.dirName = dirName;
+        this.mDirName = dirName;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setFileName(String mFileName) {
+        this.mFileName = mFileName;
     }
 
     public void setNode(TetroidNode node) {
-        this.node = node;
+        this.mNode = node;
     }
 
     public void addTag(TetroidTag tag) {
-        tags.add(tag);
+        mTags.add(tag);
     }
 
     public void setAttachedFiles(List<TetroidFile> files) {
-        this.files = files;
+        this.mFiles = files;
     }
 
     public boolean isNew() {
-        return isNew;
+        return mIsNew;
     }
 
     public void setIsNew(boolean isNew) {
-        this.isNew = isNew;
+        this.mIsNew = isNew;
+    }
+
+    public void setIsFavorite(boolean isFavorite) {
+        this.mIsFavorite = isFavorite;
+    }
+
+    public boolean isFavorite() {
+        return mIsFavorite;
     }
 
     @Override
