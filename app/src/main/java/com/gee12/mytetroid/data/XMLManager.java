@@ -427,6 +427,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             isFavorite = isRecordFavorite(id);
             if (mIsFavoritesMode && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
+                parser.require(XmlPullParser.END_TAG, ns, "record");
                 return null;
             }
 

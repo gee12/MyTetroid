@@ -9,6 +9,8 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.FileUtils;
 
+import org.jsoup.internal.StringUtil;
+
 public class SettingsManager {
 
     public static final boolean DEF_SEARCH_IN_RECORD_TEXT = true;
@@ -323,7 +325,7 @@ public class SettingsManager {
 
     public static String[] getFavorites() {
         String value = getString(R.string.pref_key_favorites, "");
-        return value.split(";");
+        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
     }
 
     public static void setFavorites(String[] ids) {

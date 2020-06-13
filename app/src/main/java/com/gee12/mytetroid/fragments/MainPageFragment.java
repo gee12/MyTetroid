@@ -624,7 +624,7 @@ public class MainPageFragment extends TetroidFragment {
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
             LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
             mMainView.updateFavorites();
-            updateFavoritesList();
+            mListAdapterRecords.notifyDataSetInvalidated();
         } else {
             TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE,
                     String.format(" с id=%s из избранного", record.getId()), true, Toast.LENGTH_LONG);
@@ -635,13 +635,7 @@ public class MainPageFragment extends TetroidFragment {
         if (record == null || !record.isFavorite())
             return;
         mMainView.updateFavorites();
-        updateFavoritesList();
-    }
-
-    public void updateFavoritesList() {
-        if (mCurMainViewId == MainPageFragment.MAIN_VIEW_FAVORITES) {
-            mListAdapterRecords.notifyDataSetInvalidated();
-        }
+        mListAdapterRecords.notifyDataSetInvalidated();
     }
 
     /**
@@ -676,11 +670,13 @@ public class MainPageFragment extends TetroidFragment {
     private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
 
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
-        boolean isRecordFilesView = (mCurMainViewId == MainPageFragment.MAIN_VIEW_RECORD_FILES);
+        boolean isRecordFilesView = (mCurMainViewId == MAIN_VIEW_RECORD_FILES);
+        boolean mIsFavoritesView = (mCurMainViewId == MAIN_VIEW_FAVORITES);
         activateMenuItem(menu.findItem(R.id.action_cur_node), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView);
-        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
+        activateMenuItem(menu.findItem(R.id.action_insert),
+                !mIsFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
     }
 
     /**
@@ -732,17 +728,17 @@ public class MainPageFragment extends TetroidFragment {
     private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
         if (menuInfo == null)
             return;
-        activateMenuItem(menu.findItem(R.id.action_insert), TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
+        boolean mIsFavoritesView = (mCurMainViewId == MAIN_VIEW_FAVORITES);
+        activateMenuItem(menu.findItem(R.id.action_insert),
+                !mIsFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
-         TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
-       if (record != null) {
-//           boolean isFavorite = FavoritesManager.isFavorite(record);
-           boolean isFavorite = record.isFavorite();
-           boolean mIsFavoritesOpened = mCurMainViewId == MAIN_VIEW_FAVORITES;
-           activateMenuItem(menu.findItem(R.id.action_add_favorite), !mIsFavoritesOpened && !isFavorite);
-            activateMenuItem(menu.findItem(R.id.action_remove_favorite), mIsFavoritesOpened || isFavorite);
-//            activateMenuItem(menu.findItem(R.id.action_attached_files), record.getAttachedFilesCount() > 0);
+
+        TetroidRecord record = (TetroidRecord) mListAdapterRecords.getItem(menuInfo.position);
+        if (record != null) {
+            boolean isFavorite = record.isFavorite();
+            activateMenuItem(menu.findItem(R.id.action_add_favorite), !mIsFavoritesView && !isFavorite);
+            activateMenuItem(menu.findItem(R.id.action_remove_favorite), mIsFavoritesView || isFavorite);
         }
     }
 

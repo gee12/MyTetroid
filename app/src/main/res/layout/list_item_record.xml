@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/data_item_row_height"
-    android:layout_gravity="center_vertical"
-    android:paddingLeft="5dp"
+    android:paddingLeft="2dp"
     android:paddingBottom="2dp"
     android:paddingRight="5dp">
 
@@ -14,17 +13,20 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:src="@drawable/ic_crypted_node"
+        android:layerType="software"
         android:layout_gravity="center_vertical"
-        android:paddingTop="5dp"
-        android:paddingBottom ="2dp"
+        android:layout_marginTop="7dp"
         android:visibility="gone"/>
 
     <TextView
         android:id="@+id/record_view_name"
+        android:layout_toRightOf="@id/record_view_icon"
+        android:layout_toEndOf="@id/record_view_icon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:textColor="@color/colorBaseText"
+        android:paddingLeft="3dp"
         android:paddingTop="5dp"
         android:paddingBottom ="2dp"
         android:textSize="@dimen/font_default" />
@@ -37,6 +39,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical|start"
         android:textAlignment="textStart"
+        android:paddingLeft="3dp"
         android:layout_marginRight="5dp"
         android:layout_marginEnd="5dp"
         android:textColor="@color/colorLightText"
@@ -58,7 +61,7 @@
         android:textSize="@dimen/font_small_small" />
 
     <TextView
-        android:id="@+id/record_view_info"
+        android:id="@+id/record_view_created"
         android:layout_below="@id/record_view_name"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

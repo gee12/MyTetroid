@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.fragments.MainPageFragment;
@@ -89,7 +91,7 @@ public class RecordsListAdapter extends BaseAdapter {
             viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
             viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
-            viewHolder.infoView = convertView.findViewById(R.id.record_view_info);
+            viewHolder.infoView = convertView.findViewById(R.id.record_view_created);
             viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
@@ -99,12 +101,23 @@ public class RecordsListAdapter extends BaseAdapter {
         final TetroidRecord record = dataSet.get(position);
         boolean nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted();
         // иконка
-        viewHolder.iconView.setVisibility((!nonCryptedOrDecrypted) ? View.VISIBLE : View.GONE);
+//        viewHolder.iconView.setVisibility((!nonCryptedOrDecrypted) ? View.VISIBLE : View.GONE);
+        if (!nonCryptedOrDecrypted) {
+            viewHolder.iconView.setVisibility(View.VISIBLE);
+            viewHolder.iconView.setImageResource(R.drawable.ic_crypted_node);
+        } else if (record.isFavorite()) {
+            viewHolder.iconView.setVisibility(View.VISIBLE);
+            viewHolder.iconView.setImageResource(R.drawable.ic_favorites_yellow);
+        } else {
+            viewHolder.iconView.setVisibility(View.GONE);
+        }
         // номер строки
         viewHolder.lineNumView.setText(String.valueOf(position + 1));
         // название
         String cryptedName = context.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(record.getCryptedName(cryptedName));
+        viewHolder.nameView.setTextColor(ContextCompat.getColor(context,
+                (nonCryptedOrDecrypted) ? R.color.colorBaseText : R.color.colorLightText));
         // ветка
         if (isShowNodeName && nonCryptedOrDecrypted) {
             viewHolder.nodeNameView.setVisibility(View.VISIBLE);
