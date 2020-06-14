@@ -2,66 +2,77 @@ package com.gee12.mytetroid.data;
 
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.Utils;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class FavoritesManager extends RecordsManager {
 
-    public static final TetroidNode FAVORITES_NODE = new TetroidNode("", "", 0);
+    public static final TetroidNode FAVORITES_NODE = new TetroidNode("FAVORITES_NODE", "", 0);
 
-    protected static List<String> mFavoritesIds;
+    protected static FavoriteList mFavorites;
 
-    protected static boolean isFavorite(String id) {
-        if (id == null || mFavoritesIds == null)
-            return false;
-        for (String favorId : mFavoritesIds) {
-            if (id.equals(favorId))
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean isFavorite(TetroidRecord record) {
-        return instance.mFavoritesRecords.contains(record);
-    }
-
+    /**
+     * Первоначальная загрузка списка Id избранных записей из настроек.
+     */
     public static void load() {
-        mFavoritesIds = Arrays.asList(SettingsManager.getFavorites());
+        mFavorites = new FavoriteList(SettingsManager.getFavorites());
     }
 
+    /**
+     * Удаление из избранного не найденных записей.
+     */
+    public static void check() {
+       mFavorites.removeNull();
+    }
+
+    /**
+     * Проверка состоит ли запись в списке избранных при загрузке хранилища.
+     * @param id
+     * @return
+     */
+    protected static boolean isFavorite(String id) {
+        return (mFavorites.getPosition(id) >= 0);
+    }
+
+    /**
+     * Установка объекта записи из хранилища по id.
+     * @param record
+     * @return
+     */
+    public static boolean set(TetroidRecord record) {
+        boolean res = mFavorites.set(record);
+        if (res) {
+            record.setIsFavorite(true);
+        }
+        return res;
+    }
+
+    /**
+     * Добавление новой записи в избранное.
+     * @param record
+     * @return
+     */
     public static boolean add(TetroidRecord record) {
-        if (record == null)
-            return false;
-        if (!instance.mFavoritesRecords.contains(record)) {
-            instance.mFavoritesRecords.add(record);
-//            mFavoritesIds.add(record.getId());
+        boolean res = mFavorites.add(record);
+        if (res) {
+            record.setIsFavorite(true);
             saveFavorites();
         }
-        record.setIsFavorite(true);
-        return true;
+        return res;
     }
 
+    /**
+     * Удаление записи из избранного.
+     * @param record
+     * @return
+     */
     public static boolean remove(TetroidRecord record) {
-        if (record == null)
-            return false;
-        if (instance.mFavoritesRecords.remove(record)) {
-            saveFavorites();
+        boolean res = mFavorites.remove(record);
+        if (res) {
             record.setIsFavorite(false);
-        } else {
-            return false;
+            saveFavorites();
         }
-        return true;
-    }
-
-    public static boolean isCryptedAndNonDecrypted() {
-        for (TetroidRecord record : instance.mFavoritesRecords) {
-            if (!record.isNonCryptedOrDecrypted())
-                return true;
-        }
-        return false;
+        return res;
     }
 
     /**
@@ -73,26 +84,30 @@ public class FavoritesManager extends RecordsManager {
      *        -1 - ошибка
      */
     public static int swapRecords(int pos, boolean isUp) {
-        boolean isSwapped = Utils.swapListItems(instance.mFavoritesRecords, pos, isUp);
+        boolean isSwapped = mFavorites.swap(pos, isUp);
         if (isSwapped) {
-            Collections.swap(mFavoritesIds, pos - ((isUp) ? 1 : 0), pos + ((isUp) ? 0 : 1));
             saveFavorites();
             return 1;
         }
         return 0;
     }
 
+    /**
+     * Сохранение списка Id избранных записей в настройках.
+     */
     protected static void saveFavorites() {
-//        SettingsManager.setFavorites(mFavoritesIds.toArray(new String[1]));
-        String[] ids = new String[instance.mFavoritesRecords.size()];
-        for (int i = 0; i < instance.mFavoritesRecords.size(); i++) {
-            ids[i] = instance.mFavoritesRecords.get(i).getId();
+        String[] ids = new String[mFavorites.size()];
+        for (int i = 0; i < mFavorites.size(); i++) {
+            TetroidRecord record = mFavorites.get(i);
+            if (record != null) {
+                ids[i] = record.getId();
+            }
         }
         SettingsManager.setFavorites(ids);
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {
-        return instance.mFavoritesRecords;
+        return mFavorites;
     }
 
 }

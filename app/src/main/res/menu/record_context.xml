@@ -11,6 +11,11 @@
         android:title="@string/title_edit_record_fields"
         android:icon="@drawable/ic_edit" />
     <item
+        android:id="@+id/action_record_node"
+        android:orderInCategory="25"
+        android:title="@string/title_cur_node"
+        android:icon="@drawable/ic_show_node" />
+    <item
         android:id="@+id/action_copy"
         android:orderInCategory="30"
         android:title="@string/title_copy"

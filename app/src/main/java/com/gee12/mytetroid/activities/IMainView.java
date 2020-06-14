@@ -4,11 +4,13 @@ import android.os.Parcelable;
 
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 public interface IMainView extends Parcelable {
 
     void onMainPageCreated();
+    void openNode(TetroidNode node);
     void openRecordFolder(TetroidRecord record);
     void openAttach(TetroidFile file);
     void updateMainToolbar(int viewId, String title);

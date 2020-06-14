@@ -126,8 +126,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param id
      * @return
      */
+    @Override
     protected boolean isRecordFavorite(String id) {
         return FavoritesManager.isFavorite(id);
+    }
+
+    @Override
+    protected void addRecordFavorite(TetroidRecord record) {
+        FavoritesManager.set(record);
     }
 
     /**
@@ -172,6 +178,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //            if (BuildConfig.DEBUG) {
 //                TestData.addNodes(mInstance.mRootNodesList, 100, 100);
 //            }
+            // удаление не найденных записей из избранного
+            FavoritesManager.check();
 
         } catch (Exception ex) {
             LogManager.log(ex);
