@@ -83,19 +83,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     app:layout_constraintBottom_toBottomOf="@id/node_favorites"
-                    android:background="#E5E5E5"/>
+                    android:background="#EAEAEA"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <Button
-                android:id="@+id/button_load"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/node_favorites"
-                android:text="@string/title_load_nodes"
-                android:drawableLeft="@drawable/ic_storage"
-                android:drawableStart="@drawable/ic_storage"
-                android:visibility="gone"/>
 
             <pl.openrnd.multilevellistview.MultiLevelListView
                 android:id="@+id/list_view_nodes"
@@ -104,6 +94,17 @@
                 android:layout_below="@id/node_favorites"
                 app:alwaysExtended="false"
                 app:nestType="multiple" />
+
+            <Button
+                android:id="@+id/button_load"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/node_favorites"
+                android:layout_margin="8dp"
+                android:text="@string/title_load_nodes"
+                android:drawableLeft="@drawable/ic_reload"
+                android:drawableStart="@drawable/ic_reload"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/nodes_text_view_empty"

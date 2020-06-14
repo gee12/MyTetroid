@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.fragments.MainPageFragment;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.ArrayList;
@@ -119,9 +120,10 @@ public class RecordsListAdapter extends BaseAdapter {
         viewHolder.nameView.setTextColor(ContextCompat.getColor(context,
                 (nonCryptedOrDecrypted) ? R.color.colorBaseText : R.color.colorLightText));
         // ветка
-        if (isShowNodeName && nonCryptedOrDecrypted) {
+        TetroidNode node = record.getNode();
+        if (isShowNodeName && nonCryptedOrDecrypted && node != null) {
             viewHolder.nodeNameView.setVisibility(View.VISIBLE);
-            viewHolder.nodeNameView.setText(record.getNode().getName());
+            viewHolder.nodeNameView.setText(node.getName());
         } else {
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }

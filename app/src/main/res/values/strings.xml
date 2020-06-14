@@ -484,5 +484,6 @@
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to davorites</string>
+    <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
 
 </resources>

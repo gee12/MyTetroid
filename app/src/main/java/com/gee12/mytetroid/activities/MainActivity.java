@@ -71,6 +71,7 @@ import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.NodeAskDialogs;
 import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.SearchViewXListener;
@@ -242,9 +243,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
-        mFavoritesNode.setOnClickListener(v -> {
-            showFavorites();
-        });
+        mFavoritesNode.setOnClickListener(v -> showFavorites());
         this.mLoadStorageButton = findViewById(R.id.button_load);
         mLoadStorageButton.setOnClickListener(v -> {
             if (DataManager.isCrypted()) {
@@ -580,8 +579,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mLoadStorageButton.setVisibility((res && isFavorites) ? View.VISIBLE : View.GONE);
         if (res) {
             updateFavorites();
+            // списки записей, файлов
+            mViewPagerAdapter.getMainFragment().initListAdapters(this);
+            showFavorites();
         } else {
             mFavoritesNode.setVisibility(View.GONE);
+            setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
         }
 
         if (!isFavorites) {
@@ -1311,6 +1314,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void copyNode(TetroidNode node) {
+        if (NodesManager.hasNonDecryptedNodes(node)) {
+            Message.show(this, getString(R.string.log_enter_pass_first), Toast.LENGTH_LONG);
+            return;
+        }
         // добавляем в "буфер обмена"
         TetroidClipboard.copy(node);
         TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.COPY);
@@ -1321,6 +1328,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void cutNode(TetroidNode node, int pos) {
+        if (NodesManager.hasNonDecryptedNodes(node)) {
+            Message.show(this, getString(R.string.log_enter_pass_first), Toast.LENGTH_LONG);
+            return;
+        }
         // добавляем в "буфер обмена"
         TetroidClipboard.cut(node);
         // удаляем ветку из родительской ветки вместе с записями

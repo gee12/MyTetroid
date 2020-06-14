@@ -202,21 +202,32 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     public static boolean decryptStorage(boolean decryptFiles) {
 //        LogManager.log(R.string.log_start_storage_decrypt);
-        boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, instance, false, decryptFiles);
+        boolean res = CryptManager.decryptNodes(instance.mRootNodesList, true, true,
+                instance, false, decryptFiles);
         instance.isDecrypted = res;
         return res;
     }
 
     /**
-     * Обработчик события о необходимости (временной) расшифровки ветки (вместе с дочерними объектами)
+     * Обработчик события о необходимости (временной) расшифровки ветки (без дочерних объектов)
      * сразу после загрузки ветки из xml.
      * @param node
      */
     @Override
     protected boolean decryptNode(@NonNull TetroidNode node) {
-        // isDecryptSubNodes = false, т.к. подветки еще не загружены из xml
-        // и расшифровка каждой из них запустится сама при их загрузке по очереди в XMLManager
-        return CryptManager.decryptNode(node, false, this, false, false);
+        // decryptSubNodes = decryptRecords = false, т.к. расшифровка подветок и записей
+        // запустится сама после их загрузки по очереди в XMLManager
+        return CryptManager.decryptNode(node, false, false, this, false, false);
+    }
+
+    /**
+     * Обработчик события о необходимости (временной) расшифровки записи (вместе с прикрепленными файлами)
+     * сразу после загрузки записи из xml.
+     * @param record
+     */
+    @Override
+    protected boolean decryptRecord(@NonNull TetroidRecord record) {
+        return CryptManager.decryptRecordAndFiles(record, false, false);
     }
 
     /**
@@ -226,7 +237,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     public static boolean dropCryptNode(@NonNull TetroidNode node) {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        boolean res = CryptManager.decryptNode(node, true, instance, true, false);
+        boolean res = CryptManager.decryptNode(node, true, true, instance, true, false);
         if (res) {
             return saveStorage();
         }

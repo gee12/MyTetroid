@@ -307,7 +307,7 @@ public class MainPageFragment extends TetroidFragment {
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
             // переходим в список записей ветки после удаления
             // (запись может быть удалена при попытке просмотра/изменения файла, например)
-            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS) {
+            if (mCurMainViewId != MAIN_VIEW_NODE_RECORDS && mCurMainViewId != MAIN_VIEW_FAVORITES) {
                 showView(MAIN_VIEW_NODE_RECORDS);
             }
         } else if (res == -2 && !isCutted) {
@@ -429,7 +429,7 @@ public class MainPageFragment extends TetroidFragment {
     private void copyRecord(TetroidRecord record) {
         // добавляем в "буфер обмена"
         TetroidClipboard.copy(record);
-        TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.COPY, record);
+        TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.COPY);
     }
 
     /**
@@ -619,7 +619,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     public void removeFavorite(TetroidRecord record) {
-        if (FavoritesManager.remove(record)) {
+        if (FavoritesManager.remove(record, true)) {
             String mes = "Удалено из избранного";
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
             LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
