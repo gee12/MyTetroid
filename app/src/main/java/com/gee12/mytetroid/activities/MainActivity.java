@@ -563,7 +563,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         updateTags();
 
         if (node != null) {
-            showNode(node);
+            if (node == FavoritesManager.FAVORITES_NODE) {
+                showFavorites();
+            } else {
+                showNode(node);
+            }
         }
     }
 
@@ -572,11 +576,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param res Результат загрузки хранилища.
      */
     private void initGUI(boolean res, boolean isFavorites) {
+        // избранные записи
         mLoadStorageButton.setVisibility((res && isFavorites) ? View.VISIBLE : View.GONE);
         if (res) {
             updateFavorites();
         } else {
-
+            mFavoritesNode.setVisibility(View.GONE);
         }
 
         if (!isFavorites) {
@@ -595,11 +600,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
                     String nodeId = SettingsManager.getSelectedNodeId();
                     if (nodeId != null) {
-                        nodeToSelect = NodesManager.getNode(nodeId);
-                        if (nodeToSelect != null) {
-                            Stack<TetroidNode> expandNodes = NodesManager.createNodesHierarchy(nodeToSelect);
-                            mListAdapterNodes.setDataItems(rootNodes, expandNodes);
-                            nodesAdapterInited = true;
+                        if (nodeId.equals(FavoritesManager.FAVORITES_NODE.getId())) {
+                            nodeToSelect = FavoritesManager.FAVORITES_NODE;
+                        } else {
+                            nodeToSelect = NodesManager.getNode(nodeId);
+                            if (nodeToSelect != null) {
+                                Stack<TetroidNode> expandNodes = NodesManager.createNodesHierarchy(nodeToSelect);
+                                mListAdapterNodes.setDataItems(rootNodes, expandNodes);
+                                nodesAdapterInited = true;
+                            }
                         }
                     }
                 }
@@ -611,7 +620,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     // списки записей, файлов
                     mViewPagerAdapter.getMainFragment().initListAdapters(this);
                     if (nodeToSelect != null) {
-                        showNode(nodeToSelect);
+                        if (nodeToSelect == FavoritesManager.FAVORITES_NODE) {
+                            showFavorites();
+                        } else {
+                            showNode(nodeToSelect);
+                        }
                     }
 
                     // список меток
@@ -649,6 +662,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_storage_folder));
         intent.putExtra(FolderPicker.EXTRA_LOCATION, SettingsManager.getStoragePath());
         startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
+    }
+
+    @Override
+    public void openNode(TetroidNode node) {
+        showNode(node);
     }
 
     /**
@@ -2086,7 +2104,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_cur_node:
+            case R.id.action_record_node:
                 showNode(mCurNode);
                 return true;
             case R.id.action_fullscreen:
@@ -2144,7 +2162,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
         if (SettingsManager.isKeepSelectedNode()) {
-            String nodeId = (mCurNode != null) ? mCurNode.getId() : null;
+            TetroidNode curNode =
+                    (mViewPagerAdapter.getMainFragment().getCurMainViewId() == MainPageFragment.MAIN_VIEW_FAVORITES)
+                    ? FavoritesManager.FAVORITES_NODE : mCurNode;
+            String nodeId = (curNode != null) ? curNode.getId() : null;
             SettingsManager.setSelectedNodeId(nodeId);
         }
     }

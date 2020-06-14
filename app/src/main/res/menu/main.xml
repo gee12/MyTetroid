@@ -22,7 +22,7 @@
 <!--        android:icon="@android:drawable/ic_menu_edit"-->
 <!--        app:showAsAction="always" />-->
     <item
-        android:id="@+id/action_cur_node"
+        android:id="@+id/action_record_node"
         android:orderInCategory="70"
         android:title="@string/title_cur_node"
         android:visible="false"

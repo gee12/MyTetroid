@@ -1153,7 +1153,7 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_record_edit_fields:
                 editFields();
                 return true;
-            case R.id.action_cur_node:
+            case R.id.action_record_node:
                 showCurNode();
                 return true;
             case R.id.action_attached_files:

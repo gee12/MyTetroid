@@ -36,7 +36,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/node_favorites"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/data_item_row_height">
+                android:layout_height="42dp"
+                android:paddingTop="5dp">
 
                 <ImageView
                     android:id="@+id/favorites_icon"
@@ -78,8 +79,13 @@
                     android:text="[0]"
                     android:textSize="@dimen/font_small" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    app:layout_constraintBottom_toBottomOf="@id/node_favorites"
+                    android:background="#E5E5E5"/>
 
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <Button
                 android:id="@+id/button_load"
@@ -96,7 +102,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_below="@id/node_favorites"
-                android:paddingTop="5dp"
                 app:alwaysExtended="false"
                 app:nestType="multiple" />
 

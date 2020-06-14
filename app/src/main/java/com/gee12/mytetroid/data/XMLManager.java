@@ -67,7 +67,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     /**
      * Список избранных записей.
      */
-    protected List<TetroidRecord> mFavoritesRecords;
+//    protected List<TetroidRecord> mFavoritesRecords;
 
     /**
      * Список меток.
@@ -105,10 +105,17 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected abstract boolean isRecordFavorite(String id);
 
     /**
+     * Добавление записи в избранное.
+     * @param record
+     * @return
+     */
+    protected abstract void addRecordFavorite(TetroidRecord record);
+
+    /**
      * Первоначальная инициализация переменных.
      */
     public void init() {
-        this.mFavoritesRecords = new ArrayList<>();
+//        this.mFavoritesRecords = new ArrayList<>();
         this.mRootNodesList = new ArrayList<>();
         ROOT_NODE.setSubNodes(mRootNodesList);
         this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
@@ -462,10 +469,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         if (files != null) {
             record.setAttachedFiles(files);
         }
-        record.setIsFavorite(isFavorite);
+//        record.setIsFavorite(isFavorite);
         if (isFavorite) {
             // добавляем избранную запись
-            mFavoritesRecords.add(record);
+//            mFavoritesRecords.add(record);
+            addRecordFavorite(record);
         }
 
         parser.require(XmlPullParser.END_TAG, ns, "record");

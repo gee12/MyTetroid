@@ -41,7 +41,7 @@
         android:icon="@drawable/ic_edit_fields"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_cur_node"
+        android:id="@+id/action_record_node"
         android:orderInCategory="50"
         android:title="@string/title_cur_node"
         android:icon="@drawable/ic_show_node"
