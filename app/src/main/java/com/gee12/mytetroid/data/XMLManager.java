@@ -90,12 +90,20 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected int mMaxDepthLevel;
 
     /**
-     * Обработчик события о необходимости расшифровки ветки (вместе с дочерними объектами)
+     * Обработчик события о необходимости расшифровки ветки (без дочерних объектов)
      * сразу после загрузки ветки из xml.
      * @param node
      * @return
      */
     protected abstract boolean decryptNode(TetroidNode node);
+
+    /**
+     * Обработчик события о необходимости расшифровки записи (вместе с прикрепленными файлами)
+     * сразу после загрузки записи из xml.
+     * @param record
+     * @return
+     */
+    protected abstract boolean decryptRecord(TetroidRecord record);
 
     /**
      * Проверка является ли запись избранной.
@@ -305,19 +313,19 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }
         }
 
-        node.setSubNodes(subNodes);
-        node.setRecords(records);
-
-        // расшифровка
-        if (crypt && mIsNeedDecrypt) {
-            decryptNode(node);
-        }
-            //else if (!crypt) {
         if (!mIsFavoritesMode) {
+            node.setSubNodes(subNodes);
+            node.setRecords(records);
+
+            // расшифровка
+            if (crypt && mIsNeedDecrypt) {
+                decryptNode(node);
+            }
+            /*//else if (!crypt) {
             if (node.isNonCryptedOrDecrypted()) {
                 // парсим метки, если запись не зашифрована
                 parseNodeTags(node);
-            }
+            }*/
 
             // загрузка иконки из файла (после расшифровки имени иконки)
             loadIcon(node);
@@ -374,11 +382,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * Разбираем метки у незашифрованных записей ветки.
      * @param node
      */
-    protected void parseNodeTags(TetroidNode node) {
+/*    protected void parseNodeTags(TetroidNode node) {
         for (TetroidRecord record : node.getRecords()) {
             parseRecordTags(record, record.getTagsString());
         }
-    }
+    }*/
 
     /**
      * Разбираем строку с метками записи и добавляем метки в запись и в коллекцию.
@@ -434,6 +442,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             isFavorite = isRecordFavorite(id);
             if (mIsFavoritesMode && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
+                skip(parser); // пропускаем <files>, если есть
                 parser.require(XmlPullParser.END_TAG, ns, "record");
                 return null;
             }
@@ -442,7 +451,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             tags = parser.getAttributeValue(ns, "tags");
             author = parser.getAttributeValue(ns, "author");
             url = parser.getAttributeValue(ns, "url");
-            // строка вида "yyyyMMddHHmmss" (например, "20180901211132")
+            // строка формата "yyyyMMddHHmmss" (например, "20180901211132")
             created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), DATE_TIME_FORMAT);
             dirName = parser.getAttributeValue(ns, "dir");
             fileName = parser.getAttributeValue(ns, "file");
@@ -474,6 +483,15 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             // добавляем избранную запись
 //            mFavoritesRecords.add(record);
             addRecordFavorite(record);
+        }
+
+        // расшифровка
+        if (crypt && mIsNeedDecrypt) {
+            decryptRecord(record);
+        }
+        if (record.isNonCryptedOrDecrypted()) {
+            // парсим метки, если запись не зашифрована
+            parseRecordTags(record, tags);
         }
 
         parser.require(XmlPullParser.END_TAG, ns, "record");

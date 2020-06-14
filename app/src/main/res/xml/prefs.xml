@@ -154,7 +154,7 @@
             android:key="@string/pref_key_is_load_favorites"
             android:title="@string/pref_load_only_favorites"
             android:summary="@string/pref_load_only_favorites_summ"
-            android:enabled="false"
+            android:enabled="true"
             android:defaultValue="false" />
 
         <CheckBoxPreference

@@ -64,12 +64,15 @@ public class FavoritesManager extends RecordsManager {
     /**
      * Удаление записи из избранного.
      * @param record
+     * @param resetFlag Нужно ли сбрасывать флаг isFavorite у записи
      * @return
      */
-    public static boolean remove(TetroidRecord record) {
+    public static boolean remove(TetroidRecord record, boolean resetFlag) {
         boolean res = mFavorites.remove(record);
         if (res) {
-            record.setIsFavorite(false);
+            if (resetFlag) {
+                record.setIsFavorite(false);
+            }
             saveFavorites();
         }
         return res;

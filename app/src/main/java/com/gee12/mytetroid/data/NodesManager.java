@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class NodesManager extends DataManager {
+
     /**
      * Создание ветки.
      * @param name
@@ -103,6 +104,25 @@ public class NodesManager extends DataManager {
      */
     public static boolean cutNode(TetroidNode node) {
         return deleteNode(node, SettingsManager.getTrashPath(), true);
+    }
+
+    /**
+     * Проверка есть ли у ветки нерасшифрованные подветки.
+     * @param node
+     * @return
+     */
+    public static boolean hasNonDecryptedNodes(TetroidNode node) {
+        if (node == null)
+            return false;
+        if (!node.isNonCryptedOrDecrypted())
+            return true;
+        if (node.getSubNodesCount() > 0) {
+            for (TetroidNode subnode : node.getSubNodes()) {
+                if (hasNonDecryptedNodes(subnode))
+                    return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -205,10 +225,6 @@ public class NodesManager extends DataManager {
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            /*// TODO: необходим обход всего дерева веток для пересчета следующих счетчиков:
-            instance.mMaxSubnodesCount = -1;
-            instance.mMaxDepthLevel = -1;
-            instance.mUniqueTagsCount = -1;*/
             // удаление всех объектов ветки рекурсивно
             deleteNodeRecursively(node, movePath, false);
         } else {
@@ -225,28 +241,14 @@ public class NodesManager extends DataManager {
     private static boolean deleteNodeRecursively(TetroidNode node, String movePath, boolean breakOnFSErrors) {
         if (node == null)
             return false;
-       /* mNodesCount--;
-        if (node.isCrypted()) {
-            mCryptedNodesCount--;
-        }
-        if (!TextUtils.isEmpty(node.getIconName())) {
-            mIconsCount--;
-        }*/
         int recordsCount = node.getRecordsCount();
         if (recordsCount > 0) {
-           /* instance.mRecordsCount -= recordsCount;
-            if (node.isCrypted()) {
-                instance.mCryptedRecordsCount -= recordsCount;
-            }*/
             for (TetroidRecord record : node.getRecords()) {
-                /*if (!StringUtil.isBlank(record.getAuthor())) {
-                    mAuthorsCount--;
+                // удаляем из избранного
+                if (record.isFavorite()) {
+                    FavoritesManager.remove(record, false);
                 }
-                if (record.getAttachedFilesCount() > 0) {
-                    mFilesCount -= record.getAttachedFilesCount();
-                }*/
                 instance.deleteRecordTags(record);
-//                deleteRecordFolder(record);
                 // проверяем существование каталога
                 String dirPath = RecordsManager.getPathToRecordFolder(record);
                 if (RecordsManager.checkRecordFolder(dirPath, false) <= 0) {

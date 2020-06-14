@@ -431,5 +431,6 @@
     <string name="title_favorites">Избранное</string>
     <string name="title_remove_favor">Убрать из избранного</string>
     <string name="title_add_favor">Добавить в избранное</string>
+    <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
 
 </resources>

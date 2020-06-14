@@ -62,7 +62,6 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
         if (!mIds.contains(id)) {
             if (super.add(record)) {
                 mIds.add(id);
-                record.setIsFavorite(true);
                 return true;
             }
         }
@@ -77,7 +76,6 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
         String id = record.getId();
         if (mIds.remove(id)) {
             if (super.remove(o)) {
-                record.setIsFavorite(false);
                 return true;
             }
         }

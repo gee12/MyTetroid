@@ -214,7 +214,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/content/ic_remove_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/av/ic_replay_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -225,7 +225,7 @@
                         <option name="values">
                           <map>
                             <entry key="color" value="707070" />
-                            <entry key="outputName" value="ic_remove_favor" />
+                            <entry key="outputName" value="ic_reload" />
                             <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
                           </map>
                         </option>
