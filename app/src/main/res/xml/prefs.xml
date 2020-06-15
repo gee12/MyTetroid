@@ -158,6 +158,8 @@
             android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:dependency="@string/pref_key_is_load_favorites"
+            android:disableDependentsState="true"
             android:key="@string/pref_key_is_keep_selected_node"
             android:title="@string/pref_is_keep_selected_node"
             android:summary="@string/pref_is_keep_selected_node_summ"
