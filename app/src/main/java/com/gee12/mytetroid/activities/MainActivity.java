@@ -247,9 +247,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mLoadStorageButton = findViewById(R.id.button_load);
         mLoadStorageButton.setOnClickListener(v -> {
             if (DataManager.isCrypted()) {
-                decryptStorage(FavoritesManager.FAVORITES_NODE);
+                decryptStorage(FavoritesManager.FAVORITES_NODE, false, false);
             } else {
-                initStorage(null, false, false);
+                initStorage(null, false, false, false);
             }
         });
 
@@ -346,12 +346,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
             }
-            initGUI(DataManager.createDefault(), false);
+            initGUI(DataManager.createDefault(), false, false);
 //            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false, false);
+            initGUI(false, false, false);
 //            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
@@ -441,16 +441,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             if (DataManager.isCrypted() /*&& !isFavorites*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
-                decryptStorage(null);
+                //decryptStorage(null);
+                decryptStorage(null, SettingsManager.isLoadFavorites(), true);
             } else {
                 // загружаем
-                initStorage(null, false);
+                initStorage(null, false, isFavorites, true);
             }
         } else {
             LogManager.log(getString(R.string.log_failed_storage_init) + storagePath,
                     LogManager.Types.ERROR, Toast.LENGTH_LONG);
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false, isFavorites);
+            initGUI(false, isFavorites, false);
         }
     }
 
@@ -462,7 +463,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * 4) выборе зашифрованной ветки
      * 5) выборе зашифрованной записи в избранном
      */
-    private void decryptStorage(TetroidNode node) {
+    private void decryptStorage(TetroidNode node, boolean isOnlyFavorites, boolean isOpenNode) {
         String middlePassHash;
         // пароль сохранен локально?
         if (SettingsManager.isSaveMiddlePassHashLocal()
@@ -471,12 +472,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             try {
                 if (PassManager.checkMiddlePassHash(middlePassHash)) {
                     DataManager.initCryptPass(middlePassHash, true);
-                    initStorage(node, true);
+                    initStorage(node, true, isOnlyFavorites, isOpenNode);
                 } else {
                     LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!mIsAlreadyTryDecrypt) {
                         mIsAlreadyTryDecrypt = true;
-                        initStorage(node, false);
+                        initStorage(node, false, isOnlyFavorites, isOpenNode);
                     }
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
@@ -487,30 +488,34 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         @Override
                         public void onApply() {
                             DataManager.initCryptPass(middlePassHash, true);
-                            initStorage(node, true);
+                            initStorage(node, true, isOnlyFavorites, isOpenNode);
                         }
                         @Override
                         public void onCancel() {
                             // загружаем хранилище без пароля
-                            initStorage(node, false);
+                            initStorage(node, false, isOnlyFavorites, isOpenNode);
                         }
                     }
                 );
             }
         } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))) {
             // спрашиваем пароль, если нужно расшифровывать на старте
-            askPassword(node);
+            askPassword(node, isOnlyFavorites, isOpenNode);
         } else {
             // просто загружаем без расшифровки, если не сохранен пароль и его не нужно спрашивать на старте
-            initStorage(node, false);
+            initStorage(node, false, isOnlyFavorites, isOpenNode);
         }
     }
+
+    /*private void decryptStorage(TetroidNode node) {
+        decryptStorage(node, SettingsManager.isLoadFavorites());
+    }*/
 
     /**
      * Отображения запроса пароля от хранилища.
      * @param node
      */
-    private void askPassword(final TetroidNode node) {
+    private void askPassword(final TetroidNode node, boolean isOnlyFavorites, boolean isOpenNode) {
         LogManager.log(R.string.log_show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
         AskDialogs.showPassEnterDialog(this, node, false, new AskDialogs.IPassInputResult() {
@@ -519,7 +524,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // подтверждение введенного пароля
                 PassManager.checkPass(MainActivity.this, pass, () -> {
                     PassManager.initPass(pass);
-                    initStorage(node, true);
+                    initStorage(node, true, isOnlyFavorites, isOpenNode);
                 }, R.string.log_pass_is_incorrect);
             }
 
@@ -531,7 +536,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // (только в первый раз, затем перезагружать не нужно)
                 if (!mIsAlreadyTryDecrypt && !mIsStorageLoaded) {
                     mIsAlreadyTryDecrypt = true;
-                    initStorage(node, false);
+                    initStorage(node, false, isOnlyFavorites, isOpenNode);
                 }
             }
         });
@@ -542,18 +547,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      * @param isDecrypt
      */
-    private void initStorage(TetroidNode node, boolean isDecrypt) {
+   /* private void initStorage(TetroidNode node, boolean isDecrypt) {
         initStorage(node, isDecrypt,  SettingsManager.isLoadFavorites());
-    }
+    }*/
 
-    private void initStorage(TetroidNode node, boolean isDecrypt, boolean isFavorites) {
+    private void initStorage(TetroidNode node, boolean isDecrypt, boolean isFavorites, boolean isOpenNode) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             new DecryptStorageTask(node).execute();
         } else {
             // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            new ReadStorageTask(isFavorites).execute(isDecrypt);
+            new ReadStorageTask(isFavorites, isOpenNode).execute(isDecrypt);
         }
     }
 
@@ -574,20 +579,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Первоначальная инициализация списков веток, записей, файлов, меток
      * @param res Результат загрузки хранилища.
      */
-    private void initGUI(boolean res, boolean isFavorites) {
+    private void initGUI(boolean res, boolean isOnlyFavorites, boolean openLastNode) {
         // избранные записи
-        mLoadStorageButton.setVisibility((res && isFavorites) ? View.VISIBLE : View.GONE);
+        mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
         if (res) {
             updateFavorites();
-            // списки записей, файлов
-            mViewPagerAdapter.getMainFragment().initListAdapters(this);
-            showFavorites();
-        } else {
-            mFavoritesNode.setVisibility(View.GONE);
-            setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
         }
 
-        if (!isFavorites) {
+        if (isOnlyFavorites) {
+            // обработка только "ветки" избранных записей
+            if (res) {
+                // списки записей, файлов
+                mViewPagerAdapter.getMainFragment().initListAdapters(this);
+                showFavorites();
+            } else {
+                mFavoritesNode.setVisibility(View.GONE);
+                setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
+            }
+        } else {
             // добавляем к результату загрузки проверку на пустоту списка веток
             List<TetroidNode> rootNodes = DataManager.getRootNodes();
             res = (res && rootNodes != null);
@@ -600,7 +609,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // выбираем ветку, выбранную в прошлый раз
                 boolean nodesAdapterInited = false;
                 TetroidNode nodeToSelect = null;
-                if (SettingsManager.isKeepSelectedNode() && !isEmpty) {
+                if (SettingsManager.isKeepSelectedNode() && !isEmpty && openLastNode) {
                     String nodeId = SettingsManager.getSelectedNodeId();
                     if (nodeId != null) {
                         if (nodeId.equals(FavoritesManager.FAVORITES_NODE.getId())) {
@@ -614,6 +623,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             }
                         }
                     }
+                } else {
+                    // очищаем заголовок, список
+                    mViewPagerAdapter.getMainFragment().clearView();
                 }
                 if (!nodesAdapterInited) {
                     mListAdapterNodes.setDataItems(rootNodes);
@@ -694,7 +706,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         // проверка нужно ли расшифровать ветку перед отображением
         if (!node.isNonCryptedOrDecrypted()) {
-            askPassword(node);
+            askPassword(node, false, true);
             // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
@@ -776,7 +788,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // (т.к. в "избранной" ветке записи могут быть нерасшифрованные)
         if (record.isFavorite() && !record.isNonCryptedOrDecrypted()) {
             // запрос пароля в асинхронном режиме
-            askPassword(FavoritesManager.FAVORITES_NODE);
+            askPassword(FavoritesManager.FAVORITES_NODE, SettingsManager.isLoadFavorites(), true);
         } else {
             openRecord(record.getId());
         }
@@ -1913,7 +1925,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         checkStoragePass(node, () -> {
                             // расшифровуем хранилище, если ветка зашифрована
                             if (DataManager.isCrypted()) {
-                                initStorage(null, true);
+                                initStorage(null, true, false, false);
                             }
                             if (DataManager.isDecrypted()) {
                                 createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
@@ -2226,10 +2238,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
 
-        boolean isFavorites;
+        boolean mOnlyFavorites;
+        boolean mOpenLastNode;
 
-        ReadStorageTask (boolean isFavorites) {
-            this.isFavorites = isFavorites;
+        ReadStorageTask (boolean isFavorites, boolean openLastNode) {
+            this.mOnlyFavorites = isFavorites;
+            this.mOpenLastNode = openLastNode;
         }
 
         @Override
@@ -2240,7 +2254,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected Boolean doInBackground(Boolean... values) {
             boolean isDecrypt = values[0];
-            return DataManager.readStorage(isDecrypt, isFavorites);
+            return DataManager.readStorage(isDecrypt, mOnlyFavorites);
         }
 
         @Override
@@ -2254,7 +2268,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
-            initGUI(res, isFavorites);
+            initGUI(res, mOnlyFavorites, mOpenLastNode);
             // действия после загрузки хранилища
             if (res) {
                 afterStorageInited();
@@ -2267,16 +2281,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class DecryptStorageTask extends AsyncTask<Void,Void,Boolean> {
 
-        boolean isDrawerOpened;
-        TetroidNode node;
+        boolean mIsDrawerOpened;
+        TetroidNode mNode;
 
         DecryptStorageTask(TetroidNode node) {
-            this.node = node;
+            this.mNode = node;
         }
 
         @Override
         protected void onPreExecute() {
-            this.isDrawerOpened = taskPreExecute(R.string.task_storage_decrypting);
+            this.mIsDrawerOpened = taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
 
@@ -2287,14 +2301,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            taskPostExecute(isDrawerOpened);
+            taskPostExecute(mIsDrawerOpened);
             if (res) {
 //                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, "", Toast.LENGTH_SHORT);
                 LogManager.log(R.string.log_storage_decrypted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }
-            afterStorageDecrypted(node);
+            afterStorageDecrypted(mNode);
         }
     }
 
@@ -2303,25 +2317,25 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class CryptNodeTask extends AsyncTask<Void,String,Integer> {
 
-        boolean isDrawerOpened;
-        TetroidNode node;
-        boolean isEncrypt;
-        boolean wasCrypted;
-        TetroidLog.Opers oper;
+        boolean mIsDrawerOpened;
+        TetroidNode mNode;
+        boolean mIsEncrypt;
+        boolean mWasCrypted;
+        TetroidLog.Opers mOper;
 
         CryptNodeTask(TetroidNode node, boolean isEncrypt) {
-            this.node = node;
-            this.isEncrypt = isEncrypt;
-            this.wasCrypted = node.isCrypted();
-            this.oper = (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT;
+            this.mNode = node;
+            this.mIsEncrypt = isEncrypt;
+            this.mWasCrypted = node.isCrypted();
+            this.mOper = (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT;
         }
 
         @Override
         protected void onPreExecute() {
-            this.isDrawerOpened = taskPreExecute(
-                    (isEncrypt) ? R.string.task_node_encrypting : R.string.task_node_drop_crypting);
+            this.mIsDrawerOpened = taskPreExecute(
+                    (mIsEncrypt) ? R.string.task_node_encrypting : R.string.task_node_drop_crypting);
             TetroidLog.logOperStart(TetroidLog.Objs.NODE,
-                    (isEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT, node);
+                    (mIsEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT, mNode);
         }
 
         @Override
@@ -2338,8 +2352,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // только если хранилище расшифровано
             if (DataManager.isDecrypted()) {
-                setStage(TetroidLog.Objs.NODE, oper, TaskStage.Stages.START);
-                return (((isEncrypt) ? DataManager.encryptNode(node) : DataManager.dropCryptNode(node))) ? 1 : -1;
+                setStage(TetroidLog.Objs.NODE, mOper, TaskStage.Stages.START);
+                return (((mIsEncrypt) ? DataManager.encryptNode(mNode) : DataManager.dropCryptNode(mNode))) ? 1 : -1;
             }
             return 0;
         }
@@ -2358,17 +2372,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Integer res) {
-            taskPostExecute(isDrawerOpened);
+            taskPostExecute(mIsDrawerOpened);
             if (res > 0) {
-                TetroidLog.logOperRes(TetroidLog.Objs.NODE, oper);
-                if (!isEncrypt && wasCrypted) {
+                TetroidLog.logOperRes(TetroidLog.Objs.NODE, mOper);
+                if (!mIsEncrypt && mWasCrypted) {
                     // проверяем существование зашифрованных веток
                     checkExistenceCryptedNodes();
                 }
             } else {
-                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, oper);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.NODE, mOper);
             }
-            afterStorageDecrypted(node);
+            afterStorageDecrypted(mNode);
         }
     }
 
@@ -2377,10 +2391,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class AttachFileTask extends AsyncTask<String,Void,TetroidFile> {
 
-        TetroidRecord record;
+        TetroidRecord mRecord;
 
         AttachFileTask(TetroidRecord record) {
-            this.record = record;
+            this.mRecord = record;
         }
 
         @Override
@@ -2391,7 +2405,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected TetroidFile doInBackground(String... values) {
             String fileFullName = values[0];
-            return AttachesManager.attachFile(fileFullName, record);
+            return AttachesManager.attachFile(fileFullName, mRecord);
         }
 
         @Override
@@ -2406,10 +2420,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class SaveFileTask extends AsyncTask<String,Void,Boolean> {
 
-        TetroidFile file;
+        TetroidFile mFile;
 
         SaveFileTask(TetroidFile file) {
-            this.file = file;
+            this.mFile = file;
         }
 
         @Override
@@ -2420,7 +2434,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected Boolean doInBackground(String... values) {
             String path = values[0];
-            return AttachesManager.saveFile(file, path);
+            return AttachesManager.saveFile(mFile, path);
         }
 
         @Override
@@ -2435,21 +2449,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class GlobalSearchTask extends AsyncTask<Void, Void,HashMap<ITetroidObject,FoundType>> {
 
-        private ScanManager scan;
+        private ScanManager mScan;
 
         GlobalSearchTask(ScanManager scan) {
-            this.scan = scan;
+            this.mScan = scan;
         }
 
         @Override
         protected void onPreExecute() {
             taskPreExecute(R.string.global_searching);
-            LogManager.log(String.format(getString(R.string.global_search_start), scan.getQuery()));
+            LogManager.log(String.format(getString(R.string.global_search_start), mScan.getQuery()));
         }
 
         @Override
         protected HashMap<ITetroidObject, FoundType> doInBackground(Void... values) {
-            return scan.globalSearch(mCurNode);
+            return mScan.globalSearch(mCurNode);
         }
 
         @Override
@@ -2458,16 +2472,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (found == null) {
                 LogManager.log(getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
                 return;
-            } else if (scan.isSearchInNode() && scan.getNode() != null) {
+            } else if (mScan.isSearchInNode() && mScan.getNode() != null) {
                 LogManager.log(String.format(getString(R.string.global_search_by_node_result),
-                        scan.getNode().getName()), Toast.LENGTH_LONG);
+                        mScan.getNode().getName()), Toast.LENGTH_LONG);
             }
             // уведомляем, если не смогли поискать в зашифрованных ветках
-            if (scan.isExistCryptedNodes()) {
+            if (mScan.isExistCryptedNodes()) {
                 LogManager.log(R.string.log_found_crypted_nodes, Toast.LENGTH_SHORT);
             }
             LogManager.log(String.format(getString(R.string.global_search_end), found.size()));
-            mViewPagerAdapter.getFoundFragment().setFounds(found, scan);
+            mViewPagerAdapter.getFoundFragment().setFounds(found, mScan);
             mViewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
             setFoundPageVisibility(true);
             mViewPager.setCurrent(MainViewPager.PAGE_FOUND);
