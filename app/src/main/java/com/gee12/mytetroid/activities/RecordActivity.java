@@ -1040,6 +1040,19 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
+        activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly);
+        activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly);
+        activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
+        menuItem.setVisible(isActivate);
+    }
+
     /**
      * Обработчик создания системного меню.
      * @param menu

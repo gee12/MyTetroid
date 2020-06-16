@@ -568,6 +568,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     protected static boolean saveStorage() {
+        if (instance.mRootNodesList == null) {
+//            LogManager.log("Попытка сохранения mytetra.xml в режиме загрузки только избранных записей", LogManager.Types.WARNING);
+            LogManager.log(R.string.log_attempt_save_empty_nodes, LogManager.Types.ERROR);
+            return false;
+        }
+
         String destPath = instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 

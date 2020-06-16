@@ -340,6 +340,7 @@
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded">Storage was loaded:\n</string>
+    <string name="log_storage_favor_loaded">Storage favorites was loaded:\n</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_created">Storage is created:\n</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
@@ -485,5 +486,7 @@
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to davorites</string>
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
+    <string name="title_load_nodes_before">First load all storage nodes</string>
+    <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
 
 </resources>
