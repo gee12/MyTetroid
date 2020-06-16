@@ -2143,7 +2143,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 startStorageSync(DataManager.getStoragePath());
                 return true;
             case R.id.action_storage_info:
-                ViewUtils.startActivity(this, InfoActivity.class, null);
+                showStorageInfoActivity();
                 return true;
             case R.id.action_about_app:
                 ViewUtils.startActivity(this, AboutActivity.class, null);
@@ -2193,6 +2193,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    private void showStorageInfoActivity() {
+        if (App.IsLoadedFavoritesOnly) {
+            Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_LONG);
+        } else {
+            ViewUtils.startActivity(this, InfoActivity.class, null);
+        }
+    }
+
     private void showGlobalSearchActivity() {
         Intent intent = new Intent(this, SearchActivity.class);
         intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
@@ -2238,11 +2246,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
 
-        boolean mOnlyFavorites;
+        boolean mFavoritesOnly;
         boolean mOpenLastNode;
 
         ReadStorageTask (boolean isFavorites, boolean openLastNode) {
-            this.mOnlyFavorites = isFavorites;
+            this.mFavoritesOnly = isFavorites;
             this.mOpenLastNode = openLastNode;
         }
 
@@ -2254,7 +2262,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         protected Boolean doInBackground(Boolean... values) {
             boolean isDecrypt = values[0];
-            return DataManager.readStorage(isDecrypt, mOnlyFavorites);
+            return DataManager.readStorage(isDecrypt, mFavoritesOnly);
         }
 
         @Override
@@ -2262,13 +2270,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
             taskPostExecute(true);
             if (res) {
                 MainActivity.this.mIsStorageLoaded = true;
-                LogManager.log(getString(R.string.log_storage_loaded) + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
+                // устанавливаем глобальную переменную
+                App.IsLoadedFavoritesOnly = mFavoritesOnly;
+                String mes = getString((mFavoritesOnly) ? R.string.log_storage_favor_loaded : R.string.log_storage_loaded);
+                LogManager.log(mes + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
-            initGUI(res, mOnlyFavorites, mOpenLastNode);
+            initGUI(res, mFavoritesOnly, mOpenLastNode);
             // действия после загрузки хранилища
             if (res) {
                 afterStorageInited();
@@ -2277,7 +2288,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Задание, в котором выполняется расшифровка хранилища.
+     * Задание, в котором выполняется расшифровка уже загруженного хранилища.
      */
     private class DecryptStorageTask extends AsyncTask<Void,Void,Boolean> {
 

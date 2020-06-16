@@ -342,7 +342,7 @@ public class NodesManager extends DataManager {
     }
 
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
-        if (id == null)
+        if (nodes == null || id == null)
             return null;
         for (TetroidNode node : nodes) {
             if (id.equals(node.getId()))

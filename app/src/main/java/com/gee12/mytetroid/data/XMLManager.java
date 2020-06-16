@@ -566,6 +566,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @return
      */
     public boolean save(FileOutputStream fos) throws IOException {
+        if (mRootNodesList == null)
+            return false;
+
         XmlSerializer serializer = Xml.newSerializer();
         try {
             serializer.setOutput(fos, "UTF-8");
@@ -712,6 +715,9 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * Пересчет статистических счетчиков хранилища.
      */
     public void calcCounters() {
+        if (mRootNodesList == null)
+            return;
+
         this.mNodesCount = 0;
         this.mCryptedNodesCount = 0;
         this.mRecordsCount = 0;

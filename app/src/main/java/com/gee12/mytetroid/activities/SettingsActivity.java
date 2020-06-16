@@ -236,22 +236,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        /*if (key.equals(getString(R.string.pref_key_storage_path))) {
-            // вызывается, когда задаем
-            // удаляем хэш пароля, если поменяли хранилище
-//            String newStoragePath = SettingsManager.getStoragePath();
-//            if (TextUtils.isEmpty(newStoragePath) || !newStoragePath.equals(SettingsManager.LastStoragePath)) {
-//                SettingsManager.setMiddlePassHash(null);
-//            }
-        } else*/ if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-//            final Preference prefWhenAskPass = findPreference(getString(R.string.pref_key_when_ask_password));
-//            if (SettingsManager.isSaveMiddlePassHashLocal()) {
-//                /*// сохраняем хеш пароля локально в настройках
-//                SettingsManager.setMiddlePassHash(CryptManager.getMiddlePassHash());*/
-//                prefWhenAskPass.setEnabled(false);
-//            }
-//            else  {
-//            }
+        if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             findPreference(getString(R.string.pref_key_when_ask_password)).
                     setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
 //        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {

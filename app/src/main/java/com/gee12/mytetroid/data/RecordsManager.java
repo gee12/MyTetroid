@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
@@ -867,22 +868,33 @@ public class RecordsManager extends DataManager {
     }
 
     public static TetroidRecord getRecord(String id) {
-        return getRecordInHierarchy(instance.mRootNodesList, id, new TetroidRecordComparator(TetroidRecord.FIELD_ID));
+        TetroidRecordComparator comparator = new TetroidRecordComparator(TetroidRecord.FIELD_ID);
+        return (App.IsLoadedFavoritesOnly)
+                ? findRecord(FavoritesManager.getFavoritesRecords(), id, comparator)
+                : findRecordInHierarchy(instance.mRootNodesList, id, comparator);
     }
 
-    public static TetroidRecord getRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {
-        if (comparator == null)
+    public static TetroidRecord findRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {
+        if (nodes == null || comparator == null)
             return null;
+        TetroidRecord found;
         for (TetroidNode node : nodes) {
-            for (TetroidRecord record : node.getRecords()) {
-                if (comparator.compare(fieldValue, record))
-                    return record;
-            }
+            if ((found = findRecord(node.getRecords(), fieldValue, comparator)) != null)
+                return found;
             if (node.isExpandable()) {
-                TetroidRecord found = getRecordInHierarchy(node.getSubNodes(), fieldValue, comparator);
-                if (found != null)
+                if ((found = findRecordInHierarchy(node.getSubNodes(), fieldValue, comparator)) != null)
                     return found;
             }
+        }
+        return null;
+    }
+
+    public static TetroidRecord findRecord(List<TetroidRecord> records, String fieldValue, TetroidRecordComparator comparator) {
+        if (records == null)
+            return null;
+        for (TetroidRecord record : records) {
+            if (comparator.compare(fieldValue, record))
+                return record;
         }
         return null;
     }

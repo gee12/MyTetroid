@@ -17,6 +17,7 @@ public class App {
     @ColorInt public static int HighlightAttachColor;
     public static String DateFormatString;
     public static boolean IsFullScreen;
+    public static boolean IsLoadedFavoritesOnly;
 
     /**
      * Проверка - полная ли версия

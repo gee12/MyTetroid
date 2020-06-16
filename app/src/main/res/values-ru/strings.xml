@@ -287,6 +287,7 @@
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded">Хранилище загружено:\n</string>
+    <string name="log_storage_favor_loaded">Избранные записи хранилища загружены:\n</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_created">Хранилище создано:\n</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
@@ -432,5 +433,7 @@
     <string name="title_remove_favor">Убрать из избранного</string>
     <string name="title_add_favor">Добавить в избранное</string>
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
+    <string name="title_load_nodes_before">Сначала загрузите все ветки хранилища</string>
+    <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
 
 </resources>
