@@ -39,12 +39,14 @@ android {
 //            applicationIdSuffix = '.free'
 //            resValue "string", "app_name", "MyTetroid Free"
 //            buildConfigField "String", "BUILD_VARIANT", "\"free\""
+            buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
         pro {
             dimension = 'default'
             applicationIdSuffix = '.pro'
 //            signingConfig signingConfigs.debug
 //            buildConfigField "String", "BUILD_VARIANT", "\"pro\""
+            buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
     }
     compileOptions {
