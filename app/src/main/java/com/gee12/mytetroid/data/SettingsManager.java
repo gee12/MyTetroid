@@ -6,13 +6,17 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import org.jsoup.internal.StringUtil;
 
+import java.util.Map;
+
 public class SettingsManager {
 
+    public static final String PREFS_NAME = "debug_preferences";
     public static final boolean DEF_SEARCH_IN_RECORD_TEXT = true;
     public static final boolean DEF_SEARCH_IN_RECORDS_NAMES = true;
     public static final boolean DEF_SEARCH_IN_AUTHOR = true;
@@ -29,12 +33,12 @@ public class SettingsManager {
 
     /**
      * Инициализация настроек.
-     * @param ctx
+     * @param context
      */
-    public static void init(Context ctx) {
-        SettingsManager.context = ctx;
-        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(ctx);
-        PreferenceManager.setDefaultValues(ctx, R.xml.prefs, false);
+    public static void init(Context context) {
+        SettingsManager.context = context;
+        SettingsManager.settings = getPrefs(context);
+        PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
 //        if (getStoragePath() == null) {
 //            setStoragePath(Utils.getExternalPublicDocsDir());
@@ -49,6 +53,57 @@ public class SettingsManager {
         App.IsHighlightCryptedNodes = isHighlightEncryptedNodes();
         App.HighlightAttachColor = getHighlightColor();
         App.DateFormatString = getDateFormatString();
+    }
+
+    /**
+     *
+     * @param context
+     * @return
+     */
+    private static SharedPreferences getPrefs(Context context) {
+//        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefsName = ((BuildConfig.DEBUG) ? "debug_" : "") + PREFS_NAME;
+        if (App.isFullVersion()) {
+            SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + prefsName, Context.MODE_PRIVATE);
+            if (prefs.getAll().size() == 0) {
+                // настроек нет, версия pro запущена в первый раз
+                SharedPreferences freePrefs = context.getSharedPreferences(
+                        BuildConfig.DEF_APPLICATION_ID + prefsName, Context.MODE_WORLD_READABLE);
+                if (freePrefs.getAll().size() > 0) {
+                    // сохраняем все настройки из free в pro
+                    copyPrefs(freePrefs, prefs);
+                }
+            }
+            return prefs;
+        } else {
+            // открываем доступ к чтению настроек для версии Pro
+            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + prefsName, Context.MODE_WORLD_READABLE);
+        }
+    }
+
+    /**
+     * Копирование настроек.
+     * @param srcPrefs
+     * @param destPrefs
+     */
+    private static void copyPrefs(SharedPreferences srcPrefs, SharedPreferences destPrefs) {
+        Map<String,?> srcMap = srcPrefs.getAll();
+        SharedPreferences.Editor destEditor = destPrefs.edit();
+
+        for (Map.Entry<String,?> entry : srcMap.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Boolean)
+                destEditor.putBoolean(entry.getKey(), (Boolean) value);
+            else if (value instanceof String)
+                destEditor.putString(entry.getKey(), (String) value);
+            else if (value instanceof Integer)
+                destEditor.putInt(entry.getKey(), (Integer) value);
+            else if (value instanceof Float)
+                destEditor.putFloat(entry.getKey(), (Float) value);
+            else if (value instanceof Long)
+                destEditor.putLong(entry.getKey(), (Long) value);
+        }
+        destEditor.apply();
     }
 
     /**
