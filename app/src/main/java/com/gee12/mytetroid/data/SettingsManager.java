@@ -49,6 +49,11 @@ public class SettingsManager {
         if (getLogPath() == null) {
             setLogPath(FileUtils.getAppExternalFilesDir(context));
         }
+        if (App.isFreeVersion()) {
+            // принудительно отключаем
+            setIsLoadFavorites(false);
+        }
+
         App.IsHighlightAttach = isHighlightRecordWithAttach();
         App.IsHighlightCryptedNodes = isHighlightEncryptedNodes();
         App.HighlightAttachColor = getHighlightColor();
@@ -62,7 +67,6 @@ public class SettingsManager {
      */
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
-//        String prefsName = ((BuildConfig.DEBUG) ? "debug_" : "") + PREFS_NAME;
         if (App.isFullVersion()) {
             SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
             if (prefs.getAll().size() == 0) {
@@ -348,7 +352,7 @@ public class SettingsManager {
     }
 
     /**
-     * Сохранять ли экран активным при просмотре записи.
+     * Сохранять ли экран активным при просмотре записи ?
      * По-умолчанию - нет.
      * @return
      */
@@ -370,12 +374,16 @@ public class SettingsManager {
      */
 
     /**
-     * Загружать при старте только избранные записи.
+     * Загружать при старте только избранные записи ?
      * По-умолчанию - нет.
      * @return
      */
     public static boolean isLoadFavorites() {
         return getBoolean(R.string.pref_key_is_load_favorites, false);
+    }
+
+    public static void setIsLoadFavorites(boolean value) {
+        setBoolean(R.string.pref_key_is_load_favorites, value);
     }
 
     public static String[] getFavorites() {
@@ -389,7 +397,7 @@ public class SettingsManager {
     }
 
     /**
-     * Устанавливать текущей выбранную при предыдущем запуске ветку.
+     * Устанавливать текущей выбранную при предыдущем запуске ветку ?
      * По-умолчанию - да.
      * @return
      */

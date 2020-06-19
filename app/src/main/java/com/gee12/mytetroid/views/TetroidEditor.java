@@ -80,7 +80,7 @@ public class TetroidEditor extends WysiwygEditor {
     protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
         super.initActionButton(button, type, isCheckable, isPopup);
         //
-        if (!App.isFullVersion() && !type.isFree()) {
+        if (App.isFreeVersion() && !type.isFree()) {
             button.setEnabled(false);
         }
     }

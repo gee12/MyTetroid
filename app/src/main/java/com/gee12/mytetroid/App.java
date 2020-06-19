@@ -20,11 +20,19 @@ public class App {
     public static boolean IsLoadedFavoritesOnly;
 
     /**
-     * Проверка - полная ли версия
+     * Проверка - полная ли версия.
      * @return
      */
     public static boolean isFullVersion() {
         return (BuildConfig.FLAVOR.equals("pro"));
+    }
+
+    /**
+     * Проверка - обычная ли версия.
+     * @return
+     */
+    public static boolean isFreeVersion() {
+        return (BuildConfig.FLAVOR.equals("free"));
     }
 
     /**

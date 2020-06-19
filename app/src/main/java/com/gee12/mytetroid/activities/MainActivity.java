@@ -243,15 +243,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
-        mFavoritesNode.setOnClickListener(v -> showFavorites());
         this.mLoadStorageButton = findViewById(R.id.button_load);
-        mLoadStorageButton.setOnClickListener(v -> {
-            if (DataManager.isCrypted()) {
-                decryptStorage(FavoritesManager.FAVORITES_NODE, false, false);
-            } else {
-                initStorage(null, false, false, false);
-            }
-        });
+        if (App.isFullVersion()) {
+            mFavoritesNode.setOnClickListener(v -> showFavorites());
+            mLoadStorageButton.setOnClickListener(v -> {
+                if (DataManager.isCrypted()) {
+                    decryptStorage(FavoritesManager.FAVORITES_NODE, false, false);
+                } else {
+                    initStorage(null, false, false, false);
+                }
+            });
+        } else {
+            mFavoritesNode.setVisibility(View.GONE);
+            mLoadStorageButton.setVisibility(View.GONE);
+        }
 
     }
 
