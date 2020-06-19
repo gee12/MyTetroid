@@ -2,7 +2,7 @@
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:label="@string/app_name"
     android:hint="@string/search_text_hint"
-    android:searchSuggestAuthority="${applicationId}.TetroidSuggestionProvider"
+    android:searchSuggestAuthority="@string/search_suggest_authorities"
     android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
     android:searchSuggestSelection=" ?" >
 </searchable>
