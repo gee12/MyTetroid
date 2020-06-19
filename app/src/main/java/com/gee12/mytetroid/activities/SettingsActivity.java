@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -166,6 +167,14 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     }
                     return true;
                 });
+
+        if (App.isFreeVersion()) {
+            // принудительно отключаем
+//            findPreference(getString(R.string.pref_key_is_load_favorites)).setEnabled(false);
+            PreferenceCategory category = (PreferenceCategory) findPreference(getString(R.string.pref_key_category_other));
+            category.removePreference(findPreference(getString(R.string.pref_key_is_load_favorites)));
+            findPreference(getString(R.string.pref_key_is_keep_selected_node)).setDependency(null);
+        }
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());

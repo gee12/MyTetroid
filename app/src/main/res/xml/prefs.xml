@@ -148,7 +148,7 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:key="pref_key_category_other" android:title="@string/pref_category_other">
+    <PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_load_favorites"

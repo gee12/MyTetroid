@@ -488,5 +488,6 @@
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
     <string name="title_load_nodes_before">First load all storage nodes</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
+    <string name="pref_key_category_other">pref_key_category_other</string>
 
 </resources>
