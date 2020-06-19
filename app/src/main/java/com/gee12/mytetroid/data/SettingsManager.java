@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class SettingsManager {
 
-    public static final String PREFS_NAME = "debug_preferences";
+    public static final String PREFS_NAME = "_preferences";
     public static final boolean DEF_SEARCH_IN_RECORD_TEXT = true;
     public static final boolean DEF_SEARCH_IN_RECORDS_NAMES = true;
     public static final boolean DEF_SEARCH_IN_AUTHOR = true;
@@ -62,13 +62,13 @@ public class SettingsManager {
      */
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String prefsName = ((BuildConfig.DEBUG) ? "debug_" : "") + PREFS_NAME;
+//        String prefsName = ((BuildConfig.DEBUG) ? "debug_" : "") + PREFS_NAME;
         if (App.isFullVersion()) {
-            SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + prefsName, Context.MODE_PRIVATE);
+            SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
             if (prefs.getAll().size() == 0) {
                 // настроек нет, версия pro запущена в первый раз
                 SharedPreferences freePrefs = context.getSharedPreferences(
-                        BuildConfig.DEF_APPLICATION_ID + prefsName, Context.MODE_WORLD_READABLE);
+                        BuildConfig.DEF_APPLICATION_ID + PREFS_NAME, Context.MODE_WORLD_READABLE);
                 if (freePrefs.getAll().size() > 0) {
                     // сохраняем все настройки из free в pro
                     copyPrefs(freePrefs, prefs);
@@ -77,7 +77,7 @@ public class SettingsManager {
             return prefs;
         } else {
             // открываем доступ к чтению настроек для версии Pro
-            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + prefsName, Context.MODE_WORLD_READABLE);
+            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_WORLD_READABLE);
         }
     }
 

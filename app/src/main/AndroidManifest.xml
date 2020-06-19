@@ -21,8 +21,6 @@
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
-<!--        android:authorities="@string/authority_provider"-->
-<!--        tools:replace="android:authorities"-->
 
 <!--        For Android Q (10):-->
 <!--        android:requestLegacyExternalStorage="true"-->
@@ -30,7 +28,8 @@
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
@@ -88,7 +87,8 @@
 
         <provider
             android:name=".TetroidSuggestionProvider"
-            android:authorities="com.gee12.TetroidSuggestionProvider" />
+            android:authorities="${applicationId}.TetroidSuggestionProvider" />
+<!--            android:authorities="com.gee12.TetroidSuggestionProvider" />-->
 
         <activity
             android:name=".activities.RecordActivity"
