@@ -5,7 +5,8 @@ import android.provider.SearchRecentSuggestions;
 
 public class TetroidSuggestionProvider extends SearchRecentSuggestionsProvider {
 
-    public final static String AUTHORITY = "com.gee12.TetroidSuggestionProvider";
+//    public final static String AUTHORITY = "com.gee12.TetroidSuggestionProvider";
+    public final static String AUTHORITY = BuildConfig.APPLICATION_ID + ".TetroidSuggestionProvider";
     public final static int MODE = DATABASE_MODE_QUERIES;
 
 
