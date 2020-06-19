@@ -34,6 +34,12 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
+
+        <provider
+            android:name=".TetroidSuggestionProvider"
+            android:authorities="${applicationId}.TetroidSuggestionProvider"
+            tools:replace="android:authorities"/>
+
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
@@ -84,11 +90,6 @@
 
         </activity-alias>
 -->
-
-        <provider
-            android:name=".TetroidSuggestionProvider"
-            android:authorities="${applicationId}.TetroidSuggestionProvider" />
-<!--            android:authorities="com.gee12.TetroidSuggestionProvider" />-->
 
         <activity
             android:name=".activities.RecordActivity"
