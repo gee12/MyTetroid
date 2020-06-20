@@ -385,8 +385,10 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         // вводим пароли (с проверкой на пустоту и равенство)
         AskDialogs.showPassChangeDialog(this, (curPass, newPass) -> {
             // проверяем пароль
-            return PassManager.checkPass(this, curPass, () -> {
-                new ChangePassTask().execute(curPass, newPass);
+            return PassManager.checkPass(this, curPass, (res) -> {
+                if (res) {
+                    new ChangePassTask().execute(curPass, newPass);
+                }
             }, R.string.log_cur_pass_is_incorrect);
         });
     }
