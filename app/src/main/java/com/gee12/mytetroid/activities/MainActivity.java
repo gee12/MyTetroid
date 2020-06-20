@@ -269,6 +269,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         LogManager.log(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
+        if (SettingsManager.isCopiedFromFree) {
+            LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
+        }
         startInitStorage();
     }
 

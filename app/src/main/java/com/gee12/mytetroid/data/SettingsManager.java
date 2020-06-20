@@ -30,6 +30,7 @@ public class SettingsManager {
 
     private static SharedPreferences settings;
     private static Context context;
+    public static boolean isCopiedFromFree;
 
     /**
      * Инициализация настроек.
@@ -76,6 +77,7 @@ public class SettingsManager {
                 if (freePrefs.getAll().size() > 0) {
                     // сохраняем все настройки из free в pro
                     copyPrefs(freePrefs, prefs);
+                    isCopiedFromFree = true;
                 }
             }
             return prefs;
