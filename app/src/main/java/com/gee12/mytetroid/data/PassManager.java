@@ -49,9 +49,10 @@ public class PassManager extends DataManager {
     public static boolean checkPass(Context context, String pass, DataManager.ICallback callback, int wrongPassRes) {
         try {
             if (checkPass(pass)) {
-                callback.run();
+                callback.run(true);
             } else {
                 LogManager.log(wrongPassRes, Toast.LENGTH_LONG);
+                callback.run(false);
                 return false;
             }
         } catch (DatabaseConfig.EmptyFieldException ex) {
@@ -64,7 +65,7 @@ public class PassManager extends DataManager {
                     // TODO: тут спрашиваем нормально ли расшифровались данные
                     //  ...
                     if (callback != null) {
-                        callback.run();
+                        callback.run(true);
                     }
                 }
                 @Override

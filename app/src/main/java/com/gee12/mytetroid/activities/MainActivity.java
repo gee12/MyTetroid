@@ -527,9 +527,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 // подтверждение введенного пароля
-                PassManager.checkPass(MainActivity.this, pass, () -> {
-                    PassManager.initPass(pass);
-                    initStorage(node, true, isOnlyFavorites, isOpenNode);
+                PassManager.checkPass(MainActivity.this, pass, (res) -> {
+                    if (res) {
+                        PassManager.initPass(pass);
+                        initStorage(node, true, isOnlyFavorites, isOpenNode);
+                    } else {
+                        // повторяем запрос
+                        askPassword(node, isOnlyFavorites, isOpenNode);
+                    }
                 }, R.string.log_pass_is_incorrect);
             }
 
@@ -1479,9 +1484,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     PassManager.setupPass(pass);
                     callback.onApply();
                 } else {
-                    PassManager.checkPass(MainActivity.this, pass, () -> {
-                        PassManager.initPass(pass);
-                        callback.onApply();
+                    PassManager.checkPass(MainActivity.this, pass, (res) -> {
+                        if (res) {
+                            PassManager.initPass(pass);
+                            callback.onApply();
+                        } else {
+                            // повторяем запрос
+                            askPassword(node, callback);
+                        }
                     }, R.string.log_pass_is_incorrect);
                 }
             }

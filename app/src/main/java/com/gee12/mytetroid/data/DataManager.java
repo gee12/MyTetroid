@@ -41,7 +41,7 @@ import java.util.Random;
 public class DataManager extends XMLManager implements IRecordFileCrypter {
 
     public interface ICallback {
-        void run();
+        void run(boolean res);
     }
 
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
