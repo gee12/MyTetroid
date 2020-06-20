@@ -389,6 +389,21 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
+     * Перемещение файла вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
+    private void moveFile(int pos, boolean isUp) {
+        int res = DataManager.swapTetroidObjects(mListAdapterFiles.getDataSet(), pos, isUp);
+        if (res > 0) {
+            mListAdapterFiles.notifyDataSetChanged();
+            TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
+        } else if (res < 0) {
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
+        }
+    }
+
+    /**
      * Открытие каталога записи.
      * @param record
      */
@@ -870,21 +885,17 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case R.id.action_copy_link:
 
-                // TODO:
+                // TODO
 
                 return true;
             case R.id.action_save_as:
                 saveFileAs(file);
                 return true;
             case R.id.action_move_up:
-
-                // TODO:
-
+                moveFile(pos, true);
                 return true;
             case R.id.action_move_down:
-
-                // TODO:
-
+                moveFile(pos, false);
                 return true;
             case R.id.action_delete:
                 deleteFile(file);
