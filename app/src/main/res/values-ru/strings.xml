@@ -440,5 +440,6 @@
     <string name="title_available_in_pro">Доступно в версии Pro</string>
     <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
     <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
+    <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
 
 </resources>
