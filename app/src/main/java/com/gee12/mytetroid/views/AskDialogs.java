@@ -38,9 +38,32 @@ public class AskDialogs {
         void onApply(TetroidNode node);
     }*/
 
+    /**
+     *
+     * @param context
+     * @param node
+     * @param isNewPass
+     * @param passResult
+     */
     public static void showPassEnterDialog(Context context, final TetroidNode node, boolean isNewPass, final IPassInputResult passResult) {
+        if (isNewPass) {
+            showPassSetupDialog(context, node, passResult);
+        } else {
+            showPassEnterDialog(context, node, passResult);
+        }
+    }
+
+    /**
+     *
+     * @param context
+     * @param node
+     * @param passResult
+     */
+    public static void showPassEnterDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getString((isNewPass) ? R.string.title_password_set : R.string.title_password_enter));
+        builder.setTitle(context.getString(R.string.title_password_enter));
+        builder.setPositiveButton(R.string.answer_ok, null);
+        builder.setNegativeButton(R.string.answer_cancel, null);
 
         final EditText input = new EditText(context);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -50,7 +73,6 @@ public class AskDialogs {
             passResult.applyPass(input.getText().toString(), node);
         });
         builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> {
-//            dialog.cancel();
             passResult.cancelPass();
         });
 
@@ -67,6 +89,55 @@ public class AskDialogs {
         dialog.show();
     }
 
+    /**
+     *
+     * @param context
+     * @param node
+     * @param passResult
+     */
+    public static void showPassSetupDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pass_setup);
+        builder.setTitle(context.getString(R.string.title_password_set));
+        builder.setPositiveButton(R.string.answer_ok, null);
+        builder.setNegativeButton(R.string.answer_cancel, null);
+
+        final EditText tvPass = builder.getView().findViewById(R.id.edit_text_pass);
+        EditText tvConfirmPass = builder.getView().findViewById(R.id.edit_text_confirm_pass);
+
+        final androidx.appcompat.app.AlertDialog dialog = builder.create();
+        // проверка на пустоту паролей
+        ViewUtils.TextChangedListener listener = new ViewUtils.TextChangedListener(newText -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!(TextUtils.isEmpty(newText)
+                    || tvPass.getText().length() == 0
+                    || tvConfirmPass.getText().length() == 0));
+        });
+        tvPass.addTextChangedListener(listener);
+        tvConfirmPass.addTextChangedListener(listener);
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            okButton.setEnabled(false);
+            okButton.setOnClickListener(view -> {
+                String pass = tvPass.getText().toString();
+                String confirmPass = tvConfirmPass.getText().toString();
+                // проверка совпадения паролей
+                if (!pass.contentEquals(confirmPass)) {
+                    Toast.makeText(context, context.getString(R.string.log_pass_confirm_not_match), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                passResult.applyPass(pass, node);
+                dialog.dismiss();
+            });
+        });
+
+        dialog.show();
+    }
+
+    /**
+     *
+     * @param context
+     * @param passResult
+     */
     public static void showPassChangeDialog(Context context, final IPassChangeResult passResult) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pass_change);
         builder.setTitle(context.getString(R.string.title_password_change));

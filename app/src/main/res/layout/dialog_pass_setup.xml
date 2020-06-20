@@ -8,31 +8,23 @@
     android:padding="10dp">
 
     <com.gee12.mytetroid.views.TextViewHtml
-        android:text="@string/text_pass_change_warning_html"
+        android:id="@+id/text_view_header"
+        android:text="@string/text_pass_input_html"
         android_ex:isHtml="true"
         android:layout_marginBottom="8pt"
         android:textSize="@dimen/font_small"
         style="@style/dialog_labels"/>
 
     <TextView
-        android:text="@string/label_cur_pass"
+        android:text="@string/label_pass"
         style="@style/dialog_labels"/>
 
     <EditText
-        android:id="@+id/edit_text_cur_pass"
+        android:id="@+id/edit_text_pass"
         android:inputType="text|textPassword"
         style="@style/dialog_text_edit">
         <requestFocus/>
     </EditText>
-
-    <TextView
-        android:text="@string/label_new_pass"
-        style="@style/dialog_labels"/>
-
-    <EditText
-        android:id="@+id/edit_text_new_pass"
-        android:inputType="text|textPassword"
-        style="@style/dialog_text_edit"/>
 
     <TextView
         android:text="@string/label_confirm_pass"

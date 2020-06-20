@@ -98,6 +98,7 @@
     <string name="text_intent_exist_text">Вставить в существующую запись;Выбрать существующую запись и добавить переданный текст</string>
     <string name="text_intent_exist_image">Вставить в существующую запись;Выбрать существующую запись и добавить переданное(ые) изображение(я) в ее текст</string>
     <string name="text_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
+    <string name="text_pass_input_html"><![CDATA[Пароль будет использоваться для шифрования выбранных веток с записями.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b>]]></string>
 
@@ -180,6 +181,7 @@
     <string name="label_record_author">Автор:</string>
     <string name="label_record_uri">Url:</string>
     <string name="label_record_date">Дата:</string>
+    <string name="label_pass">Пароль:</string>
     <string name="label_cur_pass">Текущий пароль:</string>
     <string name="label_new_pass">Новый пароль:</string>
     <string name="label_confirm_pass">Пароль повторно:</string>

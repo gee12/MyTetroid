@@ -97,6 +97,7 @@
     <string name="text_intent_exist_text">Paste into existing record; Select existing record and add transferred text</string>
     <string name="text_intent_exist_image">Insert into an existing entry; Select an existing entry and add the transferred image (s) to its text</string>
     <string name="text_intent_exist_image_attach">Attach to an existing entry; Select an existing entry and attach the transferred image (s) as file (s)</string>
+    <string name="text_pass_input_html"><![CDATA[The password will be used to encrypt selected nodes with records.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
 
@@ -263,6 +264,7 @@
     <string name="label_record_author">Author:</string>
     <string name="label_record_uri">Url:</string>
     <string name="label_record_date">Date:</string>
+    <string name="label_pass">Password:</string>
     <string name="label_cur_pass">Current password:</string>
     <string name="label_new_pass">New password:</string>
     <string name="label_confirm_pass">Confirm:</string>
