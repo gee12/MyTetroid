@@ -142,6 +142,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean isNodeOpening = false;
     private View mFavoritesNode;
     private Button mLoadStorageButton;
+    private ScanManager mLastScan;
 
 
     public MainActivity() {
@@ -1147,16 +1148,32 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param viewId
      */
     private void setSubtitle(int viewId) {
-        String[] titles = getResources().getStringArray(R.array.view_type_titles);
-        // преобразуем идентификатор view в индекс заголовка
-        int titleId = viewId - 1;
-        if (titleId >= 0 && titleId < titles.length) {
-            tvSubtitle.setVisibility(View.VISIBLE);
-            tvSubtitle.setText(titles[titleId]);
-        }
-        else /*if (titleId < 0)*/ {
+        if (viewId != MainPageFragment.MAIN_VIEW_GLOBAL_FOUND) {
+            String[] titles = getResources().getStringArray(R.array.view_type_titles);
+            // преобразуем идентификатор view в индекс заголовка
+            int titleId = viewId - 1;
+            if (titleId >= 0 && titleId < titles.length) {
+                tvSubtitle.setVisibility(View.VISIBLE);
+                tvSubtitle.setTextSize(12);
+                tvSubtitle.setText(titles[titleId]);
+            } else /*if (titleId < 0)*/ {
+                tvSubtitle.setVisibility(View.GONE);
+            }
+        } else if (mLastScan != null) {
+            setSubtitle("\"" + mLastScan.getQuery() + "\"");
+        } else {
             tvSubtitle.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * Установка подзаголовка активности.
+     * @param s
+     */
+    private void setSubtitle(String s) {
+        tvSubtitle.setVisibility(View.VISIBLE);
+        tvSubtitle.setTextSize(16);
+        tvSubtitle.setText(s);
     }
 
     public void setRecordsSearchViewVisibility(boolean isVisible) {
@@ -1164,8 +1181,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     public void setFoundPageVisibility(boolean isVisible) {
-        if (!isVisible)
+        if (!isVisible) {
             mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
+        }
         mViewPager.setPagingEnabled(isVisible);
         mTitleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
@@ -1792,6 +1810,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param scan
      */
     private void startGlobalSearch(ScanManager scan) {
+        this.mLastScan = scan;
         new GlobalSearchTask(scan).execute();
     }
 
@@ -2500,7 +2519,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 return;
             } else if (mScan.isSearchInNode() && mScan.getNode() != null) {
                 LogManager.log(String.format(getString(R.string.global_search_by_node_result),
-                        mScan.getNode().getName()), Toast.LENGTH_LONG);
+                        mScan.getNode().getName()), Toast.LENGTH_SHORT);
             }
             // уведомляем, если не смогли поискать в зашифрованных ветках
             if (mScan.isExistCryptedNodes()) {
