@@ -28,20 +28,21 @@
 
     <PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
 
-        <Preference
+        <com.gee12.mytetroid.views.DisabledPreference
             android:key="@string/pref_key_change_pass"
             android:title="@string/pref_change_pass"
             android:summary="@string/pref_change_pass_summ"/>
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_save_pass_hash_local"
+            android:disableDependentsState="true"
             android:title="@string/pref_is_save_pass_hash_local"
             android:summary="@string/pref_is_save_pass_hash_local_summ"
             android:defaultValue="true" />
 
-        <ListPreference
-            android:enabled="false"
+        <com.gee12.mytetroid.views.DisabledListPreference
             android:key="@string/pref_key_when_ask_password"
+            android:dependency="@string/pref_key_is_save_pass_hash_local"
             android:title="@string/pref_when_ask_password"
             android:entries="@array/when_ask_password_entries"
             android:entryValues="@array/when_ask_password_entries"
@@ -150,15 +151,14 @@
 
     <PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
 
-        <CheckBoxPreference
+        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
             android:key="@string/pref_key_is_load_favorites"
             android:disableDependentsState="true"
             android:title="@string/pref_load_only_favorites"
             android:summary="@string/pref_load_only_favorites_summ"
-            android:enabled="true"
             android:defaultValue="false" />
 
-        <CheckBoxPreference
+        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
             android:dependency="@string/pref_key_is_load_favorites"
             android:key="@string/pref_key_is_keep_selected_node"
             android:title="@string/pref_is_keep_selected_node"

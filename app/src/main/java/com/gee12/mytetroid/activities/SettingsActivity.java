@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,6 +33,7 @@ import com.gee12.mytetroid.data.ITaskProgress;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
 import org.jsoup.internal.StringUtil;
@@ -121,23 +121,28 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         boolean crypted = DataManager.isCrypted();
         passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
         passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
+        passPref.setEnabled(!App.IsLoadedFavoritesOnly);
         passPref.setOnPreferenceClickListener(pref -> {
-                    if (crypted) {
+            if (App.IsLoadedFavoritesOnly) {
+                Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_SHORT);
+            } else {
+                if (crypted) {
 //                        PassManager.changePass(this);
 //                        new ChangePassTask().execute();
-                        changePass();
-                    } else {
-                        PassManager.setupPass(this);
-                    }
-                    // устанавливаем флаг для MsainActivity
-                    Intent intent = new Intent();
-                    intent.putExtra(EXTRA_IS_PASS_CHANGED, true);
-                    setResult(RESULT_OK, intent);
-                    return true;
-                });
+                    changePass();
+                } else {
+                    PassManager.setupPass(this);
+                }
+                // устанавливаем флаг для MsainActivity
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_IS_PASS_CHANGED, true);
+                setResult(RESULT_OK, intent);
+            }
+            return true;
+        });
 
-        findPreference(getString(R.string.pref_key_when_ask_password)).
-                setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
+//        findPreference(getString(R.string.pref_key_when_ask_password)).
+//                setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
 
         findPreference(getString(R.string.pref_key_is_save_pass_hash_local)).
                 setOnPreferenceChangeListener((preference, newValue) -> {
@@ -168,12 +173,33 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     return true;
                 });
 
+        Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
+        askPassPref.setOnPreferenceClickListener(pref -> {
+            if (SettingsManager.isSaveMiddlePassHashLocal()) {
+                Message.show(this, getString(R.string.title_not_avail_when_save_pass), Toast.LENGTH_SHORT);
+            }
+            return true;
+        });
+
+        Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
+        keepNodePref.setOnPreferenceClickListener(pref -> {
+            if (SettingsManager.isLoadFavorites()) {
+                Message.show(this, getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT);
+            }
+            return true;
+        });
+        Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
+        loadFavorPref.setEnabled(App.isFullVersion());
         if (App.isFreeVersion()) {
             // принудительно отключаем
-//            findPreference(getString(R.string.pref_key_is_load_favorites)).setEnabled(false);
-            PreferenceCategory category = (PreferenceCategory) findPreference(getString(R.string.pref_key_category_other));
-            category.removePreference(findPreference(getString(R.string.pref_key_is_load_favorites)));
-            findPreference(getString(R.string.pref_key_is_keep_selected_node)).setDependency(null);
+//            loadFavorPref.setEnabled(false);
+            loadFavorPref.setOnPreferenceClickListener(pref -> {
+                Message.show(this, getString(R.string.title_available_in_pro), Toast.LENGTH_SHORT);
+                return true;
+            });
+//            PreferenceCategory category = (PreferenceCategory) findPreference(getString(R.string.pref_key_category_other));
+//            category.removePreference(findPreference(getString(R.string.pref_key_is_load_favorites)));
+            keepNodePref.setDependency(null);
         }
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
@@ -245,12 +271,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+        /*if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             findPreference(getString(R.string.pref_key_when_ask_password)).
                     setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
 //        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {
 //            // меняем список полей для отображения
-        } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
+        } else*/ if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
             App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach();
             setHighlightPrefAvailability();

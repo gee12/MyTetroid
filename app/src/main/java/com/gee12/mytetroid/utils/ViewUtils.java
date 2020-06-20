@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -203,6 +204,22 @@ public class ViewUtils {
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * Makes sure the view (and any children) get the enabled state changed.
+     */
+    public static void setEnabledStateOnViews(View v, boolean enabled) {
+        if (v == null)
+            return;
+        v.setEnabled(enabled);
+
+        if (v instanceof ViewGroup) {
+            final ViewGroup vg = (ViewGroup) v;
+            for (int i = vg.getChildCount() - 1; i >= 0; i--) {
+                setEnabledStateOnViews(vg.getChildAt(i), enabled);
+            }
         }
     }
 }
