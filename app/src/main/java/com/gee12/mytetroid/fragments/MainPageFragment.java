@@ -916,6 +916,7 @@ public class MainPageFragment extends TetroidFragment {
             switch (mLastViewId) {
                 case MAIN_VIEW_NODE_RECORDS:
                 case MAIN_VIEW_TAG_RECORDS:
+                case MAIN_VIEW_FAVORITES:
 //                case VIEW_FOUND_RECORDS:
                     showView(mLastViewId);
                     break;
