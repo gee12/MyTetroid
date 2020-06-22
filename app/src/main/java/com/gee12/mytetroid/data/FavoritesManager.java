@@ -99,14 +99,15 @@ public class FavoritesManager extends RecordsManager {
      * Сохранение списка Id избранных записей в настройках.
      */
     protected static void saveFavorites() {
-        String[] ids = new String[mFavorites.size()];
+        /*String[] ids = new String[mFavorites.size()];
         for (int i = 0; i < mFavorites.size(); i++) {
             TetroidRecord record = mFavorites.get(i);
             if (record != null) {
                 ids[i] = record.getId();
             }
         }
-        SettingsManager.setFavorites(ids);
+        SettingsManager.setFavorites(ids);*/
+        SettingsManager.setFavorites(mFavorites.getIds());
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {
