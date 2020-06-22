@@ -750,6 +750,7 @@ public class MainPageFragment extends TetroidFragment {
     private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
         if (menuInfo == null)
             return;
+        boolean isPro = App.isFullVersion();
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         boolean isFavoritesView = (mCurMainViewId == MAIN_VIEW_FAVORITES);
         boolean isNonCrypted = false;
@@ -764,8 +765,8 @@ public class MainPageFragment extends TetroidFragment {
                 activateMenuItem(menu.findItem(R.id.action_copy_link), false);
             }
             boolean isFavorite = record.isFavorite();
-            activateMenuItem(menu.findItem(R.id.action_add_favorite), !isFavoritesView && !isFavorite);
-            activateMenuItem(menu.findItem(R.id.action_remove_favorite), isFavoritesView || isFavorite);
+            activateMenuItem(menu.findItem(R.id.action_add_favorite), isPro && !isFavoritesView && !isFavorite);
+            activateMenuItem(menu.findItem(R.id.action_remove_favorite), isPro && isFavoritesView || isFavorite);
         }
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly);
