@@ -2,6 +2,7 @@ package com.gee12.mytetroid.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -70,12 +71,21 @@ public class SettingsManager {
      */
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
+        String defAppId = BuildConfig.DEF_APPLICATION_ID;
+        if (BuildConfig.DEBUG) defAppId += ".debug";
+
         if (App.isFullVersion()) {
             SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
             if (prefs.getAll().size() == 0) {
                 // настроек нет, версия pro запущена в первый раз
-                SharedPreferences freePrefs = context.getSharedPreferences(
-                        BuildConfig.DEF_APPLICATION_ID + PREFS_NAME, Context.MODE_WORLD_READABLE);
+                Context freeContext;
+                try {
+                    freeContext = context.createPackageContext(defAppId, Context.CONTEXT_IGNORE_SECURITY);
+                } catch (PackageManager.NameNotFoundException e) {
+                    return prefs;
+                }
+                SharedPreferences freePrefs = freeContext.getSharedPreferences(
+                        defAppId + PREFS_NAME, Context.MODE_WORLD_READABLE);
                 if (freePrefs.getAll().size() > 0) {
                     // сохраняем все настройки из free в pro
                     copyPrefs(freePrefs, prefs);
@@ -110,6 +120,8 @@ public class SettingsManager {
                 destEditor.putFloat(entry.getKey(), (Float) value);
             else if (value instanceof Long)
                 destEditor.putLong(entry.getKey(), (Long) value);
+            else if (value instanceof Set)
+                destEditor.putStringSet(entry.getKey(), Set.class.cast(value));
         }
         destEditor.apply();
     }
