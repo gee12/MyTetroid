@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
 
     protected List<String> mIds = new ArrayList<>();
 
-    public FavoriteList(String[] ids) {
+    public FavoriteList(Collection<String> ids) {
         for (String id : ids) {
             add(id);
         }
@@ -106,5 +107,9 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
             }
         }
         return false;
+    }
+
+    public List<String> getIds() {
+        return mIds;
     }
 }

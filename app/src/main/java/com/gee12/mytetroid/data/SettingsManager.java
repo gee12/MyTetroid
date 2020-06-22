@@ -10,9 +10,11 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.FileUtils;
 
-import org.jsoup.internal.StringUtil;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingsManager {
 
@@ -388,14 +390,20 @@ public class SettingsManager {
         setBoolean(R.string.pref_key_is_load_favorites, value);
     }
 
-    public static String[] getFavorites() {
-        String value = getString(R.string.pref_key_favorites, "");
-        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
+    public static List<String> getFavorites() {
+//        String value = getString(R.string.pref_key_favorites, "");
+//        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
+        List<String> res = new ArrayList<>();
+        Set<String> set = getStringSet(R.string.pref_key_favorites, null);
+        if (set != null)
+            res.addAll(set);
+        return res;
     }
 
-    public static void setFavorites(String[] ids) {
-        String value = TextUtils.join(";", ids);
-        setString(R.string.pref_key_favorites, value);
+    public static void setFavorites(List<String> ids) {
+//        setStringSet(new HashSet<>(Arrays.asList(ids)));
+//        String value = TextUtils.join(";", ids);
+        setStringSet(R.string.pref_key_favorites, new HashSet<>(ids));
     }
 
     /**
@@ -628,6 +636,19 @@ public class SettingsManager {
     }
 
     /**
+     * Установить коллекцию значений String в опцию.
+     * @param prefKeyStringRes
+     * @param set
+     */
+    private static void setStringSet(int prefKeyStringRes, Set<String> set) {
+        if (settings == null)
+            return;
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putStringSet(context.getString(prefKeyStringRes), set);
+        editor.apply();
+    }
+
+    /**
      * Получить boolean опцию.
      * @param prefKeyStringRes
      * @param defValue
@@ -655,6 +676,21 @@ public class SettingsManager {
             return settings.getString(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
+    }
+
+    /**
+     * Получить коллекцию значений String из опции.
+     * @param prefKeyStringRes
+     * @param defValues
+     * @return
+     */
+    private static Set<String> getStringSet(int prefKeyStringRes, Set<String> defValues) {
+        if (settings == null)
+            return null;
+        if(settings.contains(context.getString(prefKeyStringRes))) {
+            return settings.getStringSet(context.getString(prefKeyStringRes), defValues);
+        }
+        return null;
     }
 
     /**
