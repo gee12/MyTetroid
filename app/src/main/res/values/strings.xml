@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">MyTetroid</string>
+    <string name="app_name" translatable="false">MyTetroid</string>
     <string name="main_header_title" translatable="false">MyTetroid</string>
     <string name="app_summ_html"><![CDATA[Android-client for full-featured PIM-manager <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="project_url_html"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
