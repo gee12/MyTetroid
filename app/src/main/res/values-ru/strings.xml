@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name" translatable="false">MyTetroid</string>
     <string name="app_summ_html"><![CDATA[Android-клиент полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="project_url_html"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>

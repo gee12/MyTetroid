@@ -47,7 +47,7 @@
             android:layout_toRightOf="@id/image_view_icon"
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
-            android:text="@string/app_name"
+            android:text="@string/main_header_title"
             android:textSize="@dimen/font_big" />
 
         <TextView

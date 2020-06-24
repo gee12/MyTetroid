@@ -2,7 +2,6 @@ package com.gee12.mytetroid.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
@@ -71,31 +70,33 @@ public class SettingsManager {
      */
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
+        // SecurityException: MODE_WORLD_READABLE no longer supported
+        int mode = Context.MODE_WORLD_READABLE;
         String defAppId = BuildConfig.DEF_APPLICATION_ID;
-        if (BuildConfig.DEBUG) defAppId += ".debug";
+        //if (BuildConfig.DEBUG) defAppId += ".debug";
 
         if (App.isFullVersion()) {
-            SharedPreferences prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
+            SharedPreferences prefs = context.getSharedPreferences(
+                    BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
             if (prefs.getAll().size() == 0) {
                 // настроек нет, версия pro запущена в первый раз
-                Context freeContext;
                 try {
-                    freeContext = context.createPackageContext(defAppId, Context.CONTEXT_IGNORE_SECURITY);
-                } catch (PackageManager.NameNotFoundException e) {
+                    Context freeContext = context.createPackageContext(defAppId, Context.CONTEXT_IGNORE_SECURITY);
+                    SharedPreferences freePrefs = freeContext.getSharedPreferences(
+                            defAppId + PREFS_NAME, mode);
+                    if (freePrefs.getAll().size() > 0) {
+                        // сохраняем все настройки из free в pro
+                        copyPrefs(freePrefs, prefs);
+                        isCopiedFromFree = true;
+                    }
+                } catch (Exception ex) {
                     return prefs;
-                }
-                SharedPreferences freePrefs = freeContext.getSharedPreferences(
-                        defAppId + PREFS_NAME, Context.MODE_WORLD_READABLE);
-                if (freePrefs.getAll().size() > 0) {
-                    // сохраняем все настройки из free в pro
-                    copyPrefs(freePrefs, prefs);
-                    isCopiedFromFree = true;
                 }
             }
             return prefs;
         } else {
             // открываем доступ к чтению настроек для версии Pro
-            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_WORLD_READABLE);
+            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, mode);
         }
     }
 

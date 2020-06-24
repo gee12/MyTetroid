@@ -1134,7 +1134,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                break;
             case MainPageFragment.MAIN_VIEW_FAVORITES:
                 title = getString(R.string.title_favorites);
-                showRecordsSearch = true;
+                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
             default:
@@ -2239,9 +2239,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void showGlobalSearchActivity() {
-        Intent intent = new Intent(this, SearchActivity.class);
-        intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
-        startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
+        if (App.IsLoadedFavoritesOnly) {
+            Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_LONG);
+        } else {
+            Intent intent = new Intent(this, SearchActivity.class);
+            intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
+            startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
+        }
     }
 
     public void showActivityForResult(Class<?> cls, int requestCode) {
