@@ -71,14 +71,14 @@ public class SettingsManager {
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
         // SecurityException: MODE_WORLD_READABLE no longer supported
-        int mode = Context.MODE_WORLD_READABLE;
+        int mode = (BuildConfig.VERSION_CODE < 7) ? Context.MODE_WORLD_READABLE : Context.MODE_PRIVATE;
         String defAppId = BuildConfig.DEF_APPLICATION_ID;
         //if (BuildConfig.DEBUG) defAppId += ".debug";
-
+        SharedPreferences prefs;
         if (App.isFullVersion()) {
-            SharedPreferences prefs = context.getSharedPreferences(
-                    BuildConfig.APPLICATION_ID + PREFS_NAME, Context.MODE_PRIVATE);
-            if (prefs.getAll().size() == 0) {
+            prefs = getPrefs(context, Context.MODE_PRIVATE);
+
+            if (prefs != null && prefs.getAll().size() == 0) {
                 // настроек нет, версия pro запущена в первый раз
                 try {
                     Context freeContext = context.createPackageContext(defAppId, Context.CONTEXT_IGNORE_SECURITY);
@@ -96,10 +96,20 @@ public class SettingsManager {
             return prefs;
         } else {
             // открываем доступ к чтению настроек для версии Pro
-            return context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, mode);
+            prefs = getPrefs(context, mode);
         }
+        return prefs;
     }
 
+    private static SharedPreferences getPrefs(Context context, int mode) {
+        SharedPreferences prefs;
+        try {
+            prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, mode);
+        } catch (Exception ex) {
+            prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        }
+        return prefs;
+    }
     /**
      * Копирование настроек.
      * @param srcPrefs
