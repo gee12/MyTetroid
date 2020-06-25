@@ -90,6 +90,14 @@
     <string name="title_crypted_node_name">Закрыто</string>
     <string name="title_file_save_as">Сохранить как</string>
     <string name="title_save_file_to">Сохранить файл в..</string>
+    <string name="title_load_nodes">Загрузить ветки</string>
+    <string name="title_favorites">Избранное</string>
+    <string name="title_remove_favor">Убрать из избранного</string>
+    <string name="title_add_favor">Добавить в избранное</string>
+    <string name="title_load_nodes_before">Сначала загрузите все ветки хранилища</string>
+    <string name="title_available_in_pro">Доступно в версии Pro</string>
+    <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
+    <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -100,6 +108,11 @@
     <string name="text_pass_input_html"><![CDATA[Пароль будет использоваться для шифрования выбранных веток с записями.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b>]]></string>
+    <string name="text_load_nodes_before_receive_mask"><![CDATA[В приложении включен режим загрузки <b>только избранного</b>. Для принятия %s нужно загрузить все ветки хранилища.<br>Продолжить?]]></string>
+
+    <string name="word_received_text">текста</string>
+    <string name="word_received_image">изображения</string>
+    <string name="word_received_images">изображений</string>
 
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_other">Остальное</string>
@@ -161,6 +174,8 @@
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
     <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
+    <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
+    <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
 
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
@@ -427,18 +442,8 @@
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
     <string name="log_tag_is_null">Переданная метка пуста (null)</string>
     <string name="log_record_is_null">Переданная запись пуста (null)</string>
-    <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
-    <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
-    <string name="title_load_nodes">Загрузить ветки</string>
-    <string name="title_favorites">Избранное</string>
-    <string name="title_remove_favor">Убрать из избранного</string>
-    <string name="title_add_favor">Добавить в избранное</string>
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
-    <string name="title_load_nodes_before">Сначала загрузите все ветки хранилища</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
-    <string name="title_available_in_pro">Доступно в версии Pro</string>
-    <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
-    <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
 
 </resources>

@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +37,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -248,11 +250,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (App.isFullVersion()) {
             mFavoritesNode.setOnClickListener(v -> showFavorites());
             mLoadStorageButton.setOnClickListener(v -> {
-                if (DataManager.isCrypted()) {
-                    decryptStorage(FavoritesManager.FAVORITES_NODE, false, false);
-                } else {
-                    initStorage(null, false, false, false);
-                }
+                loadAllNodes();
             });
         } else {
             mFavoritesNode.setVisibility(View.GONE);
@@ -310,6 +308,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
         closeFoundFragment();
         mViewPagerAdapter.getMainFragment().clearView();
         startInitStorage();
+    }
+
+    /**
+     * Загрузка всех веток, когда загружено только избранное.
+     */
+    private void loadAllNodes() {
+        if (DataManager.isCrypted()) {
+            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false);
+        } else {
+            initStorage(null, false, false, false);
+        }
     }
 
     /**
@@ -1953,7 +1962,24 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showIntentDialog(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri) {
 
-        IntentDialog.createDialog(this, isText, receivedData -> {
+        if (App.IsLoadedFavoritesOnly) {
+            // если загружено только избранное, то нужно сначала загрузить все ветки,
+            // чтобы добавить текст/картинку в одну из записей или в новую запись одной из веток
+            Spanned mes = Utils.fromHtml(String.format(getString(R.string.text_load_nodes_before_receive_mask),
+                    (isText) ? getString(R.string.word_received_text) :
+                            (imagesUri != null && imagesUri.size() > 1) ? getString(R.string.word_received_images)
+                                    : getString(R.string.word_received_image)));
+            Dialogs.showAlertDialog(this, mes,
+                    (dialog, which) -> {
+                        // сохраняем Intent и загружаем хранилище
+                        this.mReceivedIntent = intent;
+                        loadAllNodes();
+                    },
+                    null);
+            return;
+        }
+
+        IntentDialog.createDialog(this, isText, (receivedData) -> {
             if (receivedData.isCreate()) {
                 // получаем какую-нибудь ветку
                 final TetroidNode node = NodesManager.getDefaultNode();
