@@ -90,6 +90,14 @@
     <string name="title_first_node">First node</string>
     <string name="title_file_save_as">Save as</string>
     <string name="title_save_file_to">Save file to..</string>
+    <string name="title_load_nodes">Load nodes</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="title_remove_favor">Remove from favorites</string>
+    <string name="title_add_favor">Add to davorites</string>
+    <string name="title_load_nodes_before">First load all storage nodes</string>
+    <string name="title_available_in_pro">Available in version Pro</string>
+    <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
+    <string name="title_not_avail_when_save_pass">Not available when saving password locally</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -100,6 +108,11 @@
     <string name="text_pass_input_html"><![CDATA[The password will be used to encrypt selected nodes with records.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
+    <string name="text_load_nodes_before_receive_mask"><![CDATA[In the application the boot mode is <b>load only favorites</b>. To receive %s, you need to load all nodes of the storage.<br>Proceed?]]></string>
+
+    <string name="word_received_text">text</string>
+    <string name="word_received_image">image</string>
+    <string name="word_received_images">images</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -208,6 +221,7 @@
     <string name="pref_key_favorites" translatable="false">pref_key_favorites</string>
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
     <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries</string>
+    <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -483,17 +497,8 @@
     <string name="log_storage_decrypted">Storage was decrypted</string>
     <string name="log_tag_is_null">Tag is empty (null)</string>
     <string name="log_record_is_null">Record is empty (null)</string>
-    <string name="title_load_nodes">Load nodes</string>
-    <string name="title_favorites">Favorites</string>
-    <string name="title_remove_favor">Remove from favorites</string>
-    <string name="title_add_favor">Add to davorites</string>
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
-    <string name="title_load_nodes_before">First load all storage nodes</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
-    <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
-    <string name="title_available_in_pro">Available in version Pro</string>
-    <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
-    <string name="title_not_avail_when_save_pass">Not available when saving password locally</string>
     <string name="log_settings_copied_from_free">Application settings were copied from the Free version</string>
 
 </resources>
