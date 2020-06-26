@@ -596,6 +596,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showNode(node);
             }
         }
+
+        checkReceivedIntent(mReceivedIntent);
     }
 
     /**

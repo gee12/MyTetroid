@@ -361,11 +361,16 @@ public class NodesManager extends DataManager {
      * @return
      */
     public static TetroidNode getDefaultNode() {
-        TetroidNode res = null;
+//        TetroidNode res = null;
         if (!instance.mRootNodesList.isEmpty()) {
-            // TODO: пока что выбираем просто первую ветку в хранилище
-            res = instance.mRootNodesList.get(0);
+            // TODO: пока что выбираем просто первую незашифрованную ветку в хранилище
+//            res = instance.mRootNodesList.get(0);
+            for (TetroidNode node : instance.mRootNodesList) {
+                if (node.isNonCryptedOrDecrypted()) {
+                    return node;
+                }
+            }
         }
-        return res;
+        return null;
     }
 }
