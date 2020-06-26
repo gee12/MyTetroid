@@ -71,7 +71,7 @@ public class SettingsManager {
     private static SharedPreferences getPrefs(Context context) {
 //        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
         // SecurityException: MODE_WORLD_READABLE no longer supported
-        int mode = (BuildConfig.VERSION_CODE < 7) ? Context.MODE_WORLD_READABLE : Context.MODE_PRIVATE;
+        int mode = (BuildConfig.VERSION_CODE < 24) ? Context.MODE_WORLD_READABLE : Context.MODE_PRIVATE;
         String defAppId = BuildConfig.DEF_APPLICATION_ID;
         //if (BuildConfig.DEBUG) defAppId += ".debug";
         SharedPreferences prefs;
