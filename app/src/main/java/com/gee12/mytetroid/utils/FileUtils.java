@@ -424,4 +424,16 @@ public class FileUtils {
         }
         return res;
     }
+
+    /**
+     * Проверка, пуст ли каталог.
+     * @param dir
+     * @return
+     */
+    public static boolean isDirEmpty(File dir) {
+        if (dir == null)
+            return true;
+        File[] childs = dir.listFiles();
+        return (childs == null || childs.length == 0);
+    }
 }

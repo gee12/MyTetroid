@@ -3,6 +3,7 @@ package com.gee12.mytetroid.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -24,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
@@ -36,6 +38,7 @@ import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.internal.StringUtil;
 
 import lib.folderpicker.FolderPicker;
@@ -70,28 +73,25 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
-            // спрашиваем: создать или выбрать хранилище ?
-            StorageChooserDialog.createDialog(this, isNew -> {
-                openFolderPicker(getString(R.string.title_storage_folder),
-                        SettingsManager.getStoragePath(),
-                        (isNew) ? REQUEST_CODE_CREATE_STORAGE_PATH : REQUEST_CODE_OPEN_STORAGE_PATH);
-            });
+            if (!checkPermission(REQUEST_CODE_OPEN_STORAGE_PATH))
+                return true;
+            selectStorageFolder();
             return true;
         });
 
         Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
         tempFolderPicker.setOnPreferenceClickListener(preference -> {
-            openFolderPicker(getString(R.string.pref_trash_path),
-                    SettingsManager.getTrashPath(),
-                    REQUEST_CODE_OPEN_TEMP_PATH);
+            if (!checkPermission(REQUEST_CODE_OPEN_TEMP_PATH))
+                return true;
+            selectTrashFolder();
             return true;
         });
 
         Preference logFolderPicker = findPreference(getString(R.string.pref_key_log_path));
         logFolderPicker.setOnPreferenceClickListener(preference -> {
-            openFolderPicker(getString(R.string.pref_log_path),
-                    SettingsManager.getLogPath(),
-                    REQUEST_CODE_OPEN_LOG_PATH);
+            if (!checkPermission(REQUEST_CODE_OPEN_LOG_PATH))
+                return true;
+            selectLogsFolder();
             return true;
         });
 
@@ -118,13 +118,22 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 });
 
         Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
+        boolean isInited = DataManager.isInited();
+        boolean isLoaded = DataManager.isLoaded();
         boolean crypted = DataManager.isCrypted();
         passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
         passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
-        passPref.setEnabled(!App.IsLoadedFavoritesOnly);
+        passPref.setEnabled(isInited && isLoaded && !App.IsLoadedFavoritesOnly);
         passPref.setOnPreferenceClickListener(pref -> {
-            if (App.IsLoadedFavoritesOnly) {
-                Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_SHORT);
+            if (!isInited) {
+                String mes = getString((PermissionManager.writeExtStoragePermGranted(this))
+                    ? R.string.title_need_init_storage
+                    : R.string.title_need_perm_init_storage);
+                Message.show(this, mes, Toast.LENGTH_SHORT);
+            } else if (!isLoaded) {
+                Message.show(this, getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT);
+            } else if (App.IsLoadedFavoritesOnly) {
+                Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT);
             } else {
                 if (crypted) {
 //                        PassManager.changePass(this);
@@ -208,6 +217,31 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
     }
 
+    private void selectStorageFolder() {
+        // спрашиваем: создать или выбрать хранилище ?
+        StorageChooserDialog.createDialog(this, isNew -> {
+            openFolderPicker(getString(R.string.title_storage_folder),
+                    SettingsManager.getStoragePath(),
+                    (isNew) ? REQUEST_CODE_CREATE_STORAGE_PATH : REQUEST_CODE_OPEN_STORAGE_PATH);
+        });
+    }
+
+    private void selectTrashFolder() {
+        openFolderPicker(getString(R.string.pref_trash_path),
+                SettingsManager.getTrashPath(),
+                REQUEST_CODE_OPEN_TEMP_PATH);
+    }
+
+    private void selectLogsFolder() {
+        openFolderPicker(getString(R.string.pref_log_path),
+                SettingsManager.getLogPath(),
+                REQUEST_CODE_OPEN_LOG_PATH);
+    }
+
+    private boolean checkPermission(int requestCode) {
+        return PermissionManager.checkWriteExtStoragePermission(this, requestCode);
+    }
+
     private void updateSummary(@StringRes int keyStringRes, String value) {
         if (!StringUtil.isBlank(value)) {
             Preference pref = findPreference(getString(keyStringRes));
@@ -222,6 +256,22 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         intent.putExtra(FolderPicker.EXTRA_TITLE, title);
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
         startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        if (permGranted) {
+            LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
+            switch (requestCode) {
+                case REQUEST_CODE_OPEN_STORAGE_PATH: selectStorageFolder(); break;
+                case REQUEST_CODE_OPEN_TEMP_PATH: selectTrashFolder(); break;
+                case REQUEST_CODE_OPEN_LOG_PATH: selectLogsFolder(); break;
+            }
+        } else {
+            LogManager.log(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+        }
+
     }
 
     @Override

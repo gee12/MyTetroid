@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
@@ -82,6 +84,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,19 +134,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MenuItem mMenuItemGlobalSearch;
     private MenuItem mMenuItemStorageSync;
     private MenuItem mMenuItemStorageInfo;
-    private boolean mIsRecordsFiltered;
-    private boolean mIsAlreadyTryDecrypt;
-    private boolean mIsStorageLoaded;
-    private Intent mReceivedIntent;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
+    private View mFavoritesNode;
+    private Button mLoadStorageButton;
+
+    private boolean mIsRecordsFiltered;
+    private boolean mIsAlreadyTryDecrypt;
+//    private boolean mIsStorageLoaded;
+    private Intent mReceivedIntent;
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
-    private boolean isNodeOpening = false;
-    private View mFavoritesNode;
-    private Button mLoadStorageButton;
+    private boolean mIsNodeOpening = false;
     private ScanManager mLastScan;
 
 
@@ -277,13 +281,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Начало загрузки хранилища.
      */
     private void startInitStorage() {
-        this.mIsStorageLoaded = false;
         this.mIsAlreadyTryDecrypt = false;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!checkWriteExtStoragePermission()) {
-                return;
-            }
+        if (!PermissionManager.checkWriteExtStoragePermission(this, REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
+            return;
         }
 
         String storagePath = SettingsManager.getStoragePath();
@@ -322,40 +323,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Проверка разрешения на запись во внешнюю память.
-     * @return
-     */
-//    @TargetApi(Build.VERSION_CODES.M)
-    private boolean checkWriteExtStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                // нужно объяснить пользователю зачем нужно разрешение
-                AskDialogs.showRequestWriteExtStorageDialog(this, () -> requestWriteExtStorage());
-            } else {
-                requestWriteExtStorage();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Запрос разрешения на запись во внешнюю память.
-     * @return
-     */
-    private void requestWriteExtStorage() {
-        ActivityCompat.requestPermissions(this,
-                new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
-                REQUEST_CODE_PERMISSION_WRITE_STORAGE);
-    }
-
-    /**
      * Создание нового хранилища.
      * @param storagePath
+     * @param checkDirIsEmpty
      */
-    private void createStorage(String storagePath) {
+    private void createStorage(String storagePath, boolean checkDirIsEmpty) {
+        if (checkDirIsEmpty) {
+            if (!FileUtils.isDirEmpty(new File(storagePath))) {
+                AskDialogs.showYesDialog(this, () -> {
+                    createStorage(storagePath, false);
+                }, R.string.ask_dir_not_empty);
+                return;
+            }
+        }
         if (DataManager.init(this, storagePath, true)) {
             closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();
@@ -365,12 +345,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 SettingsManager.setStoragePath(storagePath);
             }
             initGUI(DataManager.createDefault(), false, false);
-//            LogManager.log(getString(R.string.log_storage_created) + storagePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+//            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false, false, false);
-//            LogManager.log(getString(R.string.log_failed_storage_create) + storagePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+//            LogManager.log(getString(R.string.log_failed_storage_create) + mStoragePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
     }
@@ -557,7 +537,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // и пароль не сохраняли, то нужно его спросить.
                 // Но если пароль вводить отказались, то просто грузим хранилище как есть
                 // (только в первый раз, затем перезагружать не нужно)
-                if (!mIsAlreadyTryDecrypt && !mIsStorageLoaded) {
+                if (!mIsAlreadyTryDecrypt && !DataManager.isLoaded()) {
                     mIsAlreadyTryDecrypt = true;
                     initStorage(node, false, isOnlyFavorites, isOpenNode);
                 }
@@ -740,12 +720,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
             // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
-            // полного списка записей в его обработчике с помощью проверки isNodeOpening
-            this.isNodeOpening = true;
+            // полного списка записей в его обработчике с помощью проверки mIsNodeOpening
+            this.mIsNodeOpening = true;
 //          mSearchViewRecords.onActionViewCollapsed();
             mSearchViewRecords.setQuery("", false);
             mSearchViewRecords.setIconified(true);
-            this.isNodeOpening = false;
+            this.mIsNodeOpening = false;
         }
         this.mCurNode = node;
         mViewPagerAdapter.getMainFragment().setCurNode(node);
@@ -874,21 +854,23 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Если файл нужно расшифровать во временные каталог, спрашиваем разрешение
      * на запись во внешнее хранилище.
      *
-     * FIXME: Разрешение WRITE_EXTERNAL_STORAGE уже просить не нужно, т.к. оно запрашивается при запуске
+     * FIXME: Разрешение WRITE_EXTERNAL_STORAGE просить не нужно,
+     *  т.к. оно и так запрашивается при загрузке хранилища.
      *
      * @param file
      */
+    @SuppressLint("MissingPermission")
     @Override
     public void openAttach(TetroidFile file) {
 //        if (Build.VERSION.SDK_INT >= 23) {
             // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
             if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTemp()
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
+                && !PermissionManager.writeExtStoragePermGranted(this)) {
                 this.mTempFileToOpen = file;
+                String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+                LogManager.log(getString(R.string.log_request_perm) + permission, LogManager.Types.INFO);
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        REQUEST_CODE_PERMISSION_WRITE_TEMP);
+                        new String[] { permission }, REQUEST_CODE_PERMISSION_WRITE_TEMP);
                 return;
             }
 //        }
@@ -1076,7 +1058,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // "сбрасываем" фильтрацию, но не для только что открытых веток
                 // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
                 // что приводит к повторному открытию списка записей)
-                if (!isNodeOpening) {
+                if (!mIsNodeOpening) {
                     switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
                         case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
                             if (mCurNode != null) {
@@ -1709,7 +1691,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
                     AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
                         if (isCreate) {
-                            createStorage(SettingsManager.getStoragePath());
+                            createStorage(SettingsManager.getStoragePath(), true);
                         } else {
                             reinitStorage();
                         }
@@ -1733,7 +1715,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (requestCode == REQUEST_CODE_OPEN_STORAGE)
                 initOrSyncStorage(folderPath);
             else
-                createStorage(folderPath);
+                createStorage(folderPath, true);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(folderPath);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
@@ -1768,7 +1750,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false)) {
-                    createStorage(SettingsManager.getStoragePath());
+                    createStorage(SettingsManager.getStoragePath(), true);
                 } else {
                     reinitStorage();
                 }
@@ -1875,6 +1857,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
+                    LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
                     startInitStorage();
                 } else {
                     LogManager.log(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
@@ -1882,6 +1865,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } break;
             case REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
+                    LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
                     openAttach(mTempFileToOpen);
                 } else {
                     LogManager.log(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
@@ -2260,7 +2244,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showStorageInfoActivity() {
         if (App.IsLoadedFavoritesOnly) {
-            Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_LONG);
+            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
         } else {
             ViewUtils.startActivity(this, InfoActivity.class, null);
         }
@@ -2268,7 +2252,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void showGlobalSearchActivity() {
         if (App.IsLoadedFavoritesOnly) {
-            Message.show(this, getString(R.string.title_load_nodes_before), Toast.LENGTH_LONG);
+            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
         } else {
             Intent intent = new Intent(this, SearchActivity.class);
             intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
@@ -2338,7 +2322,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPostExecute(Boolean res) {
             taskPostExecute(true);
             if (res) {
-                MainActivity.this.mIsStorageLoaded = true;
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mFavoritesOnly;
                 String mes = getString((mFavoritesOnly) ? R.string.log_storage_favor_loaded : R.string.log_storage_loaded);

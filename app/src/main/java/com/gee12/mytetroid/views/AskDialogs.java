@@ -188,14 +188,6 @@ public class AskDialogs {
                 (dialog, which) -> applyHandler.onCancel());
     }
 
-    public static void showRequestWriteExtStorageDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_request_write_ext_storage);
-    }
-
-    public static void showRequestCameraDialog(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_request_camera);
-    }
-
     public static void showReloadStorageDialog(Context context, boolean isCreate, final IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler,
                 (isCreate) ? R.string.ask_storage_folder_clear : R.string.ask_storage_path_was_changed);

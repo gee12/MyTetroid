@@ -59,9 +59,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     protected static Context context;
 
     /**
-     *
+     * Путь к хранилищу.
      */
-    protected String storagePath;
+    protected String mStoragePath;
+
+    /**
+     * Проинициализировано ли хранилище (установлен путь, но может быть еще не загружено).
+     */
+    protected boolean mIsStorageInited;
 
     /**
      *
@@ -86,18 +91,19 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     public static boolean init(Context ctx, String storagePath, boolean isNew) {
         DataManager.context = ctx;
         DataManager.instance = new DataManager();
-        DataManager.instance.storagePath = storagePath;
+        DataManager.instance.mStoragePath = storagePath;
         DataManager.databaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         boolean res;
         try {
             if (isNew) {
                 LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
                 File storageDir = new File(storagePath);
-                if (storageDir.exists()) {
-                    // очищаем каталог
+                if (!storageDir.exists()) {
+                    /*// очищаем каталог
                     LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
-                    FileUtils.clearDir(storageDir);
-                } else {
+                    FileUtils.clearDir(storageDir);*/
+                    // проверяем, пуст ли каталог
+//                } else {
                     LogManager.log(R.string.log_dir_is_missing, LogManager.Types.ERROR);
                     return false;
                 }
@@ -108,7 +114,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 if (!baseDir.mkdir()) {
                     return false;
                 }
-                // создаем корневую ветку
+                // добавляем корневую ветку
                 instance.init();
             }  else {
                 // загружаем database.ini
@@ -118,6 +124,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.log(ex);
             return false;
         }
+        instance.mIsStorageInited = res;
         return res;
     }
 
@@ -164,7 +171,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     public static boolean readStorage(boolean isDecrypt, boolean isFavorite) {
         boolean res = false;
-        File file = new File(instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME);
+        File file = new File(instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
         if (!file.exists()) {
             LogManager.log(context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
             return false;
@@ -334,7 +341,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     @Override
     public void loadIcon(@NonNull TetroidNode node) {
         if (node.isNonCryptedOrDecrypted()) {
-            node.loadIcon(storagePath + SEPAR + ICONS_FOLDER_NAME);
+            node.loadIcon(mStoragePath + SEPAR + ICONS_FOLDER_NAME);
         }
     }
 
@@ -574,7 +581,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             return false;
         }
 
-        String destPath = instance.storagePath + SEPAR + MYTETRA_XML_FILE_NAME;
+        String destPath = instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 
         LogManager.log(context.getString(R.string.log_saving_mytetra_xml), LogManager.Types.DEBUG);
@@ -689,7 +696,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
     @NonNull
     public static String getStoragePathBase() {
-        return instance.storagePath + SEPAR + BASE_FOLDER_NAME;
+        return instance.mStoragePath + SEPAR + BASE_FOLDER_NAME;
     }
 
     public static TetroidTag getTag(String tagName) {
@@ -748,14 +755,24 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static String getStoragePath() {
-        return instance.storagePath;
+        return instance.mStoragePath;
+    }
+
+    public static boolean isInited() {
+        return (instance != null && instance.mIsStorageInited);
+    }
+
+    public static boolean isLoaded() {
+        return (instance != null && instance.mIsStorageLoaded);
     }
 
     public static boolean isCrypted() {
+        if (databaseConfig == null || instance == null)
+            return false;
         boolean iniFlag = false;
         try {
             iniFlag = databaseConfig.isCryptMode();
-        } catch (DatabaseConfig.EmptyFieldException ex) {
+        } catch (Exception ex) {
             LogManager.log(ex);
         }
         /*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
