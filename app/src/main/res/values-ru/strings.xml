@@ -94,7 +94,7 @@
     <string name="title_favorites">Избранное</string>
     <string name="title_remove_favor">Убрать из избранного</string>
     <string name="title_add_favor">Добавить в избранное</string>
-    <string name="title_load_nodes_before">Сначала загрузите все ветки хранилища</string>
+    <string name="title_need_load_nodes">Сначала загрузите все ветки хранилища</string>
     <string name="title_available_in_pro">Доступно в версии Pro</string>
     <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
     <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
@@ -290,7 +290,7 @@
     <string name="details_in_logs">Подробности в логах</string>
     <string name="log_missing_read_ext_storage_permissions">Недостаточно прав для доступа к внешнему файловому хранилищу</string>
     <string name="log_missing_write_ext_storage_permissions">Недостаточно прав для записи во внешнее файловое хранилище</string>
-    <string name="log_missing_camera_permissions">Недостаточно прав для использования камеры</string>
+    <string name="log_missing_camera_perm">Недостаточно прав для использования камеры</string>
     <string name="log_empty_middle_hash_check_data_field">Отсутствуют данные для проверки пароля (поле %s в database.ini пусто). Все равно продолжить с этим паролем?</string>
     <string name="log_wrong_saved_pass">Неверный сохраненный пароль (значение не совпадает с middle_hash_check_data)</string>
     <string name="log_pass_is_incorrect">Введен неверный пароль</string>
@@ -445,5 +445,12 @@
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
+    <string name="title_need_init_storage">Сначала нужно выбрать/создать хранилище</string>
+    <string name="title_need_perm_init_storage">Сначала нужно предоставить разрешение на запись во внешнюю память и выбрать/создать хранилище</string>
+    <string name="title_need_load_storage">Сначала нужно загрузить хранилище</string>
+    <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
+    <string name="log_request_perm">Запрос разрешения:&#160;</string>
+    <string name="log_camera_perm_granted">Предоставлено разрешение к использованию камеры</string>
+    <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
 
 </resources>

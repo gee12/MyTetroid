@@ -32,7 +32,7 @@ public class RecordsManager extends DataManager {
 
     /**
      * Получение пути к файлу с содержимым записи.
-     * Если расшифрован, то в tempPath. Если не был зашифрован, то в storagePath.
+     * Если расшифрован, то в tempPath. Если не был зашифрован, то в mStoragePath.
      * @return
      */
     public static String getRecordFilePath(@NonNull TetroidRecord record) {
@@ -55,8 +55,8 @@ public class RecordsManager extends DataManager {
         }
         /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
                 ? tempPath+dirName+"/"+fileName
-                : storagePath+"/base/"+dirName+"/"+fileName;*/
-//        File file = new File(storagePath+"/base/"+dirName+"/"+fileName);
+                : mStoragePath+"/base/"+dirName+"/"+fileName;*/
+//        File file = new File(mStoragePath+"/base/"+dirName+"/"+fileName);
 //        return "file:///" + file.getAbsolutePath();
         return (path != null) ? "file:///" + path : null;
     }

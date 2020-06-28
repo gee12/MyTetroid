@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.activities;
 
-import android.Manifest;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -25,14 +24,13 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
@@ -616,7 +614,7 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void startCamera() {
         // проверка разрешения
-        if (!checkWriteExtStoragePermission()) {
+        if (!PermissionManager.checkCameraPermission(this, REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
         // не удалось сохранять сделанную фотографию сразу в каталог записи
@@ -625,37 +623,6 @@ public class RecordActivity extends TetroidActivity implements
         Intent intent = ImagePicker.cameraOnly()
                 .getIntent(this);
         startActivityForResult(intent, REQUEST_CODE_CAMERA);
-    }
-
-
-    /**
-     * Проверка разрешения на включение камеры.
-     * @return
-     */
-//    @TargetApi(Build.VERSION_CODES.M)
-    private boolean checkWriteExtStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-                // нужно объяснить пользователю зачем нужно разрешение
-                AskDialogs.showRequestCameraDialog(this, () -> requestCamera());
-            } else {
-                requestCamera();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Запрос разрешения на включение камеры.
-     * @return
-     */
-    private void requestCamera() {
-        ActivityCompat.requestPermissions(this,
-                new String[] { Manifest.permission.CAMERA },
-                REQUEST_CODE_PERMISSION_CAMERA);
     }
 
     /**
@@ -1210,9 +1177,10 @@ public class RecordActivity extends TetroidActivity implements
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
+                    LogManager.log(R.string.log_camera_perm_granted, LogManager.Types.INFO);
                     startCamera();
                 } else {
-                    LogManager.log(R.string.log_missing_camera_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                    LogManager.log(R.string.log_missing_camera_perm, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
         }

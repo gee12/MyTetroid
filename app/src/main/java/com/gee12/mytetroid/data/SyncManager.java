@@ -13,7 +13,7 @@ public class SyncManager {
         Intent intent = new Intent(Intent.ACTION_SYNC);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
 
-//        Uri uri = Uri.fromFile(new File(storagePath));
+//        Uri uri = Uri.fromFile(new File(mStoragePath));
         Uri uri = Uri.parse("content://" + storagePath);
         intent.setDataAndType(uri, "text/plain");
         intent.putExtra(EXTRA_APP_NAME, context.getPackageName());

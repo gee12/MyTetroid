@@ -55,6 +55,11 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected boolean mIsNeedDecrypt;
 
     /**
+     * Загружено ли хранилище.
+     */
+    protected boolean mIsStorageLoaded;
+
+    /**
      * Режим, когда загружаются только избранные записи.
      */
     protected boolean mIsFavoritesMode;
@@ -128,6 +133,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         ROOT_NODE.setSubNodes(mRootNodesList);
         this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
         this.mFormatVersion = DEF_VERSION;
+        this.mIsStorageLoaded = false;
         // счетчики
         this.mNodesCount = 0;
         this.mCryptedNodesCount = 0;
@@ -154,15 +160,18 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         this.mIsNeedDecrypt = isNeedDecrypt;
         this.mIsFavoritesMode = favoriteMode;
         init();
+        boolean res = false;
         try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag();
-            return readRoot(parser);
+            res = readRoot(parser);
         } finally {
             in.close();
         }
+        this.mIsStorageLoaded = res;
+        return res;
     }
 
     /**
