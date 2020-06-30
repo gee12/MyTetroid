@@ -169,7 +169,12 @@
             android:key="@string/pref_key_show_logs"
             android:title="@string/pref_show_logs"
             android:summary="@string/pref_show_logs_summ" >
-            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>
+            <intent android:action="android.intent.action.VIEW"
+                android:targetPackage="@string/app_id"
+                android:targetClass="com.gee12.mytetroid.activities.LogsActivity"
+                />
+<!--            <intent android:action="${applicationId}.activities.LogsActivity"/>-->
+<!--            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>-->
         </PreferenceScreen>
 
         <CheckBoxPreference

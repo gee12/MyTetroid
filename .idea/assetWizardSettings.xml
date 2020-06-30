@@ -49,6 +49,7 @@
                                               <map>
                                                 <entry key="color" value="000000" />
                                                 <entry key="opacityPercent" value="80" />
+                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -59,8 +60,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="imageAsset" value="$USER_HOME$/Загрузки/edit-12-64.png" />
-                                      <entry key="outputName" value="ic_link_remove_black" />
+                                      <entry key="imageAsset" value="$PROJECT_DIR$/../images/logo/mytetroid_pro_logo1.png" />
+                                      <entry key="outputName" value="ic_launcher" />
                                       <entry key="theme" value="CUSTOM" />
                                       <entry key="themeColor" value="b8bcbf" />
                                     </map>
@@ -113,7 +114,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="foregroundImage" value="$USER_HOME$/C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
+                                      <entry key="foregroundImage" value="$PROJECT_DIR$/../images/logo/mytetroid_pro_logo1.png" />
+                                      <entry key="outputName" value="ic_launcher1" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -151,8 +153,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="$USER_HOME$/C:\Users\Ivan\Desktop\mytetroid_logo1.png" />
+                                      <entry key="imageAsset" value="$PROJECT_DIR$/../images/logo/mytetroid_pro_logo1.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -184,11 +185,6 @@
                                 </PersistentState>
                               </value>
                             </entry>
-                          </map>
-                        </option>
-                        <option name="values">
-                          <map>
-                            <entry key="outputIconType" value="ACTIONBAR" />
                           </map>
                         </option>
                       </PersistentState>

@@ -84,7 +84,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -327,15 +326,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param storagePath
      * @param checkDirIsEmpty
      */
-    private void createStorage(String storagePath, boolean checkDirIsEmpty) {
-        if (checkDirIsEmpty) {
+    private void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
+        /*if (checkDirIsEmpty) {
             if (!FileUtils.isDirEmpty(new File(storagePath))) {
                 AskDialogs.showYesDialog(this, () -> {
                     createStorage(storagePath, false);
                 }, R.string.ask_dir_not_empty);
                 return;
             }
-        }
+        }*/
         if (DataManager.init(this, storagePath, true)) {
             closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();
@@ -1691,7 +1690,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
                     AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
                         if (isCreate) {
-                            createStorage(SettingsManager.getStoragePath(), true);
+                            createStorage(SettingsManager.getStoragePath()/*, true*/);
                         } else {
                             reinitStorage();
                         }
@@ -1715,7 +1714,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (requestCode == REQUEST_CODE_OPEN_STORAGE)
                 initOrSyncStorage(folderPath);
             else
-                createStorage(folderPath, true);
+                createStorage(folderPath/*, true*/);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(folderPath);
         } else if (requestCode == REQUEST_CODE_SYNC_STORAGE) {
@@ -1750,7 +1749,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false)) {
-                    createStorage(SettingsManager.getStoragePath(), true);
+                    createStorage(SettingsManager.getStoragePath()/*, true*/);
                 } else {
                     reinitStorage();
                 }
