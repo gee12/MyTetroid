@@ -98,12 +98,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             if (isNew) {
                 LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
                 File storageDir = new File(storagePath);
-                if (!storageDir.exists()) {
-                    /*// очищаем каталог
+                if (storageDir.exists()) {
+                    // очищаем каталог
                     LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
-                    FileUtils.clearDir(storageDir);*/
+                    FileUtils.clearDir(storageDir);
                     // проверяем, пуст ли каталог
-//                } else {
+                } else {
                     LogManager.log(R.string.log_dir_is_missing, LogManager.Types.ERROR);
                     return false;
                 }
