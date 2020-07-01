@@ -4,14 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +28,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.ITaskProgress;
 import com.gee12.mytetroid.data.PassManager;
@@ -57,6 +56,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     private AppCompatDelegate mDelegate;
     private LinearLayout mLayoutProgress;
     private TextView mTextViewProgress;
+
+    private TetroidTask mCurTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -437,22 +438,34 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             // проверяем пароль
             return PassManager.checkPass(this, curPass, (res) -> {
                 if (res) {
-                    new ChangePassTask().execute(curPass, newPass);
+                    this.mCurTask = new ChangePassTask().run(curPass, newPass);
                 }
             }, R.string.log_cur_pass_is_incorrect);
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        if (mCurTask != null && mCurTask.isRunning()) {
+            return;
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     /**
      * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
      */
-    public class ChangePassTask extends AsyncTask<String, String, Boolean> {
+    public class ChangePassTask extends TetroidTask<String, String, Boolean> {
+
+        public ChangePassTask() {
+            super(SettingsActivity.this);
+        }
 
         @Override
         protected void onPreExecute() {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mTextViewProgress.setText(getString(R.string.task_pass_changing));
             mLayoutProgress.setVisibility(View.VISIBLE);
         }
@@ -498,7 +511,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mLayoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);

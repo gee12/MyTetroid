@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -16,7 +15,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -46,6 +44,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.adapters.NodesListAdapter;
 import com.gee12.mytetroid.adapters.TagsListAdapter;
@@ -148,6 +147,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TetroidFile mTempFileToOpen;
     private boolean mIsNodeOpening = false;
     private ScanManager mLastScan;
+    private TetroidTask mCurTask;
 
 
     public MainActivity() {
@@ -324,7 +324,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Создание нового хранилища.
      * @param storagePath
-     * @param checkDirIsEmpty
+//     * @param checkDirIsEmpty
      */
     private void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
         /*if (checkDirIsEmpty) {
@@ -556,11 +556,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initStorage(TetroidNode node, boolean isDecrypt, boolean isFavorites, boolean isOpenNode) {
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем уже загруженное хранилище
-            new DecryptStorageTask(node).execute();
+            this.mCurTask = new DecryptStorageTask(node).run();
         } else {
             // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            new ReadStorageTask(isFavorites, isOpenNode).execute(isDecrypt);
+            this.mCurTask = new ReadStorageTask(isFavorites, isOpenNode).run(isDecrypt);
         }
     }
 
@@ -1404,13 +1404,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void encryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            new CryptNodeTask(node, true).execute();
+            this.mCurTask = new CryptNodeTask(node, true).run();
         });
     }
 
     private void dropEncryptNode(TetroidNode node) {
         checkStoragePass(node, () -> {
-            new CryptNodeTask(node, false).execute();
+            this.mCurTask = new CryptNodeTask(node, false).run();
         });
     }
 
@@ -1723,12 +1723,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String fileFullName = data.getStringExtra(FolderPicker.EXTRA_DATA);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(FileUtils.getFileFolder(fileFullName));
-            new AttachFileTask(mViewPagerAdapter.getMainFragment().getCurRecord()).execute(fileFullName);
+            this.mCurTask = new AttachFileTask(mViewPagerAdapter.getMainFragment().getCurRecord()).run(fileFullName);
         } else if (requestCode == REQUEST_CODE_FOLDER_PICKER && resultCode == RESULT_OK) {
             String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(folderPath);
-            new SaveFileTask(mViewPagerAdapter.getMainFragment().getCurFile()).execute(folderPath);
+            this.mCurTask = new SaveFileTask(mViewPagerAdapter.getMainFragment().getCurFile()).run(folderPath);
         }
 
     }
@@ -1806,7 +1806,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void startGlobalSearch(ScanManager scan) {
         this.mLastScan = scan;
-        new GlobalSearchTask(scan).execute();
+        this.mCurTask = new GlobalSearchTask(scan).run();
     }
 
     /**
@@ -2117,6 +2117,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void onBackPressed() {
+        if (mCurTask != null && mCurTask.isRunning()) {
+            // если выполняется задание, то не реагируем на нажатие кнопки Back
+            return;
+        }
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
@@ -2275,8 +2279,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private boolean taskPreExecute(int sRes) {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         mTextViewProgress.setText(sRes);
@@ -2285,7 +2289,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void taskPostExecute(boolean isDrawerOpened) {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         if (isDrawerOpened) {
             mDrawerLayout.openDrawer(Gravity.LEFT);
@@ -2296,12 +2300,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание (параллельный поток), в котором выполняется загрузка хранилища.
      */
-    private class ReadStorageTask extends AsyncTask<Boolean,Void,Boolean> {
+    private class ReadStorageTask extends TetroidTask<Boolean,Void,Boolean> {
 
         boolean mFavoritesOnly;
         boolean mOpenLastNode;
 
         ReadStorageTask (boolean isFavorites, boolean openLastNode) {
+            super(MainActivity.this);
             this.mFavoritesOnly = isFavorites;
             this.mOpenLastNode = openLastNode;
         }
@@ -2341,12 +2346,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется расшифровка уже загруженного хранилища.
      */
-    private class DecryptStorageTask extends AsyncTask<Void,Void,Boolean> {
+    private class DecryptStorageTask extends TetroidTask<Void,Void,Boolean> {
 
         boolean mIsDrawerOpened;
         TetroidNode mNode;
 
         DecryptStorageTask(TetroidNode node) {
+            super(MainActivity.this);
             this.mNode = node;
         }
 
@@ -2377,7 +2383,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется зашифровка/сброс шифровки веток.
      */
-    public class CryptNodeTask extends AsyncTask<Void,String,Integer> {
+    public class CryptNodeTask extends TetroidTask<Void,String,Integer> {
 
         boolean mIsDrawerOpened;
         TetroidNode mNode;
@@ -2386,6 +2392,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         TetroidLog.Opers mOper;
 
         CryptNodeTask(TetroidNode node, boolean isEncrypt) {
+            super(MainActivity.this);
             this.mNode = node;
             this.mIsEncrypt = isEncrypt;
             this.mWasCrypted = node.isCrypted();
@@ -2451,11 +2458,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется прикрепление нового файла в записи.
      */
-    public class AttachFileTask extends AsyncTask<String,Void,TetroidFile> {
+    public class AttachFileTask extends TetroidTask<String,Void,TetroidFile> {
 
         TetroidRecord mRecord;
 
         AttachFileTask(TetroidRecord record) {
+            super(MainActivity.this);
             this.mRecord = record;
         }
 
@@ -2480,11 +2488,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется сохранение файла по выбранному пути.
      */
-    public class SaveFileTask extends AsyncTask<String,Void,Boolean> {
+    public class SaveFileTask extends TetroidTask<String,Void,Boolean> {
 
         TetroidFile mFile;
 
         SaveFileTask(TetroidFile file) {
+            super(MainActivity.this);
             this.mFile = file;
         }
 
@@ -2509,11 +2518,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание, в котором выполняется глобальный поиск по объектам.
      */
-    private class GlobalSearchTask extends AsyncTask<Void, Void,HashMap<ITetroidObject,FoundType>> {
+    private class GlobalSearchTask extends TetroidTask<Void, Void,HashMap<ITetroidObject,FoundType>> {
 
         private ScanManager mScan;
 
         GlobalSearchTask(ScanManager scan) {
+            super(MainActivity.this);
             this.mScan = scan;
         }
 
