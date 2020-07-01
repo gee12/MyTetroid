@@ -24,8 +24,10 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
     protected List<String> mIds = new ArrayList<>();
 
     public FavoriteList(Collection<String> ids) {
-        for (String id : ids) {
-            add(id);
+        if (ids != null) {
+            for (String id : ids) {
+                add(id);
+            }
         }
     }
 
