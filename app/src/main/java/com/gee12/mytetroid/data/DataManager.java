@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
@@ -345,6 +349,13 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
     }
 
+    /**
+     * Отправка текста в стороннее приложение.
+     * @param context
+     * @param subject
+     * @param text
+     * @return
+     */
     public static boolean shareText(Context context, String subject, String text) {
         if (context == null)
             return false;
@@ -373,40 +384,111 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
-     * Открытие каталога в файловом менеджере.
+     * Открытие файла/каталога сторонним приложением.
      * @param context
-     * @param uri
+     * @param file
      * @return
      */
-    public static boolean openFolder(Context context, Uri uri) {
-        if (context == null || uri == null) {
-            LogManager.emptyParams("DataManager.openRecordFolder()");
+    public static boolean openFile(Context context, File file) {
+        if (file == null) {
+            LogManager.emptyParams("DataManager.openFile()");
             return false;
         }
-        // ACTION_VIEW is not supported by most of the file managers, it's crashing.
+        String fullFileName = file.getAbsolutePath();
+
+        // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
+        // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
+        // нужно использовать механизм FileProvider.
+        // Путь к файлу должен быть сформирован так: content://<Uri for a file>
+        Uri fileUri;
+        try {
+            if (Build.VERSION.SDK_INT >= 24) {
+                fileUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+            } else {
+                fileUri = Uri.fromFile(file);
+            }
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_file_sharing_error) + fullFileName,
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(ex);
+            return false;
+        }
+        // grant permision for app with package "packageName", eg. before starting other app via intent
+        context.grantUriPermission(context.getPackageName(), fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //revoke permisions
+//            context.revokeUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+
         Intent intent = new Intent(Intent.ACTION_VIEW);
+        String mimeType;
+        if (file.isDirectory()) {
+//            intent = new Intent(Intent.ACTION_GET_CONTENT); // открывается com.android.documentsui, но без каталога
+//            mimeType = "*/*";   // отображается список приложений, но не для открытия каталога
+//            mimeType = "application/*"; // тоже самое
+            mimeType = "resource/folder";
+//            mimeType = DocumentsContract.Document.MIME_TYPE_DIR; // открывается com.android.documentsui
 
-        // Of course it can show you the contents,
-        // but when you will click on any file - activity will close and return you a link to selected file,
-        // because that's the purpose of ACTION_GET_CONTENT.
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//            Uri selectedUri = Uri.fromFile(file.getAbsoluteFile());
+//            String fileExtension =  MimeTypeMap.getFileExtensionFromUrl(selectedUri.toString());
+//            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
 
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setDataAndType(uri, "resource/folder");
-//        intent.setDataAndType(uri, "text/csv");
-//        intent.setDataAndType(uri, "*/*");
-//        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_folder));
-//        if (intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
-        if (intent.resolveActivity(context.getPackageManager()) != null) {
-            try {
-                context.startActivity(intent);
-    //            context.startActivity(chooser);
-                return true;
-            } catch (Exception ignored) {
+            intent.setDataAndType(fileUri, mimeType);
+
+            if (!openFile(context, file, intent, false)) {
+                mimeType = "*/*";
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setDataAndType(fileUri, mimeType);
+                return openFile(context, file, intent, true);
+            }
+            return true;
+        } else {
+            String ext = FileUtils.getExtensionWithComma(fullFileName);
+            // определяем тип файла по расширению, если оно есть
+            mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
+                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
+                    : "text/plain";
+            intent.setDataAndType(fileUri, mimeType);
+            return openFile(context, file, intent, true);
+        }
+    }
+
+    /**
+     * Открытие файла/каталога сторонним приложением.
+     * @param context
+     * @param file
+     * @param intent
+     * @return
+     */
+    public static boolean openFile(Context context, File file, Intent intent, boolean needLog) {
+        if (context == null || file == null || intent == null) {
+            LogManager.emptyParams("DataManager.openFile()");
+            return false;
+        }
+        String fileFullName = file.getAbsolutePath();
+        // устанавливаем флаг для того, чтобы дать внешнему приложению пользоваться нашим FileProvider
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
+        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
+        try {
+            // проверить, есть ли подходящее приложение для открытия файла
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+//                    context.startActivity(intent);
+                context.startActivity(chooser);
+            } else {
+                if (needLog) {
+                    LogManager.log(context.getString(R.string.log_no_app_found_for_open_file) + fileFullName, Toast.LENGTH_LONG);
+                }
                 return false;
             }
         }
-        return false;
+//        catch (ActivityNotFoundException ex) {
+        catch (Exception ex) {
+            if (needLog) {
+                LogManager.log(context.getString(R.string.log_error_file_open) + fileFullName, Toast.LENGTH_LONG);
+            }
+            return false;
+        }
+        return true;
     }
 
     /**

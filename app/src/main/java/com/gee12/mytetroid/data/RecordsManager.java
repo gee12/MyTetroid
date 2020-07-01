@@ -843,15 +843,16 @@ public class RecordsManager extends DataManager {
             return false;
         }
         LogManager.log(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
-        Uri uri = Uri.parse(getRecordDirUri(record));
-        if (!openFolder(context, uri)) {
-            Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), uri.getPath());
+//        Uri uri = Uri.parse(getUriToRecordFolder(record));
+        String fileFullName = getPathToRecordFolder(record);
+        if (!openFile(context, new File(fileFullName))) {
+            Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), fileFullName);
             return false;
         }
         return true;
     }
 
-    public static String getRecordDirUri(@NonNull TetroidRecord record) {
+    public static String getUriToRecordFolder(@NonNull TetroidRecord record) {
         return getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR;
     }
 

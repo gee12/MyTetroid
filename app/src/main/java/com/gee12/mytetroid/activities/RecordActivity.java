@@ -306,7 +306,7 @@ public class RecordActivity extends TetroidActivity implements
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
         final String text = textHtml;
-        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getRecordDirUri(record),
+        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
                 text, "text/html", "UTF-8", null);
     }
 

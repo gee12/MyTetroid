@@ -1,18 +1,13 @@
 package com.gee12.mytetroid.data;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
-import androidx.core.content.FileProvider;
 
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
@@ -21,8 +16,6 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
-
-import org.jsoup.internal.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,85 +54,84 @@ public class AttachesManager extends DataManager {
         }
         //
         LogManager.log(context.getString(R.string.log_open_file) + fullFileName);
-        if (srcFile.exists()) {
-            // если запись зашифрована
-            if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
-                // создаем временный файл
+        if (!srcFile.exists()) {
+            LogManager.log(context.getString(R.string.log_file_is_absent) + fullFileName, Toast.LENGTH_SHORT);
+            return false;
+        }
+        // если запись зашифрована
+        if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp()) {
+            // создаем временный файл
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
 //                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
-                String tempFolderPath = RecordsManager.getPathToRecordFolderInTrash(record);
-                File tempFolder = new File(tempFolderPath);
-                if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                    LogManager.log(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
-                }
-                File tempFile = new File(tempFolder, fileIdName);
-
-                // расшифровываем во временный файл
-                try {
-                    if ((tempFile.exists() || tempFile.createNewFile())
-                            && CryptManager.encryptDecryptFile(srcFile, tempFile, false)) {
-                        srcFile = tempFile;
-                    } else {
-                        LogManager.log(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
-                        return false;
-                    }
-                } catch (IOException ex) {
-                    LogManager.log(context.getString(R.string.log_file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG);
-                    return false;
-                }
+            String tempFolderPath = RecordsManager.getPathToRecordFolderInTrash(record);
+            File tempFolder = new File(tempFolderPath);
+            if (!tempFolder.exists() && !tempFolder.mkdirs()) {
+                LogManager.log(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG);
             }
+            File tempFile = new File(tempFolder, fileIdName);
 
-//            Uri fileURI = Uri.fromFile(srcFile);
-            // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
-            // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
-            // нужно использовать механизм FileProvider.
-            // Путь к файлу должен быть сформирован так: content://<Uri for a file>
-            Uri fileURI;
+            // расшифровываем во временный файл
             try {
-                fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
-            } catch (Exception ex) {
-                LogManager.log(context.getString(R.string.log_file_sharing_error) + srcFile.getAbsolutePath(),
-                        LogManager.Types.ERROR, Toast.LENGTH_LONG);
-                LogManager.log(ex);
-                return false;
-            }
-            // ?
-            //grant permision for app with package "packegeName", eg. before starting other app via intent
-//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            //revoke permisions
-//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            // определяем тип файла по расширению, если оно есть
-            String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
-                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
-                    : "text/plain";
-            intent.setDataAndType(fileURI, mimeType);
-            // Add this flag if you're using an intent to make the system open your file.
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-            Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
-            try {
-                // проверить, есть ли подходящее приложение для открытия файла
-                if (intent.resolveActivity(context.getPackageManager()) != null) {
-//                    context.startActivity(intent);
-                    context.startActivity(chooser);
+                if ((tempFile.exists() || tempFile.createNewFile())
+                        && CryptManager.encryptDecryptFile(srcFile, tempFile, false)) {
+                    srcFile = tempFile;
                 } else {
-                    LogManager.log(context.getString(R.string.log_no_app_found_for_open_file) + fullFileName, Toast.LENGTH_LONG);
+                    LogManager.log(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
                     return false;
                 }
-            }
-            catch (ActivityNotFoundException ex) {
-                LogManager.log(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
+            } catch (IOException ex) {
+                LogManager.log(context.getString(R.string.log_file_decryption_error) + ex.getMessage(), Toast.LENGTH_LONG);
                 return false;
             }
-        } else {
-            LogManager.log(context.getString(R.string.log_file_is_absent) + fullFileName, Toast.LENGTH_SHORT);
+        }
+/*
+//            Uri fileURI = Uri.fromFile(srcFile);
+        // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
+        // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
+        // нужно использовать механизм FileProvider.
+        // Путь к файлу должен быть сформирован так: content://<Uri for a file>
+        Uri fileURI;
+        try {
+            fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_file_sharing_error) + srcFile.getAbsolutePath(),
+                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(ex);
             return false;
         }
-        return true;
+        // ?
+        //grant permision for app with package "packegeName", eg. before starting other app via intent
+//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        //revoke permisions
+//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        // определяем тип файла по расширению, если оно есть
+        String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
+                ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
+                : "text/plain";
+        intent.setDataAndType(fileURI, mimeType);
+        // Add this flag if you're using an intent to make the system open your file.
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
+        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
+        try {
+            // проверить, есть ли подходящее приложение для открытия файла
+            if (intent.resolveActivity(context.getPackageManager()) != null) {
+//                    context.startActivity(intent);
+                context.startActivity(chooser);
+            } else {
+                LogManager.log(context.getString(R.string.log_no_app_found_for_open_file) + fullFileName, Toast.LENGTH_LONG);
+                return false;
+            }
+        }
+        catch (ActivityNotFoundException ex) {
+            LogManager.log(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
+            return false;
+        }*/
+        return openFile(context, srcFile);
     }
 
     /**

@@ -70,11 +70,6 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     protected List<TetroidNode> mRootNodesList;
 
     /**
-     * Список избранных записей.
-     */
-//    protected List<TetroidRecord> mFavoritesRecords;
-
-    /**
      * Список меток.
      */
     protected TreeMap<String, TetroidTag> mTagsMap;
