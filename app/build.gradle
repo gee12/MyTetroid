@@ -14,8 +14,8 @@ android {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 29
-        versionName "3.0"
+        versionCode 30
+        versionName "3.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

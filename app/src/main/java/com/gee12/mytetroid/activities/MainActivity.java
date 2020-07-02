@@ -212,6 +212,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
         View vNodesHeader = nodesNavView.getHeaderView(0);
         this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
+        mSearchViewNodes.setVisibility(View.GONE);
         initNodesView(mSearchViewNodes, vNodesHeader);
 
 
@@ -228,6 +229,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
+        mSearchViewTags.setVisibility(View.GONE);
         final TextView tvHeader = vTagsHeader.findViewById(R.id.text_view_tags_header);
         new SearchViewListener(mSearchViewTags) {
             @Override
@@ -235,12 +237,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 searchInTags(null, false);
                 tvHeader.setVisibility(View.VISIBLE);
             }
-
             @Override
             public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
             }
-
             @Override
             public void onQuerySubmit(String query) {
                 searchInTags(query, true);
@@ -271,13 +271,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (SettingsManager.isCopiedFromFree) {
             LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
         }
-        startInitStorage();
+        startInitStorage(false);
     }
 
     /**
      * Начало загрузки хранилища.
+     * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath.
      */
-    private void startInitStorage() {
+    private void startInitStorage(boolean isLoadLastForced) {
         this.mIsAlreadyTryDecrypt = false;
 
         if (!PermissionManager.checkWriteExtStoragePermission(this, REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
@@ -285,7 +286,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         String storagePath = SettingsManager.getStoragePath();
-        if (SettingsManager.isLoadLastStoragePath() && storagePath != null) {
+        if (storagePath != null && SettingsManager.isLoadLastStoragePath() || isLoadLastForced) {
             initOrSyncStorage(storagePath);
         } else {
             StorageChooserDialog.createDialog(this, isNew -> showStorageFolderChooser(isNew));
@@ -305,7 +306,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void reinitStorage() {
         closeFoundFragment();
         mViewPagerAdapter.getMainFragment().clearView();
-        startInitStorage();
+        startInitStorage(true);
     }
 
     /**
@@ -338,9 +339,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mViewPagerAdapter.getMainFragment().clearView();
             mDrawerLayout.openDrawer(Gravity.LEFT);
             // сохраняем путь к хранилищу
-            if (SettingsManager.isLoadLastStoragePath()) {
+//            if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
-            }
+//            }
             initGUI(DataManager.createDefault(), false, false);
 //            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
@@ -430,10 +431,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (DataManager.init(this, storagePath, false)) {
             LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
             mDrawerLayout.openDrawer(Gravity.LEFT);
-            // сохраняем путь к хранилищу, если загрузили его в первый раз
-            if (SettingsManager.isLoadLastStoragePath()) {
+            // сохраняем путь к хранилищу
+//            if (SettingsManager.isLoadLastStoragePath()) {
                 SettingsManager.setStoragePath(storagePath);
-            }
+//            }
             if (DataManager.isCrypted() /*&& !isFavorites*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
                 //decryptStorage(null);
@@ -600,15 +601,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }
         } else {
+            // список веток
+            this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
+            mListViewNodes.setAdapter(mListAdapterNodes);
+            // список меток
+            this.mListAdapterTags = new TagsListAdapter(this);
+            mListViewTags.setAdapter(mListAdapterTags);
+
             // добавляем к результату загрузки проверку на пустоту списка веток
             List<TetroidNode> rootNodes = DataManager.getRootNodes();
             res = (res && rootNodes != null);
             if (res) {
                 boolean isEmpty = rootNodes.isEmpty();
-                // список веток
-                this.mListAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
-                mListViewNodes.setAdapter(mListAdapterNodes);
-
                 // выбираем ветку, выбранную в прошлый раз
                 boolean nodesAdapterInited = false;
                 TetroidNode nodeToSelect = null;
@@ -646,8 +650,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
 
                     // список меток
-                    this.mListAdapterTags = new TagsListAdapter(this, DataManager.getTags());
-                    mListViewTags.setAdapter(mListAdapterTags);
+                    this.mListAdapterTags.setDataItems(DataManager.getTags());
                     mTextViewTagsEmpty.setText(R.string.log_tags_is_missing);
                 }
                 setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
@@ -1857,7 +1860,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
-                    startInitStorage();
+                    startInitStorage(false);
                 } else {
                     LogManager.log(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
