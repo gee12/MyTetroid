@@ -250,16 +250,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
         this.mLoadStorageButton = findViewById(R.id.button_load);
+        mFavoritesNode.setVisibility(View.GONE);
+        mLoadStorageButton.setVisibility(View.GONE);
         if (App.isFullVersion()) {
             mFavoritesNode.setOnClickListener(v -> showFavorites());
             mLoadStorageButton.setOnClickListener(v -> {
                 loadAllNodes();
             });
-        } else {
-            mFavoritesNode.setVisibility(View.GONE);
-            mLoadStorageButton.setVisibility(View.GONE);
         }
-
     }
 
     @Override
@@ -322,7 +320,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Создание нового хранилища.
+     * Создание нового хранилища в указанном расположении.
      * @param storagePath
 //     * @param checkDirIsEmpty
      */
@@ -586,7 +584,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initGUI(boolean res, boolean isOnlyFavorites, boolean openLastNode) {
         // избранные записи
         mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
-        if (res) {
+        mFavoritesNode.setVisibility((res) ? View.VISIBLE : View.GONE);
+        mTextViewNodesEmpty.setVisibility(View.GONE);
+        if (res && App.isFullVersion()) {
             updateFavorites();
         }
 
@@ -597,7 +597,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 mViewPagerAdapter.getMainFragment().initListAdapters(this);
                 showFavorites();
             } else {
-                mFavoritesNode.setVisibility(View.GONE);
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }
         } else {
@@ -820,6 +819,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void updateFavorites() {
         List<TetroidRecord> favorites = FavoritesManager.getFavoritesRecords();
+        if (favorites == null)
+            return;
         int size = favorites.size();
 
         TextView tvName = findViewById(R.id.favorites_name);
@@ -1003,8 +1004,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, @StringRes int stringId) {
-        tvEmpty.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
-        tvEmpty.setText(stringId);
+        setListEmptyViewState(tvEmpty, isVisible, getString(stringId));
     }
 
     private void setListEmptyViewState(TextView tvEmpty, boolean isVisible, String string) {

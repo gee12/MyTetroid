@@ -354,6 +354,7 @@
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
+    <string name="title_storage_not_loaded">Storage not loaded</string>
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded">Storage was loaded:\n</string>

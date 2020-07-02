@@ -114,11 +114,10 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:visibility="gone"
                 android:layout_marginTop="@dimen/nav_header_height"
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
-                android:text="@string/title_nodes_is_missing"/>
+                android:text="@string/title_storage_not_loaded"/>
 
         </RelativeLayout>
 

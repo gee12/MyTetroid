@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 import com.gee12.htmlwysiwygeditor.ActionButton;
 import com.gee12.htmlwysiwygeditor.ActionType;
 import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.HtmlHelper;
@@ -79,8 +78,9 @@ public class TetroidEditor extends WysiwygEditor {
     @Override
     protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
         super.initActionButton(button, type, isCheckable, isPopup);
-        //
-        if (App.isFreeVersion() && !type.isFree()) {
+        // TODO: пока отключаем команды независимо от версии
+        boolean isFreeVersion = true;//App.isFreeVersion();
+        if (isFreeVersion && !type.isFree()) {
             button.setEnabled(false);
         }
     }
