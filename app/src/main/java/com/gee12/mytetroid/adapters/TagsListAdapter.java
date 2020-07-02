@@ -36,12 +36,12 @@ public class TagsListAdapter extends BaseAdapter {
 
 //    public TagsListAdapter(Context context, TreeMap<String, List<TetroidRecord>> mData) {
 //    public TagsListAdapter(Context context, TreeMap<String, TetroidTag> mData) {
-    public TagsListAdapter(Context context, Map<String,TetroidTag> data) {
+    public TagsListAdapter(Context context/*, Map<String,TetroidTag> data*/) {
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //        this.dataHashMap = mData;
 //        this.mData = new ArrayList<>(mData.values());
-        this.mData = new ArrayList<>(data.entrySet());
+        this.mData = new ArrayList<>();
 //        this.keySet = dataHashMap.keySet().toArray();
     }
 
