@@ -6,21 +6,8 @@
         android:title="@string/title_search_records"
         android:icon="@drawable/ic_search_white"
         app:showAsAction="always"
-        app:actionViewClass="androidx.appcompat.widget.SearchView" />
-<!--    <item-->
-<!--        android:id="@+id/action_record_view"-->
-<!--        android:orderInCategory="10"-->
-<!--        android:title="Просмотр"-->
-<!--        android:visible="true"-->
-<!--        android:icon="@android:drawable/ic_menu_edit"-->
-<!--        app:showAsAction="always" />-->
-<!--    <item-->
-<!--        android:id="@+id/action_record_edit"-->
-<!--        android:orderInCategory="20"-->
-<!--        android:title="Редактировать"-->
-<!--        android:visible="true"-->
-<!--        android:icon="@android:drawable/ic_menu_edit"-->
-<!--        app:showAsAction="always" />-->
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:visible="false"/>
     <item
         android:id="@+id/action_record_node"
         android:orderInCategory="70"
@@ -35,13 +22,6 @@
         android:visible="false"
         android:icon="@drawable/ic_record"
         app:showAsAction="never" />
-<!--    <item-->
-<!--        android:id="@+id/action_attached_files"-->
-<!--        android:orderInCategory="90"-->
-<!--        android:title="@string/title_attached_files"-->
-<!--        android:visible="false"-->
-<!--        android:icon="@drawable/ic_attachment"-->
-<!--        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_cur_record_folder"
         android:orderInCategory="90"

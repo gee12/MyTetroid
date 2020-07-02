@@ -300,6 +300,7 @@
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
+    <string name="title_storage_not_loaded">Хранилище не загружено</string>
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded">Хранилище загружено:\n</string>
