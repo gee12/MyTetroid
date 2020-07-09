@@ -1148,6 +1148,9 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_delete:
                 deleteRecord();
                 return true;
+            case R.id.action_info:
+                RecordAskDialogs.createRecordInfoDialog(this, mRecord);
+                return true;
             case R.id.action_fullscreen:
                 toggleFullscreen();
                 return true;

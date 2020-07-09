@@ -72,6 +72,12 @@
         android:icon="@drawable/ic_delete"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_info"
+        android:orderInCategory="95"
+        android:title="@string/title_record_info"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="100"
         android:title="@string/title_fullscreen"
@@ -94,6 +100,6 @@
         android:id="@+id/action_about_app"
         android:orderInCategory="400"
         android:title="@string/title_about_app"
-        android:icon="@drawable/ic_info"
+        android:icon="@drawable/ic_about"
         app:showAsAction="never" />
 </menu>

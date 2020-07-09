@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
+import com.gee12.mytetroid.R;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
@@ -25,6 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FileUtils {
 
@@ -435,5 +438,54 @@ public class FileUtils {
             return true;
         File[] childs = dir.listFiles();
         return (childs == null || childs.length == 0);
+    }
+
+    /**
+     * Получение размера файла/каталога.
+     * @param file
+     * @return
+     */
+    public static long fileSize(File file) {
+        if (file == null || !file.exists())
+            return 0;
+        long size = 0;
+        if (!file.isDirectory()) {
+            size = file.length();
+        } else {
+            final List<File> dirs = new LinkedList<>();
+            dirs.add(file);
+            while (!dirs.isEmpty()) {
+                final File dir = dirs.remove(0);
+                if (!dir.exists())
+                    continue;
+                final File[] listFiles = dir.listFiles();
+                if (listFiles == null || listFiles.length == 0)
+                    continue;
+                for (final File child : listFiles) {
+                    size += child.length();
+                    if (child.isDirectory())
+                        dirs.add(child);
+                }
+            }
+        }
+        return size;
+    }
+
+    /**
+     * Преобразование количество байт в удобочитаемый формат.
+     * @param context
+     * @param size Количество байт
+     * @return
+     */
+    public static String fileSizeToString(Context context, long size) {
+        if (size >= 1073741824) {
+            return (size / 1073741824) + context.getString(R.string.g_bytes);
+        } else if (size >= 1048576) {
+            return (size / 1048576) + context.getString(R.string.m_bytes);
+        } else if (size >= 1024) {
+            return (size / 1024) + context.getString(R.string.k_bytes);
+        } else {
+            return size + context.getString(R.string.bytes);
+        }
     }
 }

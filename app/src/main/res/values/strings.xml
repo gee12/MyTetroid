@@ -509,5 +509,12 @@
     <string name="log_request_perm">Permission request:&#160;</string>
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
+    <string name="title_record_info">Record info</string>
+    <string name="title_node_info">Node info</string>
+    <string name="label_crypted">Crypted:</string>
+    <string name="label_id" translatable="false">Id:</string>
+    <string name="label_path">Path to folder:</string>
+    <string name="label_size">Folder size:</string>
+    <string name="title_folder_is_missing">Folder is missing</string>
 
 </resources>

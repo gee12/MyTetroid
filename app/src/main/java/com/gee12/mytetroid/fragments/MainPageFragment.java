@@ -863,6 +863,9 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_remove_favorite:
                 removeFavorite(record);
                 return true;
+            case R.id.action_info:
+                RecordAskDialogs.createRecordInfoDialog(getContext(), record);
+                return true;
             case R.id.action_delete:
                 deleteRecord(record);
                 return true;

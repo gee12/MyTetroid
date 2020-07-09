@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:columnCount="2"
+    android:rowCount="4"
+    android:shrinkColumns="1"
+    android:padding="12dp">
+
+    <TableRow>
+        <TextView
+            android:text="@string/label_id"
+            style="@style/grid_cell"/>
+
+        <TextView
+            android:id="@+id/text_view_id"
+            style="@style/grid_cell"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:text="@string/label_crypted"
+            style="@style/grid_cell"/>
+
+        <TextView
+            android:id="@+id/text_view_crypted"
+            style="@style/grid_cell"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:text="@string/label_path"
+            style="@style/grid_cell"/>
+
+        <TextView
+            android:id="@+id/text_view_path"
+            style="@style/grid_cell"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:text="@string/label_size"
+            style="@style/grid_cell"/>
+
+        <TextView
+            android:id="@+id/text_view_size"
+            style="@style/grid_cell"/>
+    </TableRow>
+
+</TableLayout>

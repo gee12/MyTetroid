@@ -453,5 +453,11 @@
     <string name="log_request_perm">Запрос разрешения:&#160;</string>
     <string name="log_camera_perm_granted">Предоставлено разрешение к использованию камеры</string>
     <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
+    <string name="title_record_info">Инфо о записи</string>
+    <string name="title_node_info">Инфо о ветке</string>
+    <string name="label_crypted">Зашифрована:</string>
+    <string name="label_path">Путь к каталогу:</string>
+    <string name="label_size">Размер каталога:</string>
+    <string name="title_folder_is_missing">Каталог отсутствует</string>
 
 </resources>
