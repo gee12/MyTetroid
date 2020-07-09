@@ -74,6 +74,6 @@
         android:id="@+id/action_about_app"
         android:orderInCategory="400"
         android:title="@string/title_about_app"
-        android:icon="@drawable/ic_info"
+        android:icon="@drawable/ic_about"
         app:showAsAction="never" />
 </menu>

@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import androidx.core.text.HtmlCompat;
 
 import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.R;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -201,24 +200,6 @@ public class Utils {
             LogManager.log(e);
         }
         return null;
-    }
-
-    /**
-     * Преобразование количество байт в удобочитаемый формат.
-     * @param context
-     * @param size Количество байт
-     * @return
-     */
-    public static String fileSizeToString(Context context, long size) {
-        if (size >= 1073741824) {
-            return (size / 1073741824) + context.getString(R.string.g_bytes);
-        } else if (size >= 1048576) {
-            return (size / 1048576) + context.getString(R.string.m_bytes);
-        } else if (size >= 1024) {
-            return (size / 1024) + context.getString(R.string.k_bytes);
-        } else {
-            return size + context.getString(R.string.bytes);
-        }
     }
 
     /**

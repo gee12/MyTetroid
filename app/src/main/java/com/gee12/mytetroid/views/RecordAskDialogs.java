@@ -4,15 +4,20 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
+import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.Random;
@@ -88,6 +93,30 @@ public class RecordAskDialogs {
                 okButton.setEnabled(!TextUtils.isEmpty(s));
             }
         });
+    }
+
+    public static void createRecordInfoDialog(Context context, TetroidRecord record) {
+        if (record == null || !record.isNonCryptedOrDecrypted())
+            return;
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record_info);
+        builder.setPositiveButton(R.string.answer_ok, null);
+        builder.setTitle(record.getName());
+
+        View view = builder.getView();
+        ((TextView)view.findViewById(R.id.text_view_id)).setText(record.getId());
+        ((TextView)view.findViewById(R.id.text_view_crypted)).setText(record.isCrypted()
+                ? R.string.answer_yes : R.string.answer_no);
+        String path = RecordsManager.getPathToRecordFolder(record);
+        ((TextView)view.findViewById(R.id.text_view_path)).setText(path);
+        String size = DataManager.getFileSize(context, path);
+        TextView tvSize = view.findViewById(R.id.text_view_size);
+        if (size == null) {
+            size = context.getString(R.string.title_folder_is_missing);
+            tvSize.setTextColor(ContextCompat.getColor(context.getApplicationContext(), R.color.colorDarkRed));
+        }
+        tvSize.setText(size);
+
+        builder.show();
     }
 
     public static void saveRecord(Context context, final AskDialogs.IApplyCancelResult applyHandler) {

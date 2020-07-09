@@ -798,6 +798,31 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //        return new File(context.getExternalFilesDir(null), fileName);
 //    }
 
+    /**
+     * Получение размера файла/каталога.
+     * @param context
+     * @param fullFileName
+     * @return
+     */
+    public static String getFileSize(Context context, String fullFileName) {
+        long size;
+        try {
+            File srcFile = new File(fullFileName);
+            if (!srcFile.exists()) {
+                LogManager.log(context.getString(R.string.log_attach_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                return null;
+            }
+            size = FileUtils.fileSize(srcFile);
+        } catch (SecurityException ex) {
+            LogManager.log(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+        return FileUtils.fileSizeToString(context, size);
+    }
+
     /*
     * Создание файла в частном хранилище приложения во внутренней памяти устройства в кэше
     * Файл позже может удалиться системой при очистке

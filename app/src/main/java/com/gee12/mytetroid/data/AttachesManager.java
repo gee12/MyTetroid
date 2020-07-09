@@ -473,21 +473,6 @@ public class AttachesManager extends DataManager {
         String ext = FileUtils.getExtensionWithComma(file.getName());
         String fullFileName = RecordsManager.getPathToFileInRecordFolder(record, file.getId() + ext);
 
-        long size;
-        try {
-            File srcFile = new File(fullFileName);
-            if (!srcFile.exists()) {
-                LogManager.log(context.getString(R.string.log_attach_file_is_missing) + fullFileName, LogManager.Types.ERROR);
-                return null;
-            }
-            size = srcFile.length();
-        } catch (SecurityException ex) {
-            LogManager.log(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
-            return null;
-        } catch (Exception ex) {
-            LogManager.log(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
-            return null;
-        }
-        return Utils.fileSizeToString(context, size);
+        return getFileSize(context, fullFileName);
     }
 }

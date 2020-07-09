@@ -66,8 +66,13 @@
         android:title="@string/title_remove_favor"
         android:icon="@drawable/ic_remove_favor" />
     <item
-        android:id="@+id/action_delete"
+        android:id="@+id/action_info"
         android:orderInCategory="130"
+        android:title="@string/title_record_info"
+        android:icon="@drawable/ic_info"/>
+    <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="140"
         android:title="@string/title_delete"
         android:icon="@drawable/ic_delete" />
 </menu>
