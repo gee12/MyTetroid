@@ -820,7 +820,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             LogManager.log(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
             return null;
         }
-        return FileUtils.fileSizeToString(context, size);
+//        return FileUtils.fileSizeToStringBin(context, size);
+        return android.text.format.Formatter.formatFileSize(context, size);
     }
 
     /*

@@ -95,6 +95,11 @@ public class RecordAskDialogs {
         });
     }
 
+    /**
+     * Диалог информации о записи.
+     * @param context
+     * @param record
+     */
     public static void createRecordInfoDialog(Context context, TetroidRecord record) {
         if (record == null || !record.isNonCryptedOrDecrypted())
             return;

@@ -296,11 +296,6 @@
     <string name="stats_unique_tags_count">Of which are unique:</string>
     <string name="stats_authors_count">Authors:</string>
 
-    <string name="g_bytes">Gb</string>
-    <string name="m_bytes">Mb</string>
-    <string name="k_bytes">Kb</string>
-    <string name="bytes">b</string>
-
     <string name="link_to_record">Link to MyTetroid record</string>
     <string name="link_to_node">Link to MyTetroid node</string>
     <string name="link_to_tag">Link to MyTetroid tag</string>
