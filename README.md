@@ -51,6 +51,9 @@
 ***Оригинальный проект MyTetra:*** *https://webhamster.ru/site/page/index/articles/projectcode/105*
 
 
+Обнаруженные ошибки или пожелания оформляйте в виде issue.
+
+
 ## Лицензия
 ```
 GNU General Public License v3.0
