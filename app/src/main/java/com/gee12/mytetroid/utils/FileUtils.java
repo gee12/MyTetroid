@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
-import com.gee12.mytetroid.R;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
@@ -471,21 +470,4 @@ public class FileUtils {
         return size;
     }
 
-    /**
-     * Преобразование количество байт в удобочитаемый формат.
-     * @param context
-     * @param size Количество байт
-     * @return
-     */
-    public static String fileSizeToString(Context context, long size) {
-        if (size >= 1073741824) {
-            return (size / 1073741824) + context.getString(R.string.g_bytes);
-        } else if (size >= 1048576) {
-            return (size / 1048576) + context.getString(R.string.m_bytes);
-        } else if (size >= 1024) {
-            return (size / 1024) + context.getString(R.string.k_bytes);
-        } else {
-            return size + context.getString(R.string.bytes);
-        }
-    }
 }

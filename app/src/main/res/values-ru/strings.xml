@@ -249,11 +249,6 @@
     <string name="stats_unique_tags_count">Из них уникальных:</string>
     <string name="stats_authors_count">Авторов:</string>
 
-    <string name="g_bytes">Гб</string>
-    <string name="m_bytes">Мб</string>
-    <string name="k_bytes">Кб</string>
-    <string name="bytes">б</string>
-
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_record_delete">Удалить запись ?</string>
     <string name="ask_node_delete">Удалить ветку ?</string>

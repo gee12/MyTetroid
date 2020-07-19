@@ -86,51 +86,6 @@ public class AttachesManager extends DataManager {
                 return false;
             }
         }
-/*
-//            Uri fileURI = Uri.fromFile(srcFile);
-        // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
-        // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
-        // нужно использовать механизм FileProvider.
-        // Путь к файлу должен быть сформирован так: content://<Uri for a file>
-        Uri fileURI;
-        try {
-            fileURI = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", srcFile);
-        } catch (Exception ex) {
-            LogManager.log(context.getString(R.string.log_file_sharing_error) + srcFile.getAbsolutePath(),
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            LogManager.log(ex);
-            return false;
-        }
-        // ?
-        //grant permision for app with package "packegeName", eg. before starting other app via intent
-//            context.grantUriPermission(context.getPackageName(), fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        //revoke permisions
-//            context.revokeUriPermission(fileURI, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        // определяем тип файла по расширению, если оно есть
-        String mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
-                ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
-                : "text/plain";
-        intent.setDataAndType(fileURI, mimeType);
-        // Add this flag if you're using an intent to make the system open your file.
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
-        try {
-            // проверить, есть ли подходящее приложение для открытия файла
-            if (intent.resolveActivity(context.getPackageManager()) != null) {
-//                    context.startActivity(intent);
-                context.startActivity(chooser);
-            } else {
-                LogManager.log(context.getString(R.string.log_no_app_found_for_open_file) + fullFileName, Toast.LENGTH_LONG);
-                return false;
-            }
-        }
-        catch (ActivityNotFoundException ex) {
-            LogManager.log(context.getString(R.string.log_error_file_open) + fullFileName, Toast.LENGTH_LONG);
-            return false;
-        }*/
         return openFile(context, srcFile);
     }
 
@@ -193,8 +148,6 @@ public class AttachesManager extends DataManager {
             if (record.isCrypted()) {
                 TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT);
                 if (!CryptManager.encryptDecryptFile(srcFile, destFile, true)) {
-//                    LogManager.log(String.format(Locale.getDefault(),
-//                            context.getString(R.string.log_error_encrypt_file), fullName, destFilePath), LogManager.Types.ERROR);
                     TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT,
                             fromTo, false, -1);
                     return null;
@@ -202,16 +155,12 @@ public class AttachesManager extends DataManager {
             } else {
                 TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY);
                 if (!FileUtils.copyFile(srcFile, destFile)) {
-//                    LogManager.log(String.format(Locale.getDefault(),
-//                            context.getString(R.string.log_error_copy_file), fullName, destFilePath), LogManager.Types.ERROR);
                     TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.COPY,
                             fromTo, false, -1);
                     return null;
                 }
             }
         } catch (IOException ex) {
-//            LogManager.log(String.format(Locale.getDefault(),
-//                    context.getString(R.string.log_error_copy_file), fullName, destFilePath), ex);
             TetroidLog.logOperError(TetroidLog.Objs.FILE, (record.isCrypted()) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.COPY,
                     fromTo, false, -1);
             return null;
@@ -290,7 +239,6 @@ public class AttachesManager extends DataManager {
         // обновляем поля
         boolean crypted = file.isCrypted();
         file.setName(encryptField(crypted, name));
-//        file.setDecryptedName(name);
         if (crypted) {
             file.setDecryptedName(name);
         }
@@ -314,8 +262,6 @@ public class AttachesManager extends DataManager {
             if (srcFile.renameTo(destFile)) {
                 TetroidLog.logOperRes(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, -1);
             } else {
-//                LogManager.log(String.format(Locale.getDefault(),
-//                        context.getString(R.string.log_rename_file_error_mask), filePath, newFilePath), LogManager.Types.ERROR);
                 TetroidLog.logOperError(TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
                 return 0;
             }
@@ -380,10 +326,7 @@ public class AttachesManager extends DataManager {
         }
 
         // перезаписываем структуру хранилища в файл
-        if (saveStorage()) {
-            /*instance.mFilesCount--;*/
-        } else {
-//            LogManager.log(context.getString(R.string.log_cancel_file_deleting), LogManager.Types.ERROR);
+        if (!saveStorage()) {
             TetroidLog.logOperCancel(TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
             return 0;
         }
@@ -459,9 +402,9 @@ public class AttachesManager extends DataManager {
      * @param file
      * @return
      */
-    public static String getAttachedFileSize(Context context, @NonNull TetroidFile file) {
+    public static String getAttachedFileSize(Context context, TetroidFile file) {
         if (context == null || file == null) {
-            LogManager.emptyParams("DataManager.getAttachedFileSize()");
+            LogManager.emptyParams("AttachesManager.getAttachedFileSize()");
             return null;
         }
         TetroidRecord record = file.getRecord();
