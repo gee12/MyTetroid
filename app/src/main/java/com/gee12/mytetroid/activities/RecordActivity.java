@@ -4,17 +4,19 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -98,7 +100,8 @@ public class RecordActivity extends TetroidActivity implements
 
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
-    private WebView mWebViewTags;
+//    private WebView mWebViewTags;
+    private TextView mTextViewTags;
     private ScrollView mScrollViewHtml;
     private TetroidEditText mEditTextHtml;
     private TextView mTvAuthor;
@@ -180,7 +183,7 @@ public class RecordActivity extends TetroidActivity implements
         webView.setYoutubeLoadLinkListener(this);
 
 //        this.mFieldsLayout = findViewById(R.id.layout_record_fields);
-        this.mWebViewTags = findViewById(R.id.web_view_record_tags);
+        /*this.mWebViewTags = findViewById(R.id.web_view_record_tags);
         mWebViewTags.setBackgroundColor(Color.TRANSPARENT);
         mWebViewTags.setWebViewClient(new WebViewClient() {
             @Override
@@ -188,7 +191,11 @@ public class RecordActivity extends TetroidActivity implements
                 onTagUrlLoad(url);
                 return true;
             }
-        });
+        });*/
+        this.mTextViewTags = findViewById(R.id.text_view_record_tags);
+        mTextViewTags.setLinksClickable(true);
+        mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());
+
         this.mTvAuthor = findViewById(R.id.text_view_record_author);
         this.mTvUrl = findViewById(R.id.text_view_record_url);
         this.mTvDate = findViewById(R.id.text_view_record_date);
@@ -259,8 +266,22 @@ public class RecordActivity extends TetroidActivity implements
         String tagsHtml = HtmlHelper.createTagsHtmlString(record);
         if (tagsHtml != null) {
             // указываем charset в mimeType для кириллицы
-            mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
-            id = R.id.web_view_record_tags;
+//            mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
+
+            CharSequence sequence = Utils.fromHtml(tagsHtml);
+            SpannableStringBuilder sb = new SpannableStringBuilder(sequence);
+            URLSpan[] urls = sb.getSpans(0, sequence.length(), URLSpan.class);
+            for (URLSpan span : urls) {
+                ClickableSpan clickableSpan = new ClickableSpan() {
+                    public void onClick(View view) {
+                        onTagUrlLoad(span.getURL());
+                    }
+                };
+                sb.setSpan(clickableSpan, sb.getSpanStart(span), sb.getSpanEnd(span), sb.getSpanFlags(span));
+            }
+
+//            id = R.id.web_view_record_tags;
+            id = R.id.text_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующее за метками поле
         // (т.к. метки - многострочный элемент)
