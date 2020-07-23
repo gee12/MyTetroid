@@ -21,7 +21,7 @@ public class HtmlHelper {
      * Формирование списка меток в виде html-кода.
      * @return
      */
-    public static String createTagsHtmlString(TetroidRecord record) {
+    public static String createTagsHtmlStringFull(TetroidRecord record) {
         if (record == null)
             return null;
         StringBuilder sb = new StringBuilder();
@@ -39,6 +39,27 @@ public class HtmlHelper {
                 sb.append(", ");
         }
         sb.append("</body>");
+        return sb.toString();
+    }
+
+    /**
+     * Формирование списка меток в виде html-кода.
+     * @return
+     */
+    public static String createTagsHtmlString(TetroidRecord record) {
+        if (record == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        int size = record.getTags().size();
+        if (size == 0) {
+            return null;
+        }
+        for (TetroidTag tag : record.getTags()) {
+            sb.append("<a href=\"").append(TetroidTag.LINKS_PREFIX).append(tag.getName()).append(">").
+                    append(tag.getName()).append("</a>");
+            if (--size > 0)
+                sb.append(", ");
+        }
         return sb.toString();
     }
 
