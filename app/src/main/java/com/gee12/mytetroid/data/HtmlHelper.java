@@ -55,7 +55,7 @@ public class HtmlHelper {
             return null;
         }
         for (TetroidTag tag : record.getTags()) {
-            sb.append("<a href=\"").append(TetroidTag.LINKS_PREFIX).append(tag.getName()).append(">").
+            sb.append("<a href=\"").append(TetroidTag.LINKS_PREFIX).append(tag.getName()).append("\">").
                     append(tag.getName()).append("</a>");
             if (--size > 0)
                 sb.append(", ");

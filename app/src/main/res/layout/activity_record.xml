@@ -75,7 +75,8 @@
                     android:paddingRight="3dp"
                     android:paddingTop="0dp"
                     android:paddingBottom="0dp"
-                    android:textColor="@color/colorLightLabelText" />
+                    android:textColor="@color/colorLightLabelText"
+                    android:textColorLink="@color/colorBlueDark"/>
 
                 <TextView
                     android:id="@+id/label_record_author"
