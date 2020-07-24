@@ -7,7 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
@@ -193,7 +194,7 @@ public class RecordActivity extends TetroidActivity implements
             }
         });*/
         this.mTextViewTags = findViewById(R.id.text_view_record_tags);
-        mTextViewTags.setLinksClickable(true);
+        //mTextViewTags.setLinksClickable(true);
         mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());
 
         this.mTvAuthor = findViewById(R.id.text_view_record_author);
@@ -269,16 +270,20 @@ public class RecordActivity extends TetroidActivity implements
 //            mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
 
             CharSequence sequence = Utils.fromHtml(tagsHtml);
-            SpannableStringBuilder sb = new SpannableStringBuilder(sequence);
-            URLSpan[] urls = sb.getSpans(0, sequence.length(), URLSpan.class);
+            SpannableString spannable = new SpannableString(sequence);
+            URLSpan[] urls = spannable.getSpans(0, sequence.length(), URLSpan.class);
             for (URLSpan span : urls) {
+                int start = spannable.getSpanStart(span);
+                int end = spannable.getSpanEnd(span);
                 ClickableSpan clickableSpan = new ClickableSpan() {
                     public void onClick(View view) {
                         onTagUrlLoad(span.getURL());
                     }
                 };
-                sb.setSpan(clickableSpan, sb.getSpanStart(span), sb.getSpanEnd(span), sb.getSpanFlags(span));
+                spannable.removeSpan(span);
+                spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
+            mTextViewTags.setText(spannable);
 
 //            id = R.id.web_view_record_tags;
             id = R.id.text_view_record_tags;
