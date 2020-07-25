@@ -25,15 +25,30 @@
                 android:layout_height="match_parent"
                 android:layout_margin="5dp" />
 
-            <TextView
-                android:id="@+id/text_view_empty_records"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:padding="@dimen/tv_empty_padding"
-                android:textAlignment="center"
-                android:text="@string/title_select_the_node" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_view_empty_records"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/tv_empty_padding"
+                    android:textAlignment="center"
+                    android:text="@string/title_select_the_node" />
+
+                <Button
+                    android:id="@+id/button_global_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/title_use_global_search"/>
+
+            </LinearLayout>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_add_record"

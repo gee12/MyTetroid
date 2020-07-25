@@ -305,7 +305,7 @@
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>
-    <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана</string>
+    <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана.\nВозможен поиск только по всей базе</string>
     <string name="log_incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
     <string name="log_cur_record_is_not_set">Не указана текущая запись</string>
     <string name="log_no_app_found_for_open_file">Не найдено подходящего приложения для открытия файла&#160;</string>
@@ -454,5 +454,6 @@
     <string name="label_path">Путь к каталогу:</string>
     <string name="label_size">Размер каталога:</string>
     <string name="title_folder_is_missing">Каталог отсутствует</string>
+    <string name="title_use_global_search">Использовать глобальный поиск</string>
 
 </resources>

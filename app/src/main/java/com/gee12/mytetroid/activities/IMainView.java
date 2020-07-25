@@ -24,4 +24,5 @@ public interface IMainView extends Parcelable {
     void openFilePicker();
     void openFolderPicker();
     void updateFavorites();
+    void showGlobalSearchWithQuery();
 }
