@@ -23,18 +23,18 @@ public class SearchActivity extends AppCompatActivity {
 
     public static final String EXTRA_KEY_SCAN_MANAGER = "ScanManager";
 
-    EditText etQuery;
-    CheckBox cbText;
-    CheckBox cbRecordsNames;
-    CheckBox cbAuthor;
-    CheckBox cbUrl;
-    CheckBox cbTags;
-    CheckBox cbNodes;
-    CheckBox cbFiles;
-    Spinner spSplitToWords;
-    Spinner spInWholeWords;
-    Spinner spInCurrentNode;
-    boolean isCurNodeNotNull;
+    private EditText etQuery;
+    private CheckBox cbText;
+    private CheckBox cbRecordsNames;
+    private CheckBox cbAuthor;
+    private CheckBox cbUrl;
+    private CheckBox cbTags;
+    private CheckBox cbNodes;
+    private CheckBox cbFiles;
+    private Spinner spSplitToWords;
+    private Spinner spInWholeWords;
+    private Spinner spInCurrentNode;
+    private boolean isCurNodeNotNull;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,10 @@ public class SearchActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             this.isCurNodeNotNull = extras.getBoolean(MainActivity.EXTRA_CUR_NODE_IS_NOT_NULL);
+            String query = extras.getString(MainActivity.EXTRA_QUERY);
+            if (query != null) {
+                etQuery.setText(query);
+            }
         }
     }
 

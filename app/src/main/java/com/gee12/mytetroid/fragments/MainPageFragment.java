@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +59,7 @@ public class MainPageFragment extends TetroidFragment {
     private TextView mTextViewFilesEmpty;
     private FloatingActionButton mButtonAddRecord;
     private FloatingActionButton mButtonAddFile;
+    private Button mUseGlobalSearchButton;
 
     private int mCurMainViewId;
     private int mLastViewId;
@@ -94,14 +96,16 @@ public class MainPageFragment extends TetroidFragment {
         //
         mListViewRecords.setOnItemClickListener(onRecordClicklistener);
         this.mTextViewRecordsEmpty = view.findViewById(R.id.text_view_empty_records);
+        this.mUseGlobalSearchButton = view.findViewById(R.id.button_global_search);
+        mUseGlobalSearchButton.setOnClickListener(v -> mMainView.showGlobalSearchWithQuery());
         mListViewRecords.setEmptyView(mTextViewRecordsEmpty);
         registerForContextMenu(mListViewRecords);
-        mListViewRecords.setOnLongClickListener(new View.OnLongClickListener() {
+        /*mListViewRecords.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 return false;
             }
-        });
+        });*/
         // список файлов
         this.mListViewFiles = view.findViewById(R.id.list_view_files);
         // обработка нажатия на пустом месте списка файлов
@@ -215,6 +219,7 @@ public class MainPageFragment extends TetroidFragment {
         mListViewRecords.setAdapter(null);
         mListViewFiles.setAdapter(null);
         mTextViewRecordsEmpty.setText(R.string.title_select_the_node);
+        showGlobalSearchButton(false);
     }
 
     /**
@@ -226,6 +231,7 @@ public class MainPageFragment extends TetroidFragment {
         String dateTimeFormat = checkDateFormatString();
         showView(viewId);
         mTextViewRecordsEmpty.setText(R.string.title_records_is_missing);
+        showGlobalSearchButton(false);
         this.mListAdapterRecords.setDataItems(records, viewId, dateTimeFormat);
         mListViewRecords.setAdapter(mListAdapterRecords);
     }
@@ -933,6 +939,10 @@ public class MainPageFragment extends TetroidFragment {
 
     public void setRecordsEmptyViewText(String s) {
         mTextViewRecordsEmpty.setText(s);
+    }
+
+    public void showGlobalSearchButton(boolean vis) {
+        mUseGlobalSearchButton.setVisibility((vis) ? View.VISIBLE : View.GONE);
     }
 
     public void setFilesEmptyViewText(String s) {

@@ -113,6 +113,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
+    public static final String EXTRA_QUERY = "EXTRA_QUERY";
 
     private DrawerLayout mDrawerLayout;
     private MultiLevelListView mListViewNodes;
@@ -148,6 +149,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsNodeOpening = false;
     private ScanManager mLastScan;
     private TetroidTask mCurTask;
+    private String mLastSearchQuery;
 
 
     public MainActivity() {
@@ -585,7 +587,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initGUI(boolean res, boolean isOnlyFavorites, boolean openLastNode) {
         // избранные записи
         mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
-        mFavoritesNode.setVisibility((res) ? View.VISIBLE : View.GONE);
+        mFavoritesNode.setVisibility((res && App.isFullVersion()) ? View.VISIBLE : View.GONE);
         mTextViewNodesEmpty.setVisibility(View.GONE);
         if (res && App.isFullVersion()) {
             updateFavorites();
@@ -1845,7 +1847,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     @Override
     public void research() {
-        showGlobalSearchActivity();
+        showGlobalSearchActivity(null);
     }
 
     @Override
@@ -2093,6 +2095,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     ? String.format(getString(R.string.search_records_in_node_not_found_mask), query, mCurNode.getName())
                     : String.format(getString(R.string.search_records_in_tag_not_found_mak), query, mCurTag.getName());
             mViewPagerAdapter.getMainFragment().setRecordsEmptyViewText(emptyText);
+            this.mLastSearchQuery = query;
+            mViewPagerAdapter.getMainFragment().showGlobalSearchButton(true);
+        } else {
+            mViewPagerAdapter.getMainFragment().showGlobalSearchButton(false);
         }
     }
 
@@ -2192,7 +2198,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_global_search:
-                showGlobalSearchActivity();
+                showGlobalSearchActivity(null);
                 return true;
             case R.id.action_storage_sync:
                 startStorageSync(DataManager.getStoragePath());
@@ -2256,14 +2262,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
-    private void showGlobalSearchActivity() {
+    private void showGlobalSearchActivity(String query) {
         if (App.IsLoadedFavoritesOnly) {
             Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
         } else {
             Intent intent = new Intent(this, SearchActivity.class);
+            if (query != null) {
+                intent.putExtra(EXTRA_QUERY, query);
+            }
             intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
             startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
         }
+    }
+
+    @Override
+    public void showGlobalSearchWithQuery() {
+        showGlobalSearchActivity(mLastSearchQuery);
     }
 
     public void showActivityForResult(Class<?> cls, int requestCode) {
