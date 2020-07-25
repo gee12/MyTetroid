@@ -718,7 +718,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // выходим, т.к. запрос пароля будет в асинхронном режиме
             return;
         }
-        LogManager.log(getString(R.string.log_open_node) + TetroidLog.getIdNameString(node));
+        LogManager.log(getString(R.string.log_open_node) + TetroidLog.getIdString(node));
         // сбрасываем фильтрацию при открытии ветки
         if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
@@ -732,6 +732,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         this.mCurNode = node;
         mViewPagerAdapter.getMainFragment().setCurNode(node);
+        mListAdapterNodes.setCurNode(node);
+        mListAdapterNodes.notifyDataSetChanged();
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
     }
 

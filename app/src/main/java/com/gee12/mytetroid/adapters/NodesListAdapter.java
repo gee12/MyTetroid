@@ -51,15 +51,16 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         ConstraintLayout headerView;
     }
 
-    private Context context;
-    private LayoutInflater inflater;
-    private OnNodeHeaderClickListener onNodeHeaderClickListener;
+    private Context mContext;
+    private LayoutInflater mInflater;
+    private OnNodeHeaderClickListener mOnNodeHeaderClickListener;
+    private TetroidNode mCurNode;
 
     public NodesListAdapter(Context context, OnNodeHeaderClickListener onNodeHeaderClickListener) {
         super();
-        this.context = context;
-        this.onNodeHeaderClickListener = onNodeHeaderClickListener;
-        this.inflater = LayoutInflater.from(context);
+        this.mContext = context;
+        this.mOnNodeHeaderClickListener = onNodeHeaderClickListener;
+        this.mInflater = LayoutInflater.from(context);
     }
 
     @Override
@@ -82,7 +83,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         NodeViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new NodeViewHolder();
-            convertView = inflater.inflate(R.layout.list_item_node, null);
+            convertView = mInflater.inflate(R.layout.list_item_node, null);
             viewHolder.iconView = convertView.findViewById(R.id.node_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.node_view_name);
             viewHolder.recordsCountView = convertView.findViewById(R.id.node_view_records_count);
@@ -111,21 +112,21 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.iconView.setVisibility(View.GONE);
         }
         // название
-        String cryptedName = context.getString(R.string.title_crypted_node_name);
+        String cryptedName = mContext.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
         // количество записей в ветке
             viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorBaseText));
         } else {
 //            viewHolder.recordsCountView.setVisibility(View.GONE);
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
-        viewHolder.headerView.setOnClickListener(v -> onNodeHeaderClickListener.onClick(node));
-        viewHolder.headerView.setOnLongClickListener(v -> onNodeHeaderClickListener.onLongClick(view, node, pos));
+        viewHolder.headerView.setOnClickListener(v -> mOnNodeHeaderClickListener.onClick(node));
+        viewHolder.headerView.setOnLongClickListener(v -> mOnNodeHeaderClickListener.onLongClick(view, node, pos));
         // стрелка раскрытия/закрытия ветки
         int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
@@ -139,13 +140,19 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.headerView.getLayoutParams();
         layoutParams.setMargins(20 * node.getLevel(),0,rightMargin,0);
         // подсветка
-        if (node.isCrypted() && App.IsHighlightCryptedNodes) {
+        if (mCurNode == node) {
+            convertView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorCurNode));
+        } else if (node.isCrypted() && App.IsHighlightCryptedNodes) {
             convertView.setBackgroundColor(App.HighlightAttachColor);
         } else {
             convertView.setBackgroundColor(Color.TRANSPARENT);
         }
 
         return convertView;
+    }
+
+    public void setCurNode(TetroidNode node) {
+        this.mCurNode = node;
     }
 
     public TetroidNode getItem(int position) {

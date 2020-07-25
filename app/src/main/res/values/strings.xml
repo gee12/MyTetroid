@@ -484,6 +484,7 @@
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="log_app_exit">Exit from app</string>
+    <string name="log_obj_id_mask" translatable="false">id=%s</string>
     <string name="log_obj_id_name_mask">id=%s, name=\"%s\"</string>
     <string name="log_set_cur_pass">Setting current password</string>
     <string name="log_set_new_pass">Setting the new password</string>

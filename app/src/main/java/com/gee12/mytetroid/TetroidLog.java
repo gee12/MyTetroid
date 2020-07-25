@@ -166,6 +166,15 @@ public class TetroidLog extends LogManager {
         return getStringFormat(R.string.log_obj_id_name_mask, obj.getId(), obj.getName());
     }
 
+    /**
+     * Формирование строки с id объекта хранилища.
+     * @param obj
+     * @return
+     */
+    public static String getIdString(@NotNull TetroidObject obj) {
+        return getStringFormat(R.string.log_obj_id_mask, obj.getId());
+    }
+
     public static String getStringFormat(@StringRes int formatRes, String... args) {
         return Utils.getStringFormat(context, formatRes, args);
     }
