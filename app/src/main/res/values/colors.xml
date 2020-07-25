@@ -15,6 +15,7 @@
     <color name="colorGray_50">#668B8B8B</color>
     <color name="colorGreen_50">#4D86B945</color>
     <color name="colorBlue_50">#8000BCD4</color>
+    <color name="colorCurNode">#E8EDFF</color>
 
     <color name="main_dark_color">#5A79AE</color>
     <color name="main_center_color">#8391DA</color>
