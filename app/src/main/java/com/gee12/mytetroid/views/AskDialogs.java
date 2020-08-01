@@ -188,9 +188,10 @@ public class AskDialogs {
                 (dialog, which) -> applyHandler.onCancel());
     }
 
-    public static void showReloadStorageDialog(Context context, boolean isCreate, final IApplyResult applyHandler) {
+    public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged, final IApplyResult applyHandler) {
         AskDialogs.showYesDialog(context, applyHandler,
-                (isCreate) ? R.string.ask_storage_folder_clear : R.string.ask_storage_path_was_changed);
+                (toCreate) ? R.string.ask_storage_folder_clear :
+                        (pathChanged) ? R.string.ask_storage_path_was_changed : R.string.ask_reload_storage);
     }
 
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {

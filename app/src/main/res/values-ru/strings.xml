@@ -142,7 +142,7 @@
     <string name="pref_record_auto_save_summ">Сохранять изменения записи автоматически при завершении редактирования</string>
     <string name="pref_category_sync">Синхронизация</string>
     <string name="pref_is_sync_storage">Синхронизация хранилища</string>
-    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища</string>
+    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища (пока только MGit)</string>
     <string name="pref_is_sync_before_loading">Синхронизировать перед загрузкой</string>
     <string name="pref_is_sync_before_loading_summ">Автоматически запускать синхронизацию перед загрузкой хранилища</string>
     <string name="pref_sync_command">Команда синхронизации</string>
@@ -266,6 +266,7 @@
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="ask_clear_trash">Очистить корзину?</string>
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
+    <string name="ask_reload_storage">Перезагрузить хранилище?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
@@ -455,5 +456,6 @@
     <string name="label_size">Размер каталога:</string>
     <string name="title_folder_is_missing">Каталог отсутствует</string>
     <string name="title_use_global_search">Использовать глобальный поиск</string>
+    <string name="title_reload_storage">Перезагрузить хранилище</string>
 
 </resources>

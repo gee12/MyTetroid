@@ -1016,7 +1016,7 @@ public class RecordActivity extends TetroidActivity implements
             if (data != null) {
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
                     boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
-                    AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
+                    AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
                         // перезагружаем хранилища в главной активности, если изменили путь
                         finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                     });

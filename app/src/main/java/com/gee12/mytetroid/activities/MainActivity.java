@@ -141,7 +141,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private boolean mIsRecordsFiltered;
     private boolean mIsAlreadyTryDecrypt;
-//    private boolean mIsStorageLoaded;
     private Intent mReceivedIntent;
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
@@ -309,6 +308,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         closeFoundFragment();
         mViewPagerAdapter.getMainFragment().clearView();
         startInitStorage(true);
+    }
+
+    /**
+     * Перезагрузка хранилища.
+     */
+    private void reloadStorage() {
+        AskDialogs.showReloadStorageDialog(this, false, false, () -> reinitStorage());
     }
 
     /**
@@ -731,10 +737,30 @@ public class MainActivity extends TetroidActivity implements IMainView {
             this.mIsNodeOpening = false;
         }
         this.mCurNode = node;
+        setCurNode(node);
+        showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
+    }
+
+    /**
+     * Установка и выделение текущей ветки.
+     * @param node
+     */
+    private void setCurNode(TetroidNode node) {
         mViewPagerAdapter.getMainFragment().setCurNode(node);
         mListAdapterNodes.setCurNode(node);
         mListAdapterNodes.notifyDataSetChanged();
-        showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
+        if (node != null) {
+            setFavorIsCurNode(false);
+        }
+    }
+
+    /**
+     * Управление подсветкой ветки Избранное.
+     * @param isCur
+     */
+    private void setFavorIsCurNode(boolean isCur) {
+        mFavoritesNode.setBackgroundColor(ContextCompat.getColor(this,
+                (isCur) ? R.color.colorCurNode : R.color.transparent));
     }
 
     /**
@@ -746,6 +772,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // запрос пароля в асинхронном режиме
             askPassword(FavoritesManager.FAVORITES_NODE);
         } else*/ {
+            // выделяем ветку Избранное, только если загружено не одно Избранное
+            if (!App.IsLoadedFavoritesOnly) {
+                setCurNode(null);
+                setFavorIsCurNode(true);
+            }
             showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES);
         }
     }
@@ -764,7 +795,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.log(R.string.log_tag_is_null, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
-        this.mCurNode = null;
+        setCurNode(null);
         this.mCurTag = tag;
         LogManager.log(getString(R.string.log_open_tag_records) + tag);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
@@ -779,6 +810,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mDrawerLayout.closeDrawers();
         mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
         mViewPagerAdapter.getMainFragment().showRecords(records, viewId);
+    }
+
+    private void showRecordFiles(TetroidRecord record) {
+        checkCurNode(record);
+        mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+    }
+
+    /**
+     * Обновление текущей ветки, если еще не установлена.
+     * @param record
+     */
+    private void checkCurNode(TetroidRecord record) {
+        TetroidNode node = record.getNode();
+        if (node != mCurNode) {
+            setCurNode(node);
+        }
     }
 
     @Override
@@ -1694,9 +1741,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (data != null) {
                 // перезагружаем хранилище, если изменили путь
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
-                    boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
-                    AskDialogs.showReloadStorageDialog(this, isCreate, () -> {
-                        if (isCreate) {
+                    boolean toCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                    AskDialogs.showReloadStorageDialog(this, toCreate, true, () -> {
+                        if (toCreate) {
                             createStorage(SettingsManager.getStoragePath()/*, true*/);
                         } else {
                             reinitStorage();
@@ -1828,7 +1875,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 openRecord((TetroidRecord)found);
                 break;
             case FoundType.TYPE_FILE:
-                mViewPagerAdapter.getMainFragment().showRecordFiles(((TetroidFile)found).getRecord());
+                showRecordFiles(((TetroidFile)found).getRecord());
                 break;
             case FoundType.TYPE_NODE:
                 showNode((TetroidNode)found);
@@ -2193,12 +2240,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_record_node:
                 showNode(mCurNode);
                 return true;
-            case R.id.action_fullscreen:
-                App.toggleFullscreen(MainActivity.this);
-                return true;
-            case R.id.action_settings:
-                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
-                return true;
             case R.id.action_global_search:
                 showGlobalSearchActivity(null);
                 return true;
@@ -2207,6 +2248,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 return true;
             case R.id.action_storage_info:
                 showStorageInfoActivity();
+                return true;
+            case R.id.action_reload:
+                reloadStorage();
+                return true;
+            case R.id.action_fullscreen:
+                App.toggleFullscreen(MainActivity.this);
+                return true;
+            case R.id.action_settings:
+                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_about_app:
                 ViewUtils.startActivity(this, AboutActivity.class, null);
