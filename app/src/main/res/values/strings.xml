@@ -167,7 +167,7 @@
     <string name="pref_is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
     <string name="pref_category_sync">Sync</string>
     <string name="pref_is_sync_storage">Sync storage</string>
-    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
+    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application (MGit only)</string>
     <string name="pref_is_sync_before_loading">Sync before loading</string>
     <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
@@ -324,6 +324,7 @@
     <string name="ask_clear_trash">Cleat trash folder?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
+    <string name="ask_reload_storage">Reload storage?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
@@ -513,5 +514,6 @@
     <string name="label_size">Folder size:</string>
     <string name="title_folder_is_missing">Folder is missing</string>
     <string name="title_use_global_search">Use global search</string>
+    <string name="title_reload_storage">Reload storage</string>
 
 </resources>
