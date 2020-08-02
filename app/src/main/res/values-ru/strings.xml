@@ -142,7 +142,7 @@
     <string name="pref_record_auto_save_summ">Сохранять изменения записи автоматически при завершении редактирования</string>
     <string name="pref_category_sync">Синхронизация</string>
     <string name="pref_is_sync_storage">Синхронизация хранилища</string>
-    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища (пока только MGit)</string>
+    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища (только MGit)</string>
     <string name="pref_is_sync_before_loading">Синхронизировать перед загрузкой</string>
     <string name="pref_is_sync_before_loading_summ">Автоматически запускать синхронизацию перед загрузкой хранилища</string>
     <string name="pref_sync_command">Команда синхронизации</string>
