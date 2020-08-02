@@ -891,11 +891,11 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static boolean isDecrypted() {
-        return instance.isDecrypted;
+        return instance != null && instance.isDecrypted;
     }
 
     public static boolean isFavoritesMode() {
-        return instance.mIsFavoritesMode;
+        return instance != null && instance.mIsFavoritesMode;
     }
 
     public static DatabaseConfig getDatabaseConfig() {

@@ -49,7 +49,7 @@
     <string name="title_gallery">Gallery</string>
     <string name="title_show">Show</string>
     <string name="title_log_file_content">Логи</string>
-    <string name="title_storage_info">Storage statistics</string>
+    <string name="title_storage_info">Storage info</string>
     <string name="title_cur_node">Record node</string>
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
@@ -324,7 +324,7 @@
     <string name="ask_clear_trash">Cleat trash folder?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
-    <string name="ask_reload_storage">Reload storage?</string>
+    <string name="ask_reload_storage">Reload storage from device memory?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>

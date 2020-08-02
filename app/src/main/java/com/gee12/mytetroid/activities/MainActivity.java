@@ -314,7 +314,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Перезагрузка хранилища.
      */
     private void reloadStorage() {
-        AskDialogs.showReloadStorageDialog(this, false, false, () -> reinitStorage());
+        AskDialogs.showReloadStorageDialog(this, false, false, () -> {
+            // сохраняем id выбранной ветки
+            saveLastSelectedNode();
+            // перезагружаем хранилище
+            reinitStorage();
+        });
     }
 
     /**
@@ -434,7 +439,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param storagePath Путь хранилища
      */
     private void initStorage(String storagePath) {
-        boolean isFavorites = SettingsManager.isLoadFavorites();
+        // читаем установленную опцию isLoadFavorites только при первой загрузке
+        boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavorites()
+                || (DataManager.isLoaded() && DataManager.isFavoritesMode());
 
         if (DataManager.init(this, storagePath, false)) {
             LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
@@ -446,7 +453,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (DataManager.isCrypted() /*&& !isFavorites*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
                 //decryptStorage(null);
-                decryptStorage(null, SettingsManager.isLoadFavorites(), true);
+                decryptStorage(null, isFavorites, true);
             } else {
                 // загружаем
                 initStorage(null, false, isFavorites, true);
@@ -593,6 +600,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void initGUI(boolean res, boolean isOnlyFavorites, boolean openLastNode) {
         // избранные записи
         mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
+        mListViewNodes.setVisibility((!isOnlyFavorites) ? View.VISIBLE : View.GONE);
         mFavoritesNode.setVisibility((res && App.isFullVersion()) ? View.VISIBLE : View.GONE);
         mTextViewNodesEmpty.setVisibility(View.GONE);
         if (res && App.isFullVersion()) {
@@ -749,7 +757,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().setCurNode(node);
         mListAdapterNodes.setCurNode(node);
         mListAdapterNodes.notifyDataSetChanged();
-        if (node != null) {
+        if (node != null && App.isFullVersion()) {
             setFavorIsCurNode(false);
         }
     }
@@ -2297,6 +2305,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void onBeforeExit() {
         LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
+        saveLastSelectedNode();
+    }
+
+    /**
+     * Сохранение последней выбранной ветки.
+     */
+    private void saveLastSelectedNode() {
         if (SettingsManager.isKeepSelectedNode()) {
             TetroidNode curNode =
                     (mViewPagerAdapter.getMainFragment().getCurMainViewId() == MainPageFragment.MAIN_VIEW_FAVORITES)

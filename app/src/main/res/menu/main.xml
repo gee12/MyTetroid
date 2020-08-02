@@ -56,11 +56,11 @@
         android:orderInCategory="230"
         android:title="@string/title_storage_info"
         android:enabled="false"
-        android:icon="@drawable/ic_statistics"
+        android:icon="@drawable/ic_storage_info"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_reload"
-        android:orderInCategory="140"
+        android:orderInCategory="240"
         android:title="@string/title_reload_storage"
         android:icon="@drawable/ic_reload"
         app:showAsAction="never" />

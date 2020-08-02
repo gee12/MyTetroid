@@ -853,5 +853,4 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
     public int getMaxDepthLevel() {
         return mMaxDepthLevel;
     }
-
 }

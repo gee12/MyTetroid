@@ -28,7 +28,7 @@
     <string name="title_global_search">Глобальный поиск</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
-    <string name="title_storage_info">Статистика хранилища</string>
+    <string name="title_storage_info">Инфо о хранилище</string>
     <string name="title_expand_node_subnodes">Развернуть все подветки</string>
     <string name="title_collapse_node_subnodes">Свернуть все подветки</string>
     <string name="title_create_subnode">Добавить подветку</string>
@@ -266,7 +266,7 @@
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="ask_clear_trash">Очистить корзину?</string>
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
-    <string name="ask_reload_storage">Перезагрузить хранилище?</string>
+    <string name="ask_reload_storage">Перезагрузить хранилище из памяти устройства?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
     <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
