@@ -2306,6 +2306,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
         saveLastSelectedNode();
+        // очищаем память
+        DataManager.destruct();
     }
 
     /**
@@ -2412,8 +2414,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (res) {
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mFavoritesOnly;
-                String mes = getString((mFavoritesOnly) ? R.string.log_storage_favor_loaded : R.string.log_storage_loaded);
-                LogManager.log(mes + DataManager.getStoragePath(), Toast.LENGTH_SHORT);
+                String mes = getString((mFavoritesOnly) ? R.string.log_storage_favor_loaded_mask : R.string.log_storage_loaded_mask);
+                LogManager.log(String.format(mes, DataManager.getStorageName()), Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);

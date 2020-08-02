@@ -68,6 +68,11 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     protected String mStoragePath;
 
     /**
+     * Название хранилища.
+     */
+    protected String mStorageName;
+
+    /**
      * Проинициализировано ли хранилище (установлен путь, но может быть еще не загружено).
      */
     protected boolean mIsStorageInited;
@@ -99,9 +104,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         DataManager.databaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         boolean res;
         try {
+            File storageDir = new File(storagePath);
             if (isNew) {
                 LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
-                File storageDir = new File(storagePath);
                 if (storageDir.exists()) {
                     // очищаем каталог
                     LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
@@ -124,6 +129,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 // загружаем database.ini
                 res = databaseConfig.load();
             }
+            instance.mStorageName = storageDir.getName();
         } catch (Exception ex) {
             LogManager.log(ex);
             return false;
@@ -846,6 +852,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return Utils.getStringFormat(context, R.string.log_to_mask, to);
     }
 
+    public static String getStorageName() {
+        return instance.mStorageName;
+    }
+
     public static List<TetroidNode> getRootNodes() {
         return instance.mRootNodesList;
     }
@@ -906,4 +916,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return instance;
     }
 
+    public static void destruct() {
+        instance = null;
+    }
 }
