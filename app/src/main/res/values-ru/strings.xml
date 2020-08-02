@@ -299,10 +299,9 @@
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
     <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
-    <string name="log_storage_loaded">Хранилище загружено:\n</string>
-    <string name="log_storage_favor_loaded">Избранные записи хранилища загружены:\n</string>
+    <string name="log_storage_loaded_mask">Хранилище \'%s\' загружено</string>
+    <string name="log_storage_favor_loaded_mask">Избранные записи хранилища \'%s\' загружены</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
-    <string name="log_storage_created">Хранилище создано:\n</string>
     <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>

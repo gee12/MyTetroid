@@ -353,10 +353,9 @@
     <string name="title_storage_not_loaded">Storage not loaded</string>
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
-    <string name="log_storage_loaded">Storage was loaded:\n</string>
-    <string name="log_storage_favor_loaded">Storage favorites was loaded:\n</string>
+    <string name="log_storage_loaded_mask">Storage \'%s\' was loaded</string>
+    <string name="log_storage_favor_loaded_mask">Storage \'%s\' favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-    <string name="log_storage_created">Storage is created:\n</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_global_search_return_null">Some error in global search…</string>
