@@ -29,21 +29,21 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_path"
+            android:text="@string/stats_nodes_count"
             style="@style/grid_cell"/>
 
         <TextView
-            android:id="@+id/text_view_path"
+            android:id="@+id/text_view_nodes"
             style="@style/grid_cell"/>
     </TableRow>
 
     <TableRow>
         <TextView
-            android:text="@string/label_size"
+            android:text="@string/stats_records_count"
             style="@style/grid_cell"/>
 
         <TextView
-            android:id="@+id/text_view_size"
+            android:id="@+id/text_view_records"
             style="@style/grid_cell"/>
     </TableRow>
 

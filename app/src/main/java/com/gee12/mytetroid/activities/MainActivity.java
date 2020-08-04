@@ -1659,6 +1659,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 case R.id.action_insert_subnode:
                     insertNode(node, pos, true);
                     return true;
+                case R.id.action_info:
+                    NodeAskDialogs.createNodeInfoDialog(this, node);
+                    return true;
                 case R.id.action_delete:
                     deleteNode(node, pos);
                     return true;

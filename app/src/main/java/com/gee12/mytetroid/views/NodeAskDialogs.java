@@ -4,14 +4,17 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.model.TetroidNode;
 
 import java.util.Random;
@@ -73,6 +76,30 @@ public class NodeAskDialogs {
                 okButton.setEnabled(!TextUtils.isEmpty(s));
             }
         });
+    }
+
+    /**
+     * Диалог информации о записи.
+     * @param context
+     * @param node
+     */
+    public static void createNodeInfoDialog(Context context, TetroidNode node) {
+        if (node == null || !node.isNonCryptedOrDecrypted())
+            return;
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node_info);
+        builder.setPositiveButton(R.string.answer_ok, null);
+        builder.setTitle(node.getName());
+
+        View view = builder.getView();
+        ((TextView)view.findViewById(R.id.text_view_id)).setText(node.getId());
+        ((TextView)view.findViewById(R.id.text_view_crypted)).setText(node.isCrypted()
+                ? R.string.answer_yes : R.string.answer_no);
+        int[] nodesRecords = NodesManager.getNodesRecordsCount(node);
+        if (nodesRecords != null) {
+            ((TextView) view.findViewById(R.id.text_view_nodes)).setText(String.valueOf(nodesRecords[0]));
+            ((TextView) view.findViewById(R.id.text_view_records)).setText(String.valueOf(nodesRecords[1]));
+        }
+        builder.show();
     }
 
     public static void deleteNode(Context context, final AskDialogs.IApplyResult applyHandler) {

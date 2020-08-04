@@ -341,6 +341,12 @@ public class NodesManager extends DataManager {
         return getNodeInHierarchy(instance.mRootNodesList, id);
     }
 
+    /**
+     * Рекурсивный поиск ветки в списке веток.
+     * @param nodes
+     * @param id
+     * @return
+     */
     public static TetroidNode getNodeInHierarchy(List<TetroidNode> nodes, String id) {
         if (nodes == null || id == null)
             return null;
@@ -354,6 +360,30 @@ public class NodesManager extends DataManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Рекурсивный подсчет дочерних веток и записей в ветке.
+     * @param node
+     * @return
+     */
+    public static int[] getNodesRecordsCount(TetroidNode node) {
+        if (node == null)
+            return null;
+        int[] res = new int[2];
+        int subNodesCount = node.getSubNodesCount();
+        res[0] = subNodesCount;
+        res[1] = node.getRecordsCount();
+        if (subNodesCount > 0) {
+            for (TetroidNode subNode : node.getSubNodes()) {
+                int[] subRes = getNodesRecordsCount(subNode);
+                if (subRes != null) {
+                    res[0] += subRes[0];
+                    res[1] += subRes[1];
+                }
+            }
+        }
+        return res;
     }
 
     /**
