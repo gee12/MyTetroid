@@ -62,6 +62,16 @@
     <style name="grid_cell">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:gravity">left|top</item>
+        <item name="android:layout_gravity">fill</item>
+        <item name="android:textSize">@dimen/font_small</item>
+        <item name="android:textIsSelectable">true</item>
+    </style>
+
+    <style name="grid_cell">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginRight">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:gravity">left|top</item>
