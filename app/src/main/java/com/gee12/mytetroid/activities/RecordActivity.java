@@ -176,9 +176,9 @@ public class RecordActivity extends TetroidActivity implements
         mEditor.setImgPickerCallback(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
-        mEditor.getWebView().setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
         EditableWebView webView = mEditor.getWebView();
+//        webView.setOnTouchListener(this);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);

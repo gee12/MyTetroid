@@ -170,8 +170,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/layout_fields_expander"
-            android:textIsSelectable="true"
-            android:layout_margin="0dp"
             android:background="@android:color/transparent"/>
 
         <ScrollView

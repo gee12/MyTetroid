@@ -35,8 +35,8 @@ public class TetroidEditor extends WysiwygEditor {
 
     public List<ActionButton> getActionButtons() {
         List<ActionButton> buttons = new ArrayList<>();
-        for (int i = 0; i < mLayoutButtons.getChildCount(); i++) {
-            View view = mLayoutButtons.getChildAt(i);
+        for (int i = 0; i < mToolbarButtonsLayout.getChildCount(); i++) {
+            View view = mToolbarButtonsLayout.getChildAt(i);
             if (view instanceof ActionButton) {
                 buttons.add((ActionButton) view);
             }

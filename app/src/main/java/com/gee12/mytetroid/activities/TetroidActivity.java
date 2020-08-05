@@ -31,7 +31,8 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // обработчик нажатия на экране
-        this.gestureDetector = new GestureDetectorCompat(this, new ActivityDoubleTapListener(this::toggleFullscreen));
+        this.gestureDetector = new GestureDetectorCompat(this,
+                new ActivityDoubleTapListener(this::toggleFullscreen));
 
         this.tvTitle = mToolbar.findViewById(R.id.text_view_title);
         this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
