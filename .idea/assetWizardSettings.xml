@@ -210,7 +210,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/hardware/ic_keyboard_arrow_up_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/opt/android-studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_photo_size_select_small_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -220,8 +220,8 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_arrow_up" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/formula_optim.svg" />
+                            <entry key="outputName" value="ic_selection_mode" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../images/editor/ic_select_start.svg" />
                           </map>
                         </option>
                       </PersistentState>
