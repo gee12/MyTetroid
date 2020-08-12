@@ -115,12 +115,12 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         String cryptedName = mContext.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
         // количество записей в ветке
-            viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
+            viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
             viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorBaseText));
         } else {
-//            viewHolder.recordsCountView.setVisibility(View.GONE);
+            viewHolder.recordsCountView.setVisibility(View.GONE);
             viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
