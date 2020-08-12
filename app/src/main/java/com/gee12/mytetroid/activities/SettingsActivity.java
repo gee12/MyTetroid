@@ -33,7 +33,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.ITaskProgress;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 

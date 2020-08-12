@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -470,4 +471,14 @@ public class FileUtils {
         return size;
     }
 
+    /**
+     * Получение даты последнего изменения файла.
+     * @param file
+     * @return
+     */
+    public static Date fileLastModifiedDate(File file) {
+        if (file == null)
+            return null;
+        return new Date(file.lastModified());
+    }
 }

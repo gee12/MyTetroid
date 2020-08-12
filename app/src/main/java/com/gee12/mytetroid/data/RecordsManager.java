@@ -35,31 +35,22 @@ public class RecordsManager extends DataManager {
      * Если расшифрован, то в tempPath. Если не был зашифрован, то в mStoragePath.
      * @return
      */
-    public static String getRecordFilePath(@NonNull TetroidRecord record) {
+/*    public static String getRecordFilePath(@NonNull TetroidRecord record) {
         if (record == null) {
-            LogManager.emptyParams("DataManager.getRecordTextUri()");
+            LogManager.emptyParams("DataManager.getRecordFilePath()");
             return null;
         }
         String path = null;
         if (record.isCrypted()) {
             if (record.isDecrypted()) {
-                // расшифровываем файл и ложим в temp
-//                path = SettingsManager.getTrashPath() + SEPAR + record.getDirName()
                 path = getPathToRecordFolderInTrash(record) + SEPAR + record.getFileName();
             }
         } else {
-//            path = SettingsManager.getStoragePath() + SEPAR + BASE_FOLDER_NAME
-//                    + SEPAR + record.getDirName()
-//                    + SEPAR + record.getFileName();
             path = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
         }
-        /*String path = (isCrypted && isDecrypted)    // логическая ошибка в условии
-                ? tempPath+dirName+"/"+fileName
-                : mStoragePath+"/base/"+dirName+"/"+fileName;*/
-//        File file = new File(mStoragePath+"/base/"+dirName+"/"+fileName);
 //        return "file:///" + file.getAbsolutePath();
         return (path != null) ? "file:///" + path : null;
-    }
+    }*/
 
     /**
      * Получение содержимого записи в виде "сырого" html.
@@ -837,9 +828,9 @@ public class RecordsManager extends DataManager {
      * @param record
      * @return
      */
-    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record){
+    public static boolean openRecordFolder(Context context, @NotNull TetroidRecord record) {
         if (context == null || record == null) {
-            LogManager.emptyParams("DataManager.openRecordFolder()");
+            LogManager.emptyParams("RecordManager.openRecordFolder()");
             return false;
         }
         LogManager.log(context.getString(R.string.log_start_record_folder_opening) + record.getId(), LogManager.Types.DEBUG);
@@ -850,6 +841,15 @@ public class RecordsManager extends DataManager {
             return false;
         }
         return true;
+    }
+
+    public static Date getEditedDate(Context context, TetroidRecord record) {
+        if (context == null || record == null) {
+            LogManager.emptyParams("RecordManager.getEditedDate()");
+            return null;
+        }
+        String fileName = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
+        return getFileModifiedDate(context, fileName);
     }
 
     public static String getUriToRecordFolder(@NonNull TetroidRecord record) {

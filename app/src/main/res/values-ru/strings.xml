@@ -190,11 +190,12 @@
     <string name="stage_new_pass_reencrypting">Перешифровка хранилища новым паролем…</string>
     <string name="stage_storage_saving">Сохранение структуры хранилища…</string>
 
-    <string name="label_record_name">Название:</string>
-    <string name="label_record_tags">Метки:</string>
-    <string name="label_record_author">Автор:</string>
-    <string name="label_record_uri">Url:</string>
-    <string name="label_record_date">Дата:</string>
+    <string name="label_name">Название:</string>
+    <string name="label_tags">Метки:</string>
+    <string name="label_author">Автор:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_created">Создано:</string>
+    <string name="label_edited">Изменено:</string>
     <string name="label_pass">Пароль:</string>
     <string name="label_cur_pass">Текущий пароль:</string>
     <string name="label_new_pass">Новый пароль:</string>
@@ -326,7 +327,7 @@
     <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%s] в [%s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
-    <string name="log_attach_file_is_missing">Файл отсутствует на диске:&#160;</string>
+    <string name="log_file_is_missing">Файл отсутствует на диске:&#160;</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>

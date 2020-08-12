@@ -12,6 +12,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;

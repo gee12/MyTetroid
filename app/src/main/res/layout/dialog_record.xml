@@ -7,7 +7,7 @@
     android:padding="16dp">
 
     <TextView
-        android:text="@string/label_record_name"
+        android:text="@string/label_name"
         style="@style/dialog_labels"/>
 
     <EditText
@@ -20,7 +20,7 @@
     </EditText>
 
     <TextView
-        android:text="@string/label_record_author"
+        android:text="@string/label_author"
         style="@style/dialog_labels"/>
 
     <EditText
@@ -29,7 +29,7 @@
         style="@style/dialog_text_edit"/>
 
     <TextView
-        android:text="@string/label_record_uri"
+        android:text="@string/label_url"
         style="@style/dialog_labels"/>
 
     <EditText
@@ -38,7 +38,7 @@
         style="@style/dialog_text_edit"/>
 
     <TextView
-        android:text="@string/label_record_tags"
+        android:text="@string/label_tags"
         style="@style/dialog_labels"/>
 
     <EditText

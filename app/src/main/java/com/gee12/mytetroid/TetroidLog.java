@@ -154,7 +154,8 @@ public class TetroidLog extends LogManager {
     }
 
     private static String addIdName(TetroidObject o) {
-        return (o != null) ? ": " + getIdNameString(o) : "";
+//        return (o != null) ? ": " + getIdNameString(o) : "";
+        return (o != null) ? ": " + getIdString(o) : "";
     }
 
     /**

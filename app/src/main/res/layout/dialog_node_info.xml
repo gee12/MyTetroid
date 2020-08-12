@@ -10,41 +10,41 @@
     <TableRow>
         <TextView
             android:text="@string/label_id"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_label"/>
 
         <TextView
             android:id="@+id/text_view_id"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_value"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/label_crypted"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_label"/>
 
         <TextView
             android:id="@+id/text_view_crypted"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_value"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/stats_nodes_count"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_label"/>
 
         <TextView
             android:id="@+id/text_view_nodes"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_value"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/stats_records_count"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_label"/>
 
         <TextView
             android:id="@+id/text_view_records"
-            style="@style/grid_cell"/>
+            style="@style/grid_cell_value"/>
     </TableRow>
 
 </TableLayout>

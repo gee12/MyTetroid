@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views;
+package com.gee12.mytetroid.dialogs;
 
 import android.app.AlertDialog;
 import android.content.Context;

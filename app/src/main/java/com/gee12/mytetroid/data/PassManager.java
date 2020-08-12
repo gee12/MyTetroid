@@ -10,9 +10,9 @@ import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
+import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.AskDialogs;
 
 public class PassManager extends DataManager {
 

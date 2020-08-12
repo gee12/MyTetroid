@@ -274,11 +274,12 @@
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
     <string name="global_searching">Global searching…</string>
 
-    <string name="label_record_name">Name:</string>
-    <string name="label_record_tags">Tags:</string>
-    <string name="label_record_author">Author:</string>
-    <string name="label_record_uri">Url:</string>
-    <string name="label_record_date">Date:</string>
+    <string name="label_name">Name:</string>
+    <string name="label_tags">Tags:</string>
+    <string name="label_author">Author:</string>
+    <string name="label_url">Url:</string>
+    <string name="label_created">Created:</string>
+    <string name="label_edited">Edited:</string>
     <string name="label_pass">Password:</string>
     <string name="label_cur_pass">Current password:</string>
     <string name="label_new_pass">New password:</string>
@@ -331,7 +332,7 @@
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
-    <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm</string>
+    <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm:ss</string>
     <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
     <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
 
@@ -381,7 +382,7 @@
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%s] to [%s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
-    <string name="log_attach_file_is_missing">File is missing on the disk:&#160;</string>
+    <string name="log_file_is_missing">File is missing on the disk:&#160;</string>
     <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>

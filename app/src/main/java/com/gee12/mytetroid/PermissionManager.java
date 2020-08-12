@@ -9,7 +9,7 @@ import android.os.Build;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.gee12.mytetroid.views.AskDialogs;
+import com.gee12.mytetroid.dialogs.AskDialogs;
 
 public class PermissionManager {
 

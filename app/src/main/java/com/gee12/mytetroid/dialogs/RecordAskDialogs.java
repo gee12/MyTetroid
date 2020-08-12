@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views;
+package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
 import android.text.Editable;
@@ -19,7 +19,9 @@ import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.utils.Utils;
 
+import java.util.Date;
 import java.util.Random;
 
 public class RecordAskDialogs {
@@ -111,6 +113,13 @@ public class RecordAskDialogs {
         ((TextView)view.findViewById(R.id.text_view_id)).setText(record.getId());
         ((TextView)view.findViewById(R.id.text_view_crypted)).setText(record.isCrypted()
                 ? R.string.answer_yes : R.string.answer_no);
+        String dateFormat = context.getString(R.string.full_date_format_string);
+        Date created = record.getCreated();
+        ((TextView)view.findViewById(R.id.text_view_created)).setText(
+                (created != null) ? Utils.dateToString(created, dateFormat) : "-");
+        Date edited = RecordsManager.getEditedDate(context, record);
+        ((TextView)view.findViewById(R.id.text_view_edited)).setText(
+                (edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
         String path = RecordsManager.getPathToRecordFolder(record);
         ((TextView)view.findViewById(R.id.text_view_path)).setText(path);
         String size = DataManager.getFileSize(context, path);

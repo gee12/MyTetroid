@@ -813,12 +813,12 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     public static String getFileSize(Context context, String fullFileName) {
         long size;
         try {
-            File srcFile = new File(fullFileName);
-            if (!srcFile.exists()) {
-                LogManager.log(context.getString(R.string.log_attach_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+            File file = new File(fullFileName);
+            if (!file.exists()) {
+                LogManager.log(context.getString(R.string.log_file_is_missing) + fullFileName, LogManager.Types.ERROR);
                 return null;
             }
-            size = FileUtils.fileSize(srcFile);
+            size = FileUtils.fileSize(file);
         } catch (SecurityException ex) {
             LogManager.log(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
             return null;
@@ -828,6 +828,31 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
 //        return FileUtils.fileSizeToStringBin(context, size);
         return android.text.format.Formatter.formatFileSize(context, size);
+    }
+
+    /**
+     *
+     * @param context
+     * @param fullFileName
+     * @return
+     */
+    public static Date getFileModifiedDate(Context context, String fullFileName) {
+        Date date;
+        try {
+            File file = new File(fullFileName);
+            if (!file.exists()) {
+                LogManager.log(context.getString(R.string.log_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                return null;
+            }
+            date = FileUtils.fileLastModifiedDate(file);
+        } catch (SecurityException ex) {
+            LogManager.log(context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+        return date;
     }
 
     /*

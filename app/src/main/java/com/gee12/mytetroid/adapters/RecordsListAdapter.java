@@ -128,7 +128,7 @@ public class RecordsListAdapter extends BaseAdapter {
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }
         // дата создания
-        if (record.getCreated() != null && nonCryptedOrDecrypted) {
+        if (nonCryptedOrDecrypted) {
             viewHolder.infoView.setText(record.getCreatedString(dateTimeFormat));
         } else {
             viewHolder.infoView.setText(null);

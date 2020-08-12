@@ -230,7 +230,7 @@ public class AttachesManager extends DataManager {
             filePath = dirPath + SEPAR + fileIdName;
             srcFile = new File(filePath);
             if (!srcFile.exists()) {
-                LogManager.log(context.getString(R.string.log_attach_file_is_missing) + filePath, LogManager.Types.ERROR);
+                LogManager.log(context.getString(R.string.log_file_is_missing) + filePath, LogManager.Types.ERROR);
                 return -2;
             }
         }
@@ -308,7 +308,7 @@ public class AttachesManager extends DataManager {
             destFilePath = dirPath + SEPAR + fileIdName;
             destFile = new File(destFilePath);
             if (!destFile.exists()) {
-                LogManager.log(context.getString(R.string.log_attach_file_is_missing) + destFilePath, LogManager.Types.ERROR);
+                LogManager.log(context.getString(R.string.log_file_is_missing) + destFilePath, LogManager.Types.ERROR);
                 return -2;
             }
         }
@@ -352,7 +352,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams("DataManager.saveFile()");
             return false;
         }
-        String mes = TetroidLog.getIdNameString(file) + DataManager.getStringTo(destPath);
+        String mes = TetroidLog.getIdString(file) + DataManager.getStringTo(destPath);
         TetroidLog.logOperStart(TetroidLog.Objs.FILE, TetroidLog.Opers.SAVE, ": " + mes);
 
         // проверка исходного файла

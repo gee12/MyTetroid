@@ -31,14 +31,14 @@ import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
+import com.gee12.mytetroid.dialogs.FileAskDialogs;
+import com.gee12.mytetroid.dialogs.RecordAskDialogs;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.FileAskDialogs;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -228,7 +228,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showRecords(List<TetroidRecord> records, int viewId) {
-        String dateTimeFormat = checkDateFormatString();
+        String dateTimeFormat = checkDateFormatString(getContext());
         showView(viewId);
         mTextViewRecordsEmpty.setText(R.string.title_records_is_missing);
         showGlobalSearchButton(false);
@@ -634,7 +634,7 @@ public class MainPageFragment extends TetroidFragment {
         if (FavoritesManager.add(record)) {
             String mes = "Добавлено в избранное";
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
-            LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+            LogManager.log(mes + ": " + TetroidLog.getIdString(record), LogManager.Types.INFO, -1);
             updateFavorites(record);
         } else {
             TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.ADD,
@@ -646,7 +646,7 @@ public class MainPageFragment extends TetroidFragment {
         if (FavoritesManager.remove(record, true)) {
             String mes = "Удалено из избранного";
             Message.show(getContext(), mes, Toast.LENGTH_SHORT);
-            LogManager.log(mes + ": " + TetroidLog.getIdNameString(record), LogManager.Types.INFO, -1);
+            LogManager.log(mes + ": " + TetroidLog.getIdString(record), LogManager.Types.INFO, -1);
             mMainView.updateFavorites();
             mListAdapterRecords.notifyDataSetInvalidated();
         } else {
@@ -663,18 +663,18 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Проверяем строку формата даты/времени, т.к. в версия приложения <= 11
+     * Проверяем строку формата даты/времени, т.к. в версии приложения <= 11
      * введенная строка в настройках не проверялась, что могло привести к падению приложения
      * при отображении списка.
      * @return
      */
-    private String checkDateFormatString() {
+    public static String checkDateFormatString(Context context) {
         String dateFormatString = SettingsManager.getDateFormatString();
         if (Utils.checkDateFormatString(dateFormatString)) {
             return dateFormatString;
         } else {
-            LogManager.log(getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
-            return getContext().getString(R.string.def_date_format_string);
+            LogManager.log(context.getString(R.string.log_incorrect_dateformat_in_settings), LogManager.Types.WARNING, Toast.LENGTH_LONG);
+            return context.getString(R.string.def_date_format_string);
         }
     }
 

@@ -69,6 +69,14 @@
         <item name="android:textIsSelectable">true</item>
     </style>
 
+    <style name="grid_cell_label" parent="grid_cell">
+<!--        <item name="android:textColor">@color/colorBaseText</item>-->
+    </style>
+
+    <style name="grid_cell_value" parent="grid_cell">
+        <item name="android:textColor">@color/colorBaseText</item>
+    </style>
+
     <style name="dialog_text_edit">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

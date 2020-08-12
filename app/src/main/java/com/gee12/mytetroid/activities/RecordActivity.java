@@ -43,6 +43,8 @@ import com.gee12.mytetroid.data.HtmlHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.dialogs.RecordAskDialogs;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -52,9 +54,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.gee12.mytetroid.views.AskDialogs;
 import com.gee12.mytetroid.views.ImgPicker;
-import com.gee12.mytetroid.views.RecordAskDialogs;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
@@ -304,8 +304,9 @@ public class RecordActivity extends TetroidActivity implements
         // поля
         mTvAuthor.setText(record.getAuthor());
         mTvUrl.setText(record.getUrl());
-        if (record.getCreated() != null)
+        if (record.getCreated() != null) {
             mTvDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+        }
     }
 
     /**
