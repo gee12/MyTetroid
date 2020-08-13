@@ -69,6 +69,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class RecordActivity extends TetroidActivity implements
@@ -101,13 +102,9 @@ public class RecordActivity extends TetroidActivity implements
 
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
-//    private WebView mWebViewTags;
     private TextView mTextViewTags;
     private ScrollView mScrollViewHtml;
     private TetroidEditText mEditTextHtml;
-    private TextView mTvAuthor;
-    private TextView mTvUrl;
-    private TextView mTvDate;
     protected ProgressBar mHtmlProgressBar;
     private TetroidEditor mEditor;
     private FloatingActionButton mButtonScrollBottom;
@@ -184,22 +181,9 @@ public class RecordActivity extends TetroidActivity implements
         webView.setYoutubeLoadLinkListener(this);
 
 //        this.mFieldsLayout = findViewById(R.id.layout_record_fields);
-        /*this.mWebViewTags = findViewById(R.id.web_view_record_tags);
-        mWebViewTags.setBackgroundColor(Color.TRANSPARENT);
-        mWebViewTags.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                onTagUrlLoad(url);
-                return true;
-            }
-        });*/
         this.mTextViewTags = findViewById(R.id.text_view_record_tags);
-        //mTextViewTags.setLinksClickable(true);
         mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());
 
-        this.mTvAuthor = findViewById(R.id.text_view_record_author);
-        this.mTvUrl = findViewById(R.id.text_view_record_url);
-        this.mTvDate = findViewById(R.id.text_view_record_date);
         this.mFieldsExpanderLayout = findViewById(R.id.layout_fields_expander);
 //        ToggleButton tbRecordFieldsExpander = findViewById(R.id.toggle_button_expander);
 //        tbRecordFieldsExpander.setOnCheckedChangeListener((buttonView, isChecked) -> mFieldsExpanderLayout.toggle());
@@ -262,6 +246,11 @@ public class RecordActivity extends TetroidActivity implements
     private void loadFields(TetroidRecord record) {
         if (record == null)
             return;
+
+        TextView tvAuthor = findViewById(R.id.text_view_record_author);
+        TextView tvUrl = findViewById(R.id.text_view_record_url);
+        TextView tvCreated = findViewById(R.id.text_view_record_created);
+        TextView tvEdited = findViewById(R.id.text_view_record_edited);
         int id = R.id.label_record_tags;
         // метки
         String tagsHtml = HtmlHelper.createTagsHtmlString(record);
@@ -300,13 +289,18 @@ public class RecordActivity extends TetroidActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params2.addRule(RelativeLayout.BELOW, id);
         params2.addRule(RelativeLayout.RIGHT_OF, R.id.label_record_author);
-        mTvAuthor.setLayoutParams(params2);
+        tvAuthor.setLayoutParams(params2);
         // поля
-        mTvAuthor.setText(record.getAuthor());
-        mTvUrl.setText(record.getUrl());
-        if (record.getCreated() != null) {
-            mTvDate.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
-        }
+        tvAuthor.setText(record.getAuthor());
+        tvUrl.setText(record.getUrl());
+//        if (record.getCreated() != null) {
+//            tvCreated.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
+//        }
+        String dateFormat = getString(R.string.full_date_format_string);
+        Date created = record.getCreated();
+        tvCreated.setText((created != null) ? Utils.dateToString(created, dateFormat) : "");
+        Date edited = RecordsManager.getEditedDate(this, record);
+        tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "");
     }
 
     /**
