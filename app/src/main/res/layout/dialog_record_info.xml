@@ -29,16 +29,6 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_path"
-            style="@style/grid_cell_label"/>
-
-        <TextView
-            android:id="@+id/text_view_path"
-            style="@style/grid_cell_value"/>
-    </TableRow>
-
-    <TableRow>
-        <TextView
             android:text="@string/label_created"
             style="@style/grid_cell_label"/>
 
@@ -54,6 +44,16 @@
 
         <TextView
             android:id="@+id/text_view_edited"
+            style="@style/grid_cell_value"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView
+            android:text="@string/label_path"
+            style="@style/grid_cell_label"/>
+
+        <TextView
+            android:id="@+id/text_view_path"
             style="@style/grid_cell_value"/>
     </TableRow>
 

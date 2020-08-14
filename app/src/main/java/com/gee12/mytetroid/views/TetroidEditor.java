@@ -36,8 +36,8 @@ public class TetroidEditor extends WysiwygEditor {
 
     public List<ActionButton> getActionButtons() {
         List<ActionButton> buttons = new ArrayList<>();
-        for (int i = 0; i < mToolbarButtonsLayout.getChildCount(); i++) {
-            View view = mToolbarButtonsLayout.getChildAt(i);
+        for (int i = 0; i < mToolbarActions.getChildCount(); i++) {
+            View view = mToolbarActions.getChildAt(i);
             if (view instanceof ActionButton) {
                 buttons.add((ActionButton) view);
             }
@@ -48,9 +48,9 @@ public class TetroidEditor extends WysiwygEditor {
     /**
      * Отображение команд панели инструментов исходя из настроек приложения.
      */
-    @Override
-    protected void initToolbar() {
-        super.initToolbar();
+/*    @Override
+    protected void initToolbarActions() {
+        super.initToolbarActions();
 
         // TODO: реализовать хранение параметров команд в базе данных
 //        List<EditorAction> actions = new ArrayList<>();//Database.getEditorActions();
@@ -74,7 +74,7 @@ public class TetroidEditor extends WysiwygEditor {
 //                }
 //            }
 //        }
-    }
+    }*/
 
     @Override
     protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
