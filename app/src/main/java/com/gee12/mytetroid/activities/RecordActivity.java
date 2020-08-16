@@ -304,6 +304,16 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Обновление поля последнего изменения записи.
+     */
+    private void updateEditedDate() {
+        String dateFormat = getString(R.string.full_date_format_string);
+        Date edited = RecordsManager.getEditedDate(this, mRecord);
+        ((TextView)findViewById(R.id.text_view_record_edited)).setText(
+                (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+    }
+
+    /**
      * Загрузка html-кода записи в WebView.
      * @param record
      */
@@ -567,6 +577,9 @@ public class RecordActivity extends TetroidActivity implements
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
 
+    /**
+     * Скрытие/раскрытие панели со свойствами записи.
+     */
     private void toggleRecordFieldsVisibility() {
         mFieldsExpanderLayout.toggle();
 
@@ -578,6 +591,9 @@ public class RecordActivity extends TetroidActivity implements
         updateScrollButtonLocation();
     }
 
+    /**
+     * Обновление расположения кнопок скроллинга записи вниз/вверх.
+     */
     private void updateScrollButtonLocation() {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
 //        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
@@ -601,6 +617,10 @@ public class RecordActivity extends TetroidActivity implements
         mButtonScrollTop.setLayoutParams(params);
     }
 
+    /**
+     * Управление видимостью панели со свойствами записи.
+     * @param isVisible
+     */
     private void setRecordFieldsVisibility(boolean isVisible) {
 //        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
         if (isVisible) {
@@ -612,6 +632,9 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    /**
+     * Сохранение содержимого записи в файл.
+     */
     private void saveRecord() {
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
@@ -621,6 +644,7 @@ public class RecordActivity extends TetroidActivity implements
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
+            updateEditedDate();
         } else {
 //            LogManager.log(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
