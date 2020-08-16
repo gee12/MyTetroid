@@ -138,7 +138,8 @@
                     android:layout_height="wrap_content"
                     android:padding="2dp"
                     android:text="@string/label_edited"
-                    android:textColor="@color/colorLightLabelText" />
+                    android:textColor="@color/colorLightLabelText"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/text_view_record_edited"
@@ -150,7 +151,8 @@
                     android:paddingLeft="3dp"
                     android:paddingRight="3dp"
                     android:paddingTop="3dp"
-                    android:paddingBottom="0dp" />
+                    android:paddingBottom="0dp"
+                    android:visibility="gone" />
 
                 <!--<ImageButton
                     android:id="@+id/button_edit_fields"

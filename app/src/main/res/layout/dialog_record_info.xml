@@ -37,7 +37,9 @@
             style="@style/grid_cell_value"/>
     </TableRow>
 
-    <TableRow>
+    <TableRow
+        android:id="@+id/table_row_edited"
+        android:visibility="gone">
         <TextView
             android:text="@string/label_edited"
             style="@style/grid_cell_label"/>

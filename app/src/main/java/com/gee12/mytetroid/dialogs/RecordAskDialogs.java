@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
@@ -117,9 +118,13 @@ public class RecordAskDialogs {
         Date created = record.getCreated();
         ((TextView)view.findViewById(R.id.text_view_created)).setText(
                 (created != null) ? Utils.dateToString(created, dateFormat) : "-");
-        Date edited = RecordsManager.getEditedDate(context, record);
-        ((TextView)view.findViewById(R.id.text_view_edited)).setText(
-                (edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
+
+        if (App.isFullVersion()) {
+            (view.findViewById(R.id.table_row_edited)).setVisibility(View.VISIBLE);
+            Date edited = RecordsManager.getEditedDate(context, record);
+            ((TextView)view.findViewById(R.id.text_view_edited))
+                    .setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
+        }
         String path = RecordsManager.getPathToRecordFolder(record);
         ((TextView)view.findViewById(R.id.text_view_path)).setText(path);
         String size = DataManager.getFileSize(context, path);

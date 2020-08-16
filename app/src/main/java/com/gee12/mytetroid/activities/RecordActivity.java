@@ -247,17 +247,10 @@ public class RecordActivity extends TetroidActivity implements
         if (record == null)
             return;
 
-        TextView tvAuthor = findViewById(R.id.text_view_record_author);
-        TextView tvUrl = findViewById(R.id.text_view_record_url);
-        TextView tvCreated = findViewById(R.id.text_view_record_created);
-        TextView tvEdited = findViewById(R.id.text_view_record_edited);
         int id = R.id.label_record_tags;
         // метки
         String tagsHtml = HtmlHelper.createTagsHtmlString(record);
         if (tagsHtml != null) {
-            // указываем charset в mimeType для кириллицы
-//            mWebViewTags.loadDataWithBaseURL(null, tagsHtml, "text/html", "UTF-8", null);
-
             CharSequence sequence = Utils.fromHtml(tagsHtml);
             SpannableString spannable = new SpannableString(sequence);
             URLSpan[] urls = spannable.getSpans(0, sequence.length(), URLSpan.class);
@@ -273,8 +266,6 @@ public class RecordActivity extends TetroidActivity implements
                 spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             mTextViewTags.setText(spannable);
-
-//            id = R.id.web_view_record_tags;
             id = R.id.text_view_record_tags;
         }
         // указываем относительно чего теперь выравнивать следующее за метками поле
@@ -289,28 +280,39 @@ public class RecordActivity extends TetroidActivity implements
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         params2.addRule(RelativeLayout.BELOW, id);
         params2.addRule(RelativeLayout.RIGHT_OF, R.id.label_record_author);
+
+        // автор
+        TextView tvAuthor = findViewById(R.id.text_view_record_author);
         tvAuthor.setLayoutParams(params2);
-        // поля
         tvAuthor.setText(record.getAuthor());
+        // url
+        TextView tvUrl = findViewById(R.id.text_view_record_url);
         tvUrl.setText(record.getUrl());
-//        if (record.getCreated() != null) {
-//            tvCreated.setText(record.getCreatedString(getString(R.string.full_date_format_string)));
-//        }
+        // даты
         String dateFormat = getString(R.string.full_date_format_string);
+        TextView tvCreated = findViewById(R.id.text_view_record_created);
         Date created = record.getCreated();
         tvCreated.setText((created != null) ? Utils.dateToString(created, dateFormat) : "");
-        Date edited = RecordsManager.getEditedDate(this, record);
-        tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+        
+        if (App.isFullVersion()) {
+            (findViewById(R.id.label_record_edited)).setVisibility(View.VISIBLE);
+            TextView tvEdited = findViewById(R.id.text_view_record_edited);
+            tvEdited.setVisibility(View.VISIBLE);
+            Date edited = RecordsManager.getEditedDate(this, record);
+            tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+        }
     }
 
     /**
      * Обновление поля последнего изменения записи.
      */
     private void updateEditedDate() {
-        String dateFormat = getString(R.string.full_date_format_string);
-        Date edited = RecordsManager.getEditedDate(this, mRecord);
-        ((TextView)findViewById(R.id.text_view_record_edited)).setText(
-                (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+        if (App.isFullVersion()) {
+            String dateFormat = getString(R.string.full_date_format_string);
+            Date edited = RecordsManager.getEditedDate(this, mRecord);
+            ((TextView) findViewById(R.id.text_view_record_edited)).setText(
+                    (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+        }
     }
 
     /**
