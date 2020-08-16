@@ -74,77 +74,77 @@
 
     <string-array name="oper_set">
         <item>установить</item>
-        <item>установлен(а)</item>
+        <item>установлен(-а)</item>
         <item>установки</item>
     </string-array>
     <string-array name="oper_load">
         <item>загрузить</item>
-        <item>загружен(а/о)</item>
+        <item>загружен(-а/о)</item>
         <item>загрузки</item>
     </string-array>
     <string-array name="oper_create">
         <item>создать</item>
-        <item>создан(а)</item>
+        <item>создан(-а)</item>
         <item>создания</item>
     </string-array>
     <string-array name="oper_add">
         <item>добавить</item>
-        <item>добавлен(а)</item>
+        <item>добавлен(-а)</item>
         <item>добавления</item>
     </string-array>
     <string-array name="oper_change">
         <item>изменить</item>
-        <item>изменен(а)</item>
+        <item>изменен(-а)</item>
         <item>изменения</item>
     </string-array>
     <string-array name="oper_rename">
         <item>переименовать</item>
-        <item>переименован(а)</item>
+        <item>переименован(-а)</item>
         <item>переименования</item>
     </string-array>
     <string-array name="oper_delete">
         <item>удалить</item>
-        <item>удален(а)</item>
+        <item>удален(-а)</item>
         <item>удаления</item>
     </string-array>
     <string-array name="oper_copy">
         <item>скопировать</item>
-        <item>скопирован(а)</item>
+        <item>скопирован(-а)</item>
         <item>копирования</item>
     </string-array>
     <string-array name="oper_cut">
         <item>вырезать</item>
-        <item>вырезан(а)</item>
+        <item>вырезан(-а)</item>
         <item>вырезания</item>
     </string-array>
     <string-array name="oper_insert">
         <item>вставить</item>
-        <item>вставлен(а)</item>
+        <item>вставлен(-а)</item>
         <item>вставки</item>
     </string-array>
     <string-array name="oper_move">
         <item>переместить</item>
-        <item>перемещен(а)</item>
+        <item>перемещен(-а)</item>
         <item>перемещения</item>
     </string-array>
     <string-array name="oper_save">
         <item>сохранить</item>
-        <item>сохранен(а)</item>
+        <item>сохранен(-а)</item>
         <item>сохранения</item>
     </string-array>
     <string-array name="oper_attach">
         <item>прикрепить</item>
-        <item>прикреплен(а)</item>
+        <item>прикреплен(-а)</item>
         <item>прикрепления</item>
     </string-array>
     <string-array name="oper_encrypt">
         <item>зашифровать</item>
-        <item>зашифрован(а)</item>
+        <item>зашифрован(-а)</item>
         <item>зашифровки</item>
     </string-array>
     <string-array name="oper_decrypt">
         <item>расшифровать</item>
-        <item>расшифрован(а)</item>
+        <item>расшифрован(-а)</item>
         <item>расшифровки</item>
     </string-array>
     <string-array name="oper_dropcrypt">
@@ -154,7 +154,7 @@
     </string-array>
     <string-array name="oper_reencrypt">
         <item>перешифровать</item>
-        <item>перешифрован(а)</item>
+        <item>перешифрован(-а)</item>
         <item>перешифровки</item>
     </string-array>
 </resources>
