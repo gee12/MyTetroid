@@ -2,6 +2,7 @@ package com.gee12.mytetroid.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -128,17 +129,22 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         viewHolder.headerView.setOnClickListener(v -> mOnNodeHeaderClickListener.onClick(node));
         viewHolder.headerView.setOnLongClickListener(v -> mOnNodeHeaderClickListener.onLongClick(view, node, pos));
         // стрелка раскрытия/закрытия ветки
-        int rightMargin = 0;
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
             viewHolder.arrowView.setImageResource(itemInfo.isExpanded() ?
                     R.drawable.ic_arrow_collapse : R.drawable.ic_arrow_expand);
-            rightMargin = 60;
         } else {
             viewHolder.arrowView.setVisibility(View.GONE);
         }
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) viewHolder.headerView.getLayoutParams();
-        layoutParams.setMargins(20 * node.getLevel(),0,rightMargin,0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            layoutParams.setMarginStart(20 * node.getLevel());
+        } else {
+            layoutParams.setMargins(20 * node.getLevel(),0, 2,0);
+        }
+        viewHolder.headerView.setLayoutParams(layoutParams);
+//        layoutParams.leftMargin = 20 * node.getLevel();
+
         // подсветка
         if (mCurNode == node) {
             convertView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorCurNode));
