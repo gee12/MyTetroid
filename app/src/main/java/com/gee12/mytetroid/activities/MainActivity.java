@@ -139,13 +139,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private View mFavoritesNode;
     private Button mLoadStorageButton;
 
-    private boolean mIsRecordsFiltered;
+//    private boolean mIsRecordsFiltered;
     private boolean mIsAlreadyTryDecrypt;
     private Intent mReceivedIntent;
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
-    private boolean mIsNodeOpening = false;
+    private boolean mIsDropRecordsFiltering = true;
     private ScanManager mLastScan;
     private TetroidTask mCurTask;
     private String mLastSearchQuery;
@@ -733,20 +733,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         }
         LogManager.log(getString(R.string.log_open_node) + TetroidLog.getIdString(node));
-        // сбрасываем фильтрацию при открытии ветки
-        if (mIsRecordsFiltered && !mSearchViewRecords.isIconified()) {
-            // сбрасываем SearchView;
-            // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
-            // полного списка записей в его обработчике с помощью проверки mIsNodeOpening
-            this.mIsNodeOpening = true;
-//          mSearchViewRecords.onActionViewCollapsed();
-            mSearchViewRecords.setQuery("", false);
-            mSearchViewRecords.setIconified(true);
-            this.mIsNodeOpening = false;
-        }
         this.mCurNode = node;
         setCurNode(node);
-        showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
+        showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
     }
 
     /**
@@ -764,7 +753,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Управление подсветкой ветки Избранное.
-     * @param isCur
+     * @param isCur Текущая ветка?
      */
     private void setFavorIsCurNode(boolean isCur) {
         mFavoritesNode.setBackgroundColor(ContextCompat.getColor(this,
@@ -809,12 +798,34 @@ public class MainActivity extends TetroidActivity implements IMainView {
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
     }
 
+    /**
+     * Отображение списка записей.
+     * @param records
+     * @param viewId
+     */
     private void showRecords(List<TetroidRecord> records, int viewId) {
-        showRecords(records, viewId, false);
+        showRecords(records, viewId, true);
     }
 
-    private void showRecords(List<TetroidRecord> records, int viewId, boolean isFiltered) {
-        this.mIsRecordsFiltered = isFiltered;
+    /**
+     * Отображение списка записей.
+     * @param records
+     * @param viewId
+     * @param dropSearch Нужно ли закрыть фильтрацию SearchView
+     */
+    private void showRecords(List<TetroidRecord> records, int viewId, boolean dropSearch) {
+        // сбрасываем фильтрацию при открытии списка записей
+        if (dropSearch && !mSearchViewRecords.isIconified()) {
+            // сбрасываем SearchView;
+            // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
+            // полного списка записей в его обработчике с помощью проверки mIsDropRecordsFiltering
+            this.mIsDropRecordsFiltering = false;
+//          mSearchViewRecords.onActionViewCollapsed();
+            mSearchViewRecords.setQuery("", false);
+            mSearchViewRecords.setIconified(true);
+            this.mIsDropRecordsFiltering = true;
+        }
+
         mDrawerLayout.closeDrawers();
         mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
         mViewPagerAdapter.getMainFragment().showRecords(records, viewId);
@@ -1116,19 +1127,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             @Override
             public void onClose() {
-                // "сбрасываем" фильтрацию, но не для только что открытых веток
-                // (т.к. при открытии ветки вызывается setIconified=false, при котором вызывается это событие,
+                // "сбрасываем" фильтрацию, но не для только что открытых списков записей
+                // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
                 // что приводит к повторному открытию списка записей)
-                if (!mIsNodeOpening) {
+                if (mIsDropRecordsFiltering) {
                     switch (mViewPagerAdapter.getMainFragment().getCurMainViewId()) {
                         case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
                             if (mCurNode != null) {
-                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+                                showRecords(mCurNode.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS, false);
                             }
                             break;
                         case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
                             if (mCurTag != null) {
-                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+                                showRecords(mCurTag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS, false);
                             }
                             break;
                         // пока по файлам не ищем
@@ -1140,7 +1151,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     break;*/
                     }
                 }
-                MainActivity.this.mIsRecordsFiltered = false;
+//                MainActivity.this.mIsRecordsFiltered = false;
             }
         };
     }
@@ -2149,7 +2160,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.log(log);
         List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
 //        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
-        showRecords(found, viewId, true);
+        showRecords(found, viewId, false);
         if (found.isEmpty()) {
             String emptyText = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
                     ? String.format(getString(R.string.search_records_in_node_not_found_mask), query, mCurNode.getName())
