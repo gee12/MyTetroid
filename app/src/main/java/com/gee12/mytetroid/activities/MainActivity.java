@@ -1623,6 +1623,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         activateMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
         boolean canNoCrypt = node.isCrypted() && (parentNode == null || !parentNode.isCrypted());
         activateMenuItem(menu.findItem(R.id.action_no_encrypt_node), canNoCrypt);
+        activateMenuItem(menu.findItem(R.id.action_info), isNonCrypted);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
