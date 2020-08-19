@@ -92,6 +92,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     protected boolean isDecrypted;
 
+
+    protected Intent mStorageObserver;
+
     /**
      * Загрузка параметров из файла database.ini и инициализация переменных.
      * @param storagePath
@@ -136,6 +139,25 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
         instance.mIsStorageInited = res;
         return res;
+    }
+
+    /**
+     *
+     * @param context
+     */
+    public static void startStorageObserver(Context context) {
+        Intent intent = new Intent(context, FileObserverService.class);
+        intent.putExtra(FileObserverService.EXTRA_FILE_PATH, DataManager.getStoragePath() + DataManager.MYTETRA_XML_FILE_NAME);
+        context.startService(intent);
+        instance.mStorageObserver = intent;
+    }
+
+    /**
+     *
+     * @param context
+     */
+    public static void stopStorageObserver(Context context) {
+        context.stopService(instance.mStorageObserver);
     }
 
     /**

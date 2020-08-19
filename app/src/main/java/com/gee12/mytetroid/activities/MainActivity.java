@@ -298,7 +298,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Обработчик события после загрузки хранилища.
      */
     private void afterStorageInited() {
+        // проверяем входящий Intent после загрузки
         checkReceivedIntent(mReceivedIntent);
+        // запускаем мониторинг изменения структуры хранилища
+        DataManager.startStorageObserver(this);
     }
 
     /**
@@ -2321,6 +2324,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
         saveLastSelectedNode();
+        // останавливаем мониторинг изменения структуры хранилища
+        DataManager.stopStorageObserver(this);
         // очищаем память
         DataManager.destruct();
     }
