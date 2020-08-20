@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.FileObserver;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -141,23 +142,55 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return res;
     }
 
+    private static FileObserver mFileObserver;
+
+
     /**
-     *
-     * @param context
+     * Запуск отслеживания изменения mytetra.xml.
+     * @param callback
      */
-    public static void startStorageObserver(Context context) {
-        Intent intent = new Intent(context, FileObserverService.class);
-        intent.putExtra(FileObserverService.EXTRA_FILE_PATH, DataManager.getStoragePath() + DataManager.MYTETRA_XML_FILE_NAME);
+    public static void startStorageObserver(/*Context context, */ICallback callback) {
+       /* Intent intent = new Intent(context, FileObserverService.class);
+        String filePath = DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME;
+        intent.putExtra(FileObserverService.EXTRA_FILE_PATH, filePath);
         context.startService(intent);
-        instance.mStorageObserver = intent;
+        instance.mStorageObserver = intent;*/
+
+        String filePath = DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME;
+        mFileObserver = new FileObserver(filePath, FileObserver.MODIFY) {
+            @Override
+            public void onEvent(int event, String path) {
+                if (event == FileObserver.MODIFY) {
+                    callback.run(true);
+                }
+            }
+        };
+        mFileObserver.startWatching();
     }
 
     /**
-     *
+     * Перезапуск отслеживания изменения mytetra.xml.
+     */
+    public static void restartStorageObserver() {
+        if (mFileObserver != null) {
+            // перезапускаем отслеживание, например, тогда, когда
+            // при сохранении "исходный" файл mytetra.xml перемещается в корзину,
+            // и нужно запустить отслеживание по указанному пути заново, чтобы привязаться
+            // к только что созданному актуальному файлу mytetra.xml
+            mFileObserver.stopWatching();
+            mFileObserver.startWatching();
+        }
+    }
+
+    /**
+     * Остановка отслеживания изменения mytetra.xml.
      * @param context
      */
-    public static void stopStorageObserver(Context context) {
-        context.stopService(instance.mStorageObserver);
+    public static void stopStorageObserver(/*Context context*/) {
+//        context.stopService(instance.mStorageObserver);
+        if (mFileObserver != null) {
+            mFileObserver.stopWatching();
+        }
     }
 
     /**
@@ -720,6 +753,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                             fromTo, false, -1);
                     return false;
                 }
+
+                restartStorageObserver();
+
                 return true;
             }
         } catch (Exception ex) {

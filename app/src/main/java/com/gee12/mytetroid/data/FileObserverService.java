@@ -18,11 +18,14 @@ public class FileObserverService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if ((intent.hasExtra(EXTRA_FILE_PATH))) {
+            if (mFileObserver != null) {
+                mFileObserver.stopWatching();
+            }
             String filePath = intent.getStringExtra(EXTRA_FILE_PATH);
-            mFileObserver = new FileObserver(filePath) {
+            mFileObserver = new FileObserver(filePath, FileObserver.MODIFY) {
                 @Override
                 public void onEvent(int event, String path) {
-                    LogManager.log("Event " + event + " with " + filePath);
+//                    LogManager.log("Event " + event + " with " + filePath);
                     if (event == FileObserver.MODIFY) {
                         LogManager.log(filePath +" modified!!!!!!!!!!!!!!!");
                     }

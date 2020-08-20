@@ -300,8 +300,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void afterStorageInited() {
         // проверяем входящий Intent после загрузки
         checkReceivedIntent(mReceivedIntent);
-        // запускаем мониторинг изменения структуры хранилища
-        DataManager.startStorageObserver(this);
+        // запускаем отслеживание изменения структуры хранилища
+        DataManager.startStorageObserver(res -> {
+            this.runOnUiThread(() -> {
+                // TODO: нужен ask
+                LogManager.log("Структура хранилища была изменена извне программы. Перезагрузить хранилище?", Toast.LENGTH_LONG);
+            });
+        });
     }
 
     /**
@@ -2324,8 +2329,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         LogManager.log(R.string.log_app_exit, LogManager.Types.INFO);
         // сохраняем выбранную ветку
         saveLastSelectedNode();
-        // останавливаем мониторинг изменения структуры хранилища
-        DataManager.stopStorageObserver(this);
+        // останавливаем отслеживание изменения структуры хранилища
+        DataManager.stopStorageObserver();
         // очищаем память
         DataManager.destruct();
     }
