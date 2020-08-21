@@ -431,9 +431,10 @@ public class MainPageFragment extends TetroidFragment {
         RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
             if (RecordsManager.editRecordFields(record, name, tags, author, url)) {
                 onRecordFieldsUpdated();
-                TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+//                TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+                LogManager.log(R.string.log_record_fields_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
-                TetroidLog.logOperErrorMore(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
             }
         });
     }

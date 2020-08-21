@@ -149,6 +149,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private ScanManager mLastScan;
     private TetroidTask mCurTask;
     private String mLastSearchQuery;
+    private boolean mIsStorageChangingHandled;
 
 
     public MainActivity() {
@@ -301,11 +302,26 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // проверяем входящий Intent после загрузки
         checkReceivedIntent(mReceivedIntent);
         // запускаем отслеживание изменения структуры хранилища
+        startStorageTreeObserver();
+    }
+
+    /**
+     * Обработчик изменения структуры хранилища извне.
+     */
+    private void startStorageTreeObserver() {
         DataManager.startStorageObserver(res -> {
-            this.runOnUiThread(() -> {
-                // TODO: нужен ask
-                LogManager.log("Структура хранилища была изменена извне программы. Перезагрузить хранилище?", Toast.LENGTH_LONG);
-            });
+            // проверяем, не был ли запущен обработчик второй раз подряд
+            if (!mIsStorageChangingHandled) {
+                this.mIsStorageChangingHandled = true;
+                this.runOnUiThread(() -> {
+                    LogManager.log(R.string.ask_storage_changed_outside, LogManager.Types.INFO);
+                    // выводим уведомление
+                    AskDialogs.showOkDialog(this, () -> {
+                            reloadStorage();
+                            this.mIsStorageChangingHandled = false;
+                        }, R.string.ask_storage_changed_outside);
+                });
+            }
         });
     }
 

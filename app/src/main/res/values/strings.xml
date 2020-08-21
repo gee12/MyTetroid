@@ -329,6 +329,7 @@
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
+    <string name="ask_storage_changed_outside">The record tree has been modified by a third party program. You need to reboot the storage to continue working with the new data outside</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -339,6 +340,7 @@
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
     <string name="details_in_logs">Details in the logs</string>
 
+    <string name="log_storage_changed_outside">The record tree has been modified by a third party program</string>
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
     <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
     <string name="log_missing_camera_perm">Not enough permissions to camera</string>
@@ -515,5 +517,6 @@
     <string name="title_folder_is_missing">Folder is missing</string>
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
+    <string name="log_record_fields_changed">Record fields changed</string>
 
 </resources>

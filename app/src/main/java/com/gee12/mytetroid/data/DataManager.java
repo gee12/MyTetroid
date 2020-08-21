@@ -164,6 +164,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                     callback.run(true);
                 }
             }
+
         };
         mFileObserver.startWatching();
     }

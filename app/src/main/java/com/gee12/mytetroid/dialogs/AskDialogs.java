@@ -231,4 +231,14 @@ public class AskDialogs {
                 null);
     }
 
+    /**
+     *
+     * @param context
+     * @param applyHandler
+     * @param messageRes
+     */
+    public static void showOkDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
+        Dialogs.showAlertDialog(context, messageRes,
+                (dialog, which) -> applyHandler.onApply());
+    }
 }

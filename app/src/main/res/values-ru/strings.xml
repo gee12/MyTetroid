@@ -272,6 +272,8 @@
     <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
+    <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Необходимо перезагрузить хранилище для продолжения работы с новыми данными</string>
+    <string name="log_storage_changed_outside">Дерево записей было изменено сторонней программой</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -457,5 +459,6 @@
     <string name="title_folder_is_missing">Каталог отсутствует</string>
     <string name="title_use_global_search">Использовать глобальный поиск</string>
     <string name="title_reload_storage">Перезагрузить хранилище</string>
+    <string name="log_record_fields_changed">Свойства записи изменены</string>
 
 </resources>
