@@ -195,6 +195,21 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     /**
+     * Запуск или остановка отслеживания (после изменения настроек программы).
+     * @param isStart
+     * @param callback
+     */
+    public static void startOrStopStorageObserver(boolean isStart, ICallback callback) {
+        if (isStart) {
+            if (mFileObserver == null) {
+                startStorageObserver(callback);
+            }
+        } else {
+            stopStorageObserver();
+        }
+    }
+
+    /**
      * Проверка является ли запись избранной.
      * @param id
      * @return
@@ -755,6 +770,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                     return false;
                 }
 
+                // перезапускаем отслеживание, чтобы проверять новосозданный файл
                 restartStorageObserver();
 
                 return true;

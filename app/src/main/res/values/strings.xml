@@ -223,6 +223,9 @@
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
     <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries</string>
     <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
+    <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
+    <string name="pref_check_outside_changing">Track outside changes</string>
+    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>

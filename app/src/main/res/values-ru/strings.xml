@@ -176,6 +176,8 @@
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
+    <string name="pref_check_outside_changing">Отслеживать изменения извне</string>
+    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами</string>
 
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>

@@ -143,7 +143,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 } else {
                     PassManager.setupPass(this);
                 }
-                // устанавливаем флаг для MsainActivity
+                // устанавливаем флаг для MainActivity
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_IS_PASS_CHANGED, true);
                 setResult(RESULT_OK, intent);

@@ -95,6 +95,12 @@
             android:summary="@string/pref_is_not_remember_sync_app_summ"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_check_outside_changing"
+            android:title="@string/pref_check_outside_changing"
+            android:summary="@string/pref_check_outside_changing_summ"
+            android:defaultValue="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">

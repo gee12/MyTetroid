@@ -139,7 +139,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private View mFavoritesNode;
     private Button mLoadStorageButton;
 
-//    private boolean mIsRecordsFiltered;
     private boolean mIsAlreadyTryDecrypt;
     private Intent mReceivedIntent;
     private boolean mIsActivityCreated;
@@ -150,6 +149,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TetroidTask mCurTask;
     private String mLastSearchQuery;
     private boolean mIsStorageChangingHandled;
+    private DataManager.ICallback mOutsideChangingHandler;
 
 
     public MainActivity() {
@@ -189,6 +189,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // обработчик нажатия на экране, когда ветка не выбрана
         mDrawerLayout.setOnTouchListener(this);
 
+        // обработчик изменения структуры хранилища извне
+        mOutsideChangingHandler = res -> {
+            // проверяем, не был ли запущен обработчик второй раз подряд
+            if (!mIsStorageChangingHandled) {
+                MainActivity.this.mIsStorageChangingHandled = true;
+                MainActivity.this.runOnUiThread(() -> {
+                    LogManager.log(R.string.ask_storage_changed_outside, LogManager.Types.INFO);
+                    // выводим уведомление
+                    AskDialogs.showOkDialog(MainActivity.this, () -> {
+                        MainActivity.this.reloadStorage();
+                        MainActivity.this.mIsStorageChangingHandled = false;
+                    }, R.string.ask_storage_changed_outside);
+                });
+            }
+        };
+
         // страницы (главная и найдено)
         this.mViewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), this, gestureDetector);
         this.mViewPager = findViewById(R.id.view_pager);
@@ -216,7 +232,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
         mSearchViewNodes.setVisibility(View.GONE);
         initNodesView(mSearchViewNodes, vNodesHeader);
-
 
         // метки
         this.mListViewTags = findViewById(R.id.tags_list_view);
@@ -309,20 +324,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Обработчик изменения структуры хранилища извне.
      */
     private void startStorageTreeObserver() {
-        DataManager.startStorageObserver(res -> {
-            // проверяем, не был ли запущен обработчик второй раз подряд
-            if (!mIsStorageChangingHandled) {
-                this.mIsStorageChangingHandled = true;
-                this.runOnUiThread(() -> {
-                    LogManager.log(R.string.ask_storage_changed_outside, LogManager.Types.INFO);
-                    // выводим уведомление
-                    AskDialogs.showOkDialog(this, () -> {
-                            reloadStorage();
-                            this.mIsStorageChangingHandled = false;
-                        }, R.string.ask_storage_changed_outside);
-                });
-            }
-        });
+        if (SettingsManager.isCheckOutsideChangind()) {
+            DataManager.startStorageObserver(mOutsideChangingHandler);
+        }
     }
 
     /**
@@ -1804,6 +1808,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
+            // проверяем нужно ли проверять структуру хранилища
+            DataManager.startOrStopStorageObserver(SettingsManager.isCheckOutsideChangind(), mOutsideChangingHandler);
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {

@@ -321,6 +321,14 @@ public class SettingsManager {
         return getBoolean(R.string.pref_key_is_not_remember_sync_app, false);
     }
 
+    /**
+     * Отслеживать изменения структуры хранилища внешними программами.
+     * @return
+     */
+    public static boolean isCheckOutsideChangind() {
+        return getBoolean(R.string.pref_key_check_outside_changing, true);
+    }
+
     /*
     * Редактирование.
      */
