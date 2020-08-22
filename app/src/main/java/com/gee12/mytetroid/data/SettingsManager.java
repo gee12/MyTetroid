@@ -254,6 +254,26 @@ public class SettingsManager {
     }
 
     /**
+     * Запрашивать ли ПИН-крод ?
+     * @return
+     */
+    public static boolean isRequestPINCode() {
+        return getBoolean(R.string.pref_key_request_pin_code, false);
+    }
+
+    /**
+     * ПИН-код.
+     * @return
+     */
+    public static String getPINCode() {
+        return getString(R.string.pref_key_pin_code, null);
+    }
+
+    public static void setPINCode(String code) {
+        setString(R.string.pref_key_pin_code, code);
+    }
+
+    /**
      * Когда спрашивать пароль ?
      * По-умолчанию - при выборе зашифрованной ветки.
      * @return

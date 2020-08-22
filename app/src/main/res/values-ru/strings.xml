@@ -22,6 +22,9 @@
     <string name="title_password_enter">Введите пароль</string>
     <string name="title_password_set">Задайте пароль</string>
     <string name="title_password_change">Изменение пароля</string>
+    <string name="title_pin_enter">Введите ПИН</string>
+    <string name="title_pin_set">Задайте ПИН</string>
+    <string name="title_pin_confirm">Подтвердите ПИН</string>
     <string name="title_storage_folder">Каталог хранилища</string>
     <string name="title_record_folder">Каталог записи</string>
     <string name="title_about_app">О приложении</string>
@@ -422,6 +425,7 @@
     <string name="log_pass_set_error">Не удалось установить пароль хранилища</string>
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
     <string name="log_pass_confirm_not_match">Неверно введен повтор пароля</string>
+    <string name="log_pin_confirm_not_match">Неверно введен повтор ПИН-кода</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>
     <string name="log_pass_changed">Пароль изменен</string>
     <string name="log_pass_change_error">Не удалось изменить пароль (подробнее в логах)</string>
@@ -462,5 +466,7 @@
     <string name="title_use_global_search">Использовать глобальный поиск</string>
     <string name="title_reload_storage">Перезагрузить хранилище</string>
     <string name="log_record_fields_changed">Свойства записи изменены</string>
+    <string name="pref_request_pin_code">Использовать ПИН-код</string>
+    <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
 
 </resources>

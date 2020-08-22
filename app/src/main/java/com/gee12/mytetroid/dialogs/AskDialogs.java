@@ -10,10 +10,14 @@ import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
+import com.andrognito.pinlockview.IndicatorDots;
+import com.andrognito.pinlockview.PinLockListener;
+import com.andrognito.pinlockview.PinLockView;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.ViewUtils;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.views.Message;
 
 public class AskDialogs {
 
@@ -22,6 +26,11 @@ public class AskDialogs {
     }
 
     public interface IApplyCancelResult extends IApplyResult {
+        void onCancel();
+    }
+
+    public interface IPinInputResult {
+        void onApply(String pass);
         void onCancel();
     }
 
@@ -177,6 +186,87 @@ public class AskDialogs {
                     dialog.dismiss();
                 }
             });
+        });
+
+        dialog.show();
+    }
+
+    public static void showPINCodeDialog(Context context, boolean isSetup, boolean isConfirm, String firstPin,
+                                         IPinInputResult callback) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pin_code);
+        String title = context.getString((isConfirm) ? R.string.title_pin_confirm
+                : (isSetup) ? R.string.title_pin_set
+                : R.string.title_pin_enter);
+        builder.setTitle(title);
+        if (isSetup) {
+            builder.setPositiveButton(R.string.answer_ok, null);
+        }
+        builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> callback.onCancel());
+
+        PinLockView pinLockView = builder.getView().findViewById(R.id.pin_lock_view);
+        IndicatorDots indicatorDots = builder.getView().findViewById(R.id.indicator_dots);
+        pinLockView.attachIndicatorDots(indicatorDots);
+//        IndicatorDots deleteButton = builder.getView().findViewById(R.id.indicator_dots);
+//        Button okButton;
+
+        final androidx.appcompat.app.AlertDialog dialog = builder.create();
+
+        PinLockListener mPinLockListener = new PinLockListener() {
+            @Override
+            public void onComplete(String pin) {
+                pinLockView.setTag(pin);
+                setEnabledOk(true);
+            }
+
+            @Override
+            public void onEmpty() {
+                setEnabledOk(false);
+            }
+
+            @Override
+            public void onPinChange(int pinLength, String intermediatePin) {
+                setEnabledOk(false);
+            }
+
+            private void setEnabledOk(boolean isEnabled) {
+                if (isSetup) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(isEnabled);
+                }
+            }
+        };
+
+        dialog.setOnShowListener(dialogInterface -> {
+            if (isSetup) {
+                Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                okButton.setEnabled(false);
+                okButton.setOnClickListener(view -> {
+                    String pin = (String) pinLockView.getTag();
+                    if (isConfirm) {
+                        // если это запрос подтверждения ввода, то сравниванием коды
+                        if (firstPin.equalsIgnoreCase(pin)) {
+                            callback.onApply(firstPin);
+                            dialog.dismiss();
+                        } else {
+                            Message.show(context, context.getString(R.string.log_pin_confirm_not_match), Toast.LENGTH_SHORT);
+                        }
+                    } else {
+                        // запрашиваем подтверждение ввода
+                        showPINCodeDialog(context, true, true, pin, new IPinInputResult() {
+                            @Override
+                            public void onApply(String pass) {
+                                callback.onApply(pin);
+                                dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onCancel() {
+                                callback.onCancel();
+                                dialog.dismiss();
+                            }
+                        });
+                    }
+                });
+            }
         });
 
         dialog.show();

@@ -11,6 +11,9 @@
     <string name="title_password_enter">Enter password</string>
     <string name="title_password_set">Set password</string>
     <string name="title_password_change">Change password</string>
+    <string name="title_pin_enter">Enter PIN</string>
+    <string name="title_pin_set">Set PIN</string>
+    <string name="title_pin_confirm">Confirm PIN</string>
     <string name="title_storage_folder">Storage folder</string>
     <string name="title_record_folder">Record folder</string>
     <string name="title_show_record_content">Open record</string>
@@ -142,6 +145,7 @@
     <string name="pref_when_ask_password_on_select">When choosing an encrypted branch</string>
     <string name="pref_when_ask_password_on_start">When the application starts</string>
     <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
+    <string name="pref_key_pin_code" translatable="false">pref_key_pin_code</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
     <string name="pref_category_main">Main</string>
     <string name="pref_storage_path">Storage path</string>
@@ -479,6 +483,7 @@
     <string name="log_pass_set_error">Failed to set storage password</string>
     <string name="log_start_pass_change">Start storage password changing</string>
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
+    <string name="log_pin_confirm_not_match">PIN-code confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
     <string name="log_pass_changed">Password was changed</string>
     <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>
@@ -521,5 +526,8 @@
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
     <string name="log_record_fields_changed">Record fields changed</string>
+    <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
+    <string name="pref_request_pin_code">Use PIN-code</string>
+    <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
 
 </resources>

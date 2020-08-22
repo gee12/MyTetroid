@@ -21,7 +21,6 @@ android {
 
     buildTypes {
         debug {
-//            clean
             applicationIdSuffix '.debug'
             versionNameSuffix '-DEBUG'
             signingConfig signingConfigs.debug
@@ -36,7 +35,6 @@ android {
         free {
             dimension = 'default'
 //            signingConfig signingConfigs.freeDebug
-//            applicationIdSuffix = '.free'
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
         pro {
@@ -55,7 +53,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.3.0-alpha02'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
@@ -69,4 +67,5 @@ dependencies {
     implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
+    implementation 'com.andrognito.pinlockview:pinlockview:2.1.0'
 }

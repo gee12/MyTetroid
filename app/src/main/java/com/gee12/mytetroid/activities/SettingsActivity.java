@@ -183,6 +183,9 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     return true;
                 });
 
+        Preference pinCodePref = findPreference(getString(R.string.pref_key_request_pin_code));
+        disableIfFree(pinCodePref);
+
         Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
         askPassPref.setOnPreferenceClickListener(pref -> {
             if (SettingsManager.isSaveMiddlePassHashLocal()) {
@@ -199,8 +202,11 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             return true;
         });
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
-        loadFavorPref.setEnabled(App.isFullVersion());
-        if (App.isFreeVersion()) {
+        disableIfFree(loadFavorPref);
+        /*if (App.isFullVersion()) {
+            loadFavorPref.setEnabled(true);
+        } else {
+            loadFavorPref.setEnabled(false);
             // принудительно отключаем
 //            loadFavorPref.setEnabled(false);
             loadFavorPref.setOnPreferenceClickListener(pref -> {
@@ -210,12 +216,30 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 //            PreferenceCategory category = (PreferenceCategory) findPreference(getString(R.string.pref_key_category_other));
 //            category.removePreference(findPreference(getString(R.string.pref_key_is_load_favorites)));
             keepNodePref.setDependency(null);
-        }
+        }*/
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
+    }
+
+    /**
+     * Деактивация опции, если версия приложения Free.
+     * @param pref
+     */
+    private void disableIfFree(Preference pref) {
+        if (App.isFullVersion()) {
+            pref.setEnabled(true);
+        } else {
+            pref.setEnabled(false);
+            // принудительно отключаем
+            pref.setOnPreferenceClickListener(pref1 -> {
+                Message.show(this, getString(R.string.title_available_in_pro), Toast.LENGTH_SHORT);
+                return true;
+            });
+            pref.setDependency(null);
+        }
     }
 
     private void selectStorageFolder() {
