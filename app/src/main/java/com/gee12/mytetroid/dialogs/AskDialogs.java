@@ -30,7 +30,7 @@ public class AskDialogs {
     }
 
     public interface IPinInputResult {
-        void onApply(String pass);
+        void onApply(String code);
         void onCancel();
     }
 

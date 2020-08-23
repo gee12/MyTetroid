@@ -424,6 +424,8 @@
     <string name="log_pass_setted">Пароль хранилища установлен</string>
     <string name="log_pass_set_error">Не удалось установить пароль хранилища</string>
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
+    <string name="log_pin_code_setup">ПИН-код был установлен</string>
+    <string name="log_pin_code_clean">ПИН-код был очищен</string>
     <string name="log_pass_confirm_not_match">Неверно введен повтор пароля</string>
     <string name="log_pin_confirm_not_match">Неверно введен повтор ПИН-кода</string>
     <string name="log_error_logs_reading_from_memory">Не удалось прочитать логи из памяти</string>

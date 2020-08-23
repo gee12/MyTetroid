@@ -261,6 +261,10 @@ public class SettingsManager {
         return getBoolean(R.string.pref_key_request_pin_code, false);
     }
 
+    public static void setIsRequestPINCode(boolean value) {
+        setBoolean(R.string.pref_key_request_pin_code, value);
+    }
+
     /**
      * ПИН-код.
      * @return

@@ -482,6 +482,8 @@
     <string name="log_pass_setted">Storage password was setup</string>
     <string name="log_pass_set_error">Failed to set storage password</string>
     <string name="log_start_pass_change">Start storage password changing</string>
+    <string name="log_pin_code_setup">PIN-code was setup</string>
+    <string name="log_pin_code_clean">PIN-code was clean</string>
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_pin_confirm_not_match">PIN-code confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>

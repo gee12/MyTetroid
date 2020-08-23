@@ -24,8 +24,8 @@ public class PassManager extends DataManager {
      */
     public static boolean checkPass(String pass) throws DatabaseConfig.EmptyFieldException {
         String salt = databaseConfig.getCryptCheckSalt();
-        String checkhash = databaseConfig.getCryptCheckHash();
-        return CryptManager.checkPass(pass, salt, checkhash);
+        String checkHash = databaseConfig.getCryptCheckHash();
+        return CryptManager.checkPass(pass, salt, checkHash);
     }
 
     /**
@@ -35,8 +35,8 @@ public class PassManager extends DataManager {
      * @throws DatabaseConfig.EmptyFieldException
      */
     public static boolean checkMiddlePassHash(String passHash) throws DatabaseConfig.EmptyFieldException {
-        String checkdata = databaseConfig.getMiddleHashCheckData();
-        return CryptManager.checkMiddlePassHash(passHash, checkdata);
+        String checkData = databaseConfig.getMiddleHashCheckData();
+        return CryptManager.checkMiddlePassHash(passHash, checkData);
     }
 
     /**

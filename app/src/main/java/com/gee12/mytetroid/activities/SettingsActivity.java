@@ -31,6 +31,7 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.ITaskProgress;
+import com.gee12.mytetroid.data.PINManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
@@ -137,8 +138,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                 Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT);
             } else {
                 if (crypted) {
-//                        PassManager.changePass(this);
-//                        new ChangePassTask().execute();
                     changePass();
                 } else {
                     PassManager.setupPass(this);
@@ -370,6 +369,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         } else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
+        } else if (key.equals(getString(R.string.pref_key_request_pin_code))) {
+            PINManager.setupPINCode(this);
         }
     }
 
