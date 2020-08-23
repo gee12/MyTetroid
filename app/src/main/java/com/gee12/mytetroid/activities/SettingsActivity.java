@@ -489,8 +489,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         @Override
         protected void onPreExecute() {
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mTextViewProgress.setText(getString(R.string.task_pass_changing));
             mLayoutProgress.setVisibility(View.VISIBLE);
         }
@@ -499,7 +497,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         protected Boolean doInBackground(String... values) {
             String curPass = values[0];
             String newPass = values[1];
-//            setStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.CHANGE, TaskStage.Stages.START);
             return PassManager.changePass(curPass, newPass, new ITaskProgress() {
 
                 @Override
@@ -536,7 +533,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         @Override
         protected void onPostExecute(Boolean res) {
-//            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             mLayoutProgress.setVisibility(View.INVISIBLE);
             if (res) {
                 LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);

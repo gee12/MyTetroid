@@ -17,6 +17,98 @@ import com.gee12.mytetroid.utils.Utils;
 public class PassManager extends DataManager {
 
     /**
+     * Асинхронная проверка имеется ли сохраненный пароль и его запрос при необходимости.
+     * @param node
+     * @param callback Действие после проверки пароля
+     */
+    public static void checkStoragePass(Context context, TetroidNode node, AskDialogs.IApplyResult callback) {
+        //if (SettingsManager.isSaveMiddlePassHashLocal()) {
+        String middlePassHash;
+        if ((middlePassHash = CryptManager.getMiddlePassHash()) != null) {
+            // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
+            initCryptPass(middlePassHash, true);
+            callback.onApply();
+        } else if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
+            // хэш пароля сохранен "на диске", проверяем
+            try {
+                if (checkMiddlePassHash(middlePassHash)) {
+                    initCryptPass(middlePassHash, true);
+                    callback.onApply();
+                } else {
+                    LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
+                    // спрашиваем пароль
+                    askPassword(context, node, callback);
+                }
+            } catch (DatabaseConfig.EmptyFieldException ex) {
+                // если поля в INI-файле для проверки пустые
+                LogManager.log(ex);
+                //                if (DataManager.isExistsCryptedNodes()) {
+                if (isCrypted()) {
+                    final String hash = middlePassHash;
+                    // спрашиваем "continue anyway?"
+                    AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
+                            new AskDialogs.IApplyCancelResult() {
+                                @Override
+                                public void onApply() {
+                                    initCryptPass(hash, true);
+                                    callback.onApply();
+                                }
+                                @Override
+                                public void onCancel() {
+                                }
+                            });
+                } else {
+                    // если нет зашифрованных веток, но пароль сохранен
+                    initCryptPass(middlePassHash, true);
+                    callback.onApply();
+                }
+            }
+//            } else {
+//                // пароль не сохранен, вводим
+//                askPassword(node, callback);
+//            }
+        } else {
+            // спрашиваем или задаем пароль
+            askPassword(context, node, callback);
+        }
+    }
+
+    /**
+     * Отображения запроса пароля от хранилища.
+     * @param node
+     */
+    public static void askPassword(Context context, final TetroidNode node, AskDialogs.IApplyResult callback) {
+        LogManager.log(R.string.log_show_pass_dialog);
+        boolean isNewPass = !isCrypted();
+        // выводим окно с запросом пароля в асинхронном режиме
+        AskDialogs.showPassEnterDialog(context, node, isNewPass, new AskDialogs.IPassInputResult() {
+            @Override
+            public void applyPass(final String pass, TetroidNode node) {
+                if (isNewPass) {
+                    LogManager.log(R.string.log_start_pass_setup);
+                    setupPass(pass);
+                    callback.onApply();
+                } else {
+                    checkPass(context, pass, (res) -> {
+                        if (res) {
+                            initPass(pass);
+                            callback.onApply();
+                        } else {
+                            // повторяем запрос
+                            askPassword(context, node, callback);
+                        }
+                    }, R.string.log_pass_is_incorrect);
+                }
+            }
+
+            @Override
+            public void cancelPass() {
+
+            }
+        });
+    }
+
+    /**
      * Проверка введенного пароля с сохраненным проверочным хэшем.
      * @param pass
      * @return

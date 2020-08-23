@@ -191,6 +191,16 @@ public class AskDialogs {
         dialog.show();
     }
 
+    /**
+     * Диалог установки/ввода ПИН-кода.
+     * @param context
+     * @param isSetup
+     * @param callback
+     */
+    public static void showPINCodeDialog(Context context, boolean isSetup, IPinInputResult callback) {
+        showPINCodeDialog(context, isSetup, false, null, callback);
+    }
+
     public static void showPINCodeDialog(Context context, boolean isSetup, boolean isConfirm, String firstPin,
                                          IPinInputResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pin_code);
@@ -234,6 +244,7 @@ public class AskDialogs {
                 }
             }
         };
+        pinLockView.setPinLockListener(mPinLockListener);
 
         dialog.setOnShowListener(dialogInterface -> {
             if (isSetup) {
