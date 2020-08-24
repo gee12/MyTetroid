@@ -87,6 +87,43 @@ public class TetroidEditor extends WysiwygEditor {
     }
 
     /**
+     * Вызывается перед сохранением текста записи в файл.
+     */
+    public void beforeSave() {
+
+        deleteStyleEmpty();
+
+        // TODO: тут нужно обновить текст mHtml в webview
+        //  перед сохранением
+        //  ...
+
+    }
+
+    /**
+     * Специально для совместимости с MyTetroid:
+     *
+     * удаление стиля "-qt-paragraph-type:empty;" в абзацах "p", содержащих
+     * какой-то текст, а не просто элемент "br".
+     */
+    private void deleteStyleEmpty() {
+        String script = "" +
+                "var paragraphs = document.getElementsByTagName(\"p\");\n" +
+                "for(var i = 0; i < paragraphs.length; i++) {\n" +
+                "\tvar elem = paragraphs[i];\n" +
+                "\tif (elem.hasAttribute(\"style\")\n" +
+                "\t\t&& window.getComputedStyle(elem, \"-qt-paragraph-type:empty;\")\n" +
+                "\t\t&& (elem.children.length == 1 && elem.children.tagName != \"br\" || elem.children.length > 1)) {\n" +
+                "\t\tvar styleAttr = elem.getAttribute(\"style\");\n" +
+                "\t\tif (styleAttr != null) {\n" +
+                "\t\t\tvar newStyleAttr = styleAttr.replace(\"-qt-paragraph-type:empty;\",\"\");\n" +
+                "\t\t\telem.setAttribute(\"style\", newStyleAttr);\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+        mWebView.execJavascript(script);
+    }
+
+    /**
      * Вставка выбранных изображений.
      * @param images
      */

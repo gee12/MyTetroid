@@ -638,6 +638,10 @@ public class RecordActivity extends TetroidActivity implements
      * Сохранение содержимого записи в файл.
      */
     private void saveRecord() {
+
+        // спец.обработчик до сохранения текста записи
+        mEditor.beforeSave();
+
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
                 ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
