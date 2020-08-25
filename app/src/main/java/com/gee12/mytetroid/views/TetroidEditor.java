@@ -22,6 +22,8 @@ import java.util.List;
 
 public class TetroidEditor extends WysiwygEditor {
 
+    boolean mIsCalledHtmlRequest;
+
     public TetroidEditor(Context context) {
         super(context);
     }
@@ -96,7 +98,9 @@ public class TetroidEditor extends WysiwygEditor {
         // TODO: тут нужно обновить текст mHtml в webview
         //  перед сохранением
         //  ...
-
+//        mWebView.execJavascript("RE.textChange();");
+        this.mIsCalledHtmlRequest = true;
+        mWebView.makeEditableHtmlRequest();
     }
 
     /**
@@ -110,11 +114,10 @@ public class TetroidEditor extends WysiwygEditor {
                 "var paragraphs = document.getElementsByTagName(\"p\");\n" +
                 "for(var i = 0; i < paragraphs.length; i++) {\n" +
                 "\tvar elem = paragraphs[i];\n" +
-                "\tif (elem.hasAttribute(\"style\")\n" +
-                "\t\t&& window.getComputedStyle(elem, \"-qt-paragraph-type:empty;\")\n" +
-                "\t\t&& (elem.children.length == 1 && elem.children.tagName != \"br\" || elem.children.length > 1)) {\n" +
+                "\tif (elem.hasAttribute(\"style\")) {\n" +
                 "\t\tvar styleAttr = elem.getAttribute(\"style\");\n" +
-                "\t\tif (styleAttr != null) {\n" +
+                "\t\tif (!(elem.children.length == 1 && elem.children[0].tagName == \"BR\")\n" +
+                "\t\t\t&& styleAttr.indexOf(\"-qt-paragraph-type:empty;\") > -1) {\n" +
                 "\t\t\tvar newStyleAttr = styleAttr.replace(\"-qt-paragraph-type:empty;\",\"\");\n" +
                 "\t\t\telem.setAttribute(\"style\", newStyleAttr);\n" +
                 "\t\t}\n" +
@@ -208,5 +211,13 @@ public class TetroidEditor extends WysiwygEditor {
 
     public String getDocumentHtml() {
         return getDocumentHtml(mWebView.getEditableHtml());
+    }
+
+    public boolean isCalledHtmlRequest() {
+        return mIsCalledHtmlRequest;
+    }
+
+    public void setHtmlRequestHandled() {
+        this.mIsCalledHtmlRequest = false;
     }
 }

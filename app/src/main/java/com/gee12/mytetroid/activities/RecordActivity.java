@@ -399,12 +399,18 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onReceiveEditableHtml(String htmlText) {
-        // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
-        runOnUiThread(() -> {
-            mEditTextHtml.setText(htmlText);
-            mEditTextHtml.requestFocus();
+        if (mEditor.isCalledHtmlRequest()) {
+            mEditor.setHtmlRequestHandled();
+            // теперь сохраняем без вызова предварительных методов
+            saveRecord(false);
+        } else {
+            // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
+            runOnUiThread(() -> {
+                mEditTextHtml.setText(htmlText);
+                mEditTextHtml.requestFocus();
 //            setProgressVisibility(false);
-        });
+            });
+        }
     }
 
     /**
@@ -638,10 +644,19 @@ public class RecordActivity extends TetroidActivity implements
      * Сохранение содержимого записи в файл.
      */
     private void saveRecord() {
+        saveRecord(true);
+    }
 
-        // спец.обработчик до сохранения текста записи
-        mEditor.beforeSave();
+    private void saveRecord(boolean callBefore) {
+        if (callBefore) {
+            // спец.обработчик до сохранения текста записи
+            mEditor.beforeSave();
+        } else {
+            save();
+        }
+    }
 
+    private void save() {
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
         String htmlText = (mCurMode == MODE_HTML)
                 ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
