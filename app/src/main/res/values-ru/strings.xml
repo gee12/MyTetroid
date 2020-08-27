@@ -217,17 +217,17 @@
     <string name="search_in_nodes">Названиям веток</string>
     <string name="search_in_file_names">Названиям прикрепленных файлов</string>
     <string name="search_other_options">Другие параметры:</string>
-    <string name="search_records_in_node_by_query">Поиск записей в ветке [%s] по запросу "%s"</string>
-    <string name="search_records_in_tag_by_query">Поиск в записях метки [%s] по запросу "%s"</string>
-    <string name="search_files_by_query">Поиск файлов в записи [%s] по запросу "%s"</string>
-    <string name="search_text_by_query">Поиск текста в записи [%s] по запросу "%s"</string>
+    <string name="search_records_in_node_by_query">Поиск записей в ветке [%1$s] по запросу "%2$s"</string>
+    <string name="search_records_in_tag_by_query">Поиск в записях метки [%1$s] по запросу "%2$s"</string>
+    <string name="search_files_by_query">Поиск файлов в записи [%1$s] по запросу "%2$s"</string>
+    <string name="search_text_by_query">Поиск текста в записи [%1$s] по запросу "%2$s"</string>
     <string name="search_records_select_tag">Выберите не пустую метку или воспользуйтесь глобальным поиском</string>
     <string name="search_submit_title">Начать поиск</string>
     <string name="search_text_hint">Найти</string>
     <string name="search_records_hint">Поиск по записям</string>
     <string name="search_records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
-    <string name="search_records_in_node_not_found_mask">По запросу \"%s\" в ветке [%s] не найдено записей…</string>
-    <string name="search_records_in_tag_not_found_mak">По запросу \"%s\" в записях метки [%s] не найдено записей…</string>
+    <string name="search_records_in_node_not_found_mask">По запросу \"%1$s\" в ветке [%2$s] не найдено записей…</string>
+    <string name="search_records_in_tag_not_found_mak">По запросу \"%1$s\" в записях метки [%2$s] не найдено записей…</string>
     <string name="search_files_not_found_mask">По запросу \"%s\" не найдено файлов…</string>
     <string name="search_nodes_not_found_mask">По запросу \"%s\" не найдено веток…</string>
     <string name="search_nodes_by_query">Поиск веток по запросу "%s"…</string>
@@ -235,7 +235,7 @@
     <string name="search_found_mask">Найдено: %d</string>
     <string name="search_tag_not_found_mask">Не найдена метка [%s]..</string>
     <string name="global_search_not_found">По запросу \"%s\" ничего не найдено…</string>
-    <string name="global_search_not_found_in_node">По запросу \"%s\" в ветке \"%s\" ничего не найдено…</string>
+    <string name="global_search_not_found_in_node">По запросу \"%1$s\" в ветке \"%2$s\" ничего не найдено…</string>
     <string name="global_search_in_cur_node">В текущей ветке</string>
     <string name="global_search_start">Запуск глобального поиска по запросу \"%s\"</string>
     <string name="global_search_end">Глобальный поиск закончен. Найдено \"%d\" объектов</string>
@@ -331,7 +331,7 @@
 <!--    <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>-->
 <!--    <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>-->
 <!--    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>-->
-    <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%s] в [%s]</string>
+    <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%1$s] в [%2$s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
     <string name="log_file_is_missing">Файл отсутствует на диске:&#160;</string>
@@ -364,7 +364,7 @@
 <!--    <string name="log_rename_file_error_mask">Не удалось переименовать файл из [%s] в [%s]</string>-->
     <string name="log_record_not_have_node">У записи не указана ветка</string>
     <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
-    <string name="log_oper_cancel_mask">Отмена %s %s, т.к. не удалось сохранить mytetra.xml</string>
+    <string name="log_oper_cancel_mask">Отмена %1$s %2$s, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="log_get_item_is_null">Не удается получить текущий элемент списка</string>
     <string name="log_record_loading">Загрузка записи id=</string>
@@ -374,8 +374,8 @@
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
-    <string name="log_oper_error_mask">Не удалось %s %s%s%s</string>
-    <string name="log_during_oper_errors_mask">В процессе %s %s произошли ошибки (подробнее в логах)</string>
+    <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s%4$s</string>
+    <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки (подробнее в логах)</string>
     <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
     <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
     <string name="log_file_checking_error">Ошибка проверки существования файла:&#160;</string>
@@ -395,7 +395,7 @@
     <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>
     <string name="log_logs_is_missing">Логи отсутствуют</string>
     <string name="log_selected_files_is_missing">Отсутствуют выбранные файлы изображений</string>
-    <string name="log_start_image_file_saving_mask">Начало сохранения изображения [%s] в запись id=%s</string>
+    <string name="log_start_image_file_saving_mask">Начало сохранения изображения [%1$s] в запись id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Начало конвертирования файла изображения в [%s]</string>
     <string name="log_start_image_file_deleting_mask">Начало удаления файла изображения [%s]</string>
     <string name="log_error_image_file_saving">Не удалось сохранить файл изображения</string>
@@ -440,11 +440,11 @@
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="log_app_exit">Выход из приложения</string>
-    <string name="log_obj_id_name_mask">id=%s, имя=\"%s\"</string>
+    <string name="log_obj_id_name_mask">id=%1$s, имя=\"%2$s\"</string>
     <string name="log_set_cur_pass">Установка текущего пароля</string>
     <string name="log_set_new_pass">Установка нового пароля</string>
     <string name="log_save_pass">Сохранение пароля</string>
-    <string name="log_from_to_mask">&#160;из "%s" в "%s"</string>
+    <string name="log_from_to_mask">&#160;из "%1$s" в "%2$s"</string>
     <string name="log_to_mask">&#160;в "%s"</string>
     <string name="log_more_in_logs">&#160;(подробнее в логах)</string>
     <string name="log_storage_decrypted">Хранилище расшифровано</string>

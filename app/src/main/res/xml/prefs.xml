@@ -40,12 +40,12 @@
             android:summary="@string/pref_is_save_pass_hash_local_summ"
             android:defaultValue="true" />
 
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
-            android:key="@string/pref_key_request_pin_code"
-            android:dependency="@string/pref_key_is_save_pass_hash_local"
-            android:title="@string/pref_request_pin_code"
-            android:summary="@string/pref_request_pin_code_summ"
-            android:defaultValue="false" />
+<!--        <com.gee12.mytetroid.views.DisabledCheckBoxPreference-->
+<!--            android:key="@string/pref_key_request_pin_code"-->
+<!--            android:dependency="@string/pref_key_is_save_pass_hash_local"-->
+<!--            android:title="@string/pref_request_pin_code"-->
+<!--            android:summary="@string/pref_request_pin_code_summ"-->
+<!--            android:defaultValue="false" />-->
 
         <com.gee12.mytetroid.views.DisabledListPreference
             android:key="@string/pref_key_when_ask_password"

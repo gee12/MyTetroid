@@ -5,3 +5,5 @@ include ':folder-picker'
 project(':folder-picker').projectDir = new File(settingsDir, '../../Android-Folder-Picker/folderpicker')
 include ':multi-listview'
 project(':multi-listview').projectDir = new File(settingsDir, '../../android-multi-level-listview/multi-level-listview/')
+include ':pinlock-view'
+project(':pinlock-view').projectDir = new File(settingsDir, '../../Android-PinLockView/pinlockview/')

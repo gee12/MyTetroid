@@ -64,8 +64,8 @@ dependencies {
     }
     implementation(project(path: ':folder-picker'))
     implementation(project(path: ':multi-listview'))
+    implementation(project(path: ':pinlock-view'))
     implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
-    implementation 'com.andrognito.pinlockview:pinlockview:2.1.0'
 }

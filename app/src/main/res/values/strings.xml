@@ -244,10 +244,10 @@
     <string name="stage_new_pass_reencrypting">Storage re-encryption with new password…</string>
     <string name="stage_storage_saving">Saving storage structure…</string>
 
-    <string name="search_records_in_node_by_query">Search records in node [%s] by query "%s"</string>
-    <string name="search_records_in_tag_by_query">Search records in tag records [%s] by query "%s"</string>
-    <string name="search_files_by_query">Search files in record [%s] by query "%s"</string>
-    <string name="search_text_by_query">Search text in record [%s] by query "%s"</string>
+    <string name="search_records_in_node_by_query">Search records in node [%1$s] by query "%2$s"</string>
+    <string name="search_records_in_tag_by_query">Search records in tag records [%1$s] by query "%2$s"</string>
+    <string name="search_files_by_query">Search files in record [%1$s] by query "%2$s"</string>
+    <string name="search_text_by_query">Search text in record [%1$s] by query "%2$s"</string>
     <string name="search_records_hint">Records search</string>
     <string name="search_tags_by_query">Search tags by query "%s"…</string>
     <string name="search_hint_input_query">Enter query</string>
@@ -265,15 +265,15 @@
     <string name="search_text_hint">Search</string>
     <string name="search_nodes_by_query">Search nodes by query "%s"…</string>
     <string name="search_records_search_select_node">Select not an empty branch or use the global search.</string>
-    <string name="search_records_in_node_not_found_mask">No records found for query \"%s\" in node [%s]…</string>
-    <string name="search_records_in_tag_not_found_mak">No records found for query \"%s\" in tag [%s]…</string>
+    <string name="search_records_in_node_not_found_mask">No records found for query \"%1$s\" in node [%2$s]…</string>
+    <string name="search_records_in_tag_not_found_mak">No records found for query \"%1$s\" in tag [%2$s]…</string>
     <string name="search_files_not_found_mask">No files found for query \"%s\"…</string>
     <string name="search_nodes_not_found_mask">No nodes found for query \"%s\"…</string>
     <string name="search_tags_not_found_mask">No tags found for query \"%s\"…</string>
     <string name="search_found_mask">Found: %d</string>
     <string name="search_tag_not_found_mask">Tag [%s] not found..</string>
     <string name="global_search_not_found">No matches found for query \"%s\"…</string>
-    <string name="global_search_not_found_in_node">No matches found for query \"%s\" in node \"%s\"…</string>
+    <string name="global_search_not_found_in_node">No matches found for query \"%1$s\" in node \"%2$s\"…</string>
     <string name="global_search_results">Search results</string>
     <string name="global_search_in_cur_node">In current node</string>
     <string name="global_search_start">Global search started by query \"%s\"</string>
@@ -388,7 +388,7 @@
 <!--    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>-->
 <!--    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>-->
 <!--    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>-->
-    <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%s] to [%s]</string>
+    <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%1$s] to [%2$s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
     <string name="log_file_is_missing">File is missing on the disk:&#160;</string>
@@ -412,16 +412,16 @@
     <string name="log_url_decode_error">Url decoding error:&#160;</string>
     <string name="log_before_record_save">Saving record with id=</string>
     <string name="log_wrong_tag_link_format">Wrong tag link format</string>
-    <string name="log_oper_start_mask">Start %s %s</string>
+    <string name="log_oper_start_mask">Start %1$s %2$s</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
 <!--    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>-->
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
-    <string name="log_oper_cancel_mask">Cancel %s %s, as failed to save mytetra.xml</string>
+    <string name="log_oper_cancel_mask">Cancel %1$s %2$s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
-    <string name="log_oper_error_mask">Unable to %s the %s%s%s</string>
-    <string name="log_during_oper_errors_mask">Errors occurred during %s the %s (more in the logs)</string>
+    <string name="log_oper_error_mask">Unable to %1$s the %2$s%3$s%4$s</string>
+    <string name="log_during_oper_errors_mask">Errors occurred during %1$s the %2$s (more in the logs)</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="log_record_loading">Record loading id=</string>
     <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
@@ -452,7 +452,7 @@
     <string name="log_file_read_error">Log file read error:&#160;</string>
     <string name="log_logs_is_missing">Logs is missing</string>
     <string name="log_selected_files_is_missing">Missing selected image files</string>
-    <string name="log_start_image_file_saving_mask">Start saving image [%s] to record id=%s</string>
+    <string name="log_start_image_file_saving_mask">Start saving image [%1$s] to record id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Start converting image file to [%s]</string>
     <string name="log_start_image_file_deleting_mask">Start deleting image file [%s]</string>
     <string name="log_error_image_file_saving">Failed to save image file</string>
@@ -499,11 +499,11 @@
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="log_app_exit">Exit from app</string>
     <string name="log_obj_id_mask" translatable="false">id=%s</string>
-    <string name="log_obj_id_name_mask">id=%s, name=\"%s\"</string>
+    <string name="log_obj_id_name_mask">id=%1$s, name=\"%2$s\"</string>
     <string name="log_set_cur_pass">Setting current password</string>
     <string name="log_set_new_pass">Setting the new password</string>
     <string name="log_save_pass">Saving the password</string>
-    <string name="log_from_to_mask">&#160;from "%s" to "%s"</string>
+    <string name="log_from_to_mask">&#160;from "%1$s" to "%2$s"</string>
     <string name="log_to_mask">&#160; to "%s"</string>
     <string name="log_more_in_logs">&#160;(more in the logs)</string>
     <string name="log_storage_decrypted">Storage was decrypted</string>
