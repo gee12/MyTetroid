@@ -195,7 +195,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
 
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isLoadFavorites()) {
+            if (SettingsManager.isLoadFavoritesOnly()) {
                 Message.show(this, getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT);
             }
             return true;

@@ -54,7 +54,7 @@ public class SettingsManager {
         }
         if (App.isFreeVersion()) {
             // принудительно отключаем
-            setIsLoadFavorites(false);
+            setIsLoadFavoritesOnly(false);
         }
 
         App.IsHighlightAttach = isHighlightRecordWithAttach();
@@ -437,11 +437,11 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isLoadFavorites() {
+    public static boolean isLoadFavoritesOnly() {
         return getBoolean(R.string.pref_key_is_load_favorites, false);
     }
 
-    public static void setIsLoadFavorites(boolean value) {
+    public static void setIsLoadFavoritesOnly(boolean value) {
         setBoolean(R.string.pref_key_is_load_favorites, value);
     }
 
@@ -466,7 +466,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isKeepSelectedNode() {
+    public static boolean isKeepLastNode() {
         return getBoolean(R.string.pref_key_is_keep_selected_node, true);
     }
 
@@ -474,11 +474,11 @@ public class SettingsManager {
      * Id ветки, выбранной последний раз.
      * @return
      */
-    public static String getSelectedNodeId() {
+    public static String getLastNodeId() {
         return getString(R.string.pref_key_selected_node_id, null);
     }
 
-    public static void setSelectedNodeId(String value) {
+    public static void setLastNodeId(String value) {
         setString(R.string.pref_key_selected_node_id, value);
     }
 
