@@ -91,14 +91,12 @@ public class TetroidEditor extends WysiwygEditor {
     /**
      * Вызывается перед сохранением текста записи в файл.
      */
-    public void beforeSave() {
+    public void beforeSave(boolean deleteStyleEmpty) {
 
-        deleteStyleEmpty();
+        if (deleteStyleEmpty) {
+            deleteStyleEmpty();
+        }
 
-        // TODO: тут нужно обновить текст mHtml в webview
-        //  перед сохранением
-        //  ...
-//        mWebView.execJavascript("RE.textChange();");
         this.mIsCalledHtmlRequest = true;
         mWebView.makeEditableHtmlRequest();
     }

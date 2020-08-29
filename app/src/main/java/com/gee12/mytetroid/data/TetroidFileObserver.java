@@ -52,6 +52,7 @@ public class TetroidFileObserver {
 //        context.stopService(instance.mStorageObserver);
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
+            mFileObserver = null;
         }
     }
 

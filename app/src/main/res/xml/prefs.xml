@@ -124,6 +124,12 @@
             android:summary="@string/pref_record_auto_save_summ"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_fix_empty_paragraphs"
+            android:title="@string/pref_fix_empty_paragraphs"
+            android:summary="@string/pref_fix_empty_paragraphs_summ"
+            android:defaultValue="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">

@@ -101,6 +101,14 @@
     <string name="title_available_in_pro">Доступно в версии Pro</string>
     <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
     <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
+    <string name="title_need_init_storage">Сначала нужно выбрать/создать хранилище</string>
+    <string name="title_need_perm_init_storage">Сначала нужно предоставить разрешение на запись во внешнюю память и выбрать/создать хранилище</string>
+    <string name="title_need_load_storage">Сначала нужно загрузить хранилище</string>
+    <string name="title_record_info">Инфо о записи</string>
+    <string name="title_node_info">Инфо о ветке</string>
+    <string name="title_folder_is_missing">Каталог отсутствует</string>
+    <string name="title_use_global_search">Использовать глобальный поиск</string>
+    <string name="title_reload_storage">Перезагрузить хранилище</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -181,6 +189,10 @@
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="pref_check_outside_changing">Отслеживать изменения извне</string>
     <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами</string>
+    <string name="pref_request_pin_code">Использовать ПИН-код</string>
+    <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
+    <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>
+    <string name="pref_fix_empty_paragraphs_summ">Исправлять html-текст заметки для корректного чтения в MyTetra</string>
 
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
@@ -205,6 +217,9 @@
     <string name="label_cur_pass">Текущий пароль:</string>
     <string name="label_new_pass">Новый пароль:</string>
     <string name="label_confirm_pass">Пароль повторно:</string>
+    <string name="label_crypted">Зашифрована:</string>
+    <string name="label_path">Путь к каталогу:</string>
+    <string name="label_size">Размер каталога:</string>
 
     <string name="search_tags_by_query">Поиск меток по запросу "%s"…</string>
     <string name="search_hint_input_query">Введите запрос</string>
@@ -278,6 +293,8 @@
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
     <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>
+    <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
+    <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -438,7 +455,6 @@
     <string name="log_start_storage_creating">Начало создания хранилища:\n</string>
     <string name="log_dir_is_missing">Каталог не существует</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
-    <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="log_app_exit">Выход из приложения</string>
     <string name="log_obj_id_name_mask">id=%1$s, имя=\"%2$s\"</string>
     <string name="log_set_cur_pass">Установка текущего пароля</string>
@@ -453,23 +469,9 @@
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
-    <string name="title_need_init_storage">Сначала нужно выбрать/создать хранилище</string>
-    <string name="title_need_perm_init_storage">Сначала нужно предоставить разрешение на запись во внешнюю память и выбрать/создать хранилище</string>
-    <string name="title_need_load_storage">Сначала нужно загрузить хранилище</string>
-    <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
     <string name="log_request_perm">Запрос разрешения:&#160;</string>
     <string name="log_camera_perm_granted">Предоставлено разрешение к использованию камеры</string>
     <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
-    <string name="title_record_info">Инфо о записи</string>
-    <string name="title_node_info">Инфо о ветке</string>
-    <string name="label_crypted">Зашифрована:</string>
-    <string name="label_path">Путь к каталогу:</string>
-    <string name="label_size">Размер каталога:</string>
-    <string name="title_folder_is_missing">Каталог отсутствует</string>
-    <string name="title_use_global_search">Использовать глобальный поиск</string>
-    <string name="title_reload_storage">Перезагрузить хранилище</string>
     <string name="log_record_fields_changed">Свойства записи изменены</string>
-    <string name="pref_request_pin_code">Использовать ПИН-код</string>
-    <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
 
 </resources>

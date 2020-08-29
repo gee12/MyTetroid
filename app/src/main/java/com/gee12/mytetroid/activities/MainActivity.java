@@ -1765,6 +1765,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+            // проверяем нужно ли отслеживать структуру хранилища
+            TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+            // скрываем пункт меню Синхронизация, если отключили
+            ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
+
             if (data != null) {
                 // перезагружаем хранилище, если изменили путь
                 if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
@@ -1782,10 +1787,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     updateTags();
                 }
             }
-            // скрываем пункт меню Синхронизация, если отключили
-            ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
-            // проверяем нужно ли проверять структуру хранилища
-            TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
@@ -1825,6 +1826,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (data == null) {
             return;
         }
+        // проверяем нужно ли отслеживать структуру хранилища
+        TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
         // обновляем списки, если редактировали свойства записи
         if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
             mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();

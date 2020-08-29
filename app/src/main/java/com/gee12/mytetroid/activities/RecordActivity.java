@@ -399,11 +399,16 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    /**
+     * Обработчик события возврата html-текста заметки из WebView.
+     * @param htmlText
+     */
     @Override
     public void onReceiveEditableHtml(String htmlText) {
         if (mEditor.isCalledHtmlRequest()) {
+            // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             mEditor.setHtmlRequestHandled();
-            // теперь сохраняем без вызова предварительных методов
+            // теперь сохраняем текст заметки без вызова предварительных методов
             saveRecord(false);
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
@@ -643,33 +648,38 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Сохранение содержимого записи в файл.
+     * Сохранение html-текста записи в файл.
      */
     private void saveRecord() {
-        saveRecord(true);
+        saveRecord(SettingsManager.isFixEmptyParagraphs());
     }
 
+    /**
+     * Сохранение html-текста записи в файл с предобработкой.
+     * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
+     */
     private void saveRecord(boolean callBefore) {
         if (callBefore) {
-            // спец.обработчик до сохранения текста записи
-            mEditor.beforeSave();
+            mEditor.beforeSave(true);
         } else {
             save();
         }
     }
 
+    /**
+     * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
+     */
     private void save() {
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
-        String htmlText = (mCurMode == MODE_HTML)
-                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
+        String htmlText = TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString());
+//        String htmlText = (mCurMode == MODE_HTML)
+//                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
-//            LogManager.log(getString(R.string.log_record_saved), LogManager.Types.INFO, Toast.LENGTH_SHORT);
             TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
             // сбрасываем пометку изменения записи
             mEditor.setIsEdited(false);
             updateEditedDate();
         } else {
-//            LogManager.log(getString(R.string.log_record_save_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
         }
     }

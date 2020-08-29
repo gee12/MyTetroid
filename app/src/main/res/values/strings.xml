@@ -102,6 +102,14 @@
     <string name="title_available_in_pro">Available in version Pro</string>
     <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
     <string name="title_not_avail_when_save_pass">Not available when saving password locally</string>
+    <string name="title_need_init_storage">First you need to select/create storage</string>
+    <string name="title_need_perm_init_storage">First you need to grant write permission and select/create storage</string>
+    <string name="title_need_load_storage">First need to load storage</string>
+    <string name="title_record_info">Record info</string>
+    <string name="title_node_info">Node info</string>
+    <string name="title_folder_is_missing">Folder is missing</string>
+    <string name="title_use_global_search">Use global search</string>
+    <string name="title_reload_storage">Reload storage</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -230,6 +238,12 @@
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
     <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs</string>
+    <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
+    <string name="pref_request_pin_code">Use PIN-code</string>
+    <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
+    <string name="pref_key_fix_empty_paragraphs" translatable="false">pref_key_fix_empty_paragraphs</string>
+    <string name="pref_fix_empty_paragraphs">Fix html on save</string>
+    <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct reading in MyTetra</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -291,6 +305,10 @@
     <string name="label_cur_pass">Current password:</string>
     <string name="label_new_pass">New password:</string>
     <string name="label_confirm_pass">Confirm:</string>
+    <string name="label_crypted">Crypted:</string>
+    <string name="label_id" translatable="false">Id:</string>
+    <string name="label_path">Path to folder:</string>
+    <string name="label_size">Folder size:</string>
 
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
@@ -337,6 +355,8 @@
     <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
     <string name="ask_storage_changed_outside">The record tree has been modified by a third party program. Reboot the storage to continue working with the new data outside?</string>
+    <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
+    <string name="ask_dir_not_empty">The selected directory is not empty. Continue anyway?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -496,7 +516,6 @@
     <string name="log_start_storage_creating">Start storage creating:\n</string>
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
-    <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="log_app_exit">Exit from app</string>
     <string name="log_obj_id_mask" translatable="false">id=%s</string>
     <string name="log_obj_id_name_mask">id=%1$s, name=\"%2$s\"</string>
@@ -512,25 +531,8 @@
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
     <string name="log_settings_copied_from_free">Application settings were copied from the Free version</string>
-    <string name="title_need_init_storage">First you need to select/create storage</string>
-    <string name="title_need_perm_init_storage">First you need to grant write permission and select/create storage</string>
-    <string name="title_need_load_storage">First need to load storage</string>
-    <string name="ask_dir_not_empty">The selected directory is not empty. Continue anyway?</string>
     <string name="log_request_perm">Permission request:&#160;</string>
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
-    <string name="title_record_info">Record info</string>
-    <string name="title_node_info">Node info</string>
-    <string name="label_crypted">Crypted:</string>
-    <string name="label_id" translatable="false">Id:</string>
-    <string name="label_path">Path to folder:</string>
-    <string name="label_size">Folder size:</string>
-    <string name="title_folder_is_missing">Folder is missing</string>
-    <string name="title_use_global_search">Use global search</string>
-    <string name="title_reload_storage">Reload storage</string>
     <string name="log_record_fields_changed">Record fields changed</string>
-    <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
-    <string name="pref_request_pin_code">Use PIN-code</string>
-    <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
-
 </resources>

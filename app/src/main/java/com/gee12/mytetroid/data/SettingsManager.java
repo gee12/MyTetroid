@@ -375,6 +375,15 @@ public class SettingsManager {
         return getBoolean(R.string.pref_key_is_record_auto_save, false);
     }
 
+    /**
+     * Исправлять в html-тексте записи абзацы со стилем "-qt-paragraph-type:empty;" для MyTetra ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isFixEmptyParagraphs() {
+        return getBoolean(R.string.pref_key_fix_empty_paragraphs, true);
+    }
+
     /*
     * Отображение.
      */
