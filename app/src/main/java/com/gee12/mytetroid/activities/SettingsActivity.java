@@ -21,6 +21,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
@@ -161,7 +162,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     }
                     if (!((boolean)newValue) && SettingsManager.isSaveMiddlePassHashLocal()) {
                         // удалить сохраненный хэш пароля?
-                        AskDialogs.showYesNoDialog(this, new AskDialogs.IApplyCancelResult() {
+                        AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
                             @Override
                             public void onApply() {
                                 // удаляем хэш пароля, если сняли галку

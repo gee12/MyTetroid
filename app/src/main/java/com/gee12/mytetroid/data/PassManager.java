@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
@@ -18,10 +19,13 @@ public class PassManager extends DataManager {
 
     /**
      * Асинхронная проверка имеется ли сохраненный пароль и его запрос при необходимости.
+     *
+     * TODO: добавить запрос на ввод ПИН-кода, если включено сохранение пароля
+     *
      * @param node
      * @param callback Действие после проверки пароля
      */
-    public static void checkStoragePass(Context context, TetroidNode node, AskDialogs.IApplyResult callback) {
+    public static void checkStoragePass(Context context, TetroidNode node, Dialogs.IApplyResult callback) {
         //if (SettingsManager.isSaveMiddlePassHashLocal()) {
         String middlePassHash;
         if ((middlePassHash = CryptManager.getMiddlePassHash()) != null) {
@@ -47,7 +51,7 @@ public class PassManager extends DataManager {
                     final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
                     AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
-                            new AskDialogs.IApplyCancelResult() {
+                            new Dialogs.IApplyCancelResult() {
                                 @Override
                                 public void onApply() {
                                     initCryptPass(hash, true);
@@ -77,7 +81,7 @@ public class PassManager extends DataManager {
      * Отображения запроса пароля от хранилища.
      * @param node
      */
-    public static void askPassword(Context context, final TetroidNode node, AskDialogs.IApplyResult callback) {
+    public static void askPassword(Context context, final TetroidNode node, Dialogs.IApplyResult callback) {
         LogManager.log(R.string.log_show_pass_dialog);
         boolean isNewPass = !isCrypted();
         // выводим окно с запросом пароля в асинхронном режиме
@@ -151,7 +155,7 @@ public class PassManager extends DataManager {
             // если поля в INI-файле для проверки пустые
             LogManager.log(ex);
             // спрашиваем "continue anyway?"
-            AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new AskDialogs.IApplyCancelResult() {
+            AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                 @Override
                 public void onApply() {
                     // TODO: тут спрашиваем нормально ли расшифровались данные

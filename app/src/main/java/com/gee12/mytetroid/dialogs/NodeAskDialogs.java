@@ -102,8 +102,8 @@ public class NodeAskDialogs {
         builder.show();
     }
 
-    public static void deleteNode(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_node_delete);
+    public static void deleteNode(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_node_delete);
     }
 
 }

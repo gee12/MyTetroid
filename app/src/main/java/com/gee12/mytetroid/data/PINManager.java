@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -23,7 +24,7 @@ public class PINManager {
      * К этому моменту факт того, что хэш пароля сохранен локально, должен быть уже проверен.
      * @param context
      */
-    public static void askPINCode(Context context, boolean isNodeOpening, AskDialogs.IApplyResult callback) {
+    public static void askPINCode(Context context, boolean isNodeOpening, Dialogs.IApplyResult callback) {
         if (isRequestPINCode() && isNodeOpening) {
             // выводим запрос ввода ПИН-кода
             AskDialogs.showPINCodeDialog(context, false, new AskDialogs.IPinInputResult() {
@@ -77,7 +78,7 @@ public class PINManager {
      * @param context
      * @param callback
      */
-    public static void checkPass(Context context, AskDialogs.IApplyResult callback) {
+    public static void checkPass(Context context, Dialogs.IApplyResult callback) {
         String middlePassHash;
         if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
             // хэш пароля сохранен "на диске", проверяем
@@ -101,7 +102,7 @@ public class PINManager {
 //                    final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
                     AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
-                            new AskDialogs.IApplyCancelResult() {
+                            new Dialogs.IApplyCancelResult() {
                                 @Override
                                 public void onApply() {
 

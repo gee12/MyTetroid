@@ -138,24 +138,24 @@ public class RecordAskDialogs {
         builder.show();
     }
 
-    public static void saveRecord(Context context, final AskDialogs.IApplyCancelResult applyHandler) {
-        AskDialogs.showYesNoDialog(context, applyHandler, R.string.ask_save_record);
+    public static void saveRecord(Context context, final Dialogs.IApplyCancelResult callback) {
+        AskDialogs.showYesNoDialog(context, callback, R.string.ask_save_record);
     }
 
-    public static void deleteRecord(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_record_delete);
+    public static void deleteRecord(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_record_delete);
     }
 
-    public static void operWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult applyHandler) {
+    public static void operWithoutDir(Context context, TetroidLog.Opers oper, final Dialogs.IApplyResult callback) {
         int resId = (oper == TetroidLog.Opers.DELETE) ? R.string.title_delete
                 : (oper == TetroidLog.Opers.CUT) ? R.string.title_cut
                 : R.string.title_insert;
         String mes = String.format(context.getString(R.string.ask_oper_without_record_dir_mask),
                 context.getString(resId));
-//        AskDialogs.showYesDialog(context, applyHandler, mes);
-        Dialogs.showAlertDialog(context, mes,
-                (dialog, which) -> applyHandler.onApply(),
-                null);
+//        AskDialogs.showYesDialog(context, callback, mes);
+        Dialogs.showAlertDialog(context, mes, true, true, callback);
+//                (dialog, which) -> callback.onApply(),
+//                null);
     }
 
 }

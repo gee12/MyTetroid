@@ -142,7 +142,7 @@ public class TetroidEditor extends WysiwygEditor {
                 showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
             } else {
                 // спрашиваем о необходимости изменения размера
-                AskDialogs.showYesNoDialog(getContext(), new AskDialogs.IApplyCancelResult() {
+                AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         createImageDimensDialog(images, 0);

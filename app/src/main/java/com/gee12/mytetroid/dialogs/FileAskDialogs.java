@@ -77,31 +77,31 @@ public class FileAskDialogs {
         });
     }
 
-    public static void deleteFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_file_delete);
+    public static void deleteFile(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_file_delete);
     }
 
-/*    public static void deleteAttachWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult applyHandler) {
+/*    public static void deleteAttachWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult callback) {
         int resId = (oper == TetroidLog.Opers.DELETE) ? R.string.title_delete
                 : (oper == TetroidLog.Opers.CUT) ? R.string.title_cut
                 : R.string.title_insert;
         String mes = String.format(context.getString(R.string.ask_record_oper_without_dir_mask),
                 context.getString(resId));
-//        AskDialogs.showYesDialog(context, applyHandler, R.string.log_record_delete_without_dir);
+//        AskDialogs.showYesDialog(context, callback, R.string.log_record_delete_without_dir);
         AskDialogs.showAlertDialog(context, mes,
-                (dialog, which) -> applyHandler.onApply(),
+                (dialog, which) -> callback.onApply(),
                 null);
     }*/
 
-    public static void deleteAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_attach_delete_without_file);
+    public static void deleteAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_attach_delete_without_file);
     }
 
-    public static void renameAttachWithoutDir(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_delete_record_without_dir);
+    public static void renameAttachWithoutDir(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_delete_record_without_dir);
     }
 
-    public static void renameAttachWithoutFile(Context context, final AskDialogs.IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_delete_attach_without_file);
+    public static void renameAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_delete_attach_without_file);
     }
 }

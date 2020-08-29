@@ -21,13 +21,13 @@ import com.gee12.mytetroid.views.Message;
 
 public class AskDialogs {
 
-    public interface IApplyResult {
-        void onApply();
-    }
-
-    public interface IApplyCancelResult extends IApplyResult {
-        void onCancel();
-    }
+//    public interface IApplyResult {
+//        void onApply();
+//    }
+//
+//    public interface IApplyCancelResult extends IApplyResult {
+//        void onCancel();
+//    }
 
     public interface IPinInputResult {
         void onApply(String code);
@@ -283,63 +283,70 @@ public class AskDialogs {
         dialog.show();
     }
 
-    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final IApplyCancelResult applyHandler) {
-        Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName),
-                (dialog, which) -> applyHandler.onApply(),
-                (dialog, which) -> applyHandler.onCancel());
+    public static void showEmptyPassCheckingFieldDialog(Context context, String fieldName, final Dialogs.IApplyCancelResult callback) {
+        Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName), callback);
+//                (dialog, which) -> callback.onApply(),
+//                (dialog, which) -> callback.onCancel());
     }
 
-    public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged, final IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler,
+    public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged,
+                                               final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback,
                 (toCreate) ? R.string.ask_storage_folder_clear :
                         (pathChanged) ? R.string.ask_storage_path_was_changed : R.string.ask_reload_storage);
     }
 
-    public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final IApplyResult applyHandler) {
+    public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final Dialogs.IApplyResult callback) {
         int mesRes = (isSyncSuccess) ? R.string.ask_sync_success_dialog_request : R.string.ask_sync_failed_dialog_request;
-        AskDialogs.showYesDialog(context, applyHandler, mesRes);
+        AskDialogs.showYesDialog(context, callback, mesRes);
     }
 
-    public static void showSyncRequestDialog(Context context, final IApplyCancelResult applyHandler) {
-        AskDialogs.showYesNoDialog(context, applyHandler, R.string.ask_start_sync_dialog_title);
+    public static void showSyncRequestDialog(Context context, final Dialogs.IApplyCancelResult callback) {
+        AskDialogs.showYesNoDialog(context, callback, R.string.ask_start_sync_dialog_title);
     }
 
-    public static void showExitDialog(Context context, final IApplyResult applyHandler) {
-        AskDialogs.showYesDialog(context, applyHandler, R.string.ask_exit_from_app);
-    }
-
-    /**
-     *
-     * @param context
-     * @param applyHandler
-     * @param messageRes
-     */
-    public static void showYesNoDialog(Context context, final IApplyCancelResult applyHandler, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, messageRes,
-                (dialog, which) -> applyHandler.onApply(),
-                (dialog, which) -> applyHandler.onCancel());
+    public static void showExitDialog(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_exit_from_app);
     }
 
     /**
      *
      * @param context
-     * @param applyHandler
+     * @param callback
      * @param messageRes
      */
-    public static void showYesDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, messageRes,
-                (dialog, which) -> applyHandler.onApply(),
-                null);
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback,
+                                       @StringRes int messageRes) {
+        showYesNoDialog(context, callback, true, messageRes);
+    }
+
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback,
+                                       boolean isCancelable, @StringRes int messageRes) {
+        Dialogs.showAlertDialog(context, messageRes, true, isCancelable, callback);
+//                (dialog, which) -> callback.onApply(),
+//                (dialog, which) -> callback.onCancel());
     }
 
     /**
      *
      * @param context
-     * @param applyHandler
+     * @param callback
      * @param messageRes
      */
-    public static void showOkDialog(Context context, final IApplyResult applyHandler, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, messageRes,
-                (dialog, which) -> applyHandler.onApply());
+    public static void showYesDialog(Context context, final Dialogs.IApplyResult callback, @StringRes int messageRes) {
+        Dialogs.showAlertDialog(context, context.getString(messageRes), true, true, callback);
+//                (dialog, which) -> callback.onApply(),
+//                null);
+    }
+
+    /**
+     *
+     * @param context
+     * @param callback
+     * @param messageRes
+     */
+    public static void showOkDialog(Context context, final Dialogs.IApplyResult callback, @StringRes int messageRes) {
+        Dialogs.showAlertDialog(context, messageRes, false, true, callback);
+//                (dialog, which) -> callback.onApply());
     }
 }

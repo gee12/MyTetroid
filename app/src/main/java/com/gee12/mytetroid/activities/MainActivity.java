@@ -197,9 +197,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 MainActivity.this.runOnUiThread(() -> {
                     LogManager.log(R.string.ask_storage_changed_outside, LogManager.Types.INFO);
                     // выводим уведомление
-                    AskDialogs.showOkDialog(MainActivity.this, () -> {
-                        MainActivity.this.reloadStorage();
-                        MainActivity.this.mIsStorageChangingHandled = false;
+                    AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
+                        @Override
+                        public void onCancel() {}
+                        @Override
+                        public void onApply() {
+                            reloadStorage();
+                        }
+                        @Override
+                        public void onDismiss() {
+                            MainActivity.this.mIsStorageChangingHandled = false;
+                        }
                     }, R.string.ask_storage_changed_outside);
                 });
             }
@@ -325,6 +333,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void startStorageTreeObserver() {
         if (SettingsManager.isCheckOutsideChangind()) {
+            this.mIsStorageChangingHandled = false;
             DataManager.startStorageObserver(mOutsideChangingHandler);
         }
     }
@@ -341,13 +350,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Перезагрузка хранилища.
      */
-    private void reloadStorage() {
-        AskDialogs.showReloadStorageDialog(this, false, false, () -> {
-            // сохраняем id выбранной ветки
-            saveLastSelectedNode();
-            // перезагружаем хранилище
-            reinitStorage();
+    private void reloadStorageAsk() {
+        AskDialogs.showReloadStorageDialog(this, false, false,() -> {
+            reloadStorage();
         });
+    }
+
+    private void reloadStorage() {
+        // сохраняем id выбранной ветки
+        saveLastSelectedNode();
+        // перезагружаем хранилище
+        reinitStorage();
     }
 
     /**
@@ -402,7 +415,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (SettingsManager.isSyncStorage() && SettingsManager.isSyncBeforeInit()) {
             // спрашиваем о необходимости запуска синхронизации, если установлена опция
             if (SettingsManager.isAskBeforeSync()) {
-                AskDialogs.showSyncRequestDialog(this, new AskDialogs.IApplyCancelResult() {
+                AskDialogs.showSyncRequestDialog(this, new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         MainActivity.this.mIsLoadStorageAfterSync = true;
@@ -536,7 +549,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // если поля в INI-файле для проверки пустые
                 LogManager.log(ex);
                 // спрашиваем "continue anyway?"
-                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new AskDialogs.IApplyCancelResult() {
+                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                             @Override
                             public void onApply() {
                                 DataManager.initCryptPass(middlePassHash, true);
@@ -2025,12 +2038,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             (imagesUri != null && imagesUri.size() > 1) ? R.string.word_received_images
                                     : R.string.word_received_image)));
             Dialogs.showAlertDialog(this, mes,
-                    (dialog, which) -> {
+                    () -> {
                         // сохраняем Intent и загружаем хранилище
                         this.mReceivedIntent = intent;
                         loadAllNodes();
-                    },
-                    null);
+                    });
             return;
         }
 
@@ -2266,7 +2278,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showStorageInfoActivity();
                 return true;
             case R.id.action_reload:
-                reloadStorage();
+                reloadStorageAsk();
                 return true;
             case R.id.action_fullscreen:
                 App.toggleFullscreen(MainActivity.this);

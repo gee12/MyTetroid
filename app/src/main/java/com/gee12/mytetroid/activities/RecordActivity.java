@@ -30,6 +30,7 @@ import androidx.appcompat.widget.SearchView;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
+import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
@@ -788,7 +789,7 @@ public class RecordActivity extends TetroidActivity implements
                 saveRecord();
             } else if (showAskDialog) {
                 // спрашиваем о сохранении, если нужно
-                RecordAskDialogs.saveRecord(RecordActivity.this, new AskDialogs.IApplyCancelResult() {
+                RecordAskDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         saveRecord();
@@ -1242,6 +1243,7 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_CAMERA: {
@@ -1251,7 +1253,8 @@ public class RecordActivity extends TetroidActivity implements
                 } else {
                     LogManager.log(R.string.log_missing_camera_perm, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
                 }
-            } break;
+            }
+            break;
         }
     }
 
