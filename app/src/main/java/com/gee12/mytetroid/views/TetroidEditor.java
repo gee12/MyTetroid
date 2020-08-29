@@ -91,7 +91,7 @@ public class TetroidEditor extends WysiwygEditor {
     /**
      * Вызывается перед сохранением текста записи в файл.
      */
-    public void beforeSave(boolean deleteStyleEmpty) {
+    public void beforeSaveAsync(boolean deleteStyleEmpty) {
 
         if (deleteStyleEmpty) {
             deleteStyleEmpty();

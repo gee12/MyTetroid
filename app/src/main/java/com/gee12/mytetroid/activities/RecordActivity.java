@@ -124,6 +124,7 @@ public class RecordActivity extends TetroidActivity implements
     private TextFindListener mFindListener;
     private SearchView mSearchView;
     private boolean mIsReceivedImages;
+    private int mModeToSwitch = -1;
 
 
     public RecordActivity() {
@@ -323,10 +324,11 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void loadRecordText(TetroidRecord record, boolean fromHtmlEditor) {
         // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
-        // и не используется авто-сохранение изменений, то загружаем html-код из редактора
+        // -------и не используется авто-сохранение изменений,
+        // то загружаем html-код из редактора
         // 2) если нет, то загружаем html-код из файла записи
         String textHtml = null;
-        if (fromHtmlEditor && !SettingsManager.isRecordAutoSave()) {
+        if (fromHtmlEditor /*&& !SettingsManager.isRecordAutoSave()*/) {
             textHtml = mEditTextHtml.getText().toString();
         } else {
             if (!record.isNew()) {
@@ -410,6 +412,12 @@ public class RecordActivity extends TetroidActivity implements
             mEditor.setHtmlRequestHandled();
             // теперь сохраняем текст заметки без вызова предварительных методов
             saveRecord(false);
+            // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
+            if (mModeToSwitch > 0) {
+                runOnUiThread(() -> {
+                    switchMode(mModeToSwitch, false);
+                });
+            }
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
             runOnUiThread(() -> {
@@ -592,98 +600,6 @@ public class RecordActivity extends TetroidActivity implements
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
 
-    /**
-     * Скрытие/раскрытие панели со свойствами записи.
-     */
-    private void toggleRecordFieldsVisibility() {
-        mFieldsExpanderLayout.toggle();
-
-        if (mFieldsExpanderLayout.isExpanded()) {
-            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up_white);
-        } else {
-            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down_white);
-        }
-        updateScrollButtonLocation();
-    }
-
-    /**
-     * Обновление расположения кнопок скроллинга записи вниз/вверх.
-     */
-    private void updateScrollButtonLocation() {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
-//        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
-//        float density = getResources().getDisplayMetrics().density;
-//        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
-
-        if (mFieldsExpanderLayout.isExpanded()) {
-//            params.topMargin = fabMargin;
-            params.addRule(RelativeLayout.ALIGN_TOP, R.id.html_editor);
-//            params.topMargin = fabMargin;
-        } else {
-//            int aboveButtonHeight = (int) (mButtonToggleFields.getMeasuredHeight() / density);
-//            params.topMargin = fabMargin + aboveButtonHeight + fabMargin;
-//            params.rightMargin = fabMargin; // для совпадения с mButtonToggleFields
-            params.addRule(RelativeLayout.BELOW, R.id.button_toggle_fields);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_TOP);
-            }
-//            params.topMargin = 0;
-        }
-        mButtonScrollTop.setLayoutParams(params);
-    }
-
-    /**
-     * Управление видимостью панели со свойствами записи.
-     * @param isVisible
-     */
-    private void setRecordFieldsVisibility(boolean isVisible) {
-//        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
-        if (isVisible) {
-            mFieldsExpanderLayout.setVisibility(View.VISIBLE);
-            mButtonToggleFields.show();
-        } else {
-            mFieldsExpanderLayout.setVisibility(View.GONE);
-            mButtonToggleFields.hide();
-        }
-    }
-
-    /**
-     * Сохранение html-текста записи в файл.
-     */
-    private void saveRecord() {
-        saveRecord(SettingsManager.isFixEmptyParagraphs());
-    }
-
-    /**
-     * Сохранение html-текста записи в файл с предобработкой.
-     * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
-     */
-    private void saveRecord(boolean callBefore) {
-        if (callBefore) {
-            mEditor.beforeSave(true);
-        } else {
-            save();
-        }
-    }
-
-    /**
-     * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
-     */
-    private void save() {
-        LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
-        String htmlText = TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString());
-//        String htmlText = (mCurMode == MODE_HTML)
-//                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
-        if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
-            TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
-            // сбрасываем пометку изменения записи
-            mEditor.setIsEdited(false);
-            updateEditedDate();
-        } else {
-            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
-        }
-    }
-
     @Override
     public void startPicker() {
         ImgPicker.startPicker(this);
@@ -759,32 +675,55 @@ public class RecordActivity extends TetroidActivity implements
      * @param newMode
      */
     private void switchMode(int newMode) {
+        switchMode(newMode, true);
+    }
+
+    private void switchMode(int newMode, boolean isNeedSave) {
+        this.mModeToSwitch = -1;
         int oldMode = mCurMode;
         // сохраняем
-        onSaveRecord();
-        // перезагружаем текст записи в webView, если меняли вручную html
+//        onSaveRecord();
+        boolean runBeforeSaving = false;
+        if (isNeedSave && SettingsManager.isRecordAutoSave()) {
+            // автоматически сохраняем текст записи, если:
+            //  * есть изменения
+            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уж потом можно сохранять)
+            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
+                runBeforeSaving = saveRecord();
+            }
+        }
+        // если асинхронно запущена предобработка сохранения, то выходим
+        if (runBeforeSaving) {
+            this.mModeToSwitch = newMode;
+            return;
+        }
+        // перезагружаем html-текст записи в webView, если был режим редактирования HTML
         if (oldMode == MODE_HTML) {
             loadRecordText(mRecord, true);
         }
         // переключаем элементы интерфейса, только если не редактировали только что html,
         // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
         // на событии onPageLoaded())
-        if (oldMode != MODE_HTML) {
+//        if (oldMode != MODE_HTML) {
+        else {
             switchViews(newMode);
         }
         this.mCurMode = newMode;
     }
 
-    /**
-     * Сохранение изменений при смене режима.
-     */
-    private void onSaveRecord() {
-        if (SettingsManager.isRecordAutoSave()) {
-            if (mEditor.isEdited()) {
-                saveRecord();
-            }
-        }
-    }
+//    /**
+//     * Сохранение изменений при смене режима.
+//     */
+//    private void onSaveRecord() {
+//        if (SettingsManager.isRecordAutoSave()) {
+//            // автоматически сохраняем текст записи, если:
+//            //  * есть изменения
+//            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уж потом можно сохранять)
+//            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
+//                saveRecord();
+//            }
+//        }
+//    }
 
     /**
      * Сохранение изменений при скрытии или выходе из активности.
@@ -816,6 +755,55 @@ public class RecordActivity extends TetroidActivity implements
             }
         }
         return false;
+    }
+
+    /**
+     * Сохранение html-текста записи в файл.
+     * @return Запущена ли перед сохранением предобработка в асинхронном режиме.
+     */
+    private boolean saveRecord() {
+        boolean runBeforeSaving = SettingsManager.isFixEmptyParagraphs();
+        saveRecord(runBeforeSaving);
+        return runBeforeSaving;
+    }
+
+    /**
+     * Сохранение html-текста записи в файл с предобработкой.
+     * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
+     */
+    private void saveRecord(boolean callBefore) {
+        if (callBefore) {
+            onBeforeSavingAsync();
+        } else {
+            save();
+        }
+    }
+
+    /**
+     * Предобработка html-текста перед сохранением.
+     * Выполнение кода продолжиться в функции onReceiveEditableHtml().
+     */
+    private void onBeforeSavingAsync() {
+        mEditor.beforeSaveAsync(true);
+    }
+
+    /**
+     * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
+     */
+    private void save() {
+        LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
+        String htmlText = TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString());
+//        String htmlText = (mCurMode == MODE_HTML)
+//                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
+        if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
+//            TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
+            LogManager.log(R.string.log_record_saved, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            // сбрасываем пометку изменения записи
+            mEditor.setIsEdited(false);
+            updateEditedDate();
+        } else {
+            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
+        }
     }
 
     /**
@@ -1154,6 +1142,61 @@ public class RecordActivity extends TetroidActivity implements
                 stopSearch();
             }
         };
+    }
+
+    /**
+     * Скрытие/раскрытие панели со свойствами записи.
+     */
+    private void toggleRecordFieldsVisibility() {
+        mFieldsExpanderLayout.toggle();
+
+        if (mFieldsExpanderLayout.isExpanded()) {
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up_white);
+        } else {
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down_white);
+        }
+        updateScrollButtonLocation();
+    }
+
+    /**
+     * Обновление расположения кнопок скроллинга записи вниз/вверх.
+     */
+    private void updateScrollButtonLocation() {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonScrollTop.getLayoutParams();
+//        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) scrollTopButton.getLayoutParams();
+//        float density = getResources().getDisplayMetrics().density;
+//        int fabMargin = (int) (getResources().getDimension(R.dimen.fab_small_margin) / density);
+
+        if (mFieldsExpanderLayout.isExpanded()) {
+//            params.topMargin = fabMargin;
+            params.addRule(RelativeLayout.ALIGN_TOP, R.id.html_editor);
+//            params.topMargin = fabMargin;
+        } else {
+//            int aboveButtonHeight = (int) (mButtonToggleFields.getMeasuredHeight() / density);
+//            params.topMargin = fabMargin + aboveButtonHeight + fabMargin;
+//            params.rightMargin = fabMargin; // для совпадения с mButtonToggleFields
+            params.addRule(RelativeLayout.BELOW, R.id.button_toggle_fields);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                params.removeRule(RelativeLayout.ALIGN_TOP);
+            }
+//            params.topMargin = 0;
+        }
+        mButtonScrollTop.setLayoutParams(params);
+    }
+
+    /**
+     * Управление видимостью панели со свойствами записи.
+     * @param isVisible
+     */
+    private void setRecordFieldsVisibility(boolean isVisible) {
+//        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
+        if (isVisible) {
+            mFieldsExpanderLayout.setVisibility(View.VISIBLE);
+            mButtonToggleFields.show();
+        } else {
+            mFieldsExpanderLayout.setVisibility(View.GONE);
+            mButtonToggleFields.hide();
+        }
     }
 
     /**

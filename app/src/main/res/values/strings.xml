@@ -243,7 +243,7 @@
     <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
     <string name="pref_key_fix_empty_paragraphs" translatable="false">pref_key_fix_empty_paragraphs</string>
     <string name="pref_fix_empty_paragraphs">Fix html on save</string>
-    <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct reading in MyTetra</string>
+    <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct display in MyTetra</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -535,4 +535,5 @@
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
     <string name="log_record_fields_changed">Record fields changed</string>
+    <string name="log_record_saved">Record saved</string>
 </resources>
