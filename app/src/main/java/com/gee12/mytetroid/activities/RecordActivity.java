@@ -115,6 +115,7 @@ public class RecordActivity extends TetroidActivity implements
     private MenuItem mMenuItemView;
     private MenuItem mMenuItemEdit;
     private MenuItem mMenuItemHtml;
+    private MenuItem mMenuItemSave;
 
     private TetroidRecord mRecord;
     private int mCurMode;
@@ -840,6 +841,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(true);
+                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
                 mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.subtitle_record_view));
@@ -859,6 +861,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(true);
                 mMenuItemEdit.setVisible(false);
                 mMenuItemHtml.setVisible(true);
+                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
                 mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_edit));
@@ -881,6 +884,7 @@ public class RecordActivity extends TetroidActivity implements
                 mMenuItemView.setVisible(false);
                 mMenuItemEdit.setVisible(true);
                 mMenuItemHtml.setVisible(false);
+                mMenuItemSave.setVisible(false);
                 setSubtitle(getString(R.string.subtitle_record_html));
             } break;
         }
@@ -1098,6 +1102,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mMenuItemView = menu.findItem(R.id.action_record_view);
         this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
         this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
+        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         initSearchView(menu);
 
         // для отображения иконок

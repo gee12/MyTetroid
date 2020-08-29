@@ -52,6 +52,7 @@ import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.DatabaseConfig;
 import com.gee12.mytetroid.data.FavoritesManager;
+import com.gee12.mytetroid.data.ICallback;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.PINManager;
 import com.gee12.mytetroid.data.PassManager;
@@ -60,6 +61,7 @@ import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.SyncManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
+import com.gee12.mytetroid.data.TetroidFileObserver;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeAskDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
@@ -149,7 +151,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TetroidTask mCurTask;
     private String mLastSearchQuery;
     private boolean mIsStorageChangingHandled;
-    private DataManager.ICallback mOutsideChangingHandler;
+    private ICallback mOutsideChangingHandler;
 
 
     public MainActivity() {
@@ -332,9 +334,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Обработчик изменения структуры хранилища извне.
      */
     private void startStorageTreeObserver() {
-        if (SettingsManager.isCheckOutsideChangind()) {
+        if (SettingsManager.isCheckOutsideChanging()) {
             this.mIsStorageChangingHandled = false;
-            DataManager.startStorageObserver(mOutsideChangingHandler);
+            TetroidFileObserver.startStorageObserver(mOutsideChangingHandler);
         }
     }
 
@@ -1783,7 +1785,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
             // проверяем нужно ли проверять структуру хранилища
-            DataManager.startOrStopStorageObserver(SettingsManager.isCheckOutsideChangind(), mOutsideChangingHandler);
+            TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
@@ -2327,7 +2329,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // сохраняем выбранную ветку
         saveLastSelectedNode();
         // останавливаем отслеживание изменения структуры хранилища
-        DataManager.stopStorageObserver();
+        TetroidFileObserver.stopStorageObserver();
         // очищаем память
         DataManager.destruct();
     }

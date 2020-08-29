@@ -349,7 +349,7 @@ public class SettingsManager {
      * Отслеживать изменения структуры хранилища внешними программами.
      * @return
      */
-    public static boolean isCheckOutsideChangind() {
+    public static boolean isCheckOutsideChanging() {
         return getBoolean(R.string.pref_key_check_outside_changing, true);
     }
 

@@ -142,7 +142,7 @@ public class PassManager extends DataManager {
      * @param callback
      * @param wrongPassRes
      */
-    public static boolean checkPass(Context context, String pass, DataManager.ICallback callback, int wrongPassRes) {
+    public static boolean checkPass(Context context, String pass, ICallback callback, int wrongPassRes) {
         try {
             if (checkPass(pass)) {
                 callback.run(true);
