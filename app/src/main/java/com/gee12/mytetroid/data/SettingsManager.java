@@ -32,7 +32,7 @@ public class SettingsManager {
 
     private static SharedPreferences settings;
     private static Context context;
-    public static boolean isCopiedFromFree;
+    private static boolean isCopiedFromFree;
 
     /**
      * Инициализация настроек.
@@ -152,6 +152,10 @@ public class SettingsManager {
         setSearchSplitToWords(DEF_SEARCH_SPLIT_TO_WORDS);
         setSearchInWholeWords(DEF_SEARCH_IN_WHOLE_WORDS);
         setSearchInCurNode(DEF_SEARCH_IN_CUR_NODE);
+    }
+
+    public static boolean isCopiedFromFree() {
+        return isCopiedFromFree;
     }
 
     /*

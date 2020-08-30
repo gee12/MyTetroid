@@ -135,6 +135,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MenuItem mMenuItemGlobalSearch;
     private MenuItem mMenuItemStorageSync;
     private MenuItem mMenuItemStorageInfo;
+    private MenuItem mMenuItemStorageReload;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
@@ -287,15 +288,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    /**
+     *
+     */
     @Override
     public void onMainPageCreated() {
         // инициализация
-        SettingsManager.init(this);
+        SettingsManager.init(getApplicationContext());
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
         LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         LogManager.log(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
-        if (SettingsManager.isCopiedFromFree) {
+        if (SettingsManager.isCopiedFromFree()) {
             LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
         }
         startInitStorage(false);
@@ -648,7 +652,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            this.mCurTask = new ReadStorageTask(isOnlyFavorites, isOpenLastNode).run(isDecrypt);
+            this.mCurTask = new ReadStorageTask(isDecrypt, isOnlyFavorites, isOpenLastNode).run();
         }
     }
 
@@ -765,6 +769,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         ViewUtils.setEnabledIfNotNull(mMenuItemGlobalSearch, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemStorageSync, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemStorageInfo, isAvailable);
+        ViewUtils.setEnabledIfNotNull(mMenuItemStorageReload, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
     }
 
@@ -2242,6 +2247,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
         ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
         this.mMenuItemStorageInfo = menu.findItem(R.id.action_storage_info);
+        this.mMenuItemStorageReload = menu.findItem(R.id.action_storage_reload);
         this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(mMenuItemSearchViewRecords);
 
@@ -2282,7 +2288,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_storage_info:
                 showStorageInfoActivity();
                 return true;
-            case R.id.action_reload:
+            case R.id.action_storage_reload:
                 reloadStorageAsk();
                 return true;
             case R.id.action_fullscreen:
@@ -2413,13 +2419,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Задание (параллельный поток), в котором выполняется загрузка хранилища.
      */
-    private class ReadStorageTask extends TetroidTask<Boolean,Void,Boolean> {
+    private class ReadStorageTask extends TetroidTask<Void,Void,Boolean> {
 
+        boolean mIsDecrypt;
         boolean mIsFavoritesOnly;
         boolean mIsOpenLastNode;
 
-        ReadStorageTask (boolean isFavorites, boolean isOpenLastNode) {
+        ReadStorageTask (boolean isDecrypt, boolean isFavorites, boolean isOpenLastNode) {
             super(MainActivity.this);
+            this.mIsDecrypt = isDecrypt;
             this.mIsFavoritesOnly = isFavorites;
             this.mIsOpenLastNode = isOpenLastNode;
         }
@@ -2430,9 +2438,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
 
         @Override
-        protected Boolean doInBackground(Boolean... values) {
-            boolean isDecrypt = values[0];
-            return DataManager.readStorage(isDecrypt, mIsFavoritesOnly);
+        protected Boolean doInBackground(Void... values) {
+            return DataManager.readStorage(mIsDecrypt, mIsFavoritesOnly);
         }
 
         @Override
@@ -2441,7 +2448,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (res) {
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mIsFavoritesOnly;
-                String mes = getString((mIsFavoritesOnly) ? R.string.log_storage_favor_loaded_mask : R.string.log_storage_loaded_mask);
+                String mes = getString((mIsFavoritesOnly)
+                        ? R.string.log_storage_favor_loaded_mask
+                            : (mIsDecrypt) ? R.string.log_storage_loaded_decrypted_mask
+                                : R.string.log_storage_loaded_mask);
                 LogManager.log(String.format(mes, DataManager.getStorageName()), Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(getString(R.string.log_failed_storage_load) + DataManager.getStoragePath(),
@@ -2484,7 +2494,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         protected void onPostExecute(Boolean res) {
             taskPostExecute(mIsDrawerOpened);
             if (res) {
-//                TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, "", Toast.LENGTH_SHORT);
                 LogManager.log(R.string.log_storage_decrypted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);

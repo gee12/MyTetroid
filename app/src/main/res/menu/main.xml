@@ -59,7 +59,7 @@
         android:icon="@drawable/ic_storage_info"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_reload"
+        android:id="@+id/action_storage_reload"
         android:orderInCategory="240"
         android:title="@string/title_reload_storage"
         android:icon="@drawable/ic_reload"

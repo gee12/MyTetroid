@@ -384,6 +384,7 @@
     <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded_mask">Storage \'%s\' was loaded</string>
+    <string name="log_storage_loaded_decrypted_mask">Storage \'%s\' was loaded and decrypted</string>
     <string name="log_storage_favor_loaded_mask">Storage \'%s\' favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
