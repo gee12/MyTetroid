@@ -237,7 +237,7 @@
     <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
-    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs</string>
+    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs (in testing mode yet)</string>
     <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
     <string name="pref_request_pin_code">Use PIN-code</string>
     <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>

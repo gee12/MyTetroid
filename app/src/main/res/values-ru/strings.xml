@@ -188,7 +188,7 @@
     <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="pref_check_outside_changing">Отслеживать изменения извне</string>
-    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами</string>
+    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами (пока в режиме тестирования)</string>
     <string name="pref_request_pin_code">Использовать ПИН-код</string>
     <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
     <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>

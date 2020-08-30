@@ -792,7 +792,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void save() {
         LogManager.log(getString(R.string.log_before_record_save) + mRecord.getId(), LogManager.Types.INFO);
-        String htmlText = TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString());
+        String htmlText = mEditor.getDocumentHtml();
 //        String htmlText = (mCurMode == MODE_HTML)
 //                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (RecordsManager.saveRecordHtmlText(mRecord, htmlText)) {
