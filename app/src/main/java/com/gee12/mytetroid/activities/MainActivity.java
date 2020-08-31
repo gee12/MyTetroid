@@ -64,6 +64,7 @@ import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.data.TetroidFileObserver;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeAskDialogs;
+import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
@@ -555,7 +556,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // если поля в INI-файле для проверки пустые
                 LogManager.log(ex);
                 // спрашиваем "continue anyway?"
-                AskDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
+                PassDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                             @Override
                             public void onApply() {
                                 DataManager.initCryptPass(middlePassHash, true);
@@ -600,7 +601,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void askPassword(final TetroidNode node, boolean isNodeOpening, boolean isOnlyFavorites, boolean isOpenLastNode) {
         LogManager.log(R.string.log_show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
-        AskDialogs.showPassEnterDialog(this, node, false, new AskDialogs.IPassInputResult() {
+        PassDialogs.showPassEnterDialog(this, node, false, new PassDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 // подтверждение введенного пароля
@@ -1577,14 +1578,26 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void encryptNode(TetroidNode node) {
-        PassManager.checkStoragePass(this, node, () -> {
-            this.mCurTask = new CryptNodeTask(node, true).run();
+        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                mCurTask = new CryptNodeTask(node, true).run();
+            }
+            @Override
+            public void onCancel() {
+            }
         });
     }
 
     private void dropEncryptNode(TetroidNode node) {
-        PassManager.checkStoragePass(this, node, () -> {
-            this.mCurTask = new CryptNodeTask(node, false).run();
+        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                mCurTask = new CryptNodeTask(node, false).run();
+            }
+            @Override
+            public void onCancel() {
+            }
         });
     }
 
@@ -2038,6 +2051,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    /**
+     *
+     * @param intent
+     * @param isText
+     * @param text
+     * @param imagesUri
+     */
     private void showIntentDialog(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri) {
 
         if (App.IsLoadedFavoritesOnly) {
@@ -2062,13 +2082,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 final TetroidNode node = NodesManager.getDefaultNode();
                 if (node != null) {
                     if (node.isCrypted()) {
-                        PassManager.checkStoragePass(this, node, () -> {
-                            // расшифровуем хранилище, если ветка зашифрована
-                            if (DataManager.isCrypted()) {
-                                initStorage(null, true, false, false);
+                        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+                            @Override
+                            public void onApply() {
+                                // расшифровуем хранилище, если ветка зашифрована
+                                if (DataManager.isCrypted()) {
+                                    initStorage(null, true, false, false);
+                                }
+                                if (DataManager.isDecrypted()) {
+                                    createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
+                                }
                             }
-                            if (DataManager.isDecrypted()) {
-                                createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
+                            @Override
+                            public void onCancel() {
                             }
                         });
                     } else {

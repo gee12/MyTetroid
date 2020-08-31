@@ -7,7 +7,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.dialogs.PassDialogs;
 
 public class PINManager {
 
@@ -27,7 +27,7 @@ public class PINManager {
     public static void askPINCode(Context context, boolean isNodeOpening, Dialogs.IApplyResult callback) {
         if (isRequestPINCode() && isNodeOpening) {
             // выводим запрос ввода ПИН-кода
-            AskDialogs.showPINCodeDialog(context, false, new AskDialogs.IPinInputResult() {
+            PassDialogs.showPINCodeDialog(context, false, new PassDialogs.IPinInputResult() {
                 @Override
                 public void onApply(String code) {
                     callback.onApply();
@@ -48,23 +48,32 @@ public class PINManager {
      * Вызывается при установке/снятии опции.
      * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
      */
-    public static void setupPINCode(Context context) {
+    public static void setupPINCode(Context context, ICallback callback) {
         if (isRequestPINCode()) {
             // проверяем сохраненный пароль
-            checkPass(context, () -> {
-                // задаем новый ПИН-код
-                AskDialogs.showPINCodeDialog(context, true, new AskDialogs.IPinInputResult() {
-                    @Override
-                    public void onApply(String code) {
-                        SettingsManager.setPINCode(code);
-                        LogManager.log(R.string.log_pin_code_setup);
-                    }
+            checkPass(context, new Dialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    // задаем новый ПИН-код
+                    PassDialogs.showPINCodeDialog(context, true, new PassDialogs.IPinInputResult() {
+                        @Override
+                        public void onApply(String code) {
+                            SettingsManager.setPINCode(code);
+                            LogManager.log(R.string.log_pin_code_setup);
+                        }
 
-                    @Override
-                    public void onCancel() {
-                        SettingsManager.setIsRequestPINCode(false);
-                    }
-                });
+                        @Override
+                        public void onCancel() {
+                            SettingsManager.setIsRequestPINCode(false);
+                            callback.run(false);
+                        }
+                    });
+                }
+                @Override
+                public void onCancel() {
+                    SettingsManager.setIsRequestPINCode(false);
+                    callback.run(false);
+                }
             });
         } else {
             // очищаем
@@ -78,7 +87,7 @@ public class PINManager {
      * @param context
      * @param callback
      */
-    public static void checkPass(Context context, Dialogs.IApplyResult callback) {
+    public static void checkPass(Context context, Dialogs.IApplyCancelResult callback) {
         String middlePassHash;
         if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
             // хэш пароля сохранен "на диске", проверяем
@@ -101,7 +110,7 @@ public class PINManager {
                 if (DataManager.isCrypted()) {
 //                    final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
-                    AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
+                    PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
                             new Dialogs.IApplyCancelResult() {
                                 @Override
                                 public void onApply() {
@@ -112,6 +121,7 @@ public class PINManager {
                                 }
                                 @Override
                                 public void onCancel() {
+                                    callback.onCancel();
                                 }
                             });
                 } else {

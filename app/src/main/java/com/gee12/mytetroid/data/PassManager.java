@@ -11,7 +11,7 @@ import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
-import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.Utils;
 
@@ -25,7 +25,7 @@ public class PassManager extends DataManager {
      * @param node
      * @param callback Действие после проверки пароля
      */
-    public static void checkStoragePass(Context context, TetroidNode node, Dialogs.IApplyResult callback) {
+    public static void checkStoragePass(Context context, TetroidNode node, Dialogs.IApplyCancelResult callback) {
         //if (SettingsManager.isSaveMiddlePassHashLocal()) {
         String middlePassHash;
         if ((middlePassHash = CryptManager.getMiddlePassHash()) != null) {
@@ -50,7 +50,7 @@ public class PassManager extends DataManager {
                 if (isCrypted()) {
                     final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
-                    AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
+                    PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
                             new Dialogs.IApplyCancelResult() {
                                 @Override
                                 public void onApply() {
@@ -81,11 +81,11 @@ public class PassManager extends DataManager {
      * Отображения запроса пароля от хранилища.
      * @param node
      */
-    public static void askPassword(Context context, final TetroidNode node, Dialogs.IApplyResult callback) {
+    public static void askPassword(Context context, final TetroidNode node, Dialogs.IApplyCancelResult callback) {
         LogManager.log(R.string.log_show_pass_dialog);
         boolean isNewPass = !isCrypted();
         // выводим окно с запросом пароля в асинхронном режиме
-        AskDialogs.showPassEnterDialog(context, node, isNewPass, new AskDialogs.IPassInputResult() {
+        PassDialogs.showPassEnterDialog(context, node, isNewPass, new PassDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 if (isNewPass) {
@@ -107,7 +107,7 @@ public class PassManager extends DataManager {
 
             @Override
             public void cancelPass() {
-
+                callback.onCancel();
             }
         });
     }
@@ -155,7 +155,7 @@ public class PassManager extends DataManager {
             // если поля в INI-файле для проверки пустые
             LogManager.log(ex);
             // спрашиваем "continue anyway?"
-            AskDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
+            PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                 @Override
                 public void onApply() {
                     // TODO: тут спрашиваем нормально ли расшифровались данные
@@ -199,7 +199,7 @@ public class PassManager extends DataManager {
     public static void setupPass(Context context) {
         LogManager.log(R.string.log_start_pass_setup);
         // вводим пароль
-        AskDialogs.showPassEnterDialog(context, null, true, new AskDialogs.IPassInputResult() {
+        PassDialogs.showPassEnterDialog(context, null, true, new PassDialogs.IPassInputResult() {
             @Override
             public void applyPass(String pass, TetroidNode node) {
                 setupPass(pass);

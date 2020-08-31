@@ -36,6 +36,7 @@ import com.gee12.mytetroid.data.PINManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
@@ -370,12 +371,28 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         } else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
+        } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+            setPINCodePrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_request_pin_code))) {
-            PINManager.setupPINCode(this);
+            PINManager.setupPINCode(this, res -> {
+                ((CheckBoxPreference)findPreference(getString(R.string.pref_key_request_pin_code))).setChecked(res);
+            });
         }
     }
 
-    public void setHighlightPrefAvailability() {
+    private void refreshPreferences() {
+        setPreferenceScreen(null);
+        addPreferencesFromResource(R.xml.prefs);
+    }
+
+    private void setPINCodePrefAvailability() {
+        if (App.isFullVersion()) {
+            findPreference(getString(R.string.pref_key_request_pin_code)).setEnabled(
+                    SettingsManager.isSaveMiddlePassHashLocal());
+        }
+    }
+
+    private void setHighlightPrefAvailability() {
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
                 SettingsManager.isHighlightRecordWithAttach()
                 || SettingsManager.isHighlightEncryptedNodes());
@@ -460,7 +477,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
     public void changePass() {
         LogManager.log(R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
-        AskDialogs.showPassChangeDialog(this, (curPass, newPass) -> {
+        PassDialogs.showPassChangeDialog(this, (curPass, newPass) -> {
             // проверяем пароль
             return PassManager.checkPass(this, curPass, (res) -> {
                 if (res) {
