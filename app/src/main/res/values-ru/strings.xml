@@ -22,9 +22,9 @@
     <string name="title_password_enter">Введите пароль</string>
     <string name="title_password_set">Задайте пароль</string>
     <string name="title_password_change">Изменение пароля</string>
-    <string name="title_pin_enter">Введите ПИН</string>
-    <string name="title_pin_set">Задайте ПИН</string>
-    <string name="title_pin_confirm">Подтвердите ПИН</string>
+    <string name="title_pin_enter">Введите ПИН-код</string>
+    <string name="title_pin_set">Задайте ПИН-код</string>
+    <string name="title_pin_confirm">Подтвердите ПИН-код</string>
     <string name="title_storage_folder">Каталог хранилища</string>
     <string name="title_record_folder">Каталог записи</string>
     <string name="title_about_app">О приложении</string>

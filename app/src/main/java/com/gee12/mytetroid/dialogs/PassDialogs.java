@@ -201,8 +201,17 @@ public class PassDialogs {
         PinLockListener mPinLockListener = new PinLockListener() {
             @Override
             public void onComplete(String pin) {
-                pinLockView.setTag(pin);
-                setEnabledOk(true);
+                if (isSetup) {
+                    pinLockView.setTag(pin);
+                    setEnabledOk(true);
+                } else {
+                    if (callback.onApply(pin)) {
+                        dialog.dismiss();
+                    } else {
+                        // TODO: здесь нужен эффект дрожания
+
+                    }
+                }
             }
 
             @Override
@@ -231,7 +240,7 @@ public class PassDialogs {
                     String pin = (String) pinLockView.getTag();
                     if (isConfirm) {
                         // если это запрос подтверждения ввода, то сравниванием коды
-                        if (firstPin.equalsIgnoreCase(pin)) {
+                        if (firstPin.equals(pin)) {
                             callback.onApply(firstPin);
                             dialog.dismiss();
                         } else {
@@ -241,9 +250,10 @@ public class PassDialogs {
                         // запрашиваем подтверждение ввода
                         showPINCodeDialog(context, true, true, pin, new IPinInputResult() {
                             @Override
-                            public void onApply(String pass) {
+                            public boolean onApply(String pass) {
                                 callback.onApply(pin);
                                 dialog.dismiss();
+                                return true;
                             }
 
                             @Override
@@ -265,7 +275,7 @@ public class PassDialogs {
     }
 
     public interface IPinInputResult {
-        void onApply(String code);
+        boolean onApply(String code);
         void onCancel();
     }
 

@@ -29,9 +29,13 @@ public class PINManager {
             // выводим запрос ввода ПИН-кода
             PassDialogs.showPINCodeDialog(context, false, new PassDialogs.IPinInputResult() {
                 @Override
-                public void onApply(String code) {
-                    callback.onApply();
-                    LogManager.log(R.string.log_pin_code_enter);
+                public boolean onApply(String code) {
+                    boolean res = code.equals(SettingsManager.getPINCode());
+                    if (res) {
+                        callback.onApply();
+                        LogManager.log(R.string.log_pin_code_enter);
+                    }
+                    return res;
                 }
 
                 @Override
@@ -57,9 +61,10 @@ public class PINManager {
                     // задаем новый ПИН-код
                     PassDialogs.showPINCodeDialog(context, true, new PassDialogs.IPinInputResult() {
                         @Override
-                        public void onApply(String code) {
+                        public boolean onApply(String code) {
                             SettingsManager.setPINCode(code);
-                            LogManager.log(R.string.log_pin_code_setup);
+                            LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
+                            return true;
                         }
 
                         @Override
