@@ -153,6 +153,7 @@
     <string name="pref_when_ask_password_on_select">When choosing an encrypted branch</string>
     <string name="pref_when_ask_password_on_start">When the application starts</string>
     <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
+    <string name="pref_key_pin_code_length" translatable="false">pref_key_pin_code_length</string>
     <string name="pref_key_pin_code" translatable="false">pref_key_pin_code</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
     <string name="pref_category_main">Main</string>
@@ -537,4 +538,6 @@
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
     <string name="log_record_fields_changed">Record fields changed</string>
     <string name="log_record_saved">Record saved</string>
+    <string name="hint_pin_code_size">Value 4–8</string>
+    <string name="title_enter_pin_code_length">Enter PIN-code length</string>
 </resources>

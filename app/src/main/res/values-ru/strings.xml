@@ -475,5 +475,7 @@
     <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
     <string name="log_record_fields_changed">Свойства записи изменены</string>
     <string name="log_record_saved">Запись сохранена</string>
+    <string name="hint_pin_code_size">Значение 4–8</string>
+    <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
 
 </resources>

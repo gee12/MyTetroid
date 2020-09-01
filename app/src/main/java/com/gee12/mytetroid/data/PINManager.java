@@ -27,7 +27,7 @@ public class PINManager {
     public static void askPINCode(Context context, boolean isNodeOpening, Dialogs.IApplyResult callback) {
         if (isRequestPINCode() && isNodeOpening) {
             // выводим запрос ввода ПИН-кода
-            PassDialogs.showPINCodeDialog(context, false, new PassDialogs.IPinInputResult() {
+            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
                 @Override
                 public boolean onApply(String code) {
                     boolean res = code.equals(SettingsManager.getPINCode());
@@ -58,25 +58,35 @@ public class PINManager {
             checkPass(context, new Dialogs.IApplyCancelResult() {
                 @Override
                 public void onApply() {
-                    // задаем новый ПИН-код
-                    PassDialogs.showPINCodeDialog(context, true, new PassDialogs.IPinInputResult() {
+                    // задаем длину ПИН-кода
+                    PassDialogs.createTextSizeDialog(context, SettingsManager.getPINCodeLength(), new PassDialogs.IPinLengthInputResult() {
                         @Override
-                        public boolean onApply(String code) {
-                            SettingsManager.setPINCode(code);
-                            LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
-                            return true;
+                        public void onApply(int length) {
+                            SettingsManager.setPINCodeLength(length);
+                            // задаем новый ПИН-код
+                            PassDialogs.showPINCodeDialog(context, length, true, new PassDialogs.IPinInputResult() {
+                                @Override
+                                public boolean onApply(String code) {
+                                    SettingsManager.setPINCode(code);
+                                    LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
+                                    return true;
+                                }
+
+                                @Override
+                                public void onCancel() {
+                                    callback.run(false);
+                                }
+                            });
                         }
 
                         @Override
                         public void onCancel() {
-                            SettingsManager.setIsRequestPINCode(false);
                             callback.run(false);
                         }
                     });
                 }
                 @Override
                 public void onCancel() {
-                    SettingsManager.setIsRequestPINCode(false);
                     callback.run(false);
                 }
             });

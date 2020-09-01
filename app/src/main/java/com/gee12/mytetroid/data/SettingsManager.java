@@ -19,6 +19,7 @@ import java.util.Set;
 public class SettingsManager {
 
     public static final String PREFS_NAME = "_preferences";
+    public static final int DEF_PIN_CODE_LENGTH = 5;
     public static final boolean DEF_SEARCH_IN_RECORD_TEXT = true;
     public static final boolean DEF_SEARCH_IN_RECORDS_NAMES = true;
     public static final boolean DEF_SEARCH_IN_AUTHOR = true;
@@ -267,6 +268,18 @@ public class SettingsManager {
 
     public static void setIsRequestPINCode(boolean value) {
         setBoolean(R.string.pref_key_request_pin_code, value);
+    }
+
+    /**
+     * Длина ПИН-кода.
+     * @return
+     */
+    public static int getPINCodeLength() {
+        return getInt(R.string.pref_key_pin_code_length, DEF_PIN_CODE_LENGTH);
+    }
+
+    public static void setPINCodeLength(int value) {
+        setInt(R.string.pref_key_pin_code_length, value);
     }
 
     /**
@@ -674,7 +687,7 @@ public class SettingsManager {
     }
 
     /*
-     * Вспомогательные функции.
+     * Вспомогательные valueфункции.
      */
 
     /**
@@ -687,6 +700,19 @@ public class SettingsManager {
             return;
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(context.getString(prefKeyStringRes), value);
+        editor.apply();
+    }
+
+    /**
+     * Установить int опцию.
+     * @param prefKeyStringRes
+     * @param value
+     */
+    private static void setInt(int prefKeyStringRes, int value) {
+        if (settings == null)
+            return;
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(context.getString(prefKeyStringRes), value);
         editor.apply();
     }
 
@@ -727,6 +753,21 @@ public class SettingsManager {
             return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
+        }
+        return defValue;
+    }
+
+    /**
+     * Получить int опцию.
+     * @param prefKeyStringRes
+     * @param defValue
+     * @return
+     */
+    private static int getInt(int prefKeyStringRes, final int defValue) {
+        if (settings == null)
+            return defValue;
+        if(settings.contains(context.getString(prefKeyStringRes))) {
+            return settings.getInt(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
     }
