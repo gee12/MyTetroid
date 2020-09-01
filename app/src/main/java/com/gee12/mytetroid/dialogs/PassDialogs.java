@@ -195,7 +195,7 @@ public class PassDialogs {
      * @param context
      * @param callback
      */
-    public static void createTextSizeDialog(Context context, int curSize, IPinLengthInputResult callback) {
+    public static void showPinCodeLengthDialog(Context context, int curSize, IPinLengthInputResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pin_code_length);
         builder.setTitle(context.getString(R.string.title_enter_pin_code_length));
 

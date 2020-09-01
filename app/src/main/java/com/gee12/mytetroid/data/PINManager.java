@@ -59,7 +59,7 @@ public class PINManager {
                 @Override
                 public void onApply() {
                     // задаем длину ПИН-кода
-                    PassDialogs.createTextSizeDialog(context, SettingsManager.getPINCodeLength(), new PassDialogs.IPinLengthInputResult() {
+                    PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(), new PassDialogs.IPinLengthInputResult() {
                         @Override
                         public void onApply(int length) {
                             SettingsManager.setPINCodeLength(length);
@@ -71,14 +71,12 @@ public class PINManager {
                                     LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
                                     return true;
                                 }
-
                                 @Override
                                 public void onCancel() {
                                     callback.run(false);
                                 }
                             });
                         }
-
                         @Override
                         public void onCancel() {
                             callback.run(false);
@@ -91,9 +89,20 @@ public class PINManager {
                 }
             });
         } else {
-            // очищаем
-            SettingsManager.setPINCode(null);
-            LogManager.log(R.string.log_pin_code_clean);
+            // сбрасываем имеющийся ПИН-код, предварительнго его запросив
+            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
+                @Override
+                public boolean onApply(String code) {
+                    // очищаем
+                    SettingsManager.setPINCode(null);
+                    LogManager.log(R.string.log_pin_code_clean, Toast.LENGTH_SHORT);
+                    return true;
+                }
+                @Override
+                public void onCancel() {
+                    callback.run(true);
+                }
+            });
         }
     }
 

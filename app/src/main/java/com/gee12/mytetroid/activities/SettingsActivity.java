@@ -375,10 +375,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             setPINCodePrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_request_pin_code))) {
             PINManager.setupPINCode(this, res -> {
-                if (!res) {
-                    SettingsManager.setIsRequestPINCode(false);
-                    ((CheckBoxPreference) findPreference(getString(R.string.pref_key_request_pin_code))).setChecked(false);
-                }
+                SettingsManager.setIsRequestPINCode(res);
+                ((CheckBoxPreference) findPreference(getString(R.string.pref_key_request_pin_code))).setChecked(res);
             });
         }
     }
