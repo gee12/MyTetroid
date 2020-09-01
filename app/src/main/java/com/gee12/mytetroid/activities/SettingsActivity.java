@@ -184,8 +184,15 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     return true;
                 });
 
-        Preference pinCodePref = findPreference(getString(R.string.pref_key_request_pin_code));
+        CheckBoxPreference pinCodePref = (CheckBoxPreference) findPreference(getString(R.string.pref_key_request_pin_code));
         disableIfFree(pinCodePref);
+        pinCodePref.setOnPreferenceChangeListener((preference, newValue) -> {
+            PINManager.setupPINCode(SettingsActivity.this, res -> {
+                SettingsManager.setIsRequestPINCode(res);
+                pinCodePref.setChecked(res);
+            });
+            return false;
+        });
 
         Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
         askPassPref.setOnPreferenceClickListener(pref -> {
@@ -204,20 +211,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         });
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
         disableIfFree(loadFavorPref);
-        /*if (App.isFullVersion()) {
-            loadFavorPref.setEnabled(true);
-        } else {
-            loadFavorPref.setEnabled(false);
-            // принудительно отключаем
-//            loadFavorPref.setEnabled(false);
-            loadFavorPref.setOnPreferenceClickListener(pref -> {
-                Message.show(this, getString(R.string.title_available_in_pro), Toast.LENGTH_SHORT);
-                return true;
-            });
-//            PreferenceCategory category = (PreferenceCategory) findPreference(getString(R.string.pref_key_category_other));
-//            category.removePreference(findPreference(getString(R.string.pref_key_is_load_favorites)));
-            keepNodePref.setDependency(null);
-        }*/
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
@@ -373,11 +366,6 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             setPINCodePrefAvailability();
-        } else if (key.equals(getString(R.string.pref_key_request_pin_code))) {
-            PINManager.setupPINCode(this, res -> {
-                SettingsManager.setIsRequestPINCode(res);
-                ((CheckBoxPreference) findPreference(getString(R.string.pref_key_request_pin_code))).setChecked(res);
-            });
         }
     }
 

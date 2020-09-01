@@ -442,6 +442,7 @@
     <string name="log_pass_setted">Пароль хранилища установлен</string>
     <string name="log_pass_set_error">Не удалось установить пароль хранилища</string>
     <string name="log_start_pass_change">Начало изменения пароля хранилища</string>
+    <string name="log_pin_code_length_setup">Длина ПИН-кода была установлена:&#160;</string>
     <string name="log_pin_code_setup">ПИН-код был установлен</string>
     <string name="log_pin_code_enter">ПИН-код был введен верно</string>
     <string name="log_pin_code_clean">ПИН-код был очищен</string>

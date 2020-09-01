@@ -33,7 +33,7 @@ public class PassDialogs {
     }
 
     public interface IPinInputResult {
-        boolean onApply(String code);
+        boolean onApply(String pin);
         void onCancel();
     }
 

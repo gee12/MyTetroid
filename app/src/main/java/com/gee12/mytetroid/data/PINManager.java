@@ -7,6 +7,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 
 public class PINManager {
@@ -29,8 +30,10 @@ public class PINManager {
             // выводим запрос ввода ПИН-кода
             PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
                 @Override
-                public boolean onApply(String code) {
-                    boolean res = code.equals(SettingsManager.getPINCode());
+                public boolean onApply(String pin) {
+                    // зашифровываем введеный пароль перед сравнением
+                    String pinHash = CryptManager.passToHash(pin);
+                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash());
                     if (res) {
                         callback.onApply();
                         LogManager.log(R.string.log_pin_code_enter);
@@ -53,7 +56,7 @@ public class PINManager {
      * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
      */
     public static void setupPINCode(Context context, ICallback callback) {
-        if (isRequestPINCode()) {
+        if (!isRequestPINCode()) {
             // проверяем сохраненный пароль
             checkPass(context, new Dialogs.IApplyCancelResult() {
                 @Override
@@ -63,44 +66,54 @@ public class PINManager {
                         @Override
                         public void onApply(int length) {
                             SettingsManager.setPINCodeLength(length);
+                            LogManager.log(context.getString(R.string.log_pin_code_length_setup) + length);
                             // задаем новый ПИН-код
                             PassDialogs.showPINCodeDialog(context, length, true, new PassDialogs.IPinInputResult() {
                                 @Override
-                                public boolean onApply(String code) {
-                                    SettingsManager.setPINCode(code);
+                                public boolean onApply(String pin) {
+                                    // зашифровываем пароль перед установкой
+                                    String pinHash = CryptManager.passToHash(pin);
+                                    SettingsManager.setPINCodeHash(pinHash);
+                                    callback.run(true);
                                     LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
                                     return true;
                                 }
                                 @Override
                                 public void onCancel() {
-                                    callback.run(false);
+//                                    callback.run(false);
                                 }
                             });
                         }
                         @Override
                         public void onCancel() {
-                            callback.run(false);
+//                            callback.run(false);
                         }
                     });
                 }
                 @Override
                 public void onCancel() {
-                    callback.run(false);
+//                    callback.run(false);
                 }
             });
         } else {
             // сбрасываем имеющийся ПИН-код, предварительнго его запросив
             PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
                 @Override
-                public boolean onApply(String code) {
-                    // очищаем
-                    SettingsManager.setPINCode(null);
-                    LogManager.log(R.string.log_pin_code_clean, Toast.LENGTH_SHORT);
-                    return true;
+                public boolean onApply(String pin) {
+                    // зашифровываем введеный пароль перед сравнением
+                    String pinHash = CryptManager.passToHash(pin);
+                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash());
+                    if (res) {
+                        // очищаем
+                        SettingsManager.setPINCodeHash(null);
+                        callback.run(false);
+                        LogManager.log(R.string.log_pin_code_clean, Toast.LENGTH_SHORT);
+                    }
+                    return res;
                 }
                 @Override
                 public void onCancel() {
-                    callback.run(true);
+//                    callback.run(true);
                 }
             });
         }

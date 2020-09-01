@@ -283,15 +283,15 @@ public class SettingsManager {
     }
 
     /**
-     * ПИН-код.
+     * Хэш ПИН-кода.
      * @return
      */
-    public static String getPINCode() {
-        return getString(R.string.pref_key_pin_code, null);
+    public static String getPINCodeHash() {
+        return getString(R.string.pref_key_pin_code_hash, null);
     }
 
-    public static void setPINCode(String code) {
-        setString(R.string.pref_key_pin_code, code);
+    public static void setPINCodeHash(String code) {
+        setString(R.string.pref_key_pin_code_hash, code);
     }
 
     /**

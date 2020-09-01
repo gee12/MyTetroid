@@ -154,7 +154,7 @@
     <string name="pref_when_ask_password_on_start">When the application starts</string>
     <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
     <string name="pref_key_pin_code_length" translatable="false">pref_key_pin_code_length</string>
-    <string name="pref_key_pin_code" translatable="false">pref_key_pin_code</string>
+    <string name="pref_key_pin_code_hash" translatable="false">pref_key_pin_code_hash</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
     <string name="pref_category_main">Main</string>
     <string name="pref_storage_path">Storage path</string>
@@ -504,6 +504,7 @@
     <string name="log_pass_setted">Storage password was setup</string>
     <string name="log_pass_set_error">Failed to set storage password</string>
     <string name="log_start_pass_change">Start storage password changing</string>
+    <string name="log_pin_code_length_setup">PIN-code length was setup:&#160;</string>
     <string name="log_pin_code_setup">PIN-code was setup</string>
     <string name="log_pin_code_enter">PIN-code was enter</string>
     <string name="log_pin_code_clean">PIN-code was clean</string>
