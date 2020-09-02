@@ -124,6 +124,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 }
                 // добавляем корневую ветку
                 instance.init();
+                instance.mIsStorageLoaded = true;
             }  else {
                 // загружаем database.ini
                 res = databaseConfig.load();
