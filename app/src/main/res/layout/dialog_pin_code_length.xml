@@ -6,11 +6,14 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:text="@string/label_pin_code_size"
+        style="@style/dialog_labels"/>
+
     <EditText
         android:id="@+id/edit_text_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_pin_code_size"
         android:inputType="number" />
 
 </LinearLayout>

@@ -539,6 +539,6 @@
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
     <string name="log_record_fields_changed">Record fields changed</string>
     <string name="log_record_saved">Record saved</string>
-    <string name="hint_pin_code_size">Value 4–8</string>
+    <string name="label_pin_code_size">Value 4–8:</string>
     <string name="title_enter_pin_code_length">Enter PIN-code length</string>
 </resources>

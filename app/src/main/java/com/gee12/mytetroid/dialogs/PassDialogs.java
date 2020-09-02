@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,26 +63,24 @@ public class PassDialogs {
      * @param passResult
      */
     public static void showPassEnterDialog(Context context, final TetroidNode node, final IPassInputResult passResult) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pass_enter);
         builder.setTitle(context.getString(R.string.title_password_enter));
         builder.setPositiveButton(R.string.answer_ok, null);
         builder.setNegativeButton(R.string.answer_cancel, null);
 
-        final EditText input = new EditText(context);
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        builder.setView(input);
+//        final EditText input = new EditText(context);
+//        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+//        builder.setView(input);
+        final EditText tvPass = builder.getView().findViewById(R.id.edit_text_pass);
 
-        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            passResult.applyPass(input.getText().toString(), node);
-        });
-        builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> {
-            passResult.cancelPass();
-        });
+        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> passResult.applyPass(tvPass.getText().toString(), node));
+        builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> passResult.cancelPass());
 
         final AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
         // проверка на пустоту пароля
-        input.addTextChangedListener(new ViewUtils.TextChangedListener(newText -> {
+        tvPass.addTextChangedListener(new ViewUtils.TextChangedListener(newText -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(!(TextUtils.isEmpty(newText)));
         }));
 
