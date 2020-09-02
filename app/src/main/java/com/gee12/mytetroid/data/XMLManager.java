@@ -495,7 +495,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
         }
         if (record.isNonCryptedOrDecrypted()) {
             // парсим метки, если запись не зашифрована
-            parseRecordTags(record, tags);
+            parseRecordTags(record, record.getTagsString());
         }
 
         parser.require(XmlPullParser.END_TAG, ns, "record");
