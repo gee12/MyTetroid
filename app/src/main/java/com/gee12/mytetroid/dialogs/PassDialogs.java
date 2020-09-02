@@ -253,9 +253,9 @@ public class PassDialogs {
         builder.setNegativeButton(R.string.answer_cancel, (dialog1, which) -> callback.onCancel());
 
         PinLockView pinLockView = builder.getView().findViewById(R.id.pin_lock_view);
-        pinLockView.setPinLength(length);
         IndicatorDots indicatorDots = builder.getView().findViewById(R.id.indicator_dots);
         pinLockView.attachIndicatorDots(indicatorDots);
+        pinLockView.setPinLength(length);
 
         final AlertDialog dialog = builder.create();
         dialog.setCanceledOnTouchOutside(false);
