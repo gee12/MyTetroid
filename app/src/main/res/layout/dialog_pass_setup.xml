@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="16dp">
 
     <com.gee12.mytetroid.views.TextViewHtml
         android:id="@+id/text_view_header"
