@@ -375,7 +375,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void loadAllNodes() {
         if (DataManager.isCrypted()) {
-            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false, false);
+//            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false, false);
+            // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
+            //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
+            //    вводили ПИН-код (для расшифровки избранной записи)
+            //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
+            decryptStorage(null, false, false, false);
         } else {
             initStorage(null, false, false, false);
         }
@@ -644,9 +649,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // расшифровуем хранилище только в том случаем, если:
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
+        //   (или ветки Избранное)
         isDecrypt = isDecrypt
                 && (!PINManager.isRequestPINCode()
-                    || PINManager.isRequestPINCode() && node != null && node.isCrypted());
+                    || PINManager.isRequestPINCode() && node != null
+                        && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             this.mCurTask = new DecryptStorageTask(node).run();
@@ -963,9 +970,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (record.isFavorite() && !record.isNonCryptedOrDecrypted()) {
             // запрос пароля в асинхронном режиме
             if (PINManager.isRequestPINCode()) {
-                decryptStorage(FavoritesManager.FAVORITES_NODE, true, SettingsManager.isLoadFavoritesOnly(), false);
+                decryptStorage(FavoritesManager.FAVORITES_NODE, true, SettingsManager.isLoadFavoritesOnly(), true);
             } else {
-                askPassword(FavoritesManager.FAVORITES_NODE, true, SettingsManager.isLoadFavoritesOnly(), false);
+                askPassword(FavoritesManager.FAVORITES_NODE, true, SettingsManager.isLoadFavoritesOnly(), true);
             }
         } else {
             openRecord(record.getId());

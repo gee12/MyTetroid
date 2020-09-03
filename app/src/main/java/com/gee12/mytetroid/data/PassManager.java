@@ -19,9 +19,6 @@ public class PassManager extends DataManager {
 
     /**
      * Асинхронная проверка имеется ли сохраненный пароль и его запрос при необходимости.
-     *
-     * TODO: добавить запрос на ввод ПИН-кода, если включено сохранение пароля
-     *
      * @param node
      * @param callback Действие после проверки пароля
      */
@@ -37,7 +34,8 @@ public class PassManager extends DataManager {
             try {
                 if (checkMiddlePassHash(middlePassHash)) {
                     initCryptPass(middlePassHash, true);
-                    callback.onApply();
+//                    callback.onApply();
+                    PINManager.askPINCode(context, true, callback::onApply);
                 } else {
                     LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     // спрашиваем пароль
@@ -55,7 +53,8 @@ public class PassManager extends DataManager {
                                 @Override
                                 public void onApply() {
                                     initCryptPass(hash, true);
-                                    callback.onApply();
+//                                    callback.onApply();
+                                    PINManager.askPINCode(context, true, callback::onApply);
                                 }
                                 @Override
                                 public void onCancel() {
@@ -64,7 +63,8 @@ public class PassManager extends DataManager {
                 } else {
                     // если нет зашифрованных веток, но пароль сохранен
                     initCryptPass(middlePassHash, true);
-                    callback.onApply();
+//                    callback.onApply();
+                    PINManager.askPINCode(context, true, callback::onApply);
                 }
             }
 //            } else {
@@ -76,6 +76,12 @@ public class PassManager extends DataManager {
             askPassword(context, node, callback);
         }
     }
+
+//    private static void checkPINAndInitPass(Context context, Dialogs.IApplyCancelResult callback) {
+//        PINManager.askPINCode(context, true, () -> {
+//            callback.onApply();
+//        });
+//    }
 
     /**
      * Отображения запроса пароля от хранилища.
@@ -91,12 +97,14 @@ public class PassManager extends DataManager {
                 if (isNewPass) {
                     LogManager.log(R.string.log_start_pass_setup);
                     setupPass(pass);
-                    callback.onApply();
+//                    callback.onApply();
+                    PINManager.askPINCode(context, node != null, callback::onApply);
                 } else {
                     checkPass(context, pass, (res) -> {
                         if (res) {
                             initPass(pass);
-                            callback.onApply();
+//                            callback.onApply();
+                            PINManager.askPINCode(context, node != null, callback::onApply);
                         } else {
                             // повторяем запрос
                             askPassword(context, node, callback);

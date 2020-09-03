@@ -24,9 +24,12 @@ public class PINManager {
      * Запрос ПИН-кода, если установлена опция.
      * К этому моменту факт того, что хэш пароля сохранен локально, должен быть уже проверен.
      * @param context
+     * @param specialFlag Дополнительный признак, указывающий на то, нужно ли спрашивать ПИН-код
+     *                    конкретно в данный момент.
+     * @param callback Обработчик обратного вызова.
      */
-    public static void askPINCode(Context context, boolean isNodeOpening, Dialogs.IApplyResult callback) {
-        if (isRequestPINCode() && isNodeOpening) {
+    public static void askPINCode(Context context, boolean specialFlag, Dialogs.IApplyResult callback) {
+        if (isRequestPINCode() && specialFlag) {
             // выводим запрос ввода ПИН-кода
             PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
                 @Override
@@ -80,19 +83,16 @@ public class PINManager {
                                 }
                                 @Override
                                 public void onCancel() {
-//                                    callback.run(false);
                                 }
                             });
                         }
                         @Override
                         public void onCancel() {
-//                            callback.run(false);
                         }
                     });
                 }
                 @Override
                 public void onCancel() {
-//                    callback.run(false);
                 }
             });
         } else {
@@ -113,7 +113,6 @@ public class PINManager {
                 }
                 @Override
                 public void onCancel() {
-//                    callback.run(true);
                 }
             });
         }

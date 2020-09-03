@@ -160,28 +160,11 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
                     if (SettingsManager.getMiddlePassHash() == null) {
                         // если пароль не задан, то нечего очищать, не задаем вопрос
                         return true;
-                    }
-                    if (!((boolean)newValue) && SettingsManager.isSaveMiddlePassHashLocal()) {
-                        // удалить сохраненный хэш пароля?
-                        AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
-                            @Override
-                            public void onApply() {
-                                // удаляем хэш пароля, если сняли галку
-                                SettingsManager.setMiddlePassHash(null);
-                                // сбрасываем галку
-                                SettingsManager.setIsSaveMiddlePassHashLocal(false);
-                                ((CheckBoxPreference)preference).setChecked(false);
-                            }
-
-                            @Override
-                            public void onCancel() {
-                                // устанавливаем галку обратно
-//                                SettingsManager.setIsSaveMiddlePassHashLocal(true);
-                            }
-                        }, R.string.ask_clear_saved_pass_hash);
+                    } else {
+                        PINManager.askPINCode(this, true, () ->
+                                changeSavePassHashLocal((boolean) newValue));
                         return false;
                     }
-                    return true;
                 });
 
         CheckBoxPreference pinCodePref = (CheckBoxPreference) findPreference(getString(R.string.pref_key_request_pin_code));
@@ -193,6 +176,7 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             });
             return false;
         });
+        setPINCodePrefAvailability();
 
         Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
         askPassPref.setOnPreferenceClickListener(pref -> {
@@ -216,6 +200,40 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
+    }
+
+    /**
+     * Обработка сброса опции сохранения хэша пароля локально.
+     * @param newValue
+     * @return
+     */
+    private void changeSavePassHashLocal(boolean newValue) {
+        if (!newValue && SettingsManager.isSaveMiddlePassHashLocal()) {
+            // удалить сохраненный хэш пароля?
+            AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    // удаляем хэш пароля, если сняли галку
+                    SettingsManager.setMiddlePassHash(null);
+                    // сбрасываем галку
+                    SettingsManager.setIsSaveMiddlePassHashLocal(false);
+                    ((CheckBoxPreference)findPreference(getString(R.string.pref_key_is_save_pass_hash_local)))
+                            .setChecked(false);
+                    // сбрасываем ПИН-код
+                    SettingsManager.setIsRequestPINCode(false);
+                    SettingsManager.setPINCodeHash(null);
+                    ((CheckBoxPreference)findPreference(getString(R.string.pref_key_request_pin_code)))
+                            .setChecked(false);
+                    setPINCodePrefAvailability();
+                }
+
+                @Override
+                public void onCancel() {
+                    // устанавливаем галку обратно
+//                    SettingsManager.setIsSaveMiddlePassHashLocal(true);
+                }
+            }, R.string.ask_clear_saved_pass_hash);
+        }
     }
 
     /**
