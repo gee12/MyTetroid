@@ -196,6 +196,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
         disableIfFree(loadFavorPref);
 
+        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal())
+                ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
@@ -358,12 +360,12 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        /*if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            findPreference(getString(R.string.pref_key_when_ask_password)).
-                    setEnabled(!SettingsManager.isSaveMiddlePassHashLocal());
-//        } else if (key.equals(sizeToString(R.string.pref_key_record_fields_cols))) {
-//            // меняем список полей для отображения
-        } else*/ if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
+        if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+            updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal())
+                    ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
+        } else if (key.equals(getString(R.string.pref_key_when_ask_password))) {
+            updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass());
+        } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
             App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach();
             setHighlightPrefAvailability();

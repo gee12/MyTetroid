@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/../../Android-Folder-Picker" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../Android-HTML-WYSIWYG-Editor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../Android-PinLockView" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../android-multi-level-listview" vcs="Git" />
   </component>
