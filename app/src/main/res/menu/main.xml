@@ -69,6 +69,7 @@
         android:orderInCategory="250"
         android:title="@string/title_fullscreen"
         android:icon="@drawable/ic_fullscreen"
+        android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_settings"

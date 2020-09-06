@@ -178,7 +178,7 @@ public class RecordActivity extends TetroidActivity implements
 //        mEditor.setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
         EditableWebView webView = mEditor.getWebView();
-//        webView.setOnTouchListener(this);
+        webView.setOnTouchListener(this);
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
@@ -889,8 +889,8 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
-    public boolean toggleFullscreen() {
-        boolean isFullscreen = super.toggleFullscreen();
+    public boolean toggleFullscreen(boolean fromDoubleTap) {
+        boolean isFullscreen = super.toggleFullscreen(fromDoubleTap);
         if (mCurMode == MODE_VIEW) {
             setRecordFieldsVisibility(!isFullscreen);
         }
@@ -1276,18 +1276,18 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_info:
                 RecordAskDialogs.createRecordInfoDialog(this, mRecord);
                 return true;
-            case R.id.action_fullscreen:
-                toggleFullscreen();
-                return true;
+//            case R.id.action_fullscreen:
+//                toggleFullscreen(false);
+//                return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_storage_info:
                 ViewUtils.startActivity(this, InfoActivity.class, null);
                 return true;
-            case R.id.action_about_app:
-                ViewUtils.startActivity(this, AboutActivity.class, null);
-                return true;
+//            case R.id.action_about_app:
+//                ViewUtils.startActivity(this, AboutActivity.class, null);
+//                return true;
             case android.R.id.home:
                 boolean res = onSaveRecord(true, null);
                 if (!res) {

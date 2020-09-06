@@ -40,11 +40,15 @@ public class App {
      * @param activity
      * @return текущий режим
      */
-    public static boolean toggleFullscreen(AppCompatActivity activity) {
-        boolean newValue = !IsFullScreen;
-        IsFullScreen = newValue;
-        ViewUtils.setFullscreen(activity, newValue);
-        return newValue;
+    public static boolean toggleFullscreen(AppCompatActivity activity, boolean fromDoubleTap) {
+        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen()) {
+            boolean newValue = !IsFullScreen;
+            ViewUtils.setFullscreen(activity, newValue);
+            IsFullScreen = newValue;
+            return newValue;
+        } else {
+            return false;
+        }
     }
 
     /**

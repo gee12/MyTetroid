@@ -541,4 +541,7 @@
     <string name="log_record_saved">Record saved</string>
     <string name="label_pin_code_size">Value 4–8:</string>
     <string name="title_enter_pin_code_length">Enter PIN-code length</string>
+    <string name="pref_key_double_tap_fullscreen" translatable="false">pref_key_double_tap_fullscreen</string>
+    <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
+    <string name="pref_double_tap_fullscreen_summ">Enable / disable fullscreen mode when double tap on a blank area of the screen</string>
 </resources>

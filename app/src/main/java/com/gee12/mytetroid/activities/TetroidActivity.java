@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.activities;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import androidx.core.view.GestureDetectorCompat;
 import com.gee12.mytetroid.ActivityDoubleTapListener;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.utils.ViewUtils;
 
 public abstract class TetroidActivity extends AppCompatActivity implements View.OnTouchListener {
 
@@ -32,7 +34,7 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
 
         // обработчик нажатия на экране
         this.gestureDetector = new GestureDetectorCompat(this,
-                new ActivityDoubleTapListener(this::toggleFullscreen));
+                new ActivityDoubleTapListener(() -> toggleFullscreen(true)));
 
         this.tvTitle = mToolbar.findViewById(R.id.text_view_title);
         this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
@@ -71,8 +73,18 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
 //        }
 //    }
 
-    public boolean toggleFullscreen() {
-        return App.toggleFullscreen(this);
+    /**
+     * Включение/отключение полноэкранного режима.
+     * Оставлен только в RecordActivity.
+     * @param fromDoubleTap
+     * @return
+     */
+    public boolean toggleFullscreen(boolean fromDoubleTap) {
+        if (this instanceof RecordActivity) {
+            return App.toggleFullscreen(this, fromDoubleTap);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -87,4 +99,24 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
         gestureDetector.onTouchEvent(event);
         return false;
     }
+
+    /**
+     * Обработчик выбора пунктов системного меню.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_fullscreen:
+                toggleFullscreen(false);
+                return true;
+            case R.id.action_about_app:
+                ViewUtils.startActivity(this, AboutActivity.class, null);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

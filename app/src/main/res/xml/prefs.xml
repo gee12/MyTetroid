@@ -140,6 +140,12 @@
             android:defaultValue="false" />
 
         <CheckBoxPreference
+            android:key="@string/pref_key_double_tap_fullscreen"
+            android:title="@string/pref_double_tap_fullscreen"
+            android:summary="@string/pref_double_tap_fullscreen_summ"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
             android:key="@string/pref_key_is_highlight_attach"
             android:title="@string/pref_is_highlight_attach"
             android:summary="@string/pref_is_highlight_attach_summ"

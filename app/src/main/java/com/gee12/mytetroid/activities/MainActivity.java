@@ -2324,15 +2324,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_storage_reload:
                 reloadStorageAsk();
                 return true;
-            case R.id.action_fullscreen:
-                App.toggleFullscreen(MainActivity.this);
-                return true;
+//            case R.id.action_fullscreen:
+//                toggleFullscreen(false);
+//                return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
-            case R.id.action_about_app:
-                ViewUtils.startActivity(this, AboutActivity.class, null);
-                return true;
+//            case R.id.action_about_app:
+//                ViewUtils.startActivity(this, AboutActivity.class, null);
+//                return true;
             default:
                 if (mViewPagerAdapter.getMainFragment().onOptionsItemSelected(id)) {
                     return true;

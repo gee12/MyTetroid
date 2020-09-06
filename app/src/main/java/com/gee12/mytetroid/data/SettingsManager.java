@@ -384,6 +384,15 @@ public class SettingsManager {
     }
 
     /**
+     * Включать/отключать полноэкранный режим при двойном тапе ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isDoubleTapFullscreen() {
+        return getBoolean(R.string.pref_key_double_tap_fullscreen, true);
+    }
+
+    /**
      * Сохранять изменения записи автоматически ?
      * По-умолчанию - нет.
      * @return
