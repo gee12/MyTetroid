@@ -33,6 +33,13 @@
   * полноэкранный режим
   * блокировка отключения экрана при просмотре записи
   * отправка команды синхронизации сторонним приложениям (частично)
+  * отслеживание изменений дерева записей внешней программой (пока в режиме тестирования)
+  
+**Визуальный редактор текста заметок поддерживает:**
+  * форматирование шрифта (толщина, курсив, размер, цвет, фон и т.д.)
+  * форматирование абзацев (отступ, список, выравнивание и т.д.)
+  * вставка ссылок, изображений и захват фото с камеры
+  * команды для работы с выделением и буфером обмена
 
 Для проверки работы приложения можно использовать [тестовое хранилище](https://github.com/gee12/MyTetraTestData).
 
@@ -44,6 +51,7 @@
 * Чтение SVG-картинок - [thinkingcow/svg-android-2](https://github.com/thinkingcow/svg-android-2) (мой [форк](https://github.com/gee12/svg-android-2))
 * Парсинг html - [jsoup](https://github.com/jhy/jsoup)
 * WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
+* Панель запроса ПИН-кода - [aritraroy/PinLockView](https://github.com/aritraroy/PinLockView) (мой [форк](https://github.com/gee12/PinLockView))
 * TextViewUndoRedo - [from google](https://issuetracker.google.com/issues/36913735#c123)
 
 
