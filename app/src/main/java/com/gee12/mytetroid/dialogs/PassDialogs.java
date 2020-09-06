@@ -270,8 +270,8 @@ public class PassDialogs {
                     if (callback.onApply(pin)) {
                         dialog.dismiss();
                     } else {
-                        // TODO: здесь нужен эффект дрожания
-
+                        // запускаем анимацию дрожания
+                        pinLockView.shake();
                     }
                 }
             }
