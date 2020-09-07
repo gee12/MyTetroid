@@ -103,6 +103,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
+    private FloatingActionButton mButtonFullscreen;
     private TextView mTextViewTags;
     private ScrollView mScrollViewHtml;
     private TetroidEditText mEditTextHtml;
@@ -196,6 +197,8 @@ public class RecordActivity extends TetroidActivity implements
 //        ViewUtils.setOnGlobalLayoutListener(mButtonToggleFields, () -> updateScrollButtonLocation());
 //        this.mButtonFieldsEdit = findViewById(R.id.button_edit_fields);
 //        mButtonFieldsEdit.setOnClickListener(v -> editFields());
+        this.mButtonFullscreen = findViewById(R.id.button_fullscreen);
+        mButtonFullscreen.setOnClickListener(v -> toggleFullscreen(false));
 
         this.mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
         this.mButtonScrollTop = findViewById(R.id.button_scroll_top);
@@ -891,6 +894,10 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public boolean toggleFullscreen(boolean fromDoubleTap) {
         boolean isFullscreen = super.toggleFullscreen(fromDoubleTap);
+        if (isFullscreen)
+            mButtonFullscreen.show();
+        else
+            mButtonFullscreen.hide();
         if (mCurMode == MODE_VIEW) {
             setRecordFieldsVisibility(!isFullscreen);
         }
@@ -1276,9 +1283,9 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_info:
                 RecordAskDialogs.createRecordInfoDialog(this, mRecord);
                 return true;
-//            case R.id.action_fullscreen:
-//                toggleFullscreen(false);
-//                return true;
+            case R.id.action_fullscreen:
+                toggleFullscreen(false);
+                return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;

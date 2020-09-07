@@ -15,7 +15,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <net.cachapa.expandablelayout.ExpandableLayout
@@ -247,6 +247,15 @@
             android:src="@drawable/ic_arrow_drop_down_white"
             app:backgroundTint="@color/colorAccent_50"
             style="@style/fab"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/button_fullscreen"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false"
+            android:src="@drawable/ic_fullscreen"
+            app:backgroundTint="@color/fab"
+            android:visibility="gone"
+            style="@style/fab" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_scroll_top"

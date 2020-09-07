@@ -9,13 +9,13 @@ android {
 //            storeFile file("external/freedebug.keystore")
 //        }
     }
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 35
-        versionName "3.4"
+        targetSdkVersion 29
+        versionCode 36
+        versionName "3.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
