@@ -8,9 +8,9 @@
         <!--<item name="none"> </item>-->
         <item name="records_list">NODE</item>
 <!--        <item name="record_text">RECORD</item>-->
-        <item name="recor_files">FILES</item>
+        <item name="record_files">FILES</item>
         <item name="tag_records">TAG</item>
-        <item name="finded_records"></item>
+        <item name="founded_records"></item>
         <!--<item name="finded_records">SEARCH RECORDS</item>-->
     </string-array>
     <string-array name="search_split_to_words">
@@ -30,9 +30,12 @@
         <item>Text</item>
         <item>Author</item>
         <item>Url</item>
-        <item>File</item>
+        <item>File name</item>
         <item>Tag</item>
-        <item>Node</item>
+        <item>Node name</item>
+        <item>Node id</item>
+        <item>Record id</item>
+        <item>File id</item>
     </string-array>
 
     <string-array name="obj_storage">

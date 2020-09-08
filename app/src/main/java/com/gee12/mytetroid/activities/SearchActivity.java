@@ -31,6 +31,7 @@ public class SearchActivity extends AppCompatActivity {
     private CheckBox cbTags;
     private CheckBox cbNodes;
     private CheckBox cbFiles;
+    private CheckBox cbIds;
     private Spinner spSplitToWords;
     private Spinner spInWholeWords;
     private Spinner spInCurrentNode;
@@ -52,6 +53,7 @@ public class SearchActivity extends AppCompatActivity {
         this.cbTags = findViewById(R.id.check_box_tags);
         this.cbNodes = findViewById(R.id.check_box_nodes);
         this.cbFiles = findViewById(R.id.check_box_files);
+        this.cbIds = findViewById(R.id.check_box_ids);
         this.spSplitToWords = findViewById(R.id.spinner_split_to_words);
         this.spInWholeWords = findViewById(R.id.spinner_in_whole_words);
         this.spInCurrentNode = findViewById(R.id.spinner_in_cur_node);
@@ -59,6 +61,8 @@ public class SearchActivity extends AppCompatActivity {
         initSpinner(spSplitToWords, R.array.search_split_to_words);
         initSpinner(spInWholeWords, R.array.search_in_whole_words);
         initSpinner(spInCurrentNode, R.array.search_in_cur_node);
+
+        findViewById(R.id.button_clear).setOnClickListener(v -> etQuery.setText(""));
 
         readSearchPrefs();
 
@@ -83,6 +87,7 @@ public class SearchActivity extends AppCompatActivity {
         cbTags.setChecked(SettingsManager.isSearchInTags());
         cbNodes.setChecked(SettingsManager.isSearchInNodes());
         cbFiles.setChecked(SettingsManager.isSearchInFiles());
+        cbIds.setChecked(SettingsManager.isSearchInIds());
         spSplitToWords.setSelection(SettingsManager.isSearchSplitToWords() ? 0 : 1);
         spInWholeWords.setSelection(SettingsManager.isSearchInWholeWords() ? 0 : 1);
         spInCurrentNode.setSelection(SettingsManager.isSearchInCurNode() ? 1 : 0);
@@ -105,6 +110,7 @@ public class SearchActivity extends AppCompatActivity {
         scan.setInTags(cbTags.isChecked());
         scan.setInNodes(cbNodes.isChecked());
         scan.setInFiles(cbFiles.isChecked());
+        scan.setInIds(cbIds.isChecked());
 
         scan.setSplitToWords(spSplitToWords.getSelectedItemPosition() == 0);
         scan.setOnlyWholeWords(spInWholeWords.getSelectedItemPosition() == 0);
@@ -131,6 +137,7 @@ public class SearchActivity extends AppCompatActivity {
         SettingsManager.setSearchInTags(cbTags.isChecked());
         SettingsManager.setSearchInNodes(cbNodes.isChecked());
         SettingsManager.setSearchInFiles(cbFiles.isChecked());
+        SettingsManager.setSearchInIds(cbIds.isChecked());
         SettingsManager.setSearchSplitToWords(spSplitToWords.getSelectedItemPosition() == 0);
         SettingsManager.setSearchInWholeWords(spInWholeWords.getSelectedItemPosition() == 0);
         SettingsManager.setSearchInCurNode(spInCurrentNode.getSelectedItemPosition() == 1);

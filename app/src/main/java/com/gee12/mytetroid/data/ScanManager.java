@@ -49,6 +49,7 @@ public class ScanManager implements Parcelable {
     boolean inTags;
     boolean inNodes;
     boolean inFiles;
+    boolean inIds;
     /**
      * Разбивать ли запрос на слова.
      */
@@ -92,6 +93,7 @@ public class ScanManager implements Parcelable {
         this.inTags = in.readInt() == 1;
         this.inNodes = in.readInt() == 1;
         this.inFiles = in.readInt() == 1;
+        this.inIds = in.readInt() == 1;
         this.isSplitToWords = in.readInt() == 1;
         this.isOnlyWholeWords = in.readInt() == 1;
         this.isSearchInNode = in.readInt() == 1;
@@ -136,7 +138,7 @@ public class ScanManager implements Parcelable {
         }
         String regex = buildRegex(query, isOnlyWholeWords);
         // поиск по веткам, записям, реквизитам записей, файлам
-        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles
+        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles || inIds
                 // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
                 || inTags;
         if (inNodes || inRecords) {
@@ -191,8 +193,13 @@ public class ScanManager implements Parcelable {
                 this.existCryptedNodes = true;
                 continue;
             }
+            // поиск по именам веток
             if (inNodes && node.getName().matches(regex)) {
                 addFoundObject(node, FoundType.TYPE_NODE);
+            }
+            // поиск по id веток
+            if (inIds && node.getId().matches(regex)) {
+                addFoundObject(node, FoundType.TYPE_NODE_ID);
             }
             if (inRecords && node.getRecordsCount() > 0) {
                 globalSearchInRecords(node.getRecords(), regex);
@@ -226,6 +233,10 @@ public class ScanManager implements Parcelable {
             // поиск по файлам записи
             if (inFiles && record.getAttachedFilesCount() > 0) {
                 globalSearchInFiles(record.getAttachedFiles(), regex);
+            }
+            // поиск по id записей
+            if (inIds && record.getId().matches(regex)) {
+                addFoundObject(record, FoundType.TYPE_RECORD_ID);
             }
             // поиск по тексту записи (читаем текст html файла)
             if (inText) {
@@ -289,8 +300,13 @@ public class ScanManager implements Parcelable {
      */
     private void globalSearchInFiles(List<TetroidFile> files, String regex) {
         for (TetroidFile file : files) {
+            // поиск по именам файлов
             if (file.getName().matches(regex)) {
                 addFoundObject(file, FoundType.TYPE_FILE);
+            }
+            // поиск по id файлов
+            if (file.getId().matches(regex)) {
+                addFoundObject(file, FoundType.TYPE_FILE_ID);
             }
         }
     }
@@ -425,6 +441,10 @@ public class ScanManager implements Parcelable {
         this.inFiles = inFiles;
     }
 
+    public void setInIds(boolean inIds) {
+        this.inIds = inIds;
+    }
+
     public void setSplitToWords(boolean splitToWords) {
         isSplitToWords = splitToWords;
     }
@@ -469,6 +489,10 @@ public class ScanManager implements Parcelable {
         return inFiles;
     }
 
+    public boolean isInIds() {
+        return inIds;
+    }
+
     public boolean isSplitToWords() {
         return isSplitToWords;
     }
@@ -504,6 +528,7 @@ public class ScanManager implements Parcelable {
         dest.writeInt((inTags) ? 1 : 0);
         dest.writeInt((inNodes) ? 1 : 0);
         dest.writeInt((inFiles) ? 1 : 0);
+        dest.writeInt((inIds) ? 1 : 0);
         dest.writeInt((isSplitToWords) ? 1 : 0);
         dest.writeInt((isOnlyWholeWords) ? 1 : 0);
         dest.writeInt((isSearchInNode) ? 1 : 0);

@@ -231,6 +231,7 @@
     <string name="search_in_tags">Меткам</string>
     <string name="search_in_nodes">Названиям веток</string>
     <string name="search_in_file_names">Названиям прикрепленных файлов</string>
+    <string name="search_in_ids">Id ветки, записи или файла</string>
     <string name="search_other_options">Другие параметры:</string>
     <string name="search_records_in_node_by_query">Поиск записей в ветке [%1$s] по запросу "%2$s"</string>
     <string name="search_records_in_tag_by_query">Поиск в записях метки [%1$s] по запросу "%2$s"</string>

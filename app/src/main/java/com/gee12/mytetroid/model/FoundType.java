@@ -6,7 +6,7 @@ import com.gee12.mytetroid.R;
 
 public class FoundType {
 
-    public static final int TYPES_COUNT = 8;
+    public static final int TYPES_COUNT = 11;
     public static final int TYPE_NONE = 0;
     public static final int TYPE_RECORD = 1;
     public static final int TYPE_RECORD_TEXT = 2;
@@ -15,8 +15,11 @@ public class FoundType {
     public static final int TYPE_FILE = 5;
     public static final int TYPE_TAG = 6;
     public static final int TYPE_NODE = 7;
+    public static final int TYPE_NODE_ID = 8;
+    public static final int TYPE_RECORD_ID = 9;
+    public static final int TYPE_FILE_ID = 10;
     // не хранятся в mytetra.xml
-    public static final int TYPE_IMAGE = 8;
+    public static final int TYPE_IMAGE = 11;
 
     private int type;
 

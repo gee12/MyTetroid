@@ -27,6 +27,7 @@ public class SettingsManager {
     public static final boolean DEF_SEARCH_IN_TAGS = true;
     public static final boolean DEF_SEARCH_IN_NODES = true;
     public static final boolean DEF_SEARCH_IN_FILES = true;
+    public static final boolean DEF_SEARCH_IN_IDS = true;
     public static final boolean DEF_SEARCH_SPLIT_TO_WORDS = false;
     public static final boolean DEF_SEARCH_IN_WHOLE_WORDS = false;
     public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
@@ -657,6 +658,18 @@ public class SettingsManager {
 
     public static void setSearchInFiles(boolean value) {
         setBoolean(R.string.pref_key_search_files, value);
+    }
+
+    /**
+     * Поиск по Id.
+     * @return
+     */
+    public static boolean isSearchInIds() {
+        return getBoolean(R.string.pref_key_search_ids, DEF_SEARCH_IN_IDS);
+    }
+
+    public static void setSearchInIds(boolean value) {
+        setBoolean(R.string.pref_key_search_ids, value);
     }
 
     /**

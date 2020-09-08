@@ -30,20 +30,37 @@
             android:layout_height="wrap_content"
             android:padding="12dp">
 
-            <EditText
-                android:id="@+id/edit_text_query"
-                android:layout_width="match_parent"
+            <RelativeLayout
+                android:id="@+id/layout_query"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:hint="@string/search_hint_input_query"
+                android:layout_marginTop="10dp">
 
-                />
+                <EditText
+                    android:id="@+id/edit_text_query"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/button_clear"
+                    android:layout_toStartOf="@id/button_clear"
+                    android:maxLines="1"
+                    android:hint="@string/search_hint_input_query" />
+
+                <ImageButton
+                    android:id="@+id/button_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/ic_clear" />
+
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/text_view_search_in"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/edit_text_query"
+                android:layout_below="@id/layout_query"
                 android:paddingTop="10dp"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
                 android:text="@string/search_search_in"/>
@@ -118,11 +135,21 @@
                 android:paddingBottom="@dimen/checkbox_vert_padding"
                 android:text="@string/search_in_file_names" />
 
+            <CheckBox
+                android:id="@+id/check_box_ids"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/check_box_files"
+                android:checked="true"
+                android:paddingTop="@dimen/checkbox_vert_padding"
+                android:paddingBottom="@dimen/checkbox_vert_padding"
+                android:text="@string/search_in_ids" />
+
             <TextView
                 android:id="@+id/text_view_other_options"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/check_box_files"
+                android:layout_below="@id/check_box_ids"
                 android:paddingTop="15dp"
                 android:paddingBottom="@dimen/spinner_vert_padding"
                 android:text="@string/search_other_options"/>

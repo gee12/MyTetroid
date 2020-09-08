@@ -198,6 +198,7 @@
     <string name="pref_key_search_tags" translatable="false">pref_key_search_tags</string>
     <string name="pref_key_search_nodes" translatable="false">pref_key_search_nodes</string>
     <string name="pref_key_search_files" translatable="false">pref_key_search_files</string>
+    <string name="pref_key_search_ids" translatable="false">pref_key_search_ids</string>
     <string name="pref_key_search_split_to_words" translatable="false">pref_key_search_split_to_words</string>
     <string name="pref_key_search_in_whole_words" translatable="false">pref_key_search_in_whole_words</string>
     <string name="pref_key_search_in_cur_node" translatable="false">pref_key_search_in_cur_node</string>
@@ -274,6 +275,7 @@
     <string name="search_in_tags">Tags</string>
     <string name="search_in_nodes">Node name</string>
     <string name="search_in_file_names">File name</string>
+    <string name="search_in_ids">Node, record or file id</string>
     <string name="search_other_options">Other:</string>
     <string name="search_records_select_tag">Select not an empty tag or use the global search.</string>
     <string name="search_submit_title">Start search</string>

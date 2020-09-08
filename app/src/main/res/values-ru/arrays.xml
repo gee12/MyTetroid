@@ -26,9 +26,12 @@
         <item>Текст</item>
         <item>Автор</item>
         <item>Url</item>
-        <item>Файл</item>
+        <item>Имя файла</item>
         <item>Метка</item>
-        <item>Ветка</item>
+        <item>Имя ветки</item>
+        <item>Id ветки</item>
+        <item>Id записи</item>
+        <item>Id файла</item>
     </string-array>
 
     <string-array name="obj_storage">
