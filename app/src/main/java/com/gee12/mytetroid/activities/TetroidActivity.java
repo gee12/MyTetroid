@@ -11,10 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.ActivityDoubleTapListener;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 
 public abstract class TetroidActivity extends AppCompatActivity implements View.OnTouchListener {
 

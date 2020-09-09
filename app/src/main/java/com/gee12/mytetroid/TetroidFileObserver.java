@@ -1,37 +1,82 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid;
 
 import android.os.FileObserver;
+
+import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.ICallback;
+
+import java.io.File;
 
 public class TetroidFileObserver {
 
     private static FileObserver mFileObserver;
 
     /**
+     *
+     * @param filePath
+     * @param mask
+     */
+    public TetroidFileObserver(String filePath, int mask, ICallback callback) {
+        if (filePath == null)
+            return;
+        File file = new File(filePath);
+//        Thread t = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+                mFileObserver = new FileObserver(file, mask) {
+                    @Override
+                    public void onEvent(int event, String path) {
+                        if (event == mask) {
+                            callback.run(true);
+                        }
+                    }
+                };
+//            }
+//        });
+//        t.setPriority(Thread.MIN_PRIORITY);
+//        t.start();
+    }
+
+    /**
      * Запуск отслеживания изменения mytetra.xml.
      * @param callback
      */
-    public static void startStorageObserver(/*Context context, */ICallback callback) {
-       /* Intent intent = new Intent(context, FileObserverService.class);
+    public static void startStorageObserver(/*Context context,*/ ICallback callback) {
+        /*Intent intent = new Intent(context, FileObserverService.class);
         String filePath = DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME;
         intent.putExtra(FileObserverService.EXTRA_FILE_PATH, filePath);
         context.startService(intent);
         instance.mStorageObserver = intent;*/
 
-        String filePath = DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME;
-        mFileObserver = new FileObserver(filePath, FileObserver.MODIFY) {
+        Thread t = new Thread(new Runnable() {
             @Override
-            public void onEvent(int event, String path) {
-                if (event == FileObserver.MODIFY) {
-                    callback.run(true);
-                }
-            }
+            public void run() {
+                File file = new File(DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+                FileObserver mFileObserver = new FileObserver(file, FileObserver.MODIFY) {
+                    @Override
+                    public void onEvent(int event, String path) {
+                        if (event == FileObserver.MODIFY) {
+                            callback.run(true);
+                        }
+                    }
 
-        };
+                };
+                mFileObserver.startWatching();
+            }
+        });
+        t.setPriority(Thread.MIN_PRIORITY);
+        t.start();
+    }
+
+    /**
+     * Запуск отслеживания изменений файла.
+     */
+    public void startObserver() {
         mFileObserver.startWatching();
     }
 
     /**
-     * Перезапуск отслеживания изменения mytetra.xml.
+     * Перезапуск отслеживания изменений файла.
      */
     public static void restartStorageObserver() {
         if (mFileObserver != null) {
@@ -45,7 +90,7 @@ public class TetroidFileObserver {
     }
 
     /**
-     * Остановка отслеживания изменения mytetra.xml.
+     * Остановка отслеживания изменений файла.
 //     * @param context
      */
     public static void stopStorageObserver(/*Context context*/) {

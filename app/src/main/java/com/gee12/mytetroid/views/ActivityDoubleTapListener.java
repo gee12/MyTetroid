@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.views;
 
 
 import android.view.GestureDetector;

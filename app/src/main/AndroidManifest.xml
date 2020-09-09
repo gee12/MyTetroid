@@ -17,11 +17,11 @@
         tools:ignore="GoogleAppIndexingWarning">
 <!--        android:hardwareAccelerated="true"-->
 
-<!--        <service-->
-<!--            android:name=".data.FileObserverService"-->
-<!--            android:enabled="true"-->
-<!--            android:exported="true" >-->
-<!--        </service>-->
+        <service
+            android:name=".FileObserverService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
 
         <!-- для dirchooser -->
         <!-- tools:replace="android:appComponentFactory" -->

@@ -16,6 +16,7 @@ import androidx.core.content.FileProvider;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidFileObserver;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.crypt.Crypter;
