@@ -2,6 +2,7 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.FileObserver;
 import android.os.Parcel;
 import android.text.Spanned;
 import android.view.Gravity;
@@ -38,11 +40,11 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.FileObserverService;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidFileObserver;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask;
@@ -155,6 +157,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsStorageChangingHandled;
     private ICallback mOutsideChangingHandler;
 
+    /**
+     *
+     */
+    private static Activity instance;
+    public static Activity getInstance() {
+        return instance;
+    }
 
     public MainActivity() {
         super();
@@ -171,6 +180,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        instance = this;
 
         this.mReceivedIntent = getIntent();
 
@@ -203,11 +214,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     // выводим уведомление
                     AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
                         @Override
-                        public void onCancel() {}
+                        public void onCancel() {
+                        }
+
                         @Override
                         public void onApply() {
                             reloadStorage();
                         }
+
                         @Override
                         public void onDismiss() {
                             MainActivity.this.mIsStorageChangingHandled = false;
@@ -266,10 +280,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 searchInTags(null, false);
                 tvHeader.setVisibility(View.VISIBLE);
             }
+
             @Override
             public void onSearch() {
                 tvHeader.setVisibility(View.GONE);
             }
+
             @Override
             public void onQuerySubmit(String query) {
                 searchInTags(query, true);
@@ -308,6 +324,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Начало загрузки хранилища.
+     *
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath.
      */
     private void startInitStorage(boolean isLoadLastForced) {
@@ -341,7 +358,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void startStorageTreeObserver() {
         if (SettingsManager.isCheckOutsideChanging()) {
             this.mIsStorageChangingHandled = false;
-            TetroidFileObserver.startStorageObserver(mOutsideChangingHandler);
+//            TetroidFileObserver.startStorageObserver(mOutsideChangingHandler);
+            Bundle bundle = new Bundle();
+            bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START);
+            bundle.putString(FileObserverService.EXTRA_FILE_PATH, DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+            bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
+            FileObserverService.sendCommand(this, bundle);
         }
     }
 
@@ -358,7 +380,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Перезагрузка хранилища.
      */
     private void reloadStorageAsk() {
-        AskDialogs.showReloadStorageDialog(this, false, false,() -> {
+        AskDialogs.showReloadStorageDialog(this, false, false, () -> {
             reloadStorage();
         });
     }
@@ -388,8 +410,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Создание нового хранилища в указанном расположении.
-     * @param storagePath
-    //     * @param checkDirIsEmpty
+     *
+     * @param storagePath //     * @param checkDirIsEmpty
      */
     private void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
         /*if (checkDirIsEmpty) {
@@ -421,6 +443,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Проверка нужно ли синхронизировать хранилище перед загрузкой.
+     *
      * @param storagePath
      */
     private void initOrSyncStorage(final String storagePath) {
@@ -433,6 +456,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         MainActivity.this.mIsLoadStorageAfterSync = true;
                         startStorageSync(storagePath);
                     }
+
                     @Override
                     public void onCancel() {
                         initStorage(storagePath);
@@ -449,6 +473,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отправление запроса на синхронизацию стороннему приложению.
+     *
      * @param storagePath
      */
     private void startStorageSync(String storagePath) {
@@ -467,6 +492,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Обработка результата синхронизации хранилища.
+     *
      * @param res
      */
     private void onSyncStorageFinish(boolean res) {
@@ -489,6 +515,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Загрузка хранилища по указанному пути.
+     *
      * @param storagePath Путь хранилища
      */
     private void initStorage(String storagePath) {
@@ -527,11 +554,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * 4) выборе зашифрованной ветки
      * 5) выборе зашифрованной записи в избранном
      *
-     * @param node Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isNodeOpening Вызвана ли функция при попытке открытия зашифрованной ветки
+     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
+     * @param isNodeOpening   Вызвана ли функция при попытке открытия зашифрованной ветки
      * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
-     *                           или ветку с избранным (если именно она передана в node)
+     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
+     *                        или ветку с избранным (если именно она передана в node)
      */
     private void decryptStorage(TetroidNode node, boolean isNodeOpening, boolean isOnlyFavorites, boolean isOpenLastNode) {
         String middlePassHash;
@@ -570,7 +597,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                                     initStorage(node, true, isOnlyFavorites, isOpenLastNode);
                                 });
                             }
-                            @Override
+
+                    @Override
                             public void onCancel() {
                                 if (!isNodeOpening) {
                                     // загружаем хранилище без пароля
@@ -581,7 +609,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 );
             }
         } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))
-            || isNodeOpening) {
+                || isNodeOpening) {
             // если пароль не сохранен, то спрашиваем его, когда также:
             //      * если нужно расшифровывать хранилище сразу на старте
             //      * если функция вызвана во время открытия зашифрованной ветки
@@ -597,11 +625,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображения запроса пароля от хранилища.
-     * @param node Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isNodeOpening Вызвана ли функция при попытке открытия зашифрованной ветки
+     *
+     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
+     * @param isNodeOpening   Вызвана ли функция при попытке открытия зашифрованной ветки
      * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-     *                       или ветку с избранным (если именно она передана в node)
+     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
+     *                        или ветку с избранным (если именно она передана в node)
      */
     private void askPassword(final TetroidNode node, boolean isNodeOpening, boolean isOnlyFavorites, boolean isOpenLastNode) {
         LogManager.log(R.string.log_show_pass_dialog);
@@ -639,11 +668,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища.
-     * @param node Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isDecrypt Нужно ли вызвать процесс расшифровки хранилища.
+     *
+     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
+     * @param isDecrypt       Нужно ли вызвать процесс расшифровки хранилища.
      * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-     *                       или ветку с избранным (если именно она передана в node)
+     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
+     *                        или ветку с избранным (если именно она передана в node)
      */
     private void initStorage(TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // расшифровуем хранилище только в том случаем, если:
@@ -652,8 +682,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         //   (или ветки Избранное)
         isDecrypt = isDecrypt
                 && (!PINManager.isRequestPINCode()
-                    || PINManager.isRequestPINCode() && node != null
-                        && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
+                || PINManager.isRequestPINCode() && node != null
+                && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             this.mCurTask = new DecryptStorageTask(node).run();
@@ -681,10 +711,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
-     * @param res Результат загрузки хранилища.
+     *
+     * @param res             Результат загрузки хранилища.
      * @param isOnlyFavorites
-     * @param isOpenLastNode Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
-     *                       или ветку с избранными записями
+     * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
+     *                        или ветку с избранными записями
      */
     private void initGUI(boolean res, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // избранные записи
@@ -798,6 +829,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение записей ветки по Id.
+     *
      * @param nodeId
      */
     public void showNode(String nodeId) {
@@ -811,6 +843,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение записей ветки.
+     *
      * @param node
      */
     private void showNode(TetroidNode node) {
@@ -845,6 +878,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Установка и выделение текущей ветки.
+     *
      * @param node
      */
     private void setCurNode(TetroidNode node) {
@@ -858,6 +892,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Управление подсветкой ветки Избранное.
+     *
      * @param isCur Текущая ветка?
      */
     private void setFavorIsCurNode(boolean isCur) {
@@ -873,7 +908,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
             // запрос пароля в асинхронном режиме
             askPassword(FavoritesManager.FAVORITES_NODE);
-        } else*/ {
+        } else*/
+        {
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!App.IsLoadedFavoritesOnly) {
                 setCurNode(null);
@@ -885,6 +921,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение записей по метке.
+     *
      * @param position Индекс метки в списке
      */
     private void showTagRecords(int position) {
@@ -905,6 +942,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение списка записей.
+     *
      * @param records
      * @param viewId
      */
@@ -914,6 +952,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение списка записей.
+     *
      * @param records
      * @param viewId
      * @param dropSearch Нужно ли закрыть фильтрацию SearchView
@@ -943,6 +982,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Обновление текущей ветки, если еще не установлена.
+     *
      * @param record
      */
     private void checkCurNode(TetroidRecord record) {
@@ -1035,9 +1075,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Отрытие прикрепленного файла.
      * Если файл нужно расшифровать во временные каталог, спрашиваем разрешение
      * на запись во внешнее хранилище.
-     *
+     * <p>
      * FIXME: Разрешение WRITE_EXTERNAL_STORAGE просить не нужно,
-     *  т.к. оно и так запрашивается при загрузке хранилища.
+     * т.к. оно и так запрашивается при загрузке хранилища.
      *
      * @param file
      */
@@ -1052,7 +1092,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
             LogManager.log(getString(R.string.log_request_perm) + permission, LogManager.Types.INFO);
             ActivityCompat.requestPermissions(this,
-                    new String[] { permission }, REQUEST_CODE_PERMISSION_WRITE_TEMP);
+                    new String[]{permission}, REQUEST_CODE_PERMISSION_WRITE_TEMP);
             return;
         }
 //        }
@@ -1087,7 +1127,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
          */
         @Override
         public void onItemClicked(MultiLevelListView parent, View view, Object item, ItemInfo itemInfo) {
-            showNode((TetroidNode)item);
+            showNode((TetroidNode) item);
         }
 
         /**
@@ -1139,7 +1179,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     };
 
     /**
-     *
      * @param nodesHeader
      */
     private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
@@ -1195,7 +1234,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInTags(String query, boolean isSearch) {
-        Map<String,TetroidTag> tags;
+        Map<String, TetroidTag> tags;
         if (isSearch) {
             LogManager.log(String.format(getString(R.string.search_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
@@ -1212,6 +1251,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Виджет поиска по записям ветки / прикрепленным к записи файлам.
+     *
      * @param menuItem
      */
     private void initRecordsSearchView(MenuItem menuItem) {
@@ -1224,16 +1264,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         new SearchViewXListener(mSearchViewRecords) {
             @Override
-            public void onSearchClick() { }
+            public void onSearchClick() {
+            }
+
             @Override
             public void onQuerySubmit(String query) {
                 searchInMainPage(query);
             }
+
             @Override
             public void onSuggestionSelectOrClick(String query) {
 //                searchInMainPage(query);
                 mSearchViewRecords.setQuery(query, true);
             }
+
             @Override
             public void onClose() {
                 // "сбрасываем" фильтрацию, но не для только что открытых списков записей
@@ -1266,7 +1310,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     *
      * @param curPage
      */
     private void changeToolBarByPage(int curPage) {
@@ -1279,7 +1322,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     *
      * @param viewId
      */
     @Override
@@ -1322,6 +1364,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Установка подзаголовка активности, указывающим на тип отображаемого объекта.
+     *
      * @param viewId
      */
     private void setSubtitle(int viewId) {
@@ -1345,6 +1388,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Установка подзаголовка активности.
+     *
      * @param s
      */
     private void setSubtitle(String s) {
@@ -1367,9 +1411,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Создание ветки.
+     *
      * @param parentNode Родительская ветка
-     * @param pos Позиция в списке родительской ветки
-     * @param isSubNode Если true, значит как подветка, иначе рядом с выделенной веткой
+     * @param pos        Позиция в списке родительской ветки
+     * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         NodeAskDialogs.createNodeDialog(this, null, (name) -> {
@@ -1415,6 +1460,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Переименование ветки.
+     *
      * @param node
      */
     private void renameNode(TetroidNode node) {
@@ -1434,6 +1480,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Удаление ветки.
+     *
      * @param node
      */
     private void deleteNode(TetroidNode node, int pos) {
@@ -1475,6 +1522,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Проверка содержится ли ветка node в ветке nodeAsParent.
+     *
      * @param node
      * @param nodeAsParent
      * @return
@@ -1493,8 +1541,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Перемещение ветки вверх/вниз по списку.
+     *
      * @param node
-     * @param pos Позиция элемента в списке
+     * @param pos  Позиция элемента в списке
      * @param isUp
      */
     private void moveNode(TetroidNode node, int pos, boolean isUp) {
@@ -1507,7 +1556,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             int res = DataManager.swapTetroidObjects(subNodes, posInNode, isUp);
             if (res > 0) {
                 // меняем местами элементы внутри списка
-                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode-1 : posInNode+1)) {
+                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode - 1 : posInNode + 1)) {
                     TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
                 } else {
                     LogManager.log(getString(R.string.log_node_move_list_error), LogManager.Types.ERROR, Toast.LENGTH_LONG);
@@ -1520,6 +1569,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Развернуть все подветки у ветки.
+     *
      * @param pos
      */
     private void expandSubNodes(int pos) {
@@ -1528,6 +1578,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Копирование ветки.
+     *
      * @param node
      */
     private void copyNode(TetroidNode node) {
@@ -1542,6 +1593,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Вырезание ветки из родительской ветки.
+     *
      * @param node
      */
     private void cutNode(TetroidNode node, int pos) {
@@ -1558,9 +1610,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Вставка ветки.
+     *
      * @param parentNode Родительская ветка
-     * @param pos Позиция в списке родительской ветки
-     * @param isSubNode Если true, значит как подветка, иначе рядом с выделенной веткой
+     * @param pos        Позиция в списке родительской ветки
+     * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void insertNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         // на всякий случай проверяем тип
@@ -1590,6 +1643,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             public void onApply() {
                 mCurTask = new CryptNodeTask(node, true).run();
             }
+
             @Override
             public void onCancel() {
             }
@@ -1602,6 +1656,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             public void onApply() {
                 mCurTask = new CryptNodeTask(node, false).run();
             }
+
             @Override
             public void onCancel() {
             }
@@ -1621,7 +1676,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение всплывающего (контексного) меню ветки.
-     *
+     * <p>
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
      *
      * @param v
@@ -1724,7 +1779,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение всплывающего (контексного) меню метки.
-     *
+     * <p>
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
      *
      * @param v
@@ -1781,6 +1836,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Обработка возвращаемого результата других активностей.
+     *
      * @param requestCode
      * @param resultCode
      * @param data
@@ -1791,7 +1847,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             // проверяем нужно ли отслеживать структуру хранилища
-            TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+//            TetroidFileObserver.startOrStopObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+            Bundle bundle = new Bundle();
+            bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START_OR_STOP);
+            bundle.putBoolean(FileObserverService.EXTRA_IS_START, SettingsManager.isCheckOutsideChanging());
+            FileObserverService.sendCommand(this, bundle);
+
             // скрываем пункт меню Синхронизация, если отключили
             ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
 
@@ -1844,6 +1905,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Обработка возвращаемого результата активности записи.
+     *
      * @param data
      * @param resCode
      */
@@ -1852,7 +1914,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         }
         // проверяем нужно ли отслеживать структуру хранилища
-        TetroidFileObserver.startOrStopStorageObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+//        TetroidFileObserver.startOrStopObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+        Bundle bundle = new Bundle();
+        bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START_OR_STOP);
+        bundle.putBoolean(FileObserverService.EXTRA_IS_START, SettingsManager.isCheckOutsideChanging());
+        FileObserverService.sendCommand(this, bundle);
+
         // обновляем списки, если редактировали свойства записи
         if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
             mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
@@ -1913,6 +1980,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Запуск глобального поиска.
+     *
      * @param scan
      */
     private void startGlobalSearch(ScanManager scan) {
@@ -1922,6 +1990,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Открытие объекта из поисковой выдачи в зависимости от его типа.
+     *
      * @param found
      */
     @Override
@@ -1929,16 +1998,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
         int type = found.getType();
         switch (type) {
             case FoundType.TYPE_RECORD:
-                openRecord((TetroidRecord)found);
+                openRecord((TetroidRecord) found);
                 break;
             case FoundType.TYPE_FILE:
-                showRecordFiles(((TetroidFile)found).getRecord());
+                showRecordFiles(((TetroidFile) found).getRecord());
                 break;
             case FoundType.TYPE_NODE:
-                showNode((TetroidNode)found);
+                showNode((TetroidNode) found);
                 break;
             case FoundType.TYPE_TAG:
-                showTag((TetroidTag)found);
+                showTag((TetroidTag) found);
                 break;
         }
         if (type != FoundType.TYPE_RECORD) {
@@ -1988,6 +2057,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Вызывается при submit на RecordsSearchView (вместо пересоздания всей активности).
+     *
      * @param intent
      */
     @Override
@@ -2004,7 +2074,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (intent == null || (action = intent.getAction()) == null) {
             return;
         }
-        if (action.equals(Intent.ACTION_SEARCH)) {
+        if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
+            // обработка внешнего изменения дерева записей
+            mOutsideChangingHandler.run(true);
+        } else if (action.equals(Intent.ACTION_SEARCH)) {
             // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchViewRecords.setQuery(query, true);
@@ -2371,7 +2444,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // сохраняем выбранную ветку
         saveLastSelectedNode();
         // останавливаем отслеживание изменения структуры хранилища
-        TetroidFileObserver.stopStorageObserver();
+//        TetroidFileObserver.stopObserver();
+        FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
+
         // очищаем память
         DataManager.destruct();
     }

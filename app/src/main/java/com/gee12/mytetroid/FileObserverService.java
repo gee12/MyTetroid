@@ -1,7 +1,9 @@
 package com.gee12.mytetroid;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.IBinder;
 
@@ -14,10 +16,13 @@ public class FileObserverService extends Service {
     public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
     public static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
     public static final String EXTRA_EVENT_MASK = "EXTRA_EVENT_MASK";
+    public static final String EXTRA_IS_START = "EXTRA_IS_START";
+    public static final String ACTION_OBSERVER_EVENT_COME = "com.gee12.mytetroid.ACTION_OBSERVER_EVENT_COME";
 
     public static final int ACTION_START = 1;
     public static final int ACTION_STOP = 2;
     public static final int ACTION_RESTART = 3;
+    public static final int ACTION_START_OR_STOP = 4;
 
     private TetroidFileObserver mFileObserver;
 
@@ -34,14 +39,18 @@ public class FileObserverService extends Service {
                     String filePath = intent.getStringExtra(EXTRA_FILE_PATH);
                     int mask = intent.getIntExtra(EXTRA_EVENT_MASK, FileObserver.ALL_EVENTS);
                     this.mFileObserver = new TetroidFileObserver(filePath, mask, res -> callback());
-                    mFileObserver.startObserver();
+//                    mFileObserver.startObserver();
                 }
                 break;
             case ACTION_STOP:
-                mFileObserver.stopStorageObserver();
+                mFileObserver.stopObserver();
                 break;
             case ACTION_RESTART:
-                mFileObserver.restartStorageObserver();
+                mFileObserver.restartObserver();
+                break;
+            case ACTION_START_OR_STOP:
+                boolean isStart = intent.getBooleanExtra(EXTRA_IS_START, true);
+                mFileObserver.startOrStopObserver(isStart);
                 break;
         }
         return Service.START_NOT_STICKY;
@@ -55,6 +64,18 @@ public class FileObserverService extends Service {
 
     private void callback() {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(ACTION_OBSERVER_EVENT_COME);
         startActivity(intent);
+    }
+
+    public static void sendCommand(Activity activity, int actionId) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(EXTRA_ACTION_ID, actionId);
+        sendCommand(activity, bundle);
+    }
+    public static void sendCommand(Activity activity, Bundle bundle) {
+        Intent intent = new Intent(activity, FileObserverService.class);
+        intent.putExtras(bundle);
+        activity.startService(intent);
     }
 }
