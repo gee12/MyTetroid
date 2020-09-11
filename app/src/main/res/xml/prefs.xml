@@ -1,4 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="pref_key_screen">
 
     <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_main">
@@ -160,8 +161,14 @@
             android:enabled="false"
             android:key="@string/pref_key_highlight_attach_color"
             android:title="@string/pref_highlight_attach_color"
+            app:supportsAlpha="true"
             android:defaultValue="@color/colorHighlight" />
-<!--        android:dependency="@string/pref_key_is_highlight_attach"-->
+
+        <com.jaredrummler.android.colorpicker.ColorPreference
+            android:enabled="false"
+            android:key="@string/pref_key_highlight_attach_color"
+            android:title="@string/pref_highlight_attach_color"
+            android:defaultValue="@color/color_default"/>
 
         <com.gee12.mytetroid.views.DateTimeFormatPreference
             android:key="@string/pref_key_date_format_string"
