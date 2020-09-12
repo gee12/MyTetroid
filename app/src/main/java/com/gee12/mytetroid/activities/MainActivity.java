@@ -68,6 +68,7 @@ import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeAskDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
+import com.gee12.mytetroid.fragments.SettingsFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.ReceivedData;
@@ -1858,8 +1859,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             if (data != null) {
                 // перезагружаем хранилище, если изменили путь
-                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
-                    boolean toCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
+                    boolean toCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
                     AskDialogs.showReloadStorageDialog(this, toCreate, true, () -> {
                         if (toCreate) {
                             createStorage(SettingsManager.getStoragePath()/*, true*/);
@@ -1867,7 +1868,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                             reinitStorage();
                         }
                     });
-                } else if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
                     updateNodes();
                     updateTags();
@@ -1926,14 +1927,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
-                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false)) {
+                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false)) {
                     createStorage(SettingsManager.getStoragePath()/*, true*/);
                 } else {
                     reinitStorage();
                 }
                 break;
             case RecordActivity.RESULT_PASS_CHANGED:
-                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
                     updateNodes();
                     updateTags();

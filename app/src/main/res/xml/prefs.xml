@@ -1,5 +1,4 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="pref_key_screen">
 
     <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_main">
@@ -157,18 +156,18 @@
             android:title="@string/pref_is_highlight_crypted_nodes"
             android:defaultValue="false" />
 
-        <yuku.ambilwarna.widget.AmbilWarnaPreference
-            android:enabled="false"
-            android:key="@string/pref_key_highlight_attach_color"
-            android:title="@string/pref_highlight_attach_color"
-            app:supportsAlpha="true"
-            android:defaultValue="@color/colorHighlight" />
+<!--        <yuku.ambilwarna.widget.AmbilWarnaPreference-->
+<!--            android:enabled="false"-->
+<!--            android:key="@string/pref_key_highlight_attach_color"-->
+<!--            android:title="@string/pref_highlight_attach_color"-->
+<!--            app:supportsAlpha="true"-->
+<!--            android:defaultValue="@color/colorHighlight" />-->
 
-        <com.jaredrummler.android.colorpicker.ColorPreference
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:enabled="false"
             android:key="@string/pref_key_highlight_attach_color"
             android:title="@string/pref_highlight_attach_color"
-            android:defaultValue="@color/color_default"/>
+            android:defaultValue="@color/colorHighlight"/>
 
         <com.gee12.mytetroid.views.DateTimeFormatPreference
             android:key="@string/pref_key_date_format_string"

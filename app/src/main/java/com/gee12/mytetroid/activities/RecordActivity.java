@@ -46,6 +46,7 @@ import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.RecordAskDialogs;
+import com.gee12.mytetroid.fragments.SettingsFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -1064,13 +1065,13 @@ public class RecordActivity extends TetroidActivity implements
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             if (data != null) {
-                if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_REINIT_STORAGE, false)) {
-                    boolean isCreate = data.getBooleanExtra(SettingsActivity.EXTRA_IS_CREATE_STORAGE, false);
+                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
+                    boolean isCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
                     AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
                         // перезагружаем хранилища в главной активности, если изменили путь
                         finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                     });
-                } else if (data.getBooleanExtra(SettingsActivity.EXTRA_IS_PASS_CHANGED, false)) {
+                } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                     finishWithResult(RESULT_PASS_CHANGED, data.getExtras());
                 }
             }

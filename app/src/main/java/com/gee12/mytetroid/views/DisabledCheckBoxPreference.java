@@ -2,14 +2,17 @@ package com.gee12.mytetroid.views;
 
 import android.content.Context;
 import android.os.Build;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
 import android.util.AttributeSet;
-import android.view.View;
 
 import androidx.annotation.RequiresApi;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceViewHolder;
 
 import com.gee12.mytetroid.utils.ViewUtils;
+
+//import android.preference.CheckBoxPreference;
+//import android.preference.Preference;
 
 /**
  * Обычный CheckBoxPreference, но при отключении (установке setEnabled(false)) реагирующий
@@ -86,12 +89,21 @@ public class DisabledCheckBoxPreference extends CheckBoxPreference {
         super.onParentChanged(parent, disableChild);
     }
 
+//    @Override
+//    protected void onBindView(View view) {
+//        super.onBindView(view);
+//        // отключаем вьюшки, если нужно (при этом сохраняется обработчик нажатия onClick)
+//        if (getShouldDisableView()) {
+//            ViewUtils.setEnabledStateOnViews(view, isEnabled2());
+//        }
+//    }
+
     @Override
-    protected void onBindView(View view) {
-        super.onBindView(view);
+    public void onBindViewHolder(PreferenceViewHolder view) {
+        super.onBindViewHolder(view);
         // отключаем вьюшки, если нужно (при этом сохраняется обработчик нажатия onClick)
         if (getShouldDisableView()) {
-            ViewUtils.setEnabledStateOnViews(view, isEnabled2());
+            ViewUtils.setEnabledStateOnViews(view.itemView, isEnabled2());
         }
     }
 }
