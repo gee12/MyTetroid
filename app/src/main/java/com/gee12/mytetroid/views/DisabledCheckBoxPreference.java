@@ -45,7 +45,15 @@ public class DisabledCheckBoxPreference extends CheckBoxPreference {
     public void setEnabled(boolean enabled) {
         // меняем "системный" isEnabled на свой,
         // т.к. при установке false у системного - у опции отключается вызов обработчика нажатия onClick
-        this.mIsEnabled2 = enabled;
+//        this.mIsEnabled2 = enabled;
+        if (mIsEnabled2 != enabled) {
+            mIsEnabled2 = enabled;
+
+            // Enabled state can change dependent preferences' states, so notify
+            notifyDependencyChange(shouldDisableDependents());
+
+            notifyChanged();
+        }
     }
 
     @Override
@@ -99,11 +107,14 @@ public class DisabledCheckBoxPreference extends CheckBoxPreference {
 //    }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder view) {
-        super.onBindViewHolder(view);
+    public void onBindViewHolder(PreferenceViewHolder holder) {
+        super.onBindViewHolder(holder);
         // отключаем вьюшки, если нужно (при этом сохраняется обработчик нажатия onClick)
         if (getShouldDisableView()) {
-            ViewUtils.setEnabledStateOnViews(view.itemView, isEnabled2());
+            ViewUtils.setEnabledStateOnViews(holder.itemView, isEnabled2());
+            holder.itemView.setEnabled(true);
+        } else {
+            ViewUtils.setEnabledStateOnViews(holder.itemView, true);
         }
     }
 }

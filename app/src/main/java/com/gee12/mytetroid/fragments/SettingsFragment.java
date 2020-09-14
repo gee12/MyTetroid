@@ -198,6 +198,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+            setPINCodePrefAvailability();
             updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal())
                     ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
         } else if (key.equals(getString(R.string.pref_key_when_ask_password))) {
@@ -221,8 +222,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             LogManager.init(getContext(), SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         } else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
-        } else if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
-            setPINCodePrefAvailability();
         }
     }
 
