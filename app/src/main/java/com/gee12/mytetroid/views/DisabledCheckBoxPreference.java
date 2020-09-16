@@ -11,9 +11,6 @@ import androidx.preference.PreferenceViewHolder;
 
 import com.gee12.mytetroid.utils.ViewUtils;
 
-//import android.preference.CheckBoxPreference;
-//import android.preference.Preference;
-
 /**
  * Обычный CheckBoxPreference, но при отключении (установке setEnabled(false)) реагирующий
  *  на нажатия (OnPreferenceClickListener).
@@ -96,15 +93,6 @@ public class DisabledCheckBoxPreference extends CheckBoxPreference {
         this.mParentDependencyMet2 = !disableChild;
         super.onParentChanged(parent, disableChild);
     }
-
-//    @Override
-//    protected void onBindView(View view) {
-//        super.onBindView(view);
-//        // отключаем вьюшки, если нужно (при этом сохраняется обработчик нажатия onClick)
-//        if (getShouldDisableView()) {
-//            ViewUtils.setEnabledStateOnViews(view, isEnabled2());
-//        }
-//    }
 
     @Override
     public void onBindViewHolder(PreferenceViewHolder holder) {
