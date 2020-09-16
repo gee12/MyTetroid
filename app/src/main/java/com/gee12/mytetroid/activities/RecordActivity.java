@@ -61,6 +61,9 @@ import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
+import com.lumyjuwon.richwysiwygeditor.IColorPicker;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
@@ -79,7 +82,9 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.ILinkLoadListener,
         EditableWebView.IHtmlReceiveListener,
         EditableWebView.IYoutubeLinkLoadListener,
-        IImagePicker {
+        IImagePicker,
+        IColorPicker,
+        ColorPickerDialogListener {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final int REQUEST_CODE_CAMERA = 2;
@@ -175,7 +180,8 @@ public class RecordActivity extends TetroidActivity implements
         this.mIsReceivedImages = intent.hasExtra(EXTRA_IMAGES_URI);
 
         this.mEditor = findViewById(R.id.html_editor);
-        mEditor.setImgPickerCallback(this);
+        mEditor.setColorPickerListener(this);
+        mEditor.setImagePickerListener(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
@@ -602,6 +608,22 @@ public class RecordActivity extends TetroidActivity implements
             bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
         }
         finishWithResult(RESULT_SHOW_TAG, bundle);
+    }
+
+    @Override
+    public void onPickColor() {
+        ColorPickerDialog.newBuilder()
+//                .setColor(color)
+                .show(this);
+    }
+
+    @Override
+    public void onColorSelected(int dialogId, int color) {
+        mEditor.setPickedColor(color);
+    }
+
+    @Override
+    public void onDialogDismissed(int dialogId) {
     }
 
     @Override
