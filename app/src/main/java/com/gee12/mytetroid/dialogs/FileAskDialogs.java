@@ -13,7 +13,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidFile;
-import com.lumyjuwon.richwysiwygeditor.WysiwygUtils.Keyboard;
+import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Random;
 
