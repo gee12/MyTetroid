@@ -65,6 +65,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lumyjuwon.richwysiwygeditor.IColorPicker;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
+import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -619,7 +620,21 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onColorSelected(int dialogId, int color) {
+        int[] savedColors = SettingsManager.getPickedColors();
+        if (savedColors != null && savedColors.length >= WysiwygEditor.MAX_SAVED_COLORS) {
+            // TODO: добавить смещение элементов
+
+            //  ...
+
+        } else {
+            SettingsManager.addPickedColor(color);
+        }
         mEditor.setPickedColor(color);
+    }
+
+    @Override
+    public int[] getSavedColors() {
+        return SettingsManager.getPickedColors();
     }
 
     @Override

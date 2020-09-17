@@ -9,6 +9,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -439,11 +440,33 @@ public class SettingsManager {
      * @return
      */
     public static int getHighlightColor() {
-        final int def = R.color.colorHighlight;
-        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
-            return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
-        }
-        return def;
+//        final int def = R.color.colorHighlight;
+//        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
+//            return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
+//        }
+//        return def;
+        return getInt(R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
+    }
+
+    public static int[] getPickedColors() {
+        String value = getString(R.string.pref_key_picked_colors, null);
+        return (value != null) ? Utils.splitToInts(value, ";") : null;
+    }
+
+    public static void setPickedColors(int[] value) {
+        String s = Utils.concatToString(value, ";");
+        setString(R.string.pref_key_picked_colors, s);
+    }
+
+    public static void addPickedColor(int color) {
+//        int[] oldValue = getPickedColors();
+//        int[] newValue = Utils.addElement(oldValue, color);
+//        String s = Utils.concatToString(newValue, ";");
+        String stringColor = String.valueOf(color);
+        String oldValue = getString(R.string.pref_key_picked_colors, null);
+        String newValue = (oldValue != null && oldValue.split(";").length > 0)
+                ? oldValue.concat(";").concat(stringColor) : stringColor;
+        setString(R.string.pref_key_picked_colors, newValue);
     }
 
     /**
@@ -803,7 +826,7 @@ public class SettingsManager {
     private static String getString(int prefKeyStringRes, final String defValue) {
         if (settings == null)
             return defValue;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getString(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;

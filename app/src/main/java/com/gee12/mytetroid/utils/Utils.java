@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -187,6 +188,44 @@ public class Utils {
 //        return res;
 //    }
 
+    public static int[] splitToInts(String s, String separ) {
+        if (s == null)
+            return null;
+        String[] parts = s.split(separ);
+        int[] res = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            try {
+                res[i] = Integer.parseInt(parts[i]);
+            } catch(Exception ex) {}
+        }
+        return res;
+    }
+
+    public static String concatToString(int[] arr, String separ) {
+        if (arr == null)
+            return null;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < arr.length; i++) {
+            sb.append(arr[i]);
+            if (i < arr.length - 1) {
+                sb.append(separ);
+            }
+        }
+        return sb.toString();
+//        return String.join(separ, parts);
+//        return StringUtils.join(ArrayUtils.toObject(arr), " - ");
+//        return Arrays.stream(arr).mapToObj(String::valueOf)
+//                .collect(Collectors.joining(" - "));
+    }
+
+    public static int[] addElement(int[] arr, int value) {
+        if (arr == null)
+            return null;
+        arr  = Arrays.copyOf(arr, arr.length + 1);
+        arr[arr.length - 1] = value;
+        return arr;
+//        ArrayUtils.add(arr, value);
+    }
     /**
      *
      * @param context
