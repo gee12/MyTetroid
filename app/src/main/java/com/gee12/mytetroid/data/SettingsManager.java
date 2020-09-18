@@ -458,15 +458,16 @@ public class SettingsManager {
         setString(R.string.pref_key_picked_colors, s);
     }
 
-    public static void addPickedColor(int color) {
-//        int[] oldValue = getPickedColors();
-//        int[] newValue = Utils.addElement(oldValue, color);
-//        String s = Utils.concatToString(newValue, ";");
-        String stringColor = String.valueOf(color);
-        String oldValue = getString(R.string.pref_key_picked_colors, null);
-        String newValue = (oldValue != null && oldValue.split(";").length > 0)
-                ? oldValue.concat(";").concat(stringColor) : stringColor;
-        setString(R.string.pref_key_picked_colors, newValue);
+    public static void addPickedColor(int color, int maxColors) {
+        int[] savedColors = SettingsManager.getPickedColors();
+        int[] res = Utils.addElem(savedColors, color, maxColors, false);
+        SettingsManager.setPickedColors(res);
+    }
+
+    public static void removePickedColor(int color) {
+        int[] savedColors = SettingsManager.getPickedColors();
+        int[] res = Utils.removeElem(savedColors, color);
+        SettingsManager.setPickedColors(res);
     }
 
     /**

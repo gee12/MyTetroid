@@ -620,21 +620,18 @@ public class RecordActivity extends TetroidActivity implements
 
     @Override
     public void onColorSelected(int dialogId, int color) {
-        int[] savedColors = SettingsManager.getPickedColors();
-        if (savedColors != null && savedColors.length >= WysiwygEditor.MAX_SAVED_COLORS) {
-            // TODO: добавить смещение элементов
-
-            //  ...
-
-        } else {
-            SettingsManager.addPickedColor(color);
-        }
+        SettingsManager.addPickedColor(color, WysiwygEditor.MAX_SAVED_COLORS);
         mEditor.setPickedColor(color);
     }
 
     @Override
     public int[] getSavedColors() {
         return SettingsManager.getPickedColors();
+    }
+
+    @Override
+    public void removeSavedColor(int index, int color) {
+        SettingsManager.removePickedColor(color);
     }
 
     @Override

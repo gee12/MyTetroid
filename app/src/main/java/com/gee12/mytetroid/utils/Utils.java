@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -218,7 +219,7 @@ public class Utils {
 //                .collect(Collectors.joining(" - "));
     }
 
-    public static int[] addElement(int[] arr, int value) {
+    public static int[] addElem(int[] arr, int value) {
         if (arr == null)
             return null;
         arr  = Arrays.copyOf(arr, arr.length + 1);
@@ -226,6 +227,70 @@ public class Utils {
         return arr;
 //        ArrayUtils.add(arr, value);
     }
+
+    /**
+     * Добавление элемента в конец массива.
+     * @param arr Исходный массив
+     * @param value Значение нового элемента
+     * @param maxLength Максимальное количество элементов нового массива
+     * @return Копия исходного массива arr с добавленным элементом в конце
+     */
+    public static int[] addElem(int[] arr, int value, int maxLength, boolean addNotUnique) {
+        if (maxLength <= 0)
+            return null;
+        int[] res;
+        if (arr == null) {
+            res = new int[1];
+            res[0] = value;
+            return res;
+        } else if (!addNotUnique) {
+            for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == value) {
+                    res = new int[arr.length];
+                    System.arraycopy(arr, 0, res, 0, arr.length);
+                    return res;
+                }
+            }
+        }
+        if (arr.length >= maxLength) {
+            res = new int[arr.length];
+            // смещение элементов влево
+            System.arraycopy(arr, 1, res, 0, maxLength - 1);
+            // установка нового цвета в конец
+            res[maxLength - 1] = value;
+        } else {
+            res = new int[arr.length + 1];
+            System.arraycopy(arr, 0, res, 0, arr.length);
+            res[arr.length] = value;
+        }
+        return res;
+    }
+
+    public static int[] removeElem(int[] arr, int value) {
+        if (arr == null)
+            return null;
+        ArrayList<Integer> res = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] != value) {
+                res.add(arr[i]);
+            }
+        }
+//        return res.stream().mapToInt(i -> i).toArray();
+//        return ArrayUtils.toPrimitive(res.toArray(new Integer[0]));
+        return convertToInts(res);
+    }
+
+    public static int[] convertToInts(List<Integer> integers)
+    {
+        int[] ret = new int[integers.size()];
+        Iterator<Integer> iterator = integers.iterator();
+        for (int i = 0; i < ret.length; i++)
+        {
+            ret[i] = iterator.next().intValue();
+        }
+        return ret;
+    }
+
     /**
      *
      * @param context
