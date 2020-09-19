@@ -127,8 +127,8 @@ public class PassManager extends DataManager {
      * @throws DatabaseConfig.EmptyFieldException
      */
     public static boolean checkPass(String pass) throws DatabaseConfig.EmptyFieldException {
-        String salt = databaseConfig.getCryptCheckSalt();
-        String checkHash = databaseConfig.getCryptCheckHash();
+        String salt = DatabaseConfig.getCryptCheckSalt();
+        String checkHash = DatabaseConfig.getCryptCheckHash();
         return CryptManager.checkPass(pass, salt, checkHash);
     }
 
@@ -139,7 +139,7 @@ public class PassManager extends DataManager {
      * @throws DatabaseConfig.EmptyFieldException
      */
     public static boolean checkMiddlePassHash(String passHash) throws DatabaseConfig.EmptyFieldException {
-        String checkData = databaseConfig.getMiddleHashCheckData();
+        String checkData = DatabaseConfig.getMiddleHashCheckData();
         return CryptManager.checkMiddlePassHash(passHash, checkData);
     }
 
@@ -280,7 +280,7 @@ public class PassManager extends DataManager {
             LogManager.log(ex);
             return false;
         }
-        return databaseConfig.savePass(Base64.encodeToString(passHash, false),
+        return DatabaseConfig.savePass(Base64.encodeToString(passHash, false),
                 Base64.encodeToString(salt, false), true);
     }
 
@@ -291,7 +291,7 @@ public class PassManager extends DataManager {
      */
     public static boolean saveMiddlePassCheckData(String passHash) {
         String checkData = Crypter.createMiddlePassHashCheckData(passHash);
-        return databaseConfig.saveCheckData(checkData);
+        return DatabaseConfig.saveCheckData(checkData);
     }
 
     /**
@@ -300,7 +300,7 @@ public class PassManager extends DataManager {
      */
     public static boolean clearPassCheckData() {
         SettingsManager.setMiddlePassHash(null);
-        return databaseConfig.savePass(null, null, false);
+        return DatabaseConfig.savePass(null, null, false);
     }
 
     /**
@@ -308,7 +308,7 @@ public class PassManager extends DataManager {
      * @return
      */
     public static boolean clearMiddlePassCheckData() {
-        return databaseConfig.saveCheckData(null);
+        return DatabaseConfig.saveCheckData(null);
     }
 
 }

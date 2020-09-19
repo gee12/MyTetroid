@@ -93,6 +93,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     return true;
                 });
 
+        findPreference(getString(R.string.pref_key_quickly_node_id))
+                .setOnPreferenceClickListener(preference -> {
+
+                    SettingsManager.setQuicklyNode(node);
+                    DataManager.setQuicklyNode(node);
+                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
+                    return true;
+                });
+        DataManager.updateQuicklyNode();
+
         findPreference(getString(R.string.pref_key_clear_search_history))
                 .setOnPreferenceClickListener(pref -> {
                     AskDialogs.showYesDialog(getContext(), () -> {
@@ -182,6 +192,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
+        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
 

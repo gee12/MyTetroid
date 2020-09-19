@@ -1,11 +1,13 @@
 package com.gee12.mytetroid;
 
 import android.app.Activity;
+import android.content.Context;
 
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 
 import java.util.Locale;
@@ -63,4 +65,15 @@ public class App {
         return (Locale.getDefault().getLanguage().equals("ru"));
     }
 
+    /**
+     * Первоначальная инициализация служб приложения.
+     */
+    public static void init(Context context) {
+        SettingsManager.init(context);
+        LogManager.init(context, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
+        LogManager.log(String.format(context.getString(R.string.log_app_start_mask), Utils.getVersionName(context)));
+        if (SettingsManager.isCopiedFromFree()) {
+            LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
+        }
+    }
 }

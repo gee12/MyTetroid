@@ -484,5 +484,7 @@
     <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
+    <string name="pref_quickly_node">Ветка для быстрой вставки</string>
+    <string name="pref_quickly_node_summ">Ветка для записей, отправленных из стороннего приложения, созданных в избранном или с помощью виджета (Pro)</string>
 
 </resources>

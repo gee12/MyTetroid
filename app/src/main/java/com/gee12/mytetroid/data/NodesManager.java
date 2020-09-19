@@ -42,13 +42,13 @@ public class NodesManager extends DataManager {
             node.setDecryptedName(name);
             node.setDecrypted(true);
         }
-        // добавляем запись в родительскую ветку (и соответственно, в коллекцию), если она задана
+        // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
         List<TetroidNode> list = (parentNode != null) ? parentNode.getSubNodes() : getRootNodes();
         list.add(node);
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
             TetroidLog.logOperCancel(TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
-            // удаляем запись из коллекции
+            // удаляем запись из дерева
             list.remove(node);
             return null;
         }
@@ -144,7 +144,7 @@ public class NodesManager extends DataManager {
         // перезаписываем структуру хранилища в файл
         if (!saveStorage()) {
             TetroidLog.logOperCancel(TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
-            // удаляем запись из коллекции
+            // удаляем запись из дерева
             destParentNode.getSubNodes().remove(newNode);
             return false;
         }
@@ -180,7 +180,7 @@ public class NodesManager extends DataManager {
             node.setDecrypted(true);
         }
         // загружаем такую же иконку
-        instance.loadIcon(node);
+        Instance.loadIcon(node);
         destParentNode.addSubNode(node);
 
         // добавляем записи
@@ -216,7 +216,7 @@ public class NodesManager extends DataManager {
         }
         TetroidLog.logOperStart(TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE, node);
 
-        // удаляем ветку из коллекции
+        // удаляем ветку из дерева
         List<TetroidNode> parentNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : getRootNodes();
         if (!parentNodes.remove(node)) {
             LogManager.log(context.getString(R.string.log_not_found_node_id) + node.getId(), LogManager.Types.ERROR);
@@ -248,7 +248,7 @@ public class NodesManager extends DataManager {
                 if (record.isFavorite()) {
                     FavoritesManager.remove(record, false);
                 }
-                instance.deleteRecordTags(record);
+                Instance.deleteRecordTags(record);
                 // проверяем существование каталога
                 String dirPath = RecordsManager.getPathToRecordFolder(record);
                 if (RecordsManager.checkRecordFolder(dirPath, false) <= 0) {
@@ -298,9 +298,9 @@ public class NodesManager extends DataManager {
      * @return
      */
     public static boolean isExistCryptedNodes(boolean recheck) {
-        boolean res = instance.mIsExistCryptedNodes;
+        boolean res = Instance.mIsExistCryptedNodes;
         if (recheck) {
-            res = instance.mIsExistCryptedNodes = isExistCryptedNodes(instance.mRootNodesList);
+            res = Instance.mIsExistCryptedNodes = isExistCryptedNodes(Instance.mRootNodesList);
         }
         return res;
     }
@@ -338,7 +338,7 @@ public class NodesManager extends DataManager {
     }
 
     public static TetroidNode getNode(String id) {
-        return getNodeInHierarchy(instance.mRootNodesList, id);
+        return getNodeInHierarchy(Instance.mRootNodesList, id);
     }
 
     /**
@@ -390,17 +390,17 @@ public class NodesManager extends DataManager {
      * Получение какой-нибудь ветки, в которую нужно добавить новую запись "извне".
      * @return
      */
-    public static TetroidNode getDefaultNode() {
+    /*public static TetroidNode getDefaultNode() {
 //        TetroidNode res = null;
-        if (!instance.mRootNodesList.isEmpty()) {
+        if (!Instance.mRootNodesList.isEmpty()) {
             // TODO: пока что выбираем просто первую незашифрованную ветку в хранилище
 //            res = instance.mRootNodesList.get(0);
-            for (TetroidNode node : instance.mRootNodesList) {
+            for (TetroidNode node : Instance.mRootNodesList) {
                 if (node.isNonCryptedOrDecrypted()) {
                     return node;
                 }
             }
         }
         return null;
-    }
+    }*/
 }

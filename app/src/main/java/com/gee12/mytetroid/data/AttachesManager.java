@@ -166,7 +166,7 @@ public class AttachesManager extends DataManager {
             return null;
         }
 
-        // добавляем файл к записи (и соответственно, в коллекцию)
+        // добавляем файл к записи (и соответственно, в дерево)
         List<TetroidFile> files = record.getAttachedFiles();
         if (files == null) {
             files = new ArrayList<>();
@@ -313,7 +313,7 @@ public class AttachesManager extends DataManager {
             }
         }
 
-        // удаляем файл из списка файлов записи (и соответственно, из коллекции)
+        // удаляем файл из списка файлов записи (и соответственно, из дерева)
         List<TetroidFile> files = record.getAttachedFiles();
         if (files != null) {
             if (!files.remove(file)) {

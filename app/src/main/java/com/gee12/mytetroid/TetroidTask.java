@@ -12,7 +12,7 @@ import android.view.WindowManager;
  */
 public abstract class TetroidTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
-    private Activity mActivity;
+    protected Activity mActivity;
 
     public TetroidTask(Activity activity) {
         this.mActivity = activity;

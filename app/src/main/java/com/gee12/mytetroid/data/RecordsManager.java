@@ -250,14 +250,14 @@ public class RecordsManager extends DataManager {
         // добавляем прикрепленные файлы в запись
         cloneAttachesToRecord(srcRecord, record, isCutted);
         record.setIsNew(false);
-        // добавляем запись в ветку (и соответственно, в коллекцию)
+        // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(record);
         // добавляем в избранное обратно
         if (isCutted && record.isFavorite()) {
             FavoritesManager.add(record);
         }
-        // добавляем метки в запись и в коллекцию
-        instance.parseRecordTags(record, tagsString);
+        // добавляем метки в запись и в коллекцию меток
+        Instance.parseRecordTags(record, tagsString);
 
         TetroidRecord errorRes = (breakOnFSErrors) ? null : record;
         String srcDirPath = null;
@@ -308,7 +308,7 @@ public class RecordsManager extends DataManager {
         // зашифровываем или расшифровываем файл записи
 //        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
-        if (!instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
+        if (!Instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
             return errorRes;
         }
 
@@ -432,12 +432,12 @@ public class RecordsManager extends DataManager {
             return null;
         }
 
-        // добавляем запись в ветку (и соответственно, в коллекцию)
+        // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(record);
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            // добавляем метки в запись и в коллекцию
-            instance.parseRecordTags(record, tagsString);
+            // добавляем метки в запись и в коллекцию меток
+            Instance.parseRecordTags(record, tagsString);
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
@@ -485,16 +485,17 @@ public class RecordsManager extends DataManager {
      * @return
      */
     public static TetroidRecord createTempRecord() {
-
+//        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
         String dirName = createUniqueId();
 
-        TetroidRecord record = new TetroidRecord(false, id, "Новая запись", null, null, null,
+        TetroidRecord record = new TetroidRecord(false, id,
+                context.getString(R.string.title_new_record), null, null, null,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, null);
         record.setIsNew(true);
-        // создаем каталог записи
-        String dirPath = getPathToRecordFolder(record);
+        // создаем каталог записи в корзине
+        String dirPath = getPathToRecordFolderInTrash(record);
         if (checkRecordFolder(dirPath, true) <= 0) {
             return null;
         }
@@ -519,18 +520,31 @@ public class RecordsManager extends DataManager {
 
     /**
      * Сохранение временной записи в дереве.
+     * Хранилище уже должно быть загружено.
      * @param record
      * @param node
      */
     public static void saveTempRecord(TetroidRecord record, TetroidNode node) {
+        if (record == null || node == null) {
+            LogManager.emptyParams("DataManager.saveTempRecord()");
+            return;
+        }
+        if (Instance == null || !Instance.mIsStorageLoaded) {
+            LogManager.log("Хранилище должно быть уже загружено");
+            return;
+        }
+        // добавляем запись в ветку (и соответственно, в дерево)
+        node.addRecord(record);
         TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
-        // добавляем запись в ветку (и соответственно, в коллекцию)
-        node.addRecord(record);
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            // добавляем метки в запись и в коллекцию
-            instance.parseRecordTags(record, record.getTagsString());
+            // добавляем метки в запись и в коллекцию меток
+            Instance.parseRecordTags(record, record.getTagsString());
+
+            // TODO: перенос каталога записи из корзины
+            // ...
+
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
@@ -543,13 +557,17 @@ public class RecordsManager extends DataManager {
      * @param record
      */
     public static void deleteTempRecord(TetroidRecord record) {
-
+        if (record == null) {
+            LogManager.emptyParams("DataManager.deleteTempRecord()");
+            return;
+        }
+//        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
         TetroidNode node = record.getNode();
         if (node != null) {
             node.getRecords().remove(record);
         }
 
-        String dirPath = getPathToRecordFolder(record);
+        String dirPath = getPathToRecordFolderInTrash(record);
         File dir = new File(dirPath);
         String filePath = dirPath + SEPAR + record.getFileName();
         File file = new File(filePath);
@@ -595,9 +613,9 @@ public class RecordsManager extends DataManager {
             if (oldTagsString == null && tagsString != null
                     || oldTagsString != null && !oldTagsString.equals(tagsString)) {
                 // удаляем старые метки
-                instance.deleteRecordTags(record);
+                Instance.deleteRecordTags(record);
                 // добавляем новые метки
-                instance.parseRecordTags(record, tagsString);
+                Instance.parseRecordTags(record, tagsString);
             }
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
@@ -725,7 +743,7 @@ public class RecordsManager extends DataManager {
             }
         }
 
-        // добавляем запись в ветку (и соответственно, в коллекцию)
+        // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(record);
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
@@ -733,15 +751,15 @@ public class RecordsManager extends DataManager {
             if (isCutted && srcRecord.isFavorite()) {
                 FavoritesManager.add(record);
             }
-            // добавляем метки в запись и в коллекцию
-            instance.parseRecordTags(record, tagsString);
+            // добавляем метки в запись и в коллекцию меток
+            Instance.parseRecordTags(record, tagsString);
 
             if (!withoutDir) {
                 // зашифровываем или расшифровываем файл записи и прикрепленные файлы
                 // FIXME: обрабатывать результат ?
 //                File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //                cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted);
-                instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted);
+                Instance.cryptRecordFiles(record, srcRecord.isCrypted(), crypted);
             }
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
@@ -797,7 +815,7 @@ public class RecordsManager extends DataManager {
             }
         }
 
-        // удаляем запись из ветки (и соответственно, из коллекции)
+        // удаляем запись из ветки (и соответственно, из дерева)
         TetroidNode node = record.getNode();
         if (node != null) {
             if (!node.getRecords().remove(record)) {
@@ -816,7 +834,7 @@ public class RecordsManager extends DataManager {
                 FavoritesManager.remove(record, false);
             }
             // перезагружаем список меток
-            instance.deleteRecordTags(record);
+            Instance.deleteRecordTags(record);
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
             return 0;
@@ -952,7 +970,7 @@ public class RecordsManager extends DataManager {
         TetroidRecordComparator comparator = new TetroidRecordComparator(TetroidRecord.FIELD_ID);
         return (App.IsLoadedFavoritesOnly)
                 ? findRecord(FavoritesManager.getFavoritesRecords(), id, comparator)
-                : findRecordInHierarchy(instance.mRootNodesList, id, comparator);
+                : findRecordInHierarchy(Instance.mRootNodesList, id, comparator);
     }
 
     public static TetroidRecord findRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {

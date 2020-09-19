@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
@@ -209,6 +210,79 @@ public class SettingsManager {
 
     public static void setTrashPath(String value) {
         setString(R.string.pref_key_temp_path, value);
+    }
+
+    /**
+     * Ветка для быстрой вставки записей. Используется при создании записи:
+     *  1) из внешнего Intent
+     *  2) из виджета
+     *  3) из Избранного
+     * @return
+     */
+    public static String getQuicklyNodeId() {
+        return getString(R.string.pref_key_quickly_node_id, null);
+    }
+    public static String getQuicklyNodeName() {
+        return getString(R.string.pref_key_quickly_node_name, null);
+    }
+
+    public static void setQuicklyNode(TetroidNode node) {
+        setString(R.string.pref_key_quickly_node_id, (node != null) ? node.getId() : null);
+        setString(R.string.pref_key_quickly_node_name, (node != null) ? node.getName() : null);
+    }
+
+    /**
+     * Загружать при старте только избранные записи ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isLoadFavoritesOnly() {
+        return getBoolean(R.string.pref_key_is_load_favorites, false);
+    }
+
+    public static void setIsLoadFavoritesOnly(boolean value) {
+        setBoolean(R.string.pref_key_is_load_favorites, value);
+    }
+
+    /**
+     * Получить список Id избранных записей.
+     * @return
+     */
+    public static List<String> getFavorites() {
+//        String value = getString(R.string.pref_key_favorites, "");
+//        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
+        List<String> res = new ArrayList<>();
+        Set<String> set = getStringSet(R.string.pref_key_favorites, null);
+        if (set != null)
+            res.addAll(set);
+        return res;
+    }
+
+    public static void setFavorites(List<String> ids) {
+//        setStringSet(new HashSet<>(Arrays.asList(ids)));
+//        String value = TextUtils.join(";", ids);
+        setStringSet(R.string.pref_key_favorites, new HashSet<>(ids));
+    }
+
+    /**
+     * Устанавливать текущей выбранную при предыдущем запуске ветку ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isKeepLastNode() {
+        return getBoolean(R.string.pref_key_is_keep_selected_node, true);
+    }
+
+    /**
+     * Id ветки, выбранной последний раз.
+     * @return
+     */
+    public static String getLastNodeId() {
+        return getString(R.string.pref_key_selected_node_id, null);
+    }
+
+    public static void setLastNodeId(String value) {
+        setString(R.string.pref_key_selected_node_id, value);
     }
 
 //    /**
@@ -491,56 +565,6 @@ public class SettingsManager {
     /*
     * Остальное.
      */
-
-    /**
-     * Загружать при старте только избранные записи ?
-     * По-умолчанию - нет.
-     * @return
-     */
-    public static boolean isLoadFavoritesOnly() {
-        return getBoolean(R.string.pref_key_is_load_favorites, false);
-    }
-
-    public static void setIsLoadFavoritesOnly(boolean value) {
-        setBoolean(R.string.pref_key_is_load_favorites, value);
-    }
-
-    public static List<String> getFavorites() {
-//        String value = getString(R.string.pref_key_favorites, "");
-//        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
-        List<String> res = new ArrayList<>();
-        Set<String> set = getStringSet(R.string.pref_key_favorites, null);
-        if (set != null)
-            res.addAll(set);
-        return res;
-    }
-
-    public static void setFavorites(List<String> ids) {
-//        setStringSet(new HashSet<>(Arrays.asList(ids)));
-//        String value = TextUtils.join(";", ids);
-        setStringSet(R.string.pref_key_favorites, new HashSet<>(ids));
-    }
-
-    /**
-     * Устанавливать текущей выбранную при предыдущем запуске ветку ?
-     * По-умолчанию - да.
-     * @return
-     */
-    public static boolean isKeepLastNode() {
-        return getBoolean(R.string.pref_key_is_keep_selected_node, true);
-    }
-
-    /**
-     * Id ветки, выбранной последний раз.
-     * @return
-     */
-    public static String getLastNodeId() {
-        return getString(R.string.pref_key_selected_node_id, null);
-    }
-
-    public static void setLastNodeId(String value) {
-        setString(R.string.pref_key_selected_node_id, value);
-    }
 
     /**
      * Писать логи в файл.

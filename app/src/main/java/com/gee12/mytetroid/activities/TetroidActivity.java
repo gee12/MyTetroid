@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -13,6 +14,7 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 
@@ -22,6 +24,7 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
     protected Toolbar mToolbar;
     protected TextView tvTitle;
     protected TextView tvSubtitle;
+    protected TetroidTask2 mCurTask;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -119,4 +122,20 @@ public abstract class TetroidActivity extends AppCompatActivity implements View.
         return super.onOptionsItemSelected(item);
     }
 
+    public void blockInterface() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public void unblockInterface() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public void taskStarted(TetroidTask2 task) {
+        this.mCurTask = task;
+    }
+
+    public boolean isCurTaskRunning() {
+        return (mCurTask != null && mCurTask.isRunning());
+    }
 }

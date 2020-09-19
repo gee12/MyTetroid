@@ -247,6 +247,8 @@
     <string name="pref_key_fix_empty_paragraphs" translatable="false">pref_key_fix_empty_paragraphs</string>
     <string name="pref_fix_empty_paragraphs">Fix html on save</string>
     <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct display in MyTetra</string>
+    <string name="pref_key_quickly_node_id" translatable="false">pref_key_quickly_node_id</string>
+    <string name="pref_key_quickly_node_name" translatable="false">pref_key_quickly_node_name</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -550,4 +552,6 @@
     <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
+    <string name="pref_quickly_node">Node for quick insertion</string>
+    <string name="pref_quickly_node_summ">A node for posts submitted from a third-party app, created in favorites or using a widget (Pro)</string>
 </resources>
