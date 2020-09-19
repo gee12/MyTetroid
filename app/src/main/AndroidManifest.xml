@@ -15,21 +15,28 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-<!--        android:hardwareAccelerated="true"-->
 
+        <receiver android:name=".widgets.AddRecordWidget"
+            android:label="@string/title_new_record">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_add_record_info" />
+        </receiver>
+
+        <!-- android:hardwareAccelerated="true" -->
         <service
             android:name=".FileObserverService"
             android:enabled="true"
-            android:exported="true" >
-        </service>
-
-        <!-- для dirchooser -->
+            android:exported="true"></service> <!-- для dirchooser -->
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
-
-<!--        For Android Q (10):-->
-<!--        android:requestLegacyExternalStorage="true"-->
+        <!-- For Android Q (10): -->
+        <!-- android:requestLegacyExternalStorage="true" -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -38,13 +45,12 @@
             tools:replace="android:authorities">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
-
         <provider
             android:name=".TetroidSuggestionProvider"
             android:authorities="${applicationId}.TetroidSuggestionProvider"
-            tools:replace="android:authorities"/>
+            tools:replace="android:authorities" />
 
         <activity
             android:name=".activities.MainActivity"
@@ -52,23 +58,25 @@
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.SEARCH" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter android:label="@string/title_intent_send">
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
                 <data android:mimeType="text/*" />
             </intent-filter>
-
             <intent-filter android:label="@string/title_intent_send">
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
             </intent-filter>
 
@@ -76,8 +84,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_records" />
         </activity>
-
-<!--
+        <!--
         <activity-alias
             android:name=".activities.MainActivityAlias"
             android:targetActivity=".activities.MainActivity">
@@ -95,15 +102,13 @@
             </intent-filter>
 
         </activity-alias>
--->
-
+        -->
         <activity
             android:name=".activities.RecordActivity"
-            android:parentActivityName=".activities.MainActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
+            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
-
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -111,49 +116,46 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_text" />
-
         </activity>
-
         <activity
             android:name=".activities.SettingsActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_settings"
             android:parentActivityName=".activities.MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".activities.SearchActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_global_search"
             android:parentActivityName=".activities.MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.InfoActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_info"
             android:parentActivityName=".activities.MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.LogsActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_log_file_content"
             android:parentActivityName=".activities.SettingsActivity"
-            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name="com.gee12.mytetroid.activities.LogsActivity"/>
+                <action android:name="com.gee12.mytetroid.activities.LogsActivity" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.AboutActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_about_app"
             android:parentActivityName=".activities.MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

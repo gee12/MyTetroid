@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/widget_margin">
+
+    <ImageButton
+        android:id="@+id/button_add_record"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_centerHorizontal="true"
+        android:src="@android:drawable/ic_input_add"
+        android:background="@drawable/ic_mytetroid"
+        android:scaleType="center"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/button_add_record"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:paddingTop="5dp"
+        android:shadowColor="#555"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="1"
+        android:text="@string/title_add_record"
+        android:textAlignment="center"
+        android:textColor="#EEE"
+        android:textSize="12sp" />
+
+</RelativeLayout>

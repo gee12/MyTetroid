@@ -87,6 +87,7 @@ public class RecordActivity extends TetroidActivity implements
         IColorPicker,
         ColorPickerDialogListener {
 
+    public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final int REQUEST_CODE_CAMERA = 2;
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
@@ -155,6 +156,7 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
         if (action.equals(Intent.ACTION_MAIN)) {
+            // открытие или создание записи из главной активности
             // получаем переданную запись
             String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
             if (recordId != null) {
@@ -171,6 +173,16 @@ public class RecordActivity extends TetroidActivity implements
                 LogManager.log(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
                 finish();
                 return;
+            }
+        } else if (action.equals(ACTION_ADD_RECORD)) {
+            // создание записи из виджета
+            this.mRecord = RecordsManager.createTempRecord();
+            if (mRecord == null) {
+                TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
+                finish();
+                return;
+            } else {
+                setTitle(mRecord.getName());
             }
         } else {
             finish();

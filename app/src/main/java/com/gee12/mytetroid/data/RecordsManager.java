@@ -481,6 +481,86 @@ public class RecordsManager extends DataManager {
     }
 
     /**
+     * Создание временной записи (без сохранения в дерево) при использовании виджета.
+     * @return
+     */
+    public static TetroidRecord createTempRecord() {
+
+        // генерируем уникальные идентификаторы
+        String id = createUniqueId();
+        String dirName = createUniqueId();
+
+        TetroidRecord record = new TetroidRecord(false, id, "Новая запись", null, null, null,
+                new Date(), dirName, TetroidRecord.DEF_FILE_NAME, null);
+        record.setIsNew(true);
+        // создаем каталог записи
+        String dirPath = getPathToRecordFolder(record);
+        if (checkRecordFolder(dirPath, true) <= 0) {
+            return null;
+        }
+        // создаем файл записи (пустой)
+        String filePath = dirPath + SEPAR + record.getFileName();
+        Uri fileUri;
+        try {
+            fileUri = Uri.parse(filePath);
+        } catch (Exception ex) {
+            LogManager.log(context.getString(R.string.log_error_generate_record_file_path) + filePath, ex);
+            return null;
+        }
+        File file = new File(fileUri.getPath());
+        try {
+            file.createNewFile();
+        } catch (IOException ex) {
+            LogManager.log(context.getString(R.string.log_error_creating_record_file) + filePath, ex);
+            return null;
+        }
+        return record;
+    }
+
+    /**
+     * Сохранение временной записи в дереве.
+     * @param record
+     * @param node
+     */
+    public static void saveTempRecord(TetroidRecord record, TetroidNode node) {
+        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+
+        // добавляем запись в ветку (и соответственно, в коллекцию)
+        node.addRecord(record);
+        // перезаписываем структуру хранилища в файл
+        if (saveStorage()) {
+            // добавляем метки в запись и в коллекцию
+            instance.parseRecordTags(record, record.getTagsString());
+        } else {
+            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            // удаляем запись из ветки
+            node.getRecords().remove(record);
+        }
+    }
+
+    /**
+     * Удаление временной записи из дерева.
+     * @param record
+     */
+    public static void deleteTempRecord(TetroidRecord record) {
+
+        TetroidNode node = record.getNode();
+        if (node != null) {
+            node.getRecords().remove(record);
+        }
+
+        String dirPath = getPathToRecordFolder(record);
+        File dir = new File(dirPath);
+        String filePath = dirPath + SEPAR + record.getFileName();
+        File file = new File(filePath);
+
+        // удаляем файл записи
+        file.delete();
+        // удаляем каталог записи (пустой)
+        dir.delete();
+    }
+
+    /**
      * Изменение свойств записи.
      * @param record
      * @param name

@@ -410,9 +410,9 @@
     <string name="log_error_generate_record_folder_path">Error generating the path to the record folder:&#160;</string>
     <string name="log_error_generate_file_path">Error generating the path to the attached file:&#160;</string>
     <string name="log_error_add_record">Error add record to mytetra.xml</string>
-<!--    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>-->
-<!--    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>-->
-<!--    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>-->
+    <!--    <string name="log_error_create_record_folder">Error creating the record folder:&#160;</string>-->
+    <!--    <string name="log_error_del_record_dir">Error deleting the record folder:&#160;</string>-->
+    <!--    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>-->
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%1$s] to [%2$s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
@@ -440,7 +440,7 @@
     <string name="log_oper_start_mask">Start %1$s %2$s</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
-<!--    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>-->
+    <!--    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>-->
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %1$s %2$s, as failed to save mytetra.xml</string>
@@ -458,15 +458,15 @@
     <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
     <string name="log_file_is_absent">File is absent:</string>
     <string name="log_file_checking_error">Error checking file existence:</string>
-<!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
-<!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
+    <!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
+    <!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
     <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
     <string name="log_file_was_attached">File was attached</string>
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
-<!--    <string name="log_rename_file_mask">File renaming to [%s]</string>-->
-<!--    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>-->
+    <!--    <string name="log_rename_file_mask">File renaming to [%s]</string>-->
+    <!--    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>-->
     <string name="log_record_file_is_missing">No recording file will be created when saving</string>
     <string name="log_start_record_file_reading">Start reading a file of record id=</string>
     <string name="log_start_record_file_saving">Start saving a file of record id=</string>
@@ -501,8 +501,8 @@
     <string name="log_error_file_decrypt">Error decrypting file</string>
     <string name="log_error_file_encrypt">Error encrypting file</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
-<!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
-<!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
+    <!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
+    <!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
     <string name="log_start_pass_setup">Start setup the storage password</string>
     <string name="log_pass_setted">Storage password was setup</string>
     <string name="log_pass_set_error">Failed to set storage password</string>
@@ -548,4 +548,6 @@
     <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
     <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a blank area of the screen</string>
     <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
+    <string name="title_new_record">New record</string>
+    <string name="title_add_record">Add record</string>
 </resources>
