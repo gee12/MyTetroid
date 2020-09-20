@@ -486,5 +486,6 @@
     <string name="title_add_record">Добавить запись</string>
     <string name="pref_quickly_node">Ветка для быстрой вставки</string>
     <string name="pref_quickly_node_summ">Ветка для записей, отправленных из стороннего приложения, созданных в избранном или с помощью виджета (Pro)</string>
+    <string name="log_create_temp_record">Создание временной записи</string>
 
 </resources>

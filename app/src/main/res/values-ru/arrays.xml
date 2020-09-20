@@ -54,6 +54,11 @@
         <item>Запись&#160;</item>
         <item>записи</item>
     </string-array>
+    <string-array name="obj_temp_record">
+        <item>временная запись</item>
+        <item>Временная запись&#160;</item>
+        <item>временной записи</item>
+    </string-array>
     <string-array name="obj_record_fields">
         <item>свойства записи</item>
         <item>Свойста записи&#160;</item>

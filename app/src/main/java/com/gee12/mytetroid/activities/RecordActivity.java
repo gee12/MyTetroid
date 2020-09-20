@@ -176,7 +176,7 @@ public class RecordActivity extends TetroidActivity implements
             }
         } else if (action.equals(ACTION_ADD_RECORD)) {
             // создание записи из виджета
-            this.mRecord = RecordsManager.createTempRecord();
+            this.mRecord = RecordsManager.createTempRecord(null, null, null);
             if (mRecord == null) {
                 TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
                 finish();

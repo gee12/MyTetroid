@@ -554,4 +554,5 @@
     <string name="title_add_record">Add record</string>
     <string name="pref_quickly_node">Node for quick insertion</string>
     <string name="pref_quickly_node_summ">A node for posts submitted from a third-party app, created in favorites or using a widget (Pro)</string>
+    <string name="log_create_temp_record">Создание временной записи</string>
 </resources>

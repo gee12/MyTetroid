@@ -457,7 +457,7 @@ public class RecordsManager extends DataManager {
      * @param url
      * @return
      */
-    public static TetroidRecord createRecord(String name, String url, String text, TetroidNode node) {
+    /*public static TetroidRecord createRecord(String name, String url, String text, TetroidNode node) {
         TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
 
         if (TextUtils.isEmpty(name)) {
@@ -478,20 +478,25 @@ public class RecordsManager extends DataManager {
         }
 
         return record;
-    }
+    }*/
 
     /**
      * Создание временной записи (без сохранения в дерево) при использовании виджета.
      * @return
      */
-    public static TetroidRecord createTempRecord() {
-//        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+    public static TetroidRecord createTempRecord(String name, String url, String text) {
+        TetroidLog.logOperStart(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.CREATE);
         // генерируем уникальные идентификаторы
         String id = createUniqueId();
         String dirName = createUniqueId();
 
+        if (TextUtils.isEmpty(name)) {
+            name = String.format("%s - %s", context.getString(R.string.title_new_record), 
+                    Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss"));
+        }
+
         TetroidRecord record = new TetroidRecord(false, id,
-                context.getString(R.string.title_new_record), null, null, null,
+                name, null, null, url,
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, null);
         record.setIsNew(true);
         // создаем каталог записи в корзине
@@ -515,6 +520,16 @@ public class RecordsManager extends DataManager {
             LogManager.log(context.getString(R.string.log_error_creating_record_file) + filePath, ex);
             return null;
         }
+        // текст записи
+        if (!TextUtils.isEmpty(text)) {
+            if (saveRecordHtmlText(record, text)) {
+                record.setIsNew(false);
+            } else {
+                TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
+                return null;
+            }
+        }
+
         return record;
     }
 
@@ -535,7 +550,7 @@ public class RecordsManager extends DataManager {
         }
         // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(record);
-        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+        TetroidLog.logOperStart(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
@@ -546,7 +561,7 @@ public class RecordsManager extends DataManager {
             // ...
 
         } else {
-            TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
+            TetroidLog.logOperCancel(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
             // удаляем запись из ветки
             node.getRecords().remove(record);
         }
@@ -561,7 +576,7 @@ public class RecordsManager extends DataManager {
             LogManager.emptyParams("DataManager.deleteTempRecord()");
             return;
         }
-//        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.DELETE);
+        TetroidLog.logOperStart(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.DELETE);
         TetroidNode node = record.getNode();
         if (node != null) {
             node.getRecords().remove(record);

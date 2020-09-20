@@ -22,6 +22,7 @@ public class TetroidLog extends LogManager {
         NODE(R.array.obj_node),
         NODE_FIELDS(R.array.obj_node_fields),
         RECORD(R.array.obj_record),
+        TEMP_RECORD(R.array.obj_temp_record),
         RECORD_FIELDS(R.array.obj_record_fields),
         RECORD_DIR(R.array.obj_record_dir),
         FILE(R.array.obj_file),

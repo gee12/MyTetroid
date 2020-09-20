@@ -386,6 +386,29 @@ public class NodesManager extends DataManager {
         return res;
     }
 
+    public static TetroidNode getQuicklyNode() {
+        return (Instance != null) ? Instance.mQuicklyNode : null;
+    }
+
+    public static void setQuicklyNode(TetroidNode node) {
+        if (Instance != null) {
+            Instance.mQuicklyNode = node;
+        }
+    }
+
+    /**
+     * Актуализация ветки для быстрой вставки в дереве.
+     */
+    public static void updateQuicklyNode() {
+        String nodeId = SettingsManager.getQuicklyNodeId();
+        if (nodeId != null && Instance != null && Instance.mIsStorageLoaded) {
+            TetroidNode node = getNode(nodeId);
+            // обновление значений или обнуление (если не найдено)
+            SettingsManager.setQuicklyNode(node);
+            Instance.mQuicklyNode = node;
+        }
+    }
+
     /**
      * Получение какой-нибудь ветки, в которую нужно добавить новую запись "извне".
      * @return

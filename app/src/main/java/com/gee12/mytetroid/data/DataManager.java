@@ -204,7 +204,8 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 //            }
             // удаление не найденных записей из избранного
             FavoritesManager.check();
-
+            // загрузка ветки для быстрой вставки
+            NodesManager.updateQuicklyNode();
         } catch (Exception ex) {
             LogManager.log(ex);
         }
@@ -865,29 +866,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             return null;
         }
         return date;
-    }
-
-    public static TetroidNode getQuicklyNode() {
-        return (Instance != null) ? Instance.mQuicklyNode : null;
-    }
-
-    public static void setQuicklyNode(TetroidNode node) {
-        if (Instance != null) {
-            Instance.mQuicklyNode = node;
-        }
-    }
-
-    /**
-     * Актуализация ветки для быстрой вставки в дереве.
-     */
-    public static void updateQuicklyNode() {
-        String nodeId = SettingsManager.getQuicklyNodeId();
-        if (nodeId != null && Instance != null && Instance.mIsStorageLoaded) {
-            TetroidNode node = NodesManager.getNode(nodeId);
-            // обновление значений или обнуление (если не найдено)
-            SettingsManager.setQuicklyNode(node);
-            Instance.mQuicklyNode = node;
-        }
     }
 
     /*

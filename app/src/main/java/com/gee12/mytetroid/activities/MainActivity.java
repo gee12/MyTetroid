@@ -2099,6 +2099,9 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
             ArrayList<Uri> uris = null;
             if (type.startsWith("text/")) {
                 // текст
+
+                // TODO: прием текста перенести в RecordActivity
+
                 isText = true;
                 text = intent.getStringExtra(Intent.EXTRA_TEXT);
                 if (text == null) {
@@ -2164,8 +2167,9 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
 
         IntentDialog.createDialog(this, isText, (receivedData) -> {
             if (receivedData.isCreate()) {
-                // получаем какую-нибудь ветку
-                final TetroidNode node = NodesManager.getDefaultNode();
+                /*// получаем какую-нибудь ветку
+//                final TetroidNode node = NodesManager.getDefaultNode();
+                final TetroidNode node = NodesManager.getQuicklyNode();
                 if (node != null) {
                     if (node.isCrypted()) {
                         // если ветка зашифрована
@@ -2189,8 +2193,11 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
                     }
                 } else {
                     LogManager.log(R.string.log_no_nodes_in_storage, LogManager.Types.ERROR);
-                }
-            } else {
+                }*/
+
+            createRecordFromIntent(intent, isText, text, imagesUri, receivedData);
+
+        } else {
                 // TODO: реализовать выбор имеющихся записей
             }
         });
@@ -2198,7 +2205,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
     }
 
     private void createRecordFromIntent(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri,
-                                        ReceivedData receivedData, TetroidNode node) {
+                                        ReceivedData receivedData/*, TetroidNode node*/) {
         // имя записи
         String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
         String url = null;
@@ -2206,14 +2213,15 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
             url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
         }
         // создаем запись
-        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
+//        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
+        TetroidRecord record = RecordsManager.createTempRecord(subject, url, text);
         if (record == null) {
             return;
         }
-        // открываем ветку, в которую добавили запись
+        /*// открываем ветку, в которую добавили запись
         showNode(record.getNode());
         // обновляем список записей, меток, и количества записей ветки
-        mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !receivedData.isAttach());
+        mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !receivedData.isAttach());*/
         // загружаем изображения в каталоги записи
         if (!isText) {
             if (!receivedData.isAttach()) {

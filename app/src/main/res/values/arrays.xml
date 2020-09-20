@@ -58,6 +58,11 @@
         <item>Record was&#160;</item>
         <item>record</item>
     </string-array>
+    <string-array name="obj_temp_record">
+        <item>temp record</item>
+        <item>Temp record was&#160;</item>
+        <item>temp record</item>
+    </string-array>
     <string-array name="obj_record_fields">
         <item>record fields</item>
         <item>Record fields was&#160;</item>

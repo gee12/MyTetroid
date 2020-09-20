@@ -23,6 +23,7 @@ import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.activities.SettingsActivity;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.ITaskProgress;
+import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.PINManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -96,12 +97,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(getString(R.string.pref_key_quickly_node_id))
                 .setOnPreferenceClickListener(preference -> {
 
-                    SettingsManager.setQuicklyNode(node);
-                    DataManager.setQuicklyNode(node);
+                    // TODO:
+                    /*SettingsManager.setQuicklyNode(node);
+                    DataManager.setQuicklyNode(node);*/
                     updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
                     return true;
                 });
-        DataManager.updateQuicklyNode();
+        NodesManager.updateQuicklyNode();
 
         findPreference(getString(R.string.pref_key_clear_search_history))
                 .setOnPreferenceClickListener(pref -> {
