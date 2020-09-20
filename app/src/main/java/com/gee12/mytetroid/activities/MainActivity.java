@@ -64,7 +64,7 @@ import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.dialogs.AskDialogs;
-import com.gee12.mytetroid.dialogs.NodeAskDialogs;
+import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.fragments.SettingsFragment;
 import com.gee12.mytetroid.model.FoundType;
@@ -1423,7 +1423,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
      * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
-        NodeAskDialogs.createNodeDialog(this, null, (name) -> {
+        NodeDialogs.createNodeDialog(this, null, (name) -> {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
             TetroidNode node = NodesManager.createNode(name, trueParentNode);
             if (node != null) {
@@ -1470,7 +1470,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
      * @param node
      */
     private void renameNode(TetroidNode node) {
-        NodeAskDialogs.createNodeDialog(this, node, (name) -> {
+        NodeDialogs.createNodeDialog(this, node, (name) -> {
             if (NodesManager.editNodeFields(node, name)) {
                 TetroidLog.logOperRes(TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
 //                mListAdapterNodes.notifyDataSetChanged();
@@ -1498,7 +1498,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
             return;
         }
 
-        NodeAskDialogs.deleteNode(this, () -> {
+        NodeDialogs.deleteNode(this, () -> {
             boolean res = NodesManager.deleteNode(node);
             onDeleteNodeResult(node, res, pos, false);
         });
@@ -1762,7 +1762,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
                     insertNode(node, pos, true);
                     return true;
                 case R.id.action_info:
-                    NodeAskDialogs.createNodeInfoDialog(this, node);
+                    NodeDialogs.createNodeInfoDialog(this, node);
                     return true;
                 case R.id.action_delete:
                     deleteNode(node, pos);
@@ -1928,7 +1928,7 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
 
         // обновляем списки, если редактировали свойства записи
         if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
-            mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated();
+            mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated(null, false);
         }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:

@@ -386,7 +386,8 @@ public class RecordsManager extends DataManager {
      * @param node
      * @return
      */
-    public static TetroidRecord createRecord(String name, String tagsString, String author, String url, TetroidNode node) {
+    public static TetroidRecord createRecord(String name, String tagsString, String author, String url,
+                                             TetroidNode node, boolean isFavor) {
         if (node == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.createRecord()");
             return null;
@@ -404,6 +405,7 @@ public class RecordsManager extends DataManager {
                 encryptField(crypted, author),
                 encryptField(crypted, url),
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
+        record.setIsFavorite(isFavor);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
             record.setDecrypted(true);
@@ -595,6 +597,9 @@ public class RecordsManager extends DataManager {
 
     /**
      * Изменение свойств записи.
+     *
+     * TODO: добавить изменение ветки node
+     *
      * @param record
      * @param name
      * @param tagsString
@@ -602,7 +607,8 @@ public class RecordsManager extends DataManager {
      * @param url
      * @return
      */
-    public static boolean editRecordFields(TetroidRecord record, String name, String tagsString, String author, String url) {
+    public static boolean editRecordFields(TetroidRecord record, String name, String tagsString,
+                                           String author, String url, TetroidNode node, boolean isFavor) {
         if (record == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
@@ -619,6 +625,7 @@ public class RecordsManager extends DataManager {
         record.setTagsString(encryptField(crypted, tagsString));
         record.setAuthor(encryptField(crypted, author));
         record.setUrl(encryptField(crypted, url));
+        record.setIsFavorite(isFavor);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
         }

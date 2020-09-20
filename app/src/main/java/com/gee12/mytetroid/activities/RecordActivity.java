@@ -45,7 +45,7 @@ import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
-import com.gee12.mytetroid.dialogs.RecordAskDialogs;
+import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.fragments.SettingsFragment;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
@@ -789,7 +789,7 @@ public class RecordActivity extends TetroidActivity implements
                 saveRecord();
             } else if (showAskDialog) {
                 // спрашиваем о сохранении, если нужно
-                RecordAskDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
+                RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         saveRecord();
@@ -985,7 +985,7 @@ public class RecordActivity extends TetroidActivity implements
      * Удаление записи.
      */
     public void deleteRecord() {
-        RecordAskDialogs.deleteRecord(this, () -> {
+        RecordDialogs.deleteRecord(this, () -> {
             Bundle bundle = new Bundle();
             bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
             finishWithResult(RESULT_DELETE_RECORD, bundle);
@@ -993,8 +993,8 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void editFields() {
-        RecordAskDialogs.createRecordFieldsDialog(this, mRecord, (name, tags, author, url) -> {
-            if (RecordsManager.editRecordFields(mRecord, name, tags, author, url)) {
+        RecordDialogs.createRecordFieldsDialog(this, mRecord, (name, tags, author, url, node, isFavor) -> {
+            if (RecordsManager.editRecordFields(mRecord, name, tags, author, url, node, isFavor)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
@@ -1328,7 +1328,7 @@ public class RecordActivity extends TetroidActivity implements
                 deleteRecord();
                 return true;
             case R.id.action_info:
-                RecordAskDialogs.createRecordInfoDialog(this, mRecord);
+                RecordDialogs.createRecordInfoDialog(this, mRecord);
                 return true;
             case R.id.action_fullscreen:
                 toggleFullscreen(false);

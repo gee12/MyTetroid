@@ -17,7 +17,7 @@ import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Random;
 
-public class FileAskDialogs {
+public class FileDialogs {
 
     public interface IFileFieldsResult {
         void onApply(String name);

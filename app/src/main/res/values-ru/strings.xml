@@ -125,7 +125,7 @@
     <string name="word_received_image">изображения</string>
     <string name="word_received_images">изображений</string>
 
-    <string name="pref_category_main">Основное</string>
+    <string name="pref_category_storage">Хранилище</string>
     <string name="pref_category_other">Остальное</string>
     <string name="pref_storage_path">Путь к хранилищу</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
@@ -485,7 +485,8 @@
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
     <string name="pref_quickly_node">Ветка для быстрой вставки</string>
-    <string name="pref_quickly_node_summ">Ветка для записей, отправленных из стороннего приложения, созданных в избранном или с помощью виджета (Pro)</string>
-    <string name="log_create_temp_record">Создание временной записи</string>
+    <string name="pref_quickly_node_summ">Ветка для записей, отправленных из сторонних приложений, созданных в избранном или с помощью виджета (Pro)</string>
+    <string name="label_node">Ветка:</string>
+    <string name="label_favorite">В избранное</string>
 
 </resources>

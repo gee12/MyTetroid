@@ -80,7 +80,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     protected boolean mIsStorageDecrypted;
 
-    protected boolean mIsAlreadyTryDecrypt;
+//    protected boolean mIsAlreadyTryDecrypt;
 
     /**
      * Ветка для быстрой вставки.

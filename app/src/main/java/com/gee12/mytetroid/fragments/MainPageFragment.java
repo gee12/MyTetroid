@@ -31,8 +31,8 @@ import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
-import com.gee12.mytetroid.dialogs.FileAskDialogs;
-import com.gee12.mytetroid.dialogs.RecordAskDialogs;
+import com.gee12.mytetroid.dialogs.FileDialogs;
+import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -257,8 +257,8 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        RecordAskDialogs.createRecordFieldsDialog(getContext(), null, (name, tags, author, url) -> {
-            TetroidRecord record = RecordsManager.createRecord(name, tags, author, url, mCurNode);
+        RecordDialogs.createRecordFieldsDialog(getContext(), null, false, (name, tags, author, url, node, isFavor) -> {
+            TetroidRecord record = RecordsManager.createRecord(name, tags, author, url, mCurNode, isFavor);
             addNewRecord(record,true);
         });
     }
@@ -281,7 +281,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void deleteRecord(TetroidRecord record) {
-        RecordAskDialogs.deleteRecord(getContext(), () -> {
+        RecordDialogs.deleteRecord(getContext(), () -> {
             deleteRecordExactly(record);
         });
     }
@@ -289,7 +289,7 @@ public class MainPageFragment extends TetroidFragment {
     public void deleteRecordExactly(TetroidRecord record) {
         int res = RecordsManager.deleteRecord(record, false);
         if (res == -1) {
-            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
+            RecordDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
                 int res1 = RecordsManager.deleteRecord(record, true);
                 onDeleteRecordResult(record, res1, false);
             });
@@ -428,9 +428,10 @@ public class MainPageFragment extends TetroidFragment {
      * @param record
      */
     private void editRecordFields(TetroidRecord record) {
-        RecordAskDialogs.createRecordFieldsDialog(getContext(), record, (name, tags, author, url) -> {
-            if (RecordsManager.editRecordFields(record, name, tags, author, url)) {
-                onRecordFieldsUpdated();
+        TetroidNode oldNode = record.getNode();
+        RecordDialogs.createRecordFieldsDialog(getContext(), record, true, (name, tags, author, url, node, isFavor) -> {
+            if (RecordsManager.editRecordFields(record, name, tags, author, url, node, isFavor)) {
+                onRecordFieldsUpdated(record, oldNode != record.getNode());
 //                TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
                 LogManager.log(R.string.log_record_fields_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
@@ -442,8 +443,12 @@ public class MainPageFragment extends TetroidFragment {
     /**
      * Обновление списка записей и меток после изменения свойств записи.
      */
-    public void onRecordFieldsUpdated() {
-        mListAdapterRecords.notifyDataSetInvalidated();
+    public void onRecordFieldsUpdated(TetroidRecord record, boolean nodeChanged) {
+        if (nodeChanged) {
+            mMainView.openNode(record.getNode());
+        } else {
+            mListAdapterRecords.notifyDataSetInvalidated();
+        }
         mMainView.updateTags();
     }
 
@@ -467,7 +472,7 @@ public class MainPageFragment extends TetroidFragment {
         // удаляем запись из текущей ветки и каталог перемещаем в корзину
         int res = RecordsManager.cutRecord(record, false);
         if (res == -1) {
-            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.CUT, () -> {
+            RecordDialogs.operWithoutDir(getContext(), TetroidLog.Opers.CUT, () -> {
                 // вставляем без каталога записи
                 int res1 = RecordsManager.cutRecord(record, true);
                 onDeleteRecordResult(record, res1, true);
@@ -491,7 +496,7 @@ public class MainPageFragment extends TetroidFragment {
         boolean isCutted = clipboard.isCutted();
         int res = RecordsManager.insertRecord(record, isCutted, mCurNode, false);
         if (res == -1) {
-            RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
+            RecordDialogs.operWithoutDir(getContext(), TetroidLog.Opers.INSERT, () -> {
                 // вставляем без каталога записи
                 int res1 = RecordsManager.insertRecord(record, isCutted, mCurNode, true);
                 onInsertRecordResult(record, res1, isCutted);
@@ -539,15 +544,15 @@ public class MainPageFragment extends TetroidFragment {
      * @param file
      */
     private void deleteFile(TetroidFile file) {
-        FileAskDialogs.deleteFile(getContext(), () -> {
+        FileDialogs.deleteFile(getContext(), () -> {
             int res = AttachesManager.deleteAttachedFile(file, false);
             if (res == -2) {
-                FileAskDialogs.deleteAttachWithoutFile(getContext(), () -> {
+                FileDialogs.deleteAttachWithoutFile(getContext(), () -> {
                     int res1 = AttachesManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
             } else if (res == -1) {
-                RecordAskDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
+                RecordDialogs.operWithoutDir(getContext(), TetroidLog.Opers.DELETE, () -> {
                     int res1 = AttachesManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
@@ -582,11 +587,11 @@ public class MainPageFragment extends TetroidFragment {
      * @param file
      */
     private void renameFile(TetroidFile file) {
-        FileAskDialogs.createFileDialog(getContext(), file, (name) -> {
+        FileDialogs.createFileDialog(getContext(), file, (name) -> {
             int res = AttachesManager.editAttachedFileFields(file, name);
             if (res == -2) {
                 // если файл отсутствует на диске, предлагаем его удалить из хранилища
-                FileAskDialogs.renameAttachWithoutFile(getContext(), () -> {
+                FileDialogs.renameAttachWithoutFile(getContext(), () -> {
                     int res1 = AttachesManager.deleteAttachedFile(file, true);
                     onDeleteFileResult(file, res1);
                 });
@@ -595,7 +600,7 @@ public class MainPageFragment extends TetroidFragment {
 
                 // TODO: добавить вариант Создать каталог записи
 
-                FileAskDialogs.renameAttachWithoutDir(getContext(), () -> {
+                FileDialogs.renameAttachWithoutDir(getContext(), () -> {
                     int res1 = RecordsManager.deleteRecord(file.getRecord(), true);
                     onDeleteRecordResult(file.getRecord(), res1, false);
                 });
@@ -871,7 +876,7 @@ public class MainPageFragment extends TetroidFragment {
                 removeFavorite(record);
                 return true;
             case R.id.action_info:
-                RecordAskDialogs.createRecordInfoDialog(getContext(), record);
+                RecordDialogs.createRecordInfoDialog(getContext(), record);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);

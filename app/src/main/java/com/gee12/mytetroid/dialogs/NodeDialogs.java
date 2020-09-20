@@ -19,7 +19,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 
 import java.util.Random;
 
-public class NodeAskDialogs {
+public class NodeDialogs {
 
     public interface INodeFieldsResult {
         void onApply(String name);

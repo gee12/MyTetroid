@@ -45,4 +45,48 @@
         android:inputType="text"
         style="@style/dialog_text_edit"/>
 
+    <LinearLayout
+        android:id="@+id/layout_node"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <TextView
+            android:text="@string/label_node"
+            style="@style/dialog_labels"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/edit_text_node"
+                android:layout_toLeftOf="@id/button_node"
+                android:layout_toStartOf="@id/button_node"
+                android:inputType="none"
+                style="@style/dialog_text_edit"/>
+
+            <ImageButton
+                android:id="@+id/button_node"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/ic_tree" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <CheckedTextView
+        android:id="@+id/check_box_favor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        android:gravity="end|center_vertical"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/label_favorite"
+        style="@style/dialog_labels"/>
+
 </LinearLayout>

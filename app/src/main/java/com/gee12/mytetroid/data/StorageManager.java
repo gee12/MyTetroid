@@ -36,6 +36,7 @@ public class StorageManager extends DataManager {
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final int REQUEST_CODE_SYNC_STORAGE = 6;
 
+    protected static boolean IsAlreadyTryDecrypt;
     protected static boolean IsLoadStorageAfterSync;
     private static IStorageInitCallback StorageInitCallback;
 
@@ -53,7 +54,6 @@ public class StorageManager extends DataManager {
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
      */
     public static void startInitStorage(Activity activity, boolean isLoadLastForced) {
-        Instance.mIsAlreadyTryDecrypt = false;
 
         if (!PermissionManager.checkWriteExtStoragePermission(activity, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             return;
@@ -103,6 +103,7 @@ public class StorageManager extends DataManager {
      * @param storagePath Путь хранилища
      */
     public static boolean initStorage(Context context, String storagePath) {
+        IsAlreadyTryDecrypt = false;
         // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
         boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnly()
                 || (DataManager.isLoaded() && DataManager.isFavoritesMode());
@@ -166,8 +167,8 @@ public class StorageManager extends DataManager {
                     askPassword(context, node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
                 } else {
                     LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
-                    if (!Instance.mIsAlreadyTryDecrypt) {
-                        Instance.mIsAlreadyTryDecrypt = true;
+                    if (!IsAlreadyTryDecrypt) {
+                        IsAlreadyTryDecrypt = true;
                         initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                     }
                 }
@@ -246,8 +247,8 @@ public class StorageManager extends DataManager {
                 // и пароль не сохраняли, то нужно его спросить.
                 // Но если пароль вводить отказались, то просто грузим хранилище как есть
                 // (только в первый раз, затем перезагружать не нужно)
-                if (!Instance.mIsAlreadyTryDecrypt && !DataManager.isLoaded()) {
-                    Instance.mIsAlreadyTryDecrypt = true;
+                if (!IsAlreadyTryDecrypt && !DataManager.isLoaded()) {
+                    IsAlreadyTryDecrypt = true;
                     initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                 }
             }

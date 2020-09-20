@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_key_screen">
 
-    <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_main">
+    <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_storage">
 
         <Preference
             android:key="@string/pref_key_storage_path"

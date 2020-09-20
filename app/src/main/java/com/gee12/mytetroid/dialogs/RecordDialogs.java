@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,16 +20,17 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.RecordsManager;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.util.Date;
 import java.util.Random;
 
-public class RecordAskDialogs {
+public class RecordDialogs {
 
     public interface IRecordFieldsResult {
-        void onApply(String name, String tags, String author, String url);
+        void onApply(String name, String tags, String author, String url, TetroidNode node, boolean isFavor);
     }
 
     /**
@@ -36,13 +38,15 @@ public class RecordAskDialogs {
      * @param context
      * @param handler
      */
-    public static void createRecordFieldsDialog(Context context, TetroidRecord record, IRecordFieldsResult handler) {
+    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean needNode, IRecordFieldsResult handler) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
         EditText etAuthor = builder.getView().findViewById(R.id.edit_text_author);
         EditText etUrl = builder.getView().findViewById(R.id.edit_text_url);
         EditText etTags = builder.getView().findViewById(R.id.edit_text_tags);
+        EditText etNode = builder.getView().findViewById(R.id.edit_text_node);
+        CheckedTextView ctvFavor = builder.getView().findViewById(R.id.check_box_favor);
 
         if (BuildConfig.DEBUG && record == null) {
             Random rand = new Random();
@@ -60,13 +64,18 @@ public class RecordAskDialogs {
 //            String tagsString = Jsoup.parse(record.getTagsString()).toString();
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
+            etNode.setVisibility((needNode) ? View.VISIBLE : View.GONE);
+            ctvFavor.setVisibility((App.isFullVersion()) ? View.VISIBLE : View.GONE);
+            ctvFavor.setChecked(record.isFavorite());
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
             handler.onApply(etName.getText().toString(),
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
-                    etUrl.getText().toString());
+                    etUrl.getText().toString(),
+                    ,
+                    ctvFavor.isChecked());
         }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();

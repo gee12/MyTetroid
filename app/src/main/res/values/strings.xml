@@ -157,7 +157,7 @@
     <string name="pref_key_pin_code_length" translatable="false">pref_key_pin_code_length</string>
     <string name="pref_key_pin_code_hash" translatable="false">pref_key_pin_code_hash</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
-    <string name="pref_category_main">Main</string>
+    <string name="pref_category_storage">Storage</string>
     <string name="pref_storage_path">Storage path</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
@@ -553,6 +553,7 @@
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
     <string name="pref_quickly_node">Node for quick insertion</string>
-    <string name="pref_quickly_node_summ">A node for posts submitted from a third-party app, created in favorites or using a widget (Pro)</string>
-    <string name="log_create_temp_record">Создание временной записи</string>
+    <string name="pref_quickly_node_summ">A node for posts submitted from a third-party apps, created in favorites or using a widget (Pro)</string>
+    <string name="label_node">Node:</string>
+    <string name="label_favorite">Favorite</string>
 </resources>
