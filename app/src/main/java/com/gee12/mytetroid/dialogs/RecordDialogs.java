@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -38,15 +39,17 @@ public class RecordDialogs {
      * @param context
      * @param handler
      */
-    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean needNode, IRecordFieldsResult handler) {
+    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean isNeedNode, IRecordFieldsResult handler) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
-        EditText etName = builder.getView().findViewById(R.id.edit_text_name);
-        EditText etAuthor = builder.getView().findViewById(R.id.edit_text_author);
-        EditText etUrl = builder.getView().findViewById(R.id.edit_text_url);
-        EditText etTags = builder.getView().findViewById(R.id.edit_text_tags);
-        EditText etNode = builder.getView().findViewById(R.id.edit_text_node);
-        CheckedTextView ctvFavor = builder.getView().findViewById(R.id.check_box_favor);
+        View view = builder.getView();
+        EditText etName = view.findViewById(R.id.edit_text_name);
+        EditText etAuthor = view.findViewById(R.id.edit_text_author);
+        EditText etUrl = view.findViewById(R.id.edit_text_url);
+        EditText etTags = view.findViewById(R.id.edit_text_tags);
+        LinearLayout layoutNode = view.findViewById(R.id.layout_node);
+        EditText etNode = view.findViewById(R.id.edit_text_node);
+        CheckedTextView ctvFavor = view.findViewById(R.id.check_box_favor);
 
         if (BuildConfig.DEBUG && record == null) {
             Random rand = new Random();
@@ -61,12 +64,19 @@ public class RecordDialogs {
             etName.setText(record.getName());
             etAuthor.setText(record.getAuthor());
             etUrl.setText(record.getUrl());
-//            String tagsString = Jsoup.parse(record.getTagsString()).toString();
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
-            etNode.setVisibility((needNode) ? View.VISIBLE : View.GONE);
+            layoutNode.setVisibility((isNeedNode) ? View.VISIBLE : View.GONE);
             ctvFavor.setVisibility((App.isFullVersion()) ? View.VISIBLE : View.GONE);
             ctvFavor.setChecked(record.isFavorite());
+        }
+
+        // обработчик выбора ветки
+        NodeChooserResult callback = new NodeChooserResult();
+        if (isNeedNode) {
+            layoutNode.setOnClickListener(v -> {
+                NodeDialogs.createNodeChooserDialog(context, true, callback);
+            });
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
@@ -74,7 +84,7 @@ public class RecordDialogs {
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
                     etUrl.getText().toString(),
-                    ,
+                    (isNeedNode) ? callback.getSelectedNode() : null,
                     ctvFavor.isChecked());
         }).setNegativeButton(R.string.answer_cancel, null);
 
@@ -105,6 +115,22 @@ public class RecordDialogs {
                 okButton.setEnabled(!TextUtils.isEmpty(s));
             }
         });
+    }
+
+    /**
+     * Для выбора ветки.
+     */
+    private static class NodeChooserResult implements NodeDialogs.INodeChooserResult {
+        TetroidNode mSelectedNode;
+
+        @Override
+        public void onApply(TetroidNode node) {
+            this.mSelectedNode = node;
+        }
+
+        public TetroidNode getSelectedNode() {
+            return mSelectedNode;
+        }
     }
 
     /**
@@ -161,10 +187,7 @@ public class RecordDialogs {
                 : R.string.title_insert;
         String mes = String.format(context.getString(R.string.ask_oper_without_record_dir_mask),
                 context.getString(resId));
-//        AskDialogs.showYesDialog(context, callback, mes);
         Dialogs.showAlertDialog(context, mes, true, true, callback);
-//                (dialog, which) -> callback.onApply(),
-//                null);
     }
 
 }

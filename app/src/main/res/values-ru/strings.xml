@@ -488,5 +488,6 @@
     <string name="pref_quickly_node_summ">Ветка для записей, отправленных из сторонних приложений, созданных в избранном или с помощью виджета (Pro)</string>
     <string name="label_node">Ветка:</string>
     <string name="label_favorite">В избранное</string>
+    <string name="title_select_non_crypt_node">Выберите не зашифрованную ветку</string>
 
 </resources>

@@ -64,6 +64,10 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         this.mInflater = LayoutInflater.from(context);
     }
 
+    public void setNodeHeaderClickListener(OnNodeHeaderClickListener onNodeHeaderClickListener) {
+        this.mOnNodeHeaderClickListener = onNodeHeaderClickListener;
+    }
+
     @Override
     protected boolean isExpandable(Object object) {
         return ((TetroidNode)object).isExpandable();
@@ -161,8 +165,11 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         this.mCurNode = node;
     }
 
+    public TetroidNode getCurNode() {
+        return mCurNode;
+    }
+
     public TetroidNode getItem(int position) {
         return (TetroidNode) getListView().getAdapter().getItem(position);
     }
-
 }

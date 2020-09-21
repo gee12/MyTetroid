@@ -29,10 +29,6 @@
             android:layout_marginTop="@dimen/nav_header_height"
             android:layout_marginBottom="8dp">
 
-            <!--<include
-                android:id="@+id/node_favorites"
-                layout="@layout/list_item_node"/>-->
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/node_favorites"
                 android:layout_width="match_parent"
@@ -151,6 +147,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:textAlignment="center"
+                android:layout_gravity="center"
                 android:padding="@dimen/tv_empty_padding"
                 android:text="@string/log_tags_is_missing" />
 

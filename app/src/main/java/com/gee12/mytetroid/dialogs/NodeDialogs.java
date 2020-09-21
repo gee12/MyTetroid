@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -14,10 +15,17 @@ import androidx.appcompat.app.AlertDialog;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.adapters.NodesListAdapter;
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
+import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.views.SearchViewListener;
 
+import java.util.List;
 import java.util.Random;
+
+import pl.openrnd.multilevellistview.MultiLevelListView;
 
 public class NodeDialogs {
 
@@ -25,12 +33,16 @@ public class NodeDialogs {
         void onApply(String name);
     }
 
+    public interface INodeChooserResult {
+        void onApply(TetroidNode node);
+    }
+
     /**
      * Диалог создания/изменения ветки.
      * @param context
-     * @param handler
+     * @param callback
      */
-    public static void createNodeDialog(Context context, TetroidNode node, INodeFieldsResult handler) {
+    public static void createNodeDialog(Context context, TetroidNode node, INodeFieldsResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
@@ -46,7 +58,7 @@ public class NodeDialogs {
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            handler.onApply(etName.getText().toString());
+            callback.onApply(etName.getText().toString());
         }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();
@@ -67,10 +79,8 @@ public class NodeDialogs {
         etName.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { }
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
             @Override
             public void afterTextChanged(Editable s) {
                 okButton.setEnabled(!TextUtils.isEmpty(s));
@@ -79,7 +89,7 @@ public class NodeDialogs {
     }
 
     /**
-     * Диалог информации о записи.
+     * Диалог информации о ветке.
      * @param context
      * @param node
      */
@@ -102,8 +112,79 @@ public class NodeDialogs {
         builder.show();
     }
 
+    /**
+     * Диалог выбора ветки.
+     * @param context
+     * @param onlyNonCrypted
+     * @param callback
+     */
+    public static void createNodeChooserDialog(Context context, boolean onlyNonCrypted, INodeChooserResult callback) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_nodes);
+        builder.setTitle("Выберите ветку");
+
+        final AlertDialog dialog = builder.create();
+        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+
+        View view = builder.getView();
+        // уведомление
+        TextView textViewNotice = view.findViewById(R.id.text_view_notice);
+        // список веток
+        MultiLevelListView listView = view.findViewById(R.id.list_view_nodes);
+        final NodesListAdapter adapter = new NodesListAdapter(context, null);
+        adapter.setNodeHeaderClickListener(new NodesListAdapter.OnNodeHeaderClickListener() {
+
+            private void onSelectNode(TetroidNode node) {
+                if (onlyNonCrypted && node.isCrypted()) {
+                    textViewNotice.setVisibility(View.VISIBLE);
+                    okButton.setEnabled(false);
+                } else {
+                    textViewNotice.setVisibility(View.GONE);
+                    adapter.setCurNode(node);
+                    okButton.setEnabled(true);
+                }
+            }
+            @Override
+            public void onClick(TetroidNode node) {
+                onSelectNode(node);
+            }
+            @Override
+            public boolean onLongClick(View view, TetroidNode node, int pos) {
+                onSelectNode(node);
+                return true;
+            }
+        });
+        listView.setAdapter(adapter);
+        // строка поиска
+        SearchView searchView = view.findViewById(R.id.search_view_nodes);
+        new SearchViewListener(searchView) {
+            @Override
+            public void onClose() {
+                adapter.setDataItems(DataManager.getRootNodes());
+            }
+            @Override
+            public void onSearch() {
+            }
+            @Override
+            public void onQuerySubmit(String query) {
+                List<TetroidNode> found = ScanManager.searchInNodesNames(DataManager.getRootNodes(), query);
+                adapter.setDataItems(found);
+            }
+        };
+        // обработчик результата
+        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+            callback.onApply(adapter.getCurNode());
+        }).setNegativeButton(R.string.answer_cancel, null);
+
+        // загружаем список веток
+        adapter.setDataItems(DataManager.getRootNodes());
+    }
+
+    /**
+     * Вопрос об удалении ветки.
+     * @param context
+     * @param callback
+     */
     public static void deleteNode(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_node_delete);
     }
-
 }

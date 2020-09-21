@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SearchView
+        android:id="@+id/search_view_nodes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:iconifiedByDefault="true"
+        android:queryHint="@string/title_nodes_search_hint" />
+
+    <pl.openrnd.multilevellistview.MultiLevelListView
+        android:id="@+id/list_view_nodes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_view_nodes"
+        app:alwaysExtended="false"
+        app:nestType="multiple" />
+
+    <TextView
+        android:id="@+id/text_view_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/colorDarkRed"
+        android:textSize="14sp"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        android:text="@string/title_select_non_crypt_node"/>
+
+</RelativeLayout>
