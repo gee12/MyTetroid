@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -102,7 +101,7 @@ import pl.openrnd.multilevellistview.OnItemLongClickListener;
 
 //import android.widget.SearchView;
 
-public class MainActivity extends TetroidActivity implements IMainView, StorageManager.IStorageInitCallback {
+public class MainActivity extends TetroidActivity implements IMainView {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
     public static final int REQUEST_CODE_RECORD_ACTIVITY = 4;
@@ -120,8 +119,6 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
     private TagsListAdapter mListAdapterTags;
     private TetroidNode mCurNode;
     private TetroidTag mCurTag;
-    private LinearLayout mLayoutProgress;
-    private TextView mTextViewProgress;
     private TextView mTextViewNodesEmpty;
     private TextView mTextViewTagsEmpty;
     private android.widget.SearchView mSearchViewNodes;
@@ -258,9 +255,6 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
         this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
         mListViewTags.setEmptyView(mTextViewTagsEmpty);
 
-        this.mLayoutProgress = findViewById(R.id.layout_progress);
-        this.mTextViewProgress = findViewById(R.id.progress_text);
-
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
@@ -341,11 +335,13 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
     /**
      * Обработчик события после загрузки хранилища.
      */
-    public void afterStorageInited() {
-        // проверяем входящий Intent после загрузки
-        checkReceivedIntent(mReceivedIntent);
-        // запускаем отслеживание изменения структуры хранилища
-        startStorageTreeObserver();
+    public void afterStorageLoaded(boolean res) {
+        if (res) {
+            // проверяем входящий Intent после загрузки
+            checkReceivedIntent(mReceivedIntent);
+            // запускаем отслеживание изменения структуры хранилища
+            startStorageTreeObserver();
+        }
     }
 
     /**
@@ -2521,22 +2517,24 @@ public class MainActivity extends TetroidActivity implements IMainView, StorageM
     }
 
     public boolean taskPreExecute(int sRes) {
+        super.taskPreExecute(sRes);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
 //                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        mTextViewProgress.setText(sRes);
-        mLayoutProgress.setVisibility(View.VISIBLE);
+//        mTextViewProgress.setText(sRes);
+//        mLayoutProgress.setVisibility(View.VISIBLE);
         return isDrawerOpened;
     }
 
     public void taskPostExecute(boolean isDrawerOpened) {
+        super.taskPostExecute(isDrawerOpened);
 //        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         if (isDrawerOpened) {
             mDrawerLayout.openDrawer(Gravity.LEFT);
         }
-        mLayoutProgress.setVisibility(View.INVISIBLE);
+//        mLayoutProgress.setVisibility(View.INVISIBLE);
     }
 
     /**

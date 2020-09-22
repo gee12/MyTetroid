@@ -21,6 +21,7 @@ public class TetroidRecord extends TetroidObject {
     private Date mCreated;
     protected boolean mIsNew;
     protected boolean mIsFavorite;
+    protected boolean mIsTemp;
 
     private String mDirName;
     private String mFileName;
@@ -189,6 +190,14 @@ public class TetroidRecord extends TetroidObject {
 
     public boolean isFavorite() {
         return mIsFavorite;
+    }
+
+    public void setIsTemp(boolean isTemp) {
+        this.mIsTemp = isTemp;
+    }
+
+    public boolean isTemp() {
+        return mIsTemp;
     }
 
     @Override

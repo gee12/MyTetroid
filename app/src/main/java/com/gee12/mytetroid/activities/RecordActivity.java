@@ -44,6 +44,7 @@ import com.gee12.mytetroid.data.HtmlHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.fragments.SettingsFragment;
@@ -134,7 +135,7 @@ public class RecordActivity extends TetroidActivity implements
     private SearchView mSearchView;
     private boolean mIsReceivedImages;
     private int mModeToSwitch = -1;
-
+    private boolean mIsSaveTempAfterStorageLoaded;
 
     public RecordActivity() {
         super();
@@ -176,6 +177,9 @@ public class RecordActivity extends TetroidActivity implements
             }
         } else if (action.equals(ACTION_ADD_RECORD)) {
             // создание записи из виджета
+            // сначала инициализируем службы
+            App.init(this);
+            // создаем временную запись
             this.mRecord = RecordsManager.createTempRecord(null, null, null);
             if (mRecord == null) {
                 TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
@@ -825,7 +829,30 @@ public class RecordActivity extends TetroidActivity implements
         if (callBefore) {
             onBeforeSavingAsync();
         } else {
-            save();
+            if (mRecord.isTemp()) {
+                if (DataManager.isLoaded()) {
+                    editFields();
+                } else {
+                    this.mIsSaveTempAfterStorageLoaded = true;
+                    loadStorage();
+                }
+            } else {
+                save();
+            }
+        }
+    }
+
+    private void loadStorage() {
+        StorageManager.init(this);
+        StorageManager.startInitStorage(this, true);
+    }
+
+    @Override
+    public void afterStorageLoaded(boolean res) {
+        if (mIsSaveTempAfterStorageLoaded) {
+            this.mIsSaveTempAfterStorageLoaded = false;
+            // сохраняем временную запись
+            editFields();
         }
     }
 
@@ -992,21 +1019,37 @@ public class RecordActivity extends TetroidActivity implements
         });
     }
 
+    /**
+     * Редактирование свойств записи.
+     */
     private void editFields() {
-        RecordDialogs.createRecordFieldsDialog(this, mRecord, (name, tags, author, url, node, isFavor) -> {
+        boolean isTemp = mRecord.isTemp();
+        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(mRecord, name, tags, author, url, node, isFavor)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
-                TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                if (isTemp) {
+                    // сохраняем текст записи
+                    save();
+                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                } else {
+                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                }
             } else {
-                TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                if (isTemp) {
+                    // все равно сохраняем текст записи
+                    save();
+                    TetroidLog.logOperErrorMore(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                } else {
+                    TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                }
             }
         });
     }
 
     /**
-     * Поиск по тексту записи..
+     * Поиск по тексту записи.
      * @param query
      */
     private void searchInRecordText(String query) {

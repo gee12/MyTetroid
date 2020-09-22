@@ -107,9 +107,14 @@ public class TetroidNode extends TetroidObject {
             subNodes.add(subNode);
     }
 
-    public void addRecord(TetroidRecord record) {
+    public boolean addRecord(TetroidRecord record) {
         record.setNode(this);
-        records.add(record);
+        return records.add(record);
+    }
+
+    public boolean deleteRecord(TetroidRecord record) {
+        record.setNode(null);
+        return records.remove(record);
     }
 
     public void setParentNode(TetroidNode parentNode) {

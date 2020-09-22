@@ -25,7 +25,7 @@ public class StorageManager extends DataManager {
         void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode);
         boolean taskPreExecute(int sRes);
         void taskPostExecute(boolean isDrawerOpened);
-        void afterStorageInited();
+        void afterStorageLoaded(boolean res);
         void afterStorageDecrypted(TetroidNode node);
         void taskStarted(TetroidTask2 task);
     }
@@ -391,9 +391,7 @@ public class StorageManager extends DataManager {
             // инициализация контролов
             StorageInitCallback.initGUI(res, mIsFavoritesOnly, mIsOpenLastNode);
             // действия после загрузки хранилища
-            if (res) {
-                StorageInitCallback.afterStorageInited();
-            }
+            StorageInitCallback.afterStorageLoaded(res);
         }
     }
 
