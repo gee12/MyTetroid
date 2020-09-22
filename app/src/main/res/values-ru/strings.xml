@@ -489,5 +489,6 @@
     <string name="label_node">Ветка:</string>
     <string name="label_favorite">В избранное</string>
     <string name="title_select_non_crypt_node">Выберите не зашифрованную ветку</string>
+    <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
 
 </resources>

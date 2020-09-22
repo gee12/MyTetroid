@@ -440,6 +440,10 @@ public class RecordsManager extends DataManager {
         if (saveStorage()) {
             // добавляем метки в запись и в коллекцию меток
             Instance.parseRecordTags(record, tagsString);
+            // добавляем в избранное
+            if (isFavor) {
+                FavoritesManager.add(record);
+            }
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
@@ -609,7 +613,7 @@ public class RecordsManager extends DataManager {
      */
     public static boolean editRecordFields(TetroidRecord record, String name, String tagsString,
                                            String author, String url, TetroidNode node, boolean isFavor) {
-        if (record == null || TextUtils.isEmpty(name)) {
+        if (record == null || node == null || TextUtils.isEmpty(name)) {
             LogManager.emptyParams("DataManager.editRecordFields()");
             return false;
         }
@@ -638,6 +642,8 @@ public class RecordsManager extends DataManager {
                 Instance.deleteRecordTags(record);
                 // добавляем новые метки
                 Instance.parseRecordTags(record, tagsString);
+                // добавляем в избранное
+                FavoritesManager.add(record);
             }
         } else {
             TetroidLog.logOperCancel(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);

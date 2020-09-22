@@ -20,6 +20,7 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -37,9 +38,9 @@ public class RecordDialogs {
     /**
      * Диалог создания/изменения записи.
      * @param context
-     * @param handler
+     * @param callback
      */
-    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean isNeedNode, IRecordFieldsResult handler) {
+    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean isNeedNode, IRecordFieldsResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         View view = builder.getView();
@@ -60,31 +61,37 @@ public class RecordDialogs {
             etTags.setText("new record , tag " + num);
         }
 
+        final TetroidNode node = (record != null && record.getNode() != null) 
+                ? record.getNode() : NodesManager.getQuicklyNode();
         if (record != null) {
             etName.setText(record.getName());
             etAuthor.setText(record.getAuthor());
             etUrl.setText(record.getUrl());
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
-            layoutNode.setVisibility((isNeedNode) ? View.VISIBLE : View.GONE);
-            ctvFavor.setVisibility((App.isFullVersion()) ? View.VISIBLE : View.GONE);
-            ctvFavor.setChecked(record.isFavorite());
+            if (isNeedNode) {
+                layoutNode.setVisibility(View.VISIBLE);
+                etNode.setText((node != null) ? node.getName() : context.getString(R.string.title_select_node));
+            }
+            if (App.isFullVersion()) {
+                ctvFavor.setVisibility(View.VISIBLE);
+                ctvFavor.setChecked(record.isFavorite());
+            }
         }
-
-        // обработчик выбора ветки
-        NodeChooserResult callback = new NodeChooserResult();
+        // диалог выбора ветки
+        NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
         if (isNeedNode) {
             layoutNode.setOnClickListener(v -> {
-                NodeDialogs.createNodeChooserDialog(context, true, callback);
+                NodeDialogs.createNodeChooserDialog(context, node, true, nodeCallback);
             });
         }
-
+        // возврат результата
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            handler.onApply(etName.getText().toString(),
+            callback.onApply(etName.getText().toString(),
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
                     etUrl.getText().toString(),
-                    (isNeedNode) ? callback.getSelectedNode() : null,
+                    (isNeedNode) ? nodeCallback.getSelectedNode() : null,
                     ctvFavor.isChecked());
         }).setNegativeButton(R.string.answer_cancel, null);
 
@@ -122,10 +129,18 @@ public class RecordDialogs {
      */
     private static class NodeChooserResult implements NodeDialogs.INodeChooserResult {
         TetroidNode mSelectedNode;
+        TextView mTextView;
+
+        NodeChooserResult(TextView textView) {
+            this.mTextView = textView;
+        }
 
         @Override
         public void onApply(TetroidNode node) {
             this.mSelectedNode = node;
+            if (node != null) {
+                mTextView.setText(node.getName());
+            }
         }
 
         public TetroidNode getSelectedNode() {

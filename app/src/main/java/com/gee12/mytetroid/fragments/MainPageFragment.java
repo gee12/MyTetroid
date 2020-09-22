@@ -268,6 +268,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
+            updateFavorites(record);
             if (isShow) {
                 showRecord(record);
             }
@@ -450,6 +451,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.notifyDataSetInvalidated();
         }
         mMainView.updateTags();
+        updateFavorites(record);
     }
 
     /**

@@ -118,7 +118,7 @@ public class NodeDialogs {
      * @param onlyNonCrypted
      * @param callback
      */
-    public static void createNodeChooserDialog(Context context, boolean onlyNonCrypted, INodeChooserResult callback) {
+    public static void createNodeChooserDialog(Context context, TetroidNode node, boolean onlyNonCrypted, INodeChooserResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_nodes);
         builder.setTitle("Выберите ветку");
 
@@ -131,6 +131,7 @@ public class NodeDialogs {
         // список веток
         MultiLevelListView listView = view.findViewById(R.id.list_view_nodes);
         final NodesListAdapter adapter = new NodesListAdapter(context, null);
+        adapter.setCurNode(node);
         adapter.setNodeHeaderClickListener(new NodesListAdapter.OnNodeHeaderClickListener() {
 
             private void onSelectNode(TetroidNode node) {
