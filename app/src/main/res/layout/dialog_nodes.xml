@@ -4,10 +4,21 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <TextView
+        android:id="@+id/text_view_notice_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textSize="14sp"
+        android:textAlignment="center"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
     <SearchView
         android:id="@+id/search_view_nodes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_notice_top"
         android:iconifiedByDefault="true"
         android:queryHint="@string/title_nodes_search_hint" />
 
@@ -20,7 +31,7 @@
         app:nestType="multiple" />
 
     <TextView
-        android:id="@+id/text_view_notice"
+        android:id="@+id/text_view_notice_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -29,6 +40,6 @@
         android:textAlignment="center"
         android:layout_gravity="center_horizontal"
         android:visibility="gone"
-        android:text="@string/title_select_non_crypt_node"/>
+        android:text="@string/mes_select_decrypted_node"/>
 
 </RelativeLayout>

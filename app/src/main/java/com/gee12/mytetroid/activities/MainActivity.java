@@ -1640,6 +1640,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void encryptNode(TetroidNode node) {
+        if (node == NodesManager.getQuicklyNode()) {
+            Message.show(this, getString(R.string.mes_quickly_node_cannot_encrypt));
+            return;
+        }
         PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {

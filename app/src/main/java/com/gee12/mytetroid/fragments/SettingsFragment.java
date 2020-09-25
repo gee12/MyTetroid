@@ -28,6 +28,7 @@ import com.gee12.mytetroid.data.PINManager;
 import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
@@ -96,11 +97,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         findPreference(getString(R.string.pref_key_quickly_node_id))
                 .setOnPreferenceClickListener(preference -> {
-
-                    // TODO:
-                    /*SettingsManager.setQuicklyNode(node);
-                    DataManager.setQuicklyNode(node);*/
-                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
+                    // диалог выбора ветки
+                    NodeDialogs.createNodeChooserDialog(getContext(), NodesManager.getQuicklyNode(),
+                            false, false, true, node -> {
+                        SettingsManager.setQuicklyNode(node);
+                        NodesManager.setQuicklyNode(node);
+                        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
+                    });
                     return true;
                 });
         NodesManager.updateQuicklyNode();

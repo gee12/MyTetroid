@@ -115,10 +115,13 @@ public class NodeDialogs {
     /**
      * Диалог выбора ветки.
      * @param context
-     * @param onlyNonCrypted
+     * @param canCrypted Могут быть выбраны даже нерасшифрованные ветки.
+     * @param canDecrypted Могут быть выбраны расшифрованные ветки.
+     * @param onlyRoot
      * @param callback
      */
-    public static void createNodeChooserDialog(Context context, TetroidNode node, boolean onlyNonCrypted, INodeChooserResult callback) {
+    public static void createNodeChooserDialog(Context context, TetroidNode node, boolean canCrypted, boolean canDecrypted,
+                                               boolean onlyRoot, INodeChooserResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_nodes);
         builder.setTitle("Выберите ветку");
 
@@ -127,7 +130,8 @@ public class NodeDialogs {
 
         View view = builder.getView();
         // уведомление
-        TextView textViewNotice = view.findViewById(R.id.text_view_notice);
+//        TextView tvNoticeTop = view.findViewById(R.id.text_view_notice_top);
+        TextView tvNoticeBottom = view.findViewById(R.id.text_view_notice_bottom);
         // список веток
         MultiLevelListView listView = view.findViewById(R.id.list_view_nodes);
         final NodesListAdapter adapter = new NodesListAdapter(context, null);
@@ -135,11 +139,24 @@ public class NodeDialogs {
         adapter.setNodeHeaderClickListener(new NodesListAdapter.OnNodeHeaderClickListener() {
 
             private void onSelectNode(TetroidNode node) {
-                if (onlyNonCrypted && node.isCrypted()) {
-                    textViewNotice.setVisibility(View.VISIBLE);
+                boolean crypted = !canCrypted && node.isCrypted() && !node.isDecrypted();
+                boolean decrypted = !canDecrypted && node.isCrypted() && node.isDecrypted();
+                boolean notRoot = node.getLevel() > 1;
+                if (crypted || notRoot) {
+                    tvNoticeBottom.setVisibility(View.VISIBLE);
                     okButton.setEnabled(false);
+                    String mes = null;
+                    if (crypted) {
+                        mes = context.getString(R.string.mes_select_non_encrypted_node);
+                    } else if (decrypted) {
+                        mes = context.getString(R.string.mes_select_decrypted_node);
+                    }
+                    if (notRoot) {
+                        mes += ((mes == null) ? "" : "\n") + context.getString(R.string.mes_select_first_level_node);;
+                    }
+                    tvNoticeBottom.setText(mes);
                 } else {
-                    textViewNotice.setVisibility(View.GONE);
+                    tvNoticeBottom.setVisibility(View.GONE);
                     adapter.setCurNode(node);
                     okButton.setEnabled(true);
                 }

@@ -488,7 +488,10 @@
     <string name="pref_quickly_node_summ">Ветка для записей, отправленных из сторонних приложений, созданных в избранном или с помощью виджета (Pro)</string>
     <string name="label_node">Ветка:</string>
     <string name="label_favorite">В избранное</string>
-    <string name="title_select_non_crypt_node">Выберите не зашифрованную ветку</string>
+    <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
+    <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
+    <string name="mes_select_first_level_node">Выберите ветку первого уровня</string>
     <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
+    <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
 
 </resources>

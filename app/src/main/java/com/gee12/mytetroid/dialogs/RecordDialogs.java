@@ -82,7 +82,7 @@ public class RecordDialogs {
         NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
         if (isNeedNode) {
             layoutNode.setOnClickListener(v -> {
-                NodeDialogs.createNodeChooserDialog(context, node, true, nodeCallback);
+                NodeDialogs.createNodeChooserDialog(context, node, false, true, false, nodeCallback);
             });
         }
         // возврат результата
