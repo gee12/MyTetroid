@@ -671,8 +671,10 @@ public class RecordsManager extends DataManager {
                 // добавляем новые метки
                 Instance.parseRecordTags(record, tagsString);
             }
-            // добавляем в избранное
-            FavoritesManager.add(record);
+            if (App.isFullVersion()) {
+                // добавляем/удаляем из избранного
+                FavoritesManager.addOrRemove(record, isFavor);
+            }
         } else {
             if (isTemp) {
                 TetroidLog.logOperCancel(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
@@ -693,7 +695,9 @@ public class RecordsManager extends DataManager {
                 if (oldNode != null) {
                     oldNode.addRecord(record);
                 }
-                record.setIsFavorite(oldIsFavor);
+                if (App.isFullVersion()) {
+                    FavoritesManager.addOrRemove(record, oldIsFavor);
+                }
             }
             return false;
         }

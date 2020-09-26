@@ -80,6 +80,10 @@ public class FavoritesManager extends RecordsManager {
         return res;
     }
 
+    public static boolean addOrRemove(TetroidRecord record, boolean isFavor) {
+        return (isFavor) ? add(record) : remove(record, true);
+    }
+
     /**
      * Замена местами 2 изранных записи в списке.
      * @param pos

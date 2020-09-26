@@ -257,7 +257,8 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        RecordDialogs.createRecordFieldsDialog(getContext(), null, false, (name, tags, author, url, node, isFavor) -> {
+        RecordDialogs.createRecordFieldsDialog(getContext(), null, false, mCurNode,
+                (name, tags, author, url, node, isFavor) -> {
             TetroidRecord record = RecordsManager.createRecord(name, tags, author, url, mCurNode, isFavor);
             addNewRecord(record,true);
         });
@@ -430,7 +431,8 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void editRecordFields(TetroidRecord record) {
         TetroidNode oldNode = record.getNode();
-        RecordDialogs.createRecordFieldsDialog(getContext(), record, true, (name, tags, author, url, node, isFavor) -> {
+        RecordDialogs.createRecordFieldsDialog(getContext(), record, true, mCurNode,
+                (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(record, name, tags, author, url, node, isFavor)) {
                 onRecordFieldsUpdated(record, oldNode != record.getNode());
 //                TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);

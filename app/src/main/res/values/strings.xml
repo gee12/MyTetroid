@@ -553,7 +553,7 @@
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
     <string name="pref_quickly_node">Node for quick insertion</string>
-    <string name="pref_quickly_node_summ">A node for posts submitted from a third-party apps, created in favorites or using a widget (Pro)</string>
+    <string name="pref_quickly_node_summ">A node for posts submitted from a third-party apps, created in favorites or using a widget</string>
     <string name="label_node">Node:</string>
     <string name="label_favorite">Favorite</string>
     <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
@@ -561,4 +561,5 @@
     <string name="mes_select_first_level_node">Select the first level node</string>
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
     <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
+    <string name="title_choose_node">Select node</string>
 </resources>

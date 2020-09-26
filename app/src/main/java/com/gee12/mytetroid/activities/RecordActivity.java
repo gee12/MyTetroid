@@ -33,6 +33,7 @@ import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.FileObserverService;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
@@ -58,6 +59,7 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
+import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
@@ -150,28 +152,14 @@ public class RecordActivity extends TetroidActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = getIntent();
         String action;
-        if (intent == null || (action = intent.getAction()) == null) {
+        if (mReceivedIntent == null || (action = mReceivedIntent.getAction()) == null) {
             finish();
             return;
         }
         if (action.equals(Intent.ACTION_MAIN)) {
             // открытие или создание записи из главной активности
-            // получаем переданную запись
-            String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
-            if (recordId != null) {
-                // получаем запись
-                this.mRecord = RecordsManager.getRecord(recordId);
-                if (mRecord == null) {
-                    LogManager.log(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-                    finish();
-                    return;
-                } else {
-                    setTitle(mRecord.getName());
-                }
-            } else {
-                LogManager.log(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            if (!initRecordFromMain(mReceivedIntent)) {
                 finish();
                 return;
             }
@@ -179,14 +167,24 @@ public class RecordActivity extends TetroidActivity implements
             // создание записи из виджета
             // сначала инициализируем службы
             App.init(this);
-            // создаем временную запись
-            this.mRecord = RecordsManager.createTempRecord(null, null, null);
-            if (mRecord == null) {
-                TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
+            if (!initRecordFromWidget()) {
                 finish();
                 return;
+            }
+        } else if (action.equals(Intent.ACTION_SEND)) {
+            // прием текста из другого приложения
+            String type = mReceivedIntent.getType();
+            if (type != null && type.startsWith("text/")) {
+                String text = mReceivedIntent.getStringExtra(Intent.EXTRA_TEXT);
+                if (text == null) {
+                    LogManager.log(R.string.log_not_passed_text, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                    return;
+                }
+                LogManager.log(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
+                showIntentDialog(mReceivedIntent, text);
             } else {
-                setTitle(mRecord.getName());
+                finish();
+                return;
             }
         } else {
             finish();
@@ -194,7 +192,7 @@ public class RecordActivity extends TetroidActivity implements
         }
 
         // проверяем передавались ли изображения
-        this.mIsReceivedImages = intent.hasExtra(EXTRA_IMAGES_URI);
+        this.mIsReceivedImages = mReceivedIntent.hasExtra(EXTRA_IMAGES_URI);
 
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setColorPickerListener(this);
@@ -251,6 +249,81 @@ public class RecordActivity extends TetroidActivity implements
 
         // не гасим экран, если установлена опция
         App.checkKeepScreenOn(this);
+    }
+
+    /**
+     *
+     * @param intent
+     * @return
+     */
+    private boolean initRecordFromMain(Intent intent) {
+        // получаем переданную запись
+        String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
+        if (recordId != null) {
+            // получаем запись
+            this.mRecord = RecordsManager.getRecord(recordId);
+            if (mRecord == null) {
+                LogManager.log(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                finish();
+                return true;
+            } else {
+                setTitle(mRecord.getName());
+            }
+        } else {
+            LogManager.log(getString(R.string.log_not_transferred_record_id), LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private boolean initRecordFromWidget() {
+        // создаем временную запись
+        this.mRecord = RecordsManager.createTempRecord(null, null, null);
+        if (mRecord != null) {
+            setTitle(mRecord.getName());
+        } else {
+            TetroidLog.logOperError(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param intent
+     * @param text
+     */
+    private void showIntentDialog(Intent intent, String text) {
+        IntentDialog.createDialog(this, true, (receivedData) -> {
+            if (receivedData.isCreate()) {
+                initRecordFromSentText(intent, text);
+
+            } else {
+                // TODO: реализовать выбор имеющихся записей
+            }
+        });
+
+    }
+
+    /**
+     *
+     * @param intent
+     * @param text
+     */
+    private void initRecordFromSentText(Intent intent, String text) {
+        // имя записи
+        String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+        String url = null;
+        if (Build.VERSION.SDK_INT >= 17) {
+            url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
+        }
+        // создаем запись
+//        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
+        this.mRecord = RecordsManager.createTempRecord(subject, url, text);
     }
 
     private void onMenuLoaded() {
@@ -1024,7 +1097,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void editFields() {
         boolean isTemp = mRecord.isTemp();
-        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, (name, tags, author, url, node, isFavor) -> {
+        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null, (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(mRecord, name, tags, author, url, node, isFavor)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
@@ -1170,6 +1243,30 @@ public class RecordActivity extends TetroidActivity implements
             saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             saveSelectedImages(data, false);
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        checkReceivedIntent(intent);
+        super.onNewIntent(intent);
+    }
+
+    /**
+     * Проверка входящего Intent.
+     */
+    private void checkReceivedIntent(final Intent intent) {
+        String action;
+        if (intent == null || (action = intent.getAction()) == null) {
+            return;
+        }
+        if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
+            // обработка внешнего изменения дерева записей
+//            mOutsideChangingHandler.run(true);
+        } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            // обработка результата голосового поиска
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            mSearchView.setQuery(query, true);
         }
     }
 
@@ -1431,16 +1528,6 @@ public class RecordActivity extends TetroidActivity implements
             setResult(resCode);
         }
         finish();
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        // обработка результата голосового поиска
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            mSearchView.setQuery(query, true);
-        }
-        super.onNewIntent(intent);
     }
 
     /**

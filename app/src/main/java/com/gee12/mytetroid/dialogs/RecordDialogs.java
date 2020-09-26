@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -40,7 +40,8 @@ public class RecordDialogs {
      * @param context
      * @param callback
      */
-    public static void createRecordFieldsDialog(Context context, TetroidRecord record, boolean isNeedNode, IRecordFieldsResult callback) {
+    public static void createRecordFieldsDialog(Context context, TetroidRecord record,
+                                                boolean isNeedNode, TetroidNode node, IRecordFieldsResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         View view = builder.getView();
@@ -48,7 +49,7 @@ public class RecordDialogs {
         EditText etAuthor = view.findViewById(R.id.edit_text_author);
         EditText etUrl = view.findViewById(R.id.edit_text_url);
         EditText etTags = view.findViewById(R.id.edit_text_tags);
-        LinearLayout layoutNode = view.findViewById(R.id.layout_node);
+        RelativeLayout layoutNode = view.findViewById(R.id.layout_node);
         EditText etNode = view.findViewById(R.id.edit_text_node);
         CheckedTextView ctvFavor = view.findViewById(R.id.check_box_favor);
 
@@ -61,8 +62,8 @@ public class RecordDialogs {
             etTags.setText("new record , tag " + num);
         }
 
-        final TetroidNode node = (record != null && record.getNode() != null) 
-                ? record.getNode() : NodesManager.getQuicklyNode();
+        final TetroidNode recordNode = (record != null && record.getNode() != null)
+                ? record.getNode() : (node != null) ? node : NodesManager.getQuicklyNode();
         if (record != null) {
             etName.setText(record.getName());
             etAuthor.setText(record.getAuthor());
@@ -71,7 +72,7 @@ public class RecordDialogs {
             etTags.setText(tagsString);
             if (isNeedNode) {
                 layoutNode.setVisibility(View.VISIBLE);
-                etNode.setText((node != null) ? node.getName() : context.getString(R.string.title_select_node));
+                etNode.setText((recordNode != null) ? recordNode.getName() : context.getString(R.string.title_select_node));
             }
             if (App.isFullVersion()) {
                 ctvFavor.setVisibility(View.VISIBLE);
@@ -82,7 +83,7 @@ public class RecordDialogs {
         NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
         if (isNeedNode) {
             layoutNode.setOnClickListener(v -> {
-                NodeDialogs.createNodeChooserDialog(context, node, false, true, false, nodeCallback);
+                NodeDialogs.createNodeChooserDialog(context, recordNode, false, true, false, nodeCallback);
             });
         }
         // возврат результата
@@ -91,7 +92,7 @@ public class RecordDialogs {
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
                     etUrl.getText().toString(),
-                    (isNeedNode) ? nodeCallback.getSelectedNode() : null,
+                    (isNeedNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
                     ctvFavor.isChecked());
         }).setNegativeButton(R.string.answer_cancel, null);
 

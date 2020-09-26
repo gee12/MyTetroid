@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/gray"
+        android:padding="10dp"/>
+
     <TextView
         android:id="@+id/text_view_notice_top"
         android:layout_width="match_parent"
@@ -19,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view_notice_top"
-        android:iconifiedByDefault="true"
+        android:iconifiedByDefault="false"
         android:queryHint="@string/title_nodes_search_hint" />
 
     <pl.openrnd.multilevellistview.MultiLevelListView
@@ -27,14 +34,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search_view_nodes"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         app:alwaysExtended="false"
         app:nestType="multiple" />
+
+    <TextView
+        android:id="@+id/nodes_text_view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:padding="@dimen/tv_empty_padding"
+        android:text="@string/title_nodes_is_missing"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/text_view_notice_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_below="@id/list_view_nodes"
         android:textColor="@color/colorDarkRed"
         android:textSize="14sp"
         android:textAlignment="center"

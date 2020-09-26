@@ -55,6 +55,8 @@ public class TetroidRecord extends TetroidObject {
         this.mTags = new ArrayList<>();
         this.mNode = node;
         this.mIsNew = false;
+        this.mIsFavorite = false;
+        this.mIsTemp = false;
     }
 
     public void setDecryptedValues(String name, String tagsString, String author, String url) {

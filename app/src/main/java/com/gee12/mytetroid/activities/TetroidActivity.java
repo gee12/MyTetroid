@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,11 +32,14 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected LinearLayout mLayoutProgress;
     protected TextView mTextViewProgress;
     protected TetroidTask2 mCurTask;
+    protected Intent mReceivedIntent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
+
+        this.mReceivedIntent = getIntent();
 
         this.mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);

@@ -11,6 +11,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatImageView;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
@@ -20,7 +21,6 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.views.SearchViewListener;
 
 import java.util.List;
 import java.util.Random;
@@ -123,10 +123,16 @@ public class NodeDialogs {
     public static void createNodeChooserDialog(Context context, TetroidNode node, boolean canCrypted, boolean canDecrypted,
                                                boolean onlyRoot, INodeChooserResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_nodes);
-        builder.setTitle("Выберите ветку");
+        builder.setTitle(R.string.title_choose_node);
+
+        final NodesListAdapter adapter = new NodesListAdapter(context, null);
+        // обработчик результата
+        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+            callback.onApply(adapter.getCurNode());
+        }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();
-        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+//        final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 
         View view = builder.getView();
         // уведомление
@@ -134,15 +140,15 @@ public class NodeDialogs {
         TextView tvNoticeBottom = view.findViewById(R.id.text_view_notice_bottom);
         // список веток
         MultiLevelListView listView = view.findViewById(R.id.list_view_nodes);
-        final NodesListAdapter adapter = new NodesListAdapter(context, null);
         adapter.setCurNode(node);
         adapter.setNodeHeaderClickListener(new NodesListAdapter.OnNodeHeaderClickListener() {
 
             private void onSelectNode(TetroidNode node) {
+                final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 boolean crypted = !canCrypted && node.isCrypted() && !node.isDecrypted();
                 boolean decrypted = !canDecrypted && node.isCrypted() && node.isDecrypted();
-                boolean notRoot = node.getLevel() > 1;
-                if (crypted || notRoot) {
+                boolean notRoot = node.getLevel() > 0;
+                if (crypted || decrypted || notRoot) {
                     tvNoticeBottom.setVisibility(View.VISIBLE);
                     okButton.setEnabled(false);
                     String mes = null;
@@ -152,7 +158,7 @@ public class NodeDialogs {
                         mes = context.getString(R.string.mes_select_decrypted_node);
                     }
                     if (notRoot) {
-                        mes += ((mes == null) ? "" : "\n") + context.getString(R.string.mes_select_first_level_node);;
+                        mes = ((mes == null) ? "" : mes + "\n") + context.getString(R.string.mes_select_first_level_node);;
                     }
                     tvNoticeBottom.setText(mes);
                 } else {
@@ -160,6 +166,7 @@ public class NodeDialogs {
                     adapter.setCurNode(node);
                     okButton.setEnabled(true);
                 }
+                adapter.notifyDataSetChanged();
             }
             @Override
             public void onClick(TetroidNode node) {
@@ -173,28 +180,40 @@ public class NodeDialogs {
         });
         listView.setAdapter(adapter);
         // строка поиска
+        TextView tvEmpty = view.findViewById(R.id.nodes_text_view_empty);
         SearchView searchView = view.findViewById(R.id.search_view_nodes);
-        new SearchViewListener(searchView) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void onClose() {
-                adapter.setDataItems(DataManager.getRootNodes());
-            }
-            @Override
-            public void onSearch() {
-            }
-            @Override
-            public void onQuerySubmit(String query) {
+            public boolean onQueryTextSubmit(String query) {
                 List<TetroidNode> found = ScanManager.searchInNodesNames(DataManager.getRootNodes(), query);
                 adapter.setDataItems(found);
+                if (found.isEmpty()) {
+                    tvEmpty.setVisibility(View.VISIBLE);
+                    tvEmpty.setText(String.format(context.getString(R.string.search_nodes_not_found_mask), query));
+                } else {
+                    tvEmpty.setVisibility(View.GONE);
+                }
+                return false;
             }
-        };
-        // обработчик результата
-        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            callback.onApply(adapter.getCurNode());
-        }).setNegativeButton(R.string.answer_cancel, null);
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        // Catch event on [x] button inside search view
+        int searchCloseButtonId = searchView.getContext().getResources()
+                .getIdentifier("android:id/search_close_btn", null, null);
+        AppCompatImageView closeButton = searchView.findViewById(searchCloseButtonId);
+        closeButton.setOnClickListener(v -> {
+            searchView.setQuery("", false);
+            adapter.setDataItems(DataManager.getRootNodes());
+            tvEmpty.setVisibility(View.GONE);
+        });
 
         // загружаем список веток
         adapter.setDataItems(DataManager.getRootNodes());
+
+        dialog.show();
     }
 
     /**

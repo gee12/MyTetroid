@@ -136,7 +136,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private Button mLoadStorageButton;
 
 //    private boolean mIsAlreadyTryDecrypt;
-    private Intent mReceivedIntent;
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
@@ -171,8 +170,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onCreate(savedInstanceState);
 
         instance = this;
-
-        this.mReceivedIntent = getIntent();
 
         // выдвигающиеся панели
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -298,39 +295,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void onMainPageCreated() {
         // инициализация
         App.init(this);
-        /*SettingsManager.init(getApplicationContext());*/
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
-        /*LogManager.init(this, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
-        LogManager.log(String.format(getString(R.string.log_app_start_mask), Utils.getVersionName(this)));
-        if (SettingsManager.isCopiedFromFree()) {
-            LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
-        }
-        startInitStorage(false);*/
 
         StorageManager.init(this);
         StorageManager.startInitStorage(this, false);
     }
-
-    /**
-     * Начало загрузки хранилища.
-     *
-     * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
-     */
-    /*private void startInitStorage(boolean isLoadLastForced) {
-        this.mIsAlreadyTryDecrypt = false;
-
-        if (!PermissionManager.checkWriteExtStoragePermission(this, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
-            return;
-        }
-
-        String storagePath = SettingsManager.getStoragePath();
-        if (storagePath != null && SettingsManager.isLoadLastStoragePath() || isLoadLastForced) {
-            initOrSyncStorage(storagePath);
-        } else {
-            StorageChooserDialog.createDialog(this, isNew -> StorageManager.showStorageFolderChooser(isNew));
-        }
-    }*/
 
     /**
      * Обработчик события после загрузки хранилища.
@@ -406,39 +376,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      *
      * @param storagePath //     * @param checkDirIsEmpty
      */
-    /*private void createStorage(String storagePath*//*, boolean checkDirIsEmpty*//*) {
-        *//*if (checkDirIsEmpty) {
-            if (!FileUtils.isDirEmpty(new File(storagePath))) {
-                AskDialogs.showYesDialog(this, () -> {
-                    createStorage(storagePath, false);
-                }, R.string.ask_dir_not_empty);
-                return;
-            }
-        }*//*
-        if (DataManager.init(this, storagePath, true)) {
-            closeFoundFragment();
-            mViewPagerAdapter.getMainFragment().clearView();
-            mDrawerLayout.openDrawer(Gravity.LEFT);
-            // сохраняем путь к хранилищу
-//            if (SettingsManager.isLoadLastStoragePath()) {
-            SettingsManager.setStoragePath(storagePath);
-//            }
-            initGUI(DataManager.createDefault(), false, false);
-//            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
-        } else {
-            mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false, false, false);
-//            LogManager.log(getString(R.string.log_failed_storage_create) + mStoragePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
-        }
-    }*/
-
-    /**
-     * Создание нового хранилища в указанном расположении.
-     *
-     * @param storagePath //     * @param checkDirIsEmpty
-     */
     private void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
         if (StorageManager.createStorage(this, storagePath)) {
             closeFoundFragment();
@@ -458,36 +395,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             /*TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);*/
         }
     }
-
-    /**
-     * Проверка нужно ли синхронизировать хранилище перед загрузкой.
-     *
-     * @param storagePath
-     */
-    /*private void initOrSyncStorage(final String storagePath) {
-        if (SettingsManager.isSyncStorage() && SettingsManager.isSyncBeforeInit()) {
-            // спрашиваем о необходимости запуска синхронизации, если установлена опция
-            if (SettingsManager.isAskBeforeSync()) {
-                AskDialogs.showSyncRequestDialog(this, new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        MainActivity.this.mIsLoadStorageAfterSync = true;
-                        StorageManager.startStorageSync(MainActivity.this, storagePath);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        initStorage(storagePath);
-                    }
-                });
-            } else {
-                this.mIsLoadStorageAfterSync = true;
-                StorageManager.startStorageSync(this, storagePath);
-            }
-        } else {
-            initStorage(storagePath);
-        }
-    }*/
 
     /**
      * Обработка результата синхронизации хранилища.
@@ -512,39 +419,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mIsLoadStorageAfterSync = false;
     }
 
-    /**
-     * Загрузка хранилища по указанному пути.
-     *
-     * @param storagePath Путь хранилища
-     */
-    /*private void initStorage(String storagePath) {
-        // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
-        boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnly()
-                || (DataManager.isLoaded() && DataManager.isFavoritesMode());
-
-        if (DataManager.init(this, storagePath, false)) {
-            LogManager.log(getString(R.string.log_storage_settings_inited) + storagePath);
-            mDrawerLayout.openDrawer(Gravity.LEFT);
-            // сохраняем путь к хранилищу
-//            if (SettingsManager.isLoadLastStoragePath()) {
-            SettingsManager.setStoragePath(storagePath);
-//            }
-            if (DataManager.isCrypted() *//*&& !isFavorites*//*) {
-                // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
-                //decryptStorage(null);
-                decryptStorage(null, false, isFavorites, true);
-            } else {
-                // загружаем
-                initStorage(null, false, isFavorites, true);
-            }
-        } else {
-            LogManager.log(getString(R.string.log_failed_storage_init) + storagePath,
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false, isFavorites, false);
-        }
-    }*/
-
     private void initStorage(String storagePath) {
         // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
         boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnly()
@@ -557,154 +431,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             initGUI(false, isFavorites, false);
         }
     }
-
-    /**
-     * Получение пароля и расшифровка хранилища. Вызывается при:
-     * 1) запуске приложения, если есть зашифрованные ветки и сохранен пароль
-     * 2) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart
-     * 3) запуске приложения, если выделение было сохранено на зашифрованной ветке
-     * 4) выборе зашифрованной ветки
-     * 5) выборе зашифрованной записи в избранном
-     *
-     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isNodeOpening   Вызвана ли функция при попытке открытия зашифрованной ветки
-     * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
-     *                        или ветку с избранным (если именно она передана в node)
-     */
-    /*private void decryptStorage(TetroidNode node, boolean isNodeOpening, boolean isOnlyFavorites, boolean isOpenLastNode) {
-        String middlePassHash;
-        // пароль сохранен локально?
-        if (SettingsManager.isSaveMiddlePassHashLocal()
-                && (middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
-            // проверяем
-            try {
-                if (PassManager.checkMiddlePassHash(middlePassHash)) {
-                    DataManager.initCryptPass(middlePassHash, true);
-                    // запрос ПИН-кода
-                    PINManager.askPINCode(this, isNodeOpening, () -> {
-                        initStorage(node, true, isOnlyFavorites, isOpenLastNode);
-                    });
-
-                } else if (isNodeOpening) {
-                    // спрашиваем пароль
-                    askPassword(node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
-                } else {
-                    LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
-                    if (!mIsAlreadyTryDecrypt) {
-                        mIsAlreadyTryDecrypt = true;
-                        initStorage(node, false, isOnlyFavorites, isOpenLastNode);
-                    }
-                }
-            } catch (DatabaseConfig.EmptyFieldException ex) {
-                // если поля в INI-файле для проверки пустые
-                LogManager.log(ex);
-                // спрашиваем "continue anyway?"
-                PassDialogs.showEmptyPassCheckingFieldDialog(this, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
-                            @Override
-                            public void onApply() {
-                                DataManager.initCryptPass(middlePassHash, true);
-                                // запрос ПИН-кода
-                                PINManager.askPINCode(MainActivity.this, isNodeOpening, () -> {
-                                    initStorage(node, true, isOnlyFavorites, isOpenLastNode);
-                                });
-                            }
-
-                    @Override
-                            public void onCancel() {
-                                if (!isNodeOpening) {
-                                    // загружаем хранилище без пароля
-                                    initStorage(node, false, isOnlyFavorites, isOpenLastNode);
-                                }
-                            }
-                        }
-                );
-            }
-        } else if (SettingsManager.getWhenAskPass().equals(getString(R.string.pref_when_ask_password_on_start))
-                || isNodeOpening) {
-            // если пароль не сохранен, то спрашиваем его, когда также:
-            //      * если нужно расшифровывать хранилище сразу на старте
-            //      * если функция вызвана во время открытия зашифрованной ветки
-            askPassword(node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
-        } else {
-            // тогда просто загружаем хранилище без расшифровки, если:
-            //      * не сохранен пароль
-            //      * пароль не нужно спрашивать на старте
-            //      * функция не вызвана во время открытия зашифрованной ветки
-            initStorage(node, false, isOnlyFavorites, isOpenLastNode);
-        }
-    }*/
-
-    /**
-     * Отображения запроса пароля от хранилища.
-     *
-     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isNodeOpening   Вызвана ли функция при попытке открытия зашифрованной ветки
-     * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-     *                        или ветку с избранным (если именно она передана в node)
-     */
-    /*private void askPassword(final TetroidNode node, boolean isNodeOpening, boolean isOnlyFavorites, boolean isOpenLastNode) {
-        LogManager.log(R.string.log_show_pass_dialog);
-        // выводим окно с запросом пароля в асинхронном режиме
-        PassDialogs.showPassEnterDialog(this, node, false, new PassDialogs.IPassInputResult() {
-            @Override
-            public void applyPass(final String pass, TetroidNode node) {
-                // подтверждение введенного пароля
-                PassManager.checkPass(MainActivity.this, pass, (res) -> {
-                    if (res) {
-                        PassManager.initPass(pass);
-                        PINManager.askPINCode(MainActivity.this, isNodeOpening, () -> {
-                            initStorage(node, true, isOnlyFavorites, isOpenLastNode);
-                        });
-                    } else {
-                        // повторяем запрос
-                        askPassword(node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
-                    }
-                }, R.string.log_pass_is_incorrect);
-            }
-
-            @Override
-            public void cancelPass() {
-                // Если при первой загрузке хранилища установлена текущей зашифрованная ветка (node),
-                // и пароль не сохраняли, то нужно его спросить.
-                // Но если пароль вводить отказались, то просто грузим хранилище как есть
-                // (только в первый раз, затем перезагружать не нужно)
-                if (!mIsAlreadyTryDecrypt && !DataManager.isLoaded()) {
-                    mIsAlreadyTryDecrypt = true;
-                    initStorage(node, false, isOnlyFavorites, isOpenLastNode);
-                }
-            }
-        });
-    }*/
-
-    /**
-     * Непосредственная расшифровка (если зашифровано) или чтение данных хранилища.
-     *
-     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
-//     * @param isDecrypt       Нужно ли вызвать процесс расшифровки хранилища.
-//     * @param isOnlyFavorites Нужно ли загружать только избранные записи
-//     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-     *                        или ветку с избранным (если именно она передана в node)
-     */
-    /*private void initStorage(TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
-        // расшифровуем хранилище только в том случаем, если:
-        //  1) не используем проверку ПИН-кода
-        //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
-        //   (или ветки Избранное)
-        isDecrypt = isDecrypt
-                && (!PINManager.isRequestPINCode()
-                || PINManager.isRequestPINCode() && node != null
-                && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
-        if (isDecrypt && DataManager.isNodesExist()) {
-            // расшифровываем уже загруженное хранилище
-            this.mCurTask = new DecryptStorageTask(node).run();
-        } else {
-            // загружаем хранилище впервые, с расшифровкой
-            TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            this.mCurTask = new ReadStorageTask(isDecrypt, isOnlyFavorites, isOpenLastNode).run();
-        }
-    }*/
 
     public void afterStorageDecrypted(TetroidNode node) {
         updateNodes();
@@ -2062,8 +1788,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Вызывается при submit на RecordsSearchView (вместо пересоздания всей активности).
-     *
+     * Вызывается при:
+     *  1) submit на RecordsSearchView (вместо пересоздания всей активности)
+     *  2) ...
      * @param intent
      */
     @Override
@@ -2097,7 +1824,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String text = null;
             boolean isText = false;
             ArrayList<Uri> uris = null;
-            if (type.startsWith("text/")) {
+            /*if (type.startsWith("text/")) {
                 // текст
 
                 // TODO: прием текста перенести в RecordActivity
@@ -2109,7 +1836,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return;
                 }
                 LogManager.log(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
-            } else if (type.startsWith("image/")) {
+            } else*/ if (type.startsWith("image/")) {
                 // изображение
                 Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (imageUri == null) {
