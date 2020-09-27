@@ -44,7 +44,7 @@ public class StorageManager extends DataManager {
      * Первоначальная инициализация.
      * @param storageInitCallback
      */
-    public static void init(IStorageInitCallback storageInitCallback) {
+    public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
         StorageInitCallback = storageInitCallback;
     }
 
@@ -108,7 +108,7 @@ public class StorageManager extends DataManager {
         boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnly()
                 || (DataManager.isLoaded() && DataManager.isFavoritesMode());
 
-        boolean res = DataManager.init(context, storagePath, false);
+        boolean res = DataManager.initStorage(storagePath, false);
         if (res) {
             LogManager.log(context.getString(R.string.log_storage_settings_inited) + storagePath);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
@@ -297,7 +297,7 @@ public class StorageManager extends DataManager {
                 return;
             }
         }*/
-        boolean res = (DataManager.init(context, storagePath, true));
+        boolean res = (DataManager.initStorage(storagePath, true));
         if (res) {
             /*closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();

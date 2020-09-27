@@ -424,13 +424,13 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void loadRecordText(TetroidRecord record, boolean fromHtmlEditor) {
         // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
-        // -------и не используется авто-сохранение изменений,
+        // /*-------и не используется авто-сохранение изменений,-------*/
         // то загружаем html-код из редактора
-        // 2) если нет, то загружаем html-код из файла записи
         String textHtml = null;
         if (fromHtmlEditor /*&& !SettingsManager.isRecordAutoSave()*/) {
             textHtml = mEditTextHtml.getText().toString();
         } else {
+            // 2) если нет, то загружаем html-код из файла записи, только если он не новый
             if (!record.isNew()) {
                 textHtml = RecordsManager.getRecordHtmlTextDecrypted(record, Toast.LENGTH_LONG);
                 if (textHtml == null) {
@@ -904,7 +904,7 @@ public class RecordActivity extends TetroidActivity implements
         } else {
             if (mRecord.isTemp()) {
                 if (DataManager.isLoaded()) {
-                    editFields();
+                    this.runOnUiThread(() -> editFields());
                 } else {
                     this.mIsSaveTempAfterStorageLoaded = true;
                     loadStorage();
@@ -916,7 +916,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void loadStorage() {
-        StorageManager.init(this);
+        StorageManager.setStorageCallback(this);
         StorageManager.startInitStorage(this, true);
     }
 
@@ -1105,7 +1105,7 @@ public class RecordActivity extends TetroidActivity implements
                 if (isTemp) {
                     // сохраняем текст записи
                     save();
-                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+//                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                 } else {
                     TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                 }

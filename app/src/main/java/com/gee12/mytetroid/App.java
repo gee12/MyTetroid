@@ -6,6 +6,7 @@ import android.content.Context;
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
@@ -75,5 +76,6 @@ public class App {
         if (SettingsManager.isCopiedFromFree()) {
             LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
         }
+        DataManager.init(context);
     }
 }

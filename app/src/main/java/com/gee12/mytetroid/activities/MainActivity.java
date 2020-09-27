@@ -298,7 +298,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().onSettingsInited();
         setMenuItemsVisible();
 
-        StorageManager.init(this);
+        StorageManager.setStorageCallback(this);
         StorageManager.startInitStorage(this, false);
     }
 

@@ -1020,7 +1020,8 @@ public class RecordsManager extends DataManager {
     }
 
     public static String getUriToRecordFolder(@NonNull TetroidRecord record) {
-        return getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR;
+        return (isLoaded()) ? getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR
+                : null;
     }
 
     public static String getPathToRecordFolder(TetroidRecord record) {

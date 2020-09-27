@@ -97,13 +97,16 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      */
     protected static DataManager Instance;
 
+    public static void init(Context ctx) {
+        DataManager.context = ctx;
+    }
+
     /**
      * Загрузка параметров из файла database.ini и инициализация переменных.
      * @param storagePath
      * @return
      */
-    public static boolean init(Context ctx, String storagePath, boolean isNew) {
-        DataManager.context = ctx;
+    public static boolean initStorage(String storagePath, boolean isNew) {
         DataManager.Instance = new DataManager();
         DataManager.Instance.mStoragePath = storagePath;
         DataManager.DatabaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
