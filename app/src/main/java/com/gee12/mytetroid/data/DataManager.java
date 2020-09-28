@@ -95,56 +95,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     /**
      *
      */
-    protected static DataManager Instance;
+    protected static StorageManager Instance;
 
     public static void init(Context ctx) {
         DataManager.context = ctx;
-    }
-
-    /**
-     * Загрузка параметров из файла database.ini и инициализация переменных.
-     * @param storagePath
-     * @return
-     */
-    public static boolean initStorage(String storagePath, boolean isNew) {
-        DataManager.Instance = new DataManager();
-        DataManager.Instance.mStoragePath = storagePath;
-        DataManager.DatabaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
-        boolean res;
-        try {
-            File storageDir = new File(storagePath);
-            if (isNew) {
-                LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
-                if (storageDir.exists()) {
-                    // очищаем каталог
-                    LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
-                    FileUtils.clearDir(storageDir);
-                    // проверяем, пуст ли каталог
-                } else {
-                    LogManager.log(R.string.log_dir_is_missing, LogManager.Types.ERROR);
-                    return false;
-                }
-                // сохраняем новый database.ini
-                res = DatabaseConfig.saveDefault();
-                // создаем каталог base
-                File baseDir = new File(storagePath, BASE_FOLDER_NAME);
-                if (!baseDir.mkdir()) {
-                    return false;
-                }
-                // добавляем корневую ветку
-                Instance.init();
-                Instance.mIsStorageLoaded = true;
-            }  else {
-                // загружаем database.ini
-                res = DatabaseConfig.load();
-            }
-            Instance.mStorageName = storageDir.getName();
-        } catch (Exception ex) {
-            LogManager.log(ex);
-            return false;
-        }
-        Instance.mIsStorageInited = res;
-        return res;
     }
 
 
@@ -956,8 +910,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return DatabaseConfig;
     }
 
-    public static DataManager getInstance() {
-        return Instance;
+    public static StorageManager getInstance() {
+//        return Instance;
+        if (Instance != null) {
+            return Instance;
+        } else {
+            Instance = new StorageManager();
+            return Instance;
+        }
     }
 
     public static void destruct() {

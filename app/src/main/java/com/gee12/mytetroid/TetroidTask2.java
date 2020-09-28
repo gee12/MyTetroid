@@ -11,34 +11,34 @@ import android.os.AsyncTask;
  */
 public abstract class TetroidTask2<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
-    public interface IAsyncTaskListener {
+    public interface IAsyncTaskCallback {
         void blockInterface();
         void unblockInterface();
     }
 
     protected Context mContext;
-    protected IAsyncTaskListener mTaskListener;
+    protected IAsyncTaskCallback mTaskCallback;
 
-    public TetroidTask2(IAsyncTaskListener listener, Context context) {
-        this.mTaskListener = listener;
+    public TetroidTask2(IAsyncTaskCallback callback, Context context) {
+        this.mTaskCallback = callback;
         this.mContext = context;
     }
 
     @Override
     protected void onPreExecute() {
-        mTaskListener.blockInterface();
+        mTaskCallback.blockInterface();
         super.onPreExecute();
     }
 
     @Override
     protected void onPostExecute(Result result) {
-        mTaskListener.unblockInterface();
+        mTaskCallback.unblockInterface();
         super.onPostExecute(result);
     }
 
     @Override
     protected void onCancelled() {
-        mTaskListener.unblockInterface();
+        mTaskCallback.unblockInterface();
         super.onCancelled();
     }
 

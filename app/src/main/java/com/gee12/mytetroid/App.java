@@ -15,6 +15,7 @@ import java.util.Locale;
 
 public class App {
 
+    public static boolean IsInited;
     public static boolean IsHighlightAttach;
     public static boolean IsHighlightCryptedNodes;
     @ColorInt public static int HighlightAttachColor;
@@ -70,6 +71,8 @@ public class App {
      * Первоначальная инициализация служб приложения.
      */
     public static void init(Context context) {
+        if (IsInited)
+            return;
         SettingsManager.init(context);
         LogManager.init(context, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
         LogManager.log(String.format(context.getString(R.string.log_app_start_mask), Utils.getVersionName(context)));
@@ -77,5 +80,6 @@ public class App {
             LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
         }
         DataManager.init(context);
+        IsInited = true;
     }
 }

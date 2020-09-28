@@ -66,9 +66,10 @@
             android:layout_toStartOf="@id/button_node"
             android:inputType="none"
             android:textIsSelectable="false"
-            android:clickable="false"
-            android:focusable="false"
+            android:clickable="true"
+            android:focusable="true"
             style="@style/dialog_text_edit"/>
+<!--        android:editable="false"-->
 
         <ImageButton
             android:id="@+id/button_node"

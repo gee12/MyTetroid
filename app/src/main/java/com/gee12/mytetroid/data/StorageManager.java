@@ -15,13 +15,19 @@ import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.StorageChooserDialog;
+
+import java.io.File;
 
 import lib.folderpicker.FolderPicker;
 
 public class StorageManager extends DataManager {
 
-    public interface IStorageInitCallback extends TetroidTask2.IAsyncTaskListener {
+    /**
+     *
+     */
+    public interface IStorageInitCallback extends TetroidTask2.IAsyncTaskCallback {
         void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode);
         boolean taskPreExecute(int sRes);
         void taskPostExecute(boolean isDrawerOpened);
@@ -39,16 +45,84 @@ public class StorageManager extends DataManager {
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 3;
 
 
-    protected static boolean IsAlreadyTryDecrypt;
-    protected static boolean IsLoadStorageAfterSync;
-    private static IStorageInitCallback StorageInitCallback;
+    protected boolean mIsAlreadyTryDecrypt;
+    protected boolean mIsLoadStorageAfterSync;
+    private IStorageInitCallback mStorageInitCallback;
 
     /**
      * Первоначальная инициализация.
      * @param storageInitCallback
      */
     public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
-        StorageInitCallback = storageInitCallback;
+        getInstance().mStorageInitCallback = storageInitCallback;
+    }
+
+    protected static IStorageInitCallback getStorageInitCallback() {
+        return getInstance().mStorageInitCallback;
+    }
+
+    /**
+     * Загрузка параметров из файла database.ini и инициализация переменных.
+     * @param storagePath
+     * @return
+     */
+    public static boolean initStorage(String storagePath, boolean isNew) {
+        DataManager.Instance = new StorageManager();
+        DataManager.Instance.mStoragePath = storagePath;
+        DataManager.DatabaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
+        boolean res;
+        try {
+            File storageDir = new File(storagePath);
+            if (isNew) {
+                LogManager.log(context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
+                if (storageDir.exists()) {
+                    // очищаем каталог
+                    LogManager.log(R.string.log_clear_storage_dir, LogManager.Types.INFO);
+                    FileUtils.clearDir(storageDir);
+                    // проверяем, пуст ли каталог
+                } else {
+                    LogManager.log(R.string.log_dir_is_missing, LogManager.Types.ERROR);
+                    return false;
+                }
+                // сохраняем новый database.ini
+                res = DatabaseConfig.saveDefault();
+                // создаем каталог base
+                File baseDir = new File(storagePath, BASE_FOLDER_NAME);
+                if (!baseDir.mkdir()) {
+                    return false;
+                }
+                // добавляем корневую ветку
+                Instance.init();
+                Instance.mIsStorageLoaded = true;
+            }  else {
+                // загружаем database.ini
+                res = DatabaseConfig.load();
+            }
+            Instance.mStorageName = storageDir.getName();
+        } catch (Exception ex) {
+            LogManager.log(ex);
+            return false;
+        }
+        Instance.mIsStorageInited = res;
+        return res;
+    }
+
+    /**
+     *
+     * @param activity
+     * @param storageInitCallback
+     */
+    public static void initOrShowStorage(Activity activity, IStorageInitCallback storageInitCallback) {
+        if (!StorageManager.isLoaded() || getStorageInitCallback() == null) {
+            // загружаем хранилище
+            StorageManager.setStorageCallback(storageInitCallback);
+            StorageManager.startInitStorage(activity, false);
+        } else {
+            // инициализация контролов
+            getStorageInitCallback().initGUI(true, SettingsManager.isLoadFavoritesOnly(), SettingsManager.isKeepLastNode());
+            // действия после загрузки хранилища
+            getStorageInitCallback().afterStorageLoaded(true);
+        }
     }
 
     /**
@@ -82,7 +156,7 @@ public class StorageManager extends DataManager {
                 AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
-                        IsLoadStorageAfterSync = true;
+                        getInstance().mIsLoadStorageAfterSync = true;
                         startStorageSync(activity, storagePath);
                     }
 
@@ -92,7 +166,7 @@ public class StorageManager extends DataManager {
                     }
                 });
             } else {
-                IsLoadStorageAfterSync = true;
+                getInstance().mIsLoadStorageAfterSync = true;
                 startStorageSync(activity, storagePath);
             }
         } else {
@@ -106,12 +180,12 @@ public class StorageManager extends DataManager {
      * @param storagePath Путь хранилища
      */
     public static boolean initStorage(Context context, String storagePath) {
-        IsAlreadyTryDecrypt = false;
+        getInstance().mIsAlreadyTryDecrypt = false;
         // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
         boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnly()
                 || (DataManager.isLoaded() && DataManager.isFavoritesMode());
 
-        boolean res = DataManager.initStorage(storagePath, false);
+        boolean res = initStorage(storagePath, false);
         if (res) {
             LogManager.log(context.getString(R.string.log_storage_settings_inited) + storagePath);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
@@ -131,7 +205,7 @@ public class StorageManager extends DataManager {
             LogManager.log(context.getString(R.string.log_failed_storage_init) + storagePath,
                     LogManager.Types.ERROR, Toast.LENGTH_LONG);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
-            StorageInitCallback.initGUI(false, isFavorites, false);
+            getStorageInitCallback().initGUI(false, isFavorites, false);
         }
         return res;
     }
@@ -170,8 +244,8 @@ public class StorageManager extends DataManager {
                     askPassword(context, node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
                 } else {
                     LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
-                    if (!IsAlreadyTryDecrypt) {
-                        IsAlreadyTryDecrypt = true;
+                    if (!getInstance().mIsAlreadyTryDecrypt) {
+                        getInstance().mIsAlreadyTryDecrypt = true;
                         initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                     }
                 }
@@ -250,8 +324,8 @@ public class StorageManager extends DataManager {
                 // и пароль не сохраняли, то нужно его спросить.
                 // Но если пароль вводить отказались, то просто грузим хранилище как есть
                 // (только в первый раз, затем перезагружать не нужно)
-                if (!IsAlreadyTryDecrypt && !DataManager.isLoaded()) {
-                    IsAlreadyTryDecrypt = true;
+                if (!getInstance().mIsAlreadyTryDecrypt && !DataManager.isLoaded()) {
+                    getInstance().mIsAlreadyTryDecrypt = true;
                     initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                 }
             }
@@ -278,11 +352,15 @@ public class StorageManager extends DataManager {
                 && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
         if (isDecrypt && DataManager.isNodesExist()) {
             // расшифровываем уже загруженное хранилище
-            StorageInitCallback.taskStarted(new DecryptStorageTask(context, node).run());
+            getStorageInitCallback().taskStarted(
+                    new DecryptStorageTask(getStorageInitCallback(), context, node)
+                            .run());
         } else {
             // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
-            StorageInitCallback.taskStarted(new ReadStorageTask(context, isDecrypt, isOnlyFavorites, isOpenLastNode).run());
+            getStorageInitCallback().taskStarted(
+                    new ReadStorageTask(getStorageInitCallback(), context, isDecrypt, isOnlyFavorites, isOpenLastNode)
+                            .run());
         }
     }
 
@@ -300,7 +378,7 @@ public class StorageManager extends DataManager {
                 return;
             }
         }*/
-        boolean res = (DataManager.initStorage(storagePath, true));
+        boolean res = (initStorage(storagePath, true));
         if (res) {
             /*closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();
@@ -359,8 +437,9 @@ public class StorageManager extends DataManager {
         boolean mIsFavoritesOnly;
         boolean mIsOpenLastNode;
 
-        ReadStorageTask (Context context, boolean isDecrypt, boolean isFavorites, boolean isOpenLastNode) {
-            super(StorageInitCallback, context);
+        ReadStorageTask (IStorageInitCallback callback, Context context,
+                         boolean isDecrypt, boolean isFavorites, boolean isOpenLastNode) {
+            super(callback, context);
             this.mIsDecrypt = isDecrypt;
             this.mIsFavoritesOnly = isFavorites;
             this.mIsOpenLastNode = isOpenLastNode;
@@ -368,7 +447,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPreExecute() {
-            StorageInitCallback.taskPreExecute(R.string.task_storage_loading);
+            getStorageInitCallback().taskPreExecute(R.string.task_storage_loading);
         }
 
         @Override
@@ -378,7 +457,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            StorageInitCallback.taskPostExecute(true);
+            getStorageInitCallback().taskPostExecute(true);
             if (res) {
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mIsFavoritesOnly;
@@ -392,9 +471,13 @@ public class StorageManager extends DataManager {
                         LogManager.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
-            StorageInitCallback.initGUI(res, mIsFavoritesOnly, mIsOpenLastNode);
+            getStorageInitCallback().initGUI(res, mIsFavoritesOnly, mIsOpenLastNode);
             // действия после загрузки хранилища
-            StorageInitCallback.afterStorageLoaded(res);
+            getStorageInitCallback().afterStorageLoaded(res);
+        }
+
+        private IStorageInitCallback getStorageInitCallback() {
+            return (IStorageInitCallback) mTaskCallback;
         }
     }
 
@@ -406,14 +489,14 @@ public class StorageManager extends DataManager {
         boolean mIsDrawerOpened;
         TetroidNode mNode;
 
-        DecryptStorageTask(Context context, TetroidNode node) {
-            super(StorageInitCallback, context);
+        DecryptStorageTask(IStorageInitCallback callback, Context context, TetroidNode node) {
+            super(callback, context);
             this.mNode = node;
         }
 
         @Override
         protected void onPreExecute() {
-            this.mIsDrawerOpened = StorageInitCallback.taskPreExecute(R.string.task_storage_decrypting);
+            this.mIsDrawerOpened = getStorageInitCallback().taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
 
@@ -424,13 +507,17 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            StorageInitCallback.taskPostExecute(mIsDrawerOpened);
+            getStorageInitCallback().taskPostExecute(mIsDrawerOpened);
             if (res) {
                 LogManager.log(R.string.log_storage_decrypted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }
-            StorageInitCallback.afterStorageDecrypted(mNode);
+            getStorageInitCallback().afterStorageDecrypted(mNode);
+        }
+
+        private IStorageInitCallback getStorageInitCallback() {
+            return (IStorageInitCallback) mTaskCallback;
         }
     }
 

@@ -2,12 +2,14 @@ package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -51,6 +53,7 @@ public class RecordDialogs {
         EditText etTags = view.findViewById(R.id.edit_text_tags);
         RelativeLayout layoutNode = view.findViewById(R.id.layout_node);
         EditText etNode = view.findViewById(R.id.edit_text_node);
+        ImageButton bNode = view.findViewById(R.id.button_node);
         CheckedTextView ctvFavor = view.findViewById(R.id.check_box_favor);
 
         if (BuildConfig.DEBUG && record == null) {
@@ -73,6 +76,7 @@ public class RecordDialogs {
             if (isNeedNode) {
                 layoutNode.setVisibility(View.VISIBLE);
                 etNode.setText((recordNode != null) ? recordNode.getName() : context.getString(R.string.title_select_node));
+                etNode.setInputType(InputType.TYPE_NULL);
             }
             if (App.isFullVersion()) {
                 ctvFavor.setVisibility(View.VISIBLE);
@@ -82,9 +86,12 @@ public class RecordDialogs {
         // диалог выбора ветки
         NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
         if (isNeedNode) {
-            layoutNode.setOnClickListener(v -> {
-                NodeDialogs.createNodeChooserDialog(context, recordNode, false, true, false, nodeCallback);
-            });
+            View.OnClickListener clickListener = v -> {
+                NodeDialogs.createNodeChooserDialog(context, recordNode, false,
+                        true, false, nodeCallback);
+            };
+            etNode.setOnClickListener(clickListener);
+            bNode.setOnClickListener(clickListener);
         }
         // возврат результата
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
