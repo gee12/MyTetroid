@@ -633,6 +633,7 @@ public class RecordsManager extends DataManager {
         String oldTagsString = record.getTagsString(true);
         String oldUrl = record.getUrl(true);
         TetroidNode oldNode = record.getNode();
+        String oldDirName = record.getDirName();
         boolean oldIsFavor = record.isFavorite();
         // обновляем поля
         boolean crypted = node.isCrypted();
@@ -651,19 +652,19 @@ public class RecordsManager extends DataManager {
             }
             node.addRecord(record);
         }
+        // удаляем пометку временной записи
+        if (isTemp) {
+            // вырезаем уникальную приставку в имени каталога
+            String dirNameInBase = oldDirName.substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
+            // перемещаем каталог записи из корзины
+            if (moveRecordFolder(record, getPathToRecordFolderInTrash(record), getStoragePathBase(), dirNameInBase) <= 0) {
+                return false;
+            }
+            record.setIsTemp(false);
+        }
 
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
-            // удаляем пометку временной записи
-            if (isTemp) {
-                // вырезаем уникальную приставку в имени каталога
-                String dirNameInBase = record.getDirName().substring(PREFIX_DATE_TIME_FORMAT.length() + 1);
-                // перемещаем каталог записи из корзины
-                if (moveRecordFolder(record, getPathToRecordFolderInTrash(record), getStoragePathBase(), dirNameInBase) <= 0) {
-                    return false;
-                }
-                record.setIsTemp(false);
-            }
             if (oldTagsString == null && tagsString != null
                     || oldTagsString != null && !oldTagsString.equals(tagsString)) {
                 // удаляем старые метки
@@ -691,14 +692,19 @@ public class RecordsManager extends DataManager {
                         decryptField(crypted, oldTagsString),
                         decryptField(crypted, oldAuthor),
                         decryptField(crypted, url));
-                node.deleteRecord(record);
-                if (oldNode != null) {
-                    oldNode.addRecord(record);
-                }
-                if (App.isFullVersion()) {
-                    FavoritesManager.addOrRemove(record, oldIsFavor);
-                }
             }
+            node.deleteRecord(record);
+            if (oldNode != null) {
+                oldNode.addRecord(record);
+            }
+            if (App.isFullVersion()) {
+                FavoritesManager.addOrRemove(record, oldIsFavor);
+            }
+            if (isTemp) {
+                moveRecordFolder(record, getPathToRecordFolder(record), SettingsManager.getTrashPath(), oldDirName);
+                record.setIsTemp(true);
+            }
+
             return false;
         }
         return true;

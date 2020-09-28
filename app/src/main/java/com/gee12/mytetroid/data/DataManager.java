@@ -712,7 +712,10 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
                 // перезапускаем отслеживание, чтобы проверять новосозданный файл
 //                TetroidFileObserver.restartObserver();
-                FileObserverService.sendCommand(MainActivity.getInstance(), FileObserverService.ACTION_RESTART);
+                if (MainActivity.getInstance() != null) {
+                    // но только для MainActivity
+                    FileObserverService.sendCommand(MainActivity.getInstance(), FileObserverService.ACTION_RESTART);
+                }
 
                 return true;
             }

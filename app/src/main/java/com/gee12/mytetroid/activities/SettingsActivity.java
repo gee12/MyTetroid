@@ -34,7 +34,8 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         setSupportActionBar(findViewById(R.id.toolbar));
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setVisibilityActionHome(true);
 //        addPreferencesFromResource(R.xml.prefs);
         this.mSettingsFragment = new SettingsFragment();
         getSupportFragmentManager()
@@ -134,4 +135,10 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    protected void setVisibilityActionHome(boolean isVis) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(isVis);
+        }
+    }
 }

@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
@@ -43,7 +44,8 @@ public abstract class TetroidActivity extends AppCompatActivity
 
         this.mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setVisibilityActionHome(true);
 
         // обработчик нажатия на экране
         this.gestureDetector = new GestureDetectorCompat(this,
@@ -180,5 +182,12 @@ public abstract class TetroidActivity extends AppCompatActivity
     @Override
     public void afterStorageDecrypted(TetroidNode node) {
 
+    }
+
+    protected void setVisibilityActionHome(boolean isVis) {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(isVis);
+        }
     }
 }

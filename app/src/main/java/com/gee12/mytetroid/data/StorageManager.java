@@ -32,9 +32,12 @@ public class StorageManager extends DataManager {
 
     public static final int REQUEST_CODE_OPEN_STORAGE = 1;
     public static final int REQUEST_CODE_CREATE_STORAGE = 2;
+    public static final int REQUEST_CODE_SYNC_STORAGE = 3;
+
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
-    public static final int REQUEST_CODE_SYNC_STORAGE = 6;
+    public static final int REQUEST_CODE_PERMISSION_CAMERA = 3;
+
 
     protected static boolean IsAlreadyTryDecrypt;
     protected static boolean IsLoadStorageAfterSync;
@@ -54,7 +57,7 @@ public class StorageManager extends DataManager {
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
      */
     public static void startInitStorage(Activity activity, boolean isLoadLastForced) {
-
+        // сначала проверяем разрешение на запись во внешнюю память
         if (!PermissionManager.checkWriteExtStoragePermission(activity, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             return;
         }

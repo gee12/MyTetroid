@@ -13,6 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <include
+        android:id="@+id/layout_progress"
+        layout="@layout/layout_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -266,7 +273,6 @@
             app:backgroundTint="@color/fab"
             android:visibility="gone"
             style="@style/fab"/>
-<!--        android:gradientRadius="30"-->
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_scroll_bottom"
@@ -278,12 +284,5 @@
             style="@style/fab"/>
 
     </RelativeLayout>
-
-    <include
-        android:id="@+id/layout_progress"
-        layout="@layout/layout_progress"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

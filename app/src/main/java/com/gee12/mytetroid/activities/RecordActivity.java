@@ -110,8 +110,6 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_SHOW_TAG = 6;
     public static final int RESULT_DELETE_RECORD = 7;
 
-    public static final int REQUEST_CODE_PERMISSION_CAMERA = 1;
-
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
     private FloatingActionButton mButtonFullscreen;
@@ -281,6 +279,7 @@ public class RecordActivity extends TetroidActivity implements
      * @return
      */
     private boolean initRecordFromWidget() {
+        setVisibilityActionHome(false);
         // создаем временную запись
         this.mRecord = RecordsManager.createTempRecord(null, null, null);
         if (mRecord != null) {
@@ -298,6 +297,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param text
      */
     private void showIntentDialog(Intent intent, String text) {
+        setVisibilityActionHome(false);
         IntentDialog.createDialog(this, true, (receivedData) -> {
             if (receivedData.isCreate()) {
                 initRecordFromSentText(intent, text);
@@ -735,7 +735,7 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void startCamera() {
         // проверка разрешения
-        if (!PermissionManager.checkCameraPermission(this, REQUEST_CODE_PERMISSION_CAMERA)) {
+        if (!PermissionManager.checkCameraPermission(this, StorageManager.REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
         // не удалось сохранять сделанную фотографию сразу в каталог записи
@@ -783,18 +783,6 @@ public class RecordActivity extends TetroidActivity implements
         if (!savedImages.isEmpty()) {
             mEditor.insertImages(savedImages);
         }
-    }
-
-    /**
-     * Поиск по тексту записи.
-     * @param query
-     * @param record
-     */
-    private void searchInText(String query, TetroidRecord record) {
-        //
-        // TODO: реализовать поиск по тексту записи
-        //
-        LogManager.log(String.format(getString(R.string.search_text_by_query), record.getName(), query));
     }
 
     /**
@@ -907,7 +895,7 @@ public class RecordActivity extends TetroidActivity implements
                     this.runOnUiThread(() -> editFields());
                 } else {
                     this.mIsSaveTempAfterStorageLoaded = true;
-                    loadStorage();
+                    this.runOnUiThread(() -> loadStorage());
                 }
             } else {
                 save();
@@ -926,6 +914,7 @@ public class RecordActivity extends TetroidActivity implements
             this.mIsSaveTempAfterStorageLoaded = false;
             // сохраняем временную запись
             editFields();
+//            this.runOnUiThread(() -> editFields());
         }
     }
 
@@ -1096,21 +1085,23 @@ public class RecordActivity extends TetroidActivity implements
      * Редактирование свойств записи.
      */
     private void editFields() {
-        boolean isTemp = mRecord.isTemp();
+        boolean wasTemp = mRecord.isTemp();
         RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null, (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(mRecord, name, tags, author, url, node, isFavor)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
                 loadFields(mRecord);
-                if (isTemp) {
+                if (wasTemp) {
                     // сохраняем текст записи
                     save();
 //                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                    // показываем кнопку Home для возврата в ветку записи
+                    setVisibilityActionHome(true);
                 } else {
                     TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                 }
             } else {
-                if (isTemp) {
+                if (wasTemp) {
                     // все равно сохраняем текст записи
                     save();
                     TetroidLog.logOperErrorMore(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
@@ -1498,7 +1489,16 @@ public class RecordActivity extends TetroidActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case REQUEST_CODE_PERMISSION_CAMERA: {
+            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+                if (permGranted) {
+                    LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
+                    StorageManager.startInitStorage(this, false);
+                } else {
+                    LogManager.log(R.string.log_missing_read_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+                }
+            }
+            break;
+            case StorageManager.REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
                     LogManager.log(R.string.log_camera_perm_granted, LogManager.Types.INFO);
                     startCamera();
