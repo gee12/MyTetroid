@@ -911,13 +911,14 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static StorageManager getInstance() {
-//        return Instance;
-        if (Instance != null) {
-            return Instance;
-        } else {
-            Instance = new StorageManager();
-            return Instance;
+        if (Instance == null) {
+            Instance = createInstance();
         }
+        return Instance;
+    }
+
+    public static StorageManager createInstance() {
+        return new StorageManager();
     }
 
     public static void destruct() {

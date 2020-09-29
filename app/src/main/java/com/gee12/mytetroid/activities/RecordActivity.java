@@ -1264,14 +1264,19 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
-        activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly);
+        boolean isTemp = mRecord.isTemp();
+        activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_attached_files), true, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_cur_record_folder), true, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_info), true, !isTemp);
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
-        menuItem.setVisible(isActivate);
+    private void activateMenuItem(MenuItem menuItem, boolean isVisible, boolean isEnabled) {
+        menuItem.setVisible(isVisible);
+        menuItem.setEnabled(isEnabled);
     }
 
     /**
@@ -1475,9 +1480,15 @@ public class RecordActivity extends TetroidActivity implements
 //                return true;
             case android.R.id.home:
                 boolean res = onSaveRecord(true, null);
-                if (!res) {
-                    // указываем родительской активности, что нужно обновить список записей
-                    setResultFieldsEdited();
+                if (MainActivity.getInstance() != null) {
+                    if (!res) {
+                        // указываем родительской активности, что нужно обновить список записей
+                        setResultFieldsEdited();
+                    }
+                } else {
+                    // если MainActivity еще не была создана (например, сразу открыли RecordActivity из виджета),
+                    //  то запускаем ее вручную
+                    ViewUtils.startActivity(this, MainActivity.class, null);
                 }
                 return res;
         }

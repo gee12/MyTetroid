@@ -170,6 +170,9 @@ public class RecordDialogs {
 
         View view = builder.getView();
         ((TextView)view.findViewById(R.id.text_view_id)).setText(record.getId());
+        if (record.getNode() != null) {
+            ((TextView) view.findViewById(R.id.text_view_node)).setText(record.getNode().getName());
+        }
         ((TextView)view.findViewById(R.id.text_view_crypted)).setText(record.isCrypted()
                 ? R.string.answer_yes : R.string.answer_no);
         String dateFormat = context.getString(R.string.full_date_format_string);

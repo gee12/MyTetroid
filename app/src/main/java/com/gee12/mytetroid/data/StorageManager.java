@@ -67,8 +67,8 @@ public class StorageManager extends DataManager {
      * @return
      */
     public static boolean initStorage(String storagePath, boolean isNew) {
-        DataManager.Instance = new StorageManager();
-        DataManager.Instance.mStoragePath = storagePath;
+        DataManager inst = getInstance();
+        inst.mStoragePath = storagePath;
         DataManager.DatabaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
         boolean res;
         try {
@@ -92,18 +92,18 @@ public class StorageManager extends DataManager {
                     return false;
                 }
                 // добавляем корневую ветку
-                Instance.init();
-                Instance.mIsStorageLoaded = true;
+                inst.init();
+                inst.mIsStorageLoaded = true;
             }  else {
                 // загружаем database.ini
                 res = DatabaseConfig.load();
             }
-            Instance.mStorageName = storageDir.getName();
+            inst.mStorageName = storageDir.getName();
         } catch (Exception ex) {
             LogManager.log(ex);
             return false;
         }
-        Instance.mIsStorageInited = res;
+        inst.mIsStorageInited = res;
         return res;
     }
 
@@ -114,8 +114,8 @@ public class StorageManager extends DataManager {
      */
     public static void initOrShowStorage(Activity activity, IStorageInitCallback storageInitCallback) {
         if (!StorageManager.isLoaded() || getStorageInitCallback() == null) {
-            // загружаем хранилище
             StorageManager.setStorageCallback(storageInitCallback);
+            // загружаем хранилище
             StorageManager.startInitStorage(activity, false);
         } else {
             // инициализация контролов
