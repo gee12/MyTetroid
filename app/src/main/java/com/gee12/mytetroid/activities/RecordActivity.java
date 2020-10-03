@@ -95,6 +95,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private static class ResultObj {
 
+        static final int NONE = 0;
         static final int EXIT = 1;
         static final int START_MAIN_ACTIVITY = 2;
         static final int OPEN_RECORD = 3;
@@ -121,7 +122,7 @@ public class RecordActivity extends TetroidActivity implements
             } else if (obj instanceof String) {
                 this.type = OPEN_TAG;
             } else {
-                this.type = EXIT;
+                this.type = NONE;
             }
         }
     }
@@ -172,6 +173,7 @@ public class RecordActivity extends TetroidActivity implements
     private boolean mIsReceivedImages;
     private int mModeToSwitch = -1;
     private boolean mIsSaveTempAfterStorageLoaded;
+    private ResultObj mResultObj;
 
     public RecordActivity() {
         super();
@@ -547,7 +549,7 @@ public class RecordActivity extends TetroidActivity implements
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             mEditor.setHtmlRequestHandled();
             // теперь сохраняем текст заметки без вызова предварительных методов
-            saveRecord(false);
+            saveRecord(false, mResultObj);
             // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
             if (mModeToSwitch > 0) {
                 runOnUiThread(() -> {
@@ -840,7 +842,7 @@ public class RecordActivity extends TetroidActivity implements
             //  * есть изменения
             //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уж потом можно сохранять)
             if (mEditor.isEdited() && mCurMode != MODE_HTML) {
-                runBeforeSaving = saveRecord();
+                runBeforeSaving = saveRecord(null);
             }
         }
         // если асинхронно запущена предобработка сохранения, то выходим
@@ -862,20 +864,6 @@ public class RecordActivity extends TetroidActivity implements
         this.mCurMode = newMode;
     }
 
-//    /**
-//     * Сохранение изменений при смене режима.
-//     */
-//    private void onSaveRecord() {
-//        if (SettingsManager.isRecordAutoSave()) {
-//            // автоматически сохраняем текст записи, если:
-//            //  * есть изменения
-//            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уж потом можно сохранять)
-//            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
-//                saveRecord();
-//            }
-//        }
-//    }
-
     /**
      * Сохранение изменений при скрытии или выходе из активности.
      * @param showAskDialog
@@ -887,14 +875,13 @@ public class RecordActivity extends TetroidActivity implements
         if (mEditor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 // сохраняем без запроса
-                saveRecord();
+                saveRecord(obj);
             } else if (showAskDialog) {
                 // спрашиваем о сохранении, если нужно
                 RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
-                        saveRecord();
-                        onAfterSaving(obj);
+                        saveRecord(obj);
                     }
                     @Override
                     public void onCancel() {
@@ -911,9 +898,12 @@ public class RecordActivity extends TetroidActivity implements
      * Сохранение html-текста записи в файл.
      * @return Запущена ли перед сохранением предобработка в асинхронном режиме.
      */
-    private boolean saveRecord() {
+    private boolean saveRecord(ResultObj obj) {
         boolean runBeforeSaving = SettingsManager.isFixEmptyParagraphs();
-        saveRecord(runBeforeSaving);
+        if (runBeforeSaving) {
+            this.mResultObj = obj;
+        }
+        saveRecord(runBeforeSaving, obj);
         return runBeforeSaving;
     }
 
@@ -921,19 +911,20 @@ public class RecordActivity extends TetroidActivity implements
      * Сохранение html-текста записи в файл с предобработкой.
      * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
      */
-    private void saveRecord(boolean callBefore) {
+    private void saveRecord(boolean callBefore, ResultObj obj) {
         if (callBefore) {
             onBeforeSavingAsync();
         } else {
             if (mRecord.isTemp()) {
                 if (DataManager.isLoaded()) {
-                    this.runOnUiThread(() -> editFields());
+                    this.runOnUiThread(() -> editFields(obj));
                 } else {
                     this.mIsSaveTempAfterStorageLoaded = true;
                     this.runOnUiThread(() -> loadStorage());
                 }
             } else {
                 save();
+                onAfterSaving(obj);
             }
         }
     }
@@ -948,7 +939,7 @@ public class RecordActivity extends TetroidActivity implements
         if (mIsSaveTempAfterStorageLoaded) {
             this.mIsSaveTempAfterStorageLoaded = false;
             // сохраняем временную запись
-            editFields();
+            editFields(mResultObj);
 //            this.runOnUiThread(() -> editFields());
         }
     }
@@ -981,14 +972,19 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Обработчик события после сохранения записи.
+     * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
      * @param resObj
      */
     public void onAfterSaving(ResultObj resObj) {
+        if (resObj == null) {
+            resObj = new ResultObj(null);
+        }
         switch (resObj.type) {
             case ResultObj.EXIT:
             case ResultObj.START_MAIN_ACTIVITY:
-                onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY);
+                if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
+                    finish();
+                }
                 break;
             case ResultObj.OPEN_RECORD:
                 openAnotherRecord((TetroidRecord) resObj.obj, false);
@@ -1002,20 +998,9 @@ public class RecordActivity extends TetroidActivity implements
             case ResultObj.OPEN_TAG:
                 openTag((String) resObj.obj, false);
                 break;
+            case ResultObj.NONE:
+                break;
         }
-        /*if (obj == null) {
-            // если ничего не передали, проверяем
-            onRecordFieldsIsEdited();
-//            finish();
-        } else if (obj instanceof TetroidRecord) {
-            openAnotherRecord((TetroidRecord) obj, false);
-        } else if (obj instanceof TetroidNode) {
-            openAnotherNode((TetroidNode) obj, false);
-        } else if (obj instanceof TetroidFile) {
-            openRecordFiles(mRecord, false);
-        } else if (obj instanceof String) {
-            openTag((String) obj, false);
-        }*/
     }
 
     /**
@@ -1138,7 +1123,7 @@ public class RecordActivity extends TetroidActivity implements
     /**
      * Редактирование свойств записи.
      */
-    private void editFields() {
+    private void editFields(ResultObj obj) {
         boolean wasTemp = mRecord.isTemp();
         RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null, (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(mRecord, name, tags, author, url, node, isFavor)) {
@@ -1147,7 +1132,8 @@ public class RecordActivity extends TetroidActivity implements
                 loadFields(mRecord);
                 if (wasTemp) {
                     // сохраняем текст записи
-                    save();
+//                    save();
+                    saveRecord(obj);
 //                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                     // показываем кнопку Home для возврата в ветку записи
                     setVisibilityActionHome(true);
@@ -1158,7 +1144,8 @@ public class RecordActivity extends TetroidActivity implements
             } else {
                 if (wasTemp) {
                     // все равно сохраняем текст записи
-                    save();
+//                    save();
+                    saveRecord(obj);
                     TetroidLog.logOperErrorMore(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                 } else {
                     TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
@@ -1241,7 +1228,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Действия перед закрытием активности, ссли свойства записи были изменены.
+     * Действия перед закрытием активности, если свойства записи были изменены.
      * @param startMainActivity
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      *         действие нужно прервать, чтобы дождаться результата из диалога
@@ -1517,10 +1504,10 @@ public class RecordActivity extends TetroidActivity implements
                 switchMode(MODE_HTML);
                 return true;
             case R.id.action_record_save:
-                saveRecord();
+                saveRecord(null);
                 return true;
             case R.id.action_record_edit_fields:
-                editFields();
+                editFields(null);
                 return true;
             case R.id.action_record_node:
                 showCurNode();
@@ -1553,10 +1540,10 @@ public class RecordActivity extends TetroidActivity implements
 //                ViewUtils.startActivity(this, AboutActivity.class, null);
 //                return true;
             case android.R.id.home:
-                boolean res = onSaveRecord(true, null);
-                if (!res) {
-                    res = onRecordFieldsIsEdited(true);
-                }
+                boolean res = onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY));
+//                if (!res) {
+//                    res = onRecordFieldsIsEdited(true);
+//                }
                 return res;
         }
         return super.onOptionsItemSelected(item);
@@ -1613,8 +1600,8 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
-        if (!onSaveRecord(true, null)
-                && !onRecordFieldsIsEdited(false)) {
+        if (!onSaveRecord(true, new ResultObj(ResultObj.EXIT))) {
+               // && !onRecordFieldsIsEdited(false)) {
             super.onBackPressed();
         }
     }
