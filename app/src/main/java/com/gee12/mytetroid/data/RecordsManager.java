@@ -458,35 +458,6 @@ public class RecordsManager extends DataManager {
     }
 
     /**
-     * Создание записи при приеме внешнего Intent.
-     * @param name
-     * @param url
-     * @return
-     */
-    /*public static TetroidRecord createRecord(String name, String url, String text, TetroidNode node) {
-        TetroidLog.logOperStart(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
-
-        if (TextUtils.isEmpty(name)) {
-            name = Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss");
-        }
-
-        TetroidRecord record = createRecord(name, null, null, url, node);
-        if (record == null) {
-            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, -1);
-            return null;
-        }
-
-        if (saveRecordHtmlText(record, text)) {
-            record.setIsNew(false);
-        } else {
-            TetroidLog.logOperErrorMore(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE, -1);
-            return null;
-        }
-
-        return record;
-    }*/
-
-    /**
      * Создание временной записи (без сохранения в дерево) при использовании виджета.
      * @return
      */

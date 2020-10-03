@@ -112,9 +112,9 @@ public class StorageManager extends DataManager {
      * @param activity
      * @param storageInitCallback
      */
-    public static void initOrShowStorage(Activity activity, IStorageInitCallback storageInitCallback) {
-        if (!StorageManager.isLoaded() || getStorageInitCallback() == null) {
-            StorageManager.setStorageCallback(storageInitCallback);
+    /*public static void initOrShowStorage(Activity activity, IStorageInitCallback storageInitCallback) {
+        StorageManager.setStorageCallback(storageInitCallback);
+        if (!StorageManager.isLoaded() *//*|| getStorageInitCallback() == null*//*) {
             // загружаем хранилище
             StorageManager.startInitStorage(activity, false);
         } else {
@@ -123,7 +123,7 @@ public class StorageManager extends DataManager {
             // действия после загрузки хранилища
             getStorageInitCallback().afterStorageLoaded(true);
         }
-    }
+    }*/
 
     /**
      * Начало загрузки хранилища.

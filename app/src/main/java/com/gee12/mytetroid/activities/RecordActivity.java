@@ -90,6 +90,42 @@ public class RecordActivity extends TetroidActivity implements
         IColorPicker,
         ColorPickerDialogListener {
 
+    /**
+     *
+     */
+    private static class ResultObj {
+
+        static final int EXIT = 1;
+        static final int START_MAIN_ACTIVITY = 2;
+        static final int OPEN_RECORD = 3;
+        static final int OPEN_NODE = 4;
+        static final int OPEN_FILE = 5;
+        static final int OPEN_TAG = 6;
+
+        int type;
+        Object obj;
+
+        ResultObj(int type) {
+            this.type = type;
+            this.obj = null;
+        }
+
+        ResultObj(Object obj) {
+            this.obj = obj;
+            if (obj instanceof TetroidRecord) {
+                this.type = OPEN_RECORD;
+            } else if (obj instanceof TetroidNode) {
+                this.type = OPEN_NODE;
+            } else if (obj instanceof TetroidFile) {
+                this.type = OPEN_FILE;
+            } else if (obj instanceof String) {
+                this.type = OPEN_TAG;
+            } else {
+                this.type = EXIT;
+            }
+        }
+    }
+
     public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final int REQUEST_CODE_CAMERA = 2;
@@ -631,7 +667,7 @@ public class RecordActivity extends TetroidActivity implements
     private void openAnotherRecord(TetroidRecord record, boolean isAskForSave) {
         if (record == null)
             return;
-        if (onSaveRecord(isAskForSave, record))
+        if (onSaveRecord(isAskForSave, new ResultObj(record)))
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_OBJECT_ID, record.getId());
@@ -649,7 +685,7 @@ public class RecordActivity extends TetroidActivity implements
     private void openAnotherNode(TetroidNode node, boolean isAskForSave) {
         if (node == null)
             return;
-        if (onSaveRecord(isAskForSave, node))
+        if (onSaveRecord(isAskForSave, new ResultObj(node)))
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_OBJECT_ID, node.getId());
@@ -670,7 +706,7 @@ public class RecordActivity extends TetroidActivity implements
     private void openRecordFiles(TetroidRecord record, boolean isAskForSave) {
         if (record == null)
             return;
-        if (onSaveRecord(isAskForSave, new TetroidFile()))
+        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_OBJECT_ID, record.getId());
@@ -690,7 +726,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param isAskForSave
      */
     private void openTag(String tagName, boolean isAskForSave) {
-        if (onSaveRecord(isAskForSave, tagName))
+        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_TAG)))
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
@@ -847,7 +883,7 @@ public class RecordActivity extends TetroidActivity implements
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
-    private boolean onSaveRecord(boolean showAskDialog, Object obj) {
+    private boolean onSaveRecord(boolean showAskDialog, ResultObj obj) {
         if (mEditor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 // сохраняем без запроса
@@ -860,7 +896,6 @@ public class RecordActivity extends TetroidActivity implements
                         saveRecord();
                         onAfterSaving(obj);
                     }
-
                     @Override
                     public void onCancel() {
                         onAfterSaving(obj);
@@ -946,13 +981,32 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     *
-     * @param obj
+     * Обработчик события после сохранения записи.
+     * @param resObj
      */
-    public void onAfterSaving(Object obj) {
-        if (obj == null) {
-            setResultFieldsEdited();
-            finish();
+    public void onAfterSaving(ResultObj resObj) {
+        switch (resObj.type) {
+            case ResultObj.EXIT:
+            case ResultObj.START_MAIN_ACTIVITY:
+                onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY);
+                break;
+            case ResultObj.OPEN_RECORD:
+                openAnotherRecord((TetroidRecord) resObj.obj, false);
+                break;
+            case ResultObj.OPEN_NODE:
+                openAnotherNode((TetroidNode) resObj.obj, false);
+                break;
+            case ResultObj.OPEN_FILE:
+                openRecordFiles(mRecord, false);
+                break;
+            case ResultObj.OPEN_TAG:
+                openTag((String) resObj.obj, false);
+                break;
+        }
+        /*if (obj == null) {
+            // если ничего не передали, проверяем
+            onRecordFieldsIsEdited();
+//            finish();
         } else if (obj instanceof TetroidRecord) {
             openAnotherRecord((TetroidRecord) obj, false);
         } else if (obj instanceof TetroidNode) {
@@ -961,7 +1015,7 @@ public class RecordActivity extends TetroidActivity implements
             openRecordFiles(mRecord, false);
         } else if (obj instanceof String) {
             openTag((String) obj, false);
-        }
+        }*/
     }
 
     /**
@@ -1098,7 +1152,8 @@ public class RecordActivity extends TetroidActivity implements
                     // показываем кнопку Home для возврата в ветку записи
                     setVisibilityActionHome(true);
                 } else {
-                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+//                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                    LogManager.log(R.string.log_record_fields_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                 }
             } else {
                 if (wasTemp) {
@@ -1186,15 +1241,34 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Формирование результата активности в виде указания для родительской активности
-     * обновить список записей и меток.
+     * Действия перед закрытием активности, ссли свойства записи были изменены.
+     * @param startMainActivity
+     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
+     *         действие нужно прервать, чтобы дождаться результата из диалога
      */
-    private void setResultFieldsEdited() {
+    private boolean onRecordFieldsIsEdited(boolean startMainActivity) {
         if (mIsFieldsEdited) {
-            Intent intent = new Intent();
-            intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
-            setResult(RESULT_OK, intent);
+//                ActivityCompat.getReferrer()
+            if (getCallingActivity() != null) {
+                // закрываем активность, возвращая результат:
+                // указываем родительской активности, что нужно обновить список записей
+                Intent intent = new Intent();
+                intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
+//            intent.setAction(ACTION_ADD_RECORD);
+                setResult(RESULT_OK, intent);
+            } else if (startMainActivity) {
+                // запускаем главную активность, помещая результат
+                Bundle bundle = new Bundle();
+                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+                ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_ADD_RECORD, 0, null);
+                finish();
+                return true;
+            } else {
+                finish();
+                return true;
+            }
         }
+        return false;
     }
 
     /**
@@ -1480,15 +1554,8 @@ public class RecordActivity extends TetroidActivity implements
 //                return true;
             case android.R.id.home:
                 boolean res = onSaveRecord(true, null);
-                if (MainActivity.getInstance() != null) {
-                    if (!res) {
-                        // указываем родительской активности, что нужно обновить список записей
-                        setResultFieldsEdited();
-                    }
-                } else {
-                    // если MainActivity еще не была создана (например, сразу открыли RecordActivity из виджета),
-                    //  то запускаем ее вручную
-                    ViewUtils.startActivity(this, MainActivity.class, null);
+                if (!res) {
+                    res = onRecordFieldsIsEdited(true);
                 }
                 return res;
         }
@@ -1546,9 +1613,8 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
-        if (!onSaveRecord(true, null)) {
-            // указываем родительской активности, что нужно обновить список записей
-            setResultFieldsEdited();
+        if (!onSaveRecord(true, null)
+                && !onRecordFieldsIsEdited(false)) {
             super.onBackPressed();
         }
     }

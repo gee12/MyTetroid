@@ -289,17 +289,46 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     *
+     * Обработчик события, когда создался главный фрагмент активности.
      */
     @Override
     public void onMainPageCreated() {
         // инициализация
         App.init(this);
         mViewPagerAdapter.getMainFragment().onSettingsInited();
-        setMenuItemsVisible();
-        // загружаем хранилище, если еще не загружано,
-        //  или сразу отображаем
-        StorageManager.initOrShowStorage(this, this);
+        setMenuItemsDefVisible();
+
+        // --загружаем хранилище, если еще не загружано,
+        // --- или сразу отображаем
+//        StorageManager.initOrShowStorage(this, this);
+
+        // загружаем хранилище, если еще не загружано
+        StorageManager.setStorageCallback(this);
+        if (!StorageManager.isLoaded()) {
+            // загружаем хранилище
+            StorageManager.startInitStorage(this, false);
+        }
+    }
+
+    private void setMenuItemsDefVisible() {
+        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
+    }
+
+    /**
+     * Обработчик события, когда создались все элементы интерфейса.
+     * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
+     */
+    private void onGUICreated() {
+        // вызываем "принудительно" настройку элементов интерфейса,
+        //  если MainActivity запускается при уже загруженном хранилище
+        if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
+                && StorageManager.isLoaded()) {
+            //setMenuItemsAvailable(true);
+            // инициализация контролов
+            initGUI(true, SettingsManager.isLoadFavoritesOnly(), SettingsManager.isKeepLastNode());
+            // действия после загрузки хранилища
+            afterStorageLoaded(true);
+        }
     }
 
     /**
@@ -455,6 +484,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранными записями
      */
+    @Override
     public void initGUI(boolean res, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // избранные записи
         mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
@@ -533,10 +563,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
         setMenuItemsAvailable(res);
-    }
-
-    private void setMenuItemsVisible() {
-        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
     }
 
     private void setMenuItemsAvailable(boolean isAvailable) {
@@ -687,7 +713,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void showRecords(List<TetroidRecord> records, int viewId, boolean dropSearch) {
         // сбрасываем фильтрацию при открытии списка записей
-        if (dropSearch && !mSearchViewRecords.isIconified()) {
+        if (dropSearch && mSearchViewRecords != null && !mSearchViewRecords.isIconified()) {
             // сбрасываем SearchView;
             // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
             // полного списка записей в его обработчике с помощью проверки mIsDropRecordsFiltering
@@ -1815,6 +1841,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchViewRecords.setQuery(query, true);
 
+        } else if (action.equals(RecordActivity.ACTION_ADD_RECORD)) {
+
+            // TODO:
+//            onMainPageCreated();
+            String recordId = intent.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
+            if (recordId != null) {
+                TetroidRecord record = RecordsManager.getRecord(recordId);
+                if (record != null) {
+                    showNode(record.getNode());
+                } else {
+                    LogManager.log(getString(R.string.log_not_found_record) + recordId, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                }
+            }
+
         } else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста/изображения из другого приложения
             String type = intent.getType();
@@ -2106,6 +2146,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         //
         this.mIsActivityCreated = true;
+        // запускаем настройку элементов интерфейса, когда все создано
+        //  (пункты меню, судя по всему, создаются в последнюю очередь)
+        onGUICreated();
+
         return true;
     }
 
