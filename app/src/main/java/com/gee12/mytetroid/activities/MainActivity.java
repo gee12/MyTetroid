@@ -1836,15 +1836,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
             // обработка внешнего изменения дерева записей
             mOutsideChangingHandler.run(true);
+            
         } else if (action.equals(Intent.ACTION_SEARCH)) {
             // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchViewRecords.setQuery(query, true);
 
         } else if (action.equals(RecordActivity.ACTION_ADD_RECORD)) {
-
-            // TODO:
-//            onMainPageCreated();
+            // открытие ветки только что созданной записи с помощью виджета
             String recordId = intent.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
             if (recordId != null) {
                 TetroidRecord record = RecordsManager.getRecord(recordId);

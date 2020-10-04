@@ -81,28 +81,11 @@ public class RecordDialogs {
             if (App.isFullVersion()) {
                 ctvFavor.setVisibility(View.VISIBLE);
                 ctvFavor.setChecked(record.isFavorite());
+                ctvFavor.setOnClickListener(v -> {
+                    ctvFavor.setChecked(!ctvFavor.isChecked());
+                });
             }
         }
-        // диалог выбора ветки
-        /*final NodeChooserResult nodeCallback;
-        if (isNeedNode) {
-            View.OnClickListener clickListener = v -> {
-                NodeDialogs.createNodeChooserDialog(context,
-                        (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
-                        false, true, false, nodeCallback);
-            };
-            etNode.setOnClickListener(clickListener);
-            bNode.setOnClickListener(clickListener);
-        }*/
-        // возврат результата
-        /*builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            callback.onApply(etName.getText().toString(),
-                    etTags.getText().toString(),
-                    etAuthor.getText().toString(),
-                    etUrl.getText().toString(),
-                    (isNeedNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
-                    ctvFavor.isChecked());
-        }).setNegativeButton(R.string.answer_cancel, null);*/
 
         final AlertDialog dialog = builder.create();
 
@@ -151,7 +134,7 @@ public class RecordDialogs {
             etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
         });
-        dialog.show();;
+        dialog.show();
 
         // получаем okButton тут отдельно после вызова show()
         final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
