@@ -10,7 +10,10 @@
         android:layout_height="1dp"
         android:layout_alignParentTop="true"
         android:background="@color/gray"
-        android:layout_margin="10dp"/>
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="0dp"/>
 
     <TextView
         android:id="@+id/text_view_notice_top"

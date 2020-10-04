@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -288,7 +289,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     *
+     * Получение записи из хранилища, т.к. актиность была запущена из MainActivity.
      * @param intent
      * @return
      */
@@ -313,7 +314,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     *
+     * Создание новой временной записи, т.к. активность была запущена из виджета AddRecordWidget.
      * @return
      */
     private boolean initRecordFromWidget() {
@@ -330,7 +331,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     *
+     * Запуск диалога с вариантами обработки переданного текста из другого приложения.
      * @param intent
      * @param text
      */
@@ -348,7 +349,8 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     *
+     * Создание временной записи, т.к. активность была запущена при передаче текста
+     *  из другого приложения.
      * @param intent
      * @param text
      */
@@ -364,12 +366,17 @@ public class RecordActivity extends TetroidActivity implements
         this.mRecord = RecordsManager.createTempRecord(subject, url, text);
     }
 
+    /**
+     * Обработчик события загрузки пунктов меню.
+     * Выполняется в последнюю очередь, после чего можно запускать отображение содержимого записи.
+     */
     private void onMenuLoaded() {
         openRecord(mRecord);
     }
 
     /**
-     * Отображение записи
+     * Отображение записи (свойств и текста).
+     * @param record
      */
     public void openRecord(TetroidRecord record) {
         if (record == null)
@@ -511,6 +518,12 @@ public class RecordActivity extends TetroidActivity implements
             mRecord.setIsNew(false);
 
             switchMode(defMode);
+
+            if (defMode == MODE_EDIT) {
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+//                Keyboard.showKeyboard(mEditor);
+            }
+
         } else {
             // переключаем только views
             switchViews(mCurMode);
@@ -739,9 +752,16 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
-    public void onPickColor() {
+    public void onPickColor(int curColor) {
+        int defColor = curColor;
+        if (defColor == 0) {
+            // если не передали цвет, то достаем последний из сохраненных
+            int[] savedColors = SettingsManager.getPickedColors();
+            defColor = (savedColors != null && savedColors.length > 0)
+                    ? savedColors[savedColors.length - 1] : Color.BLACK;
+        }
         ColorPickerDialog.newBuilder()
-//                .setColor(color)
+                .setColor(defColor)
                 .show(this);
     }
 
@@ -1539,21 +1559,17 @@ public class RecordActivity extends TetroidActivity implements
             case R.id.action_storage_info:
                 ViewUtils.startActivity(this, InfoActivity.class, null);
                 return true;
-//            case R.id.action_about_app:
-//                ViewUtils.startActivity(this, AboutActivity.class, null);
-//                return true;
             case android.R.id.home:
-                // выполняем стандартный обработчик кнопки home (возврат false),
-                //  только если не был запущен асинхронный код при сохранении
-                /*boolean res = onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY));
-                if (!res) {
-                    res = !onRecordFieldsIsEdited(true);
-                }
-                return !res;*/
                 if (!onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
+                    // не был запущен асинхронный код при сохранении, поэтому
+                    //  можем выполнить стандартный обработчик кнопки home (должен быть возврат false),
+                    //  но после проверки изменения свойств (если изменены, то включится другой механизм
+                    //  выхода из активности)
                     return onRecordFieldsIsEdited(true);
                 }
-                return false;
+                // был запущен асинхронный код при сохранении,
+                //  поэтому не выполняем стандартный обработчик кнопки home
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1611,7 +1627,6 @@ public class RecordActivity extends TetroidActivity implements
     public void onBackPressed() {
         // выполняем родительский метод только если не был запущен асинхронный код
         if (!onSaveRecord(true, new ResultObj(ResultObj.EXIT))) {
-               // && !onRecordFieldsIsEdited(false)) {
             if (!onRecordFieldsIsEdited(false)) {
                 super.onBackPressed();
             }

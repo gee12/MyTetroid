@@ -84,7 +84,40 @@ public class RecordDialogs {
             }
         }
         // диалог выбора ветки
-        NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
+        /*final NodeChooserResult nodeCallback;
+        if (isNeedNode) {
+            View.OnClickListener clickListener = v -> {
+                NodeDialogs.createNodeChooserDialog(context,
+                        (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
+                        false, true, false, nodeCallback);
+            };
+            etNode.setOnClickListener(clickListener);
+            bNode.setOnClickListener(clickListener);
+        }*/
+        // возврат результата
+        /*builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+            callback.onApply(etName.getText().toString(),
+                    etTags.getText().toString(),
+                    etAuthor.getText().toString(),
+                    etUrl.getText().toString(),
+                    (isNeedNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
+                    ctvFavor.isChecked());
+        }).setNegativeButton(R.string.answer_cancel, null);*/
+
+        final AlertDialog dialog = builder.create();
+
+        // диалог выбора ветки
+        NodeChooserResult nodeCallback = new NodeChooserResult() {
+            @Override
+            public void onApply(TetroidNode node) {
+                this.mSelectedNode = node;
+                if (node != null) {
+                    etNode.setText(node.getName());
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setEnabled(!TextUtils.isEmpty(etName.getText()));
+                }
+            }
+        };
         if (isNeedNode) {
             View.OnClickListener clickListener = v -> {
                 NodeDialogs.createNodeChooserDialog(context,
@@ -94,28 +127,31 @@ public class RecordDialogs {
             etNode.setOnClickListener(clickListener);
             bNode.setOnClickListener(clickListener);
         }
-        // возврат результата
-        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+
+        // кнопки результата
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.answer_ok), (dialog1, which) -> {
             callback.onApply(etName.getText().toString(),
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
                     etUrl.getText().toString(),
                     (isNeedNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
                     ctvFavor.isChecked());
-        }).setNegativeButton(R.string.answer_cancel, null);
+        });
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.answer_cancel), (dialog1, which) -> {
+            dialog1.cancel();
+        });
 
-        final AlertDialog dialog = builder.create();
-
+        // обработчик отображения
         dialog.setOnShowListener(dialog12 -> {
             // получаем okButton уже после вызова show()
-            final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            if (TextUtils.isEmpty(etName.getText().toString())) {
-                okButton.setEnabled(false);
+//            final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (TextUtils.isEmpty(etName.getText()) || recordNode == null) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             }
             etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
         });
-        dialog.show();
+        dialog.show();;
 
         // получаем okButton тут отдельно после вызова show()
         final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -128,7 +164,8 @@ public class RecordDialogs {
 
             @Override
             public void afterTextChanged(Editable s) {
-                okButton.setEnabled(!TextUtils.isEmpty(s));
+                TetroidNode curNode = (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode;
+                okButton.setEnabled(!TextUtils.isEmpty(s) && curNode != null);
             }
         });
     }
@@ -136,21 +173,8 @@ public class RecordDialogs {
     /**
      * Для выбора ветки.
      */
-    private static class NodeChooserResult implements NodeDialogs.INodeChooserResult {
+    private static abstract class NodeChooserResult implements NodeDialogs.INodeChooserResult {
         TetroidNode mSelectedNode;
-        TextView mTextView;
-
-        NodeChooserResult(TextView textView) {
-            this.mTextView = textView;
-        }
-
-        @Override
-        public void onApply(TetroidNode node) {
-            this.mSelectedNode = node;
-            if (node != null) {
-                mTextView.setText(node.getName());
-            }
-        }
 
         public TetroidNode getSelectedNode() {
             return mSelectedNode;
