@@ -149,8 +149,6 @@ public class NodeDialogs {
                 boolean decrypted = !canDecrypted && node.isCrypted() && node.isDecrypted();
                 boolean notRoot = node.getLevel() > 0;
                 if (crypted || decrypted || notRoot) {
-                    tvNoticeBottom.setVisibility(View.VISIBLE);
-                    okButton.setEnabled(false);
                     String mes = null;
                     if (crypted) {
                         mes = context.getString(R.string.mes_select_non_encrypted_node);
@@ -161,11 +159,13 @@ public class NodeDialogs {
                         mes = ((mes == null) ? "" : mes + "\n") + context.getString(R.string.mes_select_first_level_node);;
                     }
                     tvNoticeBottom.setText(mes);
+                    tvNoticeBottom.setVisibility(View.VISIBLE);
+                    okButton.setEnabled(false);
                 } else {
                     tvNoticeBottom.setVisibility(View.GONE);
-                    adapter.setCurNode(node);
                     okButton.setEnabled(true);
                 }
+                adapter.setCurNode(node);
                 adapter.notifyDataSetChanged();
             }
             @Override

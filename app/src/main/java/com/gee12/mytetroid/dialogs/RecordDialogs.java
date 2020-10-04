@@ -87,8 +87,9 @@ public class RecordDialogs {
         NodeChooserResult nodeCallback = new NodeChooserResult(etNode);
         if (isNeedNode) {
             View.OnClickListener clickListener = v -> {
-                NodeDialogs.createNodeChooserDialog(context, recordNode, false,
-                        true, false, nodeCallback);
+                NodeDialogs.createNodeChooserDialog(context,
+                        (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
+                        false, true, false, nodeCallback);
             };
             etNode.setOnClickListener(clickListener);
             bNode.setOnClickListener(clickListener);

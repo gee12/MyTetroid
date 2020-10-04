@@ -728,7 +728,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param isAskForSave
      */
     private void openTag(String tagName, boolean isAskForSave) {
-        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_TAG)))
+        if (onSaveRecord(isAskForSave, new ResultObj(tagName)))
             return;
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
@@ -875,7 +875,7 @@ public class RecordActivity extends TetroidActivity implements
         if (mEditor.isEdited()) {
             if (SettingsManager.isRecordAutoSave()) {
                 // сохраняем без запроса
-                saveRecord(obj);
+                return saveRecord(obj);
             } else if (showAskDialog) {
                 // спрашиваем о сохранении, если нужно
                 RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
@@ -896,24 +896,25 @@ public class RecordActivity extends TetroidActivity implements
 
     /**
      * Сохранение html-текста записи в файл.
-     * @return Запущена ли перед сохранением предобработка в асинхронном режиме.
+     * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
      */
     private boolean saveRecord(ResultObj obj) {
         boolean runBeforeSaving = SettingsManager.isFixEmptyParagraphs();
         if (runBeforeSaving) {
             this.mResultObj = obj;
         }
-        saveRecord(runBeforeSaving, obj);
-        return runBeforeSaving;
+        return saveRecord(runBeforeSaving, obj) || runBeforeSaving;
     }
 
     /**
      * Сохранение html-текста записи в файл с предобработкой.
      * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
+     * @return true - запущен ли код в асинхронном режиме.
      */
-    private void saveRecord(boolean callBefore, ResultObj obj) {
+    private boolean saveRecord(boolean callBefore, ResultObj obj) {
         if (callBefore) {
             onBeforeSavingAsync();
+            return true;
         } else {
             if (mRecord.isTemp()) {
                 if (DataManager.isLoaded()) {
@@ -922,11 +923,13 @@ public class RecordActivity extends TetroidActivity implements
                     this.mIsSaveTempAfterStorageLoaded = true;
                     this.runOnUiThread(() -> loadStorage());
                 }
+                return true;
             } else {
                 save();
                 onAfterSaving(obj);
             }
         }
+        return false;
     }
 
     private void loadStorage() {
@@ -1540,11 +1543,17 @@ public class RecordActivity extends TetroidActivity implements
 //                ViewUtils.startActivity(this, AboutActivity.class, null);
 //                return true;
             case android.R.id.home:
-                boolean res = onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY));
-//                if (!res) {
-//                    res = onRecordFieldsIsEdited(true);
-//                }
-                return res;
+                // выполняем стандартный обработчик кнопки home (возврат false),
+                //  только если не был запущен асинхронный код при сохранении
+                /*boolean res = onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY));
+                if (!res) {
+                    res = !onRecordFieldsIsEdited(true);
+                }
+                return !res;*/
+                if (!onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
+                    return onRecordFieldsIsEdited(true);
+                }
+                return false;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1600,9 +1609,12 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
+        // выполняем родительский метод только если не был запущен асинхронный код
         if (!onSaveRecord(true, new ResultObj(ResultObj.EXIT))) {
                // && !onRecordFieldsIsEdited(false)) {
-            super.onBackPressed();
+            if (!onRecordFieldsIsEdited(false)) {
+                super.onBackPressed();
+            }
         }
     }
 
