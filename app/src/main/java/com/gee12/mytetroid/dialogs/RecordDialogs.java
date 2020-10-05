@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -24,9 +26,11 @@ import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
+import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.Message;
 
 import java.util.Date;
 import java.util.Random;
@@ -98,6 +102,17 @@ public class RecordDialogs {
                     etNode.setText(node.getName());
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(!TextUtils.isEmpty(etName.getText()));
+                }
+            }
+            @Override
+            public void onProblem(int code) {
+                switch (code) {
+                    case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+                        Message.show(context, "Необходимо загрузить хранилище", Toast.LENGTH_LONG);
+                        break;
+                    case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+                        Message.show(context, "Необходимо загрузить все ветки хранилища", Toast.LENGTH_LONG);
+                        break;
                 }
             }
         };
@@ -178,8 +193,15 @@ public class RecordDialogs {
 
         View view = builder.getView();
         ((TextView)view.findViewById(R.id.text_view_id)).setText(record.getId());
-        if (record.getNode() != null) {
-            ((TextView) view.findViewById(R.id.text_view_node)).setText(record.getNode().getName());
+        TextView tvNode = (TextView) view.findViewById(R.id.text_view_node);
+        if (StorageManager.isFavoritesMode()) {
+            tvNode.setText(R.string.hint_load_all_nodes);
+            tvNode.setTextColor(Color.LTGRAY);
+        } else if (record.getNode() != null) {
+            tvNode.setText(record.getNode().getName());
+        } else {
+            tvNode.setText(R.string.hint_error);
+            tvNode.setTextColor(Color.LTGRAY);
         }
         ((TextView)view.findViewById(R.id.text_view_crypted)).setText(record.isCrypted()
                 ? R.string.answer_yes : R.string.answer_no);

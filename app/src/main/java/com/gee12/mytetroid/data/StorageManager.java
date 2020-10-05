@@ -211,6 +211,22 @@ public class StorageManager extends DataManager {
     }
 
     /**
+     * Загрузка всех веток, когда загружено только избранное.
+     */
+    public static void loadAllNodes(Context context) {
+        if (isCrypted()) {
+//            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false, false);
+            // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
+            //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
+            //    вводили ПИН-код (для расшифровки избранной записи)
+            //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
+            decryptStorage(context, null, false, false, false);
+        } else {
+            initStorage(context, null, false, false, false);
+        }
+    }
+
+    /**
      * Получение пароля и расшифровка хранилища. Вызывается при:
      * 1) запуске приложения, если есть зашифрованные ветки и сохранен пароль
      * 2) запуске приложения, если есть зашифрованные ветки и установлен isAskPasswordOnStart

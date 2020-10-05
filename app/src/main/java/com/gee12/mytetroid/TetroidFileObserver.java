@@ -106,7 +106,7 @@ public class TetroidFileObserver {
      * @param isStart
 //     * @param callback
      */
-    public void startOrStopObserver(boolean isStart/*, ICallback callback*/) {
+    /*public void startOrStopObserver(boolean isStart*//*, ICallback callback*//*) {
         if (isStart) {
             if (mFileObserver == null) {
 //                startObserver(callback);
@@ -117,5 +117,5 @@ public class TetroidFileObserver {
         } else {
             stopObserver();
         }
-    }
+    }*/
 }

@@ -562,4 +562,8 @@
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
     <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
     <string name="title_choose_node">Select node</string>
+    <string name="ask_load_storage">The storage is not loaded. Load?</string>
+    <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
+    <string name="hint_load_all_nodes"><![CDATA[<load nodes>]]></string>
+    <string name="hint_error"><![CDATA[<error>]]></string>
 </resources>

@@ -16,6 +16,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -171,5 +172,13 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 
     public TetroidNode getItem(int position) {
         return (TetroidNode) getListView().getAdapter().getItem(position);
+    }
+
+    public void setDataItems(List<?> dataItems) {
+        if (dataItems != null) {
+            super.setDataItems(dataItems);
+        } else {
+            super.setDataItems(new ArrayList<>());
+        }
     }
 }

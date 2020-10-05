@@ -786,7 +786,8 @@ public class MainPageFragment extends TetroidFragment {
         }
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_record_node), isFavoritesView && isNonCrypted);
+        activateMenuItem(menu.findItem(R.id.action_record_node),
+                !isLoadedFavoritesOnly && isFavoritesView && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_insert),
                 !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
         activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);

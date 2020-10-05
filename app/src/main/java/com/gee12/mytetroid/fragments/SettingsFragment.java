@@ -30,6 +30,7 @@ import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
 import com.gee12.mytetroid.views.Message;
@@ -46,6 +47,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private static final String DIALOG_FRAGMENT_TAG = "DateTimeFormatPreference";
     public static final String EXTRA_IS_REINIT_STORAGE = "EXTRA_IS_REINIT_STORAGE";
     public static final String EXTRA_IS_CREATE_STORAGE = "EXTRA_IS_CREATE_STORAGE";
+    public static final String EXTRA_IS_LOAD_STORAGE = "EXTRA_IS_LOAD_STORAGE";
+    public static final String EXTRA_IS_LOAD_ALL_NODES = "EXTRA_IS_LOAD_ALL_NODES";
     public static final String EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED";
 
     public static final int REQUEST_CODE_OPEN_STORAGE_PATH = 1;
@@ -99,11 +102,35 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .setOnPreferenceClickListener(preference -> {
                     // диалог выбора ветки
                     NodeDialogs.createNodeChooserDialog(getContext(), NodesManager.getQuicklyNode(),
-                            false, false, true, node -> {
-                        SettingsManager.setQuicklyNode(node);
-                        NodesManager.setQuicklyNode(node);
-                        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
-                    });
+                            false, false, true, new NodeDialogs.INodeChooserResult() {
+                                @Override
+                                public void onApply(TetroidNode node) {
+                                    // устанавливаем ветку, если все хорошо
+                                    SettingsManager.setQuicklyNode(node);
+                                    NodesManager.setQuicklyNode(node);
+                                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
+                                }
+                                @Override
+                                public void onProblem(int code) {
+                                    // если хранилище недозагружено, спрашиваем о действиях
+                                    int mesId = (code == NodeDialogs.INodeChooserResult.LOAD_STORAGE)
+                                            ? R.string.ask_load_storage : R.string.ask_load_all_nodes;
+                                    AskDialogs.showYesDialog(getContext(), () -> {
+                                        // возвращаемся в MainActivity
+                                        Intent intent = new Intent();
+                                        switch (code) {
+                                            case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+                                                intent.putExtra(EXTRA_IS_LOAD_STORAGE, true);
+                                                break;
+                                            case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+                                                intent.putExtra(EXTRA_IS_LOAD_ALL_NODES, true);
+                                                break;
+                                        }
+                                        getActivity().setResult(RESULT_OK, intent);
+                                        getActivity().finish();
+                                    }, mesId);
+                                }
+                            });
                     return true;
                 });
         NodesManager.updateQuicklyNode();

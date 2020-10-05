@@ -494,5 +494,9 @@
     <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
     <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
     <string name="title_choose_node">Выберите ветку</string>
+    <string name="ask_load_storage">Сначала нужно загрузить хранилище. Загрузить?</string>
+    <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
+    <string name="hint_load_all_nodes"><![CDATA[<загрузите ветки>]]></string>
+    <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
 </resources>

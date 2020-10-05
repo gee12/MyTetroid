@@ -410,14 +410,11 @@ public class NodesManager extends DataManager {
     }
 
     /**
-     * Получение какой-нибудь ветки, в которую нужно добавить новую запись "извне".
+     * Получение первой незашифрованной ветки.
      * @return
      */
-    /*public static TetroidNode getDefaultNode() {
-//        TetroidNode res = null;
-        if (!Instance.mRootNodesList.isEmpty()) {
-            // TODO: пока что выбираем просто первую незашифрованную ветку в хранилище
-//            res = instance.mRootNodesList.get(0);
+    public static TetroidNode getDefaultNode() {
+        if (Instance != null && !Instance.mRootNodesList.isEmpty()) {
             for (TetroidNode node : Instance.mRootNodesList) {
                 if (node.isNonCryptedOrDecrypted()) {
                     return node;
@@ -425,5 +422,5 @@ public class NodesManager extends DataManager {
             }
         }
         return null;
-    }*/
+    }
 }

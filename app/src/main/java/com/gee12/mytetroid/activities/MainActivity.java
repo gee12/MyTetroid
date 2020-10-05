@@ -283,7 +283,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (App.isFullVersion()) {
             mFavoritesNode.setOnClickListener(v -> showFavorites());
             mLoadStorageButton.setOnClickListener(v -> {
-                loadAllNodes();
+                StorageManager.loadAllNodes(this);
             });
         }
     }
@@ -355,6 +355,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             bundle.putString(FileObserverService.EXTRA_FILE_PATH, DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
             bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
             FileObserverService.sendCommand(this, bundle);
+        } else {
+            FileObserverService.stop(this);
         }
     }
 
@@ -382,22 +384,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         saveLastSelectedNode();
         // перезагружаем хранилище
         reinitStorage();
-    }
-
-    /**
-     * Загрузка всех веток, когда загружено только избранное.
-     */
-    private void loadAllNodes() {
-        if (DataManager.isCrypted()) {
-//            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false, false);
-            // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
-            //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
-            //    вводили ПИН-код (для расшифровки избранной записи)
-            //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
-            StorageManager.decryptStorage(this, null, false, false, false);
-        } else {
-            StorageManager.initStorage(this, null, false, false, false);
-        }
     }
 
     /**
@@ -1604,33 +1590,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
-            // проверяем нужно ли отслеживать структуру хранилища
-//            TetroidFileObserver.startOrStopObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
-            Bundle bundle = new Bundle();
-            bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START_OR_STOP);
-            bundle.putBoolean(FileObserverService.EXTRA_IS_START, SettingsManager.isCheckOutsideChanging());
-            FileObserverService.sendCommand(this, bundle);
-
-            // скрываем пункт меню Синхронизация, если отключили
-            ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
-
-            if (data != null) {
-                // перезагружаем хранилище, если изменили путь
-                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
-                    boolean toCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
-                    AskDialogs.showReloadStorageDialog(this, toCreate, true, () -> {
-                        if (toCreate) {
-                            createStorage(SettingsManager.getStoragePath()/*, true*/);
-                        } else {
-                            reinitStorage();
-                        }
-                    });
-                } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
-                    // обновляем списки, т.к. хранилище должно было расшифроваться
-                    updateNodes();
-                    updateTags();
-                }
-            }
+            onSettingsActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
             onRecordActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
@@ -1662,8 +1622,48 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Обработка возвращаемого результата активности записи.
-     *
+     * Обработка возвращаемого результата активности настроек приложения.
+     * @param data
+     * @param resCode
+     */
+    private void onSettingsActivityResult(int resCode, Intent data) {
+        // проверяем нужно ли отслеживать структуру хранилища
+//            TetroidFileObserver.startOrStopObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
+        /*Bundle bundle = new Bundle();
+        bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START_OR_STOP);
+        bundle.putBoolean(FileObserverService.EXTRA_IS_START, SettingsManager.isCheckOutsideChanging());
+        FileObserverService.sendCommand(this, bundle);*/
+        startStorageTreeObserver();
+
+        // скрываем пункт меню Синхронизация, если отключили
+        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage());
+
+        if (data != null) {
+            // перезагружаем хранилище, если изменили путь
+            if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
+                boolean toCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
+                AskDialogs.showReloadStorageDialog(this, toCreate, true, () -> {
+                    if (toCreate) {
+                        createStorage(SettingsManager.getStoragePath()/*, true*/);
+                    } else {
+                        reinitStorage();
+                    }
+                });
+            } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_STORAGE, false)) {
+                StorageManager.setStorageCallback(this);
+                StorageManager.startInitStorage(this, false);
+            } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, false)) {
+                StorageManager.loadAllNodes(this);
+            } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
+                // обновляем списки, т.к. хранилище должно было расшифроваться
+                updateNodes();
+                updateTags();
+            }
+        }
+    }
+
+    /**
+     * Обработка возвращаемого результата активности чтения записи.
      * @param data
      * @param resCode
      */
@@ -1673,10 +1673,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         // проверяем нужно ли отслеживать структуру хранилища
 //        TetroidFileObserver.startOrStopObserver(SettingsManager.isCheckOutsideChanging(), mOutsideChangingHandler);
-        Bundle bundle = new Bundle();
+        /*Bundle bundle = new Bundle();
         bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START_OR_STOP);
         bundle.putBoolean(FileObserverService.EXTRA_IS_START, SettingsManager.isCheckOutsideChanging());
-        FileObserverService.sendCommand(this, bundle);
+        FileObserverService.sendCommand(this, bundle);*/
+        startStorageTreeObserver();
 
         // обновляем списки, если редактировали свойства записи
         if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
@@ -1863,19 +1864,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String text = null;
             boolean isText = false;
             ArrayList<Uri> uris = null;
-            /*if (type.startsWith("text/")) {
-                // текст
-
-                // TODO: прием текста перенести в RecordActivity
-
-                isText = true;
-                text = intent.getStringExtra(Intent.EXTRA_TEXT);
-                if (text == null) {
-                    LogManager.log(R.string.log_not_passed_text, LogManager.Types.WARNING, Toast.LENGTH_LONG);
-                    return;
-                }
-                LogManager.log(getString(R.string.log_receiving_intent_text), LogManager.Types.INFO);
-            } else*/ if (type.startsWith("image/")) {
+            if (type.startsWith("image/")) {
                 // изображение
                 Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (imageUri == null) {
@@ -1886,7 +1875,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 uris = new ArrayList<>();
                 uris.add(imageUri);
             }
-            showIntentDialog(intent, isText, text, uris);
+            showIntentDialog(intent, false, null, uris);
 
         } else if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
             // прием нескольких изображений из другого приложения
@@ -1926,52 +1915,23 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     () -> {
                         // сохраняем Intent и загружаем хранилище
                         this.mReceivedIntent = intent;
-                        loadAllNodes();
+                        StorageManager.loadAllNodes(this);
                     });
             return;
         }
 
         IntentDialog.createDialog(this, isText, (receivedData) -> {
-            if (receivedData.isCreate()) {
-                /*// получаем какую-нибудь ветку
-//                final TetroidNode node = NodesManager.getDefaultNode();
-                final TetroidNode node = NodesManager.getQuicklyNode();
-                if (node != null) {
-                    if (node.isCrypted()) {
-                        // если ветка зашифрована
-                        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
-                            @Override
-                            public void onApply() {
-                                // расшифровуем хранилище, если ветка зашифрована
-                                if (DataManager.isCrypted()) {
-                                    StorageManager.initStorage(MainActivity.this, null, true, false, false);
-                                }
-                                if (DataManager.isDecrypted()) {
-                                    createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
-                                }
-                            }
-                            @Override
-                            public void onCancel() {
-                            }
-                        });
-                    } else {
-                        createRecordFromIntent(intent, isText, text, imagesUri, receivedData, node);
-                    }
+                if (receivedData.isCreate()) {
+                    createRecordFromIntent(intent, isText, text, imagesUri, receivedData);
                 } else {
-                    LogManager.log(R.string.log_no_nodes_in_storage, LogManager.Types.ERROR);
-                }*/
-
-            createRecordFromIntent(intent, isText, text, imagesUri, receivedData);
-
-        } else {
-                // TODO: реализовать выбор имеющихся записей
-            }
-        });
+                    // TODO: реализовать выбор имеющихся записей
+                }
+            });
 
     }
 
     private void createRecordFromIntent(Intent intent, boolean isText, String text, ArrayList<Uri> imagesUri,
-                                        ReceivedData receivedData/*, TetroidNode node*/) {
+                                        ReceivedData receivedData) {
         // имя записи
         String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
         String url = null;
@@ -1979,15 +1939,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
         }
         // создаем запись
-//        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
         TetroidRecord record = RecordsManager.createTempRecord(subject, url, text);
         if (record == null) {
             return;
         }
-        /*// открываем ветку, в которую добавили запись
-        showNode(record.getNode());
-        // обновляем список записей, меток, и количества записей ветки
-        mViewPagerAdapter.getMainFragment().addNewRecord(record, isText && !receivedData.isAttach());*/
         // загружаем изображения в каталоги записи
         if (!isText) {
             if (!receivedData.isAttach()) {

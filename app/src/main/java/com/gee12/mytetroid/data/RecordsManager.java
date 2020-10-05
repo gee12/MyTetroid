@@ -930,6 +930,9 @@ public class RecordsManager extends DataManager {
             LogManager.emptyParams("RecordManager.getEditedDate()");
             return null;
         }
+        if (record.isNew() || record.isTemp()) {
+            return null;
+        }
         String fileName = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
         return getFileModifiedDate(context, fileName);
     }

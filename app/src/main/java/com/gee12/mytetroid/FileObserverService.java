@@ -48,10 +48,10 @@ public class FileObserverService extends Service {
             case ACTION_RESTART:
                 mFileObserver.restartObserver();
                 break;
-            case ACTION_START_OR_STOP:
+            /*case ACTION_START_OR_STOP:
                 boolean isStart = intent.getBooleanExtra(EXTRA_IS_START, true);
                 mFileObserver.startOrStopObserver(isStart);
-                break;
+                break;*/
         }
         return Service.START_NOT_STICKY;
     }
@@ -73,9 +73,15 @@ public class FileObserverService extends Service {
         bundle.putInt(EXTRA_ACTION_ID, actionId);
         sendCommand(activity, bundle);
     }
+
     public static void sendCommand(Activity activity, Bundle bundle) {
         Intent intent = new Intent(activity, FileObserverService.class);
         intent.putExtras(bundle);
         activity.startService(intent);
+    }
+
+    public static void stop(Activity activity) {
+        Intent intent = new Intent(activity, FileObserverService.class);
+        activity.stopService(intent);
     }
 }

@@ -34,7 +34,11 @@ public class NodeDialogs {
     }
 
     public interface INodeChooserResult {
+        public static final int LOAD_STORAGE = 1;
+        public static final int LOAD_ALL_NODES = 2;
+
         void onApply(TetroidNode node);
+        void onProblem(int code);
     }
 
     /**
@@ -122,6 +126,17 @@ public class NodeDialogs {
      */
     public static void createNodeChooserDialog(Context context, TetroidNode node, boolean canCrypted, boolean canDecrypted,
                                                boolean onlyRoot, INodeChooserResult callback) {
+        // проверяем загружено ли хранилище
+        if (!DataManager.isLoaded()) {
+            callback.onProblem(INodeChooserResult.LOAD_STORAGE);
+            return;
+        }
+        // проверяем загружены ли все ветки
+        if (DataManager.isFavoritesMode()) {
+            callback.onProblem(INodeChooserResult.LOAD_ALL_NODES);
+            return;
+        }
+
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_nodes);
         builder.setTitle(R.string.title_choose_node);
 
@@ -142,7 +157,6 @@ public class NodeDialogs {
         MultiLevelListView listView = view.findViewById(R.id.list_view_nodes);
         adapter.setCurNode(node);
         adapter.setNodeHeaderClickListener(new NodesListAdapter.OnNodeHeaderClickListener() {
-
             private void onSelectNode(TetroidNode node) {
                 final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 boolean crypted = !canCrypted && node.isCrypted() && !node.isDecrypted();
@@ -214,6 +228,8 @@ public class NodeDialogs {
         adapter.setDataItems(DataManager.getRootNodes());
 
         dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(adapter.getCurNode() != null);
     }
 
     /**

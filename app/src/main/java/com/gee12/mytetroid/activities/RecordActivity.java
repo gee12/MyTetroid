@@ -447,7 +447,7 @@ public class RecordActivity extends TetroidActivity implements
             TextView tvEdited = findViewById(R.id.text_view_record_edited);
             tvEdited.setVisibility(View.VISIBLE);
             Date edited = RecordsManager.getEditedDate(this, record);
-            tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+            tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
         }
     }
 
