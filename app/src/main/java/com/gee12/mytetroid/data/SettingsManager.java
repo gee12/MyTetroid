@@ -35,7 +35,7 @@ public class SettingsManager {
     public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
 
     private static SharedPreferences settings;
-    private static Context context;
+//    private static Context context;
     private static boolean isCopiedFromFree;
 
     /**
@@ -43,28 +43,28 @@ public class SettingsManager {
      * @param context
      */
     public static void init(Context context) {
-        SettingsManager.context = context;
+//        SettingsManager.context = context;
         SettingsManager.settings = getPrefs(context);
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
 //        if (getStoragePath() == null) {
 //            setStoragePath(Utils.getExternalPublicDocsDir());
 //        }
-        if (getTrashPath() == null) {
-            setTrashPath(FileUtils.getAppExternalFilesDir(context));
+        if (getTrashPath(context) == null) {
+            setTrashPath(context, FileUtils.getAppExternalFilesDir(context));
         }
-        if (getLogPath() == null) {
-            setLogPath(FileUtils.getAppExternalFilesDir(context));
+        if (getLogPath(context) == null) {
+            setLogPath(context, FileUtils.getAppExternalFilesDir(context));
         }
         if (App.isFreeVersion()) {
             // принудительно отключаем
-            setIsLoadFavoritesOnly(false);
+            setIsLoadFavoritesOnly(context, false);
         }
 
-        App.IsHighlightAttach = isHighlightRecordWithAttach();
-        App.IsHighlightCryptedNodes = isHighlightEncryptedNodes();
-        App.HighlightAttachColor = getHighlightColor();
-        App.DateFormatString = getDateFormatString();
+        App.IsHighlightAttach = isHighlightRecordWithAttach(context);
+        App.IsHighlightCryptedNodes = isHighlightEncryptedNodes(context);
+        App.HighlightAttachColor = getHighlightColor(context);
+        App.DateFormatString = getDateFormatString(context);
     }
 
     /**
@@ -144,18 +144,18 @@ public class SettingsManager {
     /**
      * Очистка параметров глобального поиска.
      */
-    public static void clearSearchOptions() {
-        setSearchQuery(null);
-        setSearchInText(DEF_SEARCH_IN_RECORD_TEXT);
-        setSearchInRecordsNames(DEF_SEARCH_IN_RECORDS_NAMES);
-        setSearchInAuthor(DEF_SEARCH_IN_AUTHOR);
-        setSearchInUrl(DEF_SEARCH_IN_URL);
-        setSearchInTags(DEF_SEARCH_IN_TAGS);
-        setSearchInNodes(DEF_SEARCH_IN_NODES);
-        setSearchInFiles(DEF_SEARCH_IN_FILES);
-        setSearchSplitToWords(DEF_SEARCH_SPLIT_TO_WORDS);
-        setSearchInWholeWords(DEF_SEARCH_IN_WHOLE_WORDS);
-        setSearchInCurNode(DEF_SEARCH_IN_CUR_NODE);
+    public static void clearSearchOptions(Context context) {
+        setSearchQuery(context, null);
+        setSearchInText(context, DEF_SEARCH_IN_RECORD_TEXT);
+        setSearchInRecordsNames(context, DEF_SEARCH_IN_RECORDS_NAMES);
+        setSearchInAuthor(context, DEF_SEARCH_IN_AUTHOR);
+        setSearchInUrl(context, DEF_SEARCH_IN_URL);
+        setSearchInTags(context, DEF_SEARCH_IN_TAGS);
+        setSearchInNodes(context, DEF_SEARCH_IN_NODES);
+        setSearchInFiles(context, DEF_SEARCH_IN_FILES);
+        setSearchSplitToWords(context, DEF_SEARCH_SPLIT_TO_WORDS);
+        setSearchInWholeWords(context, DEF_SEARCH_IN_WHOLE_WORDS);
+        setSearchInCurNode(context, DEF_SEARCH_IN_CUR_NODE);
     }
 
     public static boolean isCopiedFromFree() {
@@ -170,15 +170,15 @@ public class SettingsManager {
      * Путь к хранилищу.
      * @return
      */
-    public static String getStoragePath() {
-        return getString(R.string.pref_key_storage_path, null);
+    public static String getStoragePath(Context context) {
+        return getString(context, R.string.pref_key_storage_path, null);
     }
 
-    public static void setStoragePath(String value) {
-        String oldPath = getStoragePath();
+    public static void setStoragePath(Context context, String value) {
+        String oldPath = getStoragePath(context);
         if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
 //            isAskReloadStorage = true;
-            SettingsManager.setMiddlePassHash(null);
+            SettingsManager.setMiddlePassHash(context, null);
         }
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(context.getString(R.string.pref_key_storage_path), value);
@@ -190,8 +190,8 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isLoadLastStoragePath() {
-        return getBoolean(R.string.pref_key_is_load_last_storage_path, true);
+    public static boolean isLoadLastStoragePath(Context context) {
+        return getBoolean(context, R.string.pref_key_is_load_last_storage_path, true);
     }
 
 //    public static void setIsLoadLastStoragePath(boolean value) {
@@ -204,12 +204,12 @@ public class SettingsManager {
      * Путь к каталогу корзины.
      * @return
      */
-    public static String getTrashPath() {
-        return getString(R.string.pref_key_temp_path, null);
+    public static String getTrashPath(Context context) {
+        return getString(context, R.string.pref_key_temp_path, null);
     }
 
-    public static void setTrashPath(String value) {
-        setString(R.string.pref_key_temp_path, value);
+    public static void setTrashPath(Context context, String value) {
+        setString(context, R.string.pref_key_temp_path, value);
     }
 
     /**
@@ -219,16 +219,16 @@ public class SettingsManager {
      *  3) из Избранного
      * @return
      */
-    public static String getQuicklyNodeId() {
-        return getString(R.string.pref_key_quickly_node_id, null);
+    public static String getQuicklyNodeId(Context context) {
+        return getString(context, R.string.pref_key_quickly_node_id, null);
     }
-    public static String getQuicklyNodeName() {
-        return getString(R.string.pref_key_quickly_node_name, null);
+    public static String getQuicklyNodeName(Context context) {
+        return getString(context, R.string.pref_key_quickly_node_name, null);
     }
 
-    public static void setQuicklyNode(TetroidNode node) {
-        setString(R.string.pref_key_quickly_node_id, (node != null) ? node.getId() : null);
-        setString(R.string.pref_key_quickly_node_name, (node != null) ? node.getName() : null);
+    public static void setQuicklyNode(Context context, TetroidNode node) {
+        setString(context, R.string.pref_key_quickly_node_id, (node != null) ? node.getId() : null);
+        setString(context, R.string.pref_key_quickly_node_name, (node != null) ? node.getName() : null);
     }
 
     /**
@@ -236,32 +236,32 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isLoadFavoritesOnly() {
-        return getBoolean(R.string.pref_key_is_load_favorites, false);
+    public static boolean isLoadFavoritesOnly(Context context) {
+        return getBoolean(context, R.string.pref_key_is_load_favorites, false);
     }
 
-    public static void setIsLoadFavoritesOnly(boolean value) {
-        setBoolean(R.string.pref_key_is_load_favorites, value);
+    public static void setIsLoadFavoritesOnly(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_is_load_favorites, value);
     }
 
     /**
      * Получить список Id избранных записей.
      * @return
      */
-    public static List<String> getFavorites() {
+    public static List<String> getFavorites(Context context) {
 //        String value = getString(R.string.pref_key_favorites, "");
 //        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
         List<String> res = new ArrayList<>();
-        Set<String> set = getStringSet(R.string.pref_key_favorites, null);
+        Set<String> set = getStringSet(context, R.string.pref_key_favorites, null);
         if (set != null)
             res.addAll(set);
         return res;
     }
 
-    public static void setFavorites(List<String> ids) {
+    public static void setFavorites(Context context, List<String> ids) {
 //        setStringSet(new HashSet<>(Arrays.asList(ids)));
 //        String value = TextUtils.join(";", ids);
-        setStringSet(R.string.pref_key_favorites, new HashSet<>(ids));
+        setStringSet(context, R.string.pref_key_favorites, new HashSet<>(ids));
     }
 
     /**
@@ -269,20 +269,20 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isKeepLastNode() {
-        return getBoolean(R.string.pref_key_is_keep_selected_node, true);
+    public static boolean isKeepLastNode(Context context) {
+        return getBoolean(context, R.string.pref_key_is_keep_selected_node, true);
     }
 
     /**
      * Id ветки, выбранной последний раз.
      * @return
      */
-    public static String getLastNodeId() {
-        return getString(R.string.pref_key_selected_node_id, null);
+    public static String getLastNodeId(Context context) {
+        return getString(context, R.string.pref_key_selected_node_id, null);
     }
 
-    public static void setLastNodeId(String value) {
-        setString(R.string.pref_key_selected_node_id, value);
+    public static void setLastNodeId(Context context, String value) {
+        setString(context, R.string.pref_key_selected_node_id, value);
     }
 
 //    /**
@@ -314,60 +314,60 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isSaveMiddlePassHashLocal() {
-        return getBoolean(R.string.pref_key_is_save_pass_hash_local, true);
+    public static boolean isSaveMiddlePassHashLocal(Context context) {
+        return getBoolean(context, R.string.pref_key_is_save_pass_hash_local, true);
     }
 
-    public static void setIsSaveMiddlePassHashLocal(boolean value) {
-        setBoolean(R.string.pref_key_is_save_pass_hash_local, value);
+    public static void setIsSaveMiddlePassHashLocal(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_is_save_pass_hash_local, value);
     }
 
     /**
      * Хэш пароля.
      * @return
      */
-    public static String getMiddlePassHash() {
-        return getString(R.string.pref_key_pass_hash, null);
+    public static String getMiddlePassHash(Context context) {
+        return getString(context, R.string.pref_key_pass_hash, null);
     }
 
-    public static void setMiddlePassHash(String pass) {
-        setString(R.string.pref_key_pass_hash, pass);
+    public static void setMiddlePassHash(Context context, String pass) {
+        setString(context, R.string.pref_key_pass_hash, pass);
     }
 
     /**
      * Запрашивать ли ПИН-крод ?
      * @return
      */
-    public static boolean isRequestPINCode() {
-        return getBoolean(R.string.pref_key_request_pin_code, false);
+    public static boolean isRequestPINCode(Context context) {
+        return getBoolean(context, R.string.pref_key_request_pin_code, false);
     }
 
-    public static void setIsRequestPINCode(boolean value) {
-        setBoolean(R.string.pref_key_request_pin_code, value);
+    public static void setIsRequestPINCode(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_request_pin_code, value);
     }
 
     /**
      * Длина ПИН-кода.
      * @return
      */
-    public static int getPINCodeLength() {
-        return getInt(R.string.pref_key_pin_code_length, DEF_PIN_CODE_LENGTH);
+    public static int getPINCodeLength(Context context) {
+        return getInt(context, R.string.pref_key_pin_code_length, DEF_PIN_CODE_LENGTH);
     }
 
-    public static void setPINCodeLength(int value) {
-        setInt(R.string.pref_key_pin_code_length, value);
+    public static void setPINCodeLength(Context context, int value) {
+        setInt(context, R.string.pref_key_pin_code_length, value);
     }
 
     /**
      * Хэш ПИН-кода.
      * @return
      */
-    public static String getPINCodeHash() {
-        return getString(R.string.pref_key_pin_code_hash, null);
+    public static String getPINCodeHash(Context context) {
+        return getString(context, R.string.pref_key_pin_code_hash, null);
     }
 
-    public static void setPINCodeHash(String code) {
-        setString(R.string.pref_key_pin_code_hash, code);
+    public static void setPINCodeHash(Context context, String code) {
+        setString(context, R.string.pref_key_pin_code_hash, code);
     }
 
     /**
@@ -375,8 +375,8 @@ public class SettingsManager {
      * По-умолчанию - при выборе зашифрованной ветки.
      * @return
      */
-    public static String getWhenAskPass() {
-        return getString(R.string.pref_key_when_ask_password,
+    public static String getWhenAskPass(Context context) {
+        return getString(context, R.string.pref_key_when_ask_password,
                 context.getString(R.string.pref_when_ask_password_on_select));
     }
 
@@ -385,8 +385,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isDecryptFilesInTemp() {
-        return getBoolean(R.string.pref_key_is_decrypt_in_temp, false);
+    public static boolean isDecryptFilesInTemp(Context context) {
+        return getBoolean(context, R.string.pref_key_is_decrypt_in_temp, false);
     }
 
     /*
@@ -398,8 +398,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isSyncStorage() {
-        return getBoolean(R.string.pref_key_is_sync_storage, false);
+    public static boolean isSyncStorage(Context context) {
+        return getBoolean(context, R.string.pref_key_is_sync_storage, false);
     }
 
     /**
@@ -407,8 +407,8 @@ public class SettingsManager {
      * Например: "git pull".
      * @return
      */
-    public static String getSyncCommand() {
-        return getString(R.string.pref_key_sync_command, null);
+    public static String getSyncCommand(Context context) {
+        return getString(context, R.string.pref_key_sync_command, null);
     }
 
     /**
@@ -416,8 +416,8 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isSyncBeforeInit() {
-        return getBoolean(R.string.pref_key_is_sync_before_init, true);
+    public static boolean isSyncBeforeInit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_sync_before_init, true);
     }
 
     /**
@@ -425,8 +425,8 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isAskBeforeSync() {
-        return getBoolean(R.string.pref_key_is_ask_before_sync, true);
+    public static boolean isAskBeforeSync(Context context) {
+        return getBoolean(context, R.string.pref_key_is_ask_before_sync, true);
     }
 
     /**
@@ -434,16 +434,16 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isNotRememberSyncApp() {
-        return getBoolean(R.string.pref_key_is_not_remember_sync_app, false);
+    public static boolean isNotRememberSyncApp(Context context) {
+        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
     }
 
     /**
      * Отслеживать изменения структуры хранилища внешними программами.
      * @return
      */
-    public static boolean isCheckOutsideChanging() {
-        return getBoolean(R.string.pref_key_check_outside_changing, true);
+    public static boolean isCheckOutsideChanging(Context context) {
+        return getBoolean(context, R.string.pref_key_check_outside_changing, true);
     }
 
     /*
@@ -455,8 +455,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isRecordEditMode() {
-        return getBoolean(R.string.pref_key_is_record_edit_mode, false);
+    public static boolean isRecordEditMode(Context context) {
+        return getBoolean(context, R.string.pref_key_is_record_edit_mode, false);
     }
 
     /**
@@ -464,8 +464,8 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isDoubleTapFullscreen() {
-        return getBoolean(R.string.pref_key_double_tap_fullscreen, true);
+    public static boolean isDoubleTapFullscreen(Context context) {
+        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
     }
 
     /**
@@ -473,8 +473,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isRecordAutoSave() {
-        return getBoolean(R.string.pref_key_is_record_auto_save, false);
+    public static boolean isRecordAutoSave(Context context) {
+        return getBoolean(context, R.string.pref_key_is_record_auto_save, false);
     }
 
     /**
@@ -482,8 +482,8 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isFixEmptyParagraphs() {
-        return getBoolean(R.string.pref_key_fix_empty_paragraphs, true);
+    public static boolean isFixEmptyParagraphs(Context context) {
+        return getBoolean(context, R.string.pref_key_fix_empty_paragraphs, true);
     }
 
     /*
@@ -495,8 +495,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isHighlightRecordWithAttach() {
-        return getBoolean(R.string.pref_key_is_highlight_attach, false);
+    public static boolean isHighlightRecordWithAttach(Context context) {
+        return getBoolean(context, R.string.pref_key_is_highlight_attach, false);
     }
 
     /**
@@ -504,8 +504,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isHighlightEncryptedNodes() {
-        return getBoolean(R.string.pref_key_is_highlight_crypted_nodes, false);
+    public static boolean isHighlightEncryptedNodes(Context context) {
+        return getBoolean(context, R.string.pref_key_is_highlight_crypted_nodes, false);
     }
 
     /**
@@ -513,35 +513,35 @@ public class SettingsManager {
      * По-умолчанию - светло зеленый.
      * @return
      */
-    public static int getHighlightColor() {
+    public static int getHighlightColor(Context context) {
 //        final int def = R.color.colorHighlight;
 //        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
 //            return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
 //        }
 //        return def;
-        return getInt(R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
+        return getInt(context, R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
     }
 
-    public static int[] getPickedColors() {
-        String value = getString(R.string.pref_key_picked_colors, null);
+    public static int[] getPickedColors(Context context) {
+        String value = getString(context, R.string.pref_key_picked_colors, null);
         return (value != null) ? Utils.splitToInts(value, ";") : null;
     }
 
-    public static void setPickedColors(int[] value) {
+    public static void setPickedColors(Context context, int[] value) {
         String s = Utils.concatToString(value, ";");
-        setString(R.string.pref_key_picked_colors, s);
+        setString(context, R.string.pref_key_picked_colors, s);
     }
 
-    public static void addPickedColor(int color, int maxColors) {
-        int[] savedColors = SettingsManager.getPickedColors();
+    public static void addPickedColor(Context context, int color, int maxColors) {
+        int[] savedColors = SettingsManager.getPickedColors(context);
         int[] res = Utils.addElem(savedColors, color, maxColors, false);
-        SettingsManager.setPickedColors(res);
+        SettingsManager.setPickedColors(context, res);
     }
 
-    public static void removePickedColor(int color) {
-        int[] savedColors = SettingsManager.getPickedColors();
+    public static void removePickedColor(Context context, int color) {
+        int[] savedColors = SettingsManager.getPickedColors(context);
         int[] res = Utils.removeElem(savedColors, color);
-        SettingsManager.setPickedColors(res);
+        SettingsManager.setPickedColors(context, res);
     }
 
     /**
@@ -549,16 +549,16 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isKeepScreenOn() {
-        return getBoolean(R.string.pref_key_is_keep_screen_on, false);
+    public static boolean isKeepScreenOn(Context context) {
+        return getBoolean(context, R.string.pref_key_is_keep_screen_on, false);
     }
 
     /**
      * Формат даты создания записи.
      * @return
      */
-    public static String getDateFormatString() {
-        return getString(R.string.pref_key_date_format_string,
+    public static String getDateFormatString(Context context) {
+        return getString(context, R.string.pref_key_date_format_string,
                 context.getString(R.string.def_date_format_string));
     }
 
@@ -571,32 +571,32 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isWriteLogToFile() {
-        return getBoolean(R.string.pref_key_is_write_log, false);
+    public static boolean isWriteLogToFile(Context context) {
+        return getBoolean(context, R.string.pref_key_is_write_log, false);
     }
 
     /**
      * Путь к каталогу с лог-файлом.
      * @return
      */
-    public static String getLogPath() {
-        return getString(R.string.pref_key_log_path, null);
+    public static String getLogPath(Context context) {
+        return getString(context, R.string.pref_key_log_path, null);
     }
 
-    public static void setLogPath(String value) {
-       setString(R.string.pref_key_log_path, value);
+    public static void setLogPath(Context context, String value) {
+       setString(context, R.string.pref_key_log_path, value);
     }
 
     /**
      * Путь к каталогу, выбранному в последний раз.
      * @return
      */
-    public static String getLastChoosedFolder() {
-        return getString(R.string.pref_key_last_folder, null);
+    public static String getLastChoosedFolder(Context context) {
+        return getString(context, R.string.pref_key_last_folder, null);
     }
 
-    public static void setLastChoosedFolder(String path) {
-        setString(R.string.pref_key_last_folder, path);
+    public static void setLastChoosedFolder(Context context, String path) {
+        setString(context, R.string.pref_key_last_folder, path);
     }
 
     /**
@@ -604,8 +604,8 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isConfirmAppExit() {
-        return getBoolean(R.string.pref_key_is_confirm_app_exit, false);
+    public static boolean isConfirmAppExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /*
@@ -616,148 +616,148 @@ public class SettingsManager {
      * Поисковой запрос.
      * @return
      */
-    public static String getSearchQuery() {
-        return getString(R.string.pref_key_search_query, null);
+    public static String getSearchQuery(Context context) {
+        return getString(context, R.string.pref_key_search_query, null);
     }
 
-    public static void setSearchQuery(String value) {
-        setString(R.string.pref_key_search_query, value);
+    public static void setSearchQuery(Context context, String value) {
+        setString(context, R.string.pref_key_search_query, value);
     }
 
     /**
      * Поиск по содержимому записей.
      * @return
      */
-    public static boolean isSearchInText() {
-        return getBoolean(R.string.pref_key_search_text, DEF_SEARCH_IN_RECORD_TEXT);
+    public static boolean isSearchInText(Context context) {
+        return getBoolean(context, R.string.pref_key_search_text, DEF_SEARCH_IN_RECORD_TEXT);
     }
 
-    public static void setSearchInText(boolean value) {
-        setBoolean(R.string.pref_key_search_text, value);
+    public static void setSearchInText(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_text, value);
     }
 
     /**
      * Поиск по именам записей.
      * @return
      */
-    public static boolean isSearchInRecordsNames() {
-        return getBoolean(R.string.pref_key_search_records_names, DEF_SEARCH_IN_RECORDS_NAMES);
+    public static boolean isSearchInRecordsNames(Context context) {
+        return getBoolean(context, R.string.pref_key_search_records_names, DEF_SEARCH_IN_RECORDS_NAMES);
     }
 
-    public static void setSearchInRecordsNames(boolean value) {
-        setBoolean(R.string.pref_key_search_records_names, value);
+    public static void setSearchInRecordsNames(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_records_names, value);
     }
 
     /**
      * Поиск по авторам записей.
      * @return
      */
-    public static boolean isSearchInAuthor() {
-        return getBoolean(R.string.pref_key_search_author, DEF_SEARCH_IN_AUTHOR);
+    public static boolean isSearchInAuthor(Context context) {
+        return getBoolean(context, R.string.pref_key_search_author, DEF_SEARCH_IN_AUTHOR);
     }
 
-    public static void setSearchInAuthor(boolean value) {
-        setBoolean(R.string.pref_key_search_author, value);
+    public static void setSearchInAuthor(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_author, value);
     }
 
     /**
      * Поиск по url записей.
      * @return
      */
-    public static boolean isSearchInUrl() {
-        return getBoolean(R.string.pref_key_search_url, DEF_SEARCH_IN_URL);
+    public static boolean isSearchInUrl(Context context) {
+        return getBoolean(context, R.string.pref_key_search_url, DEF_SEARCH_IN_URL);
     }
 
-    public static void setSearchInUrl(boolean value) {
-        setBoolean(R.string.pref_key_search_url, value);
+    public static void setSearchInUrl(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_url, value);
     }
 
     /**
      * Поиск по меткам.
      * @return
      */
-    public static boolean isSearchInTags() {
-        return getBoolean(R.string.pref_key_search_tags, DEF_SEARCH_IN_TAGS);
+    public static boolean isSearchInTags(Context context) {
+        return getBoolean(context, R.string.pref_key_search_tags, DEF_SEARCH_IN_TAGS);
     }
 
-    public static void setSearchInTags(boolean value) {
-        setBoolean(R.string.pref_key_search_tags, value);
+    public static void setSearchInTags(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_tags, value);
     }
 
     /**
      * Поиск по веткам.
      * @return
      */
-    public static boolean isSearchInNodes() {
-        return getBoolean(R.string.pref_key_search_nodes, DEF_SEARCH_IN_NODES);
+    public static boolean isSearchInNodes(Context context) {
+        return getBoolean(context, R.string.pref_key_search_nodes, DEF_SEARCH_IN_NODES);
     }
 
-    public static void setSearchInNodes(boolean value) {
-        setBoolean(R.string.pref_key_search_nodes, value);
+    public static void setSearchInNodes(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_nodes, value);
     }
 
     /**
      * Поиск по прикрепленным файлам.
      * @return
      */
-    public static boolean isSearchInFiles() {
-        return getBoolean(R.string.pref_key_search_files, DEF_SEARCH_IN_FILES);
+    public static boolean isSearchInFiles(Context context) {
+        return getBoolean(context, R.string.pref_key_search_files, DEF_SEARCH_IN_FILES);
     }
 
-    public static void setSearchInFiles(boolean value) {
-        setBoolean(R.string.pref_key_search_files, value);
+    public static void setSearchInFiles(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_files, value);
     }
 
     /**
      * Поиск по Id.
      * @return
      */
-    public static boolean isSearchInIds() {
-        return getBoolean(R.string.pref_key_search_ids, DEF_SEARCH_IN_IDS);
+    public static boolean isSearchInIds(Context context) {
+        return getBoolean(context, R.string.pref_key_search_ids, DEF_SEARCH_IN_IDS);
     }
 
-    public static void setSearchInIds(boolean value) {
-        setBoolean(R.string.pref_key_search_ids, value);
+    public static void setSearchInIds(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_ids, value);
     }
 
     /**
      * Поиск по каждому из слов в запросе ?
      * @return
      */
-    public static boolean isSearchSplitToWords() {
-        return getBoolean(R.string.pref_key_search_split_to_words, DEF_SEARCH_SPLIT_TO_WORDS);
+    public static boolean isSearchSplitToWords(Context context) {
+        return getBoolean(context, R.string.pref_key_search_split_to_words, DEF_SEARCH_SPLIT_TO_WORDS);
     }
 
-    public static void setSearchSplitToWords(boolean value) {
-        setBoolean(R.string.pref_key_search_split_to_words, value);
+    public static void setSearchSplitToWords(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_split_to_words, value);
     }
 
     /**
      * Поиск по совпадению только целых слов ?
      * @return
      */
-    public static boolean isSearchInWholeWords() {
-        return getBoolean(R.string.pref_key_search_in_whole_words, DEF_SEARCH_IN_WHOLE_WORDS);
+    public static boolean isSearchInWholeWords(Context context) {
+        return getBoolean(context, R.string.pref_key_search_in_whole_words, DEF_SEARCH_IN_WHOLE_WORDS);
     }
 
-    public static void setSearchInWholeWords(boolean value) {
-        setBoolean(R.string.pref_key_search_in_whole_words, value);
+    public static void setSearchInWholeWords(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_in_whole_words, value);
     }
 
     /**
      * Поиск только в текущей ветке ?
      * @return
      */
-    public static boolean isSearchInCurNode() {
-        return getBoolean(R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
+    public static boolean isSearchInCurNode(Context context) {
+        return getBoolean(context, R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
     }
 
-    public static void setSearchInCurNode(boolean value) {
-        setBoolean(R.string.pref_key_search_in_cur_node, value);
+    public static void setSearchInCurNode(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_search_in_cur_node, value);
     }
 
     /*
-     * Вспомогательные valueфункции.
+     * Вспомогательные value функции.
      */
 
     /**
@@ -765,7 +765,7 @@ public class SettingsManager {
      * @param prefKeyStringRes
      * @param value
      */
-    private static void setBoolean(int prefKeyStringRes, boolean value) {
+    private static void setBoolean(Context context, int prefKeyStringRes, boolean value) {
         if (settings == null)
             return;
         SharedPreferences.Editor editor = settings.edit();
@@ -778,7 +778,7 @@ public class SettingsManager {
      * @param prefKeyStringRes
      * @param value
      */
-    private static void setInt(int prefKeyStringRes, int value) {
+    private static void setInt(Context context, int prefKeyStringRes, int value) {
         if (settings == null)
             return;
         SharedPreferences.Editor editor = settings.edit();
@@ -791,7 +791,7 @@ public class SettingsManager {
      * @param prefKeyStringRes
      * @param value
      */
-    private static void setString(int prefKeyStringRes, String value) {
+    private static void setString(Context context, int prefKeyStringRes, String value) {
         if (settings == null)
             return;
         SharedPreferences.Editor editor = settings.edit();
@@ -804,7 +804,7 @@ public class SettingsManager {
      * @param prefKeyStringRes
      * @param set
      */
-    private static void setStringSet(int prefKeyStringRes, Set<String> set) {
+    private static void setStringSet(Context context, int prefKeyStringRes, Set<String> set) {
         if (settings == null)
             return;
         SharedPreferences.Editor editor = settings.edit();
@@ -818,7 +818,7 @@ public class SettingsManager {
      * @param defValue
      * @return
      */
-    private static boolean getBoolean(int prefKeyStringRes, final boolean defValue) {
+    private static boolean getBoolean(Context context, int prefKeyStringRes, final boolean defValue) {
         if (settings == null)
             return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
@@ -833,7 +833,7 @@ public class SettingsManager {
      * @param defValue
      * @return
      */
-    private static int getInt(int prefKeyStringRes, final int defValue) {
+    private static int getInt(Context context, int prefKeyStringRes, final int defValue) {
         if (settings == null)
             return defValue;
         if(settings.contains(context.getString(prefKeyStringRes))) {
@@ -848,7 +848,7 @@ public class SettingsManager {
      * @param defValue
      * @return
      */
-    private static String getString(int prefKeyStringRes, final String defValue) {
+    private static String getString(Context context, int prefKeyStringRes, final String defValue) {
         if (settings == null)
             return defValue;
         if (settings.contains(context.getString(prefKeyStringRes))) {
@@ -863,7 +863,7 @@ public class SettingsManager {
      * @param defValues
      * @return
      */
-    private static Set<String> getStringSet(int prefKeyStringRes, Set<String> defValues) {
+    private static Set<String> getStringSet(Context context, int prefKeyStringRes, Set<String> defValues) {
         if (settings == null)
             return null;
         if(settings.contains(context.getString(prefKeyStringRes))) {

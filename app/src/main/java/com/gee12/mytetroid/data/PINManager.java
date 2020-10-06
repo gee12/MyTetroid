@@ -16,8 +16,8 @@ public class PINManager {
      * Проверка использования ПИН-кода с учетом версии приложения.
      * @return
      */
-    public static boolean isRequestPINCode() {
-        return App.isFullVersion() && SettingsManager.isRequestPINCode();
+    public static boolean isRequestPINCode(Context context) {
+        return App.isFullVersion() && SettingsManager.isRequestPINCode(context);
     }
 
     /**
@@ -29,17 +29,17 @@ public class PINManager {
      * @param callback Обработчик обратного вызова.
      */
     public static void askPINCode(Context context, boolean specialFlag, Dialogs.IApplyResult callback) {
-        if (isRequestPINCode() && specialFlag) {
+        if (isRequestPINCode(context) && specialFlag) {
             // выводим запрос ввода ПИН-кода
-            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
+            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false, new PassDialogs.IPinInputResult() {
                 @Override
                 public boolean onApply(String pin) {
                     // зашифровываем введеный пароль перед сравнением
                     String pinHash = CryptManager.passToHash(pin);
-                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash());
+                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash(context));
                     if (res) {
                         callback.onApply();
-                        LogManager.log(R.string.log_pin_code_enter);
+                        LogManager.log(context, R.string.log_pin_code_enter);
                     }
                     return res;
                 }
@@ -59,26 +59,26 @@ public class PINManager {
      * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
      */
     public static void setupPINCode(Context context, ICallback callback) {
-        if (!isRequestPINCode()) {
+        if (!isRequestPINCode(context)) {
             // проверяем сохраненный пароль
             checkPass(context, new Dialogs.IApplyCancelResult() {
                 @Override
                 public void onApply() {
                     // задаем длину ПИН-кода
-                    PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(), new PassDialogs.IPinLengthInputResult() {
+                    PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(context), new PassDialogs.IPinLengthInputResult() {
                         @Override
                         public void onApply(int length) {
-                            SettingsManager.setPINCodeLength(length);
-                            LogManager.log(context.getString(R.string.log_pin_code_length_setup) + length);
+                            SettingsManager.setPINCodeLength(context, length);
+                            LogManager.log(context, context.getString(R.string.log_pin_code_length_setup) + length);
                             // задаем новый ПИН-код
                             PassDialogs.showPINCodeDialog(context, length, true, new PassDialogs.IPinInputResult() {
                                 @Override
                                 public boolean onApply(String pin) {
                                     // зашифровываем пароль перед установкой
                                     String pinHash = CryptManager.passToHash(pin);
-                                    SettingsManager.setPINCodeHash(pinHash);
+                                    SettingsManager.setPINCodeHash(context, pinHash);
                                     callback.run(true);
-                                    LogManager.log(R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
+                                    LogManager.log(context, R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
                                     return true;
                                 }
                                 @Override
@@ -97,17 +97,17 @@ public class PINManager {
             });
         } else {
             // сбрасываем имеющийся ПИН-код, предварительнго его запросив
-            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(), false, new PassDialogs.IPinInputResult() {
+            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false, new PassDialogs.IPinInputResult() {
                 @Override
                 public boolean onApply(String pin) {
                     // зашифровываем введеный пароль перед сравнением
                     String pinHash = CryptManager.passToHash(pin);
-                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash());
+                    boolean res = pinHash.equals(SettingsManager.getPINCodeHash(context));
                     if (res) {
                         // очищаем
-                        SettingsManager.setPINCodeHash(null);
+                        SettingsManager.setPINCodeHash(context, null);
                         callback.run(false);
-                        LogManager.log(R.string.log_pin_code_clean, Toast.LENGTH_SHORT);
+                        LogManager.log(context, R.string.log_pin_code_clean, Toast.LENGTH_SHORT);
                     }
                     return res;
                 }
@@ -125,7 +125,7 @@ public class PINManager {
      */
     public static void checkPass(Context context, Dialogs.IApplyCancelResult callback) {
         String middlePassHash;
-        if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
+        if ((middlePassHash = SettingsManager.getMiddlePassHash(context)) != null) {
             // хэш пароля сохранен "на диске", проверяем
             try {
                 if (PassManager.checkMiddlePassHash(middlePassHash)) {
@@ -135,15 +135,15 @@ public class PINManager {
 
                     callback.onApply();
                 } else {
-                    LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
+                    LogManager.log(context, R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     // спрашиваем пароль
                     PassManager.askPassword(context, null, callback);
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
                 // если поля в INI-файле для проверки пустые
-                LogManager.log(ex);
+                LogManager.log(context, ex);
                 //                if (DataManager.isExistsCryptedNodes()) {
-                if (DataManager.isCrypted()) {
+                if (DataManager.isCrypted(context)) {
 //                    final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
                     PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),

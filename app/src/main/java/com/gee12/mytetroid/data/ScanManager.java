@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -104,16 +105,16 @@ public class ScanManager implements Parcelable {
      * @param node
      * @return
      */
-    public HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node) {
+    public HashMap<ITetroidObject,FoundType> globalSearch(Context context, TetroidNode node) {
         this.foundObjects = new HashMap<>();
         this.node = node;
 
         if (isSplitToWords) {
             for (String word : query.split(QUERY_SEPAR)) {
-                foundObjects.putAll(globalSearch(node, word));
+                foundObjects.putAll(globalSearch(context, node, word));
             }
         } else {
-            foundObjects.putAll(globalSearch(node, query));
+            foundObjects.putAll(globalSearch(context, node, query));
         }
         return foundObjects;
     }
@@ -124,7 +125,7 @@ public class ScanManager implements Parcelable {
      * @param query
      * @return
      */
-    private HashMap<ITetroidObject,FoundType> globalSearch(TetroidNode node, String query) {
+    private HashMap<ITetroidObject,FoundType> globalSearch(Context context, TetroidNode node, String query) {
         List<TetroidNode> srcNodes;
         if (isSearchInNode) {
             if (node != null) {
@@ -142,7 +143,7 @@ public class ScanManager implements Parcelable {
                 // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
                 || inTags;
         if (inNodes || inRecords) {
-            globalSearchInNodes(srcNodes, regex, inRecords);
+            globalSearchInNodes(context, srcNodes, regex, inRecords);
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
         // 2 - если используем тип (2), то комментируем
@@ -187,7 +188,7 @@ public class ScanManager implements Parcelable {
      * @param regex
      * @param inRecords
      */
-    private void globalSearchInNodes(List<TetroidNode> nodes, String regex, boolean inRecords) {
+    private void globalSearchInNodes(Context context, List<TetroidNode> nodes, String regex, boolean inRecords) {
         for (TetroidNode node : nodes) {
             if (!node.isNonCryptedOrDecrypted()) {
                 this.existCryptedNodes = true;
@@ -202,10 +203,10 @@ public class ScanManager implements Parcelable {
                 addFoundObject(node, FoundType.TYPE_NODE_ID);
             }
             if (inRecords && node.getRecordsCount() > 0) {
-                globalSearchInRecords(node.getRecords(), regex);
+                globalSearchInRecords(context, node.getRecords(), regex);
             }
             if (node.getSubNodesCount() > 0) {
-                globalSearchInNodes(node.getSubNodes(), regex, inRecords);
+                globalSearchInNodes(context, node.getSubNodes(), regex, inRecords);
             }
         }
     }
@@ -216,7 +217,7 @@ public class ScanManager implements Parcelable {
      * @param regex
      * @return
      */
-    private void globalSearchInRecords(List<TetroidRecord> srcRecords, String regex) {
+    private void globalSearchInRecords(Context context, List<TetroidRecord> srcRecords, String regex) {
         for (TetroidRecord record : srcRecords) {
             // поиск по именам записей
             if (inRecordsNames && record.getName().matches(regex)) {
@@ -240,7 +241,7 @@ public class ScanManager implements Parcelable {
             }
             // поиск по тексту записи (читаем текст html файла)
             if (inText) {
-                String text = RecordsManager.getRecordTextDecrypted(record);
+                String text = RecordsManager.getRecordTextDecrypted(context, record);
                 if (text != null && text.matches(regex)) {
                     addFoundObject(record, FoundType.TYPE_RECORD_TEXT);
                 }

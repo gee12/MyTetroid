@@ -151,8 +151,8 @@
     <string name="pref_when_ask_password">Ask for a password</string>
     <string name="pref_when_ask_password_summ">When to ask for a password?</string>
     <string name="pref_key_when_ask_password" translatable="false">pref_key_when_aks_password</string>
-    <string name="pref_when_ask_password_on_select">When choosing an encrypted branch</string>
-    <string name="pref_when_ask_password_on_start">When the application starts</string>
+    <string name="pref_when_ask_password_on_select">When choosing an encrypted node</string>
+    <string name="pref_when_ask_password_on_start">When loading the storage </string>
     <string name="pref_key_pass_hash" translatable="false">pref_key_pass_hash</string>
     <string name="pref_key_pin_code_length" translatable="false">pref_key_pin_code_length</string>
     <string name="pref_key_pin_code_hash" translatable="false">pref_key_pin_code_hash</string>

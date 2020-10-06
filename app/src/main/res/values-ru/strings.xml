@@ -144,7 +144,7 @@
     <string name="pref_when_ask_password">Запрос пароля</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
     <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
-    <string name="pref_when_ask_password_on_start">При старте приложения</string>
+    <string name="pref_when_ask_password_on_start">При загрузке хранилища</string>
     <string name="pref_trash_path">Каталог корзины</string>
     <string name="pref_trash_path_summ">Путь к каталогу корзины</string>
     <string name="pref_category_display">Отображение</string>

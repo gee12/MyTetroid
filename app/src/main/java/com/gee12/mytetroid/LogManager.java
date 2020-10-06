@@ -35,7 +35,7 @@ public class LogManager {
     //  и не хранить context в static (получать всегда параметром)
 //    private static LogManager instance;
 
-    protected static Context context;
+//    protected static Context context;
     private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;
@@ -43,24 +43,24 @@ public class LogManager {
 
     /**
      * Инициализация менеджера.
-     * @param ctx
+//     * @param ctx
      * @param path
      * @param isWriteToFile
      */
-    public static void init(Context ctx, String path, boolean isWriteToFile) {
+    public static void init(Context context, String path, boolean isWriteToFile) {
 //        instance = new LogManager();
-        LogManager.context = ctx;
-        setLogPath(path);
+//        LogManager.context = ctx;
+        setLogPath(context, path);
         LogManager.isWriteToFile = isWriteToFile;
 //        LogManager.buffer = new StringBuilder();
     }
 
-    public static void setLogPath(String path) {
+    public static void setLogPath(Context context, String path) {
         LogManager.dirPath = path;
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
-    public static void log(String mes, Types type, boolean isWriteToFile, int duration) {
+    public static void log(Context context, String mes, Types type, boolean isWriteToFile, int duration) {
         if (type == Types.DEBUG && !BuildConfig.DEBUG)
             return;
         String typeTag;
@@ -85,75 +85,75 @@ public class LogManager {
         String fullMes = addTime(typeTag + mes);
         writeToBuffer(fullMes);
         if (isWriteToFile) {
-            writeToFile(fullMes);
+            writeToFile(context, fullMes);
         }
         if (duration >= 0) {
-            showMessage(mes, duration);
+            showMessage(context, mes, duration);
         }
     }
 
-    public static void log(String s, Types type, int duration) {
-        log(s, type, isWriteToFile, duration);
+    public static void log(Context context, String s, Types type, int duration) {
+        log(context, s, type, isWriteToFile, duration);
     }
 
-    public static void log(String s, Types type) {
-        log(s, type, isWriteToFile, DURATION_NONE);
+    public static void log(Context context, String s, Types type) {
+        log(context, s, type, isWriteToFile, DURATION_NONE);
     }
 
-    public static void log(String s) {
-        log(s, Types.INFO);
+    public static void log(Context context, String s) {
+        log(context, s, Types.INFO);
     }
 
-    public static void log(int sId) {
-        log(context.getString(sId), Types.INFO);
+    public static void log(Context context, int sId) {
+        log(context, context.getString(sId), Types.INFO);
     }
 
-    public static void log(String s, int duration) {
-        log(s, Types.INFO, duration);
+    public static void log(Context context, String s, int duration) {
+        log(context, s, Types.INFO, duration);
     }
 
-    public static void log(int sId, int duration) {
-        log(context.getString(sId), duration);
+    public static void log(Context context, int sId, int duration) {
+        log(context, context.getString(sId), duration);
     }
 
-    public static void log(int sId, Types type) {
-        log(context.getString(sId), type, DURATION_NONE);
+    public static void log(Context context, int sId, Types type) {
+        log(context, context.getString(sId), type, DURATION_NONE);
     }
 
-    public static void log(int sId, Types type, int duration) {
-        log(context.getString(sId), type, duration);
+    public static void log(Context context, int sId, Types type, int duration) {
+        log(context, context.getString(sId), type, duration);
     }
 
-    public static void log(Exception ex) {
-        log(getExceptionInfo(ex), Types.ERROR);
+    public static void log(Context context, Exception ex) {
+        log(context, getExceptionInfo(ex), Types.ERROR);
     }
 
-    public static void log(String s, Exception ex) {
-        log(s + ": " + getExceptionInfo(ex), Types.ERROR);
+    public static void log(Context context, String s, Exception ex) {
+        log(context, s + ": " + getExceptionInfo(ex), Types.ERROR);
     }
 
-    public static void log(Exception ex, int duration) {
-        log(getExceptionInfo(ex), Types.ERROR, duration);
+    public static void log(Context context, Exception ex, int duration) {
+        log(context, getExceptionInfo(ex), Types.ERROR, duration);
     }
 
-    public static void log(String s, Exception ex, int duration) {
-        log(s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
-    }
-
-    public static void showMessage(String s, int duration) {
-        Message.show(context, s, duration);
+    public static void log(Context context, String s, Exception ex, int duration) {
+        log(context, s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
     }
 
     public static void showMessage(Context context, String s, int duration) {
         Message.show(context, s, duration);
     }
 
-    private static void addLogWithoutFile(Exception ex, int duration) {
-        addLogWithoutFile(getExceptionInfo(ex), duration);
+    /*public static void showMessage(Context context, String s, int duration) {
+        Message.show(context, s, duration);
+    }*/
+
+    private static void addLogWithoutFile(Context context, Exception ex, int duration) {
+        addLogWithoutFile(context, getExceptionInfo(ex), duration);
     }
 
-    private static void addLogWithoutFile(String s, int duration) {
-        log(s, Types.ERROR, false, duration);
+    private static void addLogWithoutFile(Context context, String s, int duration) {
+        log(context, s, Types.ERROR, false, duration);
     }
 
     private static String addTime(String s) {
@@ -165,16 +165,16 @@ public class LogManager {
      * Сообщение о параметре=null
      * @param methodName
      */
-    public static void emptyParams(String methodName) {
+    public static void emptyParams(Context context, String methodName) {
         String start = (!TextUtils.isEmpty(methodName)) ? methodName + ": " : "";
-        log(start + "Some required parameter(s) is null", LogManager.Types.WARNING);
+        log(context, start + "Some required parameter(s) is null", LogManager.Types.WARNING);
     }
 
     /**
      * Сообщение о параметре context=null
      */
-    public static void emptyContextLog() {
-        log("Parameter <context> is null", LogManager.Types.WARNING);
+    public static void emptyContextLog(Context context) {
+        log(context, "Parameter <context> is null", LogManager.Types.WARNING);
     }
 
     /**
@@ -206,7 +206,7 @@ public class LogManager {
      * Запись логов в файл.
      * @param mes
      */
-    private static void writeToFile(String mes) {
+    private static void writeToFile(Context context, String mes) {
         File logFile = new File(fullFileName);
         if (!logFile.exists()) {
             try {
@@ -216,19 +216,19 @@ public class LogManager {
                     if (!dir.mkdirs()) {
 //                        log(context.getString(R.string.log_dir_creating_error) + dirPath,
 //                                Types.ERROR, false, Toast.LENGTH_LONG);
-                        addLogWithoutFile(context.getString(R.string.log_dir_creating_error) + dirPath, Toast.LENGTH_LONG);
+                        addLogWithoutFile(context, context.getString(R.string.log_dir_creating_error) + dirPath, Toast.LENGTH_LONG);
                         //
 //                        writeToBuffer(mes);
                         return;
                     } else {
-                        log(context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
+                        log(context, context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
                     }
                 }
                 // попытка создания лог-файла
                 logFile.createNewFile();
             }
             catch (IOException e) {
-                addLogWithoutFile(e, Toast.LENGTH_LONG);
+                addLogWithoutFile(context, e, Toast.LENGTH_LONG);
                 //
 //                writeToBuffer(mes);
                 return;
@@ -240,7 +240,7 @@ public class LogManager {
             buf.newLine();
             buf.close();
         } catch (IOException e) {
-            addLogWithoutFile(e, Toast.LENGTH_LONG);
+            addLogWithoutFile(context, e, Toast.LENGTH_LONG);
             //
 //            writeToBuffer(mes);
         }

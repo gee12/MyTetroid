@@ -79,18 +79,18 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void readSearchPrefs() {
-        etQuery.setText(SettingsManager.getSearchQuery());
-        cbText.setChecked(SettingsManager.isSearchInText());
-        cbRecordsNames.setChecked(SettingsManager.isSearchInRecordsNames());
-        cbAuthor.setChecked(SettingsManager.isSearchInAuthor());
-        cbUrl.setChecked(SettingsManager.isSearchInUrl());
-        cbTags.setChecked(SettingsManager.isSearchInTags());
-        cbNodes.setChecked(SettingsManager.isSearchInNodes());
-        cbFiles.setChecked(SettingsManager.isSearchInFiles());
-        cbIds.setChecked(SettingsManager.isSearchInIds());
-        spSplitToWords.setSelection(SettingsManager.isSearchSplitToWords() ? 0 : 1);
-        spInWholeWords.setSelection(SettingsManager.isSearchInWholeWords() ? 0 : 1);
-        spInCurrentNode.setSelection(SettingsManager.isSearchInCurNode() ? 1 : 0);
+        etQuery.setText(SettingsManager.getSearchQuery(this));
+        cbText.setChecked(SettingsManager.isSearchInText(this));
+        cbRecordsNames.setChecked(SettingsManager.isSearchInRecordsNames(this));
+        cbAuthor.setChecked(SettingsManager.isSearchInAuthor(this));
+        cbUrl.setChecked(SettingsManager.isSearchInUrl(this));
+        cbTags.setChecked(SettingsManager.isSearchInTags(this));
+        cbNodes.setChecked(SettingsManager.isSearchInNodes(this));
+        cbFiles.setChecked(SettingsManager.isSearchInFiles(this));
+        cbIds.setChecked(SettingsManager.isSearchInIds(this));
+        spSplitToWords.setSelection(SettingsManager.isSearchSplitToWords(this) ? 0 : 1);
+        spInWholeWords.setSelection(SettingsManager.isSearchInWholeWords(this) ? 0 : 1);
+        spInCurrentNode.setSelection(SettingsManager.isSearchInCurNode(this) ? 1 : 0);
     }
 
     private void initSpinner(Spinner spinner, int arrayId) {
@@ -129,18 +129,18 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void saveSearchPrefs() {
-        SettingsManager.setSearchQuery(etQuery.getText().toString());
-        SettingsManager.setSearchInText(cbText.isChecked());
-        SettingsManager.setSearchInRecordsNames(cbRecordsNames.isChecked());
-        SettingsManager.setSearchInAuthor(cbAuthor.isChecked());
-        SettingsManager.setSearchInUrl(cbUrl.isChecked());
-        SettingsManager.setSearchInTags(cbTags.isChecked());
-        SettingsManager.setSearchInNodes(cbNodes.isChecked());
-        SettingsManager.setSearchInFiles(cbFiles.isChecked());
-        SettingsManager.setSearchInIds(cbIds.isChecked());
-        SettingsManager.setSearchSplitToWords(spSplitToWords.getSelectedItemPosition() == 0);
-        SettingsManager.setSearchInWholeWords(spInWholeWords.getSelectedItemPosition() == 0);
-        SettingsManager.setSearchInCurNode(spInCurrentNode.getSelectedItemPosition() == 1);
+        SettingsManager.setSearchQuery(this, etQuery.getText().toString());
+        SettingsManager.setSearchInText(this, cbText.isChecked());
+        SettingsManager.setSearchInRecordsNames(this, cbRecordsNames.isChecked());
+        SettingsManager.setSearchInAuthor(this, cbAuthor.isChecked());
+        SettingsManager.setSearchInUrl(this, cbUrl.isChecked());
+        SettingsManager.setSearchInTags(this, cbTags.isChecked());
+        SettingsManager.setSearchInNodes(this, cbNodes.isChecked());
+        SettingsManager.setSearchInFiles(this, cbFiles.isChecked());
+        SettingsManager.setSearchInIds(this, cbIds.isChecked());
+        SettingsManager.setSearchSplitToWords(this, spSplitToWords.getSelectedItemPosition() == 0);
+        SettingsManager.setSearchInWholeWords(this, spInWholeWords.getSelectedItemPosition() == 0);
+        SettingsManager.setSearchInCurNode(this, spInCurrentNode.getSelectedItemPosition() == 1);
     }
 
     /**

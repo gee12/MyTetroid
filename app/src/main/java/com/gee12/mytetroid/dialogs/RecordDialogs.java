@@ -77,18 +77,18 @@ public class RecordDialogs {
             etUrl.setText(record.getUrl());
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
-            if (isNeedNode) {
-                layoutNode.setVisibility(View.VISIBLE);
-                etNode.setText((recordNode != null) ? recordNode.getName() : context.getString(R.string.title_select_node));
-                etNode.setInputType(InputType.TYPE_NULL);
-            }
-            if (App.isFullVersion()) {
-                ctvFavor.setVisibility(View.VISIBLE);
-                ctvFavor.setChecked(record.isFavorite());
-                ctvFavor.setOnClickListener(v -> {
-                    ctvFavor.setChecked(!ctvFavor.isChecked());
-                });
-            }
+        }
+        if (isNeedNode) {
+            layoutNode.setVisibility(View.VISIBLE);
+            etNode.setText((recordNode != null) ? recordNode.getName() : context.getString(R.string.title_select_node));
+            etNode.setInputType(InputType.TYPE_NULL);
+        }
+        if (App.isFullVersion()) {
+            ctvFavor.setVisibility(View.VISIBLE);
+            ctvFavor.setChecked(record.isFavorite());
+            ctvFavor.setOnClickListener(v -> {
+                ctvFavor.setChecked(!ctvFavor.isChecked());
+            });
         }
 
         final AlertDialog dialog = builder.create();

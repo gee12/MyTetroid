@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -56,11 +57,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public static final int REQUEST_CODE_OPEN_TEMP_PATH = 3;
     public static final int REQUEST_CODE_OPEN_LOG_PATH = 4;
 
+    private Context mContext;
     private TetroidTask mCurTask;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.prefs, rootKey);
+        this.mContext = getContext();
 
         Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
@@ -90,9 +93,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .setOnPreferenceClickListener(preference -> {
                     AskDialogs.showYesDialog(getContext(), () -> {
                         if (DataManager.clearTrashFolder()) {
-                            LogManager.log(R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                            LogManager.log(mContext, R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                         } else {
-                            LogManager.log(R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                            LogManager.log(mContext, R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
                         }
                     }, R.string.ask_clear_trash);
                     return true;
@@ -106,9 +109,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                                 @Override
                                 public void onApply(TetroidNode node) {
                                     // устанавливаем ветку, если все хорошо
-                                    SettingsManager.setQuicklyNode(node);
+                                    SettingsManager.setQuicklyNode(mContext, node);
                                     NodesManager.setQuicklyNode(node);
-                                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
+                                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
                                 }
                                 @Override
                                 public void onProblem(int code) {
@@ -139,8 +142,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 .setOnPreferenceClickListener(pref -> {
                     AskDialogs.showYesDialog(getContext(), () -> {
                         TetroidSuggestionProvider.clearHistory(getContext());
-                        SettingsManager.clearSearchOptions();
-                        LogManager.log(R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                        SettingsManager.clearSearchOptions(mContext);
+                        LogManager.log(mContext, R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
                     }, R.string.ask_clear_search_history);
                     return true;
                 });
@@ -148,7 +151,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
         boolean isInited = DataManager.isInited();
         boolean isLoaded = DataManager.isLoaded();
-        boolean crypted = DataManager.isCrypted();
+        boolean crypted = DataManager.isCrypted(mContext);
         passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
         passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
         passPref.setEnabled(isInited && isLoaded && !App.IsLoadedFavoritesOnly);
@@ -181,7 +184,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         findPreference(getString(R.string.pref_key_is_save_pass_hash_local)).
                 setOnPreferenceChangeListener((preference, newValue) -> {
-                    if (SettingsManager.getMiddlePassHash() == null) {
+                    if (SettingsManager.getMiddlePassHash(mContext) == null) {
                         // если пароль не задан, то нечего очищать, не задаем вопрос
                         return true;
                     } else {
@@ -195,7 +198,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         disableIfFree(pinCodePref);
         pinCodePref.setOnPreferenceChangeListener((preference, newValue) -> {
             PINManager.setupPINCode(getContext(), res -> {
-                SettingsManager.setIsRequestPINCode(res);
+                SettingsManager.setIsRequestPINCode(mContext, res);
                 pinCodePref.setChecked(res);
             });
             return false;
@@ -204,7 +207,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
         askPassPref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isSaveMiddlePassHashLocal()) {
+            if (SettingsManager.isSaveMiddlePassHashLocal(mContext)) {
                 Message.show(getContext(), getString(R.string.title_not_avail_when_save_pass), Toast.LENGTH_SHORT);
             }
             return true;
@@ -212,7 +215,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isLoadFavoritesOnly()) {
+            if (SettingsManager.isLoadFavoritesOnly(mContext)) {
                 Message.show(getContext(), getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT);
             }
             return true;
@@ -220,13 +223,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
         disableIfFree(loadFavorPref);
 
-        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal())
-                ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
-        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath());
-        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath());
-        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName());
-        updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
-        updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath());
+        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
+                ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
+        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
+        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(mContext));
+        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
+        updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
+        updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath(mContext));
 
         setHighlightPrefAvailability();
     }
@@ -242,29 +245,29 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             setPINCodePrefAvailability();
-            updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal())
-                    ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass());
+            updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
+                    ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
         } else if (key.equals(getString(R.string.pref_key_when_ask_password))) {
-            updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass());
+            updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass(mContext));
         } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
-            App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach();
+            App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach(mContext);
             setHighlightPrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_is_highlight_crypted_nodes))) {
             // включаем/выключаем выделение зашифрованных веток
-            App.IsHighlightCryptedNodes = SettingsManager.isHighlightEncryptedNodes();
+            App.IsHighlightCryptedNodes = SettingsManager.isHighlightEncryptedNodes(mContext);
             setHighlightPrefAvailability();
         } else if (key.equals(getString(R.string.pref_key_highlight_attach_color))) {
             // меняем цвет выделения записей с файлами
-            App.HighlightAttachColor = SettingsManager.getHighlightColor();
+            App.HighlightAttachColor = SettingsManager.getHighlightColor(mContext);
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
-            App.DateFormatString = SettingsManager.getDateFormatString();
+            App.DateFormatString = SettingsManager.getDateFormatString(mContext);
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
-            LogManager.init(getContext(), SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
+            LogManager.init(getContext(), SettingsManager.getLogPath(mContext), SettingsManager.isWriteLogToFile(mContext));
         } else if (key.equals(getString(R.string.pref_key_sync_command))) {
-            updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand());
+            updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
         }
     }
 
@@ -285,7 +288,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     public void onRequestPermissionsResult(boolean permGranted, int requestCode) {
         if (permGranted) {
-            LogManager.log(R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
+            LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
             switch (requestCode) {
                 case REQUEST_CODE_OPEN_STORAGE_PATH:
                     selectStorageFolder();
@@ -298,7 +301,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     break;
             }
         } else {
-            LogManager.log(R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+            LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
         }
     }
 
@@ -309,7 +312,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         boolean isCreate = requestCode == REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
-            boolean pathChanged = !folderPath.equals(SettingsManager.getStoragePath()) || isCreate;
+            boolean pathChanged = !folderPath.equals(SettingsManager.getStoragePath(mContext)) || isCreate;
             if (pathChanged) {
                 Intent intent = new Intent();
                 intent.putExtra(EXTRA_IS_REINIT_STORAGE, true);
@@ -318,8 +321,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 }
                 getActivity().setResult(RESULT_OK, intent);
             }
-            SettingsManager.setStoragePath(folderPath);
-            SettingsManager.setLastChoosedFolder(folderPath);
+            SettingsManager.setStoragePath(mContext, folderPath);
+            SettingsManager.setLastChoosedFolder(mContext, folderPath);
             updateSummary(R.string.pref_key_storage_path, folderPath);
             if (pathChanged) {
                 // закрываем настройки для немедленной перезагрузки хранилища
@@ -327,14 +330,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             }
         }
         else if (requestCode == REQUEST_CODE_OPEN_TEMP_PATH) {
-            SettingsManager.setTrashPath(folderPath);
-            SettingsManager.setLastChoosedFolder(folderPath);
+            SettingsManager.setTrashPath(mContext, folderPath);
+            SettingsManager.setLastChoosedFolder(mContext, folderPath);
             updateSummary(R.string.pref_key_temp_path, folderPath);
         }
         else if (requestCode == REQUEST_CODE_OPEN_LOG_PATH) {
-            SettingsManager.setLogPath(folderPath);
-            SettingsManager.setLastChoosedFolder(folderPath);
-            LogManager.setLogPath(folderPath);
+            SettingsManager.setLogPath(mContext, folderPath);
+            SettingsManager.setLastChoosedFolder(mContext, folderPath);
+            LogManager.setLogPath(mContext, folderPath);
             updateSummary(R.string.pref_key_log_path, folderPath);
         }
     }
@@ -347,20 +350,20 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         // спрашиваем: создать или выбрать хранилище ?
         StorageChooserDialog.createDialog(getContext(), isNew -> {
             openFolderPicker(getString(R.string.title_storage_folder),
-                    SettingsManager.getStoragePath(),
+                    SettingsManager.getStoragePath(mContext),
                     (isNew) ? REQUEST_CODE_CREATE_STORAGE_PATH : REQUEST_CODE_OPEN_STORAGE_PATH);
         });
     }
 
     private void selectTrashFolder() {
         openFolderPicker(getString(R.string.pref_trash_path),
-                SettingsManager.getTrashPath(),
+                SettingsManager.getTrashPath(mContext),
                 REQUEST_CODE_OPEN_TEMP_PATH);
     }
 
     private void selectLogsFolder() {
         openFolderPicker(getString(R.string.pref_log_path),
-                SettingsManager.getLogPath(),
+                SettingsManager.getLogPath(mContext),
                 REQUEST_CODE_OPEN_LOG_PATH);
     }
 
@@ -378,20 +381,20 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
      * @return
      */
     private void changeSavePassHashLocal(boolean newValue) {
-        if (!newValue && SettingsManager.isSaveMiddlePassHashLocal()) {
+        if (!newValue && SettingsManager.isSaveMiddlePassHashLocal(mContext)) {
             // удалить сохраненный хэш пароля?
             AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
                 @Override
                 public void onApply() {
                     // удаляем хэш пароля, если сняли галку
-                    SettingsManager.setMiddlePassHash(null);
+                    SettingsManager.setMiddlePassHash(mContext, null);
                     // сбрасываем галку
-                    SettingsManager.setIsSaveMiddlePassHashLocal(false);
+                    SettingsManager.setIsSaveMiddlePassHashLocal(mContext, false);
                     ((CheckBoxPreference)findPreference(getString(R.string.pref_key_is_save_pass_hash_local)))
                             .setChecked(false);
                     // сбрасываем ПИН-код
-                    SettingsManager.setIsRequestPINCode(false);
-                    SettingsManager.setPINCodeHash(null);
+                    SettingsManager.setIsRequestPINCode(mContext, false);
+                    SettingsManager.setPINCodeHash(mContext, null);
                     ((CheckBoxPreference)findPreference(getString(R.string.pref_key_request_pin_code)))
                             .setChecked(false);
                     setPINCodePrefAvailability();
@@ -440,14 +443,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     private void setPINCodePrefAvailability() {
         if (App.isFullVersion()) {
             findPreference(getString(R.string.pref_key_request_pin_code)).setEnabled(
-                    SettingsManager.isSaveMiddlePassHashLocal());
+                    SettingsManager.isSaveMiddlePassHashLocal(mContext));
         }
     }
 
     private void setHighlightPrefAvailability() {
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
-                SettingsManager.isHighlightRecordWithAttach()
-                        || SettingsManager.isHighlightEncryptedNodes());
+                SettingsManager.isHighlightRecordWithAttach(mContext)
+                        || SettingsManager.isHighlightEncryptedNodes(mContext));
     }
 
     @Override
@@ -474,7 +477,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
      * @return
      */
     public void changePass() {
-        LogManager.log(R.string.log_start_pass_change);
+        LogManager.log(mContext, R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
         PassDialogs.showPassChangeDialog(getContext(), (curPass, newPass) -> {
             // проверяем пароль
@@ -506,7 +509,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         protected Boolean doInBackground(String... values) {
             String curPass = values[0];
             String newPass = values[1];
-            return PassManager.changePass(curPass, newPass, new ITaskProgress() {
+            return PassManager.changePass(getContext(), curPass, newPass, new ITaskProgress() {
 
                 @Override
                 public void nextStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
@@ -530,7 +533,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         private void setStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
             TaskStage taskStage = new TaskStage(ChangePassTask.class, obj, oper, stage);
-            String mes = TetroidLog.logTaskStage(taskStage);
+            String mes = TetroidLog.logTaskStage(mContext, taskStage);
             publishProgress(mes);
         }
 
@@ -546,9 +549,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 //            mLayoutProgress.setVisibility(View.INVISIBLE);
             getSettingsActivity().setProgressVisibility(false, null);
             if (res) {
-                LogManager.log(R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                LogManager.log(mContext, R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             } else {
-                LogManager.log(R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                LogManager.log(mContext, R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
             }
         }
     }

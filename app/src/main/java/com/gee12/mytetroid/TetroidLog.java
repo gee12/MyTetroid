@@ -1,5 +1,6 @@
 package com.gee12.mytetroid;
 
+import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
@@ -40,7 +41,7 @@ public class TetroidLog extends LogManager {
             this.maRes = arrayRes;
         }
 
-        String getString(int tense) {
+        String getString(Context context, int tense) {
             return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
@@ -75,88 +76,90 @@ public class TetroidLog extends LogManager {
             this.maRes = arrayRes;
         }
 
-        String getString(int tense) {
+        String getString(Context context, int tense) {
             return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
 
-    public static String logOperStart(Objs obj, Opers oper) {
-        return logOperStart(obj, oper, "");
+    public static String logOperStart(Context context, Objs obj, Opers oper) {
+        return logOperStart(context, obj, oper, "");
     }
 
-    public static String logOperStart(Objs obj, Opers oper, TetroidObject o) {
-        return logOperStart(obj, oper, addIdName(o));
+    public static String logOperStart(Context context, Objs obj, Opers oper, TetroidObject o) {
+        return logOperStart(context, obj, oper, addIdName(context, o));
     }
 
-    public static String logOperStart(Objs obj, Opers oper, String add) {
+    public static String logOperStart(Context context, Objs obj, Opers oper, String add) {
         // меняем местами существительное и глагол в зависимости от языка
-        String first = ((App.isRusLanguage()) ? oper.getString(PRESENT_CONTINUOUS) : obj.getString(PRESENT_CONTINUOUS));
-        String second = ((App.isRusLanguage()) ? obj.getString(PRESENT_CONTINUOUS) : oper.getString(PRESENT_CONTINUOUS));
-        String mes = String.format(getString(R.string.log_oper_start_mask), first, second) + add;
-        log(mes, Types.INFO);
+        String first = ((App.isRusLanguage()) ? oper.getString(context, PRESENT_CONTINUOUS)
+                : obj.getString(context, PRESENT_CONTINUOUS));
+        String second = ((App.isRusLanguage()) ? obj.getString(context, PRESENT_CONTINUOUS)
+                : oper.getString(context, PRESENT_CONTINUOUS));
+        String mes = String.format(context.getString(R.string.log_oper_start_mask), first, second) + add;
+        log(context, mes, Types.INFO);
         return mes;
     }
 
-    public static String logOperCancel(Objs obj, Opers oper) {
-        String mes = String.format(getString(R.string.log_oper_cancel_mask),
-                (obj.getString(PRESENT_CONTINUOUS)), (oper.getString(PRESENT_CONTINUOUS)));
-        log(mes, Types.DEBUG);
+    public static String logOperCancel(Context context, Objs obj, Opers oper) {
+        String mes = String.format(context.getString(R.string.log_oper_cancel_mask),
+                (obj.getString(context, PRESENT_CONTINUOUS)), (oper.getString(context, PRESENT_CONTINUOUS)));
+        log(context, mes, Types.DEBUG);
         return mes;
     }
 
-    public static String logOperRes(Objs obj, Opers oper) {
-        return logOperRes(obj, oper, "", Toast.LENGTH_SHORT);
+    public static String logOperRes(Context context, Objs obj, Opers oper) {
+        return logOperRes(context, obj, oper, "", Toast.LENGTH_SHORT);
     }
 
-    public static String logOperRes(Objs obj, Opers oper, TetroidObject o) {
-        return logOperRes(obj, oper, o, Toast.LENGTH_SHORT);
+    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o) {
+        return logOperRes(context, obj, oper, o, Toast.LENGTH_SHORT);
     }
 
-    public static String logOperRes(Objs obj, Opers oper, TetroidObject o, int length) {
-        return logOperRes(obj, oper, addIdName(o), length);
+    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o, int length) {
+        return logOperRes(context, obj, oper, addIdName(context, o), length);
     }
 
-    public static String logOperRes(Objs obj, Opers oper, String add, int length) {
-        String mes = (obj.getString(PAST_PERFECT)) + (oper.getString(PAST_PERFECT)) + add;
-        log(mes, Types.INFO, length);
+    public static String logOperRes(Context context, Objs obj, Opers oper, String add, int length) {
+        String mes = (obj.getString(context, PAST_PERFECT)) + (oper.getString(context, PAST_PERFECT)) + add;
+        log(context, mes, Types.INFO, length);
         return mes;
     }
 
-    public static String logOperErrorMore(Objs obj, Opers oper) {
-        return logOperError(obj, oper, Toast.LENGTH_LONG);
+    public static String logOperErrorMore(Context context, Objs obj, Opers oper) {
+        return logOperError(context, obj, oper, Toast.LENGTH_LONG);
     }
 
-    public static String logOperErrorMore(Objs obj, Opers oper, int length) {
-        return logOperError(obj, oper, null, true, length);
+    public static String logOperErrorMore(Context context, Objs obj, Opers oper, int length) {
+        return logOperError(context, obj, oper, null, true, length);
     }
 
-    public static String logOperError(Objs obj, Opers oper, int length) {
-        return logOperError(obj, oper, null, length >= 0, length);
+    public static String logOperError(Context context, Objs obj, Opers oper, int length) {
+        return logOperError(context, obj, oper, null, length >= 0, length);
     }
 
-    public static String logOperError(Objs obj, Opers oper, String add, boolean more, int length) {
-        String mes = String.format(getString(R.string.log_oper_error_mask),
-                (oper.getString(PRESENT_SIMPLE)), (obj.getString(PRESENT_SIMPLE)),
+    public static String logOperError(Context context, Objs obj, Opers oper, String add, boolean more, int length) {
+        String mes = String.format(context.getString(R.string.log_oper_error_mask),
+                (oper.getString(context, PRESENT_SIMPLE)), (obj.getString(context, PRESENT_SIMPLE)),
                 (add != null) ? add : "",
-                (more) ? getString(R.string.log_more_in_logs) : "");
-        log(mes, Types.ERROR, length);
+                (more) ? context.getString(R.string.log_more_in_logs) : "");
+        log(context, mes, Types.ERROR, length);
         return mes;
     }
 
-    public static String logDuringOperErrors(Objs obj, Opers oper, int length) {
-        String mes = String.format(getString(R.string.log_during_oper_errors_mask),
-                (oper.getString(PRESENT_CONTINUOUS)), (obj.getString(PRESENT_CONTINUOUS)));
-        log(mes, Types.ERROR, length);
+    public static String logDuringOperErrors(Context context, Objs obj, Opers oper, int length) {
+        String mes = String.format(context.getString(R.string.log_during_oper_errors_mask),
+                (oper.getString(context, PRESENT_CONTINUOUS)), (obj.getString(context, PRESENT_CONTINUOUS)));
+        log(context, mes, Types.ERROR, length);
         return mes;
     }
 
-    private static String getString(int resId) {
-        return context.getString(resId);
-    }
+//    private static String getString(Context context, int resId) {
+//        return context.getString(resId);
+//    }
 
-    private static String addIdName(TetroidObject o) {
+    private static String addIdName(Context context, TetroidObject o) {
 //        return (o != null) ? ": " + getIdNameString(o) : "";
-        return (o != null) ? ": " + getIdString(o) : "";
+        return (o != null) ? ": " + getIdString(context, o) : "";
     }
 
     /**
@@ -164,8 +167,8 @@ public class TetroidLog extends LogManager {
      * @param obj
      * @return
      */
-    public static String getIdNameString(@NotNull TetroidObject obj) {
-        return getStringFormat(R.string.log_obj_id_name_mask, obj.getId(), obj.getName());
+    public static String getIdNameString(Context context, @NotNull TetroidObject obj) {
+        return getStringFormat(context, R.string.log_obj_id_name_mask, obj.getId(), obj.getName());
     }
 
     /**
@@ -173,11 +176,11 @@ public class TetroidLog extends LogManager {
      * @param obj
      * @return
      */
-    public static String getIdString(@NotNull TetroidObject obj) {
-        return getStringFormat(R.string.log_obj_id_mask, obj.getId());
+    public static String getIdString(Context context, @NotNull TetroidObject obj) {
+        return getStringFormat(context, R.string.log_obj_id_mask, obj.getId());
     }
 
-    public static String getStringFormat(@StringRes int formatRes, String... args) {
+    public static String getStringFormat(Context context, @StringRes int formatRes, String... args) {
         return Utils.getStringFormat(context, formatRes, args);
     }
 
@@ -187,51 +190,51 @@ public class TetroidLog extends LogManager {
      * @return
      */
 //    public static String logTaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
-    public static String logTaskStage(TaskStage stage) {
+    public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
                 if (stage.clazz == SettingsFragment.ChangePassTask.class) {
                     switch (stage.oper) {
                         case CHECK:
-                            return logTaskStage(stage, R.string.stage_pass_checking, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_pass_checking, Types.INFO);
                         case SET:
-                            return logTaskStage(stage, (stage.obj == Objs.CUR_PASS)
+                            return logTaskStage(context, stage, (stage.obj == Objs.CUR_PASS)
                                     ? R.string.log_set_cur_pass : R.string.log_set_new_pass, Types.INFO);
                         case DECRYPT:
-                            return logTaskStage(stage, R.string.stage_old_pass_decrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_old_pass_decrypting, Types.INFO);
                         case REENCRYPT:
-                            return logTaskStage(stage, R.string.stage_new_pass_reencrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_new_pass_reencrypting, Types.INFO);
                         case SAVE:
-                            return logTaskStage(stage, (stage.obj == Objs.STORAGE)
+                            return logTaskStage(context, stage, (stage.obj == Objs.STORAGE)
                                     ? R.string.stage_storage_saving : R.string.log_save_pass, Types.INFO);
                         default:
-                            return logOperStart(stage.obj, stage.oper);
+                            return logOperStart(context, stage.obj, stage.oper);
                     }
                 } else if (stage.clazz == MainActivity.CryptNodeTask.class) {
                     switch (stage.oper) {
                         case DECRYPT:
-                            return logTaskStage(stage, R.string.stage_storage_decrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_storage_decrypting, Types.INFO);
                         case ENCRYPT:
-                            return logTaskStage(stage, R.string.task_node_encrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.task_node_encrypting, Types.INFO);
                         case DROPCRYPT:
-                            return logTaskStage(stage, R.string.task_node_drop_crypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.task_node_drop_crypting, Types.INFO);
                         default:
-                            return logOperStart(stage.obj, stage.oper);
+                            return logOperStart(context, stage.obj, stage.oper);
                     }
                 }
-                return logOperStart(stage.obj, stage.oper);
+                return logOperStart(context, stage.obj, stage.oper);
             case SUCCESS:
-                return logOperRes(stage.obj, stage.oper, "", DURATION_NONE);
+                return logOperRes(context, stage.obj, stage.oper, "", DURATION_NONE);
             case FAILED:
-                return logDuringOperErrors(stage.obj, stage.oper, DURATION_NONE);
+                return logDuringOperErrors(context, stage.obj, stage.oper, DURATION_NONE);
         }
         return null;
     }
 
-    public static String logTaskStage(TaskStage taskStage, int resId, Types type) {
-        String mes = getString(resId);
+    public static String logTaskStage(Context context, TaskStage taskStage, int resId, Types type) {
+        String mes = context.getString(resId);
         if (taskStage.writeLog) {
-            log(mes, type);
+            log(context, mes, type);
         }
         return mes;
     }

@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,11 +32,6 @@ public class FoundPageFragment extends TetroidFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_found, container, false);
@@ -52,7 +46,7 @@ public class FoundPageFragment extends TetroidFragment {
         lvFound.setOnItemClickListener((parent, view, position, id) -> openFoundObject(position));
         lvFound.setOnTouchListener(this);
 
-        this.listAdapter = new FoundListAdapter(getContext());
+        this.listAdapter = new FoundListAdapter(mContext);
         lvFound.setAdapter(listAdapter);
         setMainView(getArguments());
 
@@ -63,7 +57,7 @@ public class FoundPageFragment extends TetroidFragment {
     }
 
     public void setFounds(HashMap<ITetroidObject, FoundType> found, ScanManager scan) {
-        this.listAdapter = new FoundListAdapter(getContext());
+        this.listAdapter = new FoundListAdapter(mContext);
         lvFound.setAdapter(listAdapter);
         listAdapter.setDataItems(found);
         this.foundCount = found.size();
@@ -84,7 +78,7 @@ public class FoundPageFragment extends TetroidFragment {
 
     @Override
     public String getTitle() {
-        if (getContext() != null)
+        if (mContext != null)
             return String.format(getString(R.string.search_found_mask), foundCount);
         else
             return null;

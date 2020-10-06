@@ -6,7 +6,6 @@ import android.content.Context;
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
@@ -45,7 +44,7 @@ public class App {
      * @return текущий режим
      */
     public static boolean toggleFullscreen(AppCompatActivity activity, boolean fromDoubleTap) {
-        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen()) {
+        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(activity)) {
             boolean newValue = !IsFullScreen;
             ViewUtils.setFullscreen(activity, newValue);
             IsFullScreen = newValue;
@@ -60,7 +59,7 @@ public class App {
      * @param activity
      */
     public static void checkKeepScreenOn(Activity activity) {
-        ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn());
+        ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn(activity));
     }
 
     public static boolean isRusLanguage() {
@@ -74,12 +73,12 @@ public class App {
         if (IsInited)
             return;
         SettingsManager.init(context);
-        LogManager.init(context, SettingsManager.getLogPath(), SettingsManager.isWriteLogToFile());
-        LogManager.log(String.format(context.getString(R.string.log_app_start_mask), Utils.getVersionName(context)));
+        LogManager.init(context, SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context));
+        LogManager.log(context, String.format(context.getString(R.string.log_app_start_mask), Utils.getVersionName(context)));
         if (SettingsManager.isCopiedFromFree()) {
-            LogManager.log(R.string.log_settings_copied_from_free, LogManager.Types.INFO);
+            LogManager.log(context, R.string.log_settings_copied_from_free, LogManager.Types.INFO);
         }
-        DataManager.init(context);
+//        DataManager.init(context);
         IsInited = true;
     }
 }

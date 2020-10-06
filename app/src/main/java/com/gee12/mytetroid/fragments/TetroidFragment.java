@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -10,8 +11,11 @@ import androidx.fragment.app.Fragment;
 import com.gee12.mytetroid.activities.IMainView;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
 
+import org.jetbrains.annotations.NotNull;
+
 public abstract class TetroidFragment extends Fragment implements View.OnTouchListener {
 
+    protected Context mContext;
     protected GestureDetectorCompat mGestureDetector;
     protected IMainView mMainView;
     protected String mTitleMask;
@@ -20,6 +24,12 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
 
     public TetroidFragment(GestureDetectorCompat detector) {
         this.mGestureDetector = detector;
+    }
+
+    @Override
+    public void onAttach(@NotNull Context context) {
+        super.onAttach(context);
+        this.mContext = getContext();
     }
 
     public void setTitleMask(String titleMask) {

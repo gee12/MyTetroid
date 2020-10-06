@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.crypt;
 
+import android.content.Context;
+
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.IRecordFileCrypter;
 import com.gee12.mytetroid.data.ITagsParser;
@@ -43,11 +45,11 @@ public class CryptManager extends Crypter {
      *      *                    (должно быть расшифрованно перед этим)
      * @return
      */
-    public static boolean encryptNodes(List<TetroidNode> nodes, boolean isReencrypt) {
+    public static boolean encryptNodes(Context context, List<TetroidNode> nodes, boolean isReencrypt) {
         boolean res = true;
         for (TetroidNode node : nodes) {
 //            if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
-                res = res & encryptNode(node, isReencrypt);
+                res = res & encryptNode(context, node, isReencrypt);
 //            }
         }
         return res;
@@ -59,7 +61,7 @@ public class CryptManager extends Crypter {
      * @param isReencrypt
      * @return
      */
-    public static boolean encryptNode(TetroidNode node, boolean isReencrypt) {
+    public static boolean encryptNode(Context context, TetroidNode node, boolean isReencrypt) {
         if (node == null)
             return false;
         boolean res = true;
@@ -67,12 +69,12 @@ public class CryptManager extends Crypter {
             // засшифровываем поля
             res = encryptNodeFields(node, isReencrypt);
             if (node.getRecordsCount() > 0) {
-                res = res & encryptRecordsAndFiles(node.getRecords(), isReencrypt);
+                res = res & encryptRecordsAndFiles(context, node.getRecords(), isReencrypt);
             }
         }
         // расшифровываем подветки
         if (node.getSubNodesCount() > 0) {
-            res = res & encryptNodes(node.getSubNodes(), isReencrypt);
+            res = res & encryptNodes(context, node.getSubNodes(), isReencrypt);
         }
         return res;
     }
@@ -121,12 +123,12 @@ public class CryptManager extends Crypter {
      *                    уже зашифрована.
      * @return
      */
-    public static boolean encryptRecordsAndFiles(List<TetroidRecord> records, boolean isReencrypt) {
+    public static boolean encryptRecordsAndFiles(Context context, List<TetroidRecord> records, boolean isReencrypt) {
         boolean res = true;
         for (TetroidRecord record : records) {
             // зашифровываем файлы записи
             if (recordFileCrypter != null) {
-                res = res & recordFileCrypter.cryptRecordFiles(record, record.isCrypted() && !isReencrypt, true);
+                res = res & recordFileCrypter.cryptRecordFiles(context, record, record.isCrypted() && !isReencrypt, true);
             }
             res = res & encryptRecordFields(record, isReencrypt);
             if (record.getAttachedFilesCount() > 0)
@@ -223,11 +225,11 @@ public class CryptManager extends Crypter {
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptNodes(List<TetroidNode> nodes, boolean isDecryptSubNodes, boolean decryptRecords,
+    public static boolean decryptNodes(Context context, List<TetroidNode> nodes, boolean isDecryptSubNodes, boolean decryptRecords,
                                        INodeIconLoader iconLoader, boolean dropCrypt, boolean decryptFiles) {
         boolean res = true;
         for (TetroidNode node : nodes) {
-            res = res & decryptNode(node, isDecryptSubNodes, decryptRecords, iconLoader, dropCrypt, decryptFiles);
+            res = res & decryptNode(context, node, isDecryptSubNodes, decryptRecords, iconLoader, dropCrypt, decryptFiles);
         }
         return res;
     }
@@ -240,7 +242,7 @@ public class CryptManager extends Crypter {
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptNode(TetroidNode node, boolean decryptSubNodes, boolean decryptRecords,
+    public static boolean decryptNode(Context context, TetroidNode node, boolean decryptSubNodes, boolean decryptRecords,
                                       INodeIconLoader iconLoader, boolean dropCrypt, boolean decryptFiles) {
         if (node == null)
             return false;
@@ -255,12 +257,12 @@ public class CryptManager extends Crypter {
             // TODO: расшифровывать список записей сразу или при выделении ?
             //  (пока сразу)
             if (decryptRecords && node.getRecordsCount() > 0) {
-                res = res & decryptRecordsAndFiles(node.getRecords(), dropCrypt, decryptFiles);
+                res = res & decryptRecordsAndFiles(context, node.getRecords(), dropCrypt, decryptFiles);
             }
         }
         // расшифровываем подветки
         if (decryptSubNodes && node.getSubNodesCount() > 0) {
-            res = res & decryptNodes(node.getSubNodes(), true, decryptRecords, iconLoader, dropCrypt, decryptFiles);
+            res = res & decryptNodes(context, node.getSubNodes(), true, decryptRecords, iconLoader, dropCrypt, decryptFiles);
         }
         return res;
     }
@@ -308,15 +310,15 @@ public class CryptManager extends Crypter {
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    public static boolean decryptRecordsAndFiles(List<TetroidRecord> records, boolean dropCrypt, boolean decryptFiles) {
+    public static boolean decryptRecordsAndFiles(Context context, List<TetroidRecord> records, boolean dropCrypt, boolean decryptFiles) {
         boolean res = true;
         for (TetroidRecord record : records) {
-            res = res & decryptRecordAndFiles(record, dropCrypt, decryptFiles);
+            res = res & decryptRecordAndFiles(context, record, dropCrypt, decryptFiles);
         }
         return res;
     }
 
-    public static boolean decryptRecordAndFiles(TetroidRecord record, boolean dropCrypt, boolean decryptFiles) {
+    public static boolean decryptRecordAndFiles(Context context, TetroidRecord record, boolean dropCrypt, boolean decryptFiles) {
         boolean res = decryptRecordFields(record, dropCrypt);
         if (record.getAttachedFilesCount() > 0)
             for (TetroidFile file : record.getAttachedFiles()) {
@@ -324,7 +326,7 @@ public class CryptManager extends Crypter {
             }
         // расшифровываем файлы записи
         if ((dropCrypt || decryptFiles) && recordFileCrypter != null) {
-            res = res & recordFileCrypter.cryptRecordFiles(record, true,false);
+            res = res & recordFileCrypter.cryptRecordFiles(context, record, true,false);
         }
         return res;
     }

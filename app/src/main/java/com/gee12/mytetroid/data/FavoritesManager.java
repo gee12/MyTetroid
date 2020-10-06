@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.data;
 
+import android.content.Context;
+
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -15,9 +17,9 @@ public class FavoritesManager extends RecordsManager {
     /**
      * Первоначальная загрузка списка Id избранных записей из настроек.
      */
-    public static void load() {
+    public static void load(Context context) {
         mFavorites = new FavoriteList(
-                (App.isFullVersion()) ? SettingsManager.getFavorites() : null);
+                (App.isFullVersion()) ? SettingsManager.getFavorites(context) : null);
     }
 
     /**
@@ -54,11 +56,11 @@ public class FavoritesManager extends RecordsManager {
      * @param record
      * @return
      */
-    public static boolean add(TetroidRecord record) {
+    public static boolean add(Context context, TetroidRecord record) {
         boolean res = mFavorites.add(record);
         if (res) {
             record.setIsFavorite(true);
-            saveFavorites();
+            saveFavorites(context);
         }
         return res;
     }
@@ -69,19 +71,19 @@ public class FavoritesManager extends RecordsManager {
      * @param resetFlag Нужно ли сбрасывать флаг isFavorite у записи
      * @return
      */
-    public static boolean remove(TetroidRecord record, boolean resetFlag) {
+    public static boolean remove(Context context, TetroidRecord record, boolean resetFlag) {
         boolean res = mFavorites.remove(record);
         if (res) {
             if (resetFlag) {
                 record.setIsFavorite(false);
             }
-            saveFavorites();
+            saveFavorites(context);
         }
         return res;
     }
 
-    public static boolean addOrRemove(TetroidRecord record, boolean isFavor) {
-        return (isFavor) ? add(record) : remove(record, true);
+    public static boolean addOrRemove(Context context, TetroidRecord record, boolean isFavor) {
+        return (isFavor) ? add(context, record) : remove(context, record, true);
     }
 
     /**
@@ -92,10 +94,10 @@ public class FavoritesManager extends RecordsManager {
      *         0 - перемещение невозможно (пограничный элемент)
      *        -1 - ошибка
      */
-    public static int swapRecords(int pos, boolean isUp) {
+    public static int swapRecords(Context context, int pos, boolean isUp) {
         boolean isSwapped = mFavorites.swap(pos, isUp);
         if (isSwapped) {
-            saveFavorites();
+            saveFavorites(context);
             return 1;
         }
         return 0;
@@ -104,7 +106,7 @@ public class FavoritesManager extends RecordsManager {
     /**
      * Сохранение списка Id избранных записей в настройках.
      */
-    protected static void saveFavorites() {
+    protected static void saveFavorites(Context context) {
         /*String[] ids = new String[mFavorites.size()];
         for (int i = 0; i < mFavorites.size(); i++) {
             TetroidRecord record = mFavorites.get(i);
@@ -113,7 +115,7 @@ public class FavoritesManager extends RecordsManager {
             }
         }
         SettingsManager.setFavorites(ids);*/
-        SettingsManager.setFavorites(mFavorites.getIds());
+        SettingsManager.setFavorites(context, mFavorites.getIds());
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {

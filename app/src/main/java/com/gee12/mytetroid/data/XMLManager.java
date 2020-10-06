@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.data;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Xml;
 
@@ -95,7 +96,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @param node
      * @return
      */
-    protected abstract boolean decryptNode(TetroidNode node);
+    protected abstract boolean decryptNode(Context context, TetroidNode node);
 
     /**
      * Обработчик события о необходимости расшифровки записи (вместе с прикрепленными файлами)
@@ -103,7 +104,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @param record
      * @return
      */
-    protected abstract boolean decryptRecord(TetroidRecord record);
+    protected abstract boolean decryptRecord(Context context, TetroidRecord record);
 
     /**
      * Проверка является ли запись избранной.
@@ -150,7 +151,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public boolean parse(InputStream in, boolean isNeedDecrypt, boolean favoriteMode)
+    public boolean parse(Context context, InputStream in, boolean isNeedDecrypt, boolean favoriteMode)
             throws XmlPullParserException, IOException {
         this.mIsNeedDecrypt = isNeedDecrypt;
         this.mIsFavoritesMode = favoriteMode;
@@ -161,7 +162,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag();
-            res = readRoot(parser);
+            res = readRoot(context, parser);
         } finally {
             in.close();
         }
@@ -176,7 +177,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private boolean readRoot(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private boolean readRoot(Context context, XmlPullParser parser) throws XmlPullParserException, IOException {
         boolean res = false;
         parser.require(XmlPullParser.START_TAG, ns, "root");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -187,7 +188,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             if (tagName.equals("format")) {
                 this.mFormatVersion = readFormatVersion(parser);
             } else if (tagName.equals("content")) {
-                res = readContent(parser);
+                res = readContent(context, parser);
             }
         }
         return res;
@@ -222,7 +223,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private boolean readContent(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private boolean readContent(Context context, XmlPullParser parser) throws XmlPullParserException, IOException {
         List<TetroidNode> nodes = (!mIsFavoritesMode) ? new ArrayList<>() : null;
         parser.require(XmlPullParser.START_TAG, ns, "content");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -231,7 +232,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }
             String tagName = parser.getName();
             if (tagName.equals("node")) {
-                TetroidNode node = readNode(parser, 0, ROOT_NODE);
+                TetroidNode node = readNode(context, parser, 0, ROOT_NODE);
                 if (node != null && !mIsFavoritesMode) {
                     nodes.add(node);
                 }
@@ -257,7 +258,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private TetroidNode readNode(XmlPullParser parser, int depthLevel, TetroidNode parentNode)
+    private TetroidNode readNode(Context context, XmlPullParser parser, int depthLevel, TetroidNode parentNode)
             throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
@@ -301,14 +302,14 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             tagName = parser.getName();
             if (tagName.equals("recordtable")) {
                 // записи
-                records = readRecords(parser, node);
+                records = readRecords(context, parser, node);
                 //
                 if (AppDebug.isRecordsLoadedEnough(mRecordsCount)) {
                     break;
                 }
             } else if (tagName.equals("node")) {
                 // вложенная ветка
-                TetroidNode subNode = readNode(parser, depthLevel + 1, node);
+                TetroidNode subNode = readNode(context, parser, depthLevel + 1, node);
                 if (!mIsFavoritesMode) {
                     subNodes.add(subNode);
                 }
@@ -323,7 +324,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
 
             // расшифровка
             if (crypt && mIsNeedDecrypt) {
-                decryptNode(node);
+                decryptNode(context, node);
             }
             /*//else if (!crypt) {
             if (node.isNonCryptedOrDecrypted()) {
@@ -357,7 +358,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private List<TetroidRecord> readRecords(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
+    private List<TetroidRecord> readRecords(Context context, XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         List<TetroidRecord> records = (!mIsFavoritesMode) ? new ArrayList<>() : null;
 
         parser.require(XmlPullParser.START_TAG, ns, "recordtable");
@@ -367,7 +368,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }
             String tagName = parser.getName();
             if (tagName.equals("record")) {
-                TetroidRecord record = readRecord(parser, node);
+                TetroidRecord record = readRecord(context, parser, node);
                 if (record != null && !mIsFavoritesMode) {
                     records.add(record);
                 }
@@ -414,7 +415,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    private TetroidRecord readRecord(XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
+    private TetroidRecord readRecord(Context context, XmlPullParser parser, TetroidNode node) throws XmlPullParserException, IOException {
         boolean crypt = false;
         String id = null;
         String name = null;
@@ -491,7 +492,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
 
         // расшифровка
         if (crypt && mIsNeedDecrypt) {
-            decryptRecord(record);
+            decryptRecord(context, record);
         }
         if (record.isNonCryptedOrDecrypted()) {
             // парсим метки, если запись не зашифрована

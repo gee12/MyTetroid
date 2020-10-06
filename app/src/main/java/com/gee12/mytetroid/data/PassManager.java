@@ -29,7 +29,7 @@ public class PassManager extends DataManager {
             // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
             initCryptPass(middlePassHash, true);
             callback.onApply();
-        } else if ((middlePassHash = SettingsManager.getMiddlePassHash()) != null) {
+        } else if ((middlePassHash = SettingsManager.getMiddlePassHash(context)) != null) {
             // хэш пароля сохранен "на диске", проверяем
             try {
                 if (checkMiddlePassHash(middlePassHash)) {
@@ -37,15 +37,15 @@ public class PassManager extends DataManager {
 //                    callback.onApply();
                     PINManager.askPINCode(context, true, callback::onApply);
                 } else {
-                    LogManager.log(R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
+                    LogManager.log(context, R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     // спрашиваем пароль
                     askPassword(context, node, callback);
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
                 // если поля в INI-файле для проверки пустые
-                LogManager.log(ex);
+                LogManager.log(context, ex);
                 //                if (DataManager.isExistsCryptedNodes()) {
-                if (isCrypted()) {
+                if (isCrypted(context)) {
                     final String hash = middlePassHash;
                     // спрашиваем "continue anyway?"
                     PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(),
@@ -88,21 +88,21 @@ public class PassManager extends DataManager {
      * @param node
      */
     public static void askPassword(Context context, final TetroidNode node, Dialogs.IApplyCancelResult callback) {
-        LogManager.log(R.string.log_show_pass_dialog);
-        boolean isNewPass = !isCrypted();
+        LogManager.log(context, R.string.log_show_pass_dialog);
+        boolean isNewPass = !isCrypted(context);
         // выводим окно с запросом пароля в асинхронном режиме
         PassDialogs.showPassEnterDialog(context, node, isNewPass, new PassDialogs.IPassInputResult() {
             @Override
             public void applyPass(final String pass, TetroidNode node) {
                 if (isNewPass) {
-                    LogManager.log(R.string.log_start_pass_setup);
-                    setupPass(pass);
+                    LogManager.log(context, R.string.log_start_pass_setup);
+                    setupPass(context, pass);
 //                    callback.onApply();
                     PINManager.askPINCode(context, node != null, callback::onApply);
                 } else {
                     checkPass(context, pass, (res) -> {
                         if (res) {
-                            initPass(pass);
+                            initPass(context, pass);
 //                            callback.onApply();
                             PINManager.askPINCode(context, node != null, callback::onApply);
                         } else {
@@ -127,8 +127,8 @@ public class PassManager extends DataManager {
      * @throws DatabaseConfig.EmptyFieldException
      */
     public static boolean checkPass(String pass) throws DatabaseConfig.EmptyFieldException {
-        String salt = DatabaseConfig.getCryptCheckSalt();
-        String checkHash = DatabaseConfig.getCryptCheckHash();
+        String salt = Instance.mDatabaseConfig.getCryptCheckSalt();
+        String checkHash = Instance.mDatabaseConfig.getCryptCheckHash();
         return CryptManager.checkPass(pass, salt, checkHash);
     }
 
@@ -139,7 +139,7 @@ public class PassManager extends DataManager {
      * @throws DatabaseConfig.EmptyFieldException
      */
     public static boolean checkMiddlePassHash(String passHash) throws DatabaseConfig.EmptyFieldException {
-        String checkData = DatabaseConfig.getMiddleHashCheckData();
+        String checkData = Instance.mDatabaseConfig.getMiddleHashCheckData();
         return CryptManager.checkMiddlePassHash(passHash, checkData);
     }
 
@@ -155,13 +155,13 @@ public class PassManager extends DataManager {
             if (checkPass(pass)) {
                 callback.run(true);
             } else {
-                LogManager.log(wrongPassRes, Toast.LENGTH_LONG);
+                LogManager.log(context, wrongPassRes, Toast.LENGTH_LONG);
                 callback.run(false);
                 return false;
             }
         } catch (DatabaseConfig.EmptyFieldException ex) {
             // если поля в INI-файле для проверки пустые
-            LogManager.log(ex);
+            LogManager.log(context, ex);
             // спрашиваем "continue anyway?"
             PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                 @Override
@@ -184,11 +184,11 @@ public class PassManager extends DataManager {
      * Сохранение пароля в настройках и его установка для шифрования.
      * @param pass
      */
-    public static void initPass(String pass) {
+    public static void initPass(Context context, String pass) {
         String passHash = CryptManager.passToHash(pass);
-        if (SettingsManager.isSaveMiddlePassHashLocal()) {
+        if (SettingsManager.isSaveMiddlePassHashLocal(context)) {
             // сохраняем хэш пароля
-            SettingsManager.setMiddlePassHash(passHash);
+            SettingsManager.setMiddlePassHash(context, passHash);
             // записываем проверочную строку
             saveMiddlePassCheckData(passHash);
         } else {
@@ -205,12 +205,12 @@ public class PassManager extends DataManager {
      * @return
      */
     public static void setupPass(Context context) {
-        LogManager.log(R.string.log_start_pass_setup);
+        LogManager.log(context, R.string.log_start_pass_setup);
         // вводим пароль
         PassDialogs.showPassEnterDialog(context, null, true, new PassDialogs.IPassInputResult() {
             @Override
             public void applyPass(String pass, TetroidNode node) {
-                setupPass(pass);
+                setupPass(context, pass);
             }
             @Override
             public void cancelPass() {
@@ -222,47 +222,47 @@ public class PassManager extends DataManager {
      * Установка пароля хранилища впервые.
      * @param pass
      */
-    public static void setupPass(String pass) {
+    public static void setupPass(Context context, String pass) {
         // сохраняем в database.ini
-        if (savePassCheckData(pass)) {
-            LogManager.log(R.string.log_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            initPass(pass);
+        if (savePassCheckData(context, pass)) {
+            LogManager.log(context, R.string.log_pass_setted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+            initPass(context, pass);
         } else {
-            LogManager.log(R.string.log_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+            LogManager.log(context, R.string.log_pass_set_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 
-    public static boolean changePass(String curPass, String newPass, ITaskProgress taskProgress) {
+    public static boolean changePass(Context context, String curPass, String newPass, ITaskProgress taskProgress) {
         // сначала устанавливаем текущий пароль
         taskProgress.nextStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START);
-        initPass(curPass);
+        initPass(context, curPass);
         // и расшифровываем хранилище
         if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, () ->
-                DataManager.decryptStorage(true)))
+                DataManager.decryptStorage(context, true)))
             return false;
         // теперь устанавливаем новый пароль
         taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START);
-        initPass(newPass);
+        initPass(context, newPass);
         // и перешифровываем зашифрованные ветки
         if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT, () ->
-                DataManager.reencryptStorage()))
+                DataManager.reencryptStorage(context)))
             return false;
         // сохраняем mytetra.xml
         taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.SAVE, () ->
-                DataManager.saveStorage());
+                DataManager.saveStorage(context));
         // сохраняем данные в database.ini
         taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SAVE, TaskStage.Stages.START);
-        savePassCheckData(newPass);
+        savePassCheckData(context, newPass);
         return true;
     }
 
     /**
      * Сброс сохраненного хэша пароля и его проверочных данных.
      */
-    public static void clearSavedPass() {
-        SettingsManager.setMiddlePassHash(null);
+    public static void clearSavedPass(Context context) {
+        SettingsManager.setMiddlePassHash(context, null);
         CryptManager.setMiddlePassHash(null);
-        clearPassCheckData();
+        clearPassCheckData(context);
         clearMiddlePassCheckData();
     }
 
@@ -271,16 +271,16 @@ public class PassManager extends DataManager {
      * @param newPass
      * @return
      */
-    public static boolean savePassCheckData(String newPass) {
+    public static boolean savePassCheckData(Context context, String newPass) {
         byte[] salt = Utils.createRandomBytes(32);
         byte[] passHash = null;
         try {
             passHash = Crypter.calculatePBKDF2Hash(newPass, salt);
         } catch (Exception ex) {
-            LogManager.log(ex);
+            LogManager.log(context, ex);
             return false;
         }
-        return DatabaseConfig.savePass(Base64.encodeToString(passHash, false),
+        return Instance.mDatabaseConfig.savePass(Base64.encodeToString(passHash, false),
                 Base64.encodeToString(salt, false), true);
     }
 
@@ -291,16 +291,16 @@ public class PassManager extends DataManager {
      */
     public static boolean saveMiddlePassCheckData(String passHash) {
         String checkData = Crypter.createMiddlePassHashCheckData(passHash);
-        return DatabaseConfig.saveCheckData(checkData);
+        return Instance.mDatabaseConfig.saveCheckData(checkData);
     }
 
     /**
      * Очистка сохраненного проверочнго хэша пароля.
      * @return
      */
-    public static boolean clearPassCheckData() {
-        SettingsManager.setMiddlePassHash(null);
-        return DatabaseConfig.savePass(null, null, false);
+    public static boolean clearPassCheckData(Context context) {
+        SettingsManager.setMiddlePassHash(context, null);
+        return Instance.mDatabaseConfig.savePass(null, null, false);
     }
 
     /**
@@ -308,7 +308,7 @@ public class PassManager extends DataManager {
      * @return
      */
     public static boolean clearMiddlePassCheckData() {
-        return DatabaseConfig.saveCheckData(null);
+        return Instance.mDatabaseConfig.saveCheckData(null);
     }
 
 }

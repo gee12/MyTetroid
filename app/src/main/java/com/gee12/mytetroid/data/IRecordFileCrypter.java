@@ -1,7 +1,9 @@
 package com.gee12.mytetroid.data;
 
+import android.content.Context;
+
 import com.gee12.mytetroid.model.TetroidRecord;
 
 public interface IRecordFileCrypter {
-    boolean cryptRecordFiles(TetroidRecord record, boolean isCrypted, boolean isEncrypt);
+    boolean cryptRecordFiles(Context context, TetroidRecord record, boolean isCrypted, boolean isEncrypt);
 }
