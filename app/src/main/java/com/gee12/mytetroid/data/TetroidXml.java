@@ -29,7 +29,7 @@ import java.util.TreeMap;
 /**
  *
  */
-public abstract class XMLManager implements INodeIconLoader, ITagsParser {
+public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     /**
      *
@@ -333,7 +333,7 @@ public abstract class XMLManager implements INodeIconLoader, ITagsParser {
             }*/
 
             // загрузка иконки из файла (после расшифровки имени иконки)
-            loadIcon(node);
+            loadIcon(context, node);
 
             this.mNodesCount++;
             if (crypt)

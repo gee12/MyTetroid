@@ -8,7 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.XMLManager;
+import com.gee12.mytetroid.data.TetroidXml;
 
 public class InfoActivity extends AppCompatActivity {
 
@@ -20,7 +20,7 @@ public class InfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        XMLManager storage = DataManager.getInstance();
+        TetroidXml storage = DataManager.getInstance().getXmlManager();
         storage.calcCounters();
         ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(String.valueOf(storage.getNodesCount()));
         ((TextView)findViewById(R.id.text_view_stats_crypt_nodes_count)).setText(String.valueOf(storage.getCryptedNodesCount()));

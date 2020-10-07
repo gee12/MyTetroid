@@ -96,14 +96,14 @@ public class TetroidLog extends LogManager {
         String second = ((App.isRusLanguage()) ? obj.getString(context, PRESENT_CONTINUOUS)
                 : oper.getString(context, PRESENT_CONTINUOUS));
         String mes = String.format(context.getString(R.string.log_oper_start_mask), first, second) + add;
-        log(context, mes, Types.INFO);
+        log(context, mes, ILogger.Types.INFO);
         return mes;
     }
 
     public static String logOperCancel(Context context, Objs obj, Opers oper) {
         String mes = String.format(context.getString(R.string.log_oper_cancel_mask),
                 (obj.getString(context, PRESENT_CONTINUOUS)), (oper.getString(context, PRESENT_CONTINUOUS)));
-        log(context, mes, Types.DEBUG);
+        log(context, mes, ILogger.Types.DEBUG);
         return mes;
     }
 
@@ -121,7 +121,7 @@ public class TetroidLog extends LogManager {
 
     public static String logOperRes(Context context, Objs obj, Opers oper, String add, int length) {
         String mes = (obj.getString(context, PAST_PERFECT)) + (oper.getString(context, PAST_PERFECT)) + add;
-        log(context, mes, Types.INFO, length);
+        log(context, mes, ILogger.Types.INFO, length);
         return mes;
     }
 
@@ -142,14 +142,14 @@ public class TetroidLog extends LogManager {
                 (oper.getString(context, PRESENT_SIMPLE)), (obj.getString(context, PRESENT_SIMPLE)),
                 (add != null) ? add : "",
                 (more) ? context.getString(R.string.log_more_in_logs) : "");
-        log(context, mes, Types.ERROR, length);
+        log(context, mes, ILogger.Types.ERROR, length);
         return mes;
     }
 
     public static String logDuringOperErrors(Context context, Objs obj, Opers oper, int length) {
         String mes = String.format(context.getString(R.string.log_during_oper_errors_mask),
                 (oper.getString(context, PRESENT_CONTINUOUS)), (obj.getString(context, PRESENT_CONTINUOUS)));
-        log(context, mes, Types.ERROR, length);
+        log(context, mes, ILogger.Types.ERROR, length);
         return mes;
     }
 
@@ -196,28 +196,28 @@ public class TetroidLog extends LogManager {
                 if (stage.clazz == SettingsFragment.ChangePassTask.class) {
                     switch (stage.oper) {
                         case CHECK:
-                            return logTaskStage(context, stage, R.string.stage_pass_checking, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);
                         case SET:
                             return logTaskStage(context, stage, (stage.obj == Objs.CUR_PASS)
-                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass, Types.INFO);
+                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass, ILogger.Types.INFO);
                         case DECRYPT:
-                            return logTaskStage(context, stage, R.string.stage_old_pass_decrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_old_pass_decrypting, ILogger.Types.INFO);
                         case REENCRYPT:
-                            return logTaskStage(context, stage, R.string.stage_new_pass_reencrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_new_pass_reencrypting, ILogger.Types.INFO);
                         case SAVE:
                             return logTaskStage(context, stage, (stage.obj == Objs.STORAGE)
-                                    ? R.string.stage_storage_saving : R.string.log_save_pass, Types.INFO);
+                                    ? R.string.stage_storage_saving : R.string.log_save_pass, ILogger.Types.INFO);
                         default:
                             return logOperStart(context, stage.obj, stage.oper);
                     }
                 } else if (stage.clazz == MainActivity.CryptNodeTask.class) {
                     switch (stage.oper) {
                         case DECRYPT:
-                            return logTaskStage(context, stage, R.string.stage_storage_decrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.stage_storage_decrypting, ILogger.Types.INFO);
                         case ENCRYPT:
-                            return logTaskStage(context, stage, R.string.task_node_encrypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.task_node_encrypting, ILogger.Types.INFO);
                         case DROPCRYPT:
-                            return logTaskStage(context, stage, R.string.task_node_drop_crypting, Types.INFO);
+                            return logTaskStage(context, stage, R.string.task_node_drop_crypting, ILogger.Types.INFO);
                         default:
                             return logOperStart(context, stage.obj, stage.oper);
                     }
@@ -231,7 +231,7 @@ public class TetroidLog extends LogManager {
         return null;
     }
 
-    public static String logTaskStage(Context context, TaskStage taskStage, int resId, Types type) {
+    public static String logTaskStage(Context context, TaskStage taskStage, int resId, ILogger.Types type) {
         String mes = context.getString(resId);
         if (taskStage.writeLog) {
             log(context, mes, type);

@@ -76,7 +76,7 @@ public class App {
         LogManager.init(context, SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context));
         LogManager.log(context, String.format(context.getString(R.string.log_app_start_mask), Utils.getVersionName(context)));
         if (SettingsManager.isCopiedFromFree()) {
-            LogManager.log(context, R.string.log_settings_copied_from_free, LogManager.Types.INFO);
+            LogManager.log(context, R.string.log_settings_copied_from_free, ILogger.Types.INFO);
         }
 //        DataManager.init(context);
         IsInited = true;

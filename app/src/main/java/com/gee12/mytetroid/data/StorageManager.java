@@ -7,14 +7,17 @@ import android.widget.Toast;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidTask2;
+import com.gee12.mytetroid.crypt.TetroidCrypter;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
@@ -69,19 +72,21 @@ public class StorageManager extends DataManager {
     public static boolean initStorage(Context context, String storagePath, boolean isNew) {
         DataManager inst = getInstance();
         inst.mStoragePath = storagePath;
-        inst.mDatabaseConfig = new DatabaseConfig(storagePath + SEPAR + DATABASE_INI_FILE_NAME);
+        ILogger logger = LogManager.createLogger(context);
+        inst.mDatabaseConfig = new DatabaseConfig(logger,storagePath + SEPAR + DATABASE_INI_FILE_NAME);
+        inst.mCrypter = new TetroidCrypter(logger, inst.mXml, Instance);
         boolean res;
         try {
             File storageDir = new File(storagePath);
             if (isNew) {
-                LogManager.log(context, context.getString(R.string.log_start_storage_creating) + storagePath, LogManager.Types.DEBUG);
+                LogManager.log(context, context.getString(R.string.log_start_storage_creating) + storagePath, ILogger.Types.DEBUG);
                 if (storageDir.exists()) {
                     // очищаем каталог
-                    LogManager.log(context, R.string.log_clear_storage_dir, LogManager.Types.INFO);
+                    LogManager.log(context, R.string.log_clear_storage_dir, ILogger.Types.INFO);
                     FileUtils.clearDir(storageDir);
                     // проверяем, пуст ли каталог
                 } else {
-                    LogManager.log(context, R.string.log_dir_is_missing, LogManager.Types.ERROR);
+                    LogManager.log(context, R.string.log_dir_is_missing, ILogger.Types.ERROR);
                     return false;
                 }
                 // сохраняем новый database.ini
@@ -92,8 +97,8 @@ public class StorageManager extends DataManager {
                     return false;
                 }
                 // добавляем корневую ветку
-                inst.init();
-                inst.mIsStorageLoaded = true;
+                inst.mXml.init();
+                inst.mXml.mIsStorageLoaded = true;
             }  else {
                 // загружаем database.ini
                 res = inst.mDatabaseConfig.load();
@@ -138,7 +143,7 @@ public class StorageManager extends DataManager {
 
         String storagePath = SettingsManager.getStoragePath(activity);
         if (storagePath != null && SettingsManager.isLoadLastStoragePath(activity) || isLoadLastForced) {
-            initOrSyncStorage(activity, storagePath);
+            Instance.initOrSyncStorage(activity, storagePath);
         } else {
             StorageChooserDialog.createDialog(activity, isNew -> StorageManager.showStorageFolderChooser(activity, isNew));
         }
@@ -180,7 +185,7 @@ public class StorageManager extends DataManager {
      * @param storagePath Путь хранилища
      */
     public static boolean initStorage(Context context, String storagePath) {
-        getInstance().mIsAlreadyTryDecrypt = false;
+        Instance.mIsAlreadyTryDecrypt = false;
         // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
         boolean isFavorites = !isLoaded() && SettingsManager.isLoadFavoritesOnly(context)
                 || (isLoaded() && isFavoritesMode());
@@ -196,14 +201,14 @@ public class StorageManager extends DataManager {
             if (isCrypted(context) /*&& !isFavorites*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
                 //decryptStorage(null);
-                decryptStorage(context, null, false, isFavorites, true);
+                Instance.decryptStorage(context, null, false, isFavorites, true);
             } else {
                 // загружаем
-                initStorage(context, null, false, isFavorites, true);
+                Instance.initStorage(context, null, false, isFavorites, true);
             }
         } else {
             LogManager.log(context, context.getString(R.string.log_failed_storage_init) + storagePath,
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    ILogger.Types.ERROR, Toast.LENGTH_LONG);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
             getStorageInitCallback().initGUI(false, isFavorites, false);
         }
@@ -220,9 +225,9 @@ public class StorageManager extends DataManager {
             //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
             //    вводили ПИН-код (для расшифровки избранной записи)
             //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
-            decryptStorage(context, null, false, false, false);
+            Instance.decryptStorage(context, null, false, false, false);
         } else {
-            initStorage(context, null, false, false, false);
+            Instance.initStorage(context, null, false, false, false);
         }
     }
 
@@ -240,7 +245,7 @@ public class StorageManager extends DataManager {
      * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранным (если именно она передана в node)
      */
-    public static void decryptStorage(Context context, TetroidNode node, boolean isNodeOpening,
+    public void decryptStorage(Context context, TetroidNode node, boolean isNodeOpening,
                                        boolean isOnlyFavorites, boolean isOpenLastNode) {
         String middlePassHash;
         // пароль сохранен локально?
@@ -314,7 +319,7 @@ public class StorageManager extends DataManager {
      * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
      *                        или ветку с избранным (если именно она передана в node)
      */
-    public static void askPassword(Context context, final TetroidNode node, boolean isNodeOpening,
+    public void askPassword(Context context, final TetroidNode node, boolean isNodeOpening,
                                     boolean isOnlyFavorites, boolean isOpenLastNode) {
         LogManager.log(context, R.string.log_show_pass_dialog);
         // выводим окно с запросом пароля в асинхронном режиме
@@ -359,7 +364,7 @@ public class StorageManager extends DataManager {
      * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
      *                        или ветку с избранным (если именно она передана в node)
      */
-    public static void initStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void initStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // расшифровуем хранилище только в том случаем, если:
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
@@ -368,7 +373,7 @@ public class StorageManager extends DataManager {
                 && (!PINManager.isRequestPINCode(context)
                 || PINManager.isRequestPINCode(context) && node != null
                 && (node.isCrypted() || node.equals(FavoritesManager.FAVORITES_NODE)));
-        if (isDecrypt && StorageManager.isNodesExist()) {
+        if (isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             getStorageInitCallback().taskStarted(
                     new DecryptStorageTask(getStorageInitCallback(), context, node)
@@ -415,6 +420,45 @@ public class StorageManager extends DataManager {
             TetroidLog.logOperErrorMore(context, TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }
         return res;
+    }
+
+    public static boolean onNodeDecrypt(Context context, TetroidNode node) {
+        if (!node.isNonCryptedOrDecrypted()) {
+            if (PINManager.isRequestPINCode(context)) {
+
+                // TODO: сначала просто проверяем пароль
+                //  затем спрашиваем ПИН,
+                //  а потом уже расшифровываем (!)
+
+                //  Т.е. опять все засунуть в decryptStorage() (?)
+                /*PINManager.askPINCode(this, true, () -> {
+                    // расшифровываем хранилище
+                    decryptStorage(node, true, false, false);
+                    showNode(node);
+                });*/
+                Instance.decryptStorage(context, node, true, false, false);
+            } else {
+                Instance.askPassword(context, node, true, false, false);
+            }
+            // выходим, т.к. запрос пароля будет в асинхронном режиме
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean onRecordDecrypt(Context context, TetroidRecord record) {
+        if (record.isFavorite() && !record.isNonCryptedOrDecrypted()) {
+            // запрос пароля в асинхронном режиме
+            if (PINManager.isRequestPINCode(context)) {
+                Instance.decryptStorage(context, FavoritesManager.FAVORITES_NODE, true,
+                        SettingsManager.isLoadFavoritesOnly(context), true);
+            } else {
+                Instance.askPassword(context, FavoritesManager.FAVORITES_NODE, true,
+                        SettingsManager.isLoadFavoritesOnly(context), true);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -470,7 +514,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected Boolean doInBackground(Void... values) {
-            return StorageManager.readStorage(mContext, mIsDecrypt, mIsFavoritesOnly);
+            return Instance.readStorage(mContext, mIsDecrypt, mIsFavoritesOnly);
         }
 
         @Override
@@ -486,7 +530,7 @@ public class StorageManager extends DataManager {
                 LogManager.log(mContext, String.format(mes, StorageManager.getStorageName()), Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(mContext, mContext.getString(R.string.log_failed_storage_load) + StorageManager.getStoragePath(),
-                        LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                        ILogger.Types.WARNING, Toast.LENGTH_LONG);
             }
             // инициализация контролов
             getStorageInitCallback().initGUI(res, mIsFavoritesOnly, mIsOpenLastNode);
@@ -520,14 +564,14 @@ public class StorageManager extends DataManager {
 
         @Override
         protected Boolean doInBackground(Void... values) {
-            return StorageManager.decryptStorage(mContext, false);
+            return Instance.decryptStorage(mContext, false);
         }
 
         @Override
         protected void onPostExecute(Boolean res) {
             getStorageInitCallback().taskPostExecute(mIsDrawerOpened);
             if (res) {
-                LogManager.log(mContext, R.string.log_storage_decrypted, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                LogManager.log(mContext, R.string.log_storage_decrypted, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 TetroidLog.logDuringOperErrors(mContext, TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT, Toast.LENGTH_LONG);
             }

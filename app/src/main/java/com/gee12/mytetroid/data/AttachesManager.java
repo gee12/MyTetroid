@@ -8,10 +8,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
-import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
@@ -37,7 +37,7 @@ public class AttachesManager extends DataManager {
             LogManager.emptyParams(context, "DataManager.openAttach()");
             return false;
         }
-        LogManager.log(context, context.getString(R.string.log_start_attach_file_opening) + file.getId(), LogManager.Types.DEBUG);
+        LogManager.log(context, context.getString(R.string.log_start_attach_file_opening) + file.getId(), ILogger.Types.DEBUG);
         TetroidRecord record = file.getRecord();
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtensionWithComma(fileDisplayName);
@@ -48,7 +48,7 @@ public class AttachesManager extends DataManager {
             srcFile = new File(fullFileName);
         } catch (Exception ex) {
             LogManager.log(context, context.getString(R.string.log_error_file_open) + fullFileName,
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    ILogger.Types.ERROR, Toast.LENGTH_LONG);
             LogManager.log(context, ex);
             return false;
         }
@@ -75,7 +75,7 @@ public class AttachesManager extends DataManager {
             // расшифровываем во временный файл
             try {
                 if ((tempFile.exists() || tempFile.createNewFile())
-                        && CryptManager.encryptDecryptFile(srcFile, tempFile, false)) {
+                        && Instance.mCrypter.encryptDecryptFile(srcFile, tempFile, false)) {
                     srcFile = tempFile;
                 } else {
                     LogManager.log(context, context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG);
@@ -107,7 +107,7 @@ public class AttachesManager extends DataManager {
         File srcFile = new File(fullName);
         try {
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fullName, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fullName, ILogger.Types.ERROR);
                 return null;
             }
         } catch (Exception ex) {
@@ -121,7 +121,7 @@ public class AttachesManager extends DataManager {
         // создание объекта хранилища
         boolean crypted = record.isCrypted();
         TetroidFile file = new TetroidFile(crypted, id,
-                encryptField(crypted, fileDisplayName),
+                Instance.encryptField(crypted, fileDisplayName),
                 TetroidFile.DEF_FILE_TYPE, record);
         if (crypted) {
             file.setDecryptedName(fileDisplayName);
@@ -147,7 +147,7 @@ public class AttachesManager extends DataManager {
         try {
             if (record.isCrypted()) {
                 TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT);
-                if (!CryptManager.encryptDecryptFile(srcFile, destFile, true)) {
+                if (!Instance.mCrypter.encryptDecryptFile(srcFile, destFile, true)) {
                     TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT,
                             fromTo, false, -1);
                     return null;
@@ -174,7 +174,7 @@ public class AttachesManager extends DataManager {
         }
         files.add(file);
         // перезаписываем структуру хранилища в файл
-        if (saveStorage(context)) {
+        if (Instance.saveStorage(context)) {
          /*   instance.mFilesCount++;*/
         } else {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH);
@@ -207,7 +207,7 @@ public class AttachesManager extends DataManager {
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR);
             return 0;
         }
         // сравниваем расширения
@@ -230,7 +230,7 @@ public class AttachesManager extends DataManager {
             filePath = dirPath + SEPAR + fileIdName;
             srcFile = new File(filePath);
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + filePath, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + filePath, ILogger.Types.ERROR);
                 return -2;
             }
         }
@@ -238,18 +238,18 @@ public class AttachesManager extends DataManager {
         String oldName = file.getName(true);
         // обновляем поля
         boolean crypted = file.isCrypted();
-        file.setName(encryptField(crypted, name));
+        file.setName(Instance.encryptField(crypted, name));
         if (crypted) {
             file.setDecryptedName(name);
         }
 
         // перезаписываем структуру хранилища в файл
-        if (!saveStorage(context)) {
+        if (!Instance.saveStorage(context)) {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             file.setName(oldName);
             if (crypted) {
-                file.setDecryptedName(decryptField(crypted, oldName));
+                file.setDecryptedName(Instance.decryptField(crypted, oldName));
             }
             return 0;
         }
@@ -288,7 +288,7 @@ public class AttachesManager extends DataManager {
 
         TetroidRecord record = file.getRecord();
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR);
             return 0;
         }
 
@@ -308,7 +308,7 @@ public class AttachesManager extends DataManager {
             destFilePath = dirPath + SEPAR + fileIdName;
             destFile = new File(destFilePath);
             if (!destFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + destFilePath, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + destFilePath, ILogger.Types.ERROR);
                 return -2;
             }
         }
@@ -317,16 +317,16 @@ public class AttachesManager extends DataManager {
         List<TetroidFile> files = record.getAttachedFiles();
         if (files != null) {
             if (!files.remove(file)) {
-                LogManager.log(context, context.getString(R.string.log_not_found_file_in_record), LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_not_found_file_in_record), ILogger.Types.ERROR);
                 return 0;
             }
         } else {
-            LogManager.log(context, context.getString(R.string.log_record_not_have_attached_files), LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_record_not_have_attached_files), ILogger.Types.ERROR);
             return 0;
         }
 
         // перезаписываем структуру хранилища в файл
-        if (!saveStorage(context)) {
+        if (!Instance.saveStorage(context)) {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE);
             return 0;
         }
@@ -334,7 +334,7 @@ public class AttachesManager extends DataManager {
         // удаляем сам файл
         if (!withoutFile) {
             if (!FileUtils.deleteRecursive(destFile)) {
-                LogManager.log(context, context.getString(R.string.log_error_delete_file) + destFilePath, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_error_delete_file) + destFilePath, ILogger.Types.ERROR);
                 return 0;
             }
         }
@@ -361,7 +361,7 @@ public class AttachesManager extends DataManager {
         File srcFile = new File(recordPath, fileIdName);
         try {
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fileIdName, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fileIdName, ILogger.Types.ERROR);
                 return false;
             }
         } catch (Exception ex) {
@@ -374,7 +374,7 @@ public class AttachesManager extends DataManager {
         try {
             if (file.isCrypted()) {
                 TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT);
-                if (!CryptManager.encryptDecryptFile(srcFile, destFile, false)) {
+                if (!Instance.mCrypter.encryptDecryptFile(srcFile, destFile, false)) {
                     TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT,
                             fromTo, false, -1);
                     return false;
@@ -409,7 +409,7 @@ public class AttachesManager extends DataManager {
         }
         TetroidRecord record = file.getRecord();
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR);
             return null;
         }
 

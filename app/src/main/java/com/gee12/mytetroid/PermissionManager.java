@@ -42,7 +42,7 @@ public class PermissionManager {
     }
 
     public static void requestPermission(Activity activity, String permission, int code) {
-        LogManager.log(activity, activity.getString(R.string.log_request_perm) + permission, LogManager.Types.INFO);
+        LogManager.log(activity, activity.getString(R.string.log_request_perm) + permission, ILogger.Types.INFO);
         ActivityCompat.requestPermissions(activity, new String[] { permission }, code);
     }
 

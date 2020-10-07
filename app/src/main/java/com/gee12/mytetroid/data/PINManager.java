@@ -7,8 +7,9 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.crypt.CryptManager;
 import com.gee12.mytetroid.dialogs.PassDialogs;
+
+import static com.gee12.mytetroid.data.DataManager.Instance;
 
 public class PINManager {
 
@@ -35,7 +36,7 @@ public class PINManager {
                 @Override
                 public boolean onApply(String pin) {
                     // зашифровываем введеный пароль перед сравнением
-                    String pinHash = CryptManager.passToHash(pin);
+                    String pinHash = Instance.mCrypter.passToHash(pin);
                     boolean res = pinHash.equals(SettingsManager.getPINCodeHash(context));
                     if (res) {
                         callback.onApply();
@@ -75,7 +76,7 @@ public class PINManager {
                                 @Override
                                 public boolean onApply(String pin) {
                                     // зашифровываем пароль перед установкой
-                                    String pinHash = CryptManager.passToHash(pin);
+                                    String pinHash = Instance.mCrypter.passToHash(pin);
                                     SettingsManager.setPINCodeHash(context, pinHash);
                                     callback.run(true);
                                     LogManager.log(context, R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
@@ -101,7 +102,7 @@ public class PINManager {
                 @Override
                 public boolean onApply(String pin) {
                     // зашифровываем введеный пароль перед сравнением
-                    String pinHash = CryptManager.passToHash(pin);
+                    String pinHash = Instance.mCrypter.passToHash(pin);
                     boolean res = pinHash.equals(SettingsManager.getPINCodeHash(context));
                     if (res) {
                         // очищаем

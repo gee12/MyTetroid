@@ -8,7 +8,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.List;
 
-public class FavoritesManager extends RecordsManager {
+public class FavoritesManager {
 
     public static final TetroidNode FAVORITES_NODE = new TetroidNode("FAVORITES_NODE", "", 0);
 

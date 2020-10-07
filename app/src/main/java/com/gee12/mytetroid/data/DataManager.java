@@ -15,12 +15,12 @@ import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.FileObserverService;
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.activities.MainActivity;
-import com.gee12.mytetroid.crypt.CryptManager;
-import com.gee12.mytetroid.crypt.Crypter;
+import com.gee12.mytetroid.crypt.TetroidCrypter;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class DataManager extends XMLManager implements IRecordFileCrypter {
+public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
 
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
@@ -57,8 +57,6 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     public static final String ICONS_FOLDER_NAME = "icons";
     public static final String MYTETRA_XML_FILE_NAME = "mytetra.xml";
     public static final String DATABASE_INI_FILE_NAME = "database.ini";
-
-//    protected static Context context;
 
     /**
      * Путь к хранилищу.
@@ -90,46 +88,87 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     /**
      *
      */
+    protected TetroidCrypter mCrypter;
+
+    /**
+     *
+     */
     protected DatabaseConfig mDatabaseConfig;
+
+    /**
+     *
+     */
+    protected TetroidXml mXml = new TetroidXml() {
+        @Override
+        protected boolean decryptNode(Context context, TetroidNode node) {
+            return mCrypter.decryptNode(context, node, false, false,
+                    this, false, false);
+        }
+
+        @Override
+        protected boolean decryptRecord(Context context, TetroidRecord record) {
+            return mCrypter.decryptRecordAndFiles(context, record, false, false);
+        }
+
+        @Override
+        protected boolean isRecordFavorite(String id) {
+            return FavoritesManager.isFavorite(id);
+        }
+
+        @Override
+        protected void addRecordFavorite(TetroidRecord record) {
+            FavoritesManager.set(record);
+        }
+
+        @Override
+        public void parseRecordTags(TetroidRecord record, String tagsString) {
+            DataManager.this.parseRecordTags(record, tagsString);
+        }
+
+        @Override
+        public void deleteRecordTags(TetroidRecord record) {
+            DataManager.this.deleteRecordTags(record);
+        }
+
+        @Override
+        public void loadIcon(Context context, TetroidNode node) {
+            if (node.isNonCryptedOrDecrypted()) {
+                node.loadIcon(context, mStoragePath + SEPAR + ICONS_FOLDER_NAME);
+            }
+        }
+    };
+
 
     /**
      *
      */
     protected static StorageManager Instance;
 
-    /**
-     *
-     * @param ctx
-     */
-//    public static void init(Context ctx) {
-//        DataManager.context = ctx;
-//    }
-
-    /**
-     * Проверка является ли запись избранной.
-     * @param id
-     * @return
-     */
-    @Override
-    protected boolean isRecordFavorite(String id) {
+//    /**
+//     * Проверка является ли запись избранной.
+//     * @param id
+//     * @return
+//     */
+//    @Override
+    /*protected boolean isRecordFavorite(String id) {
         return FavoritesManager.isFavorite(id);
-    }
+    }*/
 
-    @Override
-    protected void addRecordFavorite(TetroidRecord record) {
-        FavoritesManager.set(record);
-    }
+//    @Override
+//    protected void addRecordFavorite(TetroidRecord record) {
+//        FavoritesManager.set(record);
+//    }
 
     /**
      * Инициализация ключа шифрования с помощью пароля или его хэша.
      * @param pass
      * @param isMiddleHash
      */
-    public static void initCryptPass(String pass, boolean isMiddleHash) {
+    public void initCryptPass(String pass, boolean isMiddleHash) {
         if (isMiddleHash) {
-            CryptManager.initFromMiddleHash(pass, Instance, Instance);
+            mCrypter.initFromMiddleHash(pass);
         } else {
-            CryptManager.initFromPass(pass, Instance, Instance);
+            mCrypter.initFromPass(pass);
         }
     }
 
@@ -138,7 +177,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @return
      */
     public static boolean createDefault(Context context) {
-        return (NodesManager.createNode(context, context.getString(R.string.title_first_node), XMLManager.ROOT_NODE) != null);
+        return (NodesManager.createNode(context, context.getString(R.string.title_first_node), TetroidXml.ROOT_NODE) != null);
     }
     
     /**
@@ -146,18 +185,18 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param isDecrypt Расшифровывать ли ветки
      * @return
      */
-    public static boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
+    public boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
         boolean res = false;
         File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
         if (!file.exists()) {
-            LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, ILogger.Types.ERROR);
             return false;
         }
         // получаем id избранных записей из настроек
-        FavoritesManager.load();
+        FavoritesManager.load(context);
         try {
             FileInputStream fis = new FileInputStream(file);
-            res = Instance.parse(context, fis, isDecrypt, isFavorite);
+            res = Instance.mXml.parse(context, fis, isDecrypt, isFavorite);
 
 //            if (BuildConfig.DEBUG) {
 //                TestData.addNodes(mInstance.mRootNodesList, 100, 100);
@@ -165,7 +204,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             // удаление не найденных записей из избранного
             FavoritesManager.check();
             // загрузка ветки для быстрой вставки
-            NodesManager.updateQuicklyNode();
+            NodesManager.updateQuicklyNode(context);
         } catch (Exception ex) {
             LogManager.log(context, ex);
         }
@@ -176,74 +215,74 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * Перешифровка хранилища (перед этим ветки должны быть расшифрованы).
      * @return
      */
-    public static boolean reencryptStorage(Context context) {
+    public boolean reencryptStorage(Context context) {
 //        LogManager.log(R.string.log_start_storage_reencrypt);
-        return CryptManager.encryptNodes(context, Instance.mRootNodesList, true);
+        return mCrypter.encryptNodes(context, mXml.mRootNodesList, true);
     }
 
     /**
      * Расшифровка хранилища (временная).
      * @return
      */
-    public static boolean decryptStorage(Context context, boolean decryptFiles) {
+    public boolean decryptStorage(Context context, boolean decryptFiles) {
 //        LogManager.log(R.string.log_start_storage_decrypt);
-        boolean res = CryptManager.decryptNodes(context, Instance.mRootNodesList, true, true,
-                Instance, false, decryptFiles);
-        Instance.mIsStorageDecrypted = res;
+        boolean res = mCrypter.decryptNodes(context, mXml.mRootNodesList, true, true,
+                mXml, false, decryptFiles);
+        mIsStorageDecrypted = res;
         return res;
     }
 
-    /**
-     * Обработчик события о необходимости (временной) расшифровки ветки (без дочерних объектов)
-     * сразу после загрузки ветки из xml.
-     * @param node
-     */
-    @Override
-    protected boolean decryptNode(Context context, @NonNull TetroidNode node) {
-        // decryptSubNodes = decryptRecords = false, т.к. расшифровка подветок и записей
-        // запустится сама после их загрузки по очереди в XMLManager
-        return CryptManager.decryptNode(context, node, false, false,
-                this, false, false);
-    }
+//    /**
+//     * Обработчик события о необходимости (временной) расшифровки ветки (без дочерних объектов)
+//     * сразу после загрузки ветки из xml.
+//     * @param node
+//     */
+////    @Override
+//    protected boolean decryptNode(Context context, @NonNull TetroidNode node) {
+//        // decryptSubNodes = decryptRecords = false, т.к. расшифровка подветок и записей
+//        // запустится сама после их загрузки по очереди в XMLManager
+//        return mCrypter.decryptNode(context, node, false, false,
+//                this, false, false);
+//    }
 
-    /**
-     * Обработчик события о необходимости (временной) расшифровки записи (вместе с прикрепленными файлами)
-     * сразу после загрузки записи из xml.
-     * @param record
-     */
-    @Override
-    protected boolean decryptRecord(Context context, @NonNull TetroidRecord record) {
-        return CryptManager.decryptRecordAndFiles(context, record, false, false);
-    }
+//    /**
+//     * Обработчик события о необходимости (временной) расшифровки записи (вместе с прикрепленными файлами)
+//     * сразу после загрузки записи из xml.
+//     * @param record
+//     */
+////    @Override
+//    protected boolean decryptRecord(Context context, @NonNull TetroidRecord record) {
+//        return mCrypter.decryptRecordAndFiles(context, record, false, false);
+//    }
 
     /**
      * Расшифровка ветки с подветками (постоянная).
      * @param node
      * @return
      */
-    public static boolean dropCryptNode(Context context, @NonNull TetroidNode node) {
+    public boolean dropCryptNode(Context context, @NonNull TetroidNode node) {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        boolean res = CryptManager.decryptNode(context, node, true, true, Instance, true, false);
+        boolean res = mCrypter.decryptNode(context, node, true, true, mXml, true, false);
         if (res) {
             return saveStorage(context);
         }
         return false;
     }
 
-    public static String decryptField(TetroidObject obj, String field) {
-        return (obj != null && obj.isCrypted()) ? CryptManager.decryptBase64(field) : field;
+    public String decryptField(TetroidObject obj, String field) {
+        return (obj != null && obj.isCrypted()) ? Instance.mCrypter.decryptBase64(field) : field;
     }
 
-    public static String decryptField(boolean isCrypted, String field) {
-        return (isCrypted) ? CryptManager.decryptBase64(field) : field;
+    public String decryptField(boolean isCrypted, String field) {
+        return (isCrypted) ? Instance.mCrypter.decryptBase64(field) : field;
     }
 
-    public static String encryptField(TetroidObject obj, String field) {
+    public String encryptField(TetroidObject obj, String field) {
         return encryptField(obj != null && obj.isCrypted() && obj.isDecrypted(), field); // последняя проверка не обязательна
     }
 
-    public static String encryptField(boolean isCrypted, String field) {
-        return (isCrypted) ? CryptManager.encryptTextBase64(field) : field;
+    public String encryptField(boolean isCrypted, String field) {
+        return (isCrypted) ? Instance.mCrypter.encryptTextBase64(field) : field;
     }
 
     /**
@@ -251,9 +290,9 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param node
      * @return
      */
-    public static boolean encryptNode(Context context, @NotNull TetroidNode node) {
+    public boolean encryptNode(Context context, @NotNull TetroidNode node) {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
-        boolean res = CryptManager.encryptNode(context, node, false);
+        boolean res = Instance.mCrypter.encryptNode(context, node, false);
         if (res) {
             return saveStorage(context);
         }
@@ -267,11 +306,11 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param isEncrypt
      * @return
      */
-    private static int cryptOrDecryptFile(Context context, File file, boolean isCrypted, boolean isEncrypt) {
+    private int cryptOrDecryptFile(Context context, File file, boolean isCrypted, boolean isEncrypt) {
         if (isCrypted && !isEncrypt) {
             try {
                 // расшифровуем файл записи
-                return (Crypter.encryptDecryptFile(file, file, false)) ? 1 : -1;
+                return (Instance.mCrypter.encryptDecryptFile(file, file, false)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.log(context, context.getString(R.string.log_error_file_decrypt) + file.getAbsolutePath(), ex);
                 return -1;
@@ -279,7 +318,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         } else if (!isCrypted && isEncrypt) {
             try {
                 // зашифровуем файл записи
-                return (Crypter.encryptDecryptFile(file, file, true)) ? 1 : -1;
+                return (Instance.mCrypter.encryptDecryptFile(file, file, true)) ? 1 : -1;
             } catch (Exception ex) {
                 LogManager.log(context, context.getString(R.string.log_error_file_encrypt) + file.getAbsolutePath(), ex);
                 return -1;
@@ -313,16 +352,16 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         return true;
     }
 
-    /**
-     * Обработчик события, когда необходимо загрузить иконку ветки.
-     * @param node
-     */
-    @Override
-    public void loadIcon(@NonNull TetroidNode node) {
-        if (node.isNonCryptedOrDecrypted()) {
-            node.loadIcon(mStoragePath + SEPAR + ICONS_FOLDER_NAME);
-        }
-    }
+//    /**
+//     * Обработчик события, когда необходимо загрузить иконку ветки.
+//     * @param node
+//     */
+////    @Override
+//    public void loadIcon(Context context, @NonNull TetroidNode node) {
+//        if (node.isNonCryptedOrDecrypted()) {
+//            node.loadIcon(context, mStoragePath + SEPAR + ICONS_FOLDER_NAME);
+//        }
+//    }
 
     /**
      * Отправка текста в стороннее приложение.
@@ -384,7 +423,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             }
         } catch (Exception ex) {
             LogManager.log(context, context.getString(R.string.log_file_sharing_error) + fullFileName,
-                    LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                    ILogger.Types.ERROR, Toast.LENGTH_LONG);
             LogManager.log(context, ex);
             return false;
         }
@@ -514,7 +553,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         boolean isSwapped = Utils.swapListItems(list, pos, isUp);
         // перезаписываем файл структуры хранилища
         if (isSwapped) {
-            return (saveStorage(context)) ? 1 : -1;
+            return (Instance.saveStorage(context)) ? 1 : -1;
         }
         return 0;
     }
@@ -534,7 +573,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         }
         String srcPath = srcUri.getPath();
         LogManager.log(context, String.format(context.getString(R.string.log_start_image_file_saving_mask),
-                srcPath, record.getId()), LogManager.Types.DEBUG);
+                srcPath, record.getId()), ILogger.Types.DEBUG);
 
         // генерируем уникальное имя файла
         String nameId = createUniqueImageName();
@@ -550,7 +589,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
         String destFullName = RecordsManager.getPathToFileInRecordFolder(record, nameId);
         LogManager.log(context, String.format(context.getString(R.string.log_start_image_file_converting_mask),
-                destFullName), LogManager.Types.DEBUG);
+                destFullName), ILogger.Types.DEBUG);
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
             ImageUtils.convertImage(context, srcUri, destFullName, Bitmap.CompressFormat.PNG, 100);
@@ -558,16 +597,16 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
             if (destFile.exists()) {
                 if (deleteSrcFile) {
                     LogManager.log(context, String.format(context.getString(R.string.log_start_image_file_deleting_mask),
-                            srcUri), LogManager.Types.DEBUG);
+                            srcUri), ILogger.Types.DEBUG);
                     File srcFile = new File(srcPath);
                     // удаляем исходный файл за ненадобностью
                     if (!srcFile.delete()) {
                         LogManager.log(context, context.getString(R.string.log_error_deleting_src_image_file)
-                                + srcPath, LogManager.Types.WARNING, Toast.LENGTH_LONG);
+                                + srcPath, ILogger.Types.WARNING, Toast.LENGTH_LONG);
                     }
                 }
             } else {
-                LogManager.log(context, context.getString(R.string.log_error_image_file_saving), LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_error_image_file_saving), ILogger.Types.ERROR);
                 return null;
             }
         } catch (Exception ex) {
@@ -631,20 +670,20 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * Сохранение хранилища в файл mytetra.xml.
      * @return
      */
-    protected static boolean saveStorage(Context context) {
-        if (Instance.mRootNodesList == null) {
+    protected boolean saveStorage(Context context) {
+        if (mXml.mRootNodesList == null) {
 //            LogManager.log("Попытка сохранения mytetra.xml в режиме загрузки только избранных записей", LogManager.Types.WARNING);
-            LogManager.log(context, R.string.log_attempt_save_empty_nodes, LogManager.Types.ERROR);
+            LogManager.log(context, R.string.log_attempt_save_empty_nodes, ILogger.Types.ERROR);
             return false;
         }
 
         String destPath = Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String tempPath = destPath + "_tmp";
 
-        LogManager.log(context, context.getString(R.string.log_saving_mytetra_xml), LogManager.Types.DEBUG);
+        LogManager.log(context, context.getString(R.string.log_saving_mytetra_xml), ILogger.Types.DEBUG);
         try {
             FileOutputStream fos = new FileOutputStream(tempPath, false);
-            if (Instance.save(fos)) {
+            if (mXml.save(fos)) {
                 File to = new File(destPath);
 //                if (moveOld) {
                 // перемещаем старую версию файла mytetra.xml в корзину
@@ -689,16 +728,16 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * @param tagsString Строка с метками (не зашифрована).
      *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
      */
-    @Override
+//    @Override
     public void parseRecordTags(TetroidRecord record, String tagsString) {
         if (record == null)
             return;
 //        String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
-            for (String tagName : tagsString.split(TAGS_SEPAR)) {
+            for (String tagName : tagsString.split(TetroidXml.TAGS_SEPAR)) {
                 TetroidTag tag;
-                if (mTagsMap.containsKey(tagName)) {
-                    tag = mTagsMap.get(tagName);
+                if (mXml.mTagsMap.containsKey(tagName)) {
+                    tag = mXml.mTagsMap.get(tagName);
                     // добавляем запись по метке, только если ее еще нет
                     // (исправление дублирования записей по метке, если одна и та же метка
                     // добавлена в запись несколько раз)
@@ -709,7 +748,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);
                     tag = new TetroidTag(tagName, tagRecords);
-                    mTagsMap.put(tagName, tag);
+                    mXml.mTagsMap.put(tagName, tag);
                     /*this.mUniqueTagsCount++;*/
                 }
                /* this.mTagsCount++;*/
@@ -722,7 +761,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
      * Удаление меток записи из списка.
      * @param record
      */
-    @Override
+//    @Override
     public void deleteRecordTags(TetroidRecord record) {
         if (record == null)
             return;
@@ -735,7 +774,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                         foundedTag.getRecords().remove(record);
                     } else {
                         // удаляем саму метку из списка
-                        mTagsMap.remove(foundedTag.getName());
+                        mXml.mTagsMap.remove(foundedTag.getName());
                        /* this.mUniqueTagsCount--;*/
                     }
                     /*this.mTagsCount--;*/
@@ -765,7 +804,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static TetroidTag getTag(String tagName) {
-        for (Map.Entry<String,TetroidTag> tag : getTags().entrySet()) {
+        for (Map.Entry<String,TetroidTag> tag : Instance.getTags().entrySet()) {
             if (tag.getKey().contentEquals(tagName))
                 return tag.getValue();
         }
@@ -792,7 +831,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
                 return null;
             }
             size = FileUtils.fileSize(file);
@@ -818,7 +857,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, LogManager.Types.ERROR);
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
                 return null;
             }
             date = FileUtils.fileLastModifiedDate(file);
@@ -859,19 +898,19 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static List<TetroidNode> getRootNodes() {
-        return Instance.mRootNodesList;
+        return Instance.mXml.mRootNodesList;
     }
 
     public static Map<String,TetroidTag> getTags() {
-        return Instance.mTagsMap;
+        return Instance.mXml.mTagsMap;
     }
 
-    public static Collection<TetroidTag> getTagsValues() {
-        return Instance.mTagsMap.values();
+    public Collection<TetroidTag> getTagsValues() {
+        return mXml.mTagsMap.values();
     }
 
-    public static boolean isNodesExist() {
-        return (Instance.mRootNodesList != null && !Instance.mRootNodesList.isEmpty());
+    public boolean isNodesExist() {
+        return (mXml.mRootNodesList != null && !mXml.mRootNodesList.isEmpty());
     }
 
     public static String getStoragePath() {
@@ -883,7 +922,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static boolean isLoaded() {
-        return (Instance != null && Instance.mIsStorageLoaded);
+        return (Instance != null && Instance.mXml.mIsStorageLoaded);
     }
 
     public static boolean isCrypted(Context context) {
@@ -899,7 +938,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
                 : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
                 : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
                 : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
-        return (iniFlag || Instance.mIsExistCryptedNodes);
+        return (iniFlag || Instance.mXml.mIsExistCryptedNodes);
     }
 
     public static boolean isDecrypted() {
@@ -907,7 +946,7 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
     }
 
     public static boolean isFavoritesMode() {
-        return Instance != null && Instance.mIsFavoritesMode;
+        return Instance != null && Instance.mXml.mIsFavoritesMode;
     }
 
     public static DatabaseConfig getDatabaseConfig() {
@@ -927,5 +966,13 @@ public class DataManager extends XMLManager implements IRecordFileCrypter {
 
     public static void destruct() {
         Instance = null;
+    }
+
+    public TetroidXml getXmlManager() {
+        return mXml;
+    }
+
+    public TetroidCrypter getCrypterManager() {
+        return mCrypter;
     }
 }

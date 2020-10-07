@@ -17,25 +17,10 @@ import java.util.Locale;
 
 public class LogManager {
 
-    /**
-     * Типы логов.
-     */
-    public enum Types {
-        INFO,
-        DEBUG,
-        WARNING,
-        ERROR
-    }
-
     private static final String LOG_TAG = "MYTETROID";
     private static final int CALLER_STACK_INDEX = 5;
     public static final int DURATION_NONE = -1;
 
-    // FIXME: Переписать, чтобы использовать Singleton
-    //  и не хранить context в static (получать всегда параметром)
-//    private static LogManager instance;
-
-//    protected static Context context;
     private static String dirPath;
     private static String fullFileName;
     private static boolean isWriteToFile;
@@ -43,13 +28,10 @@ public class LogManager {
 
     /**
      * Инициализация менеджера.
-//     * @param ctx
      * @param path
      * @param isWriteToFile
      */
     public static void init(Context context, String path, boolean isWriteToFile) {
-//        instance = new LogManager();
-//        LogManager.context = ctx;
         setLogPath(context, path);
         LogManager.isWriteToFile = isWriteToFile;
 //        LogManager.buffer = new StringBuilder();
@@ -60,8 +42,8 @@ public class LogManager {
         LogManager.fullFileName = String.format("%s%s%s.log", path, File.separator, context.getString(R.string.app_name));
     }
 
-    public static void log(Context context, String mes, Types type, boolean isWriteToFile, int duration) {
-        if (type == Types.DEBUG && !BuildConfig.DEBUG)
+    public static void log(Context context, String mes, ILogger.Types type, boolean isWriteToFile, int duration) {
+        if (type == ILogger.Types.DEBUG && !BuildConfig.DEBUG)
             return;
         String typeTag;
         switch(type) {
@@ -92,52 +74,52 @@ public class LogManager {
         }
     }
 
-    public static void log(Context context, String s, Types type, int duration) {
+    public static void log(Context context, String s, ILogger.Types type, int duration) {
         log(context, s, type, isWriteToFile, duration);
     }
 
-    public static void log(Context context, String s, Types type) {
+    public static void log(Context context, String s, ILogger.Types type) {
         log(context, s, type, isWriteToFile, DURATION_NONE);
     }
 
     public static void log(Context context, String s) {
-        log(context, s, Types.INFO);
+        log(context, s, ILogger.Types.INFO);
     }
 
     public static void log(Context context, int sId) {
-        log(context, context.getString(sId), Types.INFO);
+        log(context, context.getString(sId), ILogger.Types.INFO);
     }
 
     public static void log(Context context, String s, int duration) {
-        log(context, s, Types.INFO, duration);
+        log(context, s, ILogger.Types.INFO, duration);
     }
 
     public static void log(Context context, int sId, int duration) {
         log(context, context.getString(sId), duration);
     }
 
-    public static void log(Context context, int sId, Types type) {
+    public static void log(Context context, int sId, ILogger.Types type) {
         log(context, context.getString(sId), type, DURATION_NONE);
     }
 
-    public static void log(Context context, int sId, Types type, int duration) {
+    public static void log(Context context, int sId, ILogger.Types type, int duration) {
         log(context, context.getString(sId), type, duration);
     }
 
     public static void log(Context context, Exception ex) {
-        log(context, getExceptionInfo(ex), Types.ERROR);
+        log(context, getExceptionInfo(ex), ILogger.Types.ERROR);
     }
 
     public static void log(Context context, String s, Exception ex) {
-        log(context, s + ": " + getExceptionInfo(ex), Types.ERROR);
+        log(context, s + ": " + getExceptionInfo(ex), ILogger.Types.ERROR);
     }
 
     public static void log(Context context, Exception ex, int duration) {
-        log(context, getExceptionInfo(ex), Types.ERROR, duration);
+        log(context, getExceptionInfo(ex), ILogger.Types.ERROR, duration);
     }
 
     public static void log(Context context, String s, Exception ex, int duration) {
-        log(context, s + ": " + getExceptionInfo(ex), Types.ERROR, duration);
+        log(context, s + ": " + getExceptionInfo(ex), ILogger.Types.ERROR, duration);
     }
 
     public static void showMessage(Context context, String s, int duration) {
@@ -153,7 +135,7 @@ public class LogManager {
     }
 
     private static void addLogWithoutFile(Context context, String s, int duration) {
-        log(context, s, Types.ERROR, false, duration);
+        log(context, s, ILogger.Types.ERROR, false, duration);
     }
 
     private static String addTime(String s) {
@@ -167,14 +149,14 @@ public class LogManager {
      */
     public static void emptyParams(Context context, String methodName) {
         String start = (!TextUtils.isEmpty(methodName)) ? methodName + ": " : "";
-        log(context, start + "Some required parameter(s) is null", LogManager.Types.WARNING);
+        log(context, start + "Some required parameter(s) is null", ILogger.Types.WARNING);
     }
 
     /**
      * Сообщение о параметре context=null
      */
     public static void emptyContextLog(Context context) {
-        log(context, "Parameter <context> is null", LogManager.Types.WARNING);
+        log(context, "Parameter <context> is null", ILogger.Types.WARNING);
     }
 
     /**
@@ -221,7 +203,7 @@ public class LogManager {
 //                        writeToBuffer(mes);
                         return;
                     } else {
-                        log(context, context.getString(R.string.log_created_log_dir) + dirPath, Types.DEBUG);
+                        log(context, context.getString(R.string.log_created_log_dir) + dirPath, ILogger.Types.DEBUG);
                     }
                 }
                 // попытка создания лог-файла
@@ -260,5 +242,34 @@ public class LogManager {
      */
     public static String getBufferString() {
         return buffer.toString();
+    }
+
+    /**
+     *
+     * @param context
+     * @return
+     */
+    public static ILogger createLogger(Context context) {
+        return new ILogger() {
+            @Override
+            public void log(String s) {
+                LogManager.log(context, s);
+            }
+
+            @Override
+            public void log(String s, Types type) {
+                LogManager.log(context, s, type);
+            }
+
+            @Override
+            public void log(Exception ex) {
+                LogManager.log(context, ex);
+            }
+
+            @Override
+            public void log(String s, Exception ex) {
+                LogManager.log(context, s, ex);
+            }
+        };
     }
 }

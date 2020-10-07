@@ -135,7 +135,7 @@ public class ScanManager implements Parcelable {
                 return foundObjects;
             }
         } else {
-            srcNodes = DataManager.getRootNodes();
+            srcNodes = DataManager.getInstance().getRootNodes();
         }
         String regex = buildRegex(query, isOnlyWholeWords);
         // поиск по веткам, записям, реквизитам записей, файлам

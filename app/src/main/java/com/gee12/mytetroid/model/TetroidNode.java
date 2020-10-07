@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.model;
 
+import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
@@ -45,14 +46,14 @@ public class TetroidNode extends TetroidObject {
         return icon;
     }
 
-    public void loadIcon(String iconsFolderPath) {
+    public void loadIcon(Context context, String iconsFolderPath) {
         if (iconsFolderPath == null || TextUtils.isEmpty(getIconName())) {
             return;
         }
         try {
             this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
         } catch (Exception e) {
-            LogManager.log(e);
+            LogManager.log(context, e);
         }
     }
 

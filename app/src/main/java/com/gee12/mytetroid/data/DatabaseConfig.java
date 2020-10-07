@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.data;
 
+import com.gee12.mytetroid.ILogger;
+
 public class DatabaseConfig extends INIConfig {
 
     /**
@@ -29,8 +31,8 @@ public class DatabaseConfig extends INIConfig {
     public static final String DEF_VERSION = "1";
 
 
-    public DatabaseConfig(String fileName) {
-        super(fileName);
+    public DatabaseConfig(ILogger logger, String fileName) {
+        super(logger, fileName);
         // отключаем экранирование символов, т.к. сохраняем значения в кавычках
         config.getConfig().setEscape(false);
         // убираем пробелы между ключем и значением

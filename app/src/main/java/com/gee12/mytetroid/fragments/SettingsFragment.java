@@ -14,6 +14,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
@@ -92,10 +93,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         findPreference(getString(R.string.pref_key_clear_trash))
                 .setOnPreferenceClickListener(preference -> {
                     AskDialogs.showYesDialog(getContext(), () -> {
-                        if (DataManager.clearTrashFolder()) {
-                            LogManager.log(mContext, R.string.title_trash_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                        if (DataManager.clearTrashFolder(getContext())) {
+                            LogManager.log(mContext, R.string.title_trash_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
                         } else {
-                            LogManager.log(mContext, R.string.title_trash_clear_error, LogManager.Types.ERROR, Toast.LENGTH_LONG);
+                            LogManager.log(mContext, R.string.title_trash_clear_error, ILogger.Types.ERROR, Toast.LENGTH_LONG);
                         }
                     }, R.string.ask_clear_trash);
                     return true;
@@ -136,14 +137,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                             });
                     return true;
                 });
-        NodesManager.updateQuicklyNode();
+        NodesManager.updateQuicklyNode(getContext());
 
         findPreference(getString(R.string.pref_key_clear_search_history))
                 .setOnPreferenceClickListener(pref -> {
                     AskDialogs.showYesDialog(getContext(), () -> {
                         TetroidSuggestionProvider.clearHistory(getContext());
                         SettingsManager.clearSearchOptions(mContext);
-                        LogManager.log(mContext, R.string.title_search_history_cleared, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                        LogManager.log(mContext, R.string.title_search_history_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
                     }, R.string.ask_clear_search_history);
                     return true;
                 });
@@ -288,7 +289,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     public void onRequestPermissionsResult(boolean permGranted, int requestCode) {
         if (permGranted) {
-            LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, LogManager.Types.INFO);
+            LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
             switch (requestCode) {
                 case REQUEST_CODE_OPEN_STORAGE_PATH:
                     selectStorageFolder();
@@ -301,7 +302,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     break;
             }
         } else {
-            LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, LogManager.Types.WARNING, Toast.LENGTH_SHORT);
+            LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
         }
     }
 
@@ -549,9 +550,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 //            mLayoutProgress.setVisibility(View.INVISIBLE);
             getSettingsActivity().setProgressVisibility(false, null);
             if (res) {
-                LogManager.log(mContext, R.string.log_pass_changed, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                LogManager.log(mContext, R.string.log_pass_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
-                LogManager.log(mContext, R.string.log_pass_change_error, LogManager.Types.INFO, Toast.LENGTH_SHORT);
+                LogManager.log(mContext, R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             }
         }
     }

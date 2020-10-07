@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.crypt;
 
-import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;
@@ -19,19 +19,37 @@ public class Crypter {
     private static final int CRYPT_CHECK_ROUNDS = 1000;
     private static final int  CRYPT_CHECK_HASH_LEN = 160;
     protected static final String SAVED_PASSWORD_CHECKING_LINE = "This string is used for checking middle hash";
-
-    private static RC5Simple rc5 = new RC5Simple();
-    protected static int[] mCryptKey;
     private static final Charset CHARSET_UTF_8 = Charset.forName("UTF-8");
     private static final Charset CHARSET_ISO_8859_1 = Charset.forName("ISO-8859-1");
 
     /**
-     * Для будущего сохранения в настройках.
-     * Если поставили галку "Сохранять хеш пароля локально" уже после того,
-     * как ввели пароль
+     *
      */
-    private static String middlePassHash;
+    private ILogger mLogger;
 
+    /**
+     * Реализация алгритма шифрования RC5.
+     */
+    private RC5Simple rc5;
+
+    /**
+     * Ключ шифрования.
+     */
+    protected int[] mCryptKey;
+
+    /**
+     * Промежуточный хэш пароля для локального хранения на устройстве.
+     */
+    private static String mMiddlePassHash;
+
+    /**
+     *
+     * @param logger
+     */
+    public Crypter(ILogger logger) {
+        this.mLogger = logger;
+        this.rc5 = new RC5Simple(logger);
+    }
 
     /***
      * Сверяем пароль с проверочным хешем в database.ini
@@ -40,7 +58,7 @@ public class Crypter {
      * @param checkHash Сохраненный хеш пароля в Base64
      * @return
      */
-    public static boolean checkPass(String pass, String checkSalt, String checkHash) {
+    public boolean checkPass(String pass, String checkSalt, String checkHash) {
         if (checkSalt == null || checkHash == null)
             return false;
         byte[] checkSaltSigned = decodeBase64(checkSalt);
@@ -61,7 +79,7 @@ public class Crypter {
      * @param checkData Сохраненный хеш данных в Base64
      * @return
      */
-    public static boolean checkMiddlePassHash(String passHash, String checkData) {
+    public boolean checkMiddlePassHash(String passHash, String checkData) {
         int[] key = middlePassHashToKey(passHash);
         byte[] checkDataSigned = decodeBase64(checkData);
         String line = decryptString(key, checkDataSigned);
@@ -74,7 +92,7 @@ public class Crypter {
      * @param passHash
      * @return
      */
-    public static String createMiddlePassHashCheckData(String passHash) {
+    public String createMiddlePassHashCheckData(String passHash) {
         int[] key = middlePassHashToKey(passHash);
         byte[] out = encrypt(key, SAVED_PASSWORD_CHECKING_LINE.getBytes(CHARSET_UTF_8));
         return  (out != null) ? Base64.encodeToString(out, false) : null;
@@ -85,7 +103,7 @@ public class Crypter {
      * @param text
      * @return
      */
-    public static String encryptTextBase64(String text) {
+    public String encryptTextBase64(String text) {
         if (text == null)
             return null;
         byte[] out = encrypt(mCryptKey, text.getBytes(CHARSET_UTF_8));
@@ -94,24 +112,24 @@ public class Crypter {
         return null;
     }
 
-    public static byte[] encryptTextBase64Bytes(String text) {
+    public byte[] encryptTextBase64Bytes(String text) {
         if (text == null)
             return null;
         return encryptBytesBase64Bytes(text.getBytes(CHARSET_UTF_8));
     }
 
-    public static byte[] encryptTextBytes(String text) {
+    public byte[] encryptTextBytes(String text) {
         if (text == null)
             return null;
         byte[] out = encrypt(mCryptKey, text.getBytes(CHARSET_UTF_8));
         return out;
     }
 
-    public static byte[] encryptBytes(byte[] bytes) {
+    public byte[] encryptBytes(byte[] bytes) {
         return encrypt(mCryptKey, bytes);
     }
 
-    public static byte[] encryptBytesBase64Bytes(byte[] bytes) {
+    public byte[] encryptBytesBase64Bytes(byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] out = encrypt(mCryptKey, bytes);
@@ -120,7 +138,7 @@ public class Crypter {
         return null;
     }
 
-    public static byte[] encrypt(int[] key, byte[] bytes) {
+    public byte[] encrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] res = null;
@@ -138,7 +156,7 @@ public class Crypter {
      * @param text
      * @return
      */
-    public static String decryptText(byte[] text) {
+    public String decryptText(byte[] text) {
         return decryptString(mCryptKey, text);
     }
 
@@ -147,7 +165,7 @@ public class Crypter {
      * @param bytes
      * @return
      */
-    public static byte[] decryptBytes(byte[] bytes) {
+    public byte[] decryptBytes(byte[] bytes) {
         return decrypt(mCryptKey, bytes);
     }
 
@@ -161,7 +179,7 @@ public class Crypter {
      * @param isEncrypt Если true - зашифровываем файл, иначе - расшифровываем
      * @return
      */
-    public static boolean encryptDecryptFile(File srcFile, File destFile, boolean isEncrypt) throws IOException {
+    public boolean encryptDecryptFile(File srcFile, File destFile, boolean isEncrypt) throws IOException {
         int size = (int) srcFile.length();
         byte[] bytes = new byte[size];
 
@@ -190,7 +208,7 @@ public class Crypter {
      * @param pass
      * @return
      */
-    public static String passToHash(String pass) {
+    public String passToHash(String pass) {
         String res =  null;
         try {
             byte[] passHashSigned = calculateMiddleHash(pass);
@@ -204,7 +222,7 @@ public class Crypter {
     /**
      * Установка пароля в виде ключа шифрования.
      */
-    protected static int[] passToKey(String pass) {
+    protected int[] passToKey(String pass) {
         int[] res = null;
         try {
             // добавляем соль
@@ -218,7 +236,7 @@ public class Crypter {
         return res;
     }
 
-    protected static int[] middlePassHashToKey(String passHash) {
+    protected int[] middlePassHashToKey(String passHash) {
         int[] res = null;
         try {
             byte[] passHashSigned = decodeBase64(passHash);
@@ -252,7 +270,7 @@ public class Crypter {
      * Расшифровка строки в base64
      * @param line Строка в base64
      */
-    public static String decryptBase64(int[] key, String line) {
+    public String decryptBase64(int[] key, String line) {
         if (line == null || line.length() == 0) {
             return "";
         }
@@ -260,11 +278,11 @@ public class Crypter {
         return decryptString(key, bytes);
     }
 
-    public static String decryptBase64(String line) {
+    public String decryptBase64(String line) {
         return decryptBase64(mCryptKey, line);
     }
 
-    public static String decryptString(int[] key, byte[] bytes) {
+    public String decryptString(int[] key, byte[] bytes) {
         byte[] out = decrypt(key, bytes);
         if (out != null)
             // java.lang.OutOfMemoryError..
@@ -272,7 +290,7 @@ public class Crypter {
         return null;
     }
 
-    public static byte[] decrypt(int[] key, byte[] bytes) {
+    public byte[] decrypt(int[] key, byte[] bytes) {
         if (bytes == null)
             return null;
         byte[] res = null;
@@ -285,7 +303,7 @@ public class Crypter {
         return res;
     }
 
-    public static byte[] decodeBase64(String s) {
+    public byte[] decodeBase64(String s) {
         try {
             return Base64.decode(s.toCharArray());
         } catch (Exception ex) {
@@ -294,27 +312,31 @@ public class Crypter {
         return null;
     }
 
-    static void setCryptKey(int[] key) {
-        Crypter.mCryptKey = key;
+    public void setCryptKey(int[] key) {
+        this.mCryptKey = key;
     }
 
-    public static void setMiddlePassHash(String passHash) {
-        middlePassHash = passHash;
+    public void setMiddlePassHash(String passHash) {
+        this.mMiddlePassHash = passHash;
     }
 
-    public static String getMiddlePassHash() {
-        return middlePassHash;
+    public String getMiddlePassHash() {
+        return mMiddlePassHash;
     }
 
-    private static void addLog(String s) {
-        LogManager.log(s);
+    private void addLog(String s) {
+        if (mLogger != null) {
+            mLogger.log(s);
+        }
     }
 
-    private static void addLog(Exception e) {
-        LogManager.log(e);
+    private void addLog(Exception ex) {
+        if (mLogger != null) {
+            mLogger.log(ex);
+        }
     }
 
-    public static int getErrorCode() {
+    public int getErrorCode() {
         return rc5.getErrorCode();
     }
 }

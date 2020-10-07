@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data;
 
-import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.ILogger;
 
 import org.ini4j.Ini;
 
@@ -11,6 +11,7 @@ import java.util.Map;
 
 public class INIConfig {
 
+    protected ILogger mLogger;
     protected Ini config;
     private String fileName;
 
@@ -18,7 +19,8 @@ public class INIConfig {
      *
      * @param fileName
      */
-    public INIConfig(String fileName) {
+    public INIConfig(ILogger logger, String fileName) {
+        this.mLogger = logger;
         config = new Ini();
         this.fileName = fileName;
     }
@@ -31,7 +33,9 @@ public class INIConfig {
         try {
             config.load(new FileReader(fileName));
         } catch (IOException e) {
-            LogManager.log("Configuration error: ", e);
+            if (mLogger != null) {
+                mLogger.log("Configuration error: ", e);
+            }
             return false;
         }
         return true;
@@ -45,7 +49,9 @@ public class INIConfig {
         try {
             config.store(new FileWriter(fileName));
         } catch (IOException e) {
-            LogManager.log("Configuration error: ", e);
+            if (mLogger != null) {
+                mLogger.log("Configuration error: ", e);
+            }
             return false;
         }
         return true;

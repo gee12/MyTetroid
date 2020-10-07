@@ -3,6 +3,7 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidLog;
@@ -34,7 +35,7 @@ public class NodesManager extends DataManager {
         boolean crypted = (parentNode != null && parentNode.isCrypted());
         int level = (parentNode != null) ? parentNode.getLevel() + 1 : 0;
         TetroidNode node = new TetroidNode(crypted, id,
-                encryptField(crypted, name),
+                Instance.encryptField(crypted, name),
                 null, level);
         node.setParentNode(parentNode);
         node.setRecords(new ArrayList<>());
@@ -44,10 +45,10 @@ public class NodesManager extends DataManager {
             node.setDecrypted(true);
         }
         // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
-        List<TetroidNode> list = (parentNode != null) ? parentNode.getSubNodes() : getRootNodes();
+        List<TetroidNode> list = (parentNode != null) ? parentNode.getSubNodes() : Instance.getRootNodes();
         list.add(node);
         // перезаписываем структуру хранилища в файл
-        if (!saveStorage(context)) {
+        if (!Instance.saveStorage(context)) {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             // удаляем запись из дерева
             list.remove(node);
@@ -72,17 +73,17 @@ public class NodesManager extends DataManager {
         String oldName = node.getName(true);
         // обновляем поля
         boolean crypted = node.isCrypted();
-        node.setName(encryptField(crypted, name));
+        node.setName(Instance.encryptField(crypted, name));
         if (crypted) {
             node.setDecryptedName(name);
         }
         // перезаписываем структуру хранилища в файл
-        if (!saveStorage(context)) {
+        if (!Instance.saveStorage(context)) {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
             // возвращаем изменения
             node.setName(oldName);
             if (crypted) {
-                node.setDecryptedName(decryptField(crypted, oldName));
+                node.setDecryptedName(Instance.decryptField(crypted, oldName));
             }
             return false;
         }
@@ -143,7 +144,7 @@ public class NodesManager extends DataManager {
         TetroidNode newNode = insertNodeRecursively(context, srcNode, destParentNode, isCutted, false);
 
         // перезаписываем структуру хранилища в файл
-        if (!saveStorage(context)) {
+        if (!Instance.saveStorage(context)) {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
             // удаляем запись из дерева
             destParentNode.getSubNodes().remove(newNode);
@@ -170,8 +171,8 @@ public class NodesManager extends DataManager {
         // создаем копию ветки
         boolean crypted = destParentNode.isCrypted();
         TetroidNode node = new TetroidNode(crypted, id,
-                encryptField(crypted, name),
-                encryptField(crypted, iconName),
+                Instance.encryptField(crypted, name),
+                Instance.encryptField(crypted, iconName),
                 destParentNode.getLevel() + 1);
         node.setParentNode(destParentNode);
         node.setRecords(new ArrayList<>());
@@ -182,7 +183,7 @@ public class NodesManager extends DataManager {
             node.setDecrypted(true);
         }
         // загружаем такую же иконку
-        Instance.loadIcon(node);
+        Instance.mXml.loadIcon(context, node);
         destParentNode.addSubNode(node);
 
         // добавляем записи
@@ -219,14 +220,14 @@ public class NodesManager extends DataManager {
         TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, (isCutting) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE, node);
 
         // удаляем ветку из дерева
-        List<TetroidNode> parentNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : getRootNodes();
+        List<TetroidNode> parentNodes = (node.getParentNode() != null) ? node.getParentNode().getSubNodes() : Instance.getRootNodes();
         if (!parentNodes.remove(node)) {
-            LogManager.log(context, context.getString(R.string.log_not_found_node_id) + node.getId(), LogManager.Types.ERROR);
+            LogManager.log(context, context.getString(R.string.log_not_found_node_id) + node.getId(), ILogger.Types.ERROR);
             return false;
         }
 
         // перезаписываем структуру хранилища в файл
-        if (saveStorage(context)) {
+        if (Instance.saveStorage(context)) {
             // удаление всех объектов ветки рекурсивно
             deleteNodeRecursively(context, node, movePath, false);
         } else {
@@ -300,9 +301,9 @@ public class NodesManager extends DataManager {
      * @return
      */
     public static boolean isExistCryptedNodes(boolean recheck) {
-        boolean res = Instance.mIsExistCryptedNodes;
+        boolean res = Instance.mXml.mIsExistCryptedNodes;
         if (recheck) {
-            res = Instance.mIsExistCryptedNodes = isExistCryptedNodes(Instance.mRootNodesList);
+            res = Instance.mXml.mIsExistCryptedNodes = isExistCryptedNodes(Instance.mXml.mRootNodesList);
         }
         return res;
     }
@@ -340,7 +341,7 @@ public class NodesManager extends DataManager {
     }
 
     public static TetroidNode getNode(String id) {
-        return getNodeInHierarchy(Instance.mRootNodesList, id);
+        return getNodeInHierarchy(Instance.mXml.mRootNodesList, id);
     }
 
     /**
@@ -403,7 +404,7 @@ public class NodesManager extends DataManager {
      */
     public static void updateQuicklyNode(Context context) {
         String nodeId = SettingsManager.getQuicklyNodeId(context);
-        if (nodeId != null && Instance != null && Instance.mIsStorageLoaded) {
+        if (nodeId != null && Instance != null && Instance.mXml.mIsStorageLoaded) {
             TetroidNode node = getNode(nodeId);
             // обновление значений или обнуление (если не найдено)
             SettingsManager.setQuicklyNode(context, node);
@@ -416,8 +417,8 @@ public class NodesManager extends DataManager {
      * @return
      */
     public static TetroidNode getDefaultNode() {
-        if (Instance != null && !Instance.mRootNodesList.isEmpty()) {
-            for (TetroidNode node : Instance.mRootNodesList) {
+        if (Instance != null && !Instance.getRootNodes().isEmpty()) {
+            for (TetroidNode node : Instance.getRootNodes()) {
                 if (node.isNonCryptedOrDecrypted()) {
                     return node;
                 }
