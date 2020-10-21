@@ -69,7 +69,7 @@ public class StorageManager extends DataManager {
      * @param storagePath
      * @return
      */
-    public static boolean initStorage(Context context, String storagePath, boolean isNew) {
+    public static boolean initOrCreateStorage(Context context, String storagePath, boolean isNew) {
         DataManager inst = getInstance();
         inst.mStoragePath = storagePath;
         ILogger logger = LogManager.createLogger(context);
@@ -136,14 +136,18 @@ public class StorageManager extends DataManager {
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
      */
     public static void startInitStorage(Activity activity, boolean isLoadLastForced) {
+        startInitStorage(activity, isLoadLastForced, true);
+    }
+
+    public static void startInitStorage(Activity activity, boolean isLoadLastForced, boolean isCheckFavorMode) {
         // сначала проверяем разрешение на запись во внешнюю память
         if (!PermissionManager.checkWriteExtStoragePermission(activity, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             return;
         }
 
         String storagePath = SettingsManager.getStoragePath(activity);
-        if (storagePath != null && SettingsManager.isLoadLastStoragePath(activity) || isLoadLastForced) {
-            Instance.initOrSyncStorage(activity, storagePath);
+        if (isLoadLastForced || SettingsManager.isLoadLastStoragePath(activity) && storagePath != null) {
+            initOrSyncStorage(activity, storagePath, isCheckFavorMode);
         } else {
             StorageChooserDialog.createDialog(activity, isNew -> StorageManager.showStorageFolderChooser(activity, isNew));
         }
@@ -154,7 +158,7 @@ public class StorageManager extends DataManager {
      *
      * @param storagePath
      */
-    public static void initOrSyncStorage(Activity activity, final String storagePath) {
+    public static void initOrSyncStorage(Activity activity, final String storagePath, boolean isCheckFavorMode) {
         if (SettingsManager.isSyncStorage(activity) && SettingsManager.isSyncBeforeInit(activity)) {
             // спрашиваем о необходимости запуска синхронизации, если установлена опция
             if (SettingsManager.isAskBeforeSync(activity)) {
@@ -167,7 +171,7 @@ public class StorageManager extends DataManager {
 
                     @Override
                     public void onCancel() {
-                        initStorage(activity, storagePath);
+                        initStorage(activity, storagePath, isCheckFavorMode);
                     }
                 });
             } else {
@@ -175,7 +179,7 @@ public class StorageManager extends DataManager {
                 startStorageSync(activity, storagePath);
             }
         } else {
-            initStorage(activity, storagePath);
+            initStorage(activity, storagePath, isCheckFavorMode);
         }
     }
 
@@ -185,12 +189,20 @@ public class StorageManager extends DataManager {
      * @param storagePath Путь хранилища
      */
     public static boolean initStorage(Context context, String storagePath) {
-        Instance.mIsAlreadyTryDecrypt = false;
-        // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
-        boolean isFavorites = !isLoaded() && SettingsManager.isLoadFavoritesOnly(context)
-                || (isLoaded() && isFavoritesMode());
+        return initStorage(context, storagePath, true);
+    }
 
-        boolean res = initStorage(context, storagePath, false);
+    public static boolean initStorage(Context context, String storagePath, boolean isCheckFavorMode) {
+        Instance.mIsAlreadyTryDecrypt = false;
+
+        boolean isFavorMode = false;
+        if (isCheckFavorMode) {
+            // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
+            isFavorMode = !isLoaded() && SettingsManager.isLoadFavoritesOnly(context)
+                    || (isLoaded() && isFavoritesMode());
+        }
+
+        boolean res = initOrCreateStorage(context, storagePath, false);
         if (res) {
             LogManager.log(context, context.getString(R.string.log_storage_settings_inited) + storagePath);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
@@ -198,19 +210,19 @@ public class StorageManager extends DataManager {
 //            if (SettingsManager.isLoadLastStoragePath()) {
             SettingsManager.setStoragePath(context, storagePath);
 //            }
-            if (isCrypted(context) /*&& !isFavorites*/) {
+            if (isCrypted(context) /*&& !isFavorMode*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
                 //decryptStorage(null);
-                Instance.decryptStorage(context, null, false, isFavorites, true);
+                Instance.decryptStorage(context, null, false, isFavorMode, true);
             } else {
                 // загружаем
-                Instance.initStorage(context, null, false, isFavorites, true);
+                Instance.loadStorage(context, null, false, isFavorMode, true);
             }
         } else {
             LogManager.log(context, context.getString(R.string.log_failed_storage_init) + storagePath,
                     ILogger.Types.ERROR, Toast.LENGTH_LONG);
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
-            getStorageInitCallback().initGUI(false, isFavorites, false);
+            getStorageInitCallback().initGUI(false, isFavorMode, false);
         }
         return res;
     }
@@ -227,7 +239,7 @@ public class StorageManager extends DataManager {
             //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
             Instance.decryptStorage(context, null, false, false, false);
         } else {
-            Instance.initStorage(context, null, false, false, false);
+            Instance.loadStorage(context, null, false, false, false);
         }
     }
 
@@ -257,7 +269,7 @@ public class StorageManager extends DataManager {
                     initCryptPass(middlePassHash, true);
                     // запрос ПИН-кода
                     PINManager.askPINCode(context, isNodeOpening, () -> {
-                        initStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
+                        loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
                     });
 
                 } else if (isNodeOpening) {
@@ -267,7 +279,7 @@ public class StorageManager extends DataManager {
                     LogManager.log(context, R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!getInstance().mIsAlreadyTryDecrypt) {
                         getInstance().mIsAlreadyTryDecrypt = true;
-                        initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+                        loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                     }
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
@@ -280,7 +292,7 @@ public class StorageManager extends DataManager {
                                 initCryptPass(middlePassHash, true);
                                 // запрос ПИН-кода
                                 PINManager.askPINCode(context, isNodeOpening, () -> {
-                                    initStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
+                                    loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
                                 });
                             }
 
@@ -288,7 +300,7 @@ public class StorageManager extends DataManager {
                             public void onCancel() {
                                 if (!isNodeOpening) {
                                     // загружаем хранилище без пароля
-                                    initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+                                    loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                                 }
                             }
                         }
@@ -306,7 +318,7 @@ public class StorageManager extends DataManager {
             //      * не сохранен пароль
             //      * пароль не нужно спрашивать на старте
             //      * функция не вызвана во время открытия зашифрованной ветки
-            initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+            loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
         }
     }
 
@@ -331,7 +343,7 @@ public class StorageManager extends DataManager {
                     if (res) {
                         PassManager.initPass(context, pass);
                         PINManager.askPINCode(context, isNodeOpening, () -> {
-                            initStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
+                            loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
                         });
                     } else {
                         // повторяем запрос
@@ -349,7 +361,7 @@ public class StorageManager extends DataManager {
                     //  просто грузим хранилище как есть (чтобы небыло циклического запроса пароля, если
                     //  его просто не хотим вводить)
                     getInstance().mIsAlreadyTryDecrypt = true;
-                    initStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+                    loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                 }
             }
         });
@@ -364,7 +376,7 @@ public class StorageManager extends DataManager {
      * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
      *                        или ветку с избранным (если именно она передана в node)
      */
-    public void initStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void loadStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // расшифровуем хранилище только в том случаем, если:
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
@@ -401,7 +413,7 @@ public class StorageManager extends DataManager {
                 return;
             }
         }*/
-        boolean res = (initStorage(context, storagePath, true));
+        boolean res = (initOrCreateStorage(context, storagePath, true));
         if (res) {
             /*closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();

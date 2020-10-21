@@ -9,6 +9,10 @@ import androidx.preference.PreferenceViewHolder;
 
 import com.gee12.mytetroid.utils.ViewUtils;
 
+/**
+ * Обычный ListPreference, но при отключении (установке setEnabled(false)) реагирующий
+ *  на нажатия (OnPreferenceClickListener).
+ */
 public class DisabledListPreference extends ListPreference {
 
     protected boolean mIsEnabled2 = true;

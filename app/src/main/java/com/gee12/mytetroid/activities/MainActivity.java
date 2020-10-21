@@ -348,13 +348,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void startStorageTreeObserver() {
         if (SettingsManager.isCheckOutsideChanging(this)) {
-            this.mIsStorageChangingHandled = false;
+            // запускаем мониторинг, только если хранилище загружено
+            if (StorageManager.isLoaded()) {
+                this.mIsStorageChangingHandled = false;
 //            TetroidFileObserver.startStorageObserver(mOutsideChangingHandler);
-            Bundle bundle = new Bundle();
-            bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START);
-            bundle.putString(FileObserverService.EXTRA_FILE_PATH, DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
-            bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
-            FileObserverService.sendCommand(this, bundle);
+                Bundle bundle = new Bundle();
+                bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START);
+                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+                bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
+                FileObserverService.sendCommand(this, bundle);
+            }
         } else {
             FileObserverService.stop(this);
         }
@@ -1576,7 +1579,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 && resultCode == RESULT_OK) {
             String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
             if (requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE)
-                StorageManager.initOrSyncStorage(this, folderPath);
+                StorageManager.initOrSyncStorage(this, folderPath, true);
             else
                 createStorage(folderPath/*, true*/);
             // сохраняем путь

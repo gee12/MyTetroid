@@ -43,10 +43,14 @@ public class FileObserverService extends Service {
                 }
                 break;
             case ACTION_STOP:
-                mFileObserver.stopObserver();
+                if (mFileObserver != null) {
+                    mFileObserver.stopObserver();
+                }
                 break;
             case ACTION_RESTART:
-                mFileObserver.restartObserver();
+                if (mFileObserver != null) {
+                    mFileObserver.restartObserver();
+                }
                 break;
             /*case ACTION_START_OR_STOP:
                 boolean isStart = intent.getBooleanExtra(EXTRA_IS_START, true);

@@ -954,7 +954,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void loadStorage() {
         StorageManager.setStorageCallback(this);
-        StorageManager.startInitStorage(this, true);
+        StorageManager.startInitStorage(this, true, false);
     }
 
     @Override
