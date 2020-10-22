@@ -144,6 +144,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private String mLastSearchQuery;
     private boolean mIsStorageChangingHandled;
     private ICallback mOutsideChangingHandler;
+    private boolean mShowLoadedStorage;
 
     /**
      *
@@ -302,10 +303,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // --- или сразу отображаем
 //        StorageManager.initOrShowStorage(this, this);
 
-        // загружаем хранилище, если еще не загружано
         StorageManager.setStorageCallback(this);
-        if (!StorageManager.isLoaded()) {
-            // загружаем хранилище
+        if (StorageManager.isLoaded()) {
+            // тут ничего не пишем.
+            // код отображения загруженного хранилище находится в onGUICreated(),
+            //  который вызывается после создания пунктов меню активности
+            this.mShowLoadedStorage = true;
+        } else {
+            // загружаем хранилище, если еще не загружано
             StorageManager.startInitStorage(this, false);
         }
     }
@@ -321,13 +326,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void onGUICreated() {
         // вызываем "принудительно" настройку элементов интерфейса,
         //  если MainActivity запускается при уже загруженном хранилище
-        if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
-                && StorageManager.isLoaded()) {
+        /*if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
+                && StorageManager.isLoaded()) {*/
+        if (mShowLoadedStorage) {
             //setMenuItemsAvailable(true);
             // инициализация контролов
-            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
+//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
+            initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
             // действия после загрузки хранилища
             afterStorageLoaded(true);
+            this.mShowLoadedStorage = false;
         }
     }
 

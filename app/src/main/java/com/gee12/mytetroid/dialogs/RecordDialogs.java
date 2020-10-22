@@ -85,7 +85,7 @@ public class RecordDialogs {
         }
         if (App.isFullVersion()) {
             ctvFavor.setVisibility(View.VISIBLE);
-            ctvFavor.setChecked(record.isFavorite());
+            ctvFavor.setChecked(record != null && record.isFavorite());
             ctvFavor.setOnClickListener(v -> {
                 ctvFavor.setChecked(!ctvFavor.isChecked());
             });
