@@ -216,7 +216,7 @@ public class RecordDialogs {
             ((TextView)view.findViewById(R.id.text_view_edited))
                     .setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
         }
-        String path = RecordsManager.getPathToRecordFolder(record);
+        String path = RecordsManager.getPathToRecordFolderInBase(record);
         ((TextView)view.findViewById(R.id.text_view_path)).setText(path);
         String size = DataManager.getFileSize(context, path);
         TextView tvSize = view.findViewById(R.id.text_view_size);

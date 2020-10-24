@@ -488,7 +488,8 @@ public class RecordActivity extends TetroidActivity implements
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
         final String text = textHtml;
-        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
+//        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
+        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(this, record),
                 text, "text/html", "UTF-8", null);
     }
 
@@ -1160,6 +1161,8 @@ public class RecordActivity extends TetroidActivity implements
 //                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                     // показываем кнопку Home для возврата в ветку записи
                     setVisibilityActionHome(true);
+                    // перезагружаем baseUrl в WebView
+                    loadRecordText(mRecord, false);
                 } else {
 //                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                     LogManager.log(this, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
@@ -1170,6 +1173,8 @@ public class RecordActivity extends TetroidActivity implements
 //                    save();
                     saveRecord(obj);
                     TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                    // перезагружаем baseUrl в WebView
+                    loadRecordText(mRecord, false);
                 } else {
                     TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                 }

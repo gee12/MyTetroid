@@ -64,7 +64,7 @@ public class RecordsManager extends DataManager {
         }
         LogManager.log(context, context.getString(R.string.log_start_record_file_reading) + record.getId(), ILogger.Types.DEBUG);
         // проверка существования каталога записи
-        String dirPath = getPathToRecordFolder(record);
+        String dirPath = getPathToRecordFolderInBase(record);
         if (checkRecordFolder(context, dirPath, true, duration) <= 0) {
             return null;
         }
@@ -147,7 +147,8 @@ public class RecordsManager extends DataManager {
         }
         LogManager.log(context, context.getString(R.string.log_start_record_file_saving) + record.getId(), ILogger.Types.DEBUG);
         // проверка существования каталога записи
-        String dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolder(record);
+//        String dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolderInBase(record);
+        String dirPath = getPathToRecordFolder(context, record);
         if (checkRecordFolder(context, dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return false;
         }
@@ -266,7 +267,7 @@ public class RecordsManager extends DataManager {
         if (isCutted) {
             srcDirPath = getPathToRecordFolderInTrash(context, srcRecord);
         } else {
-            srcDirPath = getPathToRecordFolder(srcRecord);
+            srcDirPath = getPathToRecordFolderInBase(srcRecord);
         }
         int dirRes = checkRecordFolder(context, srcDirPath, false);
         if (dirRes > 0) {
@@ -275,7 +276,7 @@ public class RecordsManager extends DataManager {
             return errorRes;
         }
 
-        String destDirPath = getPathToRecordFolder(record);
+        String destDirPath = getPathToRecordFolderInBase(record);
         File destDir = new File(destDirPath);
         if (isCutted) {
             // вырезаем уникальную приставку в имени каталога
@@ -357,7 +358,7 @@ public class RecordsManager extends DataManager {
             String srcFileIdName = srcAttach.getId() + ext;
             String destFileIdName = destAttach.getId() + ext;
             // переименовываем
-            String destPath = getPathToRecordFolder(destRecord);
+            String destPath = getPathToRecordFolderInBase(destRecord);
             File srcFile = new File(destPath, srcFileIdName);
             File destFile = new File(destPath, destFileIdName);
             if (srcFile.renameTo(destFile)) {
@@ -412,7 +413,7 @@ public class RecordsManager extends DataManager {
         }
         record.setIsNew(true);
         // создаем каталог записи
-        String dirPath = getPathToRecordFolder(record);
+        String dirPath = getPathToRecordFolderInBase(record);
         if (checkRecordFolder(context, dirPath, true) <= 0) {
             return null;
         }
@@ -610,7 +611,7 @@ public class RecordsManager extends DataManager {
                 FavoritesManager.addOrRemove(context, record, oldIsFavor);
             }
             if (isTemp) {
-                moveRecordFolder(context, record, getPathToRecordFolder(record), SettingsManager.getTrashPath(context), oldDirName);
+                moveRecordFolder(context, record, getPathToRecordFolderInBase(record), SettingsManager.getTrashPath(context), oldDirName);
                 record.setIsTemp(true);
             }
 
@@ -661,7 +662,7 @@ public class RecordsManager extends DataManager {
         File srcDir = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
-            srcDirPath = (isCutted) ? getPathToRecordFolderInTrash(context, srcRecord) : getPathToRecordFolder(srcRecord);
+            srcDirPath = (isCutted) ? getPathToRecordFolderInTrash(context, srcRecord) : getPathToRecordFolderInBase(srcRecord);
             int dirRes = checkRecordFolder(context, srcDirPath, false);
             if (dirRes > 0) {
                 srcDir = new File(srcDirPath);
@@ -694,7 +695,7 @@ public class RecordsManager extends DataManager {
         cloneAttachesToRecord(srcRecord, record, isCutted);
         record.setIsNew(false);
 
-        String destDirPath = getPathToRecordFolder(record);
+        String destDirPath = getPathToRecordFolderInBase(record);
         File destDir = new File(destDirPath);
         if (!withoutDir) {
             if (isCutted) {
@@ -792,7 +793,8 @@ public class RecordsManager extends DataManager {
         String dirPath = null;
         // проверяем существование каталога записи
         if (!withoutDir) {
-            dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolder(record);
+//            dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolderInBase(record);
+            dirPath = getPathToRecordFolder(context, record);
             int dirRes = checkRecordFolder(context, dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
@@ -890,7 +892,7 @@ public class RecordsManager extends DataManager {
     public boolean deleteRecordFolder(Context context, TetroidRecord record) {
         TetroidLog.logOperStart(context, TetroidLog.Objs.RECORD_DIR, TetroidLog.Opers.DELETE, record);
         // проверяем существование каталога
-        String dirPath = RecordsManager.getPathToRecordFolder(record);
+        String dirPath = RecordsManager.getPathToRecordFolderInBase(record);
         if (RecordsManager.checkRecordFolder(context, dirPath, false) <= 0) {
             return false;
         }
@@ -917,7 +919,7 @@ public class RecordsManager extends DataManager {
         }
         LogManager.log(context, context.getString(R.string.log_start_record_folder_opening) + record.getId(), ILogger.Types.DEBUG);
 //        Uri uri = Uri.parse(getUriToRecordFolder(record));
-        String fileFullName = getPathToRecordFolder(record);
+        String fileFullName = getPathToRecordFolderInBase(record);
         if (!openFile(context, new File(fileFullName))) {
             Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), fileFullName);
             return false;
@@ -933,25 +935,71 @@ public class RecordsManager extends DataManager {
         if (record.isNew() || record.isTemp()) {
             return null;
         }
-        String fileName = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
+        String fileName = RecordsManager.getPathToFileInRecordFolderInBase(record, record.getFileName());
         return getFileModifiedDate(context, fileName);
     }
 
+    /**
+     * Получение пути к каталогу записи в виде Uri,
+     *  с учетом того, что хранилище еще может быть не загружено.
+     * Запись находится в хранилище в каталоге base/.
+     * @param record
+     * @return
+     */
+    @Deprecated
     public static String getUriToRecordFolder(@NonNull TetroidRecord record) {
         return (isLoaded()) ? getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR
                 : null;
     }
 
-    public static String getPathToRecordFolder(TetroidRecord record) {
+    /**
+     * Получение пути к каталогу записи в виде Uri, с учетом того, что это может быть временная запись.
+     * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
+     * @param context
+     * @param record
+     * @return
+     */
+    public static String getUriToRecordFolder(Context context, @NonNull TetroidRecord record) {
+//        return (isLoaded()) ? getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR
+//                : null;
+        return ((record.isTemp()) ? getTrashPathBaseUri(context)
+                : getStoragePathBaseUri()) + SEPAR + record.getDirName() + SEPAR;
+    }
+
+    /**
+     * Получение пути к каталогу записи.
+     * Запись находится в хранилище в каталоге base/.
+     * @param record
+     * @return
+     */
+    @Deprecated
+    public static String getPathToRecordFolderInBase(TetroidRecord record) {
         return getStoragePathBase() + SEPAR + record.getDirName();
+    }
+
+    /**
+     * Получение пути к каталогу записи, с учетом того, что это может быть временная запись.
+     * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
+     * @param context
+     * @param record
+     * @return
+     */
+    public static String getPathToRecordFolder(Context context, TetroidRecord record) {
+        return ((record.isTemp()) ? SettingsManager.getTrashPath(context)
+        : getStoragePathBase()) + SEPAR + record.getDirName();
     }
 
     public static String getPathToRecordFolderInTrash(Context context, TetroidRecord record) {
         return SettingsManager.getTrashPath(context) + SEPAR + record.getDirName();
     }
 
-    public static String getPathToFileInRecordFolder(TetroidRecord record, String fileName) {
-        return getPathToRecordFolder(record) + SEPAR + fileName;
+    @Deprecated
+    public static String getPathToFileInRecordFolderInBase(TetroidRecord record, String fileName) {
+        return getPathToRecordFolderInBase(record) + SEPAR + fileName;
+    }
+
+    public static String getPathToFileInRecordFolder(Context context, TetroidRecord record, String fileName) {
+        return getPathToRecordFolder(context, record) + SEPAR + fileName;
     }
 
     public static TetroidRecord getRecord(String id) {

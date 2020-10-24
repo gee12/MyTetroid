@@ -253,7 +253,7 @@ public class SettingsManager {
         Set<String> set = getStringSet(context, R.string.pref_key_favorites, null);
         if (set != null && set.size() > 0) {
             res.addAll(set);
-            // пересохраняем по новому ключу
+            // пересохраняем с новым ключем
             setFavorites(context, res);
             // очищаем за ненадобностью
             setStringSet(context, R.string.pref_key_favorites, null);

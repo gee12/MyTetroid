@@ -272,6 +272,8 @@ public class PassDialogs {
                     } else {
                         // запускаем анимацию дрожания
                         pinLockView.shake();
+                        // очищаем введенные значения
+                        pinLockView.resetPinLockView();
                     }
                 }
             }

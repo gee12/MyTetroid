@@ -10,8 +10,8 @@ import com.gee12.htmlwysiwygeditor.ActionButton;
 import com.gee12.htmlwysiwygeditor.ActionType;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.utils.ImageUtils;
@@ -136,7 +136,9 @@ public class TetroidEditor extends WysiwygEditor {
             if (size == 1) {
                 // выводим диалог установки размера
                 TetroidImage image = images.get(0);
-                ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
+//                ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
+                ImageUtils.setImageDimensions(
+                        RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
                 showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
             } else {
                 // спрашиваем о необходимости изменения размера
@@ -181,7 +183,9 @@ public class TetroidEditor extends WysiwygEditor {
         if (images == null || pos < 0 || pos >= images.size())
             return;
         TetroidImage image = images.get(pos);
-        ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
+//        ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
+        ImageUtils.setImageDimensions(
+                RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
         // выводим диалог установки размера
         boolean isSeveral = (pos < images.size() - 1);
         Dialogs.createImageDimensDialog(getContext(), image.getWidth(), image.getHeight(), isSeveral,

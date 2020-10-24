@@ -42,7 +42,7 @@ public class AttachesManager extends DataManager {
         String fileDisplayName = file.getName();
         String ext = FileUtils.getExtensionWithComma(fileDisplayName);
         String fileIdName = file.getId() + ext;
-        String fullFileName = RecordsManager.getPathToFileInRecordFolder(record, fileIdName);
+        String fullFileName = RecordsManager.getPathToFileInRecordFolderInBase(record, fileIdName);
         File srcFile;
         try {
             srcFile = new File(fullFileName);
@@ -128,7 +128,7 @@ public class AttachesManager extends DataManager {
             file.setDecrypted(true);
         }
         // проверка каталога записи
-        String dirPath = RecordsManager.getPathToRecordFolder(record);
+        String dirPath = RecordsManager.getPathToRecordFolderInBase(record);
         if (RecordsManager.checkRecordFolder(context, dirPath, true, Toast.LENGTH_LONG) <= 0) {
             return null;
         }
@@ -220,7 +220,7 @@ public class AttachesManager extends DataManager {
         File srcFile = null;
         if (isExtChanged) {
             // проверяем существование каталога записи
-            dirPath = RecordsManager.getPathToRecordFolder(record);
+            dirPath = RecordsManager.getPathToRecordFolderInBase(record);
             int dirRes = RecordsManager.checkRecordFolder(context, dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
@@ -297,7 +297,7 @@ public class AttachesManager extends DataManager {
         File destFile = null;
         if (!withoutFile) {
             // проверяем существование каталога записи
-            dirPath = RecordsManager.getPathToRecordFolder(record);
+            dirPath = RecordsManager.getPathToRecordFolderInBase(record);
             int dirRes = RecordsManager.checkRecordFolder(context, dirPath, false);
             if (dirRes <= 0) {
                 return dirRes;
@@ -357,7 +357,7 @@ public class AttachesManager extends DataManager {
 
         // проверка исходного файла
         String fileIdName = file.getIdName();
-        String recordPath = RecordsManager.getPathToRecordFolder(file.getRecord());
+        String recordPath = RecordsManager.getPathToRecordFolderInBase(file.getRecord());
         File srcFile = new File(recordPath, fileIdName);
         try {
             if (!srcFile.exists()) {
@@ -414,7 +414,7 @@ public class AttachesManager extends DataManager {
         }
 
         String ext = FileUtils.getExtensionWithComma(file.getName());
-        String fullFileName = RecordsManager.getPathToFileInRecordFolder(record, file.getId() + ext);
+        String fullFileName = RecordsManager.getPathToFileInRecordFolderInBase(record, file.getId() + ext);
 
         return getFileSize(context, fullFileName);
     }

@@ -253,7 +253,7 @@ public class NodesManager extends DataManager {
                 }
                 Instance.deleteRecordTags(record);
                 // проверяем существование каталога
-                String dirPath = RecordsManager.getPathToRecordFolder(record);
+                String dirPath = RecordsManager.getPathToRecordFolderInBase(record);
                 if (RecordsManager.checkRecordFolder(context, dirPath, false) <= 0) {
                     if (breakOnFSErrors) {
                         return false;

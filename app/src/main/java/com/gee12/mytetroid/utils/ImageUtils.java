@@ -38,16 +38,16 @@ public class ImageUtils {
 
     /**
      *
-     * @param storagePath
+     * @param recordFolderPath
      * @param image
      */
-    public static void setImageDimensions(String storagePath, TetroidImage image) {
+    public static void setImageDimensions(String recordFolderPath, TetroidImage image) {
         if (image == null)
             return;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
-        String imageFullName = storagePath + File.separator + image.getRecord().getDirName()
-                + File.separator + image.getName();
+//        String imageFullName = storagePath + File.separator + image.getRecord().getDirName()
+        String imageFullName = recordFolderPath + File.separator + image.getName();
         BitmapFactory.decodeFile(imageFullName, options);
         image.setWidth(options.outWidth);
         image.setHeight(options.outHeight);

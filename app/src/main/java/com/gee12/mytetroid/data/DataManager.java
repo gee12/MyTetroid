@@ -335,7 +335,7 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
     @Override
     public boolean cryptRecordFiles(Context context, TetroidRecord record, boolean isCrypted, boolean isEncrypt) {
         // файл записи
-        String recordFolderPath = RecordsManager.getPathToRecordFolder(record);
+        String recordFolderPath = RecordsManager.getPathToRecordFolderInBase(record);
         File file = new File(recordFolderPath, record.getFileName());
         if (cryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {
             return false;
@@ -581,13 +581,15 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
         TetroidImage image = new TetroidImage(nameId, record);
 
         // проверяем существование каталога записи
-        String dirPath = RecordsManager.getPathToRecordFolder(record);
+//        String dirPath = RecordsManager.getPathToRecordFolderInBase(record);
+        String dirPath = RecordsManager.getPathToRecordFolder(context, record);
         int dirRes = RecordsManager.checkRecordFolder(context, dirPath, true);
         if (dirRes <= 0) {
             return null;
         }
 
-        String destFullName = RecordsManager.getPathToFileInRecordFolder(record, nameId);
+//        String destFullName = RecordsManager.getPathToFileInRecordFolderInBase(record, nameId);
+        String destFullName = RecordsManager.getPathToFileInRecordFolder(context, record, nameId);
         LogManager.log(context, String.format(context.getString(R.string.log_start_image_file_converting_mask),
                 destFullName), ILogger.Types.DEBUG);
         try {
@@ -796,6 +798,11 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
     public static Uri getStoragePathBaseUri() {
 //        return Uri.fromFile(new File(getStoragePathBase()));
         return Uri.parse("file://" + getStoragePathBase());
+    }
+
+    @NonNull
+    public static Uri getTrashPathBaseUri(Context context) {
+        return Uri.parse("file://" + SettingsManager.getTrashPath(context));
     }
 
     @NonNull
