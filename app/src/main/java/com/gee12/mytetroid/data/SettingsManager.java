@@ -8,13 +8,11 @@ import android.text.TextUtils;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -248,20 +246,31 @@ public class SettingsManager {
      * Получить список Id избранных записей.
      * @return
      */
-    public static List<String> getFavorites(Context context) {
+    public static StringList getFavorites(Context context) {
 //        String value = getString(R.string.pref_key_favorites, "");
 //        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
-        List<String> res = new ArrayList<>();
+        StringList res = new StringList();
         Set<String> set = getStringSet(context, R.string.pref_key_favorites, null);
-        if (set != null)
+        if (set != null && set.size() > 0) {
             res.addAll(set);
+            // пересохраняем по новому ключу
+            setFavorites(context, res);
+            // очищаем за ненадобностью
+            setStringSet(context, R.string.pref_key_favorites, null);
+        } else {
+            String json = getString(context, R.string.pref_key_favorites_json, null);
+            if (json != null) {
+                res.fromJSONString(json);
+            }
+        }
         return res;
     }
 
-    public static void setFavorites(Context context, List<String> ids) {
+    public static void setFavorites(Context context, StringList ids) {
 //        setStringSet(new HashSet<>(Arrays.asList(ids)));
 //        String value = TextUtils.join(";", ids);
-        setStringSet(context, R.string.pref_key_favorites, new HashSet<>(ids));
+//        setStringSet(context, R.string.pref_key_favorites, new HashSet<>(ids));
+        setString(context, R.string.pref_key_favorites_json, ids.toString());
     }
 
     /**

@@ -2,12 +2,12 @@ package com.gee12.mytetroid.data;
 
 import androidx.annotation.Nullable;
 
+import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.model.TetroidRecord;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Вспомогательный класс для хранения списка избранных записей.
@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class FavoriteList extends ArrayList<TetroidRecord> {
 
-    protected List<String> mIds = new ArrayList<>();
+    protected StringList mIds = new StringList();
 
     public FavoriteList(Collection<String> ids) {
         if (ids != null) {
@@ -111,7 +111,7 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
         return false;
     }
 
-    public List<String> getIds() {
+    public StringList getIds() {
         return mIds;
     }
 }
