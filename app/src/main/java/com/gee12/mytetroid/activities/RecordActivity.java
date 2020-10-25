@@ -111,6 +111,7 @@ public class RecordActivity extends TetroidActivity implements
 
         int type;
         Object obj;
+        boolean needReloadText;
 
         ResultObj(int type) {
             this.type = type;
@@ -954,7 +955,7 @@ public class RecordActivity extends TetroidActivity implements
                 return true;
             } else {
                 save();
-                onAfterSaving(obj);
+                this.runOnUiThread(() -> onAfterSaving(obj));
             }
         }
         return false;
@@ -1029,6 +1030,10 @@ public class RecordActivity extends TetroidActivity implements
                 openTag((String) resObj.obj, false);
                 break;
             case ResultObj.NONE:
+                if (resObj.needReloadText) {
+                    // перезагружаем baseUrl в WebView
+                    loadRecordText(mRecord, false);
+                }
                 break;
         }
     }
@@ -1164,24 +1169,32 @@ public class RecordActivity extends TetroidActivity implements
                 if (wasTemp) {
                     // сохраняем текст записи
 //                    save();
-                    saveRecord(obj);
+                    final ResultObj resObj;
+                    if (obj == null) {
+                        resObj = new ResultObj(null);
+                        // baseUrl изменился, нужно перезагрузить в WebView
+                        resObj.needReloadText = true;
+                    } else {
+                        resObj = null;
+                    }
+                    saveRecord(resObj);
 //                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                     // показываем кнопку Home для возврата в ветку записи
                     setVisibilityActionHome(true);
-                    // перезагружаем baseUrl в WebView
-                    loadRecordText(mRecord, false);
                 } else {
 //                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                     LogManager.log(this, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
                 }
             } else {
                 if (wasTemp) {
-                    // все равно сохраняем текст записи
+                    /*// все равно сохраняем текст записи
 //                    save();
-                    saveRecord(obj);
+                    if (obj == null) {
+                        // baseUrl изменился, нужно перезагрузить в WebView
+                        obj.needReloadText = true;
+                    }
+                    saveRecord(obj);*/
                     TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
-                    // перезагружаем baseUrl в WebView
-                    loadRecordText(mRecord, false);
                 } else {
                     TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                 }
@@ -1644,7 +1657,7 @@ public class RecordActivity extends TetroidActivity implements
                 bundle = new Bundle();
             }
             bundle.putInt(EXTRA_RESULT_CODE, resCode);
-            ViewUtils.startActivity(this, MainActivity.class, bundle);
+            ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_RECORD, 0, 0);
         }
         finish();
     }

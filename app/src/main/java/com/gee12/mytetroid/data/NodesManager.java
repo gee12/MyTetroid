@@ -404,7 +404,8 @@ public class NodesManager extends DataManager {
      */
     public static void updateQuicklyNode(Context context) {
         String nodeId = SettingsManager.getQuicklyNodeId(context);
-        if (nodeId != null && Instance != null && Instance.mXml.mIsStorageLoaded) {
+        if (nodeId != null && Instance != null && Instance.mXml.mIsStorageLoaded
+                && !Instance.mXml.mIsFavoritesMode) {
             TetroidNode node = getNode(nodeId);
             // обновление значений или обнуление (если не найдено)
             SettingsManager.setQuicklyNode(context, node);
