@@ -14,6 +14,9 @@ import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.utils.Utils;
 
+/**
+ * Активность для просмотра информации о приложении.
+ */
 public class AboutActivity extends AppCompatActivity {
 
     @Override

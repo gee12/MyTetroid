@@ -10,6 +10,9 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidXml;
 
+/**
+ * Активность для просмотра информации о хранилище.
+ */
 public class InfoActivity extends AppCompatActivity {
 
     @Override

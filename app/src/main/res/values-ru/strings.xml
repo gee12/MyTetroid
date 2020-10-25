@@ -498,5 +498,6 @@
     <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
     <string name="hint_load_all_nodes"><![CDATA[<загрузите ветки>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
+    <string name="log_record_node_is_empty">У записи не задана ветка</string>
 
 </resources>

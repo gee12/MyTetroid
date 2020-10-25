@@ -2,7 +2,6 @@ package com.gee12.mytetroid.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -101,6 +100,9 @@ import pl.openrnd.multilevellistview.OnItemLongClickListener;
 
 //import android.widget.SearchView;
 
+/**
+ * Главная активность приложения со списком веток, записей и меток.
+ */
 public class MainActivity extends TetroidActivity implements IMainView {
 
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 3;
@@ -149,10 +151,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      *
      */
-    private static Activity instance;
-    public static Activity getInstance() {
-        return instance;
-    }
+//    private static Activity instance;
+//    public static Activity getInstance() {
+//        return instance;
+//    }
 
     public MainActivity() {
         super();
@@ -170,7 +172,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        instance = this;
+//        instance = this;
 
         // выдвигающиеся панели
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -1413,6 +1415,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param v
      * @param node
      */
+    @SuppressLint("RestrictedApi")
     private void showNodePopupMenu(View v, TetroidNode node, int pos) {
         PopupMenu popupMenu = new PopupMenu(this, v); //, Gravity.CENTER_HORIZONTAL);
         popupMenu.inflate(R.menu.node_context);
@@ -1516,6 +1519,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param v
      * @param tag
      */
+    @SuppressLint("RestrictedApi")
     private void showTagPopupMenu(View v, TetroidTag tag) {
         PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.tag_context);
@@ -1650,7 +1654,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Обработка возвращаемого результата активности чтения записи.
+     * Обработка возвращаемого результата активности просмотра содержимого записи.
      * @param data
      * @param resCode
      */
@@ -1830,8 +1834,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchViewRecords.setQuery(query, true);
 
-        } else if (action.equals(RecordActivity.ACTION_ADD_RECORD)) {
-            // открытие ветки только что созданной записи с помощью виджета
+        } else if (action.equals(RecordActivity.ACTION_RECORD)) {
+            int resCode = intent.getIntExtra(RecordActivity.EXTRA_RESULT_CODE, 0);
+            onRecordActivityResult(resCode, intent);
+
+            /*// открытие ветки только что созданной записи с помощью виджета
             String recordId = intent.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
             if (recordId != null) {
                 TetroidRecord record = RecordsManager.getRecord(recordId);
@@ -1840,7 +1847,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 } else {
                     LogManager.log(this, getString(R.string.log_not_found_record) + recordId, ILogger.Types.ERROR, Toast.LENGTH_LONG);
                 }
-            }
+            }*/
 
         } else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста/изображения из другого приложения
@@ -2068,6 +2075,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param menu
      * @return
      */
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);

@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.activities;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -61,6 +62,7 @@ import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.IntentDialog;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
@@ -82,6 +84,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Активность просмотра и редактирования содержимого записи.
+ */
 public class RecordActivity extends TetroidActivity implements
         EditableWebView.IPageLoadListener,
         EditableWebView.ILinkLoadListener,
@@ -128,9 +133,11 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    public static final String ACTION_RECORD = "ACTION_RECORD";
     public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
     public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
     public static final int REQUEST_CODE_CAMERA = 2;
+    public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
@@ -711,7 +718,7 @@ public class RecordActivity extends TetroidActivity implements
     /**
      * Открытие ветки записи.
      */
-    private void showCurNode() {
+    private void showRecordNode() {
         openAnotherNode(mRecord.getNode(), true);
     }
 
@@ -732,7 +739,7 @@ public class RecordActivity extends TetroidActivity implements
     /**
      *
      */
-    private void openCurRecordFiles() {
+    private void openRecordFiles() {
         openRecordFiles(mRecord, true);
     }
 
@@ -964,7 +971,6 @@ public class RecordActivity extends TetroidActivity implements
             this.mIsSaveTempAfterStorageLoaded = false;
             // сохраняем временную запись
             editFields(mResultObj);
-//            this.runOnUiThread(() -> editFields());
         }
     }
 
@@ -1149,7 +1155,8 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void editFields(ResultObj obj) {
         boolean wasTemp = mRecord.isTemp();
-        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null, (name, tags, author, url, node, isFavor) -> {
+        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null,
+                (name, tags, author, url, node, isFavor) -> {
             if (RecordsManager.editRecordFields(this, mRecord, name, tags, author, url, node, isFavor)) {
                 this.mIsFieldsEdited = true;
                 setTitle(name);
@@ -1274,9 +1281,15 @@ public class RecordActivity extends TetroidActivity implements
             } else if (startMainActivity) {
                 // запускаем главную активность, помещая результат
                 Bundle bundle = new Bundle();
-                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_ADD_RECORD, 0, null);
-                finish();
+//                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+                if (mRecord.getNode() != null) {
+                    bundle.putInt(EXTRA_RESULT_CODE, RESULT_OPEN_NODE);
+                    bundle.putString(EXTRA_OBJECT_ID, mRecord.getNode().getId());
+                    ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_RECORD, 0, null);
+                    finish();
+                } else {
+                    Message.show(this, getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG);
+                }
                 return true;
             } else {
                 finish();
@@ -1373,6 +1386,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param menu
      * @return
      */
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.record, menu);
@@ -1538,10 +1552,10 @@ public class RecordActivity extends TetroidActivity implements
                 editFields(null);
                 return true;
             case R.id.action_record_node:
-                showCurNode();
+                showRecordNode();
                 return true;
             case R.id.action_attached_files:
-                openCurRecordFiles();
+                openRecordFiles();
                 return true;
             case R.id.action_cur_record_folder:
                 openRecordFolder();
@@ -1612,15 +1626,25 @@ public class RecordActivity extends TetroidActivity implements
 
     /**
      * Формирование результата активности и ее закрытие.
+     * При необходимости запуск главной активности, если текущая была запущена самостоятельно.
+     * @param resCode
      * @param bundle
      */
     private void finishWithResult(int resCode, Bundle bundle) {
-        if (bundle != null) {
-            Intent intent = new Intent();
-            intent.putExtras(bundle);
-            setResult(resCode, intent);
+        if (getCallingActivity() != null) {
+            if (bundle != null) {
+                Intent intent = new Intent();
+                intent.putExtras(bundle);
+                setResult(resCode, intent);
+            } else {
+                setResult(resCode);
+            }
         } else {
-            setResult(resCode);
+            if (bundle == null) {
+                bundle = new Bundle();
+            }
+            bundle.putInt(EXTRA_RESULT_CODE, resCode);
+            ViewUtils.startActivity(this, MainActivity.class, bundle);
         }
         finish();
     }

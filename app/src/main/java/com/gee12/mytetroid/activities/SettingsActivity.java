@@ -20,6 +20,9 @@ import com.gee12.mytetroid.fragments.SettingsFragment;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Активность для управления настройками приложения.
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     private AppCompatDelegate mDelegate;

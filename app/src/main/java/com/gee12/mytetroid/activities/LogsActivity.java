@@ -26,6 +26,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Активность для просмотра логов.
+ */
 public class LogsActivity extends AppCompatActivity {
 
     public static final int LINES_IN_RECYCLER_VIEW_ITEM = 10;

@@ -567,4 +567,5 @@
     <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
     <string name="hint_load_all_nodes"><![CDATA[<load nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
+    <string name="log_record_node_is_empty">Record node is empty</string>
 </resources>
