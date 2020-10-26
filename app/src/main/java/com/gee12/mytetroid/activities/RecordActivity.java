@@ -866,10 +866,11 @@ public class RecordActivity extends TetroidActivity implements
         // сохраняем
 //        onSaveRecord();
         boolean runBeforeSaving = false;
-        if (isNeedSave && SettingsManager.isRecordAutoSave(this)) {
+        if (isNeedSave && SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
             // автоматически сохраняем текст записи, если:
             //  * есть изменения
-            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уж потом можно сохранять)
+            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
+            //  * запись не временная
             if (mEditor.isEdited() && mCurMode != MODE_HTML) {
                 runBeforeSaving = saveRecord(null);
             }
