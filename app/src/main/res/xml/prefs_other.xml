@@ -1,0 +1,31 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_key_screen">
+
+        <intent android:action="android.intent.action.VIEW"
+            android:targetPackage="@string/app_id"
+            android:targetClass="com.gee12.mytetroid.activities.LogsActivity"/>
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_write_log"
+            android:title="@string/pref_write_log_to_file"
+            android:summary="@string/pref_write_log_to_file_summ"
+            android:defaultValue="false" />
+
+        <Preference
+            android:dependency="@string/pref_key_is_write_log"
+            android:key="@string/pref_key_log_path"
+            android:title="@string/pref_log_path"
+            android:summary="@string/pref_log_path_summ" />
+
+        <Preference
+            android:key="@string/pref_key_clear_search_history"
+            android:title="@string/pref_clear_search_history"
+            android:summary="@string/pref_clear_search_history_summ"/>
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_confirm_app_exit"
+            android:title="@string/pref_is_confirm_app_exit"
+            android:summary="@string/pref_is_confirm_app_exit_summ"
+            android:defaultValue="true" />
+
+</PreferenceScreen>

@@ -1,0 +1,41 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_key_screen">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_keep_screen_on"
+            android:title="@string/pref_keep_screen_on"
+            android:summary="@string/pref_keep_screen_on_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_double_tap_fullscreen"
+            android:title="@string/pref_double_tap_fullscreen"
+            android:summary="@string/pref_double_tap_fullscreen_summ"
+            android:defaultValue="true" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_highlight_attach"
+            android:title="@string/pref_is_highlight_attach"
+            android:summary="@string/pref_is_highlight_attach_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_highlight_crypted_nodes"
+            android:title="@string/pref_is_highlight_crypted_nodes"
+            android:defaultValue="false" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:enabled="false"
+            android:key="@string/pref_key_highlight_attach_color"
+            android:title="@string/pref_highlight_attach_color"
+            android:defaultValue="@color/colorHighlight"/>
+
+        <com.gee12.mytetroid.views.DateTimeFormatPreference
+            android:key="@string/pref_key_date_format_string"
+            android:dialogTitle="@string/pref_date_format_string"
+            android:title="@string/pref_date_format_string"
+            android:summary="@string/pref_date_format_string_summ"
+            android:inputType="text"
+            android:defaultValue="@string/def_date_format_string" />
+
+</PreferenceScreen>

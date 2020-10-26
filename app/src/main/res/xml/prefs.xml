@@ -1,7 +1,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="pref_key_screen">
 
-    <PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_storage">
+    <!--<PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_storage"
+        android:icon="@drawable/ic_storage">
 
         <Preference
             android:key="@string/pref_key_storage_path"
@@ -43,9 +45,13 @@
             android:summary="@string/pref_is_keep_selected_node_summ"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsStorageFragment"
+        android:title="@string/pref_category_storage"
+        android:icon="@drawable/ic_storage"
+        />
 
-    <PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
+    <!--<PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
 
         <com.gee12.mytetroid.views.DisabledPreference
             android:key="@string/pref_key_change_pass"
@@ -81,9 +87,13 @@
             android:summary="@string/pref_decrypt_files_to_trash_dir_summ"
             android:defaultValue="false" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsEncryptionFragment"
+        android:title="@string/pref_category_crypt"
+        android:icon="@drawable/ic_encrypt"
+    />
 
-    <PreferenceCategory android:key="pref_key_category_sync" android:title="@string/pref_category_sync">
+    <!--<PreferenceCategory android:key="pref_key_category_sync" android:title="@string/pref_category_sync">
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_sync_storage"
@@ -126,9 +136,13 @@
             android:summary="@string/pref_check_outside_changing_summ"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsSyncFragment"
+        android:title="@string/pref_category_sync"
+        android:icon="@drawable/ic_sync"
+        />
 
-    <PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">
+    <!--<PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_record_edit_mode"
@@ -148,9 +162,13 @@
             android:summary="@string/pref_fix_empty_paragraphs_summ"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsEditFragment"
+        android:title="@string/pref_category_edit"
+        android:icon="@drawable/ic_edit"
+        />
 
-    <PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">
+    <!--<PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">
 
         <CheckBoxPreference
             android:key="@string/pref_key_is_keep_screen_on"
@@ -189,9 +207,13 @@
             android:inputType="text"
             android:defaultValue="@string/def_date_format_string" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsDisplayFragment"
+        android:title="@string/pref_category_display"
+        android:icon="@drawable/ic_view_white"
+        />
 
-    <PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
+    <!--<PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
 
         <PreferenceScreen
             android:key="@string/pref_key_show_logs"
@@ -201,8 +223,8 @@
                 android:targetPackage="@string/app_id"
                 android:targetClass="com.gee12.mytetroid.activities.LogsActivity"
                 />
-<!--            <intent android:action="${applicationId}.activities.LogsActivity"/>-->
-<!--            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>-->
+&lt;!&ndash;            <intent android:action="${applicationId}.activities.LogsActivity"/>&ndash;&gt;
+&lt;!&ndash;            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>&ndash;&gt;
         </PreferenceScreen>
 
         <CheckBoxPreference
@@ -228,6 +250,9 @@
             android:summary="@string/pref_is_confirm_app_exit_summ"
             android:defaultValue="true" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
+    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsOtherFragment"
+        android:title="@string/pref_category_other"
+        />
 
 </PreferenceScreen>

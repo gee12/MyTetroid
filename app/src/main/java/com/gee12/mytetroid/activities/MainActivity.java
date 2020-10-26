@@ -1855,8 +1855,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (type == null) {
                 return;
             }
-            String text = null;
-            boolean isText = false;
+//            String text = null;
+//            boolean isText = false;
             ArrayList<Uri> uris = null;
             if (type.startsWith("image/")) {
                 // изображение

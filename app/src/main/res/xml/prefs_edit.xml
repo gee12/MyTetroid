@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_key_screen">
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_edit_mode"
+            android:title="@string/title_recod_edit_mode"
+            android:summary="@string/pref_record_edit_mode_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_record_auto_save"
+            android:title="@string/pref_record_auto_save"
+            android:summary="@string/pref_record_auto_save_summ"
+            android:defaultValue="false" />
+
+        <CheckBoxPreference
+            android:key="@string/pref_key_fix_empty_paragraphs"
+            android:title="@string/pref_fix_empty_paragraphs"
+            android:summary="@string/pref_fix_empty_paragraphs_summ"
+            android:defaultValue="true" />
+
+</PreferenceScreen>

@@ -14,9 +14,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
 import com.gee12.mytetroid.fragments.SettingsFragment;
+import com.gee12.mytetroid.fragments.SettingsOtherFragment;
+import com.gee12.mytetroid.fragments.SettingsStorageFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +32,8 @@ public class SettingsActivity extends AppCompatActivity {
     private AppCompatDelegate mDelegate;
     private LinearLayout mLayoutProgress;
     private TextView mTextViewProgress;
-    private SettingsFragment mSettingsFragment;
+//    private SettingsFragment mSettingsFragment;
+//    private SettingsEncryptionFragment mEncFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +45,11 @@ public class SettingsActivity extends AppCompatActivity {
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setVisibilityActionHome(true);
 //        addPreferencesFromResource(R.xml.prefs);
-        this.mSettingsFragment = new SettingsFragment();
+//        this.mSettingsFragment = new SettingsFragment();
+//        this.mEncFragment = new SettingsEncryptionFragment();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.layout_settings, mSettingsFragment)
+                .replace(R.id.layout_settings, new SettingsFragment())//mSettingsFragment)
                 .commit();
 
         this.mLayoutProgress = findViewById(R.id.layout_progress);
@@ -62,13 +68,25 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        mSettingsFragment.onRequestPermissionsResult(permGranted, requestCode);
+//        mSettingsFragment.onRequestPermissionsResult(permGranted, requestCode);
+        Fragment fragment = getCurFragment();
+        if (fragment instanceof SettingsStorageFragment) {
+            ((SettingsStorageFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
+        } else if (fragment instanceof SettingsOtherFragment) {
+            ((SettingsOtherFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        mSettingsFragment.onResult(requestCode, resultCode, data);
+//        mSettingsFragment.onResult(requestCode, resultCode, data);
+        Fragment fragment = getCurFragment();
+        if (fragment instanceof SettingsStorageFragment) {
+            ((SettingsStorageFragment)fragment).onResult(requestCode, resultCode, data);
+        } else if (fragment instanceof SettingsOtherFragment) {
+            ((SettingsOtherFragment)fragment).onResult(requestCode, resultCode, data);
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -76,7 +94,9 @@ public class SettingsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
-            finish();
+//            finish();
+//            return true;
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -133,9 +153,25 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (!mSettingsFragment.onBackPressed()) {
+        boolean isBackPressed = false;
+        Fragment fragment = getCurFragment();
+        if (fragment instanceof SettingsEncryptionFragment) {
+            if (!((SettingsEncryptionFragment)fragment).onBackPressed()) {
+                isBackPressed = true;
+            }
+        } else {
+            isBackPressed = true;
+        }
+        if (isBackPressed) {
+            if (!(fragment instanceof SettingsFragment)) {
+                setTitle(R.string.title_settings);
+            }
             super.onBackPressed();
         }
+    }
+
+    private Fragment getCurFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.layout_settings);
     }
 
     protected void setVisibilityActionHome(boolean isVis) {

@@ -6,7 +6,7 @@ import android.widget.Toast;
 import androidx.annotation.StringRes;
 
 import com.gee12.mytetroid.activities.MainActivity;
-import com.gee12.mytetroid.fragments.SettingsFragment;
+import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 
@@ -193,7 +193,7 @@ public class TetroidLog extends LogManager {
     public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
-                if (stage.clazz == SettingsFragment.ChangePassTask.class) {
+                if (stage.clazz == SettingsEncryptionFragment.ChangePassTask.class) {
                     switch (stage.oper) {
                         case CHECK:
                             return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);

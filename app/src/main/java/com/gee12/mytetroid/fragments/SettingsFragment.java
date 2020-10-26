@@ -1,48 +1,18 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Toast;
 
-import androidx.annotation.StringRes;
 import androidx.fragment.app.DialogFragment;
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
-import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidLog;
-import com.gee12.mytetroid.TetroidSuggestionProvider;
-import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.activities.SettingsActivity;
-import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.ITaskProgress;
-import com.gee12.mytetroid.data.NodesManager;
-import com.gee12.mytetroid.data.PINManager;
-import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.dialogs.AskDialogs;
-import com.gee12.mytetroid.dialogs.NodeDialogs;
-import com.gee12.mytetroid.dialogs.PassDialogs;
-import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
-import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.StorageChooserDialog;
-
-import org.jsoup.internal.StringUtil;
-
-import lib.folderpicker.FolderPicker;
-
-import static android.app.Activity.RESULT_OK;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -59,14 +29,16 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public static final int REQUEST_CODE_OPEN_LOG_PATH = 4;
 
     private Context mContext;
-    private TetroidTask mCurTask;
+    /*private TetroidTask mCurTask;*/
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.prefs, rootKey);
         this.mContext = getContext();
 
-        Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
+        getActivity().setTitle(R.string.title_settings);
+
+        /*Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
         storageFolderPicker.setOnPreferenceClickListener(preference -> {
             if (!checkPermission(REQUEST_CODE_OPEN_STORAGE_PATH))
                 return true;
@@ -149,7 +121,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                     return true;
                 });
 
-        Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
+        *//*Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
         boolean isInited = DataManager.isInited();
         boolean isLoaded = DataManager.isLoaded();
         boolean crypted = DataManager.isCrypted(mContext);
@@ -212,7 +184,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 Message.show(getContext(), getString(R.string.title_not_avail_when_save_pass), Toast.LENGTH_SHORT);
             }
             return true;
-        });
+        });*//*
 
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
@@ -224,15 +196,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
         disableIfFree(loadFavorPref);
 
-        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
-                ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
+        *//*updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
+                ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));*//*
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(mContext));
         updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
-        updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
+        *//*updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));*//*
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath(mContext));
 
-        setHighlightPrefAvailability();
+        setHighlightPrefAvailability();*/
     }
 
     /**
@@ -244,13 +216,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+        /*if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             setPINCodePrefAvailability();
             updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
                     ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
         } else if (key.equals(getString(R.string.pref_key_when_ask_password))) {
             updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass(mContext));
-        } else if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
+        } else*//* if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
             // включаем/выключаем выделение записей с файлами
             App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach(mContext);
             setHighlightPrefAvailability();
@@ -267,9 +239,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         } else if (key.equals(getString(R.string.pref_key_is_write_log))) {
             // меняем флаг
             LogManager.init(getContext(), SettingsManager.getLogPath(mContext), SettingsManager.isWriteLogToFile(mContext));
-        } else if (key.equals(getString(R.string.pref_key_sync_command))) {
+        } *//*else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
-        }
+        }*/
     }
 
     @Override
@@ -286,6 +258,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
 
     }
+/*
 
     public void onRequestPermissionsResult(boolean permGranted, int requestCode) {
         if (permGranted) {
@@ -375,13 +348,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
         getActivity().startActivityForResult(intent, requestCode);
     }
+*/
 
     /**
      * Обработка сброса опции сохранения хэша пароля локально.
      * @param newValue
      * @return
      */
-    private void changeSavePassHashLocal(boolean newValue) {
+    /*private void changeSavePassHashLocal(boolean newValue) {
         if (!newValue && SettingsManager.isSaveMiddlePassHashLocal(mContext)) {
             // удалить сохраненный хэш пароля?
             AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
@@ -408,12 +382,15 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 }
             }, R.string.ask_clear_saved_pass_hash);
         }
-    }
+    }*/
+/*
 
-    /**
+    */
+/**
      * Деактивация опции, если версия приложения Free.
      * @param pref
-     */
+     *//*
+
     private void disableIfFree(Preference pref) {
         if (App.isFullVersion()) {
             pref.setEnabled(true);
@@ -440,13 +417,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         setPreferenceScreen(null);
         addPreferencesFromResource(R.xml.prefs);
     }
+*/
 
-    private void setPINCodePrefAvailability() {
+    /*private void setPINCodePrefAvailability() {
         if (App.isFullVersion()) {
             findPreference(getString(R.string.pref_key_request_pin_code)).setEnabled(
                     SettingsManager.isSaveMiddlePassHashLocal(mContext));
         }
-    }
+    }*/
 
     private void setHighlightPrefAvailability() {
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
@@ -466,17 +444,17 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
 
-    public boolean onBackPressed() {
+    /*public boolean onBackPressed() {
         if (mCurTask != null && mCurTask.isRunning()) {
             return true;
         }
         return false;
     }
 
-    /**
+    *//**
      * Смена пароля хранилища.
      * @return
-     */
+     *//*
     public void changePass() {
         LogManager.log(mContext, R.string.log_start_pass_change);
         // вводим пароли (с проверкой на пустоту и равенство)
@@ -490,9 +468,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         });
     }
 
-    /**
+    *//**
      * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
-     */
+     *//*
     public class ChangePassTask extends TetroidTask<String, String, Boolean> {
 
         public ChangePassTask() {
@@ -555,7 +533,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 LogManager.log(mContext, R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             }
         }
-    }
+    }*/
 
     private SettingsActivity getSettingsActivity() {
         return (SettingsActivity) getActivity();
