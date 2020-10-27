@@ -903,7 +903,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private boolean onSaveRecord(boolean showAskDialog, ResultObj obj) {
         if (mEditor.isEdited()) {
-            if (SettingsManager.isRecordAutoSave(this)) {
+            if (SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
                 // сохраняем без запроса
                 return saveRecord(obj);
             } else if (showAskDialog) {
@@ -1318,7 +1318,9 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onPause() {
-        onSaveRecord(false, null);
+        if (!mRecord.isTemp()) {
+            onSaveRecord(false, null);
+        }
         super.onPause();
     }
 
