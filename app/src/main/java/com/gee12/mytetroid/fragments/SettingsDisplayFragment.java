@@ -7,7 +7,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.SettingsManager;
 
-public class SettingsDisplayFragment extends TetroidSettingsFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsDisplayFragment extends TetroidSettingsFragment {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -19,13 +19,6 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment implements 
         setHighlightPrefAvailability();
     }
 
-    /**
-     * Обработчик изменения настроек.
-     * Чтобы работало нужно переопределить onResume() и onPause()
-     * и дописать register/unregister настроек.
-     * @param sharedPreferences
-     * @param key
-     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_is_highlight_attach))) {
@@ -49,17 +42,5 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment implements 
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
                 SettingsManager.isHighlightRecordWithAttach(mContext)
                         || SettingsManager.isHighlightEncryptedNodes(mContext));
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
 }

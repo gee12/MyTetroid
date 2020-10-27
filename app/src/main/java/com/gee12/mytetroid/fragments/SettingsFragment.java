@@ -1,20 +1,15 @@
 package com.gee12.mytetroid.fragments;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.activities.SettingsActivity;
-import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
 
-public class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsFragment extends TetroidSettingsFragment {
 
     private static final String DIALOG_FRAGMENT_TAG = "DateTimeFormatPreference";
     public static final String EXTRA_IS_REINIT_STORAGE = "EXTRA_IS_REINIT_STORAGE";
@@ -28,13 +23,14 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public static final int REQUEST_CODE_OPEN_TEMP_PATH = 3;
     public static final int REQUEST_CODE_OPEN_LOG_PATH = 4;
 
-    private Context mContext;
+//    private Context mContext;
     /*private TetroidTask mCurTask;*/
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        super.onCreatePreferences(savedInstanceState, rootKey);
         setPreferencesFromResource(R.xml.prefs, rootKey);
-        this.mContext = getContext();
+//        this.mContext = getContext();
 
         getActivity().setTitle(R.string.title_settings);
 
@@ -214,9 +210,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
      * @param sharedPreferences
      * @param key
      */
-    @Override
+     /*@Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        /*if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
+       if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
             setPINCodePrefAvailability();
             updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
                     ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
@@ -241,8 +237,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             LogManager.init(getContext(), SettingsManager.getLogPath(mContext), SettingsManager.isWriteLogToFile(mContext));
         } *//*else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
-        }*/
-    }
+        }
+    }*/
 
     @Override
     public void onDisplayPreferenceDialog(Preference preference) {
@@ -426,13 +422,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
     }*/
 
-    private void setHighlightPrefAvailability() {
+ /*   private void setHighlightPrefAvailability() {
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
                 SettingsManager.isHighlightRecordWithAttach(mContext)
                         || SettingsManager.isHighlightEncryptedNodes(mContext));
-    }
+    }*/
 
-    @Override
+ /*   @Override
     public void onResume() {
         super.onResume();
         SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
@@ -443,7 +439,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         super.onPause();
         SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
-
+*/
     /*public boolean onBackPressed() {
         if (mCurTask != null && mCurTask.isRunning()) {
             return true;
@@ -535,7 +531,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
     }*/
 
-    private SettingsActivity getSettingsActivity() {
+    /*private SettingsActivity getSettingsActivity() {
         return (SettingsActivity) getActivity();
-    }
+    }*/
 }

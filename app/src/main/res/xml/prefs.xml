@@ -210,7 +210,7 @@
     </PreferenceCategory>-->
     <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsDisplayFragment"
         android:title="@string/pref_category_display"
-        android:icon="@drawable/ic_view_white"
+        android:icon="@drawable/ic_view"
         />
 
     <!--<PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
@@ -253,6 +253,7 @@
     </PreferenceCategory>-->
     <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsOtherFragment"
         android:title="@string/pref_category_other"
+        android:icon="@drawable/ic_dots"
         />
 
 </PreferenceScreen>

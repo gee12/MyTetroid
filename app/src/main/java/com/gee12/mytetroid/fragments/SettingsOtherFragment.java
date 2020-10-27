@@ -10,13 +10,15 @@ import androidx.preference.Preference;
 import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.dialogs.AskDialogs;
 
 import lib.folderpicker.FolderPicker;
 
 import static android.app.Activity.RESULT_OK;
 
-public class SettingsOtherFragment extends TetroidSettingsFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsOtherFragment extends TetroidSettingsFragment {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -33,16 +35,19 @@ public class SettingsOtherFragment extends TetroidSettingsFragment implements Sh
             return true;
         });
 
+        findPreference(getString(R.string.pref_key_clear_search_history))
+                .setOnPreferenceClickListener(pref -> {
+                    AskDialogs.showYesDialog(getContext(), () -> {
+                        TetroidSuggestionProvider.clearHistory(getContext());
+                        SettingsManager.clearSearchOptions(mContext);
+                        LogManager.log(mContext, R.string.title_search_history_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
+                    }, R.string.ask_clear_search_history);
+                    return true;
+                });
+
         updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath(mContext));
     }
 
-    /**
-     * Обработчик изменения настроек.
-     * Чтобы работало нужно переопределить onResume() и onPause()
-     * и дописать register/unregister настроек.
-     * @param sharedPreferences
-     * @param key
-     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_is_write_log))) {
@@ -80,17 +85,5 @@ public class SettingsOtherFragment extends TetroidSettingsFragment implements Sh
         openFolderPicker(getString(R.string.pref_log_path),
                 SettingsManager.getLogPath(mContext),
                 SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
 }

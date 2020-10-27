@@ -29,7 +29,7 @@ import com.gee12.mytetroid.views.Message;
 
 import static android.app.Activity.RESULT_OK;
 
-public class SettingsEncryptionFragment extends TetroidSettingsFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class SettingsEncryptionFragment extends TetroidSettingsFragment {
 
     private TetroidTask mCurTask;
 
@@ -163,18 +163,6 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment implemen
             findPreference(getString(R.string.pref_key_request_pin_code)).setEnabled(
                     SettingsManager.isSaveMiddlePassHashLocal(mContext));
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     public boolean onBackPressed() {

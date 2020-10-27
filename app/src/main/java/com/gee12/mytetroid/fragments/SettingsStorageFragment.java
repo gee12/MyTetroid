@@ -9,7 +9,6 @@ import androidx.preference.Preference;
 import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -96,16 +95,6 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
                     return true;
                 });
         NodesManager.updateQuicklyNode(getContext());
-
-        findPreference(getString(R.string.pref_key_clear_search_history))
-                .setOnPreferenceClickListener(pref -> {
-                    AskDialogs.showYesDialog(getContext(), () -> {
-                        TetroidSuggestionProvider.clearHistory(getContext());
-                        SettingsManager.clearSearchOptions(mContext);
-                        LogManager.log(mContext, R.string.title_search_history_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-                    }, R.string.ask_clear_search_history);
-                    return true;
-                });
 
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
