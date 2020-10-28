@@ -2167,6 +2167,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    @Override
+    protected void onPause() {
+        // устанавливаем признак
+        StorageManager.setIsPINNeedToEnter();
+        super.onPause();
+    }
+
     private void askForExit() {
         AskDialogs.showExitDialog(this, () -> {
             onBeforeExit();

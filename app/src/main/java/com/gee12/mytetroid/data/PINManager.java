@@ -18,7 +18,8 @@ public class PINManager {
      * @return
      */
     public static boolean isRequestPINCode(Context context) {
-        return App.isFullVersion() && SettingsManager.isRequestPINCode(context);
+        return App.isFullVersion() && SettingsManager.isRequestPINCode(context)
+                && StorageManager.isPINNeedToEnter();
     }
 
     /**
@@ -40,6 +41,8 @@ public class PINManager {
                     boolean res = pinHash.equals(SettingsManager.getPINCodeHash(context));
                     if (res) {
                         callback.onApply();
+                        // сбрасываем признак
+                        StorageManager.resetIsPINNeedToEnter();
                         LogManager.log(context, R.string.log_pin_code_enter);
                     }
                     return res;
@@ -79,6 +82,8 @@ public class PINManager {
                                     String pinHash = Instance.mCrypter.passToHash(pin);
                                     SettingsManager.setPINCodeHash(context, pinHash);
                                     callback.run(true);
+                                    // устанавливаем признак
+                                    StorageManager.setIsPINNeedToEnter();
                                     LogManager.log(context, R.string.log_pin_code_setup, Toast.LENGTH_SHORT);
                                     return true;
                                 }

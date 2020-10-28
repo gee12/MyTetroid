@@ -50,7 +50,25 @@ public class StorageManager extends DataManager {
 
     protected boolean mIsAlreadyTryDecrypt;
     protected boolean mIsLoadStorageAfterSync;
+    protected boolean mIsPINNeedEnter;
     private IStorageInitCallback mStorageInitCallback;
+
+
+    public static void setIsPINNeedToEnter() {
+        if (Instance != null) {
+            Instance.mIsPINNeedEnter = true;
+        }
+    }
+
+    public static void resetIsPINNeedToEnter() {
+        if (Instance != null) {
+            Instance.mIsPINNeedEnter = false;
+        }
+    }
+
+    public static boolean isPINNeedToEnter() {
+        return (Instance != null) && Instance.mIsPINNeedEnter;
+    }
 
     /**
      * Первоначальная инициализация.
