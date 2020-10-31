@@ -200,14 +200,13 @@
                 android:id="@+id/edit_text_html"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
+                android:layout_margin="10dp"
                 android:paddingLeft="0dp"
                 android:paddingRight="0dp"
                 android:scrollbars="vertical"
                 android:inputType="textMultiLine"
                 android:gravity="top"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:background="@null"
                 />
 

@@ -7,11 +7,10 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SearchView;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
@@ -196,6 +195,7 @@ public class NodeDialogs {
         // строка поиска
         TextView tvEmpty = view.findViewById(R.id.nodes_text_view_empty);
         SearchView searchView = view.findViewById(R.id.search_view_nodes);
+        searchView.setIconified(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -215,9 +215,10 @@ public class NodeDialogs {
             }
         });
         // Catch event on [x] button inside search view
-        int searchCloseButtonId = searchView.getContext().getResources()
-                .getIdentifier("android:id/search_close_btn", null, null);
-        AppCompatImageView closeButton = searchView.findViewById(searchCloseButtonId);
+//        int searchCloseButtonId = searchView.getContext().getResources()
+//                .getIdentifier("app:id/search_close_btn", null, null);
+//        AppCompatImageView closeButton = searchView.findViewById(searchCloseButtonId);
+        View closeButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         closeButton.setOnClickListener(v -> {
             searchView.setQuery("", false);
             adapter.setDataItems(DataManager.getRootNodes());
