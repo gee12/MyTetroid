@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
+public class DataManager implements IRecordFileCrypter {
 
     public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String QUOTES_PARAM_STRING = "\"\"";
@@ -77,8 +77,6 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
      * Расшифровано ли в данный момент хранилище (временно).
      */
     protected boolean mIsStorageDecrypted;
-
-//    protected boolean mIsAlreadyTryDecrypt;
 
     /**
      * Ветка для быстрой вставки.
@@ -143,21 +141,6 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
      *
      */
     protected static StorageManager Instance;
-
-//    /**
-//     * Проверка является ли запись избранной.
-//     * @param id
-//     * @return
-//     */
-//    @Override
-    /*protected boolean isRecordFavorite(String id) {
-        return FavoritesManager.isFavorite(id);
-    }*/
-
-//    @Override
-//    protected void addRecordFavorite(TetroidRecord record) {
-//        FavoritesManager.set(record);
-//    }
 
     /**
      * Инициализация ключа шифрования с помощью пароля или его хэша.
@@ -231,29 +214,6 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
         mIsStorageDecrypted = res;
         return res;
     }
-
-//    /**
-//     * Обработчик события о необходимости (временной) расшифровки ветки (без дочерних объектов)
-//     * сразу после загрузки ветки из xml.
-//     * @param node
-//     */
-////    @Override
-//    protected boolean decryptNode(Context context, @NonNull TetroidNode node) {
-//        // decryptSubNodes = decryptRecords = false, т.к. расшифровка подветок и записей
-//        // запустится сама после их загрузки по очереди в XMLManager
-//        return mCrypter.decryptNode(context, node, false, false,
-//                this, false, false);
-//    }
-
-//    /**
-//     * Обработчик события о необходимости (временной) расшифровки записи (вместе с прикрепленными файлами)
-//     * сразу после загрузки записи из xml.
-//     * @param record
-//     */
-////    @Override
-//    protected boolean decryptRecord(Context context, @NonNull TetroidRecord record) {
-//        return mCrypter.decryptRecordAndFiles(context, record, false, false);
-//    }
 
     /**
      * Расшифровка ветки с подветками (постоянная).
@@ -351,17 +311,6 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
         }
         return true;
     }
-
-//    /**
-//     * Обработчик события, когда необходимо загрузить иконку ветки.
-//     * @param node
-//     */
-////    @Override
-//    public void loadIcon(Context context, @NonNull TetroidNode node) {
-//        if (node.isNonCryptedOrDecrypted()) {
-//            node.loadIcon(context, mStoragePath + SEPAR + ICONS_FOLDER_NAME);
-//        }
-//    }
 
     /**
      * Отправка текста в стороннее приложение.
@@ -823,10 +772,6 @@ public class DataManager /*extends XMLManager*/ implements IRecordFileCrypter {
         String lastFolder = SettingsManager.getLastChoosedFolder(context);
         return (!StringUtil.isBlank(lastFolder)) ? lastFolder : FileUtils.getExternalPublicDocsOrAppDir(context, forWrite);
     }
-
-//    public static File createTempExtStorageFile(Context context, String fileName) {
-//        return new File(context.getExternalFilesDir(null), fileName);
-//    }
 
     /**
      * Получение размера файла/каталога.

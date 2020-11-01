@@ -98,8 +98,6 @@ import pl.openrnd.multilevellistview.NestType;
 import pl.openrnd.multilevellistview.OnItemClickListener;
 import pl.openrnd.multilevellistview.OnItemLongClickListener;
 
-//import android.widget.SearchView;
-
 /**
  * Главная активность приложения со списком веток, записей и меток.
  */
@@ -137,7 +135,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private View mFavoritesNode;
     private Button mLoadStorageButton;
 
-//    private boolean mIsAlreadyTryDecrypt;
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
     private TetroidFile mTempFileToOpen;
@@ -148,13 +145,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private ICallback mOutsideChangingHandler;
     private boolean mShowLoadedStorage;
 
-    /**
-     *
-     */
-//    private static Activity instance;
-//    public static Activity getInstance() {
-//        return instance;
-//    }
 
     public MainActivity() {
         super();
@@ -171,8 +161,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        instance = this;
 
         // выдвигающиеся панели
         this.mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -305,7 +293,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // --- или сразу отображаем
 //        StorageManager.initOrShowStorage(this, this);
 
-        StorageManager.setStorageCallback(this);
+//        StorageManager.setStorageCallback(this);
         if (StorageManager.isLoaded()) {
             // тут ничего не пишем.
             // код отображения загруженного хранилище находится в onGUICreated(),
@@ -313,7 +301,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             this.mShowLoadedStorage = true;
         } else {
             // загружаем хранилище, если еще не загружано
-            StorageManager.startInitStorage(this, false);
+            StorageManager.startInitStorage(this, this, false);
         }
     }
 
@@ -380,7 +368,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         closeFoundFragment();
         mViewPagerAdapter.getMainFragment().clearView();
         /*startInitStorage(true);*/
-        StorageManager.startInitStorage(this, true);
+        StorageManager.startInitStorage(this, this, true);
     }
 
     /**
@@ -1641,8 +1629,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
                 });
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_STORAGE, false)) {
-                StorageManager.setStorageCallback(this);
-                StorageManager.startInitStorage(this, false);
+//                StorageManager.setStorageCallback(this);
+                StorageManager.startInitStorage(this, this, false);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, false)) {
                 StorageManager.loadAllNodes(this);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
@@ -1788,7 +1776,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startInitStorage(this, false);
+                    StorageManager.startInitStorage(this, this, false);
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }

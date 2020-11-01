@@ -84,6 +84,8 @@ public class PassDialogs {
         });
 
         dialog.show();
+
+        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, null, true);
     }
 
     /**
@@ -129,6 +131,8 @@ public class PassDialogs {
         });
 
         dialog.show();
+
+        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvPass, false);
     }
 
     /**
@@ -179,6 +183,8 @@ public class PassDialogs {
         });
 
         dialog.show();
+
+        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvCurPass, false);
     }
 
     /**

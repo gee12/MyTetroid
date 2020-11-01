@@ -25,12 +25,12 @@ public class Crypter {
     /**
      *
      */
-    private ILogger mLogger;
+    private final ILogger mLogger;
 
     /**
      * Реализация алгритма шифрования RC5.
      */
-    private RC5Simple rc5;
+    private final RC5Simple rc5;
 
     /**
      * Ключ шифрования.
@@ -40,7 +40,7 @@ public class Crypter {
     /**
      * Промежуточный хэш пароля для локального хранения на устройстве.
      */
-    private static String mMiddlePassHash;
+    private String mMiddlePassHash;
 
     /**
      *

@@ -963,8 +963,8 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void loadStorage() {
-        StorageManager.setStorageCallback(this);
-        StorageManager.startInitStorage(this, true, false);
+//        StorageManager.setStorageCallback(this);
+        StorageManager.startInitStorage(this, this, true, false);
     }
 
     @Override
@@ -1617,7 +1617,7 @@ public class RecordActivity extends TetroidActivity implements
             case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startInitStorage(this, false);
+                    StorageManager.startInitStorage(this, this, false);
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }

@@ -70,13 +70,13 @@ public class StorageManager extends DataManager {
         return (Instance != null) && Instance.mIsPINNeedEnter;
     }
 
-    /**
-     * Первоначальная инициализация.
-     * @param storageInitCallback
-     */
-    public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
-        getInstance().mStorageInitCallback = storageInitCallback;
-    }
+//    /**
+//     * Первоначальная инициализация.
+//     * @param storageInitCallback
+//     */
+//    public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
+//        getInstance().mStorageInitCallback = storageInitCallback;
+//    }
 
     protected static IStorageInitCallback getStorageInitCallback() {
         return getInstance().mStorageInitCallback;
@@ -153,15 +153,17 @@ public class StorageManager extends DataManager {
      *
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
      */
-    public static void startInitStorage(Activity activity, boolean isLoadLastForced) {
-        startInitStorage(activity, isLoadLastForced, true);
+    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback, boolean isLoadLastForced) {
+        startInitStorage(activity, storageInitCallback, isLoadLastForced, true);
     }
 
-    public static void startInitStorage(Activity activity, boolean isLoadLastForced, boolean isCheckFavorMode) {
+    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback, boolean isLoadLastForced, boolean isCheckFavorMode) {
         // сначала проверяем разрешение на запись во внешнюю память
         if (!PermissionManager.checkWriteExtStoragePermission(activity, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             return;
         }
+
+        getInstance().mStorageInitCallback = storageInitCallback;
 
         String storagePath = SettingsManager.getStoragePath(activity);
         if (isLoadLastForced || SettingsManager.isLoadLastStoragePath(activity) && storagePath != null) {
@@ -278,9 +280,10 @@ public class StorageManager extends DataManager {
     public void decryptStorage(Context context, TetroidNode node, boolean isNodeOpening,
                                        boolean isOnlyFavorites, boolean isOpenLastNode) {
         String middlePassHash;
-        // пароль сохранен локально?
-        if (SettingsManager.isSaveMiddlePassHashLocal(context)
-                && (middlePassHash = SettingsManager.getMiddlePassHash(context)) != null) {
+        // пароль уже вводили или он сохранен локально?
+        if ((middlePassHash = Instance.mCrypter.getMiddlePassHash()) != null
+                || SettingsManager.isSaveMiddlePassHashLocal(context)
+                    && (middlePassHash = SettingsManager.getMiddlePassHash(context)) != null) {
             // проверяем
             try {
                 if (PassManager.checkMiddlePassHash(middlePassHash)) {
@@ -304,10 +307,11 @@ public class StorageManager extends DataManager {
                 // если поля в INI-файле для проверки пустые
                 LogManager.log(context, ex);
                 // спрашиваем "continue anyway?"
+                final String passHash = middlePassHash;
                 PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.getFieldName(), new Dialogs.IApplyCancelResult() {
                             @Override
                             public void onApply() {
-                                initCryptPass(middlePassHash, true);
+                                initCryptPass(passHash, true);
                                 // запрос ПИН-кода
                                 PINManager.askPINCode(context, isNodeOpening, () -> {
                                     loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
@@ -372,12 +376,16 @@ public class StorageManager extends DataManager {
 
             @Override
             public void cancelPass() {
-                // Если при первой загрузке хранилища установлена текущей зашифрованная ветка (node),
-                //  и пароль не сохраняли, то нужно его спросить.
-                if (!getInstance().mIsAlreadyTryDecrypt && !StorageManager.isLoaded() && StorageManager.isFavoritesMode()) {
-                    // Но если в первый раз пароль вводить отказались, то при втором отказе ввода
-                    //  просто грузим хранилище как есть (чтобы небыло циклического запроса пароля, если
-                    //  его просто не хотим вводить)
+                // ---Если при первой загрузке хранилища установлена текущей зашифрованная ветка (node),
+                // --- и пароль не сохраняли, то нужно его спросить.
+                if (/*!getInstance().mIsAlreadyTryDecrypt
+//                        && !StorageManager.isLoaded()
+                        && !isNodeOpening
+                        && StorageManager.isFavoritesMode()*/
+                    node == null) {
+                    // ---Но если в первый раз пароль вводить отказались, то при втором отказе ввода
+                    // --- просто грузим хранилище как есть (чтобы небыло циклического запроса пароля, если
+                    // --- его просто не хотим вводить)
                     getInstance().mIsAlreadyTryDecrypt = true;
                     loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
                 }
@@ -481,10 +489,10 @@ public class StorageManager extends DataManager {
             // запрос пароля в асинхронном режиме
             if (PINManager.isRequestPINCode(context)) {
                 Instance.decryptStorage(context, FavoritesManager.FAVORITES_NODE, true,
-                        SettingsManager.isLoadFavoritesOnly(context), true);
+                        SettingsManager.isLoadFavoritesOnly(context), false);
             } else {
                 Instance.askPassword(context, FavoritesManager.FAVORITES_NODE, true,
-                        SettingsManager.isLoadFavoritesOnly(context), true);
+                        SettingsManager.isLoadFavoritesOnly(context), false);
             }
             return true;
         }
