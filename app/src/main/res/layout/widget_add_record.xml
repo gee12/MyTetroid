@@ -5,12 +5,12 @@
 
     <ImageButton
         android:id="@+id/button_add_record"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/widget_image_dimens"
+        android:layout_height="@dimen/widget_image_dimens"
         android:layout_centerHorizontal="true"
         android:src="@android:drawable/ic_input_add"
         android:background="@drawable/ic_mytetroid"
-        android:scaleType="center"
+        android:scaleType="centerInside"
         />
 
     <TextView
@@ -19,14 +19,16 @@
         android:layout_below="@id/button_add_record"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
-        android:paddingTop="5dp"
-        android:shadowColor="#555"
-        android:shadowDx="1"
-        android:shadowDy="1"
+        android:paddingTop="@dimen/widget_text_padding_top"
+        android:shadowColor="#333"
+        android:shadowDx="2"
+        android:shadowDy="2"
         android:shadowRadius="1"
         android:text="@string/title_add_record"
         android:textAlignment="center"
         android:textColor="#EEE"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:lineHeight="@dimen/widget_line_height"
+        android:fontFamily="sans-serif-condensed"/>
 
 </RelativeLayout>
