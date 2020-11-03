@@ -2,4 +2,5 @@
     <dimen name="widget_image_dimens">56dp</dimen>
     <dimen name="widget_text_padding_top">5dp</dimen>
     <dimen name="widget_line_height">12dp</dimen>
+    <dimen name="widget_line_spacing">0sp</dimen>
 </resources>

@@ -470,8 +470,9 @@ public class RecordsManager extends DataManager {
         String dirName = createDateTimePrefix() + "_" + createUniqueId();
 
         if (TextUtils.isEmpty(name)) {
-            name = String.format("%s - %s", context.getString(R.string.title_new_record), 
-                    Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss"));
+//            name = String.format("%s - %s", context.getString(R.string.title_new_record),
+//                    Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss"));
+            name = String.format(Locale.getDefault(), "%1$te %1$tb %1$tY %1$tR", new Date());
         }
 
         TetroidRecord record = new TetroidRecord(false, id,

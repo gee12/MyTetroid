@@ -570,14 +570,14 @@ public class RecordActivity extends TetroidActivity implements
         if (mEditor.isCalledHtmlRequest()) {
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             mEditor.setHtmlRequestHandled();
-            // теперь сохраняем текст заметки без вызова предварительных методов
-            saveRecord(false, mResultObj);
-            // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
-            if (mModeToSwitch > 0) {
-                runOnUiThread(() -> {
-                    switchMode(mModeToSwitch, false);
-                });
-            }
+            runOnUiThread(() -> {
+                // теперь сохраняем текст заметки без вызова предварительных методов
+                saveRecord(false, mResultObj);
+                // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
+                if (mModeToSwitch > 0) {
+                        switchMode(mModeToSwitch, false);
+                }
+            });
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
             runOnUiThread(() -> {

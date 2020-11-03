@@ -10,8 +10,7 @@
         android:layout_centerHorizontal="true"
         android:src="@android:drawable/ic_input_add"
         android:background="@drawable/ic_mytetroid"
-        android:scaleType="centerInside"
-        />
+        android:scaleType="centerInside"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -28,7 +27,8 @@
         android:textAlignment="center"
         android:textColor="#EEE"
         android:textSize="12sp"
-        android:lineHeight="@dimen/widget_line_height"
+        android:lineSpacingExtra="@dimen/widget_line_spacing"
         android:fontFamily="sans-serif-condensed"/>
+<!--    android:lineHeight="@dimen/widget_line_height"-->
 
 </RelativeLayout>

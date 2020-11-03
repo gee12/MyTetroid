@@ -35,4 +35,5 @@
     <dimen name="widget_image_dimens">40dp</dimen>
     <dimen name="widget_text_padding_top">0dp</dimen>
     <dimen name="widget_line_height">9dp</dimen>
+    <dimen name="widget_line_spacing">-3sp</dimen>
 </resources>
