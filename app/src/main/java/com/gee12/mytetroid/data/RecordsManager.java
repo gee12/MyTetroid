@@ -243,7 +243,7 @@ public class RecordsManager extends DataManager {
                 srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
-            record.setDecrypted(true);
+            record.setIsDecrypted(true);
         }
         if (isCutted) {
             record.setIsFavorite(srcRecord.isFavorite());
@@ -335,7 +335,7 @@ public class RecordsManager extends DataManager {
                 if (crypted) {
                     attach.setDecryptedName(name);
                     attach.setIsCrypted(true);
-                    attach.setDecrypted(true);
+                    attach.setIsDecrypted(true);
                 }
                 attaches.add(attach);
             }
@@ -406,11 +406,11 @@ public class RecordsManager extends DataManager {
                 Instance.encryptField(crypted, author),
                 Instance.encryptField(crypted, url),
                 new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
-        record.setIsFavorite(isFavor);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
-            record.setDecrypted(true);
+            record.setIsDecrypted(true);
         }
+        record.setIsFavorite(isFavor);
         record.setIsNew(true);
         // создаем каталог записи
         String dirPath = getPathToRecordFolderInBase(record);
@@ -448,7 +448,7 @@ public class RecordsManager extends DataManager {
         } else {
             TetroidLog.logOperCancel(context, TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE);
             // удаляем запись из ветки
-            node.getRecords().remove(record);
+            node.deleteRecord(record);
             // удаляем файл записи
             file.delete();
             // удаляем каталог записи (пустой)
@@ -514,6 +514,8 @@ public class RecordsManager extends DataManager {
                 return null;
             }
         }
+        // добавляем запись в дерево
+        node.addRecord(record);
 
         return record;
     }
@@ -542,6 +544,7 @@ public class RecordsManager extends DataManager {
             TetroidLog.logOperStart(context, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE, record);
         }
 
+        boolean oldIsCrypted = record.isCrypted();
         String oldName = record.getName(true);
         String oldAuthor = record.getAuthor(true);
         String oldTagsString = record.getTagsString(true);
@@ -555,10 +558,12 @@ public class RecordsManager extends DataManager {
         record.setTagsString(Instance.encryptField(crypted, tagsString));
         record.setAuthor(Instance.encryptField(crypted, author));
         record.setUrl(Instance.encryptField(crypted, url));
-        record.setIsFavorite(isFavor);
+        record.setIsCrypted(crypted);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
+            record.setIsDecrypted(true);
         }
+        record.setIsFavorite(isFavor);
         // обновляем ветку
         if (oldNode != node) {
             if (oldNode != null) {
@@ -590,6 +595,9 @@ public class RecordsManager extends DataManager {
                 // добавляем/удаляем из избранного
                 FavoritesManager.addOrRemove(context, record, isFavor);
             }
+            // зашифровываем или расшифровываем файл записи и прикрепленные файлы
+            // FIXME: обрабатывать результат ?
+            Instance.cryptRecordFiles(context, record, oldIsCrypted, crypted);
         } else {
             if (isTemp) {
                 TetroidLog.logOperCancel(context, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
@@ -693,7 +701,7 @@ public class RecordsManager extends DataManager {
                 srcRecord.getCreated(), dirName, srcRecord.getFileName(), node);
         if (crypted) {
             record.setDecryptedValues(name, tagsString, author, url);
-            record.setDecrypted(true);
+            record.setIsDecrypted(true);
         }
         // прикрепленные файлы
         cloneAttachesToRecord(srcRecord, record, isCutted);

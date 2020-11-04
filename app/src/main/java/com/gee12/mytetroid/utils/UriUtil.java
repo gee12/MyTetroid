@@ -33,6 +33,7 @@ import java.io.File;
  * Created by bpellin on 3/5/16.
  */
 public class UriUtil {
+
     public static Uri parseDefaultFile(String text) {
         if (TextUtils.isEmpty(text)) {
             return null;

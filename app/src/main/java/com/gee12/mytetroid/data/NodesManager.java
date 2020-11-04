@@ -42,7 +42,7 @@ public class NodesManager extends DataManager {
         node.setSubNodes(new ArrayList<>());
         if (crypted) {
             node.setDecryptedName(name);
-            node.setDecrypted(true);
+            node.setIsDecrypted(true);
         }
         // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
         List<TetroidNode> list = (parentNode != null) ? parentNode.getSubNodes() : Instance.getRootNodes();
@@ -180,7 +180,7 @@ public class NodesManager extends DataManager {
         if (crypted) {
             node.setDecryptedName(name);
             node.setDecryptedIconName(iconName);
-            node.setDecrypted(true);
+            node.setIsDecrypted(true);
         }
         // загружаем такую же иконку
         Instance.mXml.loadIcon(context, node);

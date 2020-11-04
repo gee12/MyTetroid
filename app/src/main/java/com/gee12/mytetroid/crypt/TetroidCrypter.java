@@ -117,7 +117,7 @@ public class TetroidCrypter extends Crypter {
         // encryption result
         if (!isReencrypt && !node.isCrypted()) {
             node.setIsCrypted(res);
-            node.setDecrypted(res);
+            node.setIsDecrypted(res);
         }
         return res;
     }
@@ -196,7 +196,7 @@ public class TetroidCrypter extends Crypter {
         }
         if (!isReencrypt && !record.isCrypted()) {
             record.setIsCrypted(res);
-            record.setDecrypted(res);
+            record.setIsDecrypted(res);
         }
         return res;
     }
@@ -218,7 +218,7 @@ public class TetroidCrypter extends Crypter {
         }
         if (!isReencrypt && !file.isCrypted()) {
             file.setIsCrypted(res);
-            file.setDecrypted(res);
+            file.setIsDecrypted(res);
         }
         return res;
     }
@@ -304,9 +304,9 @@ public class TetroidCrypter extends Crypter {
         // decryption result
         if (dropCrypt) {
             node.setIsCrypted(!res);
-            node.setDecrypted(!res);
+            node.setIsDecrypted(!res);
         } else
-            node.setDecrypted(res);
+            node.setIsDecrypted(res);
         return res;
     }
 
@@ -386,9 +386,9 @@ public class TetroidCrypter extends Crypter {
         }
         if (dropCrypt) {
             record.setIsCrypted(!res);
-            record.setDecrypted(!res);
+            record.setIsDecrypted(!res);
         } else
-            record.setDecrypted(res);
+            record.setIsDecrypted(res);
         return res;
     }
 
@@ -410,9 +410,9 @@ public class TetroidCrypter extends Crypter {
         }
         if (dropCrypt) {
             file.setIsCrypted(!res);
-            file.setDecrypted(!res);
+            file.setIsDecrypted(!res);
         } else
-            file.setDecrypted(res);
+            file.setIsDecrypted(res);
         return res;
     }
 

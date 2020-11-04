@@ -70,8 +70,8 @@ public class RecordDialogs {
             etTags.setText("new record , tag " + num);
         }
 
-        TetroidNode curRecordNode = record.getNode();
-        final TetroidNode recordNode = (record != null && curRecordNode != null && curRecordNode != TetroidXml.ROOT_NODE)
+        TetroidNode curRecordNode = (record != null) ? record.getNode() : null;
+        final TetroidNode recordNode = (curRecordNode != null && curRecordNode != TetroidXml.ROOT_NODE)
                 ? curRecordNode : (node != null) ? node : NodesManager.getQuicklyNode();
         if (record != null) {
             etName.setText(record.getName());

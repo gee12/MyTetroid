@@ -317,6 +317,7 @@ public class RecordActivity extends TetroidActivity implements
                 return false;
             } else {
                 setTitle(mRecord.getName());
+//                setVisibilityActionHome(!mRecord.isTemp());
             }
         } else {
             LogManager.log(this, getString(R.string.log_not_transferred_record_id), ILogger.Types.ERROR, Toast.LENGTH_LONG);

@@ -111,7 +111,7 @@ public class TetroidObject implements ITetroidObject {
      * Расшифрован ли объект в данный момент (временно).
      * @param decrypted
      */
-    public void setDecrypted(boolean decrypted) {
+    public void setIsDecrypted(boolean decrypted) {
         this.isDecrypted = decrypted;
     }
 

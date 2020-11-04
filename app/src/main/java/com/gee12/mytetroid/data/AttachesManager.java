@@ -34,7 +34,7 @@ public class AttachesManager extends DataManager {
     @RequiresPermission(WRITE_EXTERNAL_STORAGE)
     public static boolean openAttach(Context context, @NonNull TetroidFile file) {
         if (context == null || file == null) {
-            LogManager.emptyParams(context, "DataManager.openAttach()");
+            LogManager.emptyParams(context, "AttachesManager.openAttach()");
             return false;
         }
         LogManager.log(context, context.getString(R.string.log_start_attach_file_opening) + file.getId(), ILogger.Types.DEBUG);
@@ -97,7 +97,7 @@ public class AttachesManager extends DataManager {
      */
     public static TetroidFile attachFile(Context context, String fullName, TetroidRecord record) {
         if (record == null || TextUtils.isEmpty(fullName)) {
-            LogManager.emptyParams(context, "DataManager.attachFile()");
+            LogManager.emptyParams(context, "AttachesManager.attachFile()");
             return null;
         }
         TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH, ": " + fullName);
@@ -125,7 +125,7 @@ public class AttachesManager extends DataManager {
                 TetroidFile.DEF_FILE_TYPE, record);
         if (crypted) {
             file.setDecryptedName(fileDisplayName);
-            file.setDecrypted(true);
+            file.setIsDecrypted(true);
         }
         // проверка каталога записи
         String dirPath = RecordsManager.getPathToRecordFolderInBase(record);
@@ -200,7 +200,7 @@ public class AttachesManager extends DataManager {
      */
     public static int editAttachedFileFields(Context context, TetroidFile file, String name) {
         if (file == null || TextUtils.isEmpty(name)) {
-            LogManager.emptyParams(context, "DataManager.editAttachedFileFields()");
+            LogManager.emptyParams(context, "AttachesManager.editAttachedFileFields()");
             return 0;
         }
         TetroidLog.logOperStart(context, TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE, file);
@@ -281,7 +281,7 @@ public class AttachesManager extends DataManager {
      */
     public static int deleteAttachedFile(Context context, TetroidFile file, boolean withoutFile) {
         if (file == null) {
-            LogManager.emptyParams(context, "DataManager.deleteAttachedFile()");
+            LogManager.emptyParams(context, "AttachesManager.deleteAttachedFile()");
             return 0;
         }
         TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE, file);
@@ -349,7 +349,7 @@ public class AttachesManager extends DataManager {
      */
     public static boolean saveFile(Context context, TetroidFile file, String destPath) {
         if (file == null || TextUtils.isEmpty(destPath)) {
-            LogManager.emptyParams(context, "DataManager.saveFile()");
+            LogManager.emptyParams(context, "AttachesManager.saveFile()");
             return false;
         }
         String mes = TetroidLog.getIdString(context, file) + DataManager.getStringTo(context, destPath);

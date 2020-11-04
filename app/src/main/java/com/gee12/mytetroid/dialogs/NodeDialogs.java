@@ -120,11 +120,11 @@ public class NodeDialogs {
      * @param context
      * @param canCrypted Могут быть выбраны даже нерасшифрованные ветки.
      * @param canDecrypted Могут быть выбраны расшифрованные ветки.
-     * @param onlyRoot
+     * @param rootOnly
      * @param callback
      */
     public static void createNodeChooserDialog(Context context, TetroidNode node, boolean canCrypted, boolean canDecrypted,
-                                               boolean onlyRoot, INodeChooserResult callback) {
+                                               boolean rootOnly, INodeChooserResult callback) {
         // проверяем загружено ли хранилище
         if (!DataManager.isLoaded()) {
             callback.onProblem(INodeChooserResult.LOAD_STORAGE);
@@ -160,7 +160,7 @@ public class NodeDialogs {
                 final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 boolean crypted = !canCrypted && node.isCrypted() && !node.isDecrypted();
                 boolean decrypted = !canDecrypted && node.isCrypted() && node.isDecrypted();
-                boolean notRoot = node.getLevel() > 0;
+                boolean notRoot = rootOnly && node.getLevel() > 0;
                 if (crypted || decrypted || notRoot) {
                     String mes = null;
                     if (crypted) {
@@ -231,6 +231,8 @@ public class NodeDialogs {
         dialog.show();
 
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(adapter.getCurNode() != null);
+
+        searchView.clearFocus();
     }
 
     /**

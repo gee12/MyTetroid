@@ -73,6 +73,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.IntentDialog;
@@ -1941,8 +1942,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } else {
                 // прикрепляем изображения как файлы
                 boolean hasError = false;
+                UriUtils uriUtils = new UriUtils(this);
                 for (Uri uri : imagesUri) {
-                    if (AttachesManager.attachFile(this, FileUtils.getPathFromUri(this, uri), record) == null) {
+                    if (AttachesManager.attachFile(this, uriUtils.getPath(uri), record) == null) {
                         hasError = true;
                     }
                 }

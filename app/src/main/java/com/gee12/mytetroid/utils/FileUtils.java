@@ -1,12 +1,10 @@
 package com.gee12.mytetroid.utils;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.MediaStore;
 
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
@@ -399,33 +397,6 @@ public class FileUtils {
      */
     private static boolean isExternalStorageAvailable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
-
-    /**
-     * Получение пути к файлу в файловой системе из content-uri.
-     * @param context
-     * @param uri
-     * @return
-     */
-    public static String getPathFromUri(Context context, Uri uri) {
-        if (context == null || uri == null)
-            return null;
-        String res = null;
-        String[] projection = { MediaStore.MediaColumns.DATA };
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                int colIndex;
-                try {
-                    colIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                } catch (Exception ex) {
-                    return null;
-                }
-                res = cursor.getString(colIndex);
-            }
-            cursor.close();
-        }
-        return res;
     }
 
     /**

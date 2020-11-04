@@ -304,6 +304,11 @@ public class DataManager implements IRecordFileCrypter {
         if (record.getAttachedFilesCount() > 0) {
             for (TetroidFile attach : record.getAttachedFiles()) {
                 file = new File(recordFolderPath, attach.getIdName());
+                if (!file.exists()) {
+                    LogManager.log(context, context.getString(R.string.log_file_is_missing)
+                            + TetroidLog.getIdString(context, attach), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                    continue;
+                }
                 if (cryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {
                     return false;
                 }
