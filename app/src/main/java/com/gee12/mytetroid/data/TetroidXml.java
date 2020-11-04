@@ -48,7 +48,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     public static final Version DEF_VERSION = new Version(1, 2);
 
-    public static final TetroidNode ROOT_NODE = new TetroidNode("", "", -1);
+    public static final TetroidNode ROOT_NODE = new TetroidNode("", "<root>", -1);
 
     protected Version mFormatVersion;
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1

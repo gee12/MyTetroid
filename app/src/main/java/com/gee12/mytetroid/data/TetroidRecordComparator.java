@@ -38,13 +38,15 @@ public class TetroidRecordComparator implements Comparator<TetroidRecord> {
     }
 
     private TetroidRecordComparator mComparator;
+    private int mFieldType;
 
     public TetroidRecordComparator() {}
 
-    public TetroidRecordComparator(int fieldName) {
-        this.mComparator = (fieldName == TetroidRecord.FIELD_ID)
+    public TetroidRecordComparator(int fieldType) {
+        this.mFieldType = fieldType;
+        this.mComparator = (fieldType == TetroidRecord.FIELD_ID)
                 ? new IdComparator()
-                : (fieldName == TetroidRecord.FIELD_DIR_NAME)
+                : (fieldType == TetroidRecord.FIELD_DIR_NAME)
                 ? new DirNameComparator()
                 : null;
     }
@@ -56,5 +58,9 @@ public class TetroidRecordComparator implements Comparator<TetroidRecord> {
 
     public boolean compare(String fieldValue, TetroidRecord obj) {
         return mComparator.compare(fieldValue, obj);
+    }
+
+    public int getFieldType() {
+        return mFieldType;
     }
 }

@@ -307,7 +307,7 @@
     <string name="label_author">Author:</string>
     <string name="label_url">Url:</string>
     <string name="label_created">Created:</string>
-    <string name="label_edited">Edited:</string>
+    <string name="label_edited">Text edited:</string>
     <string name="label_pass">Password:</string>
     <string name="label_cur_pass">Current password:</string>
     <string name="label_new_pass">New password:</string>

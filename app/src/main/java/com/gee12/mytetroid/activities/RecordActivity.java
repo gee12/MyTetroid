@@ -294,6 +294,11 @@ public class RecordActivity extends TetroidActivity implements
 
         // не гасим экран, если установлена опция
         App.checkKeepScreenOn(this);
+
+        setOnCreateCalled();
+
+        // загрузка записи выполняется в последнюю очередь (после создания пунктов меню)
+        openRecord(mRecord);
     }
 
     /**
@@ -309,8 +314,7 @@ public class RecordActivity extends TetroidActivity implements
             this.mRecord = RecordsManager.getRecord(recordId);
             if (mRecord == null) {
                 LogManager.log(this, getString(R.string.log_not_found_record) + recordId, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                finish();
-                return true;
+                return false;
             } else {
                 setTitle(mRecord.getName());
             }
@@ -372,14 +376,6 @@ public class RecordActivity extends TetroidActivity implements
         // создаем запись
 //        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
         this.mRecord = RecordsManager.createTempRecord(this, subject, url, text);
-    }
-
-    /**
-     * Обработчик события загрузки пунктов меню.
-     * Выполняется в последнюю очередь, после чего можно запускать отображение содержимого записи.
-     */
-    private void onMenuLoaded() {
-        openRecord(mRecord);
     }
 
     /**
@@ -1379,8 +1375,35 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    /**
+     * Обработчик создания системного меню.
+     * @param menu
+     * @return
+     */
+    @SuppressLint("RestrictedApi")
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (!isOnCreateCalled())
+            return true;
+        getMenuInflater().inflate(R.menu.record, menu);
+        this.mMenuItemView = menu.findItem(R.id.action_record_view);
+        this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
+        this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
+        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
+        initSearchView(menu);
+
+        // для отображения иконок
+        if (menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
+        return true;
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!isOnCreateCalled())
+            return true;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         boolean isTemp = mRecord.isTemp();
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
@@ -1395,30 +1418,6 @@ public class RecordActivity extends TetroidActivity implements
     private void activateMenuItem(MenuItem menuItem, boolean isVisible, boolean isEnabled) {
         menuItem.setVisible(isVisible);
         menuItem.setEnabled(isEnabled);
-    }
-
-    /**
-     * Обработчик создания системного меню.
-     * @param menu
-     * @return
-     */
-    @SuppressLint("RestrictedApi")
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.record, menu);
-        this.mMenuItemView = menu.findItem(R.id.action_record_view);
-        this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
-        this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
-        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
-        initSearchView(menu);
-
-        // для отображения иконок
-        if (menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder) menu;
-            m.setOptionalIconsVisible(true);
-        }
-        onMenuLoaded();
-        return true;
     }
 
     /**

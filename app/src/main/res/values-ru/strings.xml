@@ -212,7 +212,7 @@
     <string name="label_author">Автор:</string>
     <string name="label_url">Url:</string>
     <string name="label_created">Создано:</string>
-    <string name="label_edited">Изменено:</string>
+    <string name="label_edited">Текст изменен:</string>
     <string name="label_pass">Пароль:</string>
     <string name="label_cur_pass">Текущий пароль:</string>
     <string name="label_new_pass">Новый пароль:</string>

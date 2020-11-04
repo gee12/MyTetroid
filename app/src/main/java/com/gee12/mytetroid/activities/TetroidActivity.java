@@ -2,6 +2,7 @@ package com.gee12.mytetroid.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +28,7 @@ public abstract class TetroidActivity extends AppCompatActivity
         implements View.OnTouchListener, StorageManager.IStorageInitCallback {
 
     protected GestureDetectorCompat gestureDetector;
+    protected Menu mOptionsMenu;
     protected Toolbar mToolbar;
     protected TextView tvTitle;
     protected TextView tvSubtitle;
@@ -34,6 +36,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected TextView mTextViewProgress;
     protected TetroidTask2 mCurTask;
     protected Intent mReceivedIntent;
+    protected boolean mIsOnCreateCalled;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,6 +60,18 @@ public abstract class TetroidActivity extends AppCompatActivity
         this.mLayoutProgress = findViewById(R.id.layout_progress);
         this.mTextViewProgress = findViewById(R.id.progress_text);
 
+    }
+
+    /**
+     * Установка пометки, что обработчик OnCreate был вызван, и можно вызвать другие обработчики,
+     *  следующие за ним (а не вразнобой на разных устройствах).
+     */
+    protected void setOnCreateCalled() {
+        this.mIsOnCreateCalled = true;
+        if (mOptionsMenu != null) {
+            onCreateOptionsMenu(mOptionsMenu);
+            onPrepareOptionsMenu(mOptionsMenu);
+        }
     }
 
     protected abstract int getLayoutResourceId();
@@ -189,5 +204,9 @@ public abstract class TetroidActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(isVis);
         }
+    }
+
+    public boolean isOnCreateCalled() {
+        return mIsOnCreateCalled;
     }
 }

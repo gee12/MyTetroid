@@ -277,6 +277,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 StorageManager.loadAllNodes(this);
             });
         }
+
+        // принудительно запускаем создание пунтов меню уже после отработки onCreate
+        setOnCreateCalled();
+        //
+        this.mIsActivityCreated = true;
+        // запускаем настройку элементов интерфейса, когда все они созданы
+        onGUICreated();
     }
 
     /**
@@ -2066,6 +2073,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (!isOnCreateCalled())
+            return true;
         getMenuInflater().inflate(R.menu.main, menu);
 //        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
         this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
@@ -2081,17 +2090,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
             MenuBuilder m = (MenuBuilder) menu;
             m.setOptionalIconsVisible(true);
         }
-        //
-        this.mIsActivityCreated = true;
-        // запускаем настройку элементов интерфейса, когда все создано
-        //  (пункты меню, судя по всему, создаются в последнюю очередь)
-        onGUICreated();
-
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!isOnCreateCalled())
+            return true;
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
         return super.onPrepareOptionsMenu(menu);
     }

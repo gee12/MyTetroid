@@ -475,9 +475,12 @@ public class RecordsManager extends DataManager {
             name = String.format(Locale.getDefault(), "%1$te %1$tb %1$tY %1$tR", new Date());
         }
 
+        TetroidNode node = (NodesManager.getQuicklyNode() != null)
+                ? NodesManager.getQuicklyNode() : TetroidXml.ROOT_NODE;
+
         TetroidRecord record = new TetroidRecord(false, id,
                 name, null, null, url,
-                new Date(), dirName, TetroidRecord.DEF_FILE_NAME, NodesManager.getQuicklyNode());
+                new Date(), dirName, TetroidRecord.DEF_FILE_NAME, node);
         record.setIsNew(true);
         record.setIsTemp(true);
 
@@ -1005,9 +1008,19 @@ public class RecordsManager extends DataManager {
 
     public static TetroidRecord getRecord(String id) {
         TetroidRecordComparator comparator = new TetroidRecordComparator(TetroidRecord.FIELD_ID);
+        return findRecordInHierarchy(id, comparator);
+//        return (App.IsLoadedFavoritesOnly)
+//                ? findRecord(FavoritesManager.getFavoritesRecords(), id, comparator)
+//                : findRecordInHierarchy(Instance.getRootNodes(), id, comparator);
+    }
+
+    public static TetroidRecord findRecordInHierarchy(String fieldValue, TetroidRecordComparator comparator) {
+        TetroidRecord found;
+        if ((found = findRecord(TetroidXml.ROOT_NODE.getRecords(), fieldValue, comparator)) != null)
+            return found;
         return (App.IsLoadedFavoritesOnly)
-                ? findRecord(FavoritesManager.getFavoritesRecords(), id, comparator)
-                : findRecordInHierarchy(Instance.getRootNodes(), id, comparator);
+                ? findRecord(FavoritesManager.getFavoritesRecords(), fieldValue, comparator)
+                : findRecordInHierarchy(getRootNodes(), fieldValue, comparator);
     }
 
     public static TetroidRecord findRecordInHierarchy(List<TetroidNode> nodes, String fieldValue, TetroidRecordComparator comparator) {

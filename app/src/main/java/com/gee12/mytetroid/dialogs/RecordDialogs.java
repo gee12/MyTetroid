@@ -27,6 +27,7 @@ import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
@@ -69,8 +70,9 @@ public class RecordDialogs {
             etTags.setText("new record , tag " + num);
         }
 
-        final TetroidNode recordNode = (record != null && record.getNode() != null)
-                ? record.getNode() : (node != null) ? node : NodesManager.getQuicklyNode();
+        TetroidNode curRecordNode = record.getNode();
+        final TetroidNode recordNode = (record != null && curRecordNode != null && curRecordNode != TetroidXml.ROOT_NODE)
+                ? curRecordNode : (node != null) ? node : NodesManager.getQuicklyNode();
         if (record != null) {
             etName.setText(record.getName());
             etAuthor.setText(record.getAuthor());
