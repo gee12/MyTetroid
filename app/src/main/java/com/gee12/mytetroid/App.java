@@ -78,7 +78,10 @@ public class App {
         if (SettingsManager.isCopiedFromFree()) {
             LogManager.log(context, R.string.log_settings_copied_from_free, ILogger.Types.INFO);
         }
-//        DataManager.init(context);
+
+        // отключаем с версии 3.5
+        SettingsManager.setIsSyncStorage(context, false);
+
         IsInited = true;
     }
 }

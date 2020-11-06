@@ -1,7 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_key_screen">
 
-    <CheckBoxPreference
+<!--    <CheckBoxPreference-->
+    <com.gee12.mytetroid.views.DisabledCheckBoxPreference
         android:key="@string/pref_key_is_sync_storage"
         android:title="@string/pref_is_sync_storage"
         android:summary="@string/pref_is_sync_summ"

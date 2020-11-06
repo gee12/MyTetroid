@@ -568,4 +568,5 @@
     <string name="hint_load_all_nodes"><![CDATA[<load nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
     <string name="log_record_node_is_empty">Record node is empty</string>
+    <string name="log_func_disabled">The functionality is disabled due to restrictions on its development</string>
 </resources>

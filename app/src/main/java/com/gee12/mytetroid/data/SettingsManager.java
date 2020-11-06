@@ -411,6 +411,10 @@ public class SettingsManager {
         return getBoolean(context, R.string.pref_key_is_sync_storage, false);
     }
 
+    public static void setIsSyncStorage(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_is_sync_storage, value);
+    }
+
     /**
      * Команда синхронизации для стороннего приложения.
      * Например: "git pull".
