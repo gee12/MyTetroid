@@ -784,10 +784,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
         openRecord(bundle);
     }
 
-    public void openRecord(TetroidRecord record, ArrayList<Uri> imagesUri) {
+    public void openRecordWithImages(String recordId, ArrayList<Uri> imagesUri) {
         Bundle bundle = new Bundle();
-        bundle.putString(RecordActivity.EXTRA_OBJECT_ID, record.getId());
+        bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
         bundle.putParcelableArrayList(RecordActivity.EXTRA_IMAGES_URI, imagesUri);
+        openRecord(bundle);
+    }
+
+    public void openRecordWithAttachedFiles(String recordId) {
+        Bundle bundle = new Bundle();
+        bundle.putString(RecordActivity.EXTRA_OBJECT_ID, recordId);
+        bundle.putString(RecordActivity.EXTRA_ATTACHED_FILES, "");
         openRecord(bundle);
     }
 
@@ -1937,7 +1944,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!isText) {
             if (!receivedData.isAttach()) {
                 // запускаем активность записи с командой вставки изображений после загрузки
-                openRecord(record, imagesUri);
+                openRecordWithImages(record.getId(), imagesUri);
 
             } else {
                 // прикрепляем изображения как файлы
@@ -1951,9 +1958,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 if (hasError) {
                     LogManager.log(this, R.string.log_files_attach_error, ILogger.Types.WARNING, Toast.LENGTH_LONG);
                 }
+                // запускаем активность записи, к которой уже будут прикреплены файлы
+                openRecordWithAttachedFiles(record.getId());
                 // обновляем список файлов
-                mDrawerLayout.closeDrawers();
-                mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+//                mDrawerLayout.closeDrawers();
+//                mViewPagerAdapter.getMainFragment().showRecordFiles(record);
             }
         }
     }

@@ -143,6 +143,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
     public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
     public static final String EXTRA_IMAGES_URI = "EXTRA_IMAGES_URI";
+    public static final String EXTRA_ATTACHED_FILES = "EXTRA_ATTACHED_FILES";
 
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
@@ -318,6 +319,17 @@ public class RecordActivity extends TetroidActivity implements
             } else {
                 setTitle(mRecord.getName());
 //                setVisibilityActionHome(!mRecord.isTemp());
+
+                if (intent.hasExtra(EXTRA_ATTACHED_FILES)) {
+                    // временная запись создана для прикрепления файлов
+                    int filesCount = mRecord.getAttachedFilesCount();
+                    if (filesCount > 0) {
+                        String mes = (filesCount == 1)
+                                ? String.format(getString(R.string.mes_attached_file_mask), mRecord.getAttachedFiles().get(0).getName())
+                                : String.format(getString(R.string.mes_attached_files_mask), filesCount);
+                        Message.show(this, mes, Toast.LENGTH_LONG);
+                    }
+                }
             }
         } else {
             LogManager.log(this, getString(R.string.log_not_transferred_record_id), ILogger.Types.ERROR, Toast.LENGTH_LONG);

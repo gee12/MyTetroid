@@ -569,4 +569,6 @@
     <string name="hint_error"><![CDATA[<error>]]></string>
     <string name="log_record_node_is_empty">Record node is empty</string>
     <string name="log_func_disabled">The functionality is disabled due to restrictions on its development</string>
+    <string name="mes_attached_file_mask">Attached file \"%s\"</string>
+    <string name="mes_attached_files_mask">Attached files: %d</string>
 </resources>
