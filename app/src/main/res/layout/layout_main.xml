@@ -28,8 +28,8 @@
     </com.gee12.mytetroid.views.MainViewPager>
 
     <include
-        android:id="@+id/layout_progress"
-        layout="@layout/layout_progress"
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"/>

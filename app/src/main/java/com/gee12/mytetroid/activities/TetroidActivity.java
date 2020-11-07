@@ -57,7 +57,7 @@ public abstract class TetroidActivity extends AppCompatActivity
         this.tvTitle = mToolbar.findViewById(R.id.text_view_title);
         this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
 
-        this.mLayoutProgress = findViewById(R.id.layout_progress);
+        this.mLayoutProgress = findViewById(R.id.layout_progress_bar);
         this.mTextViewProgress = findViewById(R.id.progress_text);
 
     }

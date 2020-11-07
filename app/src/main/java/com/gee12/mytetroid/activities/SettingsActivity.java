@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .replace(R.id.layout_settings, new SettingsFragment())//mSettingsFragment)
                 .commit();
 
-        this.mLayoutProgress = findViewById(R.id.layout_progress);
+        this.mLayoutProgress = findViewById(R.id.layout_progress_bar);
         this.mTextViewProgress = findViewById(R.id.progress_text);
     }
 
