@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.preference.Preference;
 
+import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
@@ -96,6 +97,9 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
                 });
         NodesManager.updateQuicklyNode(getContext());
 
+        Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
+        disableIfFree(loadFavorPref);
+
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
             if (SettingsManager.isLoadFavoritesOnly(mContext)) {
@@ -103,8 +107,9 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             }
             return true;
         });
-        Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
-        disableIfFree(loadFavorPref);
+        if (App.isFullVersion()) {
+            keepNodePref.setDependency(getString(R.string.pref_key_is_load_favorites));
+        }
 
         updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(mContext));

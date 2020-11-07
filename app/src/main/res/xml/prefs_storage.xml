@@ -35,10 +35,10 @@
         android:defaultValue="false" />
 
     <com.gee12.mytetroid.views.DisabledCheckBoxPreference
-        android:dependency="@string/pref_key_is_load_favorites"
         android:key="@string/pref_key_is_keep_selected_node"
         android:title="@string/pref_is_keep_selected_node"
         android:summary="@string/pref_is_keep_selected_node_summ"
         android:defaultValue="true" />
+<!--    android:dependency="@string/pref_key_is_load_favorites"-->
 
 </PreferenceScreen>
