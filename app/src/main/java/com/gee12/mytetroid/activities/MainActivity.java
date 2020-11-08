@@ -144,7 +144,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private String mLastSearchQuery;
     private boolean mIsStorageChangingHandled;
     private ICallback mOutsideChangingHandler;
-    private boolean mShowLoadedStorage;
+//    private boolean mShowLoadedStorage;
 
 
     public MainActivity() {
@@ -278,13 +278,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 StorageManager.loadAllNodes(this);
             });
         }
-
+        /*
         // принудительно запускаем создание пунтов меню уже после отработки onCreate
         setOnCreateCalled();
         //
         this.mIsActivityCreated = true;
         // запускаем настройку элементов интерфейса, когда все они созданы
-        onGUICreated();
+        onGUICreated();*/
     }
 
     /**
@@ -292,25 +292,33 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void onMainPageCreated() {
-        // инициализация
-        App.init(this);
-        mViewPagerAdapter.getMainFragment().onSettingsInited();
-        setMenuItemsDefVisible();
+
+        // принудительно запускаем создание пунтов меню уже после отработки onCreate
+        afterOnCreate();
+        //
+        this.mIsActivityCreated = true;
 
         // --загружаем хранилище, если еще не загружано,
         // --- или сразу отображаем
 //        StorageManager.initOrShowStorage(this, this);
 
 //        StorageManager.setStorageCallback(this);
-        if (StorageManager.isLoaded()) {
+        /*if (StorageManager.isLoaded()) {
             // тут ничего не пишем.
             // код отображения загруженного хранилище находится в onGUICreated(),
             //  который вызывается после создания пунктов меню активности
-            this.mShowLoadedStorage = true;
+            *//*this.mShowLoadedStorage = true;*//*
+
+            // инициализация контролов
+//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
+            initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
+            // действия после загрузки хранилища
+            afterStorageLoaded(true);
+
         } else {
             // загружаем хранилище, если еще не загружано
             StorageManager.startInitStorage(this, this, false);
-        }
+        }*/
     }
 
     private void setMenuItemsDefVisible() {
@@ -321,12 +329,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
      */
-    private void onGUICreated() {
+    @Override
+    protected void onGUICreated() {
         // вызываем "принудительно" настройку элементов интерфейса,
         //  если MainActivity запускается при уже загруженном хранилище
-        /*if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
-                && StorageManager.isLoaded()) {*/
-        if (mShowLoadedStorage) {
+//        if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
+//                && StorageManager.isLoaded()) {
+        /*if (mShowLoadedStorage) {
             //setMenuItemsAvailable(true);
             // инициализация контролов
 //            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
@@ -334,6 +343,29 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // действия после загрузки хранилища
             afterStorageLoaded(true);
             this.mShowLoadedStorage = false;
+        }*/
+
+
+        // инициализация
+        App.init(this);
+        mViewPagerAdapter.getMainFragment().onSettingsInited();
+        setMenuItemsDefVisible();
+
+        if (StorageManager.isLoaded()) {
+            // тут ничего не пишем.
+            // код отображения загруженного хранилище находится в onGUICreated(),
+            //  который вызывается после создания пунктов меню активности
+            /*this.mShowLoadedStorage = true;*/
+
+            // инициализация контролов
+//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
+            initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
+            // действия после загрузки хранилища
+            afterStorageLoaded(true);
+
+        } else {
+            // загружаем хранилище, если еще не загружано
+            StorageManager.startInitStorage(this, this, false);
         }
     }
 
@@ -2055,8 +2087,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void onBackPressed() {
-        if (isCurTaskRunning()) {
-            // если выполняется задание, то не реагируем на нажатие кнопки Back
+        if (!onBeforeBackPressed()) {
             return;
         }
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -2081,10 +2112,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param menu
      * @return
      */
-    @SuppressLint("RestrictedApi")
+//    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isOnCreateCalled())
+        if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.main, menu);
 //        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
@@ -2096,17 +2127,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
         initRecordsSearchView(mMenuItemSearchViewRecords);
 
-        // для отображения иконок
+/*        // для отображения иконок
         if (menu instanceof MenuBuilder){
             MenuBuilder m = (MenuBuilder) menu;
             m.setOptionalIconsVisible(true);
-        }
-        return true;
+        }*/
+
+        return super.onAfterCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!isOnCreateCalled())
+        if (!isOnCreateProcessed())
             return true;
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
         return super.onPrepareOptionsMenu(menu);

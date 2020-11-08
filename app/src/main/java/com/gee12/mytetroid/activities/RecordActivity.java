@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.activities;
 
-import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -27,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.SearchView;
 
 import com.esafirm.imagepicker.features.ImagePicker;
@@ -296,10 +294,17 @@ public class RecordActivity extends TetroidActivity implements
         // не гасим экран, если установлена опция
         App.checkKeepScreenOn(this);
 
-        setOnCreateCalled();
+        afterOnCreate();
+    }
 
-        // загрузка записи выполняется в последнюю очередь (после создания пунктов меню)
-        openRecord(mRecord);
+    @Override
+    protected void onGUICreated() {
+        try {
+            // загрузка записи выполняется в последнюю очередь (после создания пунктов меню)
+            openRecord(mRecord);
+        } catch (Exception ex) {
+            LogManager.log(this, ex);
+        }
     }
 
     /**
@@ -1393,10 +1398,12 @@ public class RecordActivity extends TetroidActivity implements
      * @param menu
      * @return
      */
-    @SuppressLint("RestrictedApi")
+//    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isOnCreateCalled())
+//        if (super.onCreateOptionsMenu(menu))
+//            return true;
+        if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.record, menu);
         this.mMenuItemView = menu.findItem(R.id.action_record_view);
@@ -1406,17 +1413,21 @@ public class RecordActivity extends TetroidActivity implements
         initSearchView(menu);
 
         // для отображения иконок
-        if (menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder) menu;
-            m.setOptionalIconsVisible(true);
-        }
-        return true;
+//        if (menu instanceof MenuBuilder){
+//            MenuBuilder m = (MenuBuilder) menu;
+//            m.setOptionalIconsVisible(true);
+//        }
+//        return true;
+
+        return super.onAfterCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!isOnCreateCalled())
+        if (!isOnCreateProcessed())
             return true;
+//        if (!super.onPrepareOptionsMenu(menu))
+//            return true;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         boolean isTemp = mRecord.isTemp();
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
@@ -1682,6 +1693,9 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onBackPressed() {
+        if (!onBeforeBackPressed()) {
+            return;
+        }
         // выполняем родительский метод только если не был запущен асинхронный код
         if (!onSaveRecord(true, new ResultObj(ResultObj.EXIT))) {
             if (!onRecordFieldsIsEdited(false)) {
