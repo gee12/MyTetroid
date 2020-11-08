@@ -24,6 +24,7 @@ public class SettingsSyncFragment extends TetroidSettingsFragment {
             Message.show(getContext(), getString(R.string.log_func_disabled), Toast.LENGTH_SHORT);
             return true;
         });
+        syncPref.setEnabled(false);
 
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
     }

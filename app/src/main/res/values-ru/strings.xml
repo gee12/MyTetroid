@@ -480,7 +480,7 @@
     <string name="label_pin_code_size">Значение 4–8:</string>
     <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
     <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>
-    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкраннй режим при двойном касании по пустому месту экрана</string>
+    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по пустому месту экрана</string>
     <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>

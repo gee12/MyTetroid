@@ -3,11 +3,18 @@ package com.gee12.mytetroid.fragments;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.Preference;
+
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.views.DateTimeFormatDialog;
+import com.gee12.mytetroid.views.DateTimeFormatPreference;
 
 public class SettingsDisplayFragment extends TetroidSettingsFragment {
+
+    private static final String DIALOG_FRAGMENT_TAG = "DateTimeFormatPreference";
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -42,5 +49,20 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         findPreference(getString(R.string.pref_key_highlight_attach_color)).setEnabled(
                 SettingsManager.isHighlightRecordWithAttach(mContext)
                         || SettingsManager.isHighlightEncryptedNodes(mContext));
+    }
+
+    @Override
+    public void onDisplayPreferenceDialog(Preference preference) {
+        if (getParentFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG) != null) {
+            return;
+        }
+        if (preference instanceof DateTimeFormatPreference) {
+            final DialogFragment f = DateTimeFormatDialog.newInstance(preference.getKey());
+            f.setTargetFragment(this, 0);
+            f.show(getParentFragmentManager(), DIALOG_FRAGMENT_TAG);
+        } else {
+            super.onDisplayPreferenceDialog(preference);
+        }
+
     }
 }
