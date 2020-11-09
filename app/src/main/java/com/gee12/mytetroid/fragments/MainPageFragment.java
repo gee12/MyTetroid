@@ -267,6 +267,8 @@ public class MainPageFragment extends TetroidFragment {
 
     public void addNewRecord(TetroidRecord record, boolean isShow) {
         if (record != null) {
+            TetroidLog.logOperRes(getContext(), TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, record);
+
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
             mMainView.updateNodes();
