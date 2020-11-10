@@ -9,6 +9,7 @@ import com.gee12.mytetroid.activities.MainActivity;
 import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -111,17 +112,28 @@ public class TetroidLog extends LogManager {
         return logOperRes(context, obj, oper, "", Toast.LENGTH_SHORT);
     }
 
-    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o) {
-        return logOperRes(context, obj, oper, o, Toast.LENGTH_SHORT);
+    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o, boolean showAdd) {
+        return logOperRes(context, obj, oper, addIdName(context, o), Toast.LENGTH_SHORT, showAdd);
     }
 
-    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o, int length) {
-        return logOperRes(context, obj, oper, addIdName(context, o), length);
+    public static String logOperRes(Context context, Objs obj, Opers oper, TetroidObject o, int duration) {
+        return logOperRes(context, obj, oper, addIdName(context, o), duration);
     }
 
-    public static String logOperRes(Context context, Objs obj, Opers oper, String add, int length) {
+    public static String logOperRes(Context context, Objs obj, Opers oper, String add, int duration) {
         String mes = (obj.getString(context, PAST_PERFECT)) + (oper.getString(context, PAST_PERFECT)) + add;
-        log(context, mes, ILogger.Types.INFO, length);
+        log(context, mes, ILogger.Types.INFO, duration);
+        return mes;
+    }
+
+    public static String logOperRes(Context context, Objs obj, Opers oper, String add, int duration, boolean showAdd) {
+        String mes = (obj.getString(context, PAST_PERFECT)) + (oper.getString(context, PAST_PERFECT));
+        if (!showAdd) {
+            Message.show(context, mes, duration);
+            duration = -1;
+        }
+        mes += add;
+        log(context, mes, ILogger.Types.INFO, duration);
         return mes;
     }
 
@@ -129,27 +141,27 @@ public class TetroidLog extends LogManager {
         return logOperError(context, obj, oper, Toast.LENGTH_LONG);
     }
 
-    public static String logOperErrorMore(Context context, Objs obj, Opers oper, int length) {
-        return logOperError(context, obj, oper, null, true, length);
+    public static String logOperErrorMore(Context context, Objs obj, Opers oper, int duration) {
+        return logOperError(context, obj, oper, null, true, duration);
     }
 
-    public static String logOperError(Context context, Objs obj, Opers oper, int length) {
-        return logOperError(context, obj, oper, null, length >= 0, length);
+    public static String logOperError(Context context, Objs obj, Opers oper, int duration) {
+        return logOperError(context, obj, oper, null, duration >= 0, duration);
     }
 
-    public static String logOperError(Context context, Objs obj, Opers oper, String add, boolean more, int length) {
+    public static String logOperError(Context context, Objs obj, Opers oper, String add, boolean more, int duration) {
         String mes = String.format(context.getString(R.string.log_oper_error_mask),
                 (oper.getString(context, PRESENT_SIMPLE)), (obj.getString(context, PRESENT_SIMPLE)),
                 (add != null) ? add : "",
                 (more) ? context.getString(R.string.log_more_in_logs) : "");
-        log(context, mes, ILogger.Types.ERROR, length);
+        log(context, mes, ILogger.Types.ERROR, duration);
         return mes;
     }
 
-    public static String logDuringOperErrors(Context context, Objs obj, Opers oper, int length) {
+    public static String logDuringOperErrors(Context context, Objs obj, Opers oper, int duration) {
         String mes = String.format(context.getString(R.string.log_during_oper_errors_mask),
                 (oper.getString(context, PRESENT_CONTINUOUS)), (obj.getString(context, PRESENT_CONTINUOUS)));
-        log(context, mes, ILogger.Types.ERROR, length);
+        log(context, mes, ILogger.Types.ERROR, duration);
         return mes;
     }
 

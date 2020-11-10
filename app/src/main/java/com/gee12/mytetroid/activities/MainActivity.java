@@ -3,8 +3,10 @@ package com.gee12.mytetroid.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -33,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
@@ -145,6 +148,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private boolean mIsStorageChangingHandled;
     private ICallback mOutsideChangingHandler;
 //    private boolean mShowLoadedStorage;
+
+    private BroadcastReceiver mBroadcastReceiver;
+    private LocalBroadcastManager mBroadcastManager;
 
 
     public MainActivity() {
@@ -285,6 +291,27 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mIsActivityCreated = true;
         // запускаем настройку элементов интерфейса, когда все они созданы
         onGUICreated();*/
+
+        initBroadcastReceiver();
+    }
+
+    /**
+     * Приемник сигнала о внешнем изменении дерева записей.
+     */
+    private void initBroadcastReceiver() {
+        this.mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
+                    // обработка внешнего изменения дерева записей
+                    mOutsideChangingHandler.run(true);
+                }
+            }
+        };
+        this.mBroadcastManager = LocalBroadcastManager.getInstance(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(FileObserverService.ACTION_OBSERVER_EVENT_COME);
+        mBroadcastManager.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
     /**
@@ -1186,7 +1213,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             TetroidNode node = NodesManager.createNode(this, name, trueParentNode);
             if (node != null) {
                 if (mListAdapterNodes.addItem(pos, isSubNode)) {
-                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node);
+                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
                 } else {
                     LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
                 }
@@ -1860,11 +1887,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (intent == null || (action = intent.getAction()) == null) {
             return;
         }
-        if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
+        /*if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
             // обработка внешнего изменения дерева записей
             mOutsideChangingHandler.run(true);
             
-        } else if (action.equals(Intent.ACTION_SEARCH)) {
+        } else*/ if (action.equals(Intent.ACTION_SEARCH)) {
             // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchViewRecords.setQuery(query, true);
@@ -2208,6 +2235,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // устанавливаем признак
         StorageManager.setIsPINNeedToEnter();
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mBroadcastManager.unregisterReceiver(mBroadcastReceiver);
+        super.onDestroy();
     }
 
     private void askForExit() {

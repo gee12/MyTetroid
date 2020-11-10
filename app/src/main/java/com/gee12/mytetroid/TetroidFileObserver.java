@@ -19,10 +19,11 @@ public class TetroidFileObserver {
         if (filePath == null)
             return;
         File file = new File(filePath);
-//        Thread t = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
                 mFileObserver = new FileObserver(filePath, mask) {
+//                mFileObserver = new FileObserver(filePath) {
                     @Override
                     public void onEvent(int event, String path) {
                         if ((event & mask) > 0) {
@@ -31,10 +32,10 @@ public class TetroidFileObserver {
                     }
                 };
                 mFileObserver.startWatching();
-//            }
-//        });
-//        t.setPriority(Thread.MIN_PRIORITY);
-//        t.start();
+            }
+        });
+        thread.setPriority(Thread.MIN_PRIORITY);
+        thread.start();
     }
 
     /**

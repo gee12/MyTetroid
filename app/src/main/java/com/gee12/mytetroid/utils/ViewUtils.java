@@ -83,7 +83,7 @@ public class ViewUtils {
         if (view != null)
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         else
-            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }
 
     /**

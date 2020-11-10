@@ -8,8 +8,7 @@ import android.os.FileObserver;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
-
-import com.gee12.mytetroid.activities.MainActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class FileObserverService extends Service {
 
@@ -67,9 +66,8 @@ public class FileObserverService extends Service {
     }
 
     private void callback() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(ACTION_OBSERVER_EVENT_COME);
-        startActivity(intent);
+        Intent intent = new Intent(ACTION_OBSERVER_EVENT_COME);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public static void sendCommand(Activity activity, int actionId) {
