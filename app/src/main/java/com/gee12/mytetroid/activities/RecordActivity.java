@@ -1117,16 +1117,20 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
-    public boolean toggleFullscreen(boolean fromDoubleTap) {
-        boolean isFullscreen = super.toggleFullscreen(fromDoubleTap);
-        if (isFullscreen)
-            mButtonFullscreen.show();
-        else
-            mButtonFullscreen.hide();
-        if (mCurMode == MODE_VIEW) {
-            setRecordFieldsVisibility(!isFullscreen);
+    public int toggleFullscreen(boolean fromDoubleTap) {
+        int res = super.toggleFullscreen(fromDoubleTap);
+        if (res >= 0) {
+            boolean isFullscreen = (res == 1);
+            if (isFullscreen) {
+                mButtonFullscreen.show();
+            } else {
+                mButtonFullscreen.hide();
+            }
+            if (mCurMode == MODE_VIEW) {
+                setRecordFieldsVisibility(!isFullscreen);
+            }
         }
-        return isFullscreen;
+        return res;
     }
 
     /**
@@ -1351,12 +1355,17 @@ public class RecordActivity extends TetroidActivity implements
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             if (data != null) {
                 if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
-                    boolean isCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
-                    AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
-                        // перезагружаем хранилища в главной активности, если изменили путь
-                        finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
-                    });
+                    // хранилище изменено
+                    if (StorageManager.isLoaded()) {
+                        // спрашиваем о перезагрузке хранилище, только если оно уже загружено
+                        boolean isCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
+                        AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
+                            // перезагружаем хранилище в главной активности, если изменили путь,
+                            finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
+                        });
+                    }
                 } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
+                    // пароль изменен
                     finishWithResult(RESULT_PASS_CHANGED, data.getExtras());
                 }
             }

@@ -124,11 +124,11 @@ public abstract class TetroidActivity extends AppCompatActivity
      * @param fromDoubleTap
      * @return
      */
-    public boolean toggleFullscreen(boolean fromDoubleTap) {
+    public int toggleFullscreen(boolean fromDoubleTap) {
         if (this instanceof RecordActivity) {
             return App.toggleFullscreen(this, fromDoubleTap);
         } else {
-            return false;
+            return -1;
         }
     }
 
@@ -215,7 +215,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     public boolean taskPreExecute(int sRes) {
         mTextViewProgress.setText(sRes);
         mLayoutProgress.setVisibility(View.VISIBLE);
-        ViewUtils.hideKeyboard(this, null);
+        ViewUtils.hideKeyboard(this, getWindow().getDecorView());
         return true;
     }
 

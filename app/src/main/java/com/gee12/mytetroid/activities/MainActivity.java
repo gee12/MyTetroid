@@ -1742,6 +1742,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     createStorage(SettingsManager.getStoragePath(this)/*, true*/);
                 } else {
                     reinitStorage();
+                    // сбрасываем Intent, чтобы избежать циклической перезагрузки хранилища
+                    this.mReceivedIntent = null;
                 }
                 break;
             case RecordActivity.RESULT_PASS_CHANGED:
