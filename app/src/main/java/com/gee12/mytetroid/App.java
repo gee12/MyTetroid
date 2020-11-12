@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 
 import androidx.annotation.ColorInt;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.utils.Utils;
@@ -19,7 +18,7 @@ public class App {
     public static boolean IsHighlightCryptedNodes;
     @ColorInt public static int HighlightAttachColor;
     public static String DateFormatString;
-    public static boolean IsFullScreen;
+//    public static boolean IsFullScreen;
     public static boolean IsLoadedFavoritesOnly;
 
     /**
@@ -38,21 +37,21 @@ public class App {
         return (BuildConfig.FLAVOR.equals("free"));
     }
 
-    /**
-     * Переключатель полноэкранного режима.
-     * @param activity
-     * @return текущий режим
-     */
-    public static int toggleFullscreen(AppCompatActivity activity, boolean fromDoubleTap) {
-        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(activity)) {
-            boolean newValue = !IsFullScreen;
-            ViewUtils.setFullscreen(activity, newValue);
-            IsFullScreen = newValue;
-            return (newValue) ? 1 : 0;
-        } else {
-            return -1;
-        }
-    }
+//    /**
+//     * Переключатель полноэкранного режима.
+//     * @param activity
+//     * @return текущий режим
+//     */
+//    public static int toggleFullscreen(AppCompatActivity activity, boolean fromDoubleTap) {
+//        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(activity)) {
+//            boolean newValue = !IsFullScreen;
+//            ViewUtils.setFullscreen(activity, newValue);
+//            IsFullScreen = newValue;
+//            return (newValue) ? 1 : 0;
+//        } else {
+//            return -1;
+//        }
+//    }
 
     /**
      * Переключатель блокировки выключения экрана.

@@ -18,9 +18,9 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
+import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.ViewUtils;
@@ -38,6 +38,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected TextView mTextViewProgress;
     protected TetroidTask2 mCurTask;
     protected Intent mReceivedIntent;
+    protected boolean mIsFullScreen;
     protected boolean mIsOnCreateProcessed;
 
     @Override
@@ -126,10 +127,16 @@ public abstract class TetroidActivity extends AppCompatActivity
      */
     public int toggleFullscreen(boolean fromDoubleTap) {
         if (this instanceof RecordActivity) {
-            return App.toggleFullscreen(this, fromDoubleTap);
+            if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(this)) {
+                boolean newValue = !mIsFullScreen;
+                ViewUtils.setFullscreen(this, newValue);
+                this.mIsFullScreen = newValue;
+                return (newValue) ? 1 : 0;
+            }
         } else {
             return -1;
         }
+        return -1;
     }
 
     /**
