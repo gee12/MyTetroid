@@ -131,33 +131,17 @@ public class StorageManager extends DataManager {
     }
 
     /**
-     *
-     * @param activity
-     * @param storageInitCallback
-     */
-    /*public static void initOrShowStorage(Activity activity, IStorageInitCallback storageInitCallback) {
-        StorageManager.setStorageCallback(storageInitCallback);
-        if (!StorageManager.isLoaded() *//*|| getStorageInitCallback() == null*//*) {
-            // загружаем хранилище
-            StorageManager.startInitStorage(activity, false);
-        } else {
-            // инициализация контролов
-            getStorageInitCallback().initGUI(true, SettingsManager.isLoadFavoritesOnly(), SettingsManager.isKeepLastNode());
-            // действия после загрузки хранилища
-            getStorageInitCallback().afterStorageLoaded(true);
-        }
-    }*/
-
-    /**
      * Начало загрузки хранилища.
      *
      * @isLoadLastForced Загружать по сохраненнному пути, даже если не установлена опция isLoadLastStoragePath
      */
-    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback, boolean isLoadLastForced) {
+    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback,
+                                        boolean isLoadLastForced) {
         startInitStorage(activity, storageInitCallback, isLoadLastForced, true);
     }
 
-    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback, boolean isLoadLastForced, boolean isCheckFavorMode) {
+    public static void startInitStorage(Activity activity, IStorageInitCallback storageInitCallback,
+                                        boolean isLoadLastForced, boolean isCheckFavorMode) {
         // сначала проверяем разрешение на запись во внешнюю память
         if (!PermissionManager.checkWriteExtStoragePermission(activity, StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             return;
@@ -166,7 +150,7 @@ public class StorageManager extends DataManager {
         getInstance().mStorageInitCallback = storageInitCallback;
 
         String storagePath = SettingsManager.getStoragePath(activity);
-        if (isLoadLastForced || SettingsManager.isLoadLastStoragePath(activity) && storagePath != null) {
+        if ((isLoadLastForced || SettingsManager.isLoadLastStoragePath(activity)) && storagePath != null) {
             initOrSyncStorage(activity, storagePath, isCheckFavorMode);
         } else {
             StorageChooserDialog.createDialog(activity, isNew -> StorageManager.showStorageFolderChooser(activity, isNew));

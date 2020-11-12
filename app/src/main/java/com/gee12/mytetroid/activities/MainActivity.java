@@ -397,6 +397,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
+     * Старт загрузки хранилища.
+     */
+    @Override
+    protected void loadStorage(String folderPath) {
+        boolean isLoadLastForced = false;
+        boolean isCheckFavorMode = true;
+        if (folderPath == null) {
+            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+        } else {
+            StorageManager.initOrSyncStorage(this, folderPath, isCheckFavorMode);
+        }
+    }
+
+    /**
      * Обработчик события после загрузки хранилища.
      */
     public void afterStorageLoaded(boolean res) {
@@ -459,7 +473,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
      *
      * @param storagePath //     * @param checkDirIsEmpty
      */
-    private void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
+    @Override
+    protected void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
         if (StorageManager.createStorage(this, storagePath)) {
             closeFoundFragment();
             mViewPagerAdapter.getMainFragment().clearView();
@@ -1640,8 +1655,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
             onSettingsActivityResult(resultCode, data);
         } else if (requestCode == REQUEST_CODE_RECORD_ACTIVITY) {
@@ -1649,15 +1662,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else if (requestCode == REQUEST_CODE_SEARCH_ACTIVITY && resultCode == RESULT_OK) {
             ScanManager scan = data.getParcelableExtra(SearchActivity.EXTRA_KEY_SCAN_MANAGER);
             startGlobalSearch(scan);
-        } else if ((requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
-                && resultCode == RESULT_OK) {
-            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            if (requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE)
-                StorageManager.initOrSyncStorage(this, folderPath, true);
-            else
-                createStorage(folderPath/*, true*/);
-            // сохраняем путь
-            SettingsManager.setLastChoosedFolder(this, folderPath);
         } else if (requestCode == StorageManager.REQUEST_CODE_SYNC_STORAGE) {
             onSyncStorageFinish(resultCode == RESULT_OK);
         } else if (requestCode == REQUEST_CODE_FILE_PICKER && resultCode == RESULT_OK) {
@@ -1671,7 +1675,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             SettingsManager.setLastChoosedFolder(this, folderPath);
             this.mCurTask = new SaveFileTask(mViewPagerAdapter.getMainFragment().getCurFile()).run(folderPath);
         }
-
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
@@ -1849,15 +1853,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
-                if (permGranted) {
-                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startInitStorage(this, this, false);
-                } else {
-                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
-                }
-            }
-            break;
+//            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+//                if (permGranted) {
+//                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+//                    StorageManager.startInitStorage(this, this, false);
+//                } else {
+//                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+//                }
+//            }
+//            break;
             case StorageManager.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);

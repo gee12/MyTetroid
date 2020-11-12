@@ -965,7 +965,7 @@ public class RecordActivity extends TetroidActivity implements
                     this.runOnUiThread(() -> editFields(obj));
                 } else {
                     this.mIsSaveTempAfterStorageLoaded = true;
-                    this.runOnUiThread(() -> loadStorage());
+                    this.runOnUiThread(() -> loadStorage(null));
                 }
                 return true;
             } else {
@@ -976,9 +976,18 @@ public class RecordActivity extends TetroidActivity implements
         return false;
     }
 
-    private void loadStorage() {
-//        StorageManager.setStorageCallback(this);
-        StorageManager.startInitStorage(this, this, true, false);
+    /**
+     * Старт загрузки хранилища.
+     */
+    @Override
+    protected void loadStorage(String folderPath) {
+        boolean isLoadLastForced = mRecord.isTemp();
+        boolean isCheckFavorMode = !mRecord.isTemp();
+        if (folderPath == null) {
+            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+        } else {
+            StorageManager.initOrSyncStorage(this, folderPath, isCheckFavorMode);
+        }
     }
 
     @Override
@@ -1379,6 +1388,12 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
+    protected void createStorage(String storagePath) {
+        boolean res = StorageManager.createStorage(this, storagePath);
+        initGUI(res && DataManager.createDefault(this), false, false);
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         checkReceivedIntent(intent);
         super.onNewIntent(intent);
@@ -1646,15 +1661,16 @@ public class RecordActivity extends TetroidActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
-                if (permGranted) {
-                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startInitStorage(this, this, false);
-                } else {
-                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
-                }
-            }
-            break;
+//            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+//                if (permGranted) {
+//                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+////                    StorageManager.startInitStorage(this, this, false);
+//                    loadStorage();
+//                } else {
+//                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+//                }
+//            }
+//            break;
             case StorageManager.REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_camera_perm_granted, ILogger.Types.INFO);

@@ -2,6 +2,7 @@ package com.gee12.mytetroid.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -18,6 +20,8 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
+import com.gee12.mytetroid.ILogger;
+import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -25,6 +29,10 @@ import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
+
+import org.jetbrains.annotations.NotNull;
+
+import lib.folderpicker.FolderPicker;
 
 public abstract class TetroidActivity extends AppCompatActivity
         implements View.OnTouchListener, StorageManager.IStorageInitCallback {
@@ -197,6 +205,70 @@ public abstract class TetroidActivity extends AppCompatActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Обработка возвращаемого результата других активностей.
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if ((requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE
+                || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
+                && resultCode == RESULT_OK) {
+            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+            boolean isOpen = (requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE);
+            openOrCreateStorage(folderPath, isOpen);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        switch (requestCode) {
+            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+                if (permGranted) {
+                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+//                    StorageManager.startInitStorage(this, this, false);
+                    loadStorage(null);
+                } else {
+                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                }
+            }
+            break;
+        }
+    }
+
+    /**
+     * Открытие существующего или создание нового хранилище в указанном каталоге.
+     * @param folderPath
+     * @param isOpen
+     */
+    private void openOrCreateStorage(String folderPath, boolean isOpen) {
+        if (isOpen) {
+//            StorageManager.initOrSyncStorage(this, folderPath, true);
+            loadStorage(folderPath);
+        } else {
+            createStorage(folderPath/*, true*/);
+        }
+        // сохраняем путь
+        SettingsManager.setLastChoosedFolder(this, folderPath);
+    }
+
+    /**
+     * Старт загрузки существующего хранилища.
+     */
+    protected abstract void loadStorage(String folderPath);
+
+    /**
+     * Старт создания нового хранилища.
+     * @param storagePath
+     */
+    protected abstract void createStorage(String storagePath);
 
     @Override
     public void blockInterface() {
