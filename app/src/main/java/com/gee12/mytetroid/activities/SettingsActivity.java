@@ -155,6 +155,7 @@ public class SettingsActivity extends AppCompatActivity {
     public void onBackPressed() {
         boolean isBackPressed = false;
         Fragment fragment = getCurFragment();
+        // обрабатываем нажатие Back во фрагменте SettingsEncryptionFragment отдельно
         if (fragment instanceof SettingsEncryptionFragment) {
             if (!((SettingsEncryptionFragment)fragment).onBackPressed()) {
                 isBackPressed = true;

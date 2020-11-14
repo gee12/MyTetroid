@@ -127,6 +127,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_settings"
             android:parentActivityName=".activities.MainActivity"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".activities.SearchActivity"

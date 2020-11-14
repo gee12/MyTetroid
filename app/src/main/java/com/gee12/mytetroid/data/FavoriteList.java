@@ -86,7 +86,7 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
     }
 
     public void removeNull() {
-        for (int i = 0; i < mIds.size(); i++) {
+        for (int i = mIds.size() - 1; i >= 0; i--) {
             if (get(i) == null) {
                 mIds.remove(i);
                 super.remove(i);
