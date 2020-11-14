@@ -981,7 +981,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     protected void loadStorage(String folderPath) {
-        boolean isLoadLastForced = mRecord.isTemp();
+        boolean isLoadLastForced = false;
         boolean isCheckFavorMode = !mRecord.isTemp();
         if (folderPath == null) {
             StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
