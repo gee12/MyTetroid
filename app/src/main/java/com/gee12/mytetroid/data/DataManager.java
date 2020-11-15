@@ -856,7 +856,8 @@ public class DataManager implements IRecordFileCrypter {
     }
 
     public static List<TetroidNode> getRootNodes() {
-        return Instance.mXml.mRootNodesList;
+//        return Instance.mXml.mRootNodesList;
+        return getInstance().mXml.mRootNodesList;
     }
 
     public static Map<String,TetroidTag> getTags() {

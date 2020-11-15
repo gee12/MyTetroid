@@ -100,6 +100,9 @@ public class RecordsListAdapter extends BaseAdapter {
         }
 
         final TetroidRecord record = dataSet.get(position);
+        if (record == null) {
+            return convertView;
+        }
         boolean nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted();
         // иконка
 //        viewHolder.iconView.setVisibility((!nonCryptedOrDecrypted) ? View.VISIBLE : View.GONE);

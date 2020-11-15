@@ -889,7 +889,10 @@ public class SettingsManager {
      * Получить настройки.
      * @return
      */
-    public static SharedPreferences getSettings() {
+    public static SharedPreferences getSettings(Context context) {
+        if (settings == null) {
+            settings = getPrefs(context);
+        }
         return settings;
     }
 }

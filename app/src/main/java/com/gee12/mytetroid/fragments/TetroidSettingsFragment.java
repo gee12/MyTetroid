@@ -44,13 +44,13 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
     @Override
     public void onResume() {
         super.onResume();
-        SettingsManager.getSettings().registerOnSharedPreferenceChangeListener(this);
+        SettingsManager.getSettings(getContext()).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        SettingsManager.getSettings().unregisterOnSharedPreferenceChangeListener(this);
+        SettingsManager.getSettings(getContext()).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     protected void openFolderPicker(String title, String location, int requestCode) {

@@ -2175,6 +2175,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 onBeforeExit();
                 super.onBackPressed();
             }
+        } else {
+            onBeforeExit();
+            super.onBackPressed();
         }
     }
 

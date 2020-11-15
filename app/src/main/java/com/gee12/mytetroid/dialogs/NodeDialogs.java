@@ -219,11 +219,13 @@ public class NodeDialogs {
 //                .getIdentifier("app:id/search_close_btn", null, null);
 //        AppCompatImageView closeButton = searchView.findViewById(searchCloseButtonId);
         View closeButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
-        closeButton.setOnClickListener(v -> {
-            searchView.setQuery("", false);
-            adapter.setDataItems(DataManager.getRootNodes());
-            tvEmpty.setVisibility(View.GONE);
-        });
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> {
+                searchView.setQuery("", false);
+                adapter.setDataItems(DataManager.getRootNodes());
+                tvEmpty.setVisibility(View.GONE);
+            });
+        }
 
         // загружаем список веток
         adapter.setDataItems(DataManager.getRootNodes());

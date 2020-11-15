@@ -23,7 +23,7 @@ public class FavoritesManager {
     }
 
     /**
-     * Удаление из избранного не найденных записей.
+     * Удаление из избранного не найденных в хранилище записей.
      */
     public static void check() {
        mFavorites.removeNull();
