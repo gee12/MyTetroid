@@ -2273,6 +2273,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // останавливаем отслеживание изменения структуры хранилища
 //        TetroidFileObserver.stopObserver();
         FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
+        FileObserverService.stop(this);
 
         // очищаем память
         DataManager.destruct();

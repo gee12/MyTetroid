@@ -15,15 +15,15 @@ public class FileObserverService extends Service {
     public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
     public static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
     public static final String EXTRA_EVENT_MASK = "EXTRA_EVENT_MASK";
-    public static final String EXTRA_IS_START = "EXTRA_IS_START";
+//    public static final String EXTRA_IS_START = "EXTRA_IS_START";
     public static final String ACTION_OBSERVER_EVENT_COME = "com.gee12.mytetroid.ACTION_OBSERVER_EVENT_COME";
 
     public static final int ACTION_START = 1;
     public static final int ACTION_STOP = 2;
     public static final int ACTION_RESTART = 3;
-    public static final int ACTION_START_OR_STOP = 4;
+//    public static final int ACTION_START_OR_STOP = 4;
 
-    private TetroidFileObserver mFileObserver;
+    private static TetroidFileObserver mFileObserver;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -37,6 +37,9 @@ public class FileObserverService extends Service {
                 if (intent.hasExtra(EXTRA_FILE_PATH)) {
                     String filePath = intent.getStringExtra(EXTRA_FILE_PATH);
                     int mask = intent.getIntExtra(EXTRA_EVENT_MASK, FileObserver.ALL_EVENTS);
+                    if (mFileObserver != null) {
+                        mFileObserver.stopObserver();
+                    }
                     this.mFileObserver = new TetroidFileObserver(filePath, mask, res -> callback());
 //                    mFileObserver.startObserver();
                 }
