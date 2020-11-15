@@ -314,6 +314,10 @@ public class PassDialogs {
                             callback.onApply(firstPin);
                             dialog.dismiss();
                         } else {
+                            // запускаем анимацию дрожания
+                            pinLockView.shake();
+                            // очищаем введенные значения
+                            pinLockView.resetPinLockView();
                             Message.show(context, context.getString(R.string.log_pin_confirm_not_match), Toast.LENGTH_SHORT);
                         }
                     } else {

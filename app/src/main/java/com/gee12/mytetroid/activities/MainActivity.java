@@ -319,33 +319,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void onMainPageCreated() {
-
         // принудительно запускаем создание пунтов меню уже после отработки onCreate
         afterOnCreate();
         //
         this.mIsActivityCreated = true;
-
-        // --загружаем хранилище, если еще не загружано,
-        // --- или сразу отображаем
-//        StorageManager.initOrShowStorage(this, this);
-
-//        StorageManager.setStorageCallback(this);
-        /*if (StorageManager.isLoaded()) {
-            // тут ничего не пишем.
-            // код отображения загруженного хранилище находится в onGUICreated(),
-            //  который вызывается после создания пунктов меню активности
-            *//*this.mShowLoadedStorage = true;*//*
-
-            // инициализация контролов
-//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
-            initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
-            // действия после загрузки хранилища
-            afterStorageLoaded(true);
-
-        } else {
-            // загружаем хранилище, если еще не загружано
-            StorageManager.startInitStorage(this, this, false);
-        }*/
     }
 
     private void setMenuItemsDefVisible() {
@@ -358,21 +335,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     protected void onGUICreated() {
-        // вызываем "принудительно" настройку элементов интерфейса,
-        //  если MainActivity запускается при уже загруженном хранилище
-//        if (mReceivedIntent != null && RecordActivity.ACTION_ADD_RECORD.equals(mReceivedIntent.getAction())
-//                && StorageManager.isLoaded()) {
-        /*if (mShowLoadedStorage) {
-            //setMenuItemsAvailable(true);
-            // инициализация контролов
-//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
-            initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
-            // действия после загрузки хранилища
-            afterStorageLoaded(true);
-            this.mShowLoadedStorage = false;
-        }*/
-
-
         // инициализация
         App.init(this);
         mViewPagerAdapter.getMainFragment().onSettingsInited();
@@ -382,10 +344,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // тут ничего не пишем.
             // код отображения загруженного хранилище находится в onGUICreated(),
             //  который вызывается после создания пунктов меню активности
-            /*this.mShowLoadedStorage = true;*/
 
             // инициализация контролов
-//            initGUI(true, SettingsManager.isLoadFavoritesOnly(this), SettingsManager.isKeepLastNode(this));
             initGUI(true, StorageManager.isFavoritesMode(), SettingsManager.isKeepLastNode(this));
             // действия после загрузки хранилища
             afterStorageLoaded(true);
@@ -471,7 +431,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Создание нового хранилища в указанном расположении.
      *
-     * @param storagePath //     * @param checkDirIsEmpty
+     * @param storagePath
+//     * @param checkDirIsEmpty
      */
     @Override
     protected void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
@@ -2165,19 +2126,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
             mDrawerLayout.closeDrawer(GravityCompat.END);
-        } else if (mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
-                && !mViewPagerAdapter.getMainFragment().onBackPressed()
-                || mViewPager.getCurrentItem() == MainViewPager.PAGE_FOUND
-                && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
-            if (SettingsManager.isConfirmAppExit(this)) {
-                askForExit();
+        } else {
+            int curPage = mViewPager.getCurrentItem();
+            if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
+                if (curPage == MainViewPager.PAGE_MAIN && !mViewPagerAdapter.getMainFragment().onBackPressed()
+                        || curPage == MainViewPager.PAGE_FOUND && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
+                    if (SettingsManager.isConfirmAppExit(this)) {
+                        askForExit();
+                    } else {
+                        onBeforeExit();
+                        super.onBackPressed();
+                    }
+                }
             } else {
                 onBeforeExit();
                 super.onBackPressed();
             }
-        } else {
-            onBeforeExit();
-            super.onBackPressed();
         }
     }
 

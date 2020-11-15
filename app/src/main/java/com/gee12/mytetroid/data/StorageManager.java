@@ -209,14 +209,12 @@ public class StorageManager extends DataManager {
         boolean res = initOrCreateStorage(context, storagePath, false);
         if (res) {
             LogManager.log(context, context.getString(R.string.log_storage_settings_inited) + storagePath);
-            /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
             // сохраняем путь к хранилищу
 //            if (SettingsManager.isLoadLastStoragePath()) {
             SettingsManager.setStoragePath(context, storagePath);
 //            }
             if (isCrypted(context) /*&& !isFavorMode*/) {
                 // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
-                //decryptStorage(null);
                 Instance.decryptStorage(context, null, false, isFavorMode, true);
             } else {
                 // загружаем
@@ -236,7 +234,6 @@ public class StorageManager extends DataManager {
      */
     public static void loadAllNodes(Context context) {
         if (isCrypted(context)) {
-//            decryptStorage(FavoritesManager.FAVORITES_NODE, false, false, false);
             // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
             //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
             //    вводили ПИН-код (для расшифровки избранной записи)
@@ -263,6 +260,9 @@ public class StorageManager extends DataManager {
      */
     public void decryptStorage(Context context, TetroidNode node, boolean isNodeOpening,
                                        boolean isOnlyFavorites, boolean isOpenLastNode) {
+        // устанавливаем признак
+        StorageManager.setIsPINNeedToEnter();
+
         String middlePassHash;
         // пароль уже вводили или он сохранен локально?
         if ((middlePassHash = Instance.mCrypter.getMiddlePassHash()) != null
