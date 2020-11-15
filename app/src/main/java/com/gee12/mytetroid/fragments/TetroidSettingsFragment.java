@@ -54,7 +54,7 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
     }
 
     protected void openFolderPicker(String title, String location, int requestCode) {
-        String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderOrDefault(getContext(), true);
+        String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderPathOrDefault(getContext(), true);
         Intent intent = new Intent(getContext(), FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, title);
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path);

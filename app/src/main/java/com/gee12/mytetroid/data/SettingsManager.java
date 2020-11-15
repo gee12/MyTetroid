@@ -604,7 +604,7 @@ public class SettingsManager {
      * Путь к каталогу, выбранному в последний раз.
      * @return
      */
-    public static String getLastChoosedFolder(Context context) {
+    public static String getLastChoosedFolderPath(Context context) {
         return getString(context, R.string.pref_key_last_folder, null);
     }
 

@@ -773,9 +773,10 @@ public class DataManager implements IRecordFileCrypter {
         return null;
     }
 
-    public static String getLastFolderOrDefault(Context context, boolean forWrite) {
-        String lastFolder = SettingsManager.getLastChoosedFolder(context);
-        return (!StringUtil.isBlank(lastFolder)) ? lastFolder : FileUtils.getExternalPublicDocsOrAppDir(context, forWrite);
+    public static String getLastFolderPathOrDefault(Context context, boolean forWrite) {
+        String lastFolder = SettingsManager.getLastChoosedFolderPath(context);
+        return (!StringUtil.isBlank(lastFolder) && new File(lastFolder).exists())
+                ? lastFolder : FileUtils.getExternalPublicDocsOrAppDir(context, forWrite);
     }
 
     /**

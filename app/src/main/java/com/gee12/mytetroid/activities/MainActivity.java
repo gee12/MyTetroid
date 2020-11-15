@@ -1664,7 +1664,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openFilePicker() {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_select_file_to_upload));
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderOrDefault(this, false));
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderPathOrDefault(this, false));
         intent.putExtra(FolderPicker.EXTRA_PICK_FILES, true);
         startActivityForResult(intent, REQUEST_CODE_FILE_PICKER);
     }
@@ -1676,7 +1676,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openFolderPicker() {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.title_save_file_to));
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderOrDefault(this, false));
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, DataManager.getLastFolderPathOrDefault(this, false));
         intent.putExtra(FolderPicker.EXTRA_PICK_FILES, false);
         startActivityForResult(intent, REQUEST_CODE_FOLDER_PICKER);
     }
