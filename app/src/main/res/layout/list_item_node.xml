@@ -44,7 +44,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorBaseText"
-            android:text="node name"
             android:textSize="@dimen/font_default" />
 
         <TextView
@@ -57,7 +56,7 @@
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="@dimen/offset_default"
             android:layout_marginRight="@dimen/offset_default"
-            android:textColor="@color/colorBlueDark"
+            android:textColor="@color/colorBase2Text"
             android:text="[1]"
             android:textSize="@dimen/font_small" />
 <!--        app:layout_constraintHorizontal_weight="1"-->

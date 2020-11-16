@@ -75,6 +75,7 @@
     <string name="title_crypted_node_name">Closed</string>
     <string name="title_file_is_missing">File is missing&#160;</string>
     <string name="title_records_is_missing">Records is missing</string>
+    <string name="title_favors_is_missing">Favorite records is missing</string>
     <string name="title_select_the_node">Select the node…</string>
     <string name="title_files_is_missing">Attach is missing</string>
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
@@ -110,6 +111,7 @@
     <string name="title_folder_is_missing">Folder is missing</string>
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
+    <string name="title_load_all_nodes">Load all nodes</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>

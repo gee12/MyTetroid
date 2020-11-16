@@ -72,7 +72,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="@dimen/offset_default"
                     android:layout_marginRight="@dimen/offset_default"
-                    android:textColor="@color/colorBlueDark"
+                    android:textColor="@color/colorBase2Text"
                     android:text="[0]"
                     android:textSize="@dimen/font_small" />
 

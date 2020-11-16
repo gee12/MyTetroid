@@ -531,6 +531,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // списки записей, файлов
                 mViewPagerAdapter.getMainFragment().initListAdapters(this);
                 showFavorites();
+                // список меток
+                mTextViewTagsEmpty.setText(R.string.title_load_all_nodes);
+                setListEmptyViewState(mTextViewNodesEmpty, true, R.string.title_load_all_nodes);
             } else {
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }

@@ -76,6 +76,7 @@
     <string name="title_rate_app">Оценить приложение</string>
     <string name="title_version_label">Версия</string>
     <string name="title_records_is_missing">Записей нет</string>
+    <string name="title_favors_is_missing">Избранных записей нет</string>
     <string name="title_select_the_node">Выберите ветку…</string>
     <string name="title_files_is_missing">Прикрепленных файлов нет</string>
     <string name="title_file_is_missing">Файл отсутствует&#160;</string>
@@ -109,6 +110,7 @@
     <string name="title_folder_is_missing">Каталог отсутствует</string>
     <string name="title_use_global_search">Использовать глобальный поиск</string>
     <string name="title_reload_storage">Перезагрузить хранилище</string>
+    <string name="title_load_all_nodes">Загрузите все ветки</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>

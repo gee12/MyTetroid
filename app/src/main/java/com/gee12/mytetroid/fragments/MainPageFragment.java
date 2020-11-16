@@ -233,7 +233,8 @@ public class MainPageFragment extends TetroidFragment {
     public void showRecords(List<TetroidRecord> records, int viewId) {
         String dateTimeFormat = checkDateFormatString(mContext);
         showView(viewId);
-        mTextViewRecordsEmpty.setText(R.string.title_records_is_missing);
+        mTextViewRecordsEmpty.setText((viewId == MAIN_VIEW_FAVORITES)
+                ? R.string.title_favors_is_missing : R.string.title_records_is_missing);
         showGlobalSearchButton(false);
         this.mListAdapterRecords.setDataItems(records, viewId, dateTimeFormat);
         mListViewRecords.setAdapter(mListAdapterRecords);
