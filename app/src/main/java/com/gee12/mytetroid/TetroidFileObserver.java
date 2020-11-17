@@ -27,8 +27,8 @@ public class TetroidFileObserver {
 //        this.thread = new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-//                mFileObserver = new FileObserver(filePath, mask) {
-                mFileObserver = new FileObserver(file, mask) {
+                mFileObserver = new FileObserver(filePath, mask) {
+//                mFileObserver = new FileObserver(file, mask) {
                     @Override
                     public void onEvent(int event, String path) {
                         if ((event & mask) > 0) {

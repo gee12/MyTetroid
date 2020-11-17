@@ -398,6 +398,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 FileObserverService.sendCommand(this, bundle);
             }
         } else {
+            FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
             FileObserverService.stop(this);
         }
     }
@@ -408,7 +409,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void reinitStorage() {
         closeFoundFragment();
         mViewPagerAdapter.getMainFragment().clearView();
-        /*startInitStorage(true);*/
         StorageManager.startInitStorage(this, this, true);
     }
 
@@ -446,12 +446,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //            }
             initGUI(DataManager.createDefault(this), false, false);
 //            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            /*TetroidLog.logOperRes(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);*/
         } else {
             mDrawerLayout.openDrawer(Gravity.LEFT);
             initGUI(false, false, false);
 //            LogManager.log(getString(R.string.log_failed_storage_create) + mStoragePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-            /*TetroidLog.logOperErrorMore(TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);*/
         }
     }
 

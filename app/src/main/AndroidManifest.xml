@@ -37,7 +37,8 @@
         <service
             android:name=".FileObserverService"
             android:enabled="true"
-            android:exported="true"></service> <!-- для dirchooser -->
+            android:exported="true"/>
+        <!-- для dirchooser -->
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
