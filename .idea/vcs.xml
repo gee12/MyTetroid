@@ -6,5 +6,6 @@
     <mapping directory="$PROJECT_DIR$/../../Android-PinLockView" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../android-multi-level-listview" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../jdom" vcs="Git" />
   </component>
 </project>

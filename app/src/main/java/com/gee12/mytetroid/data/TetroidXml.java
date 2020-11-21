@@ -13,10 +13,15 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.model.Version;
 import com.gee12.mytetroid.utils.Utils;
 
+import org.jdom2.DocType;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.LineSeparator;
+import org.jdom2.output.XMLOutputter;
 import org.jsoup.internal.StringUtil;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlSerializer;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,11 +37,6 @@ import java.util.TreeMap;
 public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     /**
-     *
-     */
-    private static final String ns = null;
-
-    /**
      * Формат даты создания записи.
      */
     public static final String DATE_TIME_FORMAT = "yyyyMMddHHmmss";
@@ -46,11 +46,21 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      */
     protected static final String TAGS_SEPAR = "\\s*,\\s*";
 
+    /**
+     * Версия формата структуры хранилища.
+     */
     public static final Version DEF_VERSION = new Version(1, 2);
 
+    /**
+     * Корневая ветка. Используется для добавления временных записей, которые
+     * в mytetra.xml не записываются.
+     */
     public static final TetroidNode ROOT_NODE = new TetroidNode("", "<root>", -1);
 
+    private final String ns = null;
+
     protected Version mFormatVersion;
+
     protected boolean mIsExistCryptedNodes;  // а вообще можно читать из crypt_mode=1
 
     protected boolean mIsNeedDecrypt;
@@ -570,7 +580,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * @param fos
      * @return
      */
-    public boolean save(FileOutputStream fos) throws IOException {
+    /*public boolean save(FileOutputStream fos) throws IOException {
         if (mRootNodesList == null)
             return false;
 
@@ -609,6 +619,40 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         } finally {
             fos.close();
         }
+    }*/
+
+    public boolean save(FileOutputStream fos) throws Exception {
+        try {
+            XMLOutputter xmlOutput = new XMLOutputter();
+            Format format = Format.getPrettyFormat();
+//            format.setOmitDeclaration(false);
+//            format.setOmitEncoding(false);
+            format.setEncoding("UTF-8");
+//            format.setTextMode(Format.TextMode.TRIM);
+            format.setIndent(" ");
+            format.setLineSeparator(LineSeparator.UNIX);
+            xmlOutput.setFormat(format);
+
+            Document doc = new Document();
+            doc.setDocType(new DocType("mytetradoc"));
+            // root
+            Element rootElem = new Element("root");
+            doc.setRootElement(rootElem);
+            // format
+            Element formatElem = new Element("format");
+            formatElem.setAttribute("version", String.valueOf(mFormatVersion.getMajor()));
+            formatElem.setAttribute("subversion", String.valueOf(mFormatVersion.getMinor()));
+            rootElem.addContent(formatElem);
+            // content
+            Element contentElem = new Element("content");
+            saveNodes(contentElem, mRootNodesList);
+            rootElem.addContent(contentElem);
+
+            xmlOutput.output(doc, fos);
+            return true;
+        } finally {
+            fos.close();
+        }
     }
 
     /**
@@ -617,7 +661,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * @param nodes
      * @throws IOException
      */
-    protected void saveNodes(XmlSerializer serializer, List<TetroidNode> nodes) throws IOException {
+    /*protected void saveNodes(XmlSerializer serializer, List<TetroidNode> nodes) throws IOException {
 
         for (TetroidNode node : nodes) {
             serializer.startTag(ns, "node");
@@ -638,6 +682,28 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
             }
             serializer.endTag(ns, "node");
         }
+    }*/
+    protected void saveNodes(Element parentElem, List<TetroidNode> nodes) throws Exception {
+
+        for (TetroidNode node : nodes) {
+            Element nodeElem = new Element("node");
+
+            boolean crypted = node.isCrypted();
+            addAttribute(nodeElem, "crypt", (crypted) ? "1" : "");
+//            if (!TextUtils.isEmpty(node.getIconName())) {
+            addCryptAttribute(nodeElem, node, "icon", node.getIconName(), node.getIconName(true));
+//            }
+            addAttribute(nodeElem, "id", node.getId());
+            addCryptAttribute(nodeElem, node, "name", node.getName(), node.getName(true));
+
+            if (node.getRecordsCount() > 0) {
+                saveRecords(nodeElem, node.getRecords());
+            }
+            if (node.getSubNodesCount() > 0) {
+                saveNodes(nodeElem, node.getSubNodes());
+            }
+            parentElem.addContent(nodeElem);
+        }
     }
 
     /**
@@ -646,7 +712,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * @param records
      * @throws IOException
      */
-    protected void saveRecords(XmlSerializer serializer, List<TetroidRecord> records) throws IOException {
+    /*protected void saveRecords(XmlSerializer serializer, List<TetroidRecord> records) throws IOException {
 
         serializer.startTag(ns, "recordtable");
         for (TetroidRecord record : records) {
@@ -670,6 +736,31 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
             serializer.endTag(ns, "record");
         }
         serializer.endTag(ns, "recordtable");
+    }*/
+    protected void saveRecords(Element parentElem, List<TetroidRecord> records) throws Exception {
+
+        Element recordsElem = new Element("recordtable");
+        for (TetroidRecord record : records) {
+            Element recordElem = new Element("record");
+
+            boolean crypted = record.isCrypted();
+            addAttribute(recordElem, "id", record.getId());
+            addCryptAttribute(recordElem, record, "name", record.getName(), record.getName(true));
+            addCryptAttribute(recordElem, record, "author", record.getAuthor(), record.getAuthor(true));
+            addCryptAttribute(recordElem, record, "url", record.getUrl(), record.getUrl(true));
+            addCryptAttribute(recordElem, record, "tags", record.getTagsString(), record.getTagsString(true));
+            addAttribute(recordElem, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
+            addAttribute(recordElem, "dir", record.getDirName());
+            addAttribute(recordElem, "file", record.getFileName());
+            if (crypted) {
+                addAttribute(recordElem, "crypt", "1");
+            }
+            if (record.getAttachedFilesCount() > 0) {
+                saveFiles(recordElem, record.getAttachedFiles());
+            }
+            recordsElem.addContent(recordElem);
+        }
+        parentElem.addContent(recordsElem);
     }
 
     /**
@@ -678,7 +769,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * @param files
      * @throws IOException
      */
-    protected void saveFiles(XmlSerializer serializer, List<TetroidFile> files) throws IOException {
+    /*protected void saveFiles(XmlSerializer serializer, List<TetroidFile> files) throws IOException {
 
         serializer.startTag(ns, "files");
         for (TetroidFile file : files) {
@@ -694,13 +785,37 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
             serializer.endTag(ns, "file");
         }
         serializer.endTag(ns, "files");
+    }*/
+    protected void saveFiles(Element parentElem, List<TetroidFile> files) throws Exception {
+
+        Element filesElem = new Element("files");
+        for (TetroidFile file : files) {
+            Element fileElem = new Element("file");
+
+            boolean crypted = file.isCrypted();
+            addAttribute(fileElem, "id", file.getId());
+            addCryptAttribute(fileElem, file, "fileName", file.getName(), file.getName(true));
+            addAttribute(fileElem, "type", file.getFileType());
+            if (crypted) {
+                addAttribute(fileElem, "crypt", "1");
+            }
+            filesElem.addContent(fileElem);
+        }
+        parentElem.addContent(filesElem);
     }
 
-    private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
+    /*private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
         if (value == null) {
             value = "";
         }
         serializer.attribute(ns, name, value);
+    }*/
+
+    private void addAttribute(Element elem, String name, String value) throws Exception {
+        if (value == null) {
+            value = "";
+        }
+        elem.setAttribute(name, value);
     }
 
 //    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
@@ -711,9 +826,14 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 //        return (needEncrypt) ? encryptField(value) : value;
 //    }
 
-    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
+    /*private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
             throws IOException {
         addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : value);
+    }*/
+
+    private void addCryptAttribute(Element elem, TetroidObject obj, String name, String value, String cryptedValue)
+            throws Exception {
+        addAttribute(elem, name, (obj.isCrypted()) ? cryptedValue : value);
     }
 
     /**
