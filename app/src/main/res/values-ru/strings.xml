@@ -505,5 +505,6 @@
     <string name="log_func_disabled">Функционал отключен из-за ограничений по его разработке</string>
     <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
     <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
+    <string name="log_storage_created">Хранилище создано</string>
 
 </resources>

@@ -415,29 +415,13 @@ public class StorageManager extends DataManager {
      * @param storagePath //     * @param checkDirIsEmpty
      */
     public static boolean createStorage(Context context, String storagePath/*, boolean checkDirIsEmpty*/) {
-        /*if (checkDirIsEmpty) {
-            if (!FileUtils.isDirEmpty(new File(storagePath))) {
-                AskDialogs.showYesDialog(this, () -> {
-                    createStorage(storagePath, false);
-                }, R.string.ask_dir_not_empty);
-                return;
-            }
-        }*/
         boolean res = (initOrCreateStorage(context, storagePath, true));
         if (res) {
-            /*closeFoundFragment();
-            mViewPagerAdapter.getMainFragment().clearView();
-            mDrawerLayout.openDrawer(Gravity.LEFT);*/
             // сохраняем путь к хранилищу
-//            if (SettingsManager.isLoadLastStoragePath()) {
             SettingsManager.setStoragePath(context, storagePath);
-//            }
-            /*initGUI(DataManager.createDefault(), false, false);*/
-//            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-            TetroidLog.logOperRes(context, TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
+            LogManager.log(context, context.getString(R.string.log_storage_created), ILogger.Types.INFO, Toast.LENGTH_SHORT);
+//            TetroidLog.logOperRes(context, TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, "", Toast.LENGTH_SHORT);
         } else {
-            /*mDrawerLayout.openDrawer(Gravity.LEFT);
-            initGUI(false, false, false);*/
 //            LogManager.log(getString(R.string.log_failed_storage_create) + mStoragePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
             TetroidLog.logOperErrorMore(context, TetroidLog.Objs.STORAGE, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
         }

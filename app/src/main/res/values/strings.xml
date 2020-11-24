@@ -574,4 +574,5 @@
     <string name="log_func_disabled">The functionality is disabled due to restrictions on its development</string>
     <string name="mes_attached_file_mask">Attached file \"%s\"</string>
     <string name="mes_attached_files_mask">Attached files: %d</string>
+    <string name="log_storage_created">Storage was created</string>
 </resources>
