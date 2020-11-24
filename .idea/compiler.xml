@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="1.7">
-      <module name="MyTetroid.app" target="1.8" />
-      <module name="MyTetroid.folder-picker" target="1.8" />
-      <module name="MyTetroid.multi-listview" target="1.8" />
-      <module name="MyTetroid.pinlock-view" target="1.8" />
-      <module name="MyTetroid.wysiwyg-editor" target="1.8" />
-    </bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8" />
   </component>
 </project>

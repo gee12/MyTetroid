@@ -1,6 +1,4 @@
 include ':app'
-include ':jdom'
-project(':jdom').projectDir = new File(settingsDir, '../../jdom/core')
 include ':wysiwyg-editor'
 project(':wysiwyg-editor').projectDir = new File(settingsDir, '../../Android-HTML-WYSIWYG-Editor/richwysiwygeditor')
 include ':folder-picker'

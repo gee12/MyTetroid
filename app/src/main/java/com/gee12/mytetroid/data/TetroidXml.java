@@ -580,58 +580,14 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * @param fos
      * @return
      */
-    /*public boolean save(FileOutputStream fos) throws IOException {
-        if (mRootNodesList == null)
-            return false;
-
-        XmlSerializer serializer = Xml.newSerializer();
-        try {
-            serializer.setOutput(fos, "UTF-8");
-            // header:
-            // <?xml version='1.0' encoding='UTF-8' ?>
-            // FIXME: Но записывается с одинарными кавычками, а нужно с двойными вот так:
-            //  <?xml version="1.0" encoding="UTF-8"?>
-            serializer.startDocument("UTF-8", null);
-            serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-            // попытка изменить установить размер отступа
-//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-indentation", " ");
-//            serializer.setProperty("http://xmlpull.org/v1/doc/properties.html#serializer-line-separator", "\n");
-            // исправлем отступ на следующую строку
-            serializer.flush();
-            fos.write("\n".getBytes());
-            serializer.docdecl(" mytetradoc");
-            // root
-            serializer.startTag(ns, "root");
-            // format
-            serializer.startTag(ns, "format");
-            addAttribute(serializer, "version", String.valueOf(mFormatVersion.getMajor()));
-            addAttribute(serializer, "subversion", String.valueOf(mFormatVersion.getMinor()));
-            serializer.endTag(ns, "format");
-            // content
-            serializer.startTag(ns, "content");
-            saveNodes(serializer, mRootNodesList);
-            serializer.endTag(ns, "content");
-
-            serializer.endTag(ns, "root");
-            serializer.endDocument();
-            serializer.flush();
-            return true;
-        } finally {
-            fos.close();
-        }
-    }*/
-
     public boolean save(FileOutputStream fos) throws Exception {
         try {
-            XMLOutputter xmlOutput = new XMLOutputter();
+            // параметры XML
             Format format = Format.getPrettyFormat();
-//            format.setOmitDeclaration(false);
-//            format.setOmitEncoding(false);
             format.setEncoding("UTF-8");
-//            format.setTextMode(Format.TextMode.TRIM);
             format.setIndent(" ");
             format.setLineSeparator(LineSeparator.UNIX);
-            xmlOutput.setFormat(format);
+            XMLOutputter xmlOutput = new XMLOutputter(format, new TetroidXMLProcessor());
 
             Document doc = new Document();
             doc.setDocType(new DocType("mytetradoc"));
@@ -657,32 +613,10 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     /**
      * Сохранение структуры подветок ветки.
-     * @param serializer
+     * @param parentElem
      * @param nodes
      * @throws IOException
      */
-    /*protected void saveNodes(XmlSerializer serializer, List<TetroidNode> nodes) throws IOException {
-
-        for (TetroidNode node : nodes) {
-            serializer.startTag(ns, "node");
-
-            boolean crypted = node.isCrypted();
-            addAttribute(serializer, "crypt", (crypted) ? "1" : "");
-//            if (!TextUtils.isEmpty(node.getIconName())) {
-                addCryptAttribute(serializer, node, "icon", node.getIconName(), node.getIconName(true));
-//            }
-            addAttribute(serializer, "id", node.getId());
-            addCryptAttribute(serializer, node, "name", node.getName(), node.getName(true));
-
-            if (node.getRecordsCount() > 0) {
-                saveRecords(serializer, node.getRecords());
-            }
-            if (node.getSubNodesCount() > 0) {
-                saveNodes(serializer, node.getSubNodes());
-            }
-            serializer.endTag(ns, "node");
-        }
-    }*/
     protected void saveNodes(Element parentElem, List<TetroidNode> nodes) throws Exception {
 
         for (TetroidNode node : nodes) {
@@ -708,35 +642,10 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     /**
      * Сохранение структуры записей ветки.
-     * @param serializer
+     * @param parentElem
      * @param records
      * @throws IOException
      */
-    /*protected void saveRecords(XmlSerializer serializer, List<TetroidRecord> records) throws IOException {
-
-        serializer.startTag(ns, "recordtable");
-        for (TetroidRecord record : records) {
-            serializer.startTag(ns, "record");
-
-            boolean crypted = record.isCrypted();
-            addAttribute(serializer, "id", record.getId());
-            addCryptAttribute(serializer, record, "name", record.getName(), record.getName(true));
-            addCryptAttribute(serializer, record, "author", record.getAuthor(), record.getAuthor(true));
-            addCryptAttribute(serializer, record, "url", record.getUrl(), record.getUrl(true));
-            addCryptAttribute(serializer, record, "tags", record.getTagsString(), record.getTagsString(true));
-            addAttribute(serializer, "ctime", record.getCreatedString("yyyyMMddHHmmss"));
-            addAttribute(serializer, "dir", record.getDirName());
-            addAttribute(serializer, "file", record.getFileName());
-            if (crypted) {
-                addAttribute(serializer, "crypt", "1");
-            }
-            if (record.getAttachedFilesCount() > 0) {
-                saveFiles(serializer, record.getAttachedFiles());
-            }
-            serializer.endTag(ns, "record");
-        }
-        serializer.endTag(ns, "recordtable");
-    }*/
     protected void saveRecords(Element parentElem, List<TetroidRecord> records) throws Exception {
 
         Element recordsElem = new Element("recordtable");
@@ -765,27 +674,10 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     /**
      * Сохранение структуры прикрепленных файлов записи.
-     * @param serializer
+     * @param parentElem
      * @param files
      * @throws IOException
      */
-    /*protected void saveFiles(XmlSerializer serializer, List<TetroidFile> files) throws IOException {
-
-        serializer.startTag(ns, "files");
-        for (TetroidFile file : files) {
-            serializer.startTag(ns, "file");
-
-            boolean crypted = file.isCrypted();
-            addAttribute(serializer, "id", file.getId());
-            addCryptAttribute(serializer, file, "fileName", file.getName(), file.getName(true));
-            addAttribute(serializer, "type", file.getFileType());
-            if (crypted) {
-                addAttribute(serializer, "crypt", "1");
-            }
-            serializer.endTag(ns, "file");
-        }
-        serializer.endTag(ns, "files");
-    }*/
     protected void saveFiles(Element parentElem, List<TetroidFile> files) throws Exception {
 
         Element filesElem = new Element("files");
@@ -804,32 +696,12 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         parentElem.addContent(filesElem);
     }
 
-    /*private void addAttribute(XmlSerializer serializer, String name, String value) throws IOException {
-        if (value == null) {
-            value = "";
-        }
-        serializer.attribute(ns, name, value);
-    }*/
-
     private void addAttribute(Element elem, String name, String value) throws Exception {
         if (value == null) {
             value = "";
         }
         elem.setAttribute(name, value);
     }
-
-//    private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value) throws IOException {
-//        addAttribute(serializer, name, cryptValue(obj.isCrypted() && obj.isDecrypted(), value));
-//    }
-
-//    private String cryptValue(boolean needEncrypt, String value) {
-//        return (needEncrypt) ? encryptField(value) : value;
-//    }
-
-    /*private void addCryptAttribute(XmlSerializer serializer, TetroidObject obj, String name, String value, String cryptedValue)
-            throws IOException {
-        addAttribute(serializer, name, (obj.isCrypted()) ? cryptedValue : value);
-    }*/
 
     private void addCryptAttribute(Element elem, TetroidObject obj, String name, String value, String cryptedValue)
             throws Exception {
