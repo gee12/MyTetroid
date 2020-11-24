@@ -129,7 +129,7 @@
 
     <string name="pref_category_storage">Хранилище</string>
     <string name="pref_category_other">Остальное</string>
-    <string name="pref_storage_path">Путь к хранилищу</string>
+    <string name="pref_storage_path">Каталог хранилища</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
     <string name="pref_is_load_last_storage_path">Загружать предыдущее</string>
     <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз</string>
@@ -142,6 +142,7 @@
     <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
     <string name="pref_is_highlight_crypted_nodes">Подсвечивать зашифрованные ветки</string>
+    <string name="pref_is_highlight_crypted_nodes_summ">Включить подсветку зашифрованных веток</string>
     <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Запрос пароля</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
@@ -171,7 +172,7 @@
     <string name="pref_ask_before_sync">Спрашивать перед запуском</string>
     <string name="pref_ask_before_sync_summ">Выводить подтверждение запуска синхронизации</string>
     <string name="pref_is_confirm_app_exit">Подтверждать выход</string>
-    <string name="pref_is_confirm_app_exit_summ">Выводить подтверждение выхода из приложения</string>
+    <string name="pref_is_confirm_app_exit_summ">Выводить диалог подтверждения выхода из приложения</string>
     <string name="pref_write_log_to_file">Записывать логи в файл</string>
     <string name="pref_write_log_to_file_summ">Логировать события в файл</string>
     <string name="pref_log_path">Каталог логов</string>
@@ -185,12 +186,12 @@
     <string name="pref_setup_pass">Установить пароль</string>
     <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при предпросмотре</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при их открытии</string>
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
     <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="pref_check_outside_changing">Отслеживать изменения извне</string>
-    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами (пока в режиме тестирования)</string>
+    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами</string>
     <string name="pref_request_pin_code">Использовать ПИН-код</string>
     <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
     <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>

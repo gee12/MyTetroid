@@ -146,7 +146,8 @@
     <string name="pref_is_highlight_attach">Highlight entries with attach</string>
     <string name="pref_is_highlight_attach_summ">Enable highlight entries with attached files</string>
     <string name="pref_key_is_highlight_crypted_nodes" translatable="false">pref_key_is_highlight_crypted_nodes</string>
-    <string name="pref_is_highlight_crypted_nodes">Highlight encrypted_nodes</string>
+    <string name="pref_is_highlight_crypted_nodes">Highlight encrypted nodes</string>
+    <string name="pref_is_highlight_crypted_nodes_summ">Enable highlight encrypted nodes</string>
     <string name="pref_key_highlight_attach_color" translatable="false">pref_highlight_attach_color</string>
     <string name="pref_key_picked_colors" translatable="false">pref_key_picked_colors</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
@@ -160,7 +161,7 @@
     <string name="pref_key_pin_code_hash" translatable="false">pref_key_pin_code_hash</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
     <string name="pref_category_storage">Storage</string>
-    <string name="pref_storage_path">Storage path</string>
+    <string name="pref_storage_path">Storage folder</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
     <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
@@ -229,7 +230,7 @@
     <string name="pref_clear_search_history_summ">Delete query input hints and global search options</string>
     <string name="pref_record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="pref_decrypt_files_to_trash_dir">Decrypt files to directory</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when previewing</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when opening</string>
     <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
     <string name="pref_change_pass">Change password</string>
     <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
@@ -243,7 +244,7 @@
     <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
-    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs (in testing mode yet)</string>
+    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs</string>
     <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
     <string name="pref_request_pin_code">Use PIN-code</string>
     <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
