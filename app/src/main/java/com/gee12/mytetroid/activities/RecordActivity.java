@@ -222,6 +222,7 @@ public class RecordActivity extends TetroidActivity implements
                 String text = mReceivedIntent.getStringExtra(Intent.EXTRA_TEXT);
                 if (text == null) {
                     LogManager.log(this, R.string.log_not_passed_text, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                    finish();
                     return;
                 }
                 LogManager.log(this, getString(R.string.log_receiving_intent_text), ILogger.Types.INFO);
@@ -1453,7 +1454,7 @@ public class RecordActivity extends TetroidActivity implements
 //        if (!super.onPrepareOptionsMenu(menu))
 //            return true;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
-        boolean isTemp = mRecord.isTemp();
+        boolean isTemp = (mRecord == null || mRecord.isTemp());
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
         activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly, !isTemp);
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly, !isTemp);

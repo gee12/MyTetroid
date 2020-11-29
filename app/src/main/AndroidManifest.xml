@@ -135,7 +135,10 @@
             android:label="@string/title_settings"
             android:parentActivityName=".activities.MainActivity"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" /></activity>
         <activity
             android:name=".activities.SearchActivity"
             android:configChanges="orientation|screenSize"
@@ -164,7 +167,6 @@
             android:name=".activities.AboutActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_about_app"
-            android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

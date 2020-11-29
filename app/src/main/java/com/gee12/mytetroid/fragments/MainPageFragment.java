@@ -937,7 +937,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     public boolean onBackPressed() {
         if (mViewFlipperfMain == null) {
-            return true;
+            return false;
         }
         boolean res = false;
         int curView = mViewFlipperfMain.getDisplayedChild() + 1;

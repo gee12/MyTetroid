@@ -2116,37 +2116,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     /**
-     * Обработчик нажатия кнопки Назад.
-     */
-    @Override
-    public void onBackPressed() {
-        if (!onBeforeBackPressed()) {
-            return;
-        }
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
-            mDrawerLayout.closeDrawer(GravityCompat.END);
-        } else {
-            int curPage = mViewPager.getCurrentItem();
-            if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
-                if (curPage == MainViewPager.PAGE_MAIN && !mViewPagerAdapter.getMainFragment().onBackPressed()
-                        || curPage == MainViewPager.PAGE_FOUND && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
-                    if (SettingsManager.isConfirmAppExit(this)) {
-                        askForExit();
-                    } else {
-                        onBeforeExit();
-                        super.onBackPressed();
-                    }
-                }
-            } else {
-                onBeforeExit();
-                super.onBackPressed();
-            }
-        }
-    }
-
-    /**
      * Обработчик создания системного меню.
      * @param menu
      * @return
@@ -2244,6 +2213,37 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         @Override
         public void onPageScrollStateChanged(int i) {
+        }
+    }
+
+    /**
+     * Обработчик нажатия кнопки Назад.
+     */
+    @Override
+    public void onBackPressed() {
+        if (!onBeforeBackPressed()) {
+            return;
+        }
+        boolean needToExit = true;
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+            mDrawerLayout.closeDrawer(GravityCompat.END);
+        } else {
+            int curPage = mViewPager.getCurrentItem();
+            if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
+                if (curPage == MainViewPager.PAGE_MAIN && !mViewPagerAdapter.getMainFragment().onBackPressed()
+                        || curPage == MainViewPager.PAGE_FOUND && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
+                    if (SettingsManager.isConfirmAppExit(this)) {
+                        askForExit();
+                        needToExit = false;
+                    }
+                }
+            }
+            if (needToExit) {
+                onBeforeExit();
+                super.onBackPressed();
+            }
         }
     }
 
