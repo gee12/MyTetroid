@@ -59,7 +59,6 @@ import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
-import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
@@ -215,7 +214,7 @@ public class RecordActivity extends TetroidActivity implements
                 finish();
                 return;
             }
-        } else if (action.equals(Intent.ACTION_SEND)) {
+        /*} else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста из другого приложения
             String type = mReceivedIntent.getType();
             if (type != null && type.startsWith("text/")) {
@@ -230,7 +229,7 @@ public class RecordActivity extends TetroidActivity implements
             } else {
                 finish();
                 return;
-            }
+            }*/
         } else {
             finish();
             return;
@@ -366,7 +365,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param intent
      * @param text
      */
-    private void showIntentDialog(Intent intent, String text) {
+    /*private void showIntentDialog(Intent intent, String text) {
         setVisibilityActionHome(false);
         IntentDialog.createDialog(this, true, (receivedData) -> {
             if (receivedData.isCreate()) {
@@ -377,7 +376,7 @@ public class RecordActivity extends TetroidActivity implements
             }
         });
 
-    }
+    }*/
 
     /**
      * Создание временной записи, т.к. активность была запущена при передаче текста
@@ -385,7 +384,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param intent
      * @param text
      */
-    private void initRecordFromSentText(Intent intent, String text) {
+    /*private void initRecordFromSentText(Intent intent, String text) {
         // имя записи
         String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
         String url = null;
@@ -395,7 +394,7 @@ public class RecordActivity extends TetroidActivity implements
         // создаем запись
 //        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
         this.mRecord = RecordsManager.createTempRecord(this, subject, url, text);
-    }
+    }*/
 
     /**
      * Отображение записи (свойств и текста).
@@ -1423,11 +1422,8 @@ public class RecordActivity extends TetroidActivity implements
      * @param menu
      * @return
      */
-//    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        if (super.onCreateOptionsMenu(menu))
-//            return true;
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.record, menu);
@@ -1437,13 +1433,6 @@ public class RecordActivity extends TetroidActivity implements
         this.mMenuItemSave = menu.findItem(R.id.action_record_save);
         initSearchView(menu);
 
-        // для отображения иконок
-//        if (menu instanceof MenuBuilder){
-//            MenuBuilder m = (MenuBuilder) menu;
-//            m.setOptionalIconsVisible(true);
-//        }
-//        return true;
-
         return super.onAfterCreateOptionsMenu(menu);
     }
 
@@ -1451,8 +1440,6 @@ public class RecordActivity extends TetroidActivity implements
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (!isOnCreateProcessed())
             return true;
-//        if (!super.onPrepareOptionsMenu(menu))
-//            return true;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         boolean isTemp = (mRecord == null || mRecord.isTemp());
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);

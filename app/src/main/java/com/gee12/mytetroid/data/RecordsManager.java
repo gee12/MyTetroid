@@ -64,7 +64,8 @@ public class RecordsManager extends DataManager {
         }
         LogManager.log(context, context.getString(R.string.log_start_record_file_reading) + record.getId(), ILogger.Types.DEBUG);
         // проверка существования каталога записи
-        String dirPath = getPathToRecordFolderInBase(record);
+//        String dirPath = getPathToRecordFolderInBase(record);
+        String dirPath = getPathToRecordFolder(context, record);
         if (checkRecordFolder(context, dirPath, true, duration) <= 0) {
             return null;
         }

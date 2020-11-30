@@ -1915,10 +1915,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (type == null) {
                 return;
             }
-//            String text = null;
-//            boolean isText = false;
+            String text = null;
+            boolean isText = false;
             ArrayList<Uri> uris = null;
-            if (type.startsWith("image/")) {
+            if (type != null && type.startsWith("text/")) {
+                isText = true;
+                text = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (text == null) {
+                    LogManager.log(this, R.string.log_not_passed_text, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                    return;
+                }
+                LogManager.log(this, getString(R.string.log_receiving_intent_text), ILogger.Types.INFO);
+            } else if (type.startsWith("image/")) {
                 // изображение
                 Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
                 if (imageUri == null) {
@@ -1929,7 +1937,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 uris = new ArrayList<>();
                 uris.add(imageUri);
             }
-            showIntentDialog(intent, false, null, uris);
+            showIntentDialog(intent, isText, text, uris);
 
         } else if (action.equals(Intent.ACTION_SEND_MULTIPLE)) {
             // прием нескольких изображений из другого приложения
@@ -2005,10 +2013,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (record == null) {
             return;
         }
-        // загружаем изображения в каталоги записи
-        if (!isText) {
+        if (isText) {
+            // запускаем активность просмотра записи
+            openRecord(record.getId());
+        } else {
+            // загружаем изображения в каталоги записи
             if (!receivedData.isAttach()) {
-                // запускаем активность записи с командой вставки изображений после загрузки
+                // запускаем активность просмотра записи с командой вставки изображений после загрузки
                 openRecordWithImages(record.getId(), imagesUri);
 
             } else {

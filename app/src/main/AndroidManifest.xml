@@ -76,7 +76,7 @@
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />
-<!--                <data android:mimeType="text/*" />-->
+                <data android:mimeType="text/*" />
             </intent-filter>
             <!--<intent-filter android:label="@string/title_intent_send">
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
@@ -116,13 +116,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <intent-filter android:label="@string/title_intent_send">
+<!--            <intent-filter android:label="@string/title_intent_send">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-<!--                <data android:mimeType="image/*" />-->
+&lt;!&ndash;                <data android:mimeType="image/*" />&ndash;&gt;
                 <data android:mimeType="text/*" />
             </intent-filter>
-            <meta-data
+            <meta-data-->
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
             <meta-data
