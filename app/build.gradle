@@ -12,7 +12,7 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.gee12.mytetroid"
-        minSdkVersion 15
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 38
         versionName "4.0"
@@ -60,14 +60,16 @@ dependencies {
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation 'org.jsoup:jsoup:1.12.1'
     implementation 'org.jetbrains:annotations-java5:15.0'
-    implementation(project(path: ':wysiwyg-editor')){
+    implementation (project(path: ':wysiwyg-editor')) {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
     implementation project(path: ':folder-picker')
+    implementation project(path: ':file-folder-picker')
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
     implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'org.jdom:jdom2:2.0.6'
+//    implementation 'com.adityak:browsemyfiles:1.9'
 }

@@ -587,7 +587,7 @@ public class DataManager implements IRecordFileCrypter {
         File destDir = new File(destPath);
         // перемещаем файл или каталог
         if (!FileUtils.moveToDirRecursive(srcFile, destDir)) {
-            String fromTo = getStringFromTo(context, destPath, srcFullFileName);
+            String fromTo = getStringFromTo(context, srcFullFileName, destPath);
 //            LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                    srcFullFileName, destPath), LogManager.Types.ERROR);
             TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
@@ -611,7 +611,7 @@ public class DataManager implements IRecordFileCrypter {
 //                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
                 TetroidLog.logOperRes(context, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE, to, -1);
             } else {
-                String fromTo = getStringFromTo(context, destFile.getAbsolutePath(), srcFile.getAbsolutePath());
+                String fromTo = getStringFromTo(context, srcFile.getAbsolutePath(), destFile.getAbsolutePath());
 //                LogManager.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
                 TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE,
@@ -655,7 +655,7 @@ public class DataManager implements IRecordFileCrypter {
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 File from = new File(tempPath);
                 if (!from.renameTo(to)) {
-                    String fromTo = getStringFromTo(context, destPath, tempPath);
+                    String fromTo = getStringFromTo(context, tempPath, destPath);
 //                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask),
 //                            tempPath, destPath), LogManager.Types.ERROR);
                     TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME,

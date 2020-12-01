@@ -16,10 +16,9 @@ import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
-
-import lib.folderpicker.FolderPicker;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -135,7 +134,8 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
     public void onResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != RESULT_OK)
             return;
-        String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+//        String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+        String folderPath = new UriUtils(getContext()).getPath(data.getData());
         boolean isCreate = requestCode == SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем

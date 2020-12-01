@@ -10,6 +10,7 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
+            <option value="$PROJECT_DIR$/../../Android-FileBrowser-FilePicker/filebrowser" />
             <option value="$PROJECT_DIR$/../../Android-Folder-Picker/folderpicker" />
             <option value="$PROJECT_DIR$/../../Android-HTML-WYSIWYG-Editor/richwysiwygeditor" />
             <option value="$PROJECT_DIR$/../../Android-PinLockView/pinlockview" />
