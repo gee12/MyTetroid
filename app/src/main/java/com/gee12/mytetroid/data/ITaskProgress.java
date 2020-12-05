@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.data;
 
-import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidLog;
+import com.gee12.mytetroid.logs.TaskStage;
+import com.gee12.mytetroid.logs.TetroidLog;
 
 public interface ITaskProgress {
 

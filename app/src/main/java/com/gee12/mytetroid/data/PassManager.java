@@ -4,14 +4,14 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.crypt.Base64;
 import com.gee12.mytetroid.crypt.Crypter;
 import com.gee12.mytetroid.dialogs.PassDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TaskStage;
+import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.Utils;
 

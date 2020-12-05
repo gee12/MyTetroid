@@ -10,12 +10,8 @@ import androidx.preference.Preference;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidTask;
 import com.gee12.mytetroid.activities.SettingsActivity;
 import com.gee12.mytetroid.data.DataManager;
@@ -25,6 +21,10 @@ import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TaskStage;
+import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.views.Message;
 
 import static android.app.Activity.RESULT_OK;

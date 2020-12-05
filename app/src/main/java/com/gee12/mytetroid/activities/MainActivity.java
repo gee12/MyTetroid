@@ -41,13 +41,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.FileObserverService;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TaskStage;
-import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
@@ -68,6 +63,10 @@ import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.fragments.SettingsFragment;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TaskStage;
+import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.ReceivedData;
@@ -75,6 +74,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.utils.Utils;
@@ -134,6 +134,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //    private MenuItem mMenuItemStorageSync;
 //    private MenuItem mMenuItemStorageInfo;
 //    private MenuItem mMenuItemStorageReload;
+    private Menu mOptionsMenu;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
@@ -236,7 +237,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
-//        mListViewNodes.setEmptyView(mTextViewNodesEmpty);
 
         NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
         View vNodesHeader = nodesNavView.getHeaderView(0);
@@ -268,13 +268,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 StorageManager.loadAllNodes(this);
             });
         }
-        /*
-        // принудительно запускаем создание пунтов меню уже после отработки onCreate
-        setOnCreateCalled();
-        //
-        this.mIsActivityCreated = true;
-        // запускаем настройку элементов интерфейса, когда все они созданы
-        onGUICreated();*/
 
         initBroadcastReceiver();
     }
@@ -491,7 +484,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
      *
-     * @param res             Результат загрузки хранилища.
+     * @param res   Результат загрузки хранилища.
      * @param isOnlyFavorites
      * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранными записями
@@ -580,7 +573,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }
         }
-        invalidateOptionsMenu();
+        updateOptionsMenu();
 //        setMenuItemsAvailable(res);
     }
 
@@ -640,6 +633,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mCurNode = node;
         setCurNode(node);
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+    }
+
+    /**
+     * Открытие ветки записи.
+     * Если активен режим "Только избранное", то открытие списка избранных записей.
+     */
+    private void showRecordNode(TetroidRecord record) {
+        if (StorageManager.isFavoritesMode()) {
+            showFavorites();
+        } else if (record != null) {
+            showNode(record.getNode());
+        } else {
+            showNode(mCurNode);
+        }
     }
 
     /**
@@ -964,7 +971,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Настройка элемента для фильтра веток.
      * @param nodesHeader
      */
-//    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
     private void initNodesSeachView(final SearchView searchView, View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
@@ -1191,7 +1197,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         setSubtitle(viewId);
 //        setRecordsSearchViewVisibility(showRecordsSearch);
 //        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
-        invalidateOptionsMenu();
+        updateOptionsMenu();
     }
 
     /**
@@ -1215,16 +1221,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             tvSubtitle.setVisibility(View.GONE);
         }
-    }
-
-    /**
-     * Установка подзаголовка активности.
-     * @param s
-     */
-    private void setSubtitle(String s) {
-        tvSubtitle.setVisibility(View.VISIBLE);
-        tvSubtitle.setTextSize(16);
-        tvSubtitle.setText(s);
     }
 
     /*public void setRecordsSearchViewVisibility(boolean isVisible) {
@@ -1522,25 +1518,25 @@ public class MainActivity extends TetroidActivity implements IMainView {
         Menu menu = popupMenu.getMenu();
         TetroidNode parentNode = node.getParentNode();
         boolean isNonCrypted = node.isNonCryptedOrDecrypted();
-        activateMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable() && isNonCrypted);
-//        activateMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
-        activateMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted);
-        activateMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
-//        activateMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
-        activateMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
+        visibleMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable() && isNonCrypted);
+//        visibleMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
+//        visibleMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
+        visibleMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
         int nodesCount = ((parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes()).size();
-        activateMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
+        visibleMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
-        activateMenuItem(menu.findItem(R.id.action_insert), canInsert);
-        activateMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted);
-        activateMenuItem(menu.findItem(R.id.action_copy), isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_insert), canInsert);
+        visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_copy), isNonCrypted);
         boolean canCutDel = node.getLevel() > 0 || DataManager.getRootNodes().size() > 1;
-        activateMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);
-        activateMenuItem(menu.findItem(R.id.action_delete), canCutDel);
-        activateMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
+        visibleMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_delete), canCutDel);
+        visibleMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
         boolean canNoCrypt = node.isCrypted() && (parentNode == null || !parentNode.isCrypted());
-        activateMenuItem(menu.findItem(R.id.action_no_encrypt_node), canNoCrypt);
-        activateMenuItem(menu.findItem(R.id.action_info), isNonCrypted);
+        visibleMenuItem(menu.findItem(R.id.action_no_encrypt_node), canNoCrypt);
+        visibleMenuItem(menu.findItem(R.id.action_info), isNonCrypted);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -1602,17 +1598,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) menu, v);
         menuHelper.setForceShowIcon(true);
         menuHelper.show();
-    }
-
-    /**
-     * Установка активности пункта меню.
-     * @param menuItem
-     * @param isActivate
-     */
-    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
-//        menuItem.setEnabled(isActivate);
-//        menuItem.getIcon().setAlpha((isActivate) ? 255 : 130);
-        menuItem.setVisible(isActivate);
     }
 
     /**
@@ -1719,7 +1704,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // скрываем пункт меню Синхронизация, если отключили
 //        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
-        invalidateOptionsMenu();
+        updateOptionsMenu();
 
         if (data != null) {
             // перезагружаем хранилище, если изменили путь
@@ -2166,7 +2151,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.main, menu);
-        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+        this.mOptionsMenu = menu;
+
         /*this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
         this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
         ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
@@ -2174,18 +2160,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mMenuItemStorageReload = menu.findItem(R.id.action_storage_reload);
         this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);*/
 
-        int curViewId = (mViewPagerAdapter != null)
+/*        int curViewId = (mViewPagerAdapter != null)
             ? mViewPagerAdapter.getMainFragment().getCurMainViewId() : 0;
         boolean canSearchRecords = (mViewPager != null
                 && mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
                 && (curViewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS
                     || curViewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS));
         visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
-        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorage(this));
+        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorage(this));*/
         // инициализиируем SearchView только 1 раз
-        if (!super.mIsGUICreated) {
+//        if (!super.mIsGUICreated) {
             initRecordsSearchView(menu.findItem(R.id.action_search_records));
-        }
+//        }
+        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+
         return super.onAfterCreateOptionsMenu(menu);
     }
 
@@ -2198,22 +2186,31 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (!isOnCreateProcessed())
             return true;
-        boolean isSlorageLoaded = StorageManager.isLoaded();
-        enableMenuItem(menu.findItem(R.id.action_search_records), isSlorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_global_search), isSlorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_sync), isSlorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_info), isSlorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), isSlorageLoaded);
+
+        int curViewId = (mViewPagerAdapter != null)
+                ? mViewPagerAdapter.getMainFragment().getCurMainViewId() : 0;
+        boolean canSearchRecords = (mViewPager != null
+                && mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
+                && (curViewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS
+                || curViewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS));
+        visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
+        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorage(this));
+
+        boolean isStorageLoaded = StorageManager.isLoaded();
+        enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageLoaded);
+
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
-    private void enableMenuItem(MenuItem menuItem, boolean isEnabled) {
-        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled);
-    }
-
-    private void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
+    @Override
+    public void updateOptionsMenu() {
+        onPrepareOptionsMenu(mOptionsMenu);
     }
 
     /**
@@ -2226,7 +2223,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_record_node:
-                showNode(mCurNode);
+                showRecordNode(mViewPagerAdapter.getMainFragment().getCurRecord());
                 return true;
             case R.id.action_global_search:
                 showGlobalSearchActivity(null);
@@ -2376,11 +2373,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void showGlobalSearchWithQuery() {
         showGlobalSearchActivity(mLastSearchQuery);
-    }
-
-    public void showActivityForResult(Class<?> cls, int requestCode) {
-        Intent intent = new Intent(this, cls);
-        startActivityForResult(intent, requestCode);
     }
 
     @Override

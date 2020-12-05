@@ -2,10 +2,10 @@ package com.gee12.mytetroid.crypt;
 
 import android.content.Context;
 
-import com.gee12.mytetroid.ILogger;
 import com.gee12.mytetroid.data.INodeIconLoader;
 import com.gee12.mytetroid.data.IRecordFileCrypter;
 import com.gee12.mytetroid.data.ITagsParser;
+import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;

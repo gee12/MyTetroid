@@ -7,12 +7,12 @@ import android.widget.Toast;
 
 import androidx.preference.Preference;
 
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 
 import lib.folderpicker.FolderPicker;
 

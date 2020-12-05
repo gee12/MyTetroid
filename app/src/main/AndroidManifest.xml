@@ -35,7 +35,7 @@
 
         <!-- android:hardwareAccelerated="true" -->
         <service
-            android:name=".FileObserverService"
+            android:name=".services.FileObserverService"
             android:enabled="true"
             android:exported="true"/>
         <!-- для dirchooser -->

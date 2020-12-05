@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.services;
 
 import android.app.Activity;
 import android.app.Service;
@@ -9,6 +9,8 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.gee12.mytetroid.TetroidFileObserver;
 
 public class FileObserverService extends Service {
 

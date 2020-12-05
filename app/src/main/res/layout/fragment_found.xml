@@ -17,6 +17,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:padding="@dimen/tv_empty_padding"
+        android:textColor="@color/emptySearch"
         android:textAlignment="center"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -7,14 +7,14 @@ import android.widget.Toast;
 import androidx.preference.Preference;
 
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.views.Message;

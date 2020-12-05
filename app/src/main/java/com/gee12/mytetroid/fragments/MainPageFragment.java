@@ -20,10 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidLog;
 import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.AttachesManager;
@@ -34,6 +31,9 @@ import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.dialogs.FileDialogs;
 import com.gee12.mytetroid.dialogs.RecordDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -184,10 +184,11 @@ public class MainPageFragment extends TetroidFragment {
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
         }
-        mMainView.updateMainToolbar(viewId, title);
 //        mMainView.updateMenuItems(viewId);
 //        mMainView.checkKeepScreenOn(viewId);
         this.mCurMainViewId = viewId;
+        mMainView.updateMainToolbar(viewId, title);
+
         if (mViewFlipperfMain != null) {
             mViewFlipperfMain.setDisplayedChild(whichChild - 1);
         }
@@ -826,7 +827,7 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
-        menuItem.setVisible(isActivate);
+        ViewUtils.setVisibleIfNotNull(menuItem, isActivate);
     }
 
     /**

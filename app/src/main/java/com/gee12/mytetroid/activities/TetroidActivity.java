@@ -20,12 +20,12 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
@@ -342,6 +342,39 @@ public abstract class TetroidActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(isVis);
         }
+    }
+
+    /**
+     * Установка видимости пункта меню.
+     * @param menuItem
+     * @param isVisible
+     */
+    protected void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
+    }
+
+    /**
+     * Установка активности пункта меню.
+     * @param menuItem
+     * @param isEnabled
+     */
+    protected void enableMenuItem(MenuItem menuItem, boolean isEnabled) {
+        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled);
+    }
+
+    /**
+     * Установка подзаголовка активности.
+     * @param subtitle
+     */
+    protected void setSubtitle(String subtitle) {
+        tvSubtitle.setVisibility(View.VISIBLE);
+        tvSubtitle.setTextSize(16);
+        tvSubtitle.setText(subtitle);
+    }
+
+    public void showActivityForResult(Class<?> cls, int requestCode) {
+        Intent intent = new Intent(this, cls);
+        startActivityForResult(intent, requestCode);
     }
 
     public boolean isOnCreateProcessed() {

@@ -6,6 +6,8 @@ import android.content.Context;
 import androidx.annotation.ColorInt;
 
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 

@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data;
 
-import com.gee12.mytetroid.ILogger;
+import com.gee12.mytetroid.logs.ILogger;
 
 public class DatabaseConfig extends INIConfig {
 

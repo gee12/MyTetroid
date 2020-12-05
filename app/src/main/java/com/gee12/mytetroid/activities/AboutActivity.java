@@ -11,8 +11,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
 
 /**

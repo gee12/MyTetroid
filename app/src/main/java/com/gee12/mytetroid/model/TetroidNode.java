@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
-import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.FileUtils;
 
 import java.util.ArrayList;

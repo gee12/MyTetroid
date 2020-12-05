@@ -3,10 +3,10 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.gee12.mytetroid.ILogger;
-import com.gee12.mytetroid.LogManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidLog;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 

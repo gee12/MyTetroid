@@ -1,4 +1,4 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.logs;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -6,6 +6,8 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gee12.mytetroid.BuildConfig;
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.views.Message;
 
 import java.io.BufferedWriter;

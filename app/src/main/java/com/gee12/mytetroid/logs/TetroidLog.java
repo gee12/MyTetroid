@@ -1,10 +1,12 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid.logs;
 
 import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
+import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.activities.MainActivity;
 import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;

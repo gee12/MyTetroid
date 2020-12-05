@@ -39,6 +39,7 @@
                     android:padding="@dimen/tv_empty_padding"
                     android:layout_gravity="center_horizontal"
                     android:textAlignment="center"
+                    android:textColor="@color/emptySearch"
                     android:text="@string/title_select_the_node" />
 
                 <Button

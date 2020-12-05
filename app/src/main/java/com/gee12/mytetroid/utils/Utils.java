@@ -10,7 +10,7 @@ import android.text.TextUtils;
 
 import androidx.core.text.HtmlCompat;
 
-import com.gee12.mytetroid.LogManager;
+import com.gee12.mytetroid.logs.LogManager;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

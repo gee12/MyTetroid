@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.crypt;
 
-import com.gee12.mytetroid.ILogger;
+import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;
