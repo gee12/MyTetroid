@@ -13,7 +13,7 @@
     <item
         android:id="@+id/action_record_node"
         android:orderInCategory="25"
-        android:title="@string/title_cur_node"
+        android:title="@string/title_to_node"
         android:icon="@drawable/ic_show_node" />
     <item
         android:id="@+id/action_copy"

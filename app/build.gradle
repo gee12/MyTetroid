@@ -64,7 +64,7 @@ dependencies {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
     implementation project(path: ':folder-picker')
-    implementation project(path: ':file-folder-picker')
+//    implementation project(path: ':file-folder-picker')
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
     implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'

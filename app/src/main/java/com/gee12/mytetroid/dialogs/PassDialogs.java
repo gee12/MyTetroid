@@ -42,7 +42,7 @@ public class PassDialogs {
     }
 
     /**
-     *
+     * Диалог установки/ввода пароля.
      * @param context
      * @param node
      * @param isNewPass
@@ -57,7 +57,7 @@ public class PassDialogs {
     }
 
     /**
-     *
+     * Диалог ввода пароля.
      * @param context
      * @param node
      * @param passResult
@@ -81,15 +81,15 @@ public class PassDialogs {
 
         dialog.setOnShowListener(dialogInterface -> {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+            com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvPass, false);
         });
 
         dialog.show();
-
-        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, null, true);
     }
 
     /**
-     *
+     * Диалог установки пароля.
      * @param context
      * @param node
      * @param passResult
@@ -136,7 +136,7 @@ public class PassDialogs {
     }
 
     /**
-     *
+     * Диалог изменения пароля.
      * @param context
      * @param passResult
      */

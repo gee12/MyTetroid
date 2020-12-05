@@ -473,15 +473,6 @@ public class SettingsManager {
     }
 
     /**
-     * Включать/отключать полноэкранный режим при двойном тапе ?
-     * По-умолчанию - да.
-     * @return
-     */
-    public static boolean isDoubleTapFullscreen(Context context) {
-        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
-    }
-
-    /**
      * Сохранять изменения записи автоматически ?
      * По-умолчанию - нет.
      * @return
@@ -502,6 +493,24 @@ public class SettingsManager {
     /*
     * Отображение.
      */
+
+    /**
+     * Сохранять ли экран активным при просмотре записи ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isKeepScreenOn(Context context) {
+        return getBoolean(context, R.string.pref_key_is_keep_screen_on, false);
+    }
+
+    /**
+     * Включать/отключать полноэкранный режим при двойном тапе ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isDoubleTapFullscreen(Context context) {
+        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
+    }
 
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы ?
@@ -558,21 +567,20 @@ public class SettingsManager {
     }
 
     /**
-     * Сохранять ли экран активным при просмотре записи ?
-     * По-умолчанию - нет.
-     * @return
-     */
-    public static boolean isKeepScreenOn(Context context) {
-        return getBoolean(context, R.string.pref_key_is_keep_screen_on, false);
-    }
-
-    /**
      * Формат даты создания записи.
      * @return
      */
     public static String getDateFormatString(Context context) {
         return getString(context, R.string.pref_key_date_format_string,
                 context.getString(R.string.def_date_format_string));
+    }
+
+    /**
+     * Отображать ли метки в списке записей ?
+     * @return
+     */
+    public static boolean isShowTagsInRecordsList(Context context) {
+        return getBoolean(context, R.string.pref_key_is_show_tags_in_records, true);
     }
 
     /*

@@ -24,6 +24,12 @@ public class ViewUtils {
         return (isVisible) ? View.VISIBLE : View.GONE;
     }
 
+    public static void setVisibleIfNotNull(View view, boolean isVisible) {
+        if (view != null) {
+            view.setVisibility(toVisibility(isVisible));
+        }
+    }
+
     public static void setFabVisibility(FloatingActionButton fab, boolean isVisible) {
         if (fab == null)
             return;

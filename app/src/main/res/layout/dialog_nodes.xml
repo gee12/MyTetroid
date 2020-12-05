@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view_notice_top"
         android:iconifiedByDefault="false"
-        android:queryHint="@string/title_nodes_search_hint" />
+        android:queryHint="@string/title_nodes_filter_hint" />
 
     <pl.openrnd.multilevellistview.MultiLevelListView
         android:id="@+id/list_view_nodes"

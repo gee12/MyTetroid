@@ -39,6 +39,7 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.Message;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -158,9 +159,6 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showView(int viewId) {
-//        mMenuItemCurNode.setVisible(false);
-//        mMenuItemCurRecord.setVisible(false);
-//        mMenuItemCurRecordFolder.setVisible(false);
         mButtonAddRecord.hide();
         mButtonAddFile.hide();
         // сохраняем значение для возврата на старое View
@@ -180,9 +178,6 @@ public class MainPageFragment extends TetroidFragment {
                 mButtonAddRecord.show();
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
-//                mMenuItemCurNode.setVisible(true);
-//                mMenuItemCurRecordFolder.setVisible(true);
-//                mMenuItemCurRecord.setVisible(true);
                 if (!App.IsLoadedFavoritesOnly) {
                     mButtonAddFile.show();
                 }
@@ -708,6 +703,18 @@ public class MainPageFragment extends TetroidFragment {
      * Обработчик клика на прикрепленном файле
      */
     private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
+
+    /**
+     *
+     * @param menu
+     */
+    public void onCreateOptionsMenu(Menu menu) {
+
+    }
+
+    private void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
+    }
 
     /**
      *

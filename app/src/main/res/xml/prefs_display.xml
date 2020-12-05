@@ -39,4 +39,10 @@
             android:inputType="text"
             android:defaultValue="@string/def_date_format_string" />
 
+        <CheckBoxPreference
+            android:key="@string/pref_key_is_show_tags_in_records"
+            android:title="@string/pref_is_show_tags_in_records"
+            android:summary="@string/pref_is_show_tags_in_records_summ"
+            android:defaultValue="true" />
+
 </PreferenceScreen>

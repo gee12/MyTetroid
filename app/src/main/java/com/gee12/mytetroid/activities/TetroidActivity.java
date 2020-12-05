@@ -48,6 +48,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected Intent mReceivedIntent;
     protected boolean mIsFullScreen;
     protected boolean mIsOnCreateProcessed;
+    protected boolean mIsGUICreated;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +72,8 @@ public abstract class TetroidActivity extends AppCompatActivity
         this.mLayoutProgress = findViewById(R.id.layout_progress_bar);
         this.mTextViewProgress = findViewById(R.id.progress_text);
 
+        this.mIsOnCreateProcessed = false;
+        this.mIsGUICreated = false;
     }
 
     /**
@@ -170,13 +173,17 @@ public abstract class TetroidActivity extends AppCompatActivity
 
     @SuppressLint("RestrictedApi")
     public boolean onAfterCreateOptionsMenu(Menu menu) {
-        // для отображения иконок
-        if (menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder) menu;
-            m.setOptionalIconsVisible(true);
+        // запускаем только 1 раз
+        if (!mIsGUICreated) {
+            // для отображения иконок
+            if (menu instanceof MenuBuilder){
+                MenuBuilder m = (MenuBuilder) menu;
+                m.setOptionalIconsVisible(true);
+            }
+            // устанавливаем флаг, что стандартные элементы активности созданы
+            onGUICreated();
         }
-        //
-        onGUICreated();
+        this.mIsGUICreated = true;
         return true;
     }
 

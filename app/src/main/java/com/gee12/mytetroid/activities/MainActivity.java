@@ -82,7 +82,6 @@ import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.SearchViewListener;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.google.android.material.navigation.NavigationView;
 
@@ -125,14 +124,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TetroidTag mCurTag;
     private TextView mTextViewNodesEmpty;
     private TextView mTextViewTagsEmpty;
-    private android.widget.SearchView mSearchViewNodes;
-    private android.widget.SearchView mSearchViewTags;
+//    private android.widget.SearchView mSearchViewNodes;
+    private SearchView mSearchViewNodes;
+//    private android.widget.SearchView mSearchViewTags;
+    private SearchView mSearchViewTags;
     private SearchView mSearchViewRecords;
-    private MenuItem mMenuItemSearchViewRecords;
-    private MenuItem mMenuItemGlobalSearch;
-    private MenuItem mMenuItemStorageSync;
-    private MenuItem mMenuItemStorageInfo;
-    private MenuItem mMenuItemStorageReload;
+//    private MenuItem mMenuItemSearchViewRecords;
+//    private MenuItem mMenuItemGlobalSearch;
+//    private MenuItem mMenuItemStorageSync;
+//    private MenuItem mMenuItemStorageInfo;
+//    private MenuItem mMenuItemStorageReload;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
@@ -241,7 +242,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         View vNodesHeader = nodesNavView.getHeaderView(0);
         this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
         mSearchViewNodes.setVisibility(View.GONE);
-        initNodesView(mSearchViewNodes, vNodesHeader);
+        initNodesSeachView(mSearchViewNodes, vNodesHeader);
 
         // метки
         this.mListViewTags = findViewById(R.id.tags_list_view);
@@ -254,24 +255,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         View vTagsHeader = tagsNavView.getHeaderView(0);
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
         mSearchViewTags.setVisibility(View.GONE);
-        final TextView tvHeader = vTagsHeader.findViewById(R.id.text_view_tags_header);
-        new SearchViewListener(mSearchViewTags) {
-            @Override
-            public void onClose() {
-                searchInTags(null, false);
-                tvHeader.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onSearch() {
-                tvHeader.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onQuerySubmit(String query) {
-                searchInTags(query, true);
-            }
-        };
+        initTagsSearchView(mSearchViewTags, vTagsHeader);
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
@@ -325,9 +309,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mIsActivityCreated = true;
     }
 
-    private void setMenuItemsDefVisible() {
+/*    private void setMenuItemsDefVisible() {
         ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
-    }
+    }*/
 
     /**
      * Обработчик события, когда создались все элементы интерфейса.
@@ -338,7 +322,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // инициализация
         App.init(this);
         mViewPagerAdapter.getMainFragment().onSettingsInited();
-        setMenuItemsDefVisible();
+//        setMenuItemsDefVisible();
 
         if (StorageManager.isLoaded()) {
             // тут ничего не пишем.
@@ -522,6 +506,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (res && App.isFullVersion()) {
             updateFavorites();
         }
+        // элементы фильтра веток и меток
+        ViewUtils.setVisibleIfNotNull(mSearchViewNodes, !isOnlyFavorites);
+        ViewUtils.setVisibleIfNotNull(mSearchViewTags, !isOnlyFavorites);
 
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
@@ -593,13 +580,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
             }
         }
-        setMenuItemsAvailable(res);
+        invalidateOptionsMenu();
+//        setMenuItemsAvailable(res);
     }
 
     /**
      * Установка активности пунктов меню.
      * @param isAvailable
      */
+/*
     private void setMenuItemsAvailable(boolean isAvailable) {
         int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
         mSearchViewNodes.setVisibility(vis);
@@ -610,6 +599,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         ViewUtils.setEnabledIfNotNull(mMenuItemStorageReload, isAvailable);
         ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
     }
+*/
 
     /**
      * Открытие записей ветки.
@@ -971,14 +961,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
     };
 
     /**
-     * Инициализация панели со списком веток.
+     * Настройка элемента для фильтра веток.
      * @param nodesHeader
      */
-    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
+//    private void initNodesView(final android.widget.SearchView searchView, View nodesHeader) {
+    private void initNodesSeachView(final SearchView searchView, View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
 
-        new SearchViewListener(mSearchViewNodes) {
+        new SearchViewXListener(searchView) {
             @Override
             public void onClose() {
                 // ничего не делать, если хранилище не было загружено
@@ -991,7 +982,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
             @Override
-            public void onSearch() {
+            public void onSearchClick() {
                 tvHeader.setVisibility(View.GONE);
                 ivIcon.setVisibility(View.GONE);
             }
@@ -999,6 +990,42 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void onQuerySubmit(String query) {
                 searchInNodesNames(query);
+            }
+
+            @Override
+            public void onSuggestionSelectOrClick(String query) {
+                searchInNodesNames(query);
+            }
+        };
+    }
+
+    /**
+     * Настройка элемента для фильтра меток.
+     * @param tagsHeader
+     */
+    private void initTagsSearchView(final SearchView searchView, View tagsHeader) {
+        final TextView tvHeader = tagsHeader.findViewById(R.id.text_view_tags_header);
+
+        new SearchViewXListener(searchView) {
+            @Override
+            public void onClose() {
+                searchInTags(null, false);
+                tvHeader.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onSearchClick() {
+                tvHeader.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onQuerySubmit(String query) {
+                searchInTags(query, true);
+            }
+
+            @Override
+            public void onSuggestionSelectOrClick(String query) {
+                searchInTags(query, true);
             }
         };
     }
@@ -1008,7 +1035,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param query
      */
     private void searchInNodesNames(String query) {
-        LogManager.log(this, String.format(getString(R.string.search_nodes_by_query), query));
+        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
@@ -1038,7 +1065,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInTags(String query, boolean isSearch) {
         Map<String, TetroidTag> tags;
         if (isSearch) {
-            LogManager.log(this, String.format(getString(R.string.search_tags_by_query), query));
+            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
         } else {
             tags = DataManager.getTags();
@@ -1117,7 +1144,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void changeToolBarByPage(int curPage) {
         if (curPage == MainViewPager.PAGE_MAIN) {
             mViewPagerAdapter.getMainFragment().restoreLastMainToolbarState();
-            setRecordsSearchViewVisibility(true);
+//            setRecordsSearchViewVisibility(true);
+//            invalidateOptionsMenu();
         } else {
             updateMainToolbar(MainPageFragment.MAIN_VIEW_GLOBAL_FOUND, null);
         }
@@ -1129,40 +1157,41 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void updateMainToolbar(int viewId, String title) {
-        boolean showRecordsSearch;
+//        boolean showRecordsSearch;
 
         switch (viewId) {
             case MainPageFragment.MAIN_VIEW_GLOBAL_FOUND:
                 title = getString(R.string.title_global_search);
-                showRecordsSearch = false;
+//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_NONE:
                 title = null;
-                showRecordsSearch = false;
+//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
                 title = ((mCurNode != null) ? mCurNode.getName() : "");
-                showRecordsSearch = true;
+//                showRecordsSearch = true;
                 break;
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
                 title = ((mCurTag != null) ? mCurTag.getName() : "");
-                showRecordsSearch = true;
+//                showRecordsSearch = true;
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
 //                showRecordsSearch = true;
 //                break;
             case MainPageFragment.MAIN_VIEW_FAVORITES:
                 title = getString(R.string.title_favorites);
-                showRecordsSearch = false;
+//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
             default:
-                showRecordsSearch = false;
+//                showRecordsSearch = false;
         }
         setTitle(title);
         setSubtitle(viewId);
-        setRecordsSearchViewVisibility(showRecordsSearch);
+//        setRecordsSearchViewVisibility(showRecordsSearch);
 //        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
+        invalidateOptionsMenu();
     }
 
     /**
@@ -1198,9 +1227,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         tvSubtitle.setText(s);
     }
 
-    public void setRecordsSearchViewVisibility(boolean isVisible) {
+    /*public void setRecordsSearchViewVisibility(boolean isVisible) {
         mMenuItemSearchViewRecords.setVisible(isVisible);
-    }
+    }*/
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible) {
@@ -1689,7 +1718,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         startStorageTreeObserver();
 
         // скрываем пункт меню Синхронизация, если отключили
-        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
+//        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
+        invalidateOptionsMenu();
 
         if (data != null) {
             // перезагружаем хранилище, если изменили путь
@@ -2089,8 +2119,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void searchInRecords(String query, List<TetroidRecord> records, int viewId) {
         String log = (viewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS)
-                ? String.format(getString(R.string.search_records_in_node_by_query), mCurNode.getName(), query)
-                : String.format(getString(R.string.search_records_in_tag_by_query), mCurTag.getName(), query);
+                ? String.format(getString(R.string.filter_records_in_node_by_query), mCurNode.getName(), query)
+                : String.format(getString(R.string.filter_records_in_tag_by_query), mCurTag.getName(), query);
         LogManager.log(this, log);
         List<TetroidRecord> found = ScanManager.searchInRecordsNames(records, query);
 //        showRecords(found, MainPageFragment.VIEW_FOUND_RECORDS);
@@ -2117,7 +2147,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void searchInFiles(String query, TetroidRecord record) {
-        LogManager.log(this, String.format(getString(R.string.search_files_by_query), record.getName(), query));
+        LogManager.log(this, String.format(getString(R.string.filter_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
         mViewPagerAdapter.getMainFragment().showRecordFiles(found);
         if (found.isEmpty()) {
@@ -2131,27 +2161,31 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param menu
      * @return
      */
-//    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.main, menu);
-//        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
-        this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
+        mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
+        /*this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
         this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
         ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
         this.mMenuItemStorageInfo = menu.findItem(R.id.action_storage_info);
         this.mMenuItemStorageReload = menu.findItem(R.id.action_storage_reload);
-        this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);
-        initRecordsSearchView(mMenuItemSearchViewRecords);
+        this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);*/
 
-/*        // для отображения иконок
-        if (menu instanceof MenuBuilder){
-            MenuBuilder m = (MenuBuilder) menu;
-            m.setOptionalIconsVisible(true);
-        }*/
-
+        int curViewId = (mViewPagerAdapter != null)
+            ? mViewPagerAdapter.getMainFragment().getCurMainViewId() : 0;
+        boolean canSearchRecords = (mViewPager != null
+                && mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
+                && (curViewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS
+                    || curViewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS));
+        visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
+        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorage(this));
+        // инициализиируем SearchView только 1 раз
+        if (!super.mIsGUICreated) {
+            initRecordsSearchView(menu.findItem(R.id.action_search_records));
+        }
         return super.onAfterCreateOptionsMenu(menu);
     }
 
@@ -2164,8 +2198,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (!isOnCreateProcessed())
             return true;
+        boolean isSlorageLoaded = StorageManager.isLoaded();
+        enableMenuItem(menu.findItem(R.id.action_search_records), isSlorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_global_search), isSlorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_sync), isSlorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_info), isSlorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), isSlorageLoaded);
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private void enableMenuItem(MenuItem menuItem, boolean isEnabled) {
+        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled);
+    }
+
+    private void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
     }
 
     /**

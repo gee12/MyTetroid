@@ -10,8 +10,6 @@ import androidx.annotation.StringRes;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.aditya.filebrowser.Constants;
-import com.aditya.filebrowser.FolderChooser;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
@@ -20,6 +18,8 @@ import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.Message;
 
 import org.jsoup.internal.StringUtil;
+
+import lib.folderpicker.FolderPicker;
 
 public class TetroidSettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -55,12 +55,12 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
 
     protected void openFolderPicker(String title, String location, int requestCode) {
         String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderPathOrDefault(getContext(), true);
-//        Intent intent = new Intent(getContext(), FolderPicker.class);
-//        intent.putExtra(FolderPicker.EXTRA_TITLE, title);
-//        intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
-        Intent intent = new Intent(getContext(), FolderChooser.class);
-        intent.putExtra(Constants.SELECTION_MODE, Constants.SELECTION_MODES.SINGLE_SELECTION.ordinal());
-        intent.putExtra(Constants.INITIAL_DIRECTORY, path);
+        Intent intent = new Intent(getContext(), FolderPicker.class);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, title);
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
+//        Intent intent = new Intent(getContext(), FolderChooser.class);
+//        intent.putExtra(Constants.SELECTION_MODE, Constants.SELECTION_MODES.SINGLE_SELECTION.ordinal());
+//        intent.putExtra(Constants.INITIAL_DIRECTORY, path);
         getActivity().startActivityForResult(intent, requestCode);
     }
 

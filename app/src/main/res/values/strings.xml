@@ -20,7 +20,7 @@
     <string name="title_show_attached_files">Attached files</string>
     <string name="title_open_record_folder">Open folder</string>
     <string name="title_global_search">Global search</string>
-    <string name="title_search_records">Records search</string>
+    <string name="title_filter_records">Records filter</string>
     <string name="title_open_tag_records">Open tag records</string>
     <string name="title_edit_record_fields">Edit properties</string>
     <string name="title_edit_mode">Editing</string>
@@ -53,7 +53,7 @@
     <string name="title_show">Show</string>
     <string name="title_log_file_content">Логи</string>
     <string name="title_storage_info">Storage info</string>
-    <string name="title_cur_node">Record node</string>
+    <string name="title_to_node">To node</string>
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
     <string name="title_fullscreen">Fullscreen</string>
@@ -81,8 +81,8 @@
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
     <string name="title_rate_app">Rate app</string>
     <string name="title_version_label">Version</string>
-    <string name="title_tags_search_hint">Tags search</string>
-    <string name="title_nodes_search_hint">Nodes search</string>
+    <string name="title_tags_filter_hint">Tags filter</string>
+    <string name="title_nodes_filter_hint">Nodes filter</string>
     <string name="title_nodes_is_missing">Nodes is missing</string>
     <string name="title_show_node_records">Show node records</string>
     <string name="title_enter_query">Enter the search query</string>
@@ -148,6 +148,8 @@
     <string name="pref_key_is_highlight_crypted_nodes" translatable="false">pref_key_is_highlight_crypted_nodes</string>
     <string name="pref_is_highlight_crypted_nodes">Highlight encrypted nodes</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Enable highlight encrypted nodes</string>
+    <string name="pref_is_show_tags_in_records">Show tags</string>
+    <string name="pref_is_show_tags_in_records_summ">Show tags in record list</string>
     <string name="pref_key_highlight_attach_color" translatable="false">pref_highlight_attach_color</string>
     <string name="pref_key_picked_colors" translatable="false">pref_key_picked_colors</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
@@ -214,6 +216,7 @@
     <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
+    <string name="pref_key_is_show_tags_in_records" translatable="false">pref_key_is_show_tags_in_records</string>
     <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
     <string name="pref_ask_before_sync">Ask before starting</string>
@@ -223,8 +226,8 @@
     <string name="pref_show_logs">Show logs</string>
     <string name="pref_show_logs_summ">The logs of the current startup session or the contents of the log file</string>
     <string name="pref_key_clear_search_history" translatable="false">pref_key_clear_search_history</string>
-    <string name="pref_clear_search_history">Очистить историю поиска</string>
-    <string name="pref_clear_trash">Очистить корзину</string>
+    <string name="pref_clear_search_history">Clear search history</string>
+    <string name="pref_clear_trash">Clear trash</string>
     <string name="pref_key_clear_trash" translatable="false">pref_key_clear_trash</string>
     <string name="pref_clear_trash_summ">Delete contents of trash folder</string>
     <string name="pref_clear_search_history_summ">Delete query input hints and global search options</string>
@@ -267,12 +270,12 @@
     <string name="stage_new_pass_reencrypting">Storage re-encryption with new password…</string>
     <string name="stage_storage_saving">Saving storage structure…</string>
 
-    <string name="search_records_in_node_by_query">Search records in node [%1$s] by query "%2$s"</string>
-    <string name="search_records_in_tag_by_query">Search records in tag records [%1$s] by query "%2$s"</string>
-    <string name="search_files_by_query">Search files in record [%1$s] by query "%2$s"</string>
+    <string name="filter_records_in_node_by_query">Filter records in node [%1$s] by query "%2$s"</string>
+    <string name="filter_records_in_tag_by_query">Filter records in tag records [%1$s] by query "%2$s"</string>
+    <string name="filter_files_by_query">Filter files in record [%1$s] by query "%2$s"</string>
+    <string name="filter_records_hint">Records filter</string>
+    <string name="filter_tags_by_query">Filter tags by query "%s"…</string>
     <string name="search_text_by_query">Search text in record [%1$s] by query "%2$s"</string>
-    <string name="search_records_hint">Records search</string>
-    <string name="search_tags_by_query">Search tags by query "%s"…</string>
     <string name="search_hint_input_query">Enter query</string>
     <string name="search_search_in">Search in:</string>
     <string name="search_in_record_text">Record text</string>
@@ -287,7 +290,7 @@
     <string name="search_records_select_tag">Select not an empty tag or use the global search.</string>
     <string name="search_submit_title">Start search</string>
     <string name="search_text_hint">Search</string>
-    <string name="search_nodes_by_query">Search nodes by query "%s"…</string>
+    <string name="filter_nodes_by_query">FIlter nodes by query "%s"…</string>
     <string name="search_records_search_select_node">Select not an empty branch or use the global search.</string>
     <string name="search_records_in_node_not_found_mask">No records found for query \"%1$s\" in node [%2$s]…</string>
     <string name="search_records_in_tag_not_found_mak">No records found for query \"%1$s\" in tag [%2$s]…</string>

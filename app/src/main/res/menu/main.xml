@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search_records"
-        android:title="@string/title_search_records"
+        android:title="@string/title_filter_records"
         android:icon="@drawable/ic_search_white"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
@@ -11,10 +11,10 @@
     <item
         android:id="@+id/action_record_node"
         android:orderInCategory="70"
-        android:title="@string/title_cur_node"
+        android:title="@string/title_to_node"
         android:visible="false"
-        android:icon="@drawable/ic_show_node"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_show_node_white"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_cur_record"
         android:orderInCategory="80"

@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -40,7 +41,8 @@ public class RecordsListAdapter extends BaseAdapter {
         ImageView iconView;
         TextView nameView;
         TextView nodeNameView;
-        TextView infoView;
+        TextView tagsView;
+        TextView createdView;
         ImageView attachedView;
     }
 
@@ -92,7 +94,8 @@ public class RecordsListAdapter extends BaseAdapter {
             viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
             viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
-            viewHolder.infoView = convertView.findViewById(R.id.record_view_created);
+            viewHolder.tagsView = convertView.findViewById(R.id.record_view_tags);
+            viewHolder.createdView = convertView.findViewById(R.id.record_view_created);
             viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
@@ -130,11 +133,17 @@ public class RecordsListAdapter extends BaseAdapter {
         } else {
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }
+        // метки
+        if (nonCryptedOrDecrypted && SettingsManager.isShowTagsInRecordsList(context)) {
+            viewHolder.tagsView.setText(record.getTagsString());
+        } else {
+            viewHolder.tagsView.setText(null);
+        }
         // дата создания
         if (nonCryptedOrDecrypted) {
-            viewHolder.infoView.setText(record.getCreatedString(dateTimeFormat));
+            viewHolder.createdView.setText(record.getCreatedString(dateTimeFormat));
         } else {
-            viewHolder.infoView.setText(null);
+            viewHolder.createdView.setText(null);
         }
         // прикрепленные файлы
         RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();
