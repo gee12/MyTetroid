@@ -121,8 +121,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
 &lt;!&ndash;                <data android:mimeType="image/*" />&ndash;&gt;
                 <data android:mimeType="text/*" />
-            </intent-filter>
-            <meta-data-->
+            </intent-filter-->
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
             <meta-data
