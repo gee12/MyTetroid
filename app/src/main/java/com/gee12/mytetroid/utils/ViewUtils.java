@@ -71,9 +71,10 @@ public class ViewUtils {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         int flags = (isForced) ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT;
         if (view != null) {
-            imm.showSoftInput(view, flags);
-        } else
+            view.post(() -> imm.showSoftInput(view, flags));
+        } else {
             imm.toggleSoftInput(flags, 0);
+        }
     }
 
     /**
@@ -87,7 +88,7 @@ public class ViewUtils {
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (view != null)
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            view.post(() -> imm.hideSoftInputFromWindow(view.getWindowToken(), 0));
         else
             imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
     }

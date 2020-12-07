@@ -227,7 +227,7 @@
     <string name="label_size">Размер каталога:</string>
 
     <string name="filter_tags_by_query">Фильтр меток по запросу "%s"…</string>
-    <string name="filter_records_hint">Фильтр по записям</string>
+    <string name="filter_records_hint">Фильтр записей</string>
     <string name="filter_records_in_node_by_query">Фильтр записей в ветке [%1$s] по запросу "%2$s"</string>
     <string name="filter_records_in_tag_by_query">Фильтр в записях метки [%1$s] по запросу "%2$s"</string>
     <string name="filter_files_by_query">Фильтр файлов в записи [%1$s] по запросу "%2$s"</string>

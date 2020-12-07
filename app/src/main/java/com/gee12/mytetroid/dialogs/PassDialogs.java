@@ -128,11 +128,11 @@ public class PassDialogs {
                 passResult.applyPass(pass, node);
                 dialog.dismiss();
             });
+
+            com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvPass, false);
         });
 
         dialog.show();
-
-        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvPass, false);
     }
 
     /**
@@ -180,11 +180,11 @@ public class PassDialogs {
                     dialog.dismiss();
                 }
             });
+
+            com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvCurPass, false);
         });
 
         dialog.show();
-
-        com.gee12.mytetroid.utils.ViewUtils.showKeyboard(context, tvCurPass, false);
     }
 
     /**
