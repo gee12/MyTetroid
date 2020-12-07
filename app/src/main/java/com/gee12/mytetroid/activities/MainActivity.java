@@ -179,9 +179,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
-                // ?
-//                if (drawerView == )
-//                closeNodesSearchView();
             }
         };
         mDrawerLayout.addDrawerListener(drawerToggle);

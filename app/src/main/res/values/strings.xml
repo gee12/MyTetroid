@@ -578,4 +578,5 @@
     <string name="mes_attached_file_mask">Attached file \"%s\"</string>
     <string name="mes_attached_files_mask">Attached files: %d</string>
     <string name="log_storage_created">Storage was created</string>
+    <string name="log_mgit_not_installed">MGit app is not installed</string>
 </resources>

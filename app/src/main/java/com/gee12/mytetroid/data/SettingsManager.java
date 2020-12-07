@@ -33,7 +33,6 @@ public class SettingsManager {
     public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
 
     private static SharedPreferences settings;
-//    private static Context context;
     private static boolean isCopiedFromFree;
 
     /**
@@ -41,7 +40,6 @@ public class SettingsManager {
      * @param context
      */
     public static void init(Context context) {
-//        SettingsManager.context = context;
         SettingsManager.settings = getPrefs(context);
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml

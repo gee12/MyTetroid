@@ -20,7 +20,6 @@ public class App {
     public static boolean IsHighlightCryptedNodes;
     @ColorInt public static int HighlightAttachColor;
     public static String DateFormatString;
-//    public static boolean IsFullScreen;
     public static boolean IsLoadedFavoritesOnly;
 
     /**
@@ -38,22 +37,6 @@ public class App {
     public static boolean isFreeVersion() {
         return (BuildConfig.FLAVOR.equals("free"));
     }
-
-//    /**
-//     * Переключатель полноэкранного режима.
-//     * @param activity
-//     * @return текущий режим
-//     */
-//    public static int toggleFullscreen(AppCompatActivity activity, boolean fromDoubleTap) {
-//        if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(activity)) {
-//            boolean newValue = !IsFullScreen;
-//            ViewUtils.setFullscreen(activity, newValue);
-//            IsFullScreen = newValue;
-//            return (newValue) ? 1 : 0;
-//        } else {
-//            return -1;
-//        }
-//    }
 
     /**
      * Переключатель блокировки выключения экрана.
@@ -80,8 +63,8 @@ public class App {
             LogManager.log(context, R.string.log_settings_copied_from_free, ILogger.Types.INFO);
         }
 
-        // отключаем с версии 3.5
-        SettingsManager.setIsSyncStorage(context, false);
+        // ---отключаем с версии 3.5
+        //SettingsManager.setIsSyncStorage(context, false);
 
         IsInited = true;
     }
