@@ -43,6 +43,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.TetroidReview;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
@@ -1693,6 +1694,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void onRecordActivityResult(int resCode, Intent data) {
         if (data == null) {
+            // обычное закрытие активности
+
+            // проверяем пора ли запустить диалог оценки приложения
+            checkForInAppReviewShowing();
+
             return;
         }
         // проверяем нужно ли отслеживать структуру хранилища
@@ -1761,6 +1767,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
         }
+    }
+
+    private int recordOpeningCount = 0;
+    private void checkForInAppReviewShowing() {
+//        if (++recordOpeningCount > 2) {
+            recordOpeningCount = 0;
+
+            TetroidReview.showInAppReview(this);
+//        }
     }
 
     /**

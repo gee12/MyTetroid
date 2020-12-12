@@ -240,7 +240,6 @@ public abstract class TetroidActivity extends AppCompatActivity
             case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-//                    StorageManager.startInitStorage(this, this, false);
                     loadStorage(null);
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);

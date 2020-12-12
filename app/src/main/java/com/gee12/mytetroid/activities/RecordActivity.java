@@ -1649,16 +1649,6 @@ public class RecordActivity extends TetroidActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-//            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
-//                if (permGranted) {
-//                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-////                    StorageManager.startInitStorage(this, this, false);
-//                    loadStorage();
-//                } else {
-//                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
-//                }
-//            }
-//            break;
             case StorageManager.REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_camera_perm_granted, ILogger.Types.INFO);
