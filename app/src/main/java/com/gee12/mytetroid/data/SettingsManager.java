@@ -511,6 +511,17 @@ public class SettingsManager {
     }
 
     /**
+     * Отображать ли панель свойств записи при отркытии ?
+     * По-умолчанию - не отображать.
+     * @param context
+     * @return
+     */
+    public static String getShowRecordFields(Context context) {
+        return getString(context, R.string.pref_key_show_record_fields,
+                context.getString(R.string.pref_show_record_fields_no));
+    }
+
+    /**
      * Выделять записи в списке, у которых есть прикрепленные файлы ?
      * По-умолчанию - нет.
      * @return

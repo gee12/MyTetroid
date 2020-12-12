@@ -250,7 +250,6 @@ public class RecordActivity extends TetroidActivity implements
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
 
-//        this.mFieldsLayout = findViewById(R.id.layout_record_fields);
         this.mTextViewTags = findViewById(R.id.text_view_record_tags);
         mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -361,42 +360,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Запуск диалога с вариантами обработки переданного текста из другого приложения.
-     * @param intent
-     * @param text
-     */
-    /*private void showIntentDialog(Intent intent, String text) {
-        setVisibilityActionHome(false);
-        IntentDialog.createDialog(this, true, (receivedData) -> {
-            if (receivedData.isCreate()) {
-                initRecordFromSentText(intent, text);
-
-            } else {
-                // TODO: реализовать выбор имеющихся записей
-            }
-        });
-
-    }*/
-
-    /**
-     * Создание временной записи, т.к. активность была запущена при передаче текста
-     *  из другого приложения.
-     * @param intent
-     * @param text
-     */
-    /*private void initRecordFromSentText(Intent intent, String text) {
-        // имя записи
-        String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
-        String url = null;
-        if (Build.VERSION.SDK_INT >= 17) {
-            url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI);
-        }
-        // создаем запись
-//        TetroidRecord record = RecordsManager.createRecord(subject, url, text, node);
-        this.mRecord = RecordsManager.createTempRecord(this, subject, url, text);
-    }*/
-
-    /**
      * Отображение записи (свойств и текста).
      * @param record
      */
@@ -405,6 +368,7 @@ public class RecordActivity extends TetroidActivity implements
             return;
         LogManager.log(this, getString(R.string.log_record_loading) + record.getId(), ILogger.Types.INFO);
         loadFields(record);
+        expandFieldsIfNeed();
         // текст
         loadRecordText(record, false);
     }
@@ -1492,14 +1456,43 @@ public class RecordActivity extends TetroidActivity implements
      * Скрытие/раскрытие панели со свойствами записи.
      */
     private void toggleRecordFieldsVisibility() {
-        mFieldsExpanderLayout.toggle();
+        /*mFieldsExpanderLayout.toggle();
 
         if (mFieldsExpanderLayout.isExpanded()) {
             mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up_white);
         } else {
             mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down_white);
+        }*/
+        expandRecordFields(!mFieldsExpanderLayout.isExpanded());
+        updateScrollButtonLocation();
+    }
+
+    private void expandRecordFields(boolean expand) {
+        if (expand) {
+            mFieldsExpanderLayout.expand();
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_up_white);
+        } else {
+            mFieldsExpanderLayout.collapse();
+            mButtonToggleFields.setImageResource(R.drawable.ic_arrow_drop_down_white);
         }
         updateScrollButtonLocation();
+    }
+
+    /**
+     * Отображение или скрытие панели свойств в зависимости от настроек.
+     */
+    private void expandFieldsIfNeed() {
+        boolean needExpand;
+        String option = SettingsManager.getShowRecordFields(this);
+        if (option.equals(getString(R.string.pref_show_record_fields_no))) {
+            needExpand = false;
+        } else if (option.equals(getString(R.string.pref_show_record_fields_yes))) {
+            needExpand = true;
+        } else {
+            needExpand = (mRecord != null && !TextUtils.isEmpty(mRecord.getTagsString())
+            && !TextUtils.isEmpty(mRecord.getAuthor()) && !TextUtils.isEmpty(mRecord.getUrl()));
+        }
+        expandRecordFields(needExpand);
     }
 
     /**
@@ -1530,10 +1523,10 @@ public class RecordActivity extends TetroidActivity implements
 
     /**
      * Управление видимостью панели со свойствами записи.
+     * Полностью, вместе с кнопкой управления видимостью панели.
      * @param isVisible
      */
     private void setRecordFieldsVisibility(boolean isVisible) {
-//        mFieldsExpanderLayout.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
         if (isVisible) {
             mFieldsExpanderLayout.setVisibility(View.VISIBLE);
             mButtonToggleFields.show();
