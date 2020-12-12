@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
+import com.gee12.mytetroid.data.xml.TetroidXMLProcessor;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;

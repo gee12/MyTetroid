@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data.crypt;
 
 import android.content.Context;
 

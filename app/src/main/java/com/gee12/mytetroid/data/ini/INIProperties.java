@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data.ini;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

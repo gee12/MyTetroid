@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.LogManager;
 

@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.crypt;
+package com.gee12.mytetroid.data.crypt;
 
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.utils.Utils;
