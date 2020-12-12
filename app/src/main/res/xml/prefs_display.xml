@@ -17,6 +17,7 @@
         android:defaultValue="@string/pref_show_record_fields_no"
         android:entries="@array/show_record_fields_entries"
         android:entryValues="@array/show_record_fields_entries"
+        android:dialogTitle="@string/title_record_fields"
         android:key="@string/pref_key_show_record_fields"
         android:summary="@string/pref_show_record_fields_summ"
         android:title="@string/pref_show_record_fields" />

@@ -24,6 +24,8 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         getActivity().setTitle(R.string.pref_category_display);
 
         setHighlightPrefAvailability();
+
+        updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
     }
 
     @Override
@@ -42,6 +44,8 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
             App.DateFormatString = SettingsManager.getDateFormatString(mContext);
+        } else if (key.equals(getString(R.string.pref_key_show_record_fields))) {
+            updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
         }
     }
 

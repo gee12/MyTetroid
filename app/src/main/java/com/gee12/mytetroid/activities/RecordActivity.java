@@ -1489,8 +1489,8 @@ public class RecordActivity extends TetroidActivity implements
         } else if (option.equals(getString(R.string.pref_show_record_fields_yes))) {
             needExpand = true;
         } else {
-            needExpand = (mRecord != null && !TextUtils.isEmpty(mRecord.getTagsString())
-            && !TextUtils.isEmpty(mRecord.getAuthor()) && !TextUtils.isEmpty(mRecord.getUrl()));
+            needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
+            || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
         }
         expandRecordFields(needExpand);
     }
