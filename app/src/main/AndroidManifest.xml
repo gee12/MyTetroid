@@ -155,7 +155,6 @@
             android:name=".activities.LogsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_log_file_content"
-            android:parentActivityName=".activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="com.gee12.mytetroid.activities.LogsActivity" />

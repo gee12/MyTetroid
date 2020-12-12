@@ -124,16 +124,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private TetroidTag mCurTag;
     private TextView mTextViewNodesEmpty;
     private TextView mTextViewTagsEmpty;
-//    private android.widget.SearchView mSearchViewNodes;
     private SearchView mSearchViewNodes;
-//    private android.widget.SearchView mSearchViewTags;
     private SearchView mSearchViewTags;
     private SearchView mSearchViewRecords;
-//    private MenuItem mMenuItemSearchViewRecords;
-//    private MenuItem mMenuItemGlobalSearch;
-//    private MenuItem mMenuItemStorageSync;
-//    private MenuItem mMenuItemStorageInfo;
-//    private MenuItem mMenuItemStorageReload;
     private Menu mOptionsMenu;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
@@ -149,7 +142,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private String mLastSearchQuery;
     private boolean mIsStorageChangingHandled;
     private ICallback mOutsideChangingHandler;
-//    private boolean mShowLoadedStorage;
 
     private BroadcastReceiver mBroadcastReceiver;
     private LocalBroadcastManager mBroadcastManager;
@@ -571,25 +563,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
         updateOptionsMenu();
-//        setMenuItemsAvailable(res);
     }
-
-    /**
-     * Установка активности пунктов меню.
-     * @param isAvailable
-     */
-/*
-    private void setMenuItemsAvailable(boolean isAvailable) {
-        int vis = (isAvailable) ? View.VISIBLE : View.INVISIBLE;
-        mSearchViewNodes.setVisibility(vis);
-        mSearchViewTags.setVisibility(vis);
-        ViewUtils.setEnabledIfNotNull(mMenuItemGlobalSearch, isAvailable);
-        ViewUtils.setEnabledIfNotNull(mMenuItemStorageSync, isAvailable);
-        ViewUtils.setEnabledIfNotNull(mMenuItemStorageInfo, isAvailable);
-        ViewUtils.setEnabledIfNotNull(mMenuItemStorageReload, isAvailable);
-        ViewUtils.setEnabledIfNotNull(mMenuItemSearchViewRecords, isAvailable);
-    }
-*/
 
     /**
      * Открытие записей ветки.
@@ -1160,40 +1134,29 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void updateMainToolbar(int viewId, String title) {
-//        boolean showRecordsSearch;
-
         switch (viewId) {
             case MainPageFragment.MAIN_VIEW_GLOBAL_FOUND:
                 title = getString(R.string.title_global_search);
-//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_NONE:
                 title = null;
-//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_NODE_RECORDS:
                 title = ((mCurNode != null) ? mCurNode.getName() : "");
-//                showRecordsSearch = true;
                 break;
             case MainPageFragment.MAIN_VIEW_TAG_RECORDS:
                 title = ((mCurTag != null) ? mCurTag.getName() : "");
-//                showRecordsSearch = true;
                 break;
 //            case MainPageFragment.VIEW_FOUND_RECORDS:
-//                showRecordsSearch = true;
 //                break;
             case MainPageFragment.MAIN_VIEW_FAVORITES:
                 title = getString(R.string.title_favorites);
-//                showRecordsSearch = false;
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
             default:
-//                showRecordsSearch = false;
         }
         setTitle(title);
         setSubtitle(viewId);
-//        setRecordsSearchViewVisibility(showRecordsSearch);
-//        setRecordsSearchViewVisibility(showRecordsSearch, viewId);
         updateOptionsMenu();
     }
 
@@ -1219,10 +1182,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             tvSubtitle.setVisibility(View.GONE);
         }
     }
-
-    /*public void setRecordsSearchViewVisibility(boolean isVisible) {
-        mMenuItemSearchViewRecords.setVisible(isVisible);
-    }*/
 
     public void setFoundPageVisibility(boolean isVisible) {
         if (!isVisible) {

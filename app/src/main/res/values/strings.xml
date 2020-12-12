@@ -8,6 +8,7 @@
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 
     <string name="title_settings">Settings</string>
+    <string name="title_open">Open</string>
     <string name="title_password_enter">Enter password</string>
     <string name="title_password_set">Set password</string>
     <string name="title_password_change">Change password</string>
@@ -112,6 +113,7 @@
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
     <string name="title_load_all_nodes">Load all nodes</string>
+    <string name="title_more_in_logs">More in logs</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -454,7 +456,7 @@
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %1$s %2$s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
-    <string name="log_oper_error_mask">Unable to %1$s the %2$s%3$s%4$s</string>
+    <string name="log_oper_error_mask">Unable to %1$s the %2$s%3$s</string>
     <string name="log_during_oper_errors_mask">Errors occurred during %1$s the %2$s (more in the logs)</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="log_record_loading">Record loading id=</string>

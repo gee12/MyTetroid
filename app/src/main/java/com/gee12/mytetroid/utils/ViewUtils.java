@@ -263,4 +263,27 @@ public class ViewUtils {
             }
         }
     }
+
+    /**
+     * Get root view from activity from context.
+     * @param context
+     * @return
+     */
+    public static View getRootView(Context context) {
+        final Activity activity = (Activity) context;
+        if (activity == null) {
+            return null;
+        }
+        View rootView = activity.getWindow().getDecorView().getRootView();
+        if (rootView == null) {
+            rootView = activity.findViewById(android.R.id.content);
+        }
+//        if (rootView == null) {
+//            final ViewGroup contentViewGroup = (ViewGroup) activity.findViewById(android.R.id.content);
+//            if (contentViewGroup != null) {
+//                rootView = contentViewGroup.getChildAt(0);
+//            }
+//        }
+        return rootView;
+    }
 }

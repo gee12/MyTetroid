@@ -1,17 +1,20 @@
 package com.gee12.mytetroid.logs;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.activities.LogsActivity;
 import com.gee12.mytetroid.activities.MainActivity;
 import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -154,9 +157,13 @@ public class TetroidLog extends LogManager {
     public static String logOperError(Context context, Objs obj, Opers oper, String add, boolean more, int duration) {
         String mes = String.format(context.getString(R.string.log_oper_error_mask),
                 (oper.getString(context, PRESENT_SIMPLE)), (obj.getString(context, PRESENT_SIMPLE)),
-                (add != null) ? add : "",
-                (more) ? context.getString(R.string.log_more_in_logs) : "");
+                (add != null) ? add : "");
+//                (more) ? context.getString(R.string.log_more_in_logs) : "");
         log(context, mes, ILogger.Types.ERROR, duration);
+        if (more) {
+            Message.showSnack(context, R.string.title_more_in_logs, Snackbar.LENGTH_INDEFINITE,
+                    R.string.title_open, v -> startLogsActivity(context));
+        }
         return mes;
     }
 
@@ -203,7 +210,6 @@ public class TetroidLog extends LogManager {
      * @param stage
      * @return
      */
-//    public static String logTaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
     public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
@@ -251,5 +257,10 @@ public class TetroidLog extends LogManager {
             log(context, mes, type);
         }
         return mes;
+    }
+
+    public static void startLogsActivity(Context context) {
+        Intent intent = new Intent(context, LogsActivity.class);
+        context.startActivity(intent);
     }
 }

@@ -7,6 +7,7 @@
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
     <string name="title_settings">Настройки</string>
+    <string name="title_open">Открыть</string>
     <string name="title_show_node">Открыть ветку</string>
     <string name="title_rename">Переименовать</string>
     <string name="title_set_node_icon">Задать иконку</string>
@@ -111,6 +112,7 @@
     <string name="title_use_global_search">Использовать глобальный поиск</string>
     <string name="title_reload_storage">Перезагрузить хранилище</string>
     <string name="title_load_all_nodes">Загрузите все ветки</string>
+    <string name="title_more_in_logs">Подробнее в логах</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -398,7 +400,7 @@
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
     <string name="log_create_record_dir_error">Не удалось создать каталог</string>
     <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
-    <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s%4$s</string>
+    <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s</string>
     <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки (подробнее в логах)</string>
     <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
     <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
