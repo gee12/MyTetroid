@@ -62,7 +62,7 @@ import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
-import com.gee12.mytetroid.fragments.SettingsFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsFragment;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TaskStage;

@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.fragments;
+package com.gee12.mytetroid.fragments.settings;
 
 import android.content.Context;
 import android.content.Intent;
