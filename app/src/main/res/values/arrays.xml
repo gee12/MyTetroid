@@ -4,6 +4,11 @@
         <item>@string/pref_when_ask_password_on_select</item>
         <item>@string/pref_when_ask_password_on_start</item>
     </string-array>
+    <string-array name="show_record_fields_entries">
+        <item>@string/pref_show_record_fields_yes</item>
+        <item>@string/pref_show_record_fields_no</item>
+        <item>@string/pref_show_record_fields_filled</item>
+    </string-array>
     <string-array name="view_type_titles">
         <!--<item name="none"> </item>-->
         <item name="records_list">NODE</item>
