@@ -172,7 +172,8 @@ public class DataManager implements IRecordFileCrypter {
      */
     public boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
         boolean res = false;
-        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
+//        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
+        File file = new File(getPathToMyTetraXml());
         if (!file.exists()) {
             LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, ILogger.Types.ERROR);
             return false;
@@ -635,7 +636,8 @@ public class DataManager implements IRecordFileCrypter {
             return false;
         }
 
-        String destPath = Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
+//        String destPath = Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
+        String destPath = getPathToMyTetraXml();
         String tempPath = destPath + "_tmp";
 
         LogManager.log(context, context.getString(R.string.log_saving_mytetra_xml), ILogger.Types.DEBUG);
@@ -877,6 +879,10 @@ public class DataManager implements IRecordFileCrypter {
 
     public static String getStoragePath() {
         return Instance.mStoragePath;
+    }
+
+    public static String getPathToMyTetraXml() {
+        return Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
     }
 
     public static boolean isInited() {

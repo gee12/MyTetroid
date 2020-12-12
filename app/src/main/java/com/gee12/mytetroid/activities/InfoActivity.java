@@ -9,6 +9,9 @@ import androidx.appcompat.widget.Toolbar;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidXml;
+import com.gee12.mytetroid.utils.Utils;
+
+import java.util.Date;
 
 /**
  * Активность для просмотра информации о хранилище.
@@ -23,6 +26,14 @@ public class InfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        ((TextView)findViewById(R.id.text_view_path)).setText(DataManager.getStoragePath());
+        String tetraXml = DataManager.getPathToMyTetraXml();
+        Date edited = DataManager.getFileModifiedDate(this, tetraXml);
+        ((TextView)findViewById(R.id.text_view_last_edit)).setText(
+                Utils.dateToString(edited, getString(R.string.full_date_format_string)));
+        ((TextView)findViewById(R.id.text_view_size)).setText(
+                DataManager.getFileSize(this, tetraXml));
+        // статистика
         TetroidXml storage = DataManager.getInstance().getXmlManager();
         storage.calcCounters();
         ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(String.valueOf(storage.getNodesCount()));

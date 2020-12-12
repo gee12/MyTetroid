@@ -360,7 +360,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //            TetroidFileObserver.startStorageObserver(mOutsideChangingHandler);
                 Bundle bundle = new Bundle();
                 bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START);
-                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+//                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+                bundle.putString(FileObserverService.EXTRA_FILE_PATH, DataManager.getPathToMyTetraXml());
                 bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
                 FileObserverService.sendCommand(this, bundle);
             }

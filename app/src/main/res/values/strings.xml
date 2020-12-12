@@ -590,4 +590,7 @@
     <string name="log_mgit_not_installed">MGit app is not installed</string>
     <string name="log_review_request_not_succ" translatable="false">TetroidReview.showInAppReview(): request for review flow is not successful</string>
     <string name="log_start_review" translatable="false">Start in-app review</string>
+    <string name="label_storage_path">Storage:</string>
+    <string name="label_storage_size">Size on disk:</string>
+    <string name="label_storage_last_edit">Last modified tree:</string>
 </resources>

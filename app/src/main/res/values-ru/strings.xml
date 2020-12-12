@@ -517,4 +517,7 @@
     <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
     <string name="log_storage_created">Хранилище создано</string>
     <string name="log_mgit_not_installed">По-видимому, приложение MGit не установлено</string>
+    <string name="label_storage_path">Хранилище:</string>
+    <string name="label_storage_size">Размер на диске:</string>
+    <string name="label_storage_last_edit">Последнее изменение дерева:</string>
 </resources>
