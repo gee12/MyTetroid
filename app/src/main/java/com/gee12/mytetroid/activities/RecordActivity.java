@@ -467,6 +467,7 @@ public class RecordActivity extends TetroidActivity implements
                 if (textHtml == null) {
                     if (record.isCrypted() && DataManager.getInstance().getCrypterManager().getErrorCode() > 0) {
                         LogManager.log(this, R.string.log_error_record_file_decrypting, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+                        showSnackMoreInLogs();
                     }
                 }
             }
@@ -824,6 +825,7 @@ public class RecordActivity extends TetroidActivity implements
         if (errorCount > 0) {
             LogManager.log(this, String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
                     ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
         }
         if (!savedImages.isEmpty()) {
             mEditor.insertImages(savedImages);

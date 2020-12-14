@@ -98,4 +98,11 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
         setPreferenceScreen(null);
         addPreferencesFromResource(R.xml.prefs);
     }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    protected void showSnackMoreInLogs() {
+        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+    }
 }

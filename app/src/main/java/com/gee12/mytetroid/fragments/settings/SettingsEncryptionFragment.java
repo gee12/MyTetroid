@@ -252,6 +252,7 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
                 LogManager.log(mContext, R.string.log_pass_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(mContext, R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT);
+                showSnackMoreInLogs();
             }
         }
     }

@@ -325,6 +325,7 @@ public class MainPageFragment extends TetroidFragment {
             }
         } else if (res == -2 && !isCutted) {
             LogManager.log(mContext, R.string.log_erorr_move_record_dir_when_del, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
         } else {
             TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.RECORD, (isCutted) ? TetroidLog.Opers.CUT : TetroidLog.Opers.DELETE);
         }
@@ -395,6 +396,7 @@ public class MainPageFragment extends TetroidFragment {
             LogManager.log(mContext, getString(R.string.log_file_was_attached), ILogger.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.log(mContext, getString(R.string.log_file_attaching_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
         }
     }
 

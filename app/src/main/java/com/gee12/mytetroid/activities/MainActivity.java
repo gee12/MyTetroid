@@ -565,6 +565,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
         updateOptionsMenu();
+//        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 
     /**
@@ -2020,6 +2021,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 if (hasError) {
                     LogManager.log(this, R.string.log_files_attach_error, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                    showSnackMoreInLogs();
                 }
                 // запускаем активность записи, к которой уже будут прикреплены файлы
                 openRecordWithAttachedFiles(record.getId());

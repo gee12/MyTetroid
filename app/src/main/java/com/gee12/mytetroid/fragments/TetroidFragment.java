@@ -8,8 +8,10 @@ import android.view.View;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
 
+import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.activities.IMainView;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
+import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -68,5 +70,12 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
         if (mGestureDetector != null)
             mGestureDetector.onTouchEvent(event);
         return false;
+    }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    protected void showSnackMoreInLogs() {
+        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 }

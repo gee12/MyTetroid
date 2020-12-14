@@ -403,7 +403,7 @@
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
     <string name="title_storage_not_loaded">Storage not loaded</string>
-    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>
+<!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded_mask">Storage \'%s\' was loaded</string>
     <string name="log_storage_loaded_decrypted_mask">Storage \'%s\' was loaded and decrypted</string>
@@ -464,7 +464,8 @@
     <string name="log_oper_cancel_mask">Cancel %1$s %2$s, as failed to save mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Record deleting error: directory is absent&#160;</string>
     <string name="log_oper_error_mask">Unable to %1$s the %2$s%3$s</string>
-    <string name="log_during_oper_errors_mask">Errors occurred during %1$s the %2$s (more in the logs)</string>
+<!--    <string name="log_during_oper_errors_mask">Errors occurred during %1$s the %2$s (more in the logs)</string>-->
+    <string name="log_during_oper_errors_mask">Errors occurred during %1$s the %2$s</string>
     <string name="log_get_item_is_null">Unable to get current list item</string>
     <string name="log_record_loading">Record loading id=</string>
     <string name="log_node_delete_list_error">The node was deleted, but an error occurred while updating the list. Reboot storage</string>
@@ -478,7 +479,8 @@
     <string name="log_file_checking_error">Error checking file existence:</string>
     <!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
     <!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
-    <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>
+<!--    <string name="log_file_attaching_error">Unable to attach the file to the record (more in the logs)</string>-->
+    <string name="log_file_attaching_error">Unable to attach the file to the record</string>
     <string name="log_file_was_attached">File was attached</string>
     <string name="log_file_record_is_null" translatable="false">file.getRecord() is null</string>
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
@@ -499,22 +501,26 @@
     <string name="log_start_image_file_converting_mask">Start converting image file to [%s]</string>
     <string name="log_start_image_file_deleting_mask">Start deleting image file [%s]</string>
     <string name="log_error_image_file_saving">Failed to save image file</string>
-    <string name="log_failed_to_save_images_mask">Failed to save images: %d (more in the logs)</string>
+<!--    <string name="log_failed_to_save_images_mask">Failed to save images: %d (more in the logs)</string>-->
+    <string name="log_failed_to_save_images_mask">Failed to save images: %d</string>
+<!--    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>-->
     <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
-    <string name="log_error_record_file_reading">Failed to read the record file (more in the logs)</string>
-    <string name="log_error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>
+<!--    <string name="log_error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>-->
+    <string name="log_error_record_file_decrypting">Failed to decrypt the record file</string>
     <string name="log_n_matches_found">%d matches found</string>
     <string name="log_matches_not_found">Matches not found</string>
     <string name="log_create_dir_error">Unable to create destination directory:&#160;</string>
     <string name="log_error_move_record_catalog">Error moving record directory</string>
-    <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>
+<!--    <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash (more in the logs)</string>-->
+    <string name="log_erorr_move_record_dir_when_del">Record was deleted, but an error occurred while moving the directory to the trash</string>
     <string name="log_open_log_file">Reading the log file</string>
     <string name="log_not_passed_text">Was not passed text</string>
     <string name="log_not_passed_image_uri">Was not passed image URI</string>
     <string name="log_receiving_intent_text">Receiving text from another application</string>
     <string name="log_receiving_intent_image_mask">Receiving image from another application: [%s]</string>
     <string name="log_receiving_intent_images_mask">Receiving images (%d) from another application</string>
-    <string name="log_files_attach_error">Errors occurred while attaching file(s) (more in logs)</string>
+<!--    <string name="log_files_attach_error">Errors occurred while attaching file(s) (more in logs)</string>-->
+    <string name="log_files_attach_error">Errors occurred while attaching file(s)</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
     <string name="log_error_file_decrypt">Error decrypting file</string>
     <string name="log_error_file_encrypt">Error encrypting file</string>
@@ -533,9 +539,10 @@
     <string name="log_pin_confirm_not_match">PIN-code confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>
     <string name="log_pass_changed">Password was changed</string>
-    <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>
+<!--    <string name="log_pass_change_error">Errors occurred while changing password (more in logs)</string>-->
+    <string name="log_pass_change_error">Errors occurred while changing password</string>
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
-    <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>
+<!--    <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>-->
     <string name="log_clear_storage_dir">Clear storage folder</string>
     <string name="log_start_storage_creating">Start storage creating:\n</string>
     <string name="log_dir_is_missing">Folder is missing</string>
@@ -548,7 +555,7 @@
     <string name="log_save_pass">Saving the password</string>
     <string name="log_from_to_mask">&#160;from "%1$s" to "%2$s"</string>
     <string name="log_to_mask">&#160; to "%s"</string>
-    <string name="log_more_in_logs">&#160;(more in the logs)</string>
+<!--    <string name="log_more_in_logs">&#160;(more in the logs)</string>-->
     <string name="log_storage_decrypted">Storage was decrypted</string>
     <string name="log_tag_is_null">Tag is empty (null)</string>
     <string name="log_record_is_null">Record is empty (null)</string>

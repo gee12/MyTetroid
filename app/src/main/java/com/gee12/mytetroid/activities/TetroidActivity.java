@@ -29,6 +29,7 @@ import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
+import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -378,5 +379,12 @@ public abstract class TetroidActivity extends AppCompatActivity
 
     public boolean isOnCreateProcessed() {
         return mIsOnCreateProcessed;
+    }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    protected void showSnackMoreInLogs() {
+        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 }

@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -177,5 +179,10 @@ public class LogsActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static void startLogsActivity(Context context) {
+        Intent intent = new Intent(context, LogsActivity.class);
+        context.startActivity(intent);
     }
 }
