@@ -41,18 +41,19 @@
                 <TextView
                     android:id="@+id/label_path"
                     style="@style/grid_cell_label"
-                    android:layout_weight="1"
                     android:text="@string/label_storage_path"/>
 <!--                android:layout_alignParentLeft="true"-->
 <!--                android:layout_alignParentStart="true"-->
-<!--                android:layout_toLeftOf="@id/text_view_path"-->
-<!--                android:layout_toStartOf="@id/text_view_path"-->
 
                 <TextView
                     android:id="@+id/text_view_path"
+                    android:layout_weight="1"
+                    android:gravity="end"
                     style="@style/grid_cell_value"/>
 <!--                android:layout_alignParentRight="true"-->
 <!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_toRightOf="@id/label_path"-->
+<!--                android:layout_toEndOf="@id/label_path"-->
 
             </LinearLayout>
 
@@ -92,17 +93,20 @@
                 android:layout_alignParentEnd="true"
                 style="@style/grid_cell_value"/>
 
+            <View
+                android:id="@+id/separ"
+                style="@style/stats_line"
+                android:layout_below="@id/label_last_edit"/>
 
             <!-- Статистика -->
             <TableLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/label_last_edit"
+                android:layout_below="@id/separ"
                 android:columnCount="2"
                 android:rowCount="16"
                 android:shrinkColumns="*"
-                android:stretchColumns="*"
-                android:layout_marginTop="16dp">
+                android:stretchColumns="*">
 
                 <TableRow>
                     <TextView

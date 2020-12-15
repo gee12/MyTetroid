@@ -26,13 +26,14 @@ public class InfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ((TextView)findViewById(R.id.text_view_path)).setText(DataManager.getStoragePath());
+        String path = DataManager.getStoragePath();
+        ((TextView)findViewById(R.id.text_view_path)).setText(path);
         String tetraXml = DataManager.getPathToMyTetraXml();
         Date edited = DataManager.getFileModifiedDate(this, tetraXml);
         ((TextView)findViewById(R.id.text_view_last_edit)).setText(
                 Utils.dateToString(edited, getString(R.string.full_date_format_string)));
         ((TextView)findViewById(R.id.text_view_size)).setText(
-                DataManager.getFileSize(this, tetraXml));
+                DataManager.getFileSize(this, path));
         // статистика
         TetroidXml storage = DataManager.getInstance().getXmlManager();
         storage.calcCounters();
