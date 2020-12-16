@@ -21,6 +21,7 @@ public class App {
     @ColorInt public static int HighlightAttachColor;
     public static String DateFormatString;
     public static boolean IsLoadedFavoritesOnly;
+    public static RecordFieldsSelector RecordFieldsInList;
 
     /**
      * Проверка - полная ли версия.

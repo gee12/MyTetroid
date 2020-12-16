@@ -113,6 +113,10 @@
     <string name="title_reload_storage">Перезагрузить хранилище</string>
     <string name="title_load_all_nodes">Загрузите все ветки</string>
     <string name="title_more_in_logs">Подробнее в логах</string>
+    <string name="title_author">Автор</string>
+    <string name="title_tags">Метки</string>
+    <string name="title_created">Дата создания</string>
+    <string name="title_edited">Дата изменения</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -145,6 +149,8 @@
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
     <string name="pref_is_highlight_crypted_nodes">Подсвечивать зашифрованные ветки</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Включить подсветку зашифрованных веток</string>
+    <string name="pref_is_show_author_in_records">Отображать автора</string>
+    <string name="pref_is_show_author_in_records_summ">Отображать автора в списке записей</string>
     <string name="pref_is_show_tags_in_records">Отображать метки</string>
     <string name="pref_is_show_tags_in_records_summ">Отображать метки в списке записей</string>
     <string name="pref_highlight_attach_color">Цвет подсветки</string>

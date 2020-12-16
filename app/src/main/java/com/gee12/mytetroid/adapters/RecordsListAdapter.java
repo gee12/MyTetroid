@@ -14,12 +14,15 @@ import androidx.core.content.ContextCompat;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.RecordFieldsSelector;
+import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class RecordsListAdapter extends BaseAdapter {
@@ -41,8 +44,10 @@ public class RecordsListAdapter extends BaseAdapter {
         ImageView iconView;
         TextView nameView;
         TextView nodeNameView;
+        TextView authorView;
         TextView tagsView;
         TextView createdView;
+        TextView editedView;
         ImageView attachedView;
     }
 
@@ -94,8 +99,10 @@ public class RecordsListAdapter extends BaseAdapter {
             viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
             viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
+            viewHolder.authorView = convertView.findViewById(R.id.record_view_author);
             viewHolder.tagsView = convertView.findViewById(R.id.record_view_tags);
             viewHolder.createdView = convertView.findViewById(R.id.record_view_created);
+            viewHolder.editedView = convertView.findViewById(R.id.record_view_edited);
             viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
             convertView.setTag(viewHolder);
         } else {
@@ -133,17 +140,35 @@ public class RecordsListAdapter extends BaseAdapter {
         } else {
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }
+        RecordFieldsSelector fieldsSelector = App.RecordFieldsInList;
+        // автор
+//        if (nonCryptedOrDecrypted && SettingsManager.isShowAuthorInRecordsList(context)) {
+        if (nonCryptedOrDecrypted && fieldsSelector.checkIsAuthor()) {
+            viewHolder.authorView.setText(record.getAuthor());
+        } else {
+            viewHolder.authorView.setText(null);
+        }
         // метки
-        if (nonCryptedOrDecrypted && SettingsManager.isShowTagsInRecordsList(context)) {
+//        if (nonCryptedOrDecrypted && SettingsManager.isShowTagsInRecordsList(context)) {
+        if (nonCryptedOrDecrypted && fieldsSelector.checkIsTags()) {
             viewHolder.tagsView.setText(record.getTagsString());
         } else {
             viewHolder.tagsView.setText(null);
         }
         // дата создания
-        if (nonCryptedOrDecrypted) {
+//        if (nonCryptedOrDecrypted) {
+        if (nonCryptedOrDecrypted && fieldsSelector.checkIsCreatedDate()) {
             viewHolder.createdView.setText(record.getCreatedString(dateTimeFormat));
         } else {
             viewHolder.createdView.setText(null);
+        }
+        // дата изменения
+//        if (nonCryptedOrDecrypted) {
+        if (App.isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
+            Date edited = RecordsManager.getEditedDate(context, record);
+            viewHolder.editedView.setText((edited != null) ? Utils.dateToString(edited, dateTimeFormat) : "-");
+        } else {
+            viewHolder.editedView.setText(null);
         }
         // прикрепленные файлы
         RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();

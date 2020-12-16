@@ -3,8 +3,9 @@ package com.gee12.mytetroid.model;
 import android.content.Context;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.StringsIntMask;
 
-public class FoundType {
+public class FoundType extends StringsIntMask {
 
     public static final int TYPES_COUNT = 11;
     public static final int TYPE_NONE = 0;
@@ -21,24 +22,27 @@ public class FoundType {
     // не хранятся в mytetra.xml
     public static final int TYPE_IMAGE = 11;
 
-    private int type;
+//    private int type;
 
     public FoundType() {
-        this.type = 0;
+        super();
+//        this.type = 0;
     }
 
     public FoundType(int type) {
-        this.type = 0;
-        addType(type);
+        super();
+        addValue(type);
+//        this.type = 0;
+//        addType(type);
     }
 
     /**
      * Добавление типа объекта.
      * @param type
      */
-    public void addType(int type) {
+  /*  public void addType(int type) {
         this.type |= (1 << type);
-    }
+    }*/
 
     /**
      * Формирование строки в виде перечисления типов объекта, хранящихся в битах переменной type.
@@ -47,7 +51,7 @@ public class FoundType {
      * @return
      */
     public String getTypeString(Context context) {
-        StringBuilder sb = new StringBuilder();
+       /* StringBuilder sb = new StringBuilder();
         String[] foundTypes = context.getResources().getStringArray(R.array.found_types);
         boolean isFirst = true;
         for (int i = 0; i < TYPES_COUNT; i++)
@@ -58,7 +62,10 @@ public class FoundType {
                 sb.append(foundTypes[i - 1]);
                 isFirst = false;
             }
-        return sb.toString();
+        return sb.toString();*/
+
+        // уменьшаем на 1, т.к. пропускаем тип NONE
+        return joinToString(context.getResources().getStringArray(R.array.found_types), 1);
     }
 
     /**
@@ -66,7 +73,7 @@ public class FoundType {
      * @param type
      * @return
      */
-    public boolean checkType(int type) {
-        return ((type & (1 << type)) > 0);
-    }
+//    public boolean checkType(int type) {
+//        return ((type & (1 << type)) > 0);
+//    }
 }

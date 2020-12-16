@@ -9,6 +9,16 @@
         <item>@string/pref_show_record_fields_no</item>
         <item>@string/pref_show_record_fields_filled</item>
     </string-array>
+    <string-array name="record_fields_in_list_entries">
+        <item>@string/title_author</item>
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
+        <item>@string/title_edited</item>
+    </string-array>
+    <string-array name="record_fields_in_list_def_entries">
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
+    </string-array>
     <string-array name="view_type_titles">
         <!--<item name="none"> </item>-->
         <item name="records_list">NODE</item>

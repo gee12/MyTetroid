@@ -8,11 +8,14 @@ import android.text.TextUtils;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,6 +64,7 @@ public class SettingsManager {
         App.IsHighlightCryptedNodes = isHighlightEncryptedNodes(context);
         App.HighlightAttachColor = getHighlightColor(context);
         App.DateFormatString = getDateFormatString(context);
+        App.RecordFieldsInList = new RecordFieldsSelector(context, getRecordFieldsInList(context));
     }
 
     /**
@@ -586,11 +590,25 @@ public class SettingsManager {
     }
 
     /**
+     * Отображать ли автора в списке записей ?
+     * @return
+     */
+    public static boolean isShowAuthorInRecordsList(Context context) {
+        return getBoolean(context, R.string.pref_key_is_show_author_in_records, true);
+    }
+
+    /**
      * Отображать ли метки в списке записей ?
      * @return
      */
     public static boolean isShowTagsInRecordsList(Context context) {
         return getBoolean(context, R.string.pref_key_is_show_tags_in_records, true);
+    }
+
+    public static Set<String> getRecordFieldsInList(Context context) {
+        HashSet<String> defValues = new HashSet<>(
+                Arrays.asList(context.getResources().getStringArray(R.array.record_fields_in_list_def_entries)));
+        return getStringSet(context, R.string.pref_key_record_fields_in_list, defValues);
     }
 
     /*

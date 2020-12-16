@@ -8,6 +8,7 @@ import androidx.preference.Preference;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
@@ -26,6 +27,8 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         setHighlightPrefAvailability();
 
         updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
+        updateSummary(R.string.pref_key_record_fields_in_list,
+                App.RecordFieldsInList.joinToString(getResources().getStringArray(R.array.record_fields_in_list_entries), 0));
     }
 
     @Override
@@ -46,6 +49,10 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
             App.DateFormatString = SettingsManager.getDateFormatString(mContext);
         } else if (key.equals(getString(R.string.pref_key_show_record_fields))) {
             updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
+        } else if (key.equals(getString(R.string.pref_key_record_fields_in_list))) {
+            App.RecordFieldsInList = new RecordFieldsSelector(mContext, SettingsManager.getRecordFieldsInList(mContext));
+            updateSummary(R.string.pref_key_record_fields_in_list,
+                    App.RecordFieldsInList.joinToString(getResources().getStringArray(R.array.record_fields_in_list_entries), 0));
         }
     }
 

@@ -114,6 +114,10 @@
     <string name="title_reload_storage">Reload storage</string>
     <string name="title_load_all_nodes">Load all nodes</string>
     <string name="title_more_in_logs">More in logs</string>
+    <string name="title_author">Author</string>
+    <string name="title_tags">Tags</string>
+    <string name="title_created">Created date</string>
+    <string name="title_edited">Edited date</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -150,6 +154,8 @@
     <string name="pref_key_is_highlight_crypted_nodes" translatable="false">pref_key_is_highlight_crypted_nodes</string>
     <string name="pref_is_highlight_crypted_nodes">Highlight encrypted nodes</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Enable highlight encrypted nodes</string>
+    <string name="pref_is_show_author_in_records">Show author</string>
+    <string name="pref_is_show_author_in_records_summ">Show author in record list</string>
     <string name="pref_is_show_tags_in_records">Show tags</string>
     <string name="pref_is_show_tags_in_records_summ">Show tags in record list</string>
     <string name="pref_key_highlight_attach_color" translatable="false">pref_highlight_attach_color</string>
@@ -218,6 +224,7 @@
     <string name="pref_key_last_folder" translatable="false">pref_key_last_folder</string>
     <string name="pref_keep_screen_on">Keep screen on</string>
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
+    <string name="pref_key_is_show_author_in_records" translatable="false">pref_key_is_show_author_in_records</string>
     <string name="pref_key_is_show_tags_in_records" translatable="false">pref_key_is_show_tags_in_records</string>
     <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
@@ -600,4 +607,5 @@
     <string name="label_storage_path">Storage:</string>
     <string name="label_storage_size">Size on disk:</string>
     <string name="label_storage_last_edit">Last modified tree:</string>
+    <string name="pref_key_record_fields_in_list">pref_key_record_fields_in_list</string>
 </resources>
