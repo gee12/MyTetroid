@@ -2,6 +2,7 @@ package com.gee12.mytetroid.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,32 +144,39 @@ public class RecordsListAdapter extends BaseAdapter {
         RecordFieldsSelector fieldsSelector = App.RecordFieldsInList;
         // автор
 //        if (nonCryptedOrDecrypted && SettingsManager.isShowAuthorInRecordsList(context)) {
-        if (nonCryptedOrDecrypted && fieldsSelector.checkIsAuthor()) {
-            viewHolder.authorView.setText(record.getAuthor());
+        String author = record.getAuthor();
+        if (nonCryptedOrDecrypted && fieldsSelector.checkIsAuthor() && !TextUtils.isEmpty(author)) {
+            viewHolder.authorView.setVisibility(View.VISIBLE);
+            viewHolder.authorView.setText(author);
         } else {
-            viewHolder.authorView.setText(null);
+//            viewHolder.authorView.setText(null);
+            viewHolder.authorView.setVisibility(View.GONE);
         }
         // метки
-//        if (nonCryptedOrDecrypted && SettingsManager.isShowTagsInRecordsList(context)) {
-        if (nonCryptedOrDecrypted && fieldsSelector.checkIsTags()) {
-            viewHolder.tagsView.setText(record.getTagsString());
+        String tags = record.getTagsString();
+        if (nonCryptedOrDecrypted && fieldsSelector.checkIsTags() && !TextUtils.isEmpty(tags)) {
+            viewHolder.tagsView.setVisibility(View.VISIBLE);
+            viewHolder.tagsView.setText(tags);
         } else {
-            viewHolder.tagsView.setText(null);
+//            viewHolder.tagsView.setText(null);
+            viewHolder.tagsView.setVisibility(View.GONE);
         }
         // дата создания
-//        if (nonCryptedOrDecrypted) {
         if (nonCryptedOrDecrypted && fieldsSelector.checkIsCreatedDate()) {
+            viewHolder.createdView.setVisibility(View.VISIBLE);
             viewHolder.createdView.setText(record.getCreatedString(dateTimeFormat));
         } else {
-            viewHolder.createdView.setText(null);
+//            viewHolder.createdView.setText(null);
+            viewHolder.createdView.setVisibility(View.GONE);
         }
         // дата изменения
-//        if (nonCryptedOrDecrypted) {
         if (App.isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
+            viewHolder.editedView.setVisibility(View.VISIBLE);
             Date edited = RecordsManager.getEditedDate(context, record);
             viewHolder.editedView.setText((edited != null) ? Utils.dateToString(edited, dateTimeFormat) : "-");
         } else {
-            viewHolder.editedView.setText(null);
+//            viewHolder.editedView.setText(null);
+            viewHolder.editedView.setVisibility(View.GONE);
         }
         // прикрепленные файлы
         RelativeLayout.LayoutParams nameParams = (RelativeLayout.LayoutParams) viewHolder.nameView.getLayoutParams();

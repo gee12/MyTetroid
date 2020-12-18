@@ -27,7 +27,7 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         setHighlightPrefAvailability();
 
         updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
-        updateSummary(R.string.pref_key_record_fields_in_list,
+        updateSummaryIfContains(R.string.pref_key_record_fields_in_list,
                 App.RecordFieldsInList.joinToString(getResources().getStringArray(R.array.record_fields_in_list_entries), 0));
     }
 

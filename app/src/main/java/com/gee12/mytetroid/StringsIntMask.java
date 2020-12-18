@@ -11,18 +11,13 @@ public class StringsIntMask {
 
     public StringsIntMask(Collection<String> strings, String[] fullArray) {
         this.mMask = 0;
+        if (strings == null || fullArray == null)
+            return;
         for (int i = 0; i < fullArray.length; i++) {
             if (strings.contains(fullArray[i])) {
                 addValue(i);
             }
         }
-        /*
-        int i = 0;for (String field : strings) {
-            if (field.equals(fullArray [i])) {
-                mMask |= (1 << i);
-            }
-            i++;
-        }*/
     }
 
     public void addValue(int valueIndex) {

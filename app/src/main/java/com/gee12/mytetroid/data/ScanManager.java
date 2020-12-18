@@ -404,7 +404,7 @@ public class ScanManager implements Parcelable {
      */
     private void addFoundObject(ITetroidObject obj, int foundType) {
         if (foundObjects.containsKey(obj)) {
-            foundObjects.get(obj).addType(foundType);
+            foundObjects.get(obj).addValue(foundType);
         } else {
             foundObjects.put(obj, new FoundType(foundType));
         }

@@ -14,8 +14,10 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,6 +60,17 @@ public class SettingsManager {
         if (App.isFreeVersion()) {
             // принудительно отключаем
             setIsLoadFavoritesOnly(context, false);
+        }
+
+        // удаление неактуальной опции из версии 4.1
+        if (isContains(context, R.string.pref_key_is_show_tags_in_records)) {
+            boolean isShow = isShowTagsInRecordsList(context);
+            Set<String> valuesSet = getRecordFieldsInList(context);
+            String value = context.getString(R.string.title_tags);
+            // включение или отключение значения списка выбора
+            setRecordFieldsInList(context, setItemInStringSet(context, valuesSet, isShow, value));
+            // удаляем значение старой опции
+            removePref(context, R.string.pref_key_is_show_tags_in_records);
         }
 
         App.IsHighlightAttach = isHighlightRecordWithAttach(context);
@@ -593,22 +606,35 @@ public class SettingsManager {
      * Отображать ли автора в списке записей ?
      * @return
      */
-    public static boolean isShowAuthorInRecordsList(Context context) {
+/*    public static boolean isShowAuthorInRecordsList(Context context) {
         return getBoolean(context, R.string.pref_key_is_show_author_in_records, true);
-    }
+    }*/
 
     /**
      * Отображать ли метки в списке записей ?
      * @return
      */
     public static boolean isShowTagsInRecordsList(Context context) {
-        return getBoolean(context, R.string.pref_key_is_show_tags_in_records, true);
+        return getBoolean(context, R.string.pref_key_is_show_tags_in_records, false);
     }
 
+    public static void setIsShowTagsInRecordsList(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_is_show_tags_in_records, value);
+    }
+
+    /**
+     * Какие свойства отображать в списке записей ?
+     * @param context
+     * @return
+     */
     public static Set<String> getRecordFieldsInList(Context context) {
         HashSet<String> defValues = new HashSet<>(
                 Arrays.asList(context.getResources().getStringArray(R.array.record_fields_in_list_def_entries)));
         return getStringSet(context, R.string.pref_key_record_fields_in_list, defValues);
+    }
+
+    public static void setRecordFieldsInList(Context context, Set<String> values) {
+        setStringSet(context, R.string.pref_key_record_fields_in_list, values);
     }
 
     /*
@@ -870,7 +896,7 @@ public class SettingsManager {
     private static boolean getBoolean(Context context, int prefKeyStringRes, final boolean defValue) {
         if (settings == null)
             return defValue;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
@@ -885,7 +911,7 @@ public class SettingsManager {
     private static int getInt(Context context, int prefKeyStringRes, final int defValue) {
         if (settings == null)
             return defValue;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getInt(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
@@ -915,14 +941,60 @@ public class SettingsManager {
     private static Set<String> getStringSet(Context context, int prefKeyStringRes, Set<String> defValues) {
         if (settings == null)
             return null;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getStringSet(context.getString(prefKeyStringRes), defValues);
         }
-        return null;
+        return defValues;
     }
 
     /**
-     * Получить настройки.
+     * Удаление опции из настроек.
+     * @param context
+     * @param prefKeyStringRes
+     */
+    private static void removePref(Context context, int prefKeyStringRes) {
+        if (settings == null)
+            return;
+        if (settings.contains(context.getString(prefKeyStringRes))) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove(context.getString(prefKeyStringRes));
+            editor.apply();
+        }
+    }
+
+    /**
+     * Установка/отключение элемента списка выбора.
+     * @param context
+     * @param set
+     * @param isSet
+     * @param value
+     */
+    public static Set<String> setItemInStringSet(Context context, Set<String> set, boolean isSet, String value) {
+        List<String> valuesList = new ArrayList<>(set);
+        if (isSet) {
+            if (!valuesList.contains(value)) {
+                valuesList.add(value);
+            }
+        } else {
+            valuesList.remove(value);
+        }
+        return new HashSet<>(valuesList);
+    }
+
+    /**
+     * Проверка существования значения опции в настройках.
+     * @param context
+     * @param prefKeyStringRes
+     * @return
+     */
+    public static boolean isContains(Context context, int prefKeyStringRes) {
+        if (settings == null)
+            return false;
+        return settings.contains(context.getString(prefKeyStringRes));
+    }
+
+    /**
+     * Получение настроек.
      * @return
      */
     public static SharedPreferences getSettings(Context context) {

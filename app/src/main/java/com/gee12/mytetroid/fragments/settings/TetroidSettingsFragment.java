@@ -94,6 +94,12 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
         }
     }
 
+    protected void updateSummaryIfContains(@StringRes int keyStringRes, String value) {
+        if (SettingsManager.isContains(getContext(), keyStringRes)) {
+            updateSummary(keyStringRes, value);
+        }
+    }
+
     protected void refreshPreferences() {
         setPreferenceScreen(null);
         addPreferencesFromResource(R.xml.prefs);
