@@ -391,7 +391,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void reloadStorage() {
         // сохраняем id выбранной ветки
-        saveLastSelectedNode();
+//        saveLastSelectedNode();
+
         // перезагружаем хранилище
         reinitStorage();
     }
@@ -607,6 +608,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mCurNode = node;
         setCurNode(node);
         showRecords(node.getRecords(), MainPageFragment.MAIN_VIEW_NODE_RECORDS);
+
+        // сохраняем выбранную ветку
+        saveLastSelectedNode();
     }
 
     /**
@@ -661,6 +665,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 setFavorIsCurNode(true);
             }
             showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES);
+
+            // сохраняем выбранную ветку
+            saveLastSelectedNode();
         }
     }
 
@@ -2300,7 +2307,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void onBeforeExit() {
         LogManager.log(this, R.string.log_app_exit, ILogger.Types.INFO);
         // сохраняем выбранную ветку
-        saveLastSelectedNode();
+//        saveLastSelectedNode();
+
         // останавливаем отслеживание изменения структуры хранилища
 //        TetroidFileObserver.stopObserver();
         FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
