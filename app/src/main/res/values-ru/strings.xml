@@ -516,6 +516,7 @@
     <string name="pref_quickly_node">Ветка для быстрой вставки</string>
     <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями</string>
     <string name="label_node">Ветка:</string>
+    <string name="label_parent_node">Родительская ветка:</string>
     <string name="label_favorite">В избранное</string>
     <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
     <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
@@ -536,4 +537,6 @@
     <string name="label_storage_path">Хранилище:</string>
     <string name="label_storage_size">Размер на диске:</string>
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
+    <string name="log_storage_need_load">Необходимо загрузить хранилище</string>
+    <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
 </resources>

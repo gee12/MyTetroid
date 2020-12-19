@@ -89,6 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_below="@id/node_favorites"
+                android:layout_margin="50dp"
                 app:alwaysExtended="false"
                 app:nestType="multiple" />
 
@@ -116,6 +117,14 @@
                 android:textColor="@color/emptySearch"
                 android:text="@string/title_storage_not_loaded"/>
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/button_add_node"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:src="@android:drawable/ic_input_add"
+                app:backgroundTint="@color/colorGreen_50"
+                style="@style/fab"/>
+            
         </RelativeLayout>
 
     </com.google.android.material.navigation.NavigationView>

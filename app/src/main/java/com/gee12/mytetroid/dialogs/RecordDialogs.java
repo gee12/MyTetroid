@@ -48,7 +48,7 @@ public class RecordDialogs {
      * @param callback
      */
     public static void createRecordFieldsDialog(Context context, TetroidRecord record,
-                                                boolean isNeedNode, TetroidNode node, IRecordFieldsResult callback) {
+                                                boolean chooseNode, TetroidNode node, IRecordFieldsResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_record);
 
         View view = builder.getView();
@@ -80,7 +80,7 @@ public class RecordDialogs {
             String tagsString = record.getTagsString();
             etTags.setText(tagsString);
         }
-        if (isNeedNode) {
+        if (chooseNode) {
             layoutNode.setVisibility(View.VISIBLE);
             etNode.setText((recordNode != null) ? recordNode.getName() : context.getString(R.string.title_select_node));
             etNode.setInputType(InputType.TYPE_NULL);
@@ -96,7 +96,7 @@ public class RecordDialogs {
         final AlertDialog dialog = builder.create();
 
         // диалог выбора ветки
-        NodeChooserResult nodeCallback = new NodeChooserResult() {
+        NodeDialogs.NodeChooserResult nodeCallback = new NodeDialogs.NodeChooserResult() {
             @Override
             public void onApply(TetroidNode node) {
                 this.mSelectedNode = node;
@@ -110,15 +110,15 @@ public class RecordDialogs {
             public void onProblem(int code) {
                 switch (code) {
                     case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
-                        Message.show(context, "Необходимо загрузить хранилище", Toast.LENGTH_LONG);
+                        Message.show(context, context.getString(R.string.log_storage_need_load), Toast.LENGTH_LONG);
                         break;
                     case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
-                        Message.show(context, "Необходимо загрузить все ветки хранилища", Toast.LENGTH_LONG);
+                        Message.show(context, context.getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG);
                         break;
                 }
             }
         };
-        if (isNeedNode) {
+        if (chooseNode) {
             View.OnClickListener clickListener = v -> {
                 NodeDialogs.createNodeChooserDialog(context,
                         (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
@@ -134,7 +134,7 @@ public class RecordDialogs {
                     etTags.getText().toString(),
                     etAuthor.getText().toString(),
                     etUrl.getText().toString(),
-                    (isNeedNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
+                    (chooseNode && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,
                     ctvFavor.isChecked());
         });
         dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.answer_cancel), (dialog1, which) -> {
@@ -144,7 +144,6 @@ public class RecordDialogs {
         // обработчик отображения
         dialog.setOnShowListener(dialog12 -> {
             // получаем okButton уже после вызова show()
-//            final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText()) || recordNode == null) {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             }
@@ -168,17 +167,6 @@ public class RecordDialogs {
                 okButton.setEnabled(!TextUtils.isEmpty(s) && curNode != null);
             }
         });
-    }
-
-    /**
-     * Для выбора ветки.
-     */
-    private static abstract class NodeChooserResult implements NodeDialogs.INodeChooserResult {
-        TetroidNode mSelectedNode;
-
-        public TetroidNode getSelectedNode() {
-            return mSelectedNode;
-        }
     }
 
     /**

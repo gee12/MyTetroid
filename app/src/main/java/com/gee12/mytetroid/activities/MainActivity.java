@@ -227,6 +227,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
+        findViewById(R.id.button_add_node).setOnClickListener(v -> createNode());
 
         NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
         View vNodesHeader = nodesNavView.getHeaderView(0);
@@ -1208,7 +1209,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
-        NodeDialogs.createNodeDialog(this, null, (name) -> {
+        NodeDialogs.createNodeDialog(this, null, false, (name, parNode) -> {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
             TetroidNode node = NodesManager.createNode(this, name, trueParentNode);
             if (node != null) {
@@ -1217,6 +1218,26 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 } else {
                     LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
                 }
+            } else {
+                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+            }
+        });
+    }
+
+    /**
+     * Создание ветки.
+     */
+    private void createNode() {
+        NodeDialogs.createNodeDialog(this, null, true, (name, parNode) -> {
+            TetroidNode node = NodesManager.createNode(this, name, parNode);
+            if (node != null) {
+                mListAdapterNodes.notifyDataSetChanged();
+                TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+//                if () {
+//                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+//                } else {
+//                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//                }
             } else {
                 TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }
@@ -1254,7 +1275,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param node
      */
     private void renameNode(TetroidNode node) {
-        NodeDialogs.createNodeDialog(this, node, (name) -> {
+        NodeDialogs.createNodeDialog(this, node, false, (name, parNode) -> {
             if (NodesManager.editNodeFields(this, node, name)) {
                 TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
 //                mListAdapterNodes.notifyDataSetChanged();
