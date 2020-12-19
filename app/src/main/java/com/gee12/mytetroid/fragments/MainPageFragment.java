@@ -461,6 +461,13 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
+     * Обновление списка записей.
+     */
+    public void updateRecordList() {
+        mListAdapterRecords.notifyDataSetInvalidated();
+    }
+
+    /**
      * Копирование записи.
      * @param record
      */

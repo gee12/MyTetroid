@@ -1671,6 +1671,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // скрываем пункт меню Синхронизация, если отключили
 //        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
         updateOptionsMenu();
+        // обновляем список записей, могли измениться настройки отображения
+        mViewPagerAdapter.getMainFragment().updateRecordList();
 
         if (data != null) {
             // перезагружаем хранилище, если изменили путь
@@ -1718,9 +1720,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         FileObserverService.sendCommand(this, bundle);*/
         startStorageTreeObserver();
 
-        // обновляем списки, если редактировали свойства записи
         if (data.getBooleanExtra(RecordActivity.EXTRA_IS_FIELDS_EDITED, false)) {
+            // обновляем списки, если редактировали свойства записи
             mViewPagerAdapter.getMainFragment().onRecordFieldsUpdated(null, false);
+        } else {
+            // обновляем список записей, чтобы обновить дату изменения
+            if (App.RecordFieldsInList.checkIsEditedDate()) {
+                mViewPagerAdapter.getMainFragment().updateRecordList();
+            }
         }
         switch (resCode) {
             case RecordActivity.RESULT_REINIT_STORAGE:
