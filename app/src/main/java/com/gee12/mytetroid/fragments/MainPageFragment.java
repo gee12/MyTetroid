@@ -270,7 +270,7 @@ public class MainPageFragment extends TetroidFragment {
 
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
-            mMainView.updateNodes();
+            mMainView.updateNodeList();
             updateFavorites(record);
             if (isShow) {
                 showRecord(record);
@@ -312,7 +312,7 @@ public class MainPageFragment extends TetroidFragment {
             mListAdapterRecords.getDataSet().remove(record);
             mListAdapterRecords.notifyDataSetChanged();
             mMainView.updateTags();
-            mMainView.updateNodes();
+            mMainView.updateNodeList();
             // обновляем избранное
             updateFavorites(record);
             this.mCurRecord = null;
@@ -527,7 +527,7 @@ public class MainPageFragment extends TetroidFragment {
         if (res > 0) {
             mListAdapterRecords.notifyDataSetInvalidated();
             mMainView.updateTags();
-            mMainView.updateNodes();
+            mMainView.updateNodeList();
             TetroidLog.logOperRes(mContext, TetroidLog.Objs.RECORD, TetroidLog.Opers.INSERT);
             if (isCutted) {
                 // очищаем "буфер обмена"

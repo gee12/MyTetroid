@@ -459,7 +459,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     public void afterStorageDecrypted(TetroidNode node) {
-        updateNodes();
+        updateNodeList();
         updateTags();
 
         if (node != null) {
@@ -751,7 +751,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Обновление списка веток.
      */
     @Override
-    public void updateNodes() {
+    public void updateNodeList() {
         mListAdapterNodes.notifyDataSetChanged();
     }
 
@@ -1258,7 +1258,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (NodesManager.editNodeFields(this, node, name)) {
                 TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
 //                mListAdapterNodes.notifyDataSetChanged();
-                updateNodes();
+                updateNodeList();
                 if (mCurNode == node) {
                     setTitle(name);
                 }
@@ -1671,8 +1671,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // скрываем пункт меню Синхронизация, если отключили
 //        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
         updateOptionsMenu();
-        // обновляем список записей, могли измениться настройки отображения
+        // обновляем списки, могли измениться настройки отображения
         mViewPagerAdapter.getMainFragment().updateRecordList();
+        updateNodeList();
 
         if (data != null) {
             // перезагружаем хранилище, если изменили путь
@@ -1692,7 +1693,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 StorageManager.loadAllNodes(this);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                 // обновляем списки, т.к. хранилище должно было расшифроваться
-                updateNodes();
+                updateNodeList();
                 updateTags();
             }
         }
@@ -1742,7 +1743,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case RecordActivity.RESULT_PASS_CHANGED:
                 if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
-                    updateNodes();
+                    updateNodeList();
                     updateTags();
                 }
                 break;
