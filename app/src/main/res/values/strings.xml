@@ -154,10 +154,10 @@
     <string name="pref_key_is_highlight_crypted_nodes" translatable="false">pref_key_is_highlight_crypted_nodes</string>
     <string name="pref_is_highlight_crypted_nodes">Highlight encrypted nodes</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Enable highlight encrypted nodes</string>
-    <string name="pref_is_show_author_in_records">Show author</string>
-    <string name="pref_is_show_author_in_records_summ">Show author in record list</string>
-    <string name="pref_is_show_tags_in_records">Show tags</string>
-    <string name="pref_is_show_tags_in_records_summ">Show tags in record list</string>
+<!--    <string name="pref_is_show_author_in_records">Show author</string>-->
+<!--    <string name="pref_is_show_author_in_records_summ">Show author in record list</string>-->
+<!--    <string name="pref_is_show_tags_in_records">Show tags</string>-->
+<!--    <string name="pref_is_show_tags_in_records_summ">Show tags in record list</string>-->
     <string name="pref_key_highlight_attach_color" translatable="false">pref_highlight_attach_color</string>
     <string name="pref_key_picked_colors" translatable="false">pref_key_picked_colors</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
@@ -272,6 +272,9 @@
     <string name="pref_show_record_fields_yes">Show</string>
     <string name="pref_show_record_fields_no">Do not show</string>
     <string name="pref_show_record_fields_filled">Show if filled</string>
+    <string name="pref_key_record_fields_in_list" translatable="false">pref_key_record_fields_in_list</string>
+    <string name="pref_record_fields_in_list">Record fields to show</string>
+    <string name="pref_record_fields_in_list_summ">Record fields to show in list</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -394,7 +397,7 @@
     <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
-    <string name="details_in_logs">Details in the logs</string>
+<!--    <string name="details_in_logs">Details in the logs</string>-->
 
     <string name="log_storage_changed_outside">The record tree has been modified by a third party program</string>
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
@@ -607,5 +610,4 @@
     <string name="label_storage_path">Storage:</string>
     <string name="label_storage_size">Size on disk:</string>
     <string name="label_storage_last_edit">Last modified tree:</string>
-    <string name="pref_key_record_fields_in_list">pref_key_record_fields_in_list</string>
 </resources>

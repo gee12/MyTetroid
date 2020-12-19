@@ -65,7 +65,7 @@
         android:entries="@array/record_fields_in_list_entries"
         android:entryValues="@array/record_fields_in_list_entries"
         android:key="@string/pref_key_record_fields_in_list"
-        android:title="Отображаемые свойства записей"
-        android:summary="Свойства записей, отображаемые в списке"/>
+        android:title="@string/pref_record_fields_in_list"
+        android:summary="@string/pref_record_fields_in_list_summ"/>
 
 </PreferenceScreen>

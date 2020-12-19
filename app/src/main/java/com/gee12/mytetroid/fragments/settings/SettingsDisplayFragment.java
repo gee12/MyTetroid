@@ -62,7 +62,8 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
             updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
         } else if (key.equals(getString(R.string.pref_key_record_fields_in_list))) {
             App.RecordFieldsInList = new RecordFieldsSelector(mContext, SettingsManager.getRecordFieldsInList(mContext));
-            updateSummary(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString());
+            updateSummary(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString(),
+                    getString(R.string.pref_record_fields_in_list_summ));
         }
     }
 

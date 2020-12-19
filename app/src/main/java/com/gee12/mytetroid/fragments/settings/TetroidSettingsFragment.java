@@ -94,6 +94,17 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
         }
     }
 
+    protected void updateSummary(@StringRes int keyStringRes, String value, String defValue) {
+        Preference pref = findPreference(getString(keyStringRes));
+        if (pref == null)
+            return;
+        if (!StringUtil.isBlank(value)) {
+            pref.setSummary(value);
+        } else {
+            pref.setSummary(defValue);
+        }
+    }
+
     protected void updateSummaryIfContains(@StringRes int keyStringRes, String value) {
         if (SettingsManager.isContains(getContext(), keyStringRes)) {
             updateSummary(keyStringRes, value);

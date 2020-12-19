@@ -149,10 +149,10 @@
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
     <string name="pref_is_highlight_crypted_nodes">Подсвечивать зашифрованные ветки</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Включить подсветку зашифрованных веток</string>
-    <string name="pref_is_show_author_in_records">Отображать автора</string>
-    <string name="pref_is_show_author_in_records_summ">Отображать автора в списке записей</string>
-    <string name="pref_is_show_tags_in_records">Отображать метки</string>
-    <string name="pref_is_show_tags_in_records_summ">Отображать метки в списке записей</string>
+<!--    <string name="pref_is_show_author_in_records">Отображать автора</string>-->
+<!--    <string name="pref_is_show_author_in_records_summ">Отображать автора в списке записей</string>-->
+<!--    <string name="pref_is_show_tags_in_records">Отображать метки</string>-->
+<!--    <string name="pref_is_show_tags_in_records_summ">Отображать метки в списке записей</string>-->
     <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Запрос пароля</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
@@ -212,6 +212,8 @@
     <string name="pref_show_record_fields_yes">Отображать</string>
     <string name="pref_show_record_fields_no">Не отображать</string>
     <string name="pref_show_record_fields_filled">Отображать если заполнено</string>
+    <string name="pref_record_fields_in_list">Отображаемые свойства записей</string>
+    <string name="pref_record_fields_in_list_summ">Свойства записей, отображаемые в списке</string>
 
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
