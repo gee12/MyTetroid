@@ -2,6 +2,10 @@ package com.gee12.mytetroid;
 
 import java.util.Collection;
 
+/**
+ * Класс для заполнения переменной-маски для быстрого получения выбранных значений
+ *  из множественного списка.
+ */
 public class StringsIntMask {
     protected int mMask;
 
@@ -20,10 +24,19 @@ public class StringsIntMask {
         }
     }
 
+    /**
+     * Установка нового значения.
+     * @param valueIndex Индекс для установки
+     */
     public void addValue(int valueIndex) {
         this.mMask |= (1 << valueIndex);
     }
 
+    /**
+     * Проверка установлено ли значение.
+     * @param valueIndex Индекс для проверки
+     * @return
+     */
     public boolean checkValue(int valueIndex) {
         return ((mMask & (1 << valueIndex)) > 0);
     }

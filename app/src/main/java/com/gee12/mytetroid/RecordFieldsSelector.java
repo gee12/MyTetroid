@@ -21,16 +21,10 @@ public class RecordFieldsSelector extends StringsIntMask {
      * @param option Список выбранных значений.
      */
     public RecordFieldsSelector(Context context, Set<String> option) {
-        super(option, context.getResources().getStringArray(R.array.record_fields_in_list_entries));
-        /*String[] ar = context.getResources().getStringArray(R.array.record_fields_in_list_entries);
-        this.mMask = 0;
-        int i = 0;
-        for (String field : option) {
-            if (field.equals(ar[i])) {
-                mMask |= (1 << i);
-            }
-            i++;
-        }*/
+        super(option, context.getResources().getStringArray(
+                (App.isFullVersion())
+                    ? R.array.record_fields_in_list_entries_pro
+                    : R.array.record_fields_in_list_entries));
     }
 
     public boolean checkIsAuthor() {

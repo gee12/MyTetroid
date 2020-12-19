@@ -13,6 +13,11 @@
         <item>@string/title_author</item>
         <item>@string/title_tags</item>
         <item>@string/title_created</item>
+    </string-array>
+    <string-array name="record_fields_in_list_entries_pro">
+        <item>@string/title_author</item>
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
         <item>@string/title_edited</item>
     </string-array>
     <string-array name="record_fields_in_list_def_entries">

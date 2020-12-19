@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
 import com.gee12.mytetroid.App;
@@ -26,9 +27,19 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
 
         setHighlightPrefAvailability();
 
+        if (App.isFullVersion()) {
+            // добавляем поле "Дата изменения"
+            MultiSelectListPreference prefFields = ((MultiSelectListPreference) findPreference(
+                    getString(R.string.pref_key_record_fields_in_list)));
+            int arrayId = (App.isFullVersion())
+                    ? R.array.record_fields_in_list_entries_pro
+                    : R.array.record_fields_in_list_entries;
+            prefFields.setEntryValues(arrayId);
+            prefFields.setEntries(arrayId);
+        }
+
         updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
-        updateSummaryIfContains(R.string.pref_key_record_fields_in_list,
-                App.RecordFieldsInList.joinToString(getResources().getStringArray(R.array.record_fields_in_list_entries), 0));
+        updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString());
     }
 
     @Override
@@ -51,9 +62,15 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
             updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
         } else if (key.equals(getString(R.string.pref_key_record_fields_in_list))) {
             App.RecordFieldsInList = new RecordFieldsSelector(mContext, SettingsManager.getRecordFieldsInList(mContext));
-            updateSummary(R.string.pref_key_record_fields_in_list,
-                    App.RecordFieldsInList.joinToString(getResources().getStringArray(R.array.record_fields_in_list_entries), 0));
+            updateSummary(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString());
         }
+    }
+
+    private String getRecordFieldsValuesString() {
+        int arrayId = (App.isFullVersion())
+                ? R.array.record_fields_in_list_entries_pro
+                : R.array.record_fields_in_list_entries;
+        return App.RecordFieldsInList.joinToString(getResources().getStringArray(arrayId), 0);
     }
 
     private void setHighlightPrefAvailability() {
