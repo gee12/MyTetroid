@@ -15,6 +15,7 @@ import android.os.FileObserver;
 import android.os.Parcel;
 import android.text.Spanned;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -221,10 +222,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        // пустое пространство под списками
+        View footerView =  ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.list_view_empty_footer, null, false);
+
         // ветки
         mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
+        mListViewNodes.getListView().addFooterView(footerView);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
         findViewById(R.id.button_add_node).setOnClickListener(v -> createNode());
@@ -241,6 +247,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewTags.setOnItemLongClickListener(onTagLongClicklistener);
         this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
         mListViewTags.setEmptyView(mTextViewTagsEmpty);
+        mListViewTags.addFooterView(footerView);
 
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
@@ -1231,13 +1238,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NodeDialogs.createNodeDialog(this, null, true, (name, parNode) -> {
             TetroidNode node = NodesManager.createNode(this, name, parNode);
             if (node != null) {
-                mListAdapterNodes.notifyDataSetChanged();
-                TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
-//                if () {
-//                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
-//                } else {
-//                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-//                }
+                if (mListAdapterNodes.addItem(parNode)) {
+                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+                } else {
+                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+                }
             } else {
                 TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
             }

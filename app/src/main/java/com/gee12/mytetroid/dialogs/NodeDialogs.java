@@ -114,10 +114,10 @@ public class NodeDialogs {
             @Override
             public void onProblem(int code) {
                 switch (code) {
-                    case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+                    case INodeChooserResult.LOAD_STORAGE:
                         Message.show(context, context.getString(R.string.log_storage_need_load), Toast.LENGTH_LONG);
                         break;
-                    case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+                    case INodeChooserResult.LOAD_ALL_NODES:
                         Message.show(context, context.getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG);
                         break;
                 }

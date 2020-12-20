@@ -329,14 +329,14 @@ public class NodesManager extends DataManager {
         if (node == null)
             return null;
         Stack<TetroidNode> hierarchy = new Stack<>();
-        createNodesHierarhy(hierarchy, node);
+        createNodesHierarchy(hierarchy, node);
         return hierarchy;
     }
 
-    private static void createNodesHierarhy(Stack<TetroidNode> hierarchy, TetroidNode node) {
+    private static void createNodesHierarchy(Stack<TetroidNode> hierarchy, TetroidNode node) {
         hierarchy.push(node);
         if (node.getLevel() > 0) {
-            createNodesHierarhy(hierarchy, node.getParentNode());
+            createNodesHierarchy(hierarchy, node.getParentNode());
         }
     }
 

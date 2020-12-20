@@ -91,6 +91,11 @@ public class MainPageFragment extends TetroidFragment {
         this.mViewFlipperfMain = view.findViewById(R.id.view_flipper_main);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
         mViewFlipperfMain.setOnTouchListener(this);
+
+        // пустое пространство под списками
+        View footerView =  ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.list_view_empty_footer, null, false);
+
         // список записей
         this.mListViewRecords = view.findViewById(R.id.list_view_records);
         // обработка нажатия на пустом месте списка записей
@@ -101,6 +106,7 @@ public class MainPageFragment extends TetroidFragment {
         this.mUseGlobalSearchButton = view.findViewById(R.id.button_global_search);
         mUseGlobalSearchButton.setOnClickListener(v -> mMainView.showGlobalSearchWithQuery());
         mListViewRecords.setEmptyView(mTextViewRecordsEmpty);
+        mListViewRecords.addFooterView(footerView);
         registerForContextMenu(mListViewRecords);
         /*mListViewRecords.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
