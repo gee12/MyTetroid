@@ -539,4 +539,5 @@
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
     <string name="log_storage_need_load">Необходимо загрузить хранилище</string>
     <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
+    <string name="log_dir_not_empty">Каталог не пуст</string>
 </resources>

@@ -85,6 +85,7 @@ import com.gee12.mytetroid.views.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import org.jetbrains.annotations.NotNull;
@@ -134,7 +135,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
     private View mFavoritesNode;
-    private Button mLoadStorageButton;
+    private Button mButtonLoadStorage;
+    private FloatingActionButton mFabCreateNode;
 
     private boolean mIsActivityCreated;
     private boolean mIsLoadStorageAfterSync;
@@ -233,7 +235,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewNodes.getListView().addFooterView(footerView, null, false);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
-        findViewById(R.id.button_add_node).setOnClickListener(v -> createNode());
+        this.mFabCreateNode = findViewById(R.id.button_add_node);
+        mFabCreateNode.setOnClickListener(v -> createNode());
+        mFabCreateNode.hide();
 
         NavigationView nodesNavView = mDrawerLayout.findViewById(R.id.nav_view_left);
         View vNodesHeader = nodesNavView.getHeaderView(0);
@@ -257,12 +261,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
-        this.mLoadStorageButton = findViewById(R.id.button_load);
+        this.mButtonLoadStorage = findViewById(R.id.button_load);
         mFavoritesNode.setVisibility(View.GONE);
-        mLoadStorageButton.setVisibility(View.GONE);
+        mButtonLoadStorage.setVisibility(View.GONE);
         if (App.isFullVersion()) {
             mFavoritesNode.setOnClickListener(v -> showFavorites());
-            mLoadStorageButton.setOnClickListener(v -> {
+            mButtonLoadStorage.setOnClickListener(v -> {
                 StorageManager.loadAllNodes(this);
             });
         }
@@ -484,19 +488,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
     /**
      * Первоначальная инициализация списков веток, записей, файлов, меток
      *
-     * @param res   Результат загрузки хранилища.
+     * @param isLoaded   Результат загрузки хранилища.
      * @param isOnlyFavorites
      * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранными записями
      */
     @Override
-    public void initGUI(boolean res, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void initGUI(boolean isLoaded, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // избранные записи
-        mLoadStorageButton.setVisibility((res && isOnlyFavorites) ? View.VISIBLE : View.GONE);
+        mButtonLoadStorage.setVisibility((isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE);
+        ViewUtils.setFabVisibility(mFabCreateNode, isLoaded);
         mListViewNodes.setVisibility((!isOnlyFavorites) ? View.VISIBLE : View.GONE);
-        mFavoritesNode.setVisibility((res && App.isFullVersion()) ? View.VISIBLE : View.GONE);
+        mFavoritesNode.setVisibility((isLoaded && App.isFullVersion()) ? View.VISIBLE : View.GONE);
         mTextViewNodesEmpty.setVisibility(View.GONE);
-        if (res && App.isFullVersion()) {
+        if (isLoaded && App.isFullVersion()) {
             updateFavorites();
         }
         // элементы фильтра веток и меток
@@ -505,7 +510,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
-            if (res) {
+            if (isLoaded) {
                 // списки записей, файлов
                 mViewPagerAdapter.getMainFragment().initListAdapters(this);
                 showFavorites();
@@ -525,8 +530,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             // добавляем к результату загрузки проверку на пустоту списка веток
             List<TetroidNode> rootNodes = DataManager.getRootNodes();
-            res = (res && rootNodes != null);
-            if (res) {
+            isLoaded = (isLoaded && rootNodes != null);
+            if (isLoaded) {
                 boolean isEmpty = rootNodes.isEmpty();
                 // выбираем ветку, выбранную в прошлый раз
                 boolean nodesAdapterInited = false;
@@ -574,7 +579,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
         updateOptionsMenu();
-//        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 
     /**

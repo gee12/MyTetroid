@@ -71,14 +71,6 @@ public class StorageManager extends DataManager {
         return (Instance != null) && Instance.mIsPINNeedEnter;
     }
 
-//    /**
-//     * Первоначальная инициализация.
-//     * @param storageInitCallback
-//     */
-//    public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
-//        getInstance().mStorageInitCallback = storageInitCallback;
-//    }
-
     protected static IStorageInitCallback getStorageInitCallback() {
         return getInstance().mStorageInitCallback;
     }
@@ -100,10 +92,14 @@ public class StorageManager extends DataManager {
             if (isNew) {
                 LogManager.log(context, context.getString(R.string.log_start_storage_creating) + storagePath, ILogger.Types.DEBUG);
                 if (storageDir.exists()) {
-                    // очищаем каталог
+                    /*// очищаем каталог
                     LogManager.log(context, R.string.log_clear_storage_dir, ILogger.Types.INFO);
-                    FileUtils.clearDir(storageDir);
+                    FileUtils.clearDir(storageDir);*/
                     // проверяем, пуст ли каталог
+                    if (!FileUtils.isDirEmpty(storageDir)) {
+                        LogManager.log(context, R.string.log_dir_not_empty, ILogger.Types.ERROR);
+                        return false;
+                    }
                 } else {
                     LogManager.log(context, R.string.log_dir_is_missing, ILogger.Types.ERROR);
                     return false;

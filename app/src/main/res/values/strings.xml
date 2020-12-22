@@ -613,4 +613,5 @@
     <string name="label_storage_last_edit">Last modified tree:</string>
     <string name="log_storage_need_load">Storage must be loaded</string>
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
+    <string name="log_dir_not_empty">Directory is not empty</string>
 </resources>

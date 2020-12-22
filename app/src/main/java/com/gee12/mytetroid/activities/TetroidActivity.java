@@ -27,11 +27,14 @@ import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 import lib.folderpicker.FolderPicker;
 
@@ -227,8 +230,8 @@ public abstract class TetroidActivity extends AppCompatActivity
                 || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
                 && resultCode == RESULT_OK) {
             String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            boolean isOpen = (requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE);
-            openOrCreateStorage(folderPath, isOpen);
+            boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
+            openOrCreateStorage(folderPath, isCreate);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -253,14 +256,18 @@ public abstract class TetroidActivity extends AppCompatActivity
     /**
      * Открытие существующего или создание нового хранилище в указанном каталоге.
      * @param folderPath
-     * @param isOpen
+     * @param isCreate
      */
-    private void openOrCreateStorage(String folderPath, boolean isOpen) {
-        if (isOpen) {
+    private void openOrCreateStorage(String folderPath, boolean isCreate) {
+        if (isCreate) {
+            if (FileUtils.isDirEmpty(new File(folderPath))) {
+                createStorage(folderPath/*, true*/);
+            } else {
+                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            }
+        } else {
 //            StorageManager.initOrSyncStorage(this, folderPath, true);
             loadStorage(folderPath);
-        } else {
-            createStorage(folderPath/*, true*/);
         }
         // сохраняем путь
         SettingsManager.setLastChoosedFolder(this, folderPath);
