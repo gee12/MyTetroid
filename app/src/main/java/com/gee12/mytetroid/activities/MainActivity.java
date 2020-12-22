@@ -230,7 +230,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
-        mListViewNodes.getListView().addFooterView(footerView);
+        mListViewNodes.getListView().addFooterView(footerView, null, false);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
         findViewById(R.id.button_add_node).setOnClickListener(v -> createNode());
@@ -247,7 +247,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewTags.setOnItemLongClickListener(onTagLongClicklistener);
         this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
         mListViewTags.setEmptyView(mTextViewTagsEmpty);
-        mListViewTags.addFooterView(footerView);
+        mListViewTags.addFooterView(footerView, null, false);
 
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);

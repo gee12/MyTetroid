@@ -1486,9 +1486,9 @@ public class RecordActivity extends TetroidActivity implements
     private void expandFieldsIfNeed() {
         boolean needExpand;
         String option = SettingsManager.getShowRecordFields(this);
-        if (option.equals(getString(R.string.pref_show_record_fields_no))) {
+        if (getString(R.string.pref_show_record_fields_no).equals(option)) {
             needExpand = false;
-        } else if (option.equals(getString(R.string.pref_show_record_fields_yes))) {
+        } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
             needExpand = true;
         } else {
             needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())

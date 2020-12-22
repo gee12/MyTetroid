@@ -106,7 +106,7 @@ public class MainPageFragment extends TetroidFragment {
         this.mUseGlobalSearchButton = view.findViewById(R.id.button_global_search);
         mUseGlobalSearchButton.setOnClickListener(v -> mMainView.showGlobalSearchWithQuery());
         mListViewRecords.setEmptyView(mTextViewRecordsEmpty);
-        mListViewRecords.addFooterView(footerView);
+        mListViewRecords.addFooterView(footerView, null, false);
         registerForContextMenu(mListViewRecords);
         /*mListViewRecords.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -121,6 +121,7 @@ public class MainPageFragment extends TetroidFragment {
         mListViewFiles.setOnItemClickListener(onFileClicklistener);
         this.mTextViewFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         mListViewFiles.setEmptyView(mTextViewFilesEmpty);
+        mListViewFiles.addFooterView(footerView, null, false);
         registerForContextMenu(mListViewFiles);
 
         this.mButtonAddRecord = view.findViewById(R.id.button_add_record);

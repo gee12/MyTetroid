@@ -535,8 +535,8 @@ public class SettingsManager {
      */
     public static String getShowRecordFields(Context context) {
         return getString(context, R.string.pref_key_show_record_fields,
-//                context.getString(R.string.pref_show_record_fields_no));
-                null);
+                context.getString(R.string.pref_show_record_fields_no));
+//                null);
     }
 
     /**
