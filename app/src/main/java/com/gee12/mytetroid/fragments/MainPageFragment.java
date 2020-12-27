@@ -471,7 +471,9 @@ public class MainPageFragment extends TetroidFragment {
      * Обновление списка записей.
      */
     public void updateRecordList() {
-        mListAdapterRecords.notifyDataSetInvalidated();
+        if (mListAdapterRecords != null) {
+            mListAdapterRecords.notifyDataSetInvalidated();
+        }
     }
 
     /**

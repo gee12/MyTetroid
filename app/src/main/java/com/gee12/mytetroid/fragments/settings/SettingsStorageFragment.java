@@ -188,7 +188,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
         if (isNew) {
             intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
         } else {
-            intent.putExtra(FolderPicker.EXTRA_TITLE, getString(R.string.pref_storage_path_summ));
+            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc));
         }
         getActivity().startActivityForResult(intent, (isNew)
                 ? SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH

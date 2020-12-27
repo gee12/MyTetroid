@@ -82,6 +82,7 @@ public class StorageManager extends DataManager {
      */
     public static boolean initOrCreateStorage(Context context, String storagePath, boolean isNew) {
         DataManager inst = getInstance();
+        inst.mXml.mIsStorageLoaded = false;
         inst.mStoragePath = storagePath;
         ILogger logger = LogManager.createLogger(context);
         inst.mDatabaseConfig = new DatabaseConfig(logger,storagePath + SEPAR + DATABASE_INI_FILE_NAME);
@@ -474,7 +475,7 @@ public class StorageManager extends DataManager {
         if (isNew) {
             intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
         } else {
-            intent.putExtra(FolderPicker.EXTRA_TITLE, activity.getString(R.string.pref_storage_path_summ));
+            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, activity.getString(R.string.title_storage_path_desc));
         }
         activity.startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
     }

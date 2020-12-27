@@ -109,9 +109,9 @@
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
+                android:textAlignment="center"
                 android:layout_marginTop="@dimen/nav_header_height"
                 android:padding="@dimen/tv_empty_padding"
-                android:textAlignment="center"
                 android:textColor="@color/emptySearch"
                 android:text="@string/title_storage_not_loaded"/>
 
@@ -137,15 +137,15 @@
         app:headerLayout="@layout/nav_view_header_right">
 
         <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginTop="?attr/actionBarSize">
 
             <ListView
                 android:id="@+id/tags_list_view"
-                android:layout_margin="5dp"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp" />
 
             <TextView
                 android:id="@+id/tags_text_view_empty"

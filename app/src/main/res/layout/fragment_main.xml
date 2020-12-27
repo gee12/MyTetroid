@@ -22,7 +22,7 @@
             <ListView
                 android:id="@+id/list_view_records"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="5dp" />
 
             <LinearLayout
@@ -69,7 +69,7 @@
             <ListView
                 android:id="@+id/list_view_files"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_margin="5dp" />
 
             <TextView
@@ -80,6 +80,7 @@
                 android:layout_centerVertical="true"
                 android:padding="@dimen/tv_empty_padding"
                 android:textAlignment="center"
+                android:gravity="center_horizontal"
                 android:text="@string/title_files_is_missing" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton

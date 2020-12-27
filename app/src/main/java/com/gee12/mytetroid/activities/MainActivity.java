@@ -2169,6 +2169,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.main, menu);
+        this.mOptionsMenu = menu;
 
         initRecordsSearchView(menu.findItem(R.id.action_search_records));
         mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);

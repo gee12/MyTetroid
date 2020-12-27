@@ -117,6 +117,7 @@
     <string name="title_tags">Метки</string>
     <string name="title_created">Дата создания</string>
     <string name="title_edited">Дата изменения</string>
+    <string name="title_storage_path_desc">Каталог, содержащий database.ini, mytetra.xml и base/</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
