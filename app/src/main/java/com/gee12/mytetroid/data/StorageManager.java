@@ -471,6 +471,11 @@ public class StorageManager extends DataManager {
         Intent intent = new Intent(activity, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, activity.getString(R.string.title_storage_folder));
         intent.putExtra(FolderPicker.EXTRA_LOCATION, SettingsManager.getStoragePath(activity));
+        if (isNew) {
+            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
+        } else {
+            intent.putExtra(FolderPicker.EXTRA_TITLE, activity.getString(R.string.pref_storage_path_summ));
+        }
         activity.startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
     }
 

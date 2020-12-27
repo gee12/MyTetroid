@@ -130,7 +130,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private SearchView mSearchViewNodes;
     private SearchView mSearchViewTags;
     private SearchView mSearchViewRecords;
-    private Menu mOptionsMenu;
     private MainPagerAdapter mViewPagerAdapter;
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
@@ -505,8 +504,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             updateFavorites();
         }
         // элементы фильтра веток и меток
-        ViewUtils.setVisibleIfNotNull(mSearchViewNodes, !isOnlyFavorites);
-        ViewUtils.setVisibleIfNotNull(mSearchViewTags, !isOnlyFavorites);
+        ViewUtils.setVisibleIfNotNull(mSearchViewNodes, isLoaded && !isOnlyFavorites);
+        ViewUtils.setVisibleIfNotNull(mSearchViewTags, isLoaded && !isOnlyFavorites);
 
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
@@ -2170,27 +2169,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.main, menu);
-        this.mOptionsMenu = menu;
 
-        /*this.mMenuItemGlobalSearch = menu.findItem(R.id.action_global_search);
-        this.mMenuItemStorageSync = menu.findItem(R.id.action_storage_sync);
-        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
-        this.mMenuItemStorageInfo = menu.findItem(R.id.action_storage_info);
-        this.mMenuItemStorageReload = menu.findItem(R.id.action_storage_reload);
-        this.mMenuItemSearchViewRecords = menu.findItem(R.id.action_search_records);*/
-
-/*        int curViewId = (mViewPagerAdapter != null)
-            ? mViewPagerAdapter.getMainFragment().getCurMainViewId() : 0;
-        boolean canSearchRecords = (mViewPager != null
-                && mViewPager.getCurrentItem() == MainViewPager.PAGE_MAIN
-                && (curViewId == MainPageFragment.MAIN_VIEW_NODE_RECORDS
-                    || curViewId == MainPageFragment.MAIN_VIEW_TAG_RECORDS));
-        visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
-        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorage(this));*/
-        // инициализиируем SearchView только 1 раз
-//        if (!super.mIsGUICreated) {
-            initRecordsSearchView(menu.findItem(R.id.action_search_records));
-//        }
+        initRecordsSearchView(menu.findItem(R.id.action_search_records));
         mViewPagerAdapter.getMainFragment().onCreateOptionsMenu(menu);
 
         return super.onAfterCreateOptionsMenu(menu);
