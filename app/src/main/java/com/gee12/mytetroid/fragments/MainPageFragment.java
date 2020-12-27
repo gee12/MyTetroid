@@ -345,8 +345,8 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void moveRecord(Context context, int pos, boolean isUp) {
         int res = (mCurMainViewId == MAIN_VIEW_FAVORITES)
-                ? FavoritesManager.swapRecords(context, pos, isUp)
-                : DataManager.swapTetroidObjects(mContext, mListAdapterRecords.getDataSet(), pos, isUp);
+                ? FavoritesManager.swapRecords(context, pos, isUp, true)
+                : DataManager.swapTetroidObjects(mContext, mListAdapterRecords.getDataSet(), pos, isUp, true);
         if (res > 0) {
             mListAdapterRecords.notifyDataSetChanged();
             TetroidLog.logOperRes(mContext, TetroidLog.Objs.RECORD, TetroidLog.Opers.MOVE);
@@ -413,7 +413,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param isUp
      */
     private void moveFile(int pos, boolean isUp) {
-        int res = DataManager.swapTetroidObjects(mContext, mListAdapterFiles.getDataSet(), pos, isUp);
+        int res = DataManager.swapTetroidObjects(mContext, mListAdapterFiles.getDataSet(), pos, isUp, true);
         if (res > 0) {
             mListAdapterFiles.notifyDataSetChanged();
             TetroidLog.logOperRes(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
@@ -822,8 +822,11 @@ public class MainPageFragment extends TetroidFragment {
                 !isLoadedFavoritesOnly && isFavoritesView && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_insert),
                 !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
-        activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
-        activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
+//        activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
+//        activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
+        int recordsCount = mListAdapterRecords.getCount();
+        activateMenuItem(menu.findItem(R.id.action_move_up), recordsCount > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_down), recordsCount > 0);
     }
 
     /**
@@ -835,9 +838,12 @@ public class MainPageFragment extends TetroidFragment {
             return;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         activateMenuItem(menu.findItem(R.id.action_rename), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly && menuInfo.position > 0);
-        activateMenuItem(menu.findItem(R.id.action_move_down),
-                !isLoadedFavoritesOnly && menuInfo.position < mListAdapterFiles.getCount() - 1);
+//        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly && menuInfo.position > 0);
+//        activateMenuItem(menu.findItem(R.id.action_move_down),
+//                !isLoadedFavoritesOnly && menuInfo.position < mListAdapterFiles.getCount() - 1);
+        int filesCount = mListAdapterFiles.getCount();
+        activateMenuItem(menu.findItem(R.id.action_move_up), filesCount > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_down), filesCount > 0);
         TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(menuInfo.position);
         activateMenuItem(menu.findItem(R.id.action_save_as), file != null
                 && AttachesManager.getAttachedFileSize(mContext, file) != null);

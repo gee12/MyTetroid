@@ -339,17 +339,20 @@ public class Utils {
      * @param isUp
      * @return
      */
-    public static boolean swapListItems(List list, int pos, boolean isUp) {
+    public static boolean swapListItems(List list, int pos, boolean isUp, boolean through)
+            throws IndexOutOfBoundsException {
         if (list == null)
             return false;
         if (isUp) {
-            if (pos > 0) {
-                Collections.swap(list, pos-1, pos);
+            if (pos > 0 || through && pos == 0) {
+                int newPos = (through && pos == 0) ? list.size() - 1 : pos - 1;
+                Collections.swap(list, newPos, pos);
                 return true;
             }
         } else {
-            if (pos < list.size() - 1) {
-                Collections.swap(list, pos, pos+1);
+            if (pos < list.size() - 1 || through && pos == list.size() - 1) {
+                int newPos = (through && pos == list.size() - 1) ? 0 : pos + 1;
+                Collections.swap(list, pos, newPos);
                 return true;
             }
         }

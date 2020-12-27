@@ -94,17 +94,19 @@ public class FavoriteList extends ArrayList<TetroidRecord> {
         }
     }
 
-    public boolean swap(int pos, boolean isUp) {
+    public boolean swap(int pos, boolean isUp, boolean through) throws IndexOutOfBoundsException {
         if (isUp) {
-            if (pos > 0) {
-                Collections.swap(mIds, pos-1, pos);
-                Collections.swap(this, pos-1, pos);
+            if (pos > 0 || through && pos == 0) {
+                int newPos = (through && pos == 0) ? size() - 1 : pos - 1;
+                Collections.swap(mIds, newPos, pos);
+                Collections.swap(this, newPos, pos);
                 return true;
             }
         } else {
-            if (pos < size() - 1) {
-                Collections.swap(mIds, pos, pos+1);
-                Collections.swap(this, pos, pos+1);
+            if (pos < size() - 1 || through && pos == size() - 1) {
+                int newPos = (through && pos == size() - 1) ? 0 : pos + 1;
+                Collections.swap(mIds, pos, newPos);
+                Collections.swap(this, pos, newPos);
                 return true;
             }
         }

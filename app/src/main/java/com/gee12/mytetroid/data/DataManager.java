@@ -506,8 +506,15 @@ public class DataManager implements IRecordFileCrypter {
      *         0 - перемещение невозможно (пограничный элемент)
      *        -1 - ошибка
      */
-    public static int swapTetroidObjects(Context context, List list, int pos, boolean isUp) {
-        boolean isSwapped = Utils.swapListItems(list, pos, isUp);
+    public static int swapTetroidObjects(Context context, List list, int pos, boolean isUp, boolean through) {
+        boolean isSwapped;
+        try {
+            isSwapped = Utils.swapListItems(list, pos, isUp, through);
+        } catch (Exception ex) {
+            LogManager.log(context, ex, -1);
+            return -1;
+        }
+
         // перезаписываем файл структуры хранилища
         if (isSwapped) {
             return (Instance.saveStorage(context)) ? 1 : -1;
@@ -722,7 +729,6 @@ public class DataManager implements IRecordFileCrypter {
      * Удаление меток записи из списка.
      * @param record
      */
-//    @Override
     public void deleteRecordTags(TetroidRecord record) {
         if (record == null)
             return;

@@ -1369,10 +1369,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
         List<TetroidNode> subNodes = (parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes();
         if (subNodes.size() > 0) {
             int posInNode = subNodes.indexOf(node);
-            int res = DataManager.swapTetroidObjects(this, subNodes, posInNode, isUp);
+            int res = DataManager.swapTetroidObjects(this, subNodes, posInNode, isUp, true);
             if (res > 0) {
                 // меняем местами элементы внутри списка
-                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode - 1 : posInNode + 1)) {
+                int newPosInNode = (isUp) ?
+                        (posInNode == 0) ? subNodes.size() - 1 : posInNode - 1
+                            : (posInNode == subNodes.size() - 1) ? 0 : posInNode + 1;
+//                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode - 1 : posInNode + 1)) {
+                if (mListAdapterNodes.swapItems(pos, posInNode, newPosInNode)) {
                     TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.MOVE);
                 } else {
                     LogManager.log(this, getString(R.string.log_node_move_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
@@ -1518,9 +1522,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
         visibleMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted);
         visibleMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
 //        visibleMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
-        visibleMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
         int nodesCount = ((parentNode != null) ? parentNode.getSubNodes() : DataManager.getRootNodes()).size();
-        visibleMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
+//        visibleMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
+//        visibleMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
+        visibleMenuItem(menu.findItem(R.id.action_move_up), nodesCount > 0);
+        visibleMenuItem(menu.findItem(R.id.action_move_down), nodesCount > 0);
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
         visibleMenuItem(menu.findItem(R.id.action_insert), canInsert);
         visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted);
@@ -2201,7 +2207,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageLoaded);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), StorageManager.isInited());
 
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
 
