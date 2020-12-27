@@ -2208,11 +2208,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         return super.onPrepareOptionsMenu(menu);
     }
 
-    @Override
-    public void updateOptionsMenu() {
-        onPrepareOptionsMenu(mOptionsMenu);
-    }
-
     /**
      * Обработчик выбора пунктов системного меню.
      * @param item

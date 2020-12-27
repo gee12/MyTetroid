@@ -615,4 +615,5 @@
     <string name="log_storage_need_load">Storage must be loaded</string>
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
     <string name="log_dir_not_empty">Directory is not empty</string>
+    <string name="log_mOptionsMenu_is_null" translatable="false">TetroidActivity.updateOptionsMenu(): mOptionsMenu is null</string>
 </resources>

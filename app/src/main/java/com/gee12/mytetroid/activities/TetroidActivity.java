@@ -198,6 +198,14 @@ public abstract class TetroidActivity extends AppCompatActivity
         return false;
     }*/
 
+    public void updateOptionsMenu() {
+        if (mOptionsMenu != null) {
+            onPrepareOptionsMenu(mOptionsMenu);
+        } else {
+            LogManager.log(this, getString(R.string.log_mOptionsMenu_is_null), ILogger.Types.WARNING, -1);
+        }
+    }
+
     /**
      * Обработчик выбора пунктов системного меню.
      * @param item

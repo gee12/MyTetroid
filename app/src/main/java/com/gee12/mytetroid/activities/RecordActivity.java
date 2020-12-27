@@ -166,10 +166,6 @@ public class RecordActivity extends TetroidActivity implements
     private FloatingActionButton mButtonScrollTop;
     private FloatingActionButton mButtonFindNext;
     private FloatingActionButton mButtonFindPrev;
-    private MenuItem mMenuItemView;
-    private MenuItem mMenuItemEdit;
-    private MenuItem mMenuItemHtml;
-    private MenuItem mMenuItemSave;
 
     private TetroidRecord mRecord;
     private int mCurMode;
@@ -872,6 +868,8 @@ public class RecordActivity extends TetroidActivity implements
             switchViews(newMode);
         }
         this.mCurMode = newMode;
+
+        updateOptionsMenu();
     }
 
     /**
@@ -1039,10 +1037,6 @@ public class RecordActivity extends TetroidActivity implements
                 mEditor.setToolBarVisibility(false);
                 mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(true);
-                mMenuItemView.setVisible(false);
-                mMenuItemEdit.setVisible(true);
-                mMenuItemHtml.setVisible(true);
-                mMenuItemSave.setVisible(false);
                 mEditor.setEditMode(false);
                 mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.subtitle_record_view));
@@ -1059,10 +1053,6 @@ public class RecordActivity extends TetroidActivity implements
                 mEditor.setToolBarVisibility(true);
                 mScrollViewHtml.setVisibility(View.GONE);
                 setRecordFieldsVisibility(false);
-                mMenuItemView.setVisible(true);
-                mMenuItemEdit.setVisible(false);
-                mMenuItemHtml.setVisible(true);
-                mMenuItemSave.setVisible(true);
                 mEditor.setEditMode(true);
                 mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_edit));
@@ -1082,10 +1072,6 @@ public class RecordActivity extends TetroidActivity implements
 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.setVisibility(View.VISIBLE);
                 setRecordFieldsVisibility(false);
-                mMenuItemView.setVisible(false);
-                mMenuItemEdit.setVisible(true);
-                mMenuItemHtml.setVisible(false);
-                mMenuItemSave.setVisible(false);
                 setSubtitle(getString(R.string.subtitle_record_html));
             } break;
         }
@@ -1393,10 +1379,8 @@ public class RecordActivity extends TetroidActivity implements
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.record, menu);
-        this.mMenuItemView = menu.findItem(R.id.action_record_view);
-        this.mMenuItemEdit = menu.findItem(R.id.action_record_edit);
-        this.mMenuItemHtml = menu.findItem(R.id.action_record_html);
-        this.mMenuItemSave = menu.findItem(R.id.action_record_save);
+        this.mOptionsMenu = menu;
+
         initSearchView(menu);
 
         return super.onAfterCreateOptionsMenu(menu);
@@ -1406,6 +1390,14 @@ public class RecordActivity extends TetroidActivity implements
     public boolean onPrepareOptionsMenu(Menu menu) {
         if (!isOnCreateProcessed())
             return true;
+        // режимы
+        activateMenuItem(menu.findItem(R.id.action_record_view), mCurMode == MODE_EDIT);
+        activateMenuItem(menu.findItem(R.id.action_record_edit), mCurMode == MODE_VIEW
+            || mCurMode == MODE_HTML);
+        activateMenuItem(menu.findItem(R.id.action_record_html), mCurMode == MODE_VIEW
+                || mCurMode == MODE_EDIT);
+        activateMenuItem(menu.findItem(R.id.action_record_save), mCurMode == MODE_EDIT);
+
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         boolean isTemp = (mRecord == null || mRecord.isTemp());
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
@@ -1420,6 +1412,10 @@ public class RecordActivity extends TetroidActivity implements
     private void activateMenuItem(MenuItem menuItem, boolean isVisible, boolean isEnabled) {
         menuItem.setVisible(isVisible);
         menuItem.setEnabled(isEnabled);
+    }
+
+    private void activateMenuItem(MenuItem menuItem, boolean isVisible) {
+        menuItem.setVisible(isVisible);
     }
 
     /**
