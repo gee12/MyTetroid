@@ -2,62 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="3dp">
-   <!-- android:layout_gravity="center_vertical"
-    android:paddingLeft="5dp"
-    android:paddingBottom="2dp"
-    android:paddingRight="5dp"-->
-
-    <!--<TextView
-        android:id="@+id/found_view_name"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:textColor="@color/colorBaseText"
-        android:paddingTop="5dp"
-        android:paddingBottom ="2dp"
-        android:textSize="@dimen/font_default" />
-
-    <TextView
-        android:id="@+id/found_view_line_num"
-        android:layout_alignParentTop="false"
-        android:layout_alignParentBottom="true"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical|start"
-        android:textAlignment="textStart"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:textColor="@color/colorLightText"
-        android:textSize="@dimen/font_small_small"/>
-
-    <TextView
-        android:id="@+id/found_view_node"
-        android:layout_below="@id/found_view_name"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/found_view_line_num"
-        android:layout_toEndOf="@id/found_view_line_num"
-        android:layout_width="wrap_content"
-        android:textAlignment="textStart"
-        android:layout_gravity="start"
-        android:layout_height="match_parent"
-        android:textColor="@color/colorLightText"
-        android:textSize="@dimen/font_small_small" />
-
-    <TextView
-        android:id="@+id/found_view_type"
-        android:layout_below="@id/found_view_name"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/found_view_node"
-        android:layout_toEndOf="@id/found_view_node"
-        android:layout_width="wrap_content"
-        android:textAlignment="textEnd"
-        android:layout_gravity="end"
-        android:layout_height="match_parent"
-        android:textColor="@color/colorLightText"
-        android:textSize="@dimen/font_small_small" />-->
+    android:paddingBottom="7dp">
 
     <include
         android:id="@+id/layout_record_fields"
@@ -72,7 +17,10 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:textColor="@color/colorLightText"
+        android:paddingLeft="5dp"
+        android:paddingStart="5dp"
+        android:textColor="@color/colorBase2Text"
+        android:textStyle="italic"
         android:textSize="@dimen/font_small_small"
         android:text="@string/title_founded_in_mask"/>
 
@@ -84,9 +32,12 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
+        android:paddingRight="5dp"
+        android:paddingEnd="5dp"
         android:textAlignment="textEnd"
         android:layout_gravity="end"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/colorBase2Text"
+        android:textStyle="italic"
         android:textSize="@dimen/font_small_small"/>
 
 </RelativeLayout>

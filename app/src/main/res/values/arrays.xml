@@ -46,16 +46,16 @@
         <item>@string/global_search_in_cur_node</item>
     </string-array>
     <string-array name="found_types">
-        <item>Record name</item>
-        <item>Text</item>
-        <item>Author</item>
-        <item>Url</item>
-        <item>File name</item>
-        <item>Tag</item>
-        <item>Node name</item>
-        <item>Node id</item>
-        <item>Record id</item>
-        <item>File id</item>
+        <item>record name</item>
+        <item>text</item>
+        <item>author</item>
+        <item>url</item>
+        <item>file name</item>
+        <item>tag</item>
+        <item>node name</item>
+        <item>node id</item>
+        <item>record id</item>
+        <item>file id</item>
     </string-array>
 
     <string-array name="obj_storage">

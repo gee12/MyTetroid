@@ -22,16 +22,16 @@
         <item>@string/global_search_in_cur_node</item>
     </string-array>
     <string-array name="found_types">
-        <item>Имя записи</item>
-        <item>Текст</item>
-        <item>Автор</item>
-        <item>Url</item>
-        <item>Имя файла</item>
-        <item>Метка</item>
-        <item>Имя ветки</item>
-        <item>Id ветки</item>
-        <item>Id записи</item>
-        <item>Id файла</item>
+        <item>имя записи</item>
+        <item>текст</item>
+        <item>автор</item>
+        <item>url</item>
+        <item>имя файла</item>
+        <item>метка</item>
+        <item>имя ветки</item>
+        <item>id ветки</item>
+        <item>id записи</item>
+        <item>id файла</item>
     </string-array>
 
     <string-array name="obj_storage">

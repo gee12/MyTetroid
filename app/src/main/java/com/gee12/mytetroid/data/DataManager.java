@@ -22,6 +22,8 @@ import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TetroidLog;
+import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -948,5 +950,25 @@ public class DataManager implements IRecordFileCrypter {
 
     public TetroidCrypter getCrypterManager() {
         return mCrypter;
+    }
+
+    public static String getTetroidObjectTypeString(Context context, ITetroidObject obj) {
+        int resId;
+        int type = obj.getType();
+        switch (type) {
+            case FoundType.TYPE_RECORD:
+                resId = R.string.title_record;
+                break;
+            case FoundType.TYPE_NODE:
+                resId = R.string.title_node;
+                break;
+            case FoundType.TYPE_TAG:
+                resId = R.string.title_tag;
+                break;
+            default:
+                String[] strings = context.getResources().getStringArray(R.array.found_types);
+                return (strings != null && strings.length < type) ? strings[type] : "";
+        }
+        return context.getString(resId);
     }
 }

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -21,9 +22,6 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
      *
      */
     private static class FoundViewHolder extends RecordViewHolder {
-//        TextView lineNumView;
-//        TextView nameView;
-//        TextView nodeNameView;
         TextView foundInView;
         TextView typeView;
     }
@@ -33,13 +31,10 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
 
     public FoundListAdapter(Context context, OnRecordAttachmentClickListener onAttachmentClickListener/*, List<ITetroidObject> dataSet*/) {
         super(context, onAttachmentClickListener);
-//        this.dataSet = dataSet;
-//        this.dataSet = new HashMap<>();
         this.dataSet = new ArrayList<>();
         this.isShowNodeName = true;
     }
 
-//    public void setDataItems(List<ITetroidObject> dataSet) {
     public void setDataItems(HashMap<ITetroidObject, FoundType> hashMap) {
         this.hashMap = hashMap;
         this.dataSet.addAll(hashMap.keySet());
@@ -72,7 +67,7 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
         FoundViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new FoundViewHolder();
-            convertView = inflater.inflate(R.layout.list_item_record, null);
+            convertView = inflater.inflate(R.layout.list_item_found, null);
             viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
             viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
@@ -89,34 +84,21 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
             viewHolder = (FoundViewHolder) convertView.getTag();
         }
 
-        ITetroidObject foundObject = dataSet.get(position);
+        final ITetroidObject foundObject = dataSet.get(position);
         if (foundObject instanceof TetroidRecord) {
             // если найденный объект - запись, то выводим его в списке как обычную запись
             prepareView(position, viewHolder, convertView, (TetroidRecord) foundObject);
         } else {
-            final ITetroidObject found = dataSet.get(position);
             // номер строки
             viewHolder.lineNumView.setText(String.valueOf(position + 1));
             // название найденного объекта
-            viewHolder.nameView.setText(found.getName());
-            /*if (found.getType() == FoundType.TYPE_RECORD) {
-                TetroidRecord record = (TetroidRecord)found;
-                if (record != null) {
-                    viewHolder.nodeNameView.setVisibility(View.VISIBLE);
-                    viewHolder.nodeNameView.setText(record.getNode().getName());
-                }
-            } else {
-                viewHolder.nodeNameView.setVisibility(View.GONE);
-            }*/
-            viewHolder.nodeNameView.setVisibility(View.GONE);
+            viewHolder.nameView.setText(foundObject.getName());
         }
         // где найдено
-        String foundInString = hashMap.get(foundObject).getTypeString(context);
+        String foundInString = hashMap.get(foundObject).getFoundTypeString(context);
         viewHolder.foundInView.setText(context.getString(R.string.title_founded_in_mask, foundInString));
         // тип найденного объекта
-        String[] titles = context.getResources().getStringArray(R.array.view_type_titles);
-        String typeName = (titles != null && foundObject.getType() < titles.length)
-                ? new FoundType(foundObject.getType()).getTypeString(context) : "";
+        String typeName = DataManager.getTetroidObjectTypeString(context, foundObject);
         viewHolder.typeView.setText(typeName.toUpperCase());
 
         return convertView;

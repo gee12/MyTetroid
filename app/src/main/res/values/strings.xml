@@ -119,6 +119,9 @@
     <string name="title_created">Created date</string>
     <string name="title_edited">Edited date</string>
     <string name="title_storage_path_desc">Catalog containing database.ini, mytetra.xml and base/</string>
+    <string name="title_record">Record</string>
+    <string name="title_node">Node</string>
+    <string name="title_tag">Tag</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
