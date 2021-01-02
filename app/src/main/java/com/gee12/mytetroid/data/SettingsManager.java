@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
@@ -78,6 +81,22 @@ public class SettingsManager {
         App.HighlightAttachColor = getHighlightColor(context);
         App.DateFormatString = getDateFormatString(context);
         App.RecordFieldsInList = new RecordFieldsSelector(context, getRecordFieldsInList(context));
+    }
+
+    /**
+     * Проверяем строку формата даты/времени, т.к. в версии приложения <= 11
+     * введенная строка в настройках не проверялась, что могло привести к падению приложения
+     * при отображении списка.
+     * @return
+     */
+    public static String checkDateFormatString(Context context) {
+        String dateFormatString = getDateFormatString(context);
+        if (Utils.checkDateFormatString(dateFormatString)) {
+            return dateFormatString;
+        } else {
+            LogManager.log(context, context.getString(R.string.log_incorrect_dateformat_in_settings), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            return context.getString(R.string.def_date_format_string);
+        }
     }
 
     /**
@@ -190,7 +209,6 @@ public class SettingsManager {
     public static void setStoragePath(Context context, String value) {
         String oldPath = getStoragePath(context);
         if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
-//            isAskReloadStorage = true;
             SettingsManager.setMiddlePassHash(context, null);
         }
         SharedPreferences.Editor editor = settings.edit();
@@ -528,7 +546,7 @@ public class SettingsManager {
     }
 
     /**
-     * Отображать ли панель свойств записи при отркытии ?
+     * Отображать ли панель свойств записи при открытии ?
      * По-умолчанию - не отображать.
      * @param context
      * @return

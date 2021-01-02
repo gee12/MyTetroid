@@ -541,4 +541,5 @@
     <string name="log_storage_need_load">Необходимо загрузить хранилище</string>
     <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
     <string name="log_dir_not_empty">Каталог не пуст</string>
+    <string name="title_founded_in_mask">Найдено в: %s</string>
 </resources>

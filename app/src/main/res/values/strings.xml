@@ -616,4 +616,5 @@
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
     <string name="log_dir_not_empty">Directory is not empty</string>
     <string name="log_mOptionsMenu_is_null" translatable="false">TetroidActivity.updateOptionsMenu(): mOptionsMenu is null</string>
+    <string name="title_founded_in_mask">Founded in: %s</string>
 </resources>

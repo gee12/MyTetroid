@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/data_item_row_height"
-    android:layout_gravity="center_vertical"
+    android:layout_height="wrap_content"
+    android:paddingBottom="3dp">
+   <!-- android:layout_gravity="center_vertical"
     android:paddingLeft="5dp"
     android:paddingBottom="2dp"
-    android:paddingRight="5dp">
+    android:paddingRight="5dp"-->
 
-    <TextView
+    <!--<TextView
         android:id="@+id/found_view_name"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -56,6 +57,24 @@
         android:layout_gravity="end"
         android:layout_height="match_parent"
         android:textColor="@color/colorLightText"
-        android:textSize="@dimen/font_small_small" />
+        android:textSize="@dimen/font_small_small" />-->
+
+    <include
+        android:id="@+id/layout_record_fields"
+        layout="@layout/list_item_record" />
+
+    <TextView
+        android:id="@+id/found_view_type"
+        android:layout_below="@id/layout_record_fields"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:textAlignment="textEnd"
+        android:layout_gravity="end"
+        android:layout_height="match_parent"
+        android:textColor="@color/colorLightText"
+        android:textSize="@dimen/font_small_small"
+        android:text="@string/title_founded_in_mask"/>
 
 </RelativeLayout>

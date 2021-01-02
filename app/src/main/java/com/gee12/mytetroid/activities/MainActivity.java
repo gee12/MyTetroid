@@ -735,11 +735,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mViewPagerAdapter.getMainFragment().showRecords(records, viewId);
     }
 
-    private void showRecordFiles(TetroidRecord record) {
-        checkCurNode(record);
-        mViewPagerAdapter.getMainFragment().showRecordFiles(record);
-    }
-
     /**
      * Обновление текущей ветки, если еще не установлена.
      * @param record
@@ -756,6 +751,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!RecordsManager.openRecordFolder(this, record)) {
             LogManager.log(this, R.string.log_missing_file_manager, Toast.LENGTH_LONG);
         }
+    }
+
+    @Override
+    public void openRecordAttaches(TetroidRecord record) {
+        checkCurNode(record);
+        mViewPagerAdapter.getMainFragment().showRecordAttaches(record);
     }
 
     /**
@@ -1798,7 +1799,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 String recordId2 = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 TetroidRecord record = RecordsManager.getRecord(recordId2);
                 if (record != null) {
-                    mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+                    mViewPagerAdapter.getMainFragment().showRecordAttaches(record);
                 }
                 break;
             case RecordActivity.RESULT_SHOW_TAG:
@@ -1851,7 +1852,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 openRecord((TetroidRecord) found);
                 break;
             case FoundType.TYPE_FILE:
-                showRecordFiles(((TetroidFile) found).getRecord());
+                openRecordAttaches(((TetroidFile) found).getRecord());
                 break;
             case FoundType.TYPE_NODE:
                 showNode((TetroidNode) found);
@@ -2158,7 +2159,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInFiles(String query, TetroidRecord record) {
         LogManager.log(this, String.format(getString(R.string.filter_files_by_query), record.getName(), query));
         List<TetroidFile> found = ScanManager.searchInFiles(record.getAttachedFiles(), query);
-        mViewPagerAdapter.getMainFragment().showRecordFiles(found);
+        mViewPagerAdapter.getMainFragment().showRecordAttaches(found);
         if (found.isEmpty()) {
             mViewPagerAdapter.getMainFragment().setFilesEmptyViewText(
                     String.format(getString(R.string.search_files_not_found_mask), query));

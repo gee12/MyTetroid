@@ -234,12 +234,11 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showRecords(List<TetroidRecord> records, int viewId) {
-        String dateTimeFormat = checkDateFormatString(mContext);
         showView(viewId);
         mTextViewRecordsEmpty.setText((viewId == MAIN_VIEW_FAVORITES)
                 ? R.string.title_favors_is_missing : R.string.title_records_is_missing);
         showGlobalSearchButton(false);
-        this.mListAdapterRecords.setDataItems(records, viewId, dateTimeFormat);
+        this.mListAdapterRecords.setDataItems(records, viewId);
         mListViewRecords.setAdapter(mListAdapterRecords);
     }
 
@@ -359,14 +358,14 @@ public class MainPageFragment extends TetroidFragment {
      * Отображение списка прикрепленных файлов.
      * @param record Запись
      */
-    public void showRecordFiles(TetroidRecord record) {
+    public void showRecordAttaches(TetroidRecord record) {
         if (record == null)
             return;
         this.mCurRecord = record;
-        showRecordFiles(record.getAttachedFiles());
+        showRecordAttaches(record.getAttachedFiles());
     }
 
-    public void showRecordFiles(List<TetroidFile> files) {
+    public void showRecordAttaches(List<TetroidFile> files) {
         showView(MAIN_VIEW_RECORD_FILES);
         this.mListAdapterFiles.reset(files);
         mListViewFiles.setAdapter(mListAdapterFiles);
@@ -376,7 +375,7 @@ public class MainPageFragment extends TetroidFragment {
      * Открытие прикрепленного файла.
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
-    private void openFile(int position) {
+    private void openAttach(int position) {
         if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp(mContext)) {
             LogManager.log(mContext, R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
             return;
@@ -693,22 +692,6 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Проверяем строку формата даты/времени, т.к. в версии приложения <= 11
-     * введенная строка в настройках не проверялась, что могло привести к падению приложения
-     * при отображении списка.
-     * @return
-     */
-    public static String checkDateFormatString(Context context) {
-        String dateFormatString = SettingsManager.getDateFormatString(context);
-        if (Utils.checkDateFormatString(dateFormatString)) {
-            return dateFormatString;
-        } else {
-            LogManager.log(context, context.getString(R.string.log_incorrect_dateformat_in_settings), ILogger.Types.WARNING, Toast.LENGTH_LONG);
-            return context.getString(R.string.def_date_format_string);
-        }
-    }
-
-    /**
      * Обработчик клика на записи
      */
     private AdapterView.OnItemClickListener onRecordClicklistener = (parent, view, position, id) -> showRecord(position);
@@ -716,12 +699,12 @@ public class MainPageFragment extends TetroidFragment {
     /**
      * Обработчик клика на иконке прикрепленных файлов записи
      */
-    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordFiles(record);
+    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordAttaches(record);
 
     /**
      * Обработчик клика на прикрепленном файле
      */
-    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openFile(position);
+    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openAttach(position);
 
     /**
      *
@@ -898,7 +881,7 @@ public class MainPageFragment extends TetroidFragment {
                 insertRecord();
                 return true;
             case R.id.action_attached_files:
-                showRecordFiles(record);
+                showRecordAttaches(record);
                 return true;
             case R.id.action_open_record_folder:
                 openRecordFolder(record);
@@ -937,7 +920,7 @@ public class MainPageFragment extends TetroidFragment {
         }
         switch (id) {
             case R.id.action_open_file:
-                openFile(pos);
+                openAttach(pos);
                 return true;
             case R.id.action_rename:
                 renameFile(file);

@@ -12,6 +12,7 @@ public interface IMainView extends Parcelable {
     void onMainPageCreated();
     void openNode(TetroidNode node);
     void openRecordFolder(TetroidRecord record);
+    void openRecordAttaches(TetroidRecord record);
     void openAttach(TetroidFile file);
     void updateMainToolbar(int viewId, String title);
     void openFoundObject(ITetroidObject found);
