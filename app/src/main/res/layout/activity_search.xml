@@ -45,6 +45,7 @@
                     android:layout_toLeftOf="@id/button_clear"
                     android:layout_toStartOf="@id/button_clear"
                     android:maxLines="1"
+                    android:inputType="text"
                     android:hint="@string/search_hint_input_query" />
 
                 <ImageButton

@@ -145,7 +145,8 @@
                 android:id="@+id/tags_list_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp" />
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp" />
 
             <TextView
                 android:id="@+id/tags_text_view_empty"

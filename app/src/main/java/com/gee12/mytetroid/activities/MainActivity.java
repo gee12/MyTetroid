@@ -757,6 +757,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public void openRecordAttaches(TetroidRecord record) {
         checkCurNode(record);
         mViewPagerAdapter.getMainFragment().showRecordAttaches(record);
+        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
     }
 
     /**
