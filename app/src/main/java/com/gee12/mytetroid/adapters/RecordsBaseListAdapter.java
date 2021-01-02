@@ -66,32 +66,14 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
     /**
      *
      * @param position
+     * @param viewHolder
      * @param convertView
      * @param record
      * @return
      */
-    public View getView(int position, View convertView, TetroidRecord record) {
-        RecordViewHolder viewHolder;
-        if (convertView == null) {
-            viewHolder = new RecordViewHolder();
-            convertView = inflater.inflate(R.layout.list_item_record, null);
-            viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
-            viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
-            viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
-            viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
-            viewHolder.authorView = convertView.findViewById(R.id.record_view_author);
-            viewHolder.tagsView = convertView.findViewById(R.id.record_view_tags);
-            viewHolder.createdView = convertView.findViewById(R.id.record_view_created);
-            viewHolder.editedView = convertView.findViewById(R.id.record_view_edited);
-            viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (RecordViewHolder) convertView.getTag();
-        }
-
-//        final TetroidRecord record = dataSet.get(position);
-        if (record == null) {
-            return convertView;
+    public void prepareView(int position, RecordViewHolder viewHolder, View convertView, TetroidRecord record) {
+        if (viewHolder == null || record == null) {
+            return;
         }
         boolean nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted();
         // иконка
@@ -168,8 +150,6 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
             viewHolder.attachedView.setVisibility(View.GONE);
             nameParams.setMargins(0,0,0,0);
         }
-
-        return convertView;
     }
 
 }

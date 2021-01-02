@@ -24,6 +24,7 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
 //        TextView lineNumView;
 //        TextView nameView;
 //        TextView nodeNameView;
+        TextView foundInView;
         TextView typeView;
     }
 
@@ -69,26 +70,30 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         FoundViewHolder viewHolder;
+        if (convertView == null) {
+            viewHolder = new FoundViewHolder();
+            convertView = inflater.inflate(R.layout.list_item_record, null);
+            viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
+            viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
+            viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
+            viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
+            viewHolder.authorView = convertView.findViewById(R.id.record_view_author);
+            viewHolder.tagsView = convertView.findViewById(R.id.record_view_tags);
+            viewHolder.createdView = convertView.findViewById(R.id.record_view_created);
+            viewHolder.editedView = convertView.findViewById(R.id.record_view_edited);
+            viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
+            viewHolder.foundInView = convertView.findViewById(R.id.found_view_founded_in);
+            viewHolder.typeView = convertView.findViewById(R.id.found_view_type);
+            convertView.setTag(viewHolder);
+        } else {
+            viewHolder = (FoundViewHolder) convertView.getTag();
+        }
 
         ITetroidObject foundObject = dataSet.get(position);
         if (foundObject instanceof TetroidRecord) {
             // если найденный объект - запись, то выводим его в списке как обычную запись
-            convertView = getView(position, convertView, (TetroidRecord) foundObject);
-            viewHolder = (FoundViewHolder)convertView.getTag();
+            prepareView(position, viewHolder, convertView, (TetroidRecord) foundObject);
         } else {
-
-            if (convertView == null) {
-                viewHolder = new FoundViewHolder();
-                convertView = inflater.inflate(R.layout.list_item_found, null);
-                viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
-                viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
-                viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
-                viewHolder.typeView = convertView.findViewById(R.id.found_view_type);
-                convertView.setTag(viewHolder);
-            } else {
-                viewHolder = (FoundViewHolder)convertView.getTag();
-            }
-
             final ITetroidObject found = dataSet.get(position);
             // номер строки
             viewHolder.lineNumView.setText(String.valueOf(position + 1));
@@ -105,9 +110,14 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
             }*/
             viewHolder.nodeNameView.setVisibility(View.GONE);
         }
-        // тип найденного объекта
+        // где найдено
         String foundInString = hashMap.get(foundObject).getTypeString(context);
-        viewHolder.typeView.setText(context.getString(R.string.title_founded_in_mask, foundInString));
+        viewHolder.foundInView.setText(context.getString(R.string.title_founded_in_mask, foundInString));
+        // тип найденного объекта
+        String[] titles = context.getResources().getStringArray(R.array.view_type_titles);
+        String typeName = (titles != null && foundObject.getType() < titles.length)
+                ? new FoundType(foundObject.getType()).getTypeString(context) : "";
+        viewHolder.typeView.setText(typeName.toUpperCase());
 
         return convertView;
     }
