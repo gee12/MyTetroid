@@ -20,6 +20,7 @@ import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
 import java.io.File;
@@ -221,6 +222,8 @@ public class StorageManager extends DataManager {
         } else {
             LogManager.log(context, context.getString(R.string.log_failed_storage_init) + storagePath,
                     ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
+
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
             getStorageInitCallback().initGUI(false, isFavorMode, false);
         }
@@ -410,7 +413,8 @@ public class StorageManager extends DataManager {
     /**
      * Создание нового хранилища в указанном расположении.
      *
-     * @param storagePath //     * @param checkDirIsEmpty
+     * @param storagePath
+//     * @param checkDirIsEmpty
      */
     public static boolean createStorage(Context context, String storagePath/*, boolean checkDirIsEmpty*/) {
         boolean res = (initOrCreateStorage(context, storagePath, true));

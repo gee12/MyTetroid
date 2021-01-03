@@ -34,6 +34,7 @@ import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.internal.StringUtil;
@@ -195,6 +196,7 @@ public class DataManager implements IRecordFileCrypter {
             NodesManager.updateQuicklyNode(context);
         } catch (Exception ex) {
             LogManager.log(context, ex);
+            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
         }
         return res;
     }

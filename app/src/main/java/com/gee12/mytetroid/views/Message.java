@@ -12,17 +12,15 @@ import androidx.fragment.app.Fragment;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.activities.LogsActivity;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.google.android.material.behavior.SwipeDismissBehavior;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 public class Message {
 
-    static BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
-
-    static {
-        behavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY);
-    }
+//    static BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
+//
+//    static {
+//        behavior.setSwipeDirection(SwipeDismissBehavior.SWIPE_DIRECTION_ANY);
+//    }
 
     /**
      * Отображение уведомления в виде Toast.
@@ -137,7 +135,7 @@ public class Message {
     }
 
     public static void showSnackMoreInLogs(Context context, View view) {
-        showSnack(view, R.string.title_more_in_logs, Snackbar.LENGTH_INDEFINITE,
+        showSnack(view, R.string.title_more_in_logs, Snackbar.LENGTH_LONG,
                 R.string.title_open, v -> LogsActivity.startLogsActivity(context));
     }
 }

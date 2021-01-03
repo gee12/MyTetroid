@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.Parcel;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -44,7 +45,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidReview;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
@@ -517,7 +517,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 mTextViewTagsEmpty.setText(R.string.title_load_all_nodes);
                 setListEmptyViewState(mTextViewNodesEmpty, true, R.string.title_load_all_nodes);
             } else {
-                setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
+                setEmptyTextViews(R.string.title_storage_not_loaded);
             }
         } else {
             // список веток
@@ -574,10 +574,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
             } else {
-                setListEmptyViewState(mTextViewNodesEmpty, true, R.string.log_storage_load_error);
+                setEmptyTextViews(R.string.title_storage_not_loaded);
             }
         }
         updateOptionsMenu();
+    }
+
+    private void setEmptyTextViews(@StringRes int mesId) {
+        mViewPagerAdapter.getMainFragment().setRecordsEmptyViewText(getString(mesId));
+        setListEmptyViewState(mTextViewNodesEmpty, true, mesId);
+        setListEmptyViewState(mTextViewTagsEmpty, true, mesId);
+        mDrawerLayout.closeDrawers();
     }
 
     /**
@@ -1823,13 +1830,18 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
     }
 
+    /**
+     * Запуск механизма оценки и отзыва о приложении In-App Review.
+     *
+     * TODO: пока отключено.
+     *
+     */
     private int recordOpeningCount = 0;
     private void checkForInAppReviewShowing() {
-//        if (++recordOpeningCount > 2) {
+        if (++recordOpeningCount > 2) {
             recordOpeningCount = 0;
-
-            TetroidReview.showInAppReview(this);
-//        }
+//            TetroidReview.showInAppReview(this);
+        }
     }
 
     /**
@@ -2209,7 +2221,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), StorageManager.isInited());
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), !TextUtils.isEmpty(SettingsManager.getStoragePath(this)));
 
         mViewPagerAdapter.getMainFragment().onPrepareOptionsMenu(menu);
 
