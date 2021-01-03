@@ -1541,7 +1541,7 @@ public class RecordActivity extends TetroidActivity implements
     public void setFindButtonsVisibility(boolean vis) {
         ViewUtils.setFabVisibility(mButtonFindNext, vis);
         ViewUtils.setFabVisibility(mButtonFindPrev, vis);
-        setRecordFieldsVisibility(!vis);
+        setRecordFieldsVisibility(!vis && mCurMode != MODE_HTML);
         // установим позиционирование кнопки FindNext от правого края
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonFindNext.getLayoutParams();
         if (vis) {
