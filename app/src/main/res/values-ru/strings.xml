@@ -130,7 +130,7 @@
     <string name="text_intent_exist_image_attach">Прикрепить к существующей записи;Выбрать существующую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
     <string name="text_pass_input_html"><![CDATA[Пароль будет использоваться для шифрования выбранных веток с записями.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.]]></string>
-    <string name="text_create_storage_summ_html"><![CDATA[Выбрать каталог в памяти телефона для создания нового хранилища <b>(содержимое каталога будет очищено)</b>]]></string>
+    <string name="text_create_storage_summ_html"><![CDATA[Выбрать пустой каталог в памяти телефона для создания нового хранилища]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[В приложении включен режим загрузки <b>только избранного</b>. Для принятия %s нужно загрузить все ветки хранилища.<br>Продолжить?]]></string>
 
     <string name="word_received_text">текста</string>
@@ -315,7 +315,8 @@
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
     <string name="ask_reload_storage">Перезагрузить хранилище из памяти устройства?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
-    <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>
+<!--    <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>-->
+    <string name="ask_create_storage_in_folder">В выбранном каталоге будет создано новое хранилище. Продолжить?</string>
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
     <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>

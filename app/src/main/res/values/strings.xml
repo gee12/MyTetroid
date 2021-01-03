@@ -388,7 +388,8 @@
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
     <string name="ask_reload_storage">Reload storage from device memory?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
-    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>
+<!--    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>-->
+    <string name="ask_create_storage_in_folder">A new repository will be created in the selected directory. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
     <string name="ask_storage_changed_outside">The record tree has been modified by a third party program. Reboot the storage to continue working with the new data outside?</string>
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
