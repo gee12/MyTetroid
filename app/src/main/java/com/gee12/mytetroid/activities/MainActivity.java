@@ -772,7 +772,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void updateNodeList() {
-        mListAdapterNodes.notifyDataSetChanged();
+        if (mListAdapterNodes != null) {
+            mListAdapterNodes.notifyDataSetChanged();
+        }
     }
 
     /**
