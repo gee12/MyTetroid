@@ -117,7 +117,7 @@
     <string name="title_tags">Метки</string>
     <string name="title_created">Дата создания</string>
     <string name="title_edited">Дата изменения</string>
-    <string name="title_storage_path_desc">Каталог, содержащий файлы database.ini, mytetra.xml и подкаталог base/</string>
+    <string name="title_storage_path_desc">Выберите каталог, содержащий файлы database.ini, mytetra.xml и подкаталог base/</string>
     <string name="title_record">Запись</string>
     <string name="title_node">Ветка</string>
     <string name="title_tag">Метка</string>

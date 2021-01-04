@@ -31,9 +31,9 @@ public class TetroidFileObserver {
 //                mFileObserver = new FileObserver(file, mask) {
             @Override
             public void onEvent(int event, String path) {
-//                if ((event & mask) > 0) {
+                if ((event & mask) > 0) {
                     callback.run(true);
-//                }
+                }
             }
         };
         startObserver();

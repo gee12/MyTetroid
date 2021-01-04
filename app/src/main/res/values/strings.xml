@@ -118,7 +118,7 @@
     <string name="title_tags">Tags</string>
     <string name="title_created">Created date</string>
     <string name="title_edited">Edited date</string>
-    <string name="title_storage_path_desc">Folder containing files database.ini, mytetra.xml and subfolder base/</string>
+    <string name="title_storage_path_desc">Select the folder containing files database.ini, mytetra.xml and subfolder base/</string>
     <string name="title_record">Record</string>
     <string name="title_node">Node</string>
     <string name="title_tag">Tag</string>
