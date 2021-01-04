@@ -375,10 +375,14 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 bundle.putString(FileObserverService.EXTRA_FILE_PATH, DataManager.getPathToMyTetraXml());
                 bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY);
                 FileObserverService.sendCommand(this, bundle);
+                LogManager.log(this, getString(R.string.log_mytetra_xml_observer_mask,
+                        getString(R.string.launched)), ILogger.Types.INFO);
             }
         } else {
             FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
             FileObserverService.stop(this);
+            LogManager.log(this, getString(R.string.log_mytetra_xml_observer_mask,
+                    getString(R.string.stopped)), ILogger.Types.INFO);
         }
     }
 

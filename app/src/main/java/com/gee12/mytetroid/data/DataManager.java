@@ -684,6 +684,8 @@ public class DataManager implements IRecordFileCrypter {
                 if (context instanceof MainActivity) {
                     // но только для MainActivity
                     FileObserverService.sendCommand((MainActivity)context, FileObserverService.ACTION_RESTART);
+                    LogManager.log(context, context.getString(R.string.log_mytetra_xml_observer_mask,
+                            context.getString(R.string.relaunched)), ILogger.Types.INFO);
                 }
 
                 return true;

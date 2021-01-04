@@ -118,7 +118,7 @@
     <string name="title_tags">Tags</string>
     <string name="title_created">Created date</string>
     <string name="title_edited">Edited date</string>
-    <string name="title_storage_path_desc">Catalog containing database.ini, mytetra.xml and base/</string>
+    <string name="title_storage_path_desc">Folder containing files database.ini, mytetra.xml and subfolder base/</string>
     <string name="title_record">Record</string>
     <string name="title_node">Node</string>
     <string name="title_tag">Tag</string>
@@ -621,4 +621,8 @@
     <string name="log_dir_not_empty">Directory is not empty</string>
     <string name="log_mOptionsMenu_is_null" translatable="false">TetroidActivity.updateOptionsMenu(): mOptionsMenu is null</string>
     <string name="title_founded_in_mask">Founded in: %s</string>
+    <string name="log_mytetra_xml_observer_mask">Track changes to a file mytetra.xml was %s</string>
+    <string name="launched">launched</string>
+    <string name="relaunched">re-launched</string>
+    <string name="stopped">stopped</string>
 </resources>

@@ -117,7 +117,7 @@
     <string name="title_tags">Метки</string>
     <string name="title_created">Дата создания</string>
     <string name="title_edited">Дата изменения</string>
-    <string name="title_storage_path_desc">Каталог, содержащий database.ini, mytetra.xml и base/</string>
+    <string name="title_storage_path_desc">Каталог, содержащий файлы database.ini, mytetra.xml и подкаталог base/</string>
     <string name="title_record">Запись</string>
     <string name="title_node">Ветка</string>
     <string name="title_tag">Метка</string>
@@ -546,4 +546,8 @@
     <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
     <string name="log_dir_not_empty">Каталог не пуст</string>
     <string name="title_founded_in_mask">Найдено в: %s</string>
+    <string name="log_mytetra_xml_observer_mask">Отслеживание изменений файла mytetra.xml было %s</string>
+    <string name="launched">запущено</string>
+    <string name="relaunched">перезапущено</string>
+    <string name="stopped">остановлено</string>
 </resources>
