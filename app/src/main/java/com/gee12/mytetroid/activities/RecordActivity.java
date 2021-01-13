@@ -503,10 +503,10 @@ public class RecordActivity extends TetroidActivity implements
 
             switchMode(defMode);
 
-            if (defMode == MODE_EDIT) {
+            /*if (defMode == MODE_EDIT) {
                 ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
 //                Keyboard.showKeyboard(mEditor);
-            }
+            }*/
 
         } else {
             // переключаем только views
@@ -1057,6 +1057,7 @@ public class RecordActivity extends TetroidActivity implements
                 mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_edit));
                 mEditor.getWebView().focusEditor();
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
             } break;
             case MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
@@ -1073,6 +1074,7 @@ public class RecordActivity extends TetroidActivity implements
                 mScrollViewHtml.setVisibility(View.VISIBLE);
                 setRecordFieldsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_html));
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
             } break;
         }
     }
