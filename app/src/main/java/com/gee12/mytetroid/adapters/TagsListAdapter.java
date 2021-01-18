@@ -8,10 +8,13 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,8 +39,9 @@ public class TagsListAdapter extends BaseAdapter {
         this.mData = new ArrayList<>();
     }
 
-    public void setDataItems(Map<String,TetroidTag> data) {
+    public void setDataItems(Map<String,TetroidTag> data, SortHelper sortHelper) {
         this.mData = new ArrayList<>(data.entrySet());
+        sort(sortHelper);
         notifyDataSetChanged();
     }
 
@@ -77,5 +81,43 @@ public class TagsListAdapter extends BaseAdapter {
         viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", records.size()));
 
         return convertView;
+    }
+
+    private void sort(SortHelper sortHelper) {
+        if (sortHelper == null)
+            return;
+        if (sortHelper.isByName())
+            sortByName(sortHelper.isAscent());
+        else sortByCount(sortHelper.isAscent());
+    }
+
+    public void sortByName(boolean isAscent) {
+        if (isAscent)
+            Collections.sort(mData);
+        else
+            Collections.reverse(mData);
+        notifyDataSetChanged();
+    }
+
+    public void sortByCount(boolean isAscent) {
+        Collections.sort(mData, new Comparator<TetroidTag>() {
+            @Override
+            public int compare(TetroidTag o1, TetroidTag o2) {
+                if (o1 == o2) {
+                    return 0;
+                } else if (o1 == null) {
+                    return (isAscent) ? 1 : -1;
+                } else if (o2 == null) {
+                    return (isAscent) ? -1 : 1;
+                } else {
+                    return (o1.getRecords().size() > o2.getRecords().size())
+                            ? (isAscent) ? -1 : 1
+                            : (o1.getRecords().size() < o2.getRecords().size())
+                            ? (isAscent) ? 1 : -1
+                            : 0;
+                }
+            }
+        });
+        notifyDataSetChanged();
     }
 }

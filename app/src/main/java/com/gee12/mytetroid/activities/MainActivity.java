@@ -45,6 +45,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.adapters.MainPagerAdapter;
@@ -257,6 +258,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
         mSearchViewTags.setVisibility(View.GONE);
         initTagsSearchView(mSearchViewTags, vTagsHeader);
+        findViewById(R.id.button_tags_sort).setOnClickListener(v -> showTagsSortPopupMenu(v));
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
@@ -510,6 +512,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // элементы фильтра веток и меток
         ViewUtils.setVisibleIfNotNull(mSearchViewNodes, isLoaded && !isOnlyFavorites);
         ViewUtils.setVisibleIfNotNull(mSearchViewTags, isLoaded && !isOnlyFavorites);
+        ViewUtils.setVisibleIfNotNull((View)findViewById(R.id.button_tags_sort), isLoaded && !isOnlyFavorites);
 
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
@@ -573,7 +576,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     }
 
                     // список меток
-                    this.mListAdapterTags.setDataItems(DataManager.getTags());
+                    setTagsDataItems(DataManager.getTags());
                     mTextViewTagsEmpty.setText(R.string.log_tags_is_missing);
                 }
                 setListEmptyViewState(mTextViewNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
@@ -582,6 +585,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         }
         updateOptionsMenu();
+    }
+
+    private void setTagsDataItems(Map<String,TetroidTag> tags) {
+        mListAdapterTags.setDataItems(tags, new SortHelper(
+                SettingsManager.getTagsSortMode(this, SortHelper.byNameAsc())));
     }
 
     private void setEmptyTextViews(@StringRes int mesId) {
@@ -786,7 +794,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     @Override
     public void updateTags() {
-        mListAdapterTags.setDataItems(DataManager.getTags());
+        setTagsDataItems(DataManager.getTags());
     }
 
     /**
@@ -1083,7 +1091,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         } else {
             tags = DataManager.getTags();
         }
-        mListAdapterTags.setDataItems(tags);
+        setTagsDataItems(tags);
         if (tags.isEmpty()) {
             mTextViewTagsEmpty.setText((isSearch)
                     ? String.format(getString(R.string.search_tags_not_found_mask), query)
@@ -1610,10 +1618,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return false;
             }
         });
-        // для отображения иконок
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) menu, v);
-        menuHelper.setForceShowIcon(true);
-        menuHelper.show();
+        setForceShowMenuIcons(v, (MenuBuilder) menu);
     }
 
     /**
@@ -1643,8 +1648,47 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     return false;
             }
         });
+        setForceShowMenuIcons(v, (MenuBuilder) popupMenu.getMenu());
+    }
+
+    private void showTagsSortPopupMenu(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.inflate(R.menu.tags_sort);
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_sort_tags_name_asc:
+                    mListAdapterTags.sortByName(true);
+                    SettingsManager.setTagsSortMode(this, SortHelper.byNameAsc());
+                    return true;
+                case R.id.action_sort_tags_name_desc:
+                    mListAdapterTags.sortByName(false);
+                    SettingsManager.setTagsSortMode(this, SortHelper.byNameDesc());
+                    return true;
+                case R.id.action_sort_tags_count_asc:
+                    mListAdapterTags.sortByCount(true);
+                    SettingsManager.setTagsSortMode(this, SortHelper.byCountAsc());
+                    return true;
+                case R.id.action_sort_tags_count_desc:
+                    mListAdapterTags.sortByCount(false);
+                    SettingsManager.setTagsSortMode(this, SortHelper.byCountDesc());
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        setForceShowMenuIcons(v, (MenuBuilder) popupMenu.getMenu());
+    }
+
+    /**
+     * Принудительное отображение иконок у пунктов меню.
+     * @param v
+     * @param menu
+     */
+    @SuppressLint("RestrictedApi")
+    private void setForceShowMenuIcons(View v, MenuBuilder menu) {
         // для отображения иконок
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, (MenuBuilder) popupMenu.getMenu(), v);
+        MenuPopupHelper menuHelper = new MenuPopupHelper(this, menu, v);
         menuHelper.setForceShowIcon(true);
         menuHelper.show();
     }

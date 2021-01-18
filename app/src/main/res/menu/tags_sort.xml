@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_sort_tags_name_asc"
+        android:orderInCategory="10"
+        android:title="By name asc"
+        android:icon="@drawable/ic_move_down"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sort_tags_name_desc"
+        android:orderInCategory="20"
+        android:title="By name desc"
+        android:icon="@drawable/ic_move_up"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sort_tags_count_asc"
+        android:orderInCategory="30"
+        android:title="By count asc"
+        android:icon="@drawable/ic_move_down"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_sort_tags_count_desc"
+        android:orderInCategory="20"
+        android:title="By count desc"
+        android:icon="@drawable/ic_move_up"
+        app:showAsAction="never" />
+</menu>

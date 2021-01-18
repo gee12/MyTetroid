@@ -655,6 +655,19 @@ public class SettingsManager {
         setStringSet(context, R.string.pref_key_record_fields_in_list, values);
     }
 
+    /**
+     * Параметры сортировки списка меток (поле, направление).
+     * @param context
+     * @param mode
+     */
+    public static void setTagsSortMode(Context context, String mode) {
+        setString(context, R.string.pref_key_tags_sort_mode, mode);
+    }
+
+    public static String getTagsSortMode(Context context, String def) {
+        return getString(context, R.string.pref_key_tags_sort_mode, def);
+    }
+    
     /*
     * Остальное.
      */

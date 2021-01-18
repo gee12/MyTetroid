@@ -69,14 +69,13 @@ public class TetroidTag extends TetroidObject {
         public int compare(String o1, String o2) {
             if (o1 == o2) {
                 return 0;
-            }
-            if (o1 == null) {
+            } else if (o1 == null) {
                 return -1;
-            }
-            if (o2 == null) {
+            } else if (o2 == null) {
                 return 1;
+            } else {
+                return o1.toLowerCase().compareTo(o2.toLowerCase());
             }
-            return o1.toLowerCase().compareTo(o2.toLowerCase());
         }
     }
 

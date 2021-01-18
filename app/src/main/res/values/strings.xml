@@ -625,4 +625,5 @@
     <string name="launched">launched</string>
     <string name="relaunched">re-launched</string>
     <string name="stopped">stopped</string>
+    <string name="pref_key_tags_sort_mode">pref_key_tags_sort_mode</string>
 </resources>
