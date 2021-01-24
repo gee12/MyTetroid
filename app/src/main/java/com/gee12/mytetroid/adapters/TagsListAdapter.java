@@ -74,10 +74,10 @@ public class TagsListAdapter extends BaseAdapter {
         }
 
         Map.Entry<String, TetroidTag> item = getItem(position);
-        final List<TetroidRecord> records = item.getValue().getRecords();
         // название метки
         viewHolder.nameView.setText(item.getValue().getName());
         // количество записей
+        final List<TetroidRecord> records = item.getValue().getRecords();
         viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", records.size()));
 
         return convertView;
@@ -86,23 +86,13 @@ public class TagsListAdapter extends BaseAdapter {
     private void sort(SortHelper sortHelper) {
         if (sortHelper == null)
             return;
-        if (sortHelper.isByName())
-            sortByName(sortHelper.isAscent());
-        else sortByCount(sortHelper.isAscent());
+        sort(sortHelper.isByName(), sortHelper.isAscent());
     }
 
-    public void sortByName(boolean isAscent) {
-        if (isAscent)
-            Collections.sort(mData);
-        else
-            Collections.reverse(mData);
-        notifyDataSetChanged();
-    }
-
-    public void sortByCount(boolean isAscent) {
-        Collections.sort(mData, new Comparator<TetroidTag>() {
+    public void sort(boolean byName, boolean isAscent) {
+        Collections.sort(mData, new Comparator<Map.Entry<String, TetroidTag>>() {
             @Override
-            public int compare(TetroidTag o1, TetroidTag o2) {
+            public int compare(Map.Entry<String, TetroidTag> o1, Map.Entry<String, TetroidTag> o2) {
                 if (o1 == o2) {
                     return 0;
                 } else if (o1 == null) {
@@ -110,14 +100,20 @@ public class TagsListAdapter extends BaseAdapter {
                 } else if (o2 == null) {
                     return (isAscent) ? -1 : 1;
                 } else {
-                    return (o1.getRecords().size() > o2.getRecords().size())
-                            ? (isAscent) ? -1 : 1
-                            : (o1.getRecords().size() < o2.getRecords().size())
-                            ? (isAscent) ? 1 : -1
-                            : 0;
+                    int res;
+                    if (byName) {
+                        res = o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+                    } else {
+                        res = Integer.compare(o1.getValue().getRecords().size(), o2.getValue().getRecords().size());
+                        if (res == 0) {
+                            res = o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+                        }
+                    }
+                    return (isAscent) ? res : res * -1;
                 }
             }
         });
         notifyDataSetChanged();
     }
+
 }

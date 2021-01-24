@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.model;
 
-import java.util.Comparator;
 import java.util.List;
 
 public class TetroidTag extends TetroidObject {
@@ -60,24 +59,24 @@ public class TetroidTag extends TetroidObject {
 //                (getValue()==null ? 0 : getValue().hashCode());
 //    }
 
-    /**
-     * Функция сравнения меток.
-     */
-    public static class TagsComparator implements Comparator<String> {
-
-        @Override
-        public int compare(String o1, String o2) {
-            if (o1 == o2) {
-                return 0;
-            } else if (o1 == null) {
-                return -1;
-            } else if (o2 == null) {
-                return 1;
-            } else {
-                return o1.toLowerCase().compareTo(o2.toLowerCase());
-            }
-        }
-    }
+//    /**
+//     * Функция сравнения меток.
+//     */
+//    public static class TagsComparator implements Comparator<String> {
+//
+//        @Override
+//        public int compare(String o1, String o2) {
+//            if (o1 == o2) {
+//                return 0;
+//            } else if (o1 == null) {
+//                return -1;
+//            } else if (o2 == null) {
+//                return 1;
+//            } else {
+//                return o1.toLowerCase().compareTo(o2.toLowerCase());
+//            }
+//        }
+//    }
 
 
     /**

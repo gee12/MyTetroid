@@ -258,7 +258,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mSearchViewTags = vTagsHeader.findViewById(R.id.search_view_tags);
         mSearchViewTags.setVisibility(View.GONE);
         initTagsSearchView(mSearchViewTags, vTagsHeader);
-        findViewById(R.id.button_tags_sort).setOnClickListener(v -> showTagsSortPopupMenu(v));
+        vTagsHeader.findViewById(R.id.button_tags_sort).setOnClickListener(v -> showTagsSortPopupMenu(v));
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
@@ -1658,19 +1658,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.action_sort_tags_name_asc:
-                    mListAdapterTags.sortByName(true);
+                    mListAdapterTags.sort(true, true);
                     SettingsManager.setTagsSortMode(this, SortHelper.byNameAsc());
                     return true;
                 case R.id.action_sort_tags_name_desc:
-                    mListAdapterTags.sortByName(false);
+                    mListAdapterTags.sort(true, false);
                     SettingsManager.setTagsSortMode(this, SortHelper.byNameDesc());
                     return true;
                 case R.id.action_sort_tags_count_asc:
-                    mListAdapterTags.sortByCount(true);
+                    mListAdapterTags.sort(false, true);
                     SettingsManager.setTagsSortMode(this, SortHelper.byCountAsc());
                     return true;
                 case R.id.action_sort_tags_count_desc:
-                    mListAdapterTags.sortByCount(false);
+                    mListAdapterTags.sort(false, false);
                     SettingsManager.setTagsSortMode(this, SortHelper.byCountDesc());
                     return true;
                 default:

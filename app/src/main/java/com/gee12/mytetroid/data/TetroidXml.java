@@ -29,8 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  *
@@ -84,7 +84,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     /**
      * Список меток.
      */
-    protected TreeMap<String, TetroidTag> mTagsMap;
+    protected HashMap<String, TetroidTag> mTagsMap;
 
     /**
      * Статистические данные.
@@ -138,7 +138,8 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 //        this.mFavoritesRecords = new ArrayList<>();
         this.mRootNodesList = new ArrayList<>();
         ROOT_NODE.setSubNodes(mRootNodesList);
-        this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
+//        this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
+        this.mTagsMap = new HashMap<String, TetroidTag>();
         this.mFormatVersion = DEF_VERSION;
         this.mIsStorageLoaded = false;
         // счетчики

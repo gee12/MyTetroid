@@ -550,4 +550,6 @@
     <string name="launched">запущено</string>
     <string name="relaunched">перезапущено</string>
     <string name="stopped">остановлено</string>
+    <string name="title_by_records_num">Количество записей</string>
+    <string name="title_by_tag_name">Имя метки</string>
 </resources>

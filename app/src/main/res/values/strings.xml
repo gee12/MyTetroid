@@ -626,4 +626,6 @@
     <string name="relaunched">re-launched</string>
     <string name="stopped">stopped</string>
     <string name="pref_key_tags_sort_mode">pref_key_tags_sort_mode</string>
+    <string name="title_by_records_num">By records num</string>
+    <string name="title_by_tag_name">By name desc</string>
 </resources>
