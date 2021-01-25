@@ -50,12 +50,12 @@
 
                 <ImageButton
                     android:id="@+id/button_clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/ic_clear" />
+                    android:background="@color/transparent"
+                    android:src="@drawable/ic_clear" />
 
             </RelativeLayout>
 
