@@ -8,6 +8,15 @@
         android:summary="@string/pref_is_sync_summ"
         android:title="@string/pref_is_sync_storage" />
 
+    <com.gee12.mytetroid.views.DisabledListPreference
+        android:defaultValue="@string/app_termux"
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:entries="@array/sync_apps"
+        android:entryValues="@array/sync_apps"
+        android:key="@string/pref_key_app_for_sync"
+        android:summary="@string/pref_app_for_sync_summ"
+        android:title="@string/pref_app_for_sync" />
+
     <EditTextPreference
         android:dependency="@string/pref_key_is_sync_storage"
         android:dialogTitle="@string/pref_sync_command"
@@ -30,12 +39,12 @@
         android:summary="@string/pref_ask_before_sync_summ"
         android:title="@string/pref_ask_before_sync" />
 
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:dependency="@string/pref_key_is_sync_storage"
-        android:key="@string/pref_key_is_not_remember_sync_app"
-        android:summary="@string/pref_is_not_remember_sync_app_summ"
-        android:title="@string/pref_is_not_remember_sync_app" />
+<!--    <CheckBoxPreference-->
+<!--        android:defaultValue="false"-->
+<!--        android:dependency="@string/pref_key_is_sync_storage"-->
+<!--        android:key="@string/pref_key_is_not_remember_sync_app"-->
+<!--        android:summary="@string/pref_is_not_remember_sync_app_summ"-->
+<!--        android:title="@string/pref_is_not_remember_sync_app" />-->
 
     <CheckBoxPreference
         android:defaultValue="true"

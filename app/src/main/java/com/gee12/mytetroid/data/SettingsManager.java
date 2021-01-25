@@ -448,6 +448,10 @@ public class SettingsManager {
         setBoolean(context, R.string.pref_key_is_sync_storage, value);
     }
 
+    public static String getSyncAppName(Context context) {
+        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.app_termux));
+    }
+
     /**
      * Команда синхронизации для стороннего приложения.
      * Например: "git pull".
@@ -476,12 +480,14 @@ public class SettingsManager {
     }
 
     /**
+     * (Устаревшее)
      * Не запоминать используемое приложения для синхронизации в последний раз.
      * По-умолчанию - нет.
      * @return
      */
     public static boolean isNotRememberSyncApp(Context context) {
-        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
+//        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
+        return false;
     }
 
     /**

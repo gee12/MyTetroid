@@ -170,13 +170,13 @@
     <string name="pref_record_auto_save_summ">Сохранять изменения записи автоматически при завершении редактирования</string>
     <string name="pref_category_sync">Синхронизация</string>
     <string name="pref_is_sync_storage">Синхронизация хранилища</string>
-    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища (только MGit)</string>
+    <string name="pref_is_sync_summ">Механизм передачи стороннему приложению команды запуска синхронизации хранилища</string>
     <string name="pref_is_sync_before_loading">Синхронизировать перед загрузкой</string>
     <string name="pref_is_sync_before_loading_summ">Автоматически запускать синхронизацию перед загрузкой хранилища</string>
     <string name="pref_sync_command">Команда синхронизации</string>
-    <string name="pref_sync_command_summ">Команда синхронизации в виде строки, например: \"git pull\" (не обязательно, зависит от стороннего приложения)</string>
-    <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>
-    <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>
+    <string name="pref_sync_command_summ">Команда или скрипт синхронизации, например: \"git pull\" или \"~/sync.sh\" (зависит от стороннего приложения)</string>
+<!--    <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>-->
+<!--    <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>-->
     <string name="pref_keep_screen_on">Не гасить экран</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
     <string name="pref_show_logs">Показать логи</string>
@@ -538,7 +538,7 @@
     <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
     <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
     <string name="log_storage_created">Хранилище создано</string>
-    <string name="log_mgit_not_installed">По-видимому, приложение MGit не установлено</string>
+    <string name="log_sync_app_not_installed">По-видимому, приложение для синхронизации не установлено</string>
     <string name="label_storage_path">Хранилище:</string>
     <string name="label_storage_size">Размер на диске:</string>
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
@@ -552,4 +552,6 @@
     <string name="stopped">остановлено</string>
     <string name="title_by_records_num">Количество записей</string>
     <string name="title_by_tag_name">Имя метки</string>
+    <string name="pref_app_for_sync">Приложение</string>
+    <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации</string>
 </resources>

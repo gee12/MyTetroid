@@ -489,22 +489,7 @@ public class StorageManager extends DataManager {
      * @param storagePath
      */
     public static void startStorageSync(Activity activity, String storagePath) {
-        String command = SettingsManager.getSyncCommand(activity);
-        Intent intent = SyncManager.createCommandSender(activity, storagePath, command);
-
-        LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command);
-        try {
-            if (!SettingsManager.isNotRememberSyncApp(activity)) {
-                // использовать стандартный механизм запоминания используемого приложения
-                activity.startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
-            } else { // или спрашивать постоянно
-                activity.startActivityForResult(Intent.createChooser(intent,
-                        activity.getString(R.string.title_choose_sync_app)), REQUEST_CODE_SYNC_STORAGE);
-            }
-        } catch (Exception ex) {
-            LogManager.log(activity, activity.getString(R.string.log_mgit_not_installed), Toast.LENGTH_LONG);
-            LogManager.log(activity, ex, -1);
-        }
+        SyncManager.startStorageSync(activity, storagePath, REQUEST_CODE_SYNC_STORAGE);
     }
 
     /**
