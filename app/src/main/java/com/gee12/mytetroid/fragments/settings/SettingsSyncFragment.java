@@ -22,12 +22,15 @@ public class SettingsSyncFragment extends TetroidSettingsFragment {
         });
         syncPref.setEnabled(false);*/
 
+        updateSummary(R.string.pref_key_app_for_sync, SettingsManager.getSyncAppName(mContext));
         updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.pref_key_sync_command))) {
+        if (key.equals(getString(R.string.pref_key_app_for_sync))) {
+            updateSummary(R.string.pref_key_app_for_sync, SettingsManager.getSyncAppName(mContext));
+        } else if (key.equals(getString(R.string.pref_key_sync_command))) {
             updateSummary(R.string.pref_key_sync_command, SettingsManager.getSyncCommand(mContext));
         }
     }

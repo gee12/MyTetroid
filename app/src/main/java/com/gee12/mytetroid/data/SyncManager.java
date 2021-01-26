@@ -4,15 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.Message;
 
 public class SyncManager {
 
     public static final String EXTRA_APP_NAME = "com.gee12.mytetroid.EXTRA_APP_NAME";
     public static final String EXTRA_SYNC_COMMAND = "com.gee12.mytetroid.EXTRA_SYNC_COMMAND";
+    public static final String STORAGE_PATH_REPLACEMENT = "%a";
 
     /**
      * Отправка запроса на синхронизацию стороннему приложению.
@@ -22,7 +28,7 @@ public class SyncManager {
         String command = SettingsManager.getSyncCommand(activity);
         if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
             // termux
-
+            startTermuxSync(activity, storagePath, command);
         } else {
             // mgit
             startMGitSync(activity, storagePath, command, requestCode);
@@ -34,7 +40,7 @@ public class SyncManager {
      * @param storagePath
      */
     private static void startMGitSync(Activity activity, String storagePath, String command, int requestCode) {
-        Intent intent = SyncManager.createCommandSender(activity, storagePath, command);
+        Intent intent = SyncManager.createIntentToMGit(activity, storagePath, command);
 
         LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command);
         try {
@@ -51,7 +57,14 @@ public class SyncManager {
         }
     }
 
-    private static Intent createCommandSender(Context context, String storagePath, String command) {
+    /**
+     * Создание Intent для отправки в MGit.
+     * @param context
+     * @param storagePath
+     * @param command
+     * @return
+     */
+    private static Intent createIntentToMGit(Context context, String storagePath, String command) {
         Intent intent = new Intent(Intent.ACTION_SYNC);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -63,15 +76,67 @@ public class SyncManager {
         return intent;
     }
 
+    /**
+     * Запуск команды/скрипта синхронизации с помощью Termux.
+     * @param activity
+     * @param storagePath
+     * @param command
+     */
     private static void startTermuxSync(Activity activity, String storagePath, String command) {
+        if (TextUtils.isEmpty(command)) {
+            LogManager.log(activity, R.string.log_sync_command_empty, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            return;
+        }
+        // проверяем разрешение на запуск сервиса
+        if (!PermissionManager.checkTermuxPermission(activity, StorageManager.REQUEST_CODE_PERMISSION_TERMUX)) {
+            return;
+        }
+        // подставляем путь
+        if (command.contains(STORAGE_PATH_REPLACEMENT)) {
+            command = command.replace(STORAGE_PATH_REPLACEMENT, storagePath);
+        }
+        // проверяем есть ли параметры
+        String[] words = command.split(" ");
+        String first = words[0];
+        if (words.length > 1) {
+            Utils.removeArrayItem(words, 0);
+        } else {
+            words = null;
+        }
+        sendTermuxCommand(activity, first, words, null,true);
+    }
+
+    /**
+     * Отправка команды/скрипта на выполнение в Termux.
+     * Дополнительная информация:
+     * https://github.com/termux/termux-app/blob/master/app/src/main/java/com/termux/app/RunCommandService.java
+     *
+     * @param activity
+     * @param command
+     * @param args
+     */
+    private static void sendTermuxCommand(Activity activity, String command, String[] args, String workDir, boolean bg) {
         Intent intent = new Intent();
         intent.setClassName("com.termux", "com.termux.app.RunCommandService");
         intent.setAction("com.termux.RUN_COMMAND");
+
         intent.putExtra("com.termux.RUN_COMMAND_PATH", command);
-        // TODO: parse command for params
-//        intent.putExtra("com.termux.RUN_COMMAND_ARGUMENTS", new String[]{"-n", "5"});
-//        intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", "/data/data/com.termux/files/home");
-        intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", false);
-        activity.startService(intent);
+        if (args != null && args.length > 0) {
+            intent.putExtra("com.termux.RUN_COMMAND_ARGUMENTS", args);
+        }
+        if (!TextUtils.isEmpty(workDir)) {
+            intent.putExtra("com.termux.RUN_COMMAND_WORKDIR", workDir);
+        }
+        intent.putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg);
+
+        String fullCommand = command + " "
+                + ((args != null && args.length > 0) ? TextUtils.join(" ", args) : "");
+        LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + fullCommand);
+        try {
+            activity.startService(intent);
+        } catch (Exception ex) {
+            LogManager.log(activity, R.string.log_error_when_sync, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            Message.showSnackMoreInLogs(activity);
+        }
     }
 }

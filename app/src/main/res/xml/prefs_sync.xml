@@ -9,7 +9,7 @@
         android:title="@string/pref_is_sync_storage" />
 
     <com.gee12.mytetroid.views.DisabledListPreference
-        android:defaultValue="@string/app_termux"
+        android:defaultValue="@string/app_mgit"
         android:dependency="@string/pref_key_is_sync_storage"
         android:entries="@array/sync_apps"
         android:entryValues="@array/sync_apps"

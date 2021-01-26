@@ -203,7 +203,7 @@
     <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
     <string name="pref_sync_command">Sync command</string>
-    <string name="pref_sync_command_summ">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application)</string>
+    <string name="pref_sync_command_summ">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
     <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
     <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
@@ -406,6 +406,7 @@
 
     <string name="log_storage_changed_outside">The record tree has been modified by a third party program</string>
     <string name="log_missing_read_ext_storage_permissions">Not enough permissions to access the external file storage</string>
+    <string name="log_missing_run_termux_commands_permissions">Not enough permissions to run Termux commands</string>
     <string name="log_missing_write_ext_storage_permissions">Not enough permissions to write into the external file storage</string>
     <string name="log_missing_camera_perm">Not enough permissions to camera</string>
     <string name="log_empty_middle_hash_check_data_field">Missing password check information (field %s is empty in database.ini). Continue anyway with this password?</string>
@@ -580,6 +581,7 @@
     <string name="log_request_perm">Permission request:&#160;</string>
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
+    <string name="log_run_termux_commands_perm_granted">Permission granted to run Termux commands</string>
     <string name="log_record_fields_changed">Record fields changed</string>
     <string name="log_record_saved">Record saved</string>
     <string name="label_pin_code_size">Value 4–8:</string>
@@ -633,4 +635,7 @@
     <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
     <string name="pref_app_for_sync">Application</string>
     <string name="pref_app_for_sync_summ">Application used to start sync</string>
+    <string name="log_sync_command_empty">Synchronisation command is not specified</string>
+    <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
+    <string name="ask_permission_termux">Permission to run Termux commands</string>
 </resources>

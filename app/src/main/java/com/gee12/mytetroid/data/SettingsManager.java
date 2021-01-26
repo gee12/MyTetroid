@@ -449,11 +449,11 @@ public class SettingsManager {
     }
 
     public static String getSyncAppName(Context context) {
-        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.app_termux));
+        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.app_mgit));
     }
 
     /**
-     * Команда синхронизации для стороннего приложения.
+     * Команда/скрипт синхронизации для стороннего приложения.
      * Например: "git pull".
      * @return
      */

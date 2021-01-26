@@ -135,11 +135,9 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
      * Первоначальная инициализация переменных.
      */
     public void init() {
-//        this.mFavoritesRecords = new ArrayList<>();
         this.mRootNodesList = new ArrayList<>();
         ROOT_NODE.setSubNodes(mRootNodesList);
-//        this.mTagsMap = new TreeMap<>(new TetroidTag.TagsComparator());
-        this.mTagsMap = new HashMap<String, TetroidTag>();
+        this.mTagsMap = new HashMap<>();
         this.mFormatVersion = DEF_VERSION;
         this.mIsStorageLoaded = false;
         // счетчики

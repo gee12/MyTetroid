@@ -189,6 +189,15 @@ public class Utils {
 //        return res;
 //    }
 
+    /**
+     * Удаление элемента из массива строк по индексу.
+     * @param array
+     * @param index
+     */
+    public static void removeArrayItem(String[] array, int index) {
+        System.arraycopy(array, index + 1, array, index, array.length - index - 1);
+    }
+
     public static int[] splitToInts(String s, String separ) {
         if (s == null)
             return null;

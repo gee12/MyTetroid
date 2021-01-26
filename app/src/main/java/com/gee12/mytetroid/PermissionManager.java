@@ -15,6 +15,8 @@ import com.gee12.mytetroid.logs.LogManager;
 
 public class PermissionManager {
 
+    public static final String PERMISSION_TERMUX = "com.termux.permission.RUN_COMMAND";
+
     /**
      * Проверка разрешений.
      * @param activity
@@ -67,6 +69,14 @@ public class PermissionManager {
     public static boolean writeExtStoragePermGranted(Context context) {
         return (ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    /**
+     * Проверка разрешения на запуск команд Termux.
+     * @return
+     */
+    public static boolean checkTermuxPermission(Activity activity, int code) {
+        return checkPermission(activity, PERMISSION_TERMUX, code, R.string.ask_permission_termux);
     }
 
 }

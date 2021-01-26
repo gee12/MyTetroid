@@ -48,6 +48,7 @@ public class StorageManager extends DataManager {
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 3;
+    public static final int REQUEST_CODE_PERMISSION_TERMUX = 4;
 
 
     protected boolean mIsAlreadyTryDecrypt;

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sync_apps">
-        <item>@string/app_termux</item>
         <item>@string/app_mgit</item>
+        <item>@string/app_termux</item>
     </string-array>
     <string-array name="when_ask_password_entries">
         <item>@string/pref_when_ask_password_on_select</item>
