@@ -34,6 +34,13 @@
 
     <CheckBoxPreference
         android:defaultValue="true"
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:key="@string/pref_key_is_sync_before_exit"
+        android:summary="@string/pref_is_sync_before_exit_summ"
+        android:title="@string/pref_is_sync_before_exit" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
         android:dependency="@string/pref_key_is_sync_before_init"
         android:key="@string/pref_key_is_ask_before_sync"
         android:summary="@string/pref_ask_before_sync_summ"
