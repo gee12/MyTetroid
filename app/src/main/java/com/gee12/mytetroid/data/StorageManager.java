@@ -170,7 +170,8 @@ public class StorageManager extends DataManager {
                     @Override
                     public void onApply() {
                         getInstance().mIsLoadStorageAfterSync = true;
-                        startStorageSync(activity, storagePath);
+                        startStorageSync(activity, storagePath, () ->
+                                initStorage(activity, storagePath, isCheckFavorMode));
                     }
 
                     @Override
@@ -180,7 +181,8 @@ public class StorageManager extends DataManager {
                 });
             } else {
                 getInstance().mIsLoadStorageAfterSync = true;
-                startStorageSync(activity, storagePath);
+                startStorageSync(activity, storagePath, () ->
+                                initStorage(activity, storagePath, isCheckFavorMode));
             }
         } else {
             initStorage(activity, storagePath, isCheckFavorMode);
@@ -488,9 +490,24 @@ public class StorageManager extends DataManager {
     /**
      * Отправка запроса на синхронизацию стороннему приложению.
      * @param storagePath
+     * @param callback
      */
-    public static void startStorageSync(Activity activity, String storagePath) {
+    public static void startStorageSync(Activity activity, String storagePath, Runnable callback) {
         SyncManager.startStorageSync(activity, storagePath, REQUEST_CODE_SYNC_STORAGE);
+        if (callback != null) {
+            // запускаем обработчик сразу после синхронизации, не дожидаясь ответа,
+            //  только если выбрана синхронизация с помощью Termux,
+            //  т.к. в этом случае нет простого механизма получить ответ
+            if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+                callback.run();
+            }
+        }
+    }
+
+    public static void startStorageSyncAndInit(Activity activity) {
+        String storagePath = SettingsManager.getStoragePath(activity);
+        startStorageSync(activity, storagePath, () ->
+                initStorage(activity, storagePath, true));
     }
 
     /**

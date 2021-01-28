@@ -256,17 +256,16 @@ public abstract class TetroidActivity extends AppCompatActivity
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }
-            }
+            } break;
             case StorageManager.REQUEST_CODE_PERMISSION_TERMUX: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_run_termux_commands_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startStorageSync(this, SettingsManager.getStoragePath(this));
+                    StorageManager.startStorageSyncAndInit(this);
                 } else {
                     LogManager.log(this, R.string.log_missing_run_termux_commands_permissions,
                             ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }
-            }
-            break;
+            } break;
         }
     }
 

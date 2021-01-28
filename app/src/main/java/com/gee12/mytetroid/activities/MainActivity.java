@@ -2294,7 +2294,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 showGlobalSearchActivity(null);
                 return true;
             case R.id.action_storage_sync:
-                StorageManager.startStorageSync(this, DataManager.getStoragePath());
+                StorageManager.startStorageSync(this, DataManager.getStoragePath(), null);
                 return true;
             case R.id.action_storage_info:
                 showStorageInfoActivity();
@@ -2363,6 +2363,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
             if (needToExit) {
                 onBeforeExit();
+                onExit();
                 super.onBackPressed();
             }
         }
@@ -2384,17 +2385,22 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void askForExit() {
         AskDialogs.showExitDialog(this, () -> {
             onBeforeExit();
+            onExit();
             finish();
         });
     }
 
     private void onBeforeExit() {
+        // синхронизация перед выходом из приложения
+        if (SettingsManager.isSyncBeforeExit(this)) {
+            StorageManager.startStorageSync(this, SettingsManager.getStoragePath(this), null);
+        }
+    }
+
+    private void onExit() {
         LogManager.log(this, R.string.log_app_exit, ILogger.Types.INFO);
-        // сохраняем выбранную ветку
-//        saveLastSelectedNode();
 
         // останавливаем отслеживание изменения структуры хранилища
-//        TetroidFileObserver.stopObserver();
         FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
         FileObserverService.stop(this);
 

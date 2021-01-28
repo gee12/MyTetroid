@@ -471,6 +471,15 @@ public class SettingsManager {
     }
 
     /**
+     * Запускать синхронизацию хранилища перед выходом из приложения.
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isSyncBeforeExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_sync_before_exit, true);
+    }
+
+    /**
      * Выводить подтверждение запуска синхронизации.
      * По-умолчанию - да.
      * @return

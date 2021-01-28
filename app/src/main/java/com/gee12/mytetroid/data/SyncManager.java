@@ -131,6 +131,7 @@ public class SyncManager {
 
         String fullCommand = command + " "
                 + ((args != null && args.length > 0) ? TextUtils.join(" ", args) : "");
+
         LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + fullCommand);
         try {
             activity.startService(intent);
