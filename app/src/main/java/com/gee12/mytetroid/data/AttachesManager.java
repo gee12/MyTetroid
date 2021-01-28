@@ -262,7 +262,7 @@ public class AttachesManager extends DataManager {
             if (srcFile.renameTo(destFile)) {
                 TetroidLog.logOperRes(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, -1);
             } else {
-                TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
+                    TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
                 return 0;
             }
         }

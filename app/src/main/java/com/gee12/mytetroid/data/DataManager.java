@@ -647,7 +647,6 @@ public class DataManager implements IRecordFileCrypter {
             return false;
         }
 
-//        String destPath = Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
         String destPath = getPathToMyTetraXml();
         String tempPath = destPath + "_tmp";
 
@@ -679,8 +678,6 @@ public class DataManager implements IRecordFileCrypter {
                 }
 
                 // перезапускаем отслеживание, чтобы проверять новосозданный файл
-//                TetroidFileObserver.restartObserver();
-//                if (MainActivity.getInstance() != null) {
                 if (context instanceof MainActivity) {
                     // но только для MainActivity
                     FileObserverService.sendCommand((MainActivity)context, FileObserverService.ACTION_RESTART);
@@ -702,11 +699,9 @@ public class DataManager implements IRecordFileCrypter {
      * @param tagsString Строка с метками (не зашифрована).
      *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
      */
-//    @Override
     public void parseRecordTags(TetroidRecord record, String tagsString) {
         if (record == null)
             return;
-//        String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TetroidXml.TAGS_SEPAR)) {
                 TetroidTag tag;
@@ -723,9 +718,7 @@ public class DataManager implements IRecordFileCrypter {
                     tagRecords.add(record);
                     tag = new TetroidTag(tagName, tagRecords);
                     mXml.mTagsMap.put(tagName, tag);
-                    /*this.mUniqueTagsCount++;*/
                 }
-               /* this.mTagsCount++;*/
                 record.addTag(tag);
             }
         }
@@ -748,9 +741,7 @@ public class DataManager implements IRecordFileCrypter {
                     } else {
                         // удаляем саму метку из списка
                         mXml.mTagsMap.remove(foundedTag.getName());
-                       /* this.mUniqueTagsCount--;*/
                     }
-                    /*this.mTagsCount--;*/
                 }
             }
             record.getTags().clear();

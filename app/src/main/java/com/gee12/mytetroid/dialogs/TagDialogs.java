@@ -12,35 +12,35 @@ import androidx.appcompat.app.AlertDialog;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.TetroidFile;
+import com.gee12.mytetroid.model.TetroidTag;
 import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Random;
 
-public class FileDialogs {
+public class TagDialogs {
 
-    public interface IFileFieldsResult {
+    public interface ITagFieldsResult {
         void onApply(String name);
     }
 
     /**
-     * Диалог создания/изменения файла.
+     * Диалог изменения имени метки.
      * @param context
      * @param handler
      */
-    public static void createFileDialog(Context context, TetroidFile file, IFileFieldsResult handler) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_file);
+    public static void createFileDialog(Context context, TetroidTag tag, ITagFieldsResult handler) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_tag);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
 
-        if (BuildConfig.DEBUG && file == null) {
+        if (BuildConfig.DEBUG && tag == null) {
             Random rand = new Random();
             int num = Math.abs(rand.nextInt());
-            etName.setText("file " + num + ".test");
+            etName.setText("tag " + num + ".test");
         }
 
-        if (file != null) {
-            etName.setText(file.getName());
+        if (tag != null) {
+            etName.setText(tag.getName());
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
@@ -57,7 +57,6 @@ public class FileDialogs {
                 Keyboard.showKeyboard(etName);
             }
             etName.setSelection(etName.getText().length());
-//            Keyboard.showKeyboard(etName);
         });
         dialog.show();
 
@@ -77,19 +76,4 @@ public class FileDialogs {
         });
     }
 
-    public static void deleteFile(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_file_delete);
-    }
-
-    public static void deleteAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_attach_delete_without_file);
-    }
-
-    public static void renameAttachWithoutDir(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_delete_record_without_dir);
-    }
-
-    public static void renameAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_delete_attach_without_file);
-    }
 }

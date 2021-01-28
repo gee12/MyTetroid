@@ -95,7 +95,12 @@
     <string-array name="obj_record_dir">
         <item>record catalog</item>
         <item>Record catalog was&#160;</item>
-        <item>>record catalog</item>
+        <item>record catalog</item>
+    </string-array>
+    <string-array name="obj_tag">
+        <item>record tag</item>
+        <item>Record tag was&#160;</item>
+        <item>record tag</item>
     </string-array>
     <string-array name="obj_file">
         <item>file</item>

@@ -61,9 +61,11 @@ import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.data.TagsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
+import com.gee12.mytetroid.dialogs.TagDialogs;
 import com.gee12.mytetroid.fragments.MainPageFragment;
 import com.gee12.mytetroid.fragments.settings.SettingsFragment;
 import com.gee12.mytetroid.logs.ILogger;
@@ -710,6 +712,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
         showTag(tag);
     }
 
+    /**
+     * Отображение записей по метке.
+     * @param tag
+     */
     private void showTag(TetroidTag tag) {
         if (tag == null) {
             LogManager.log(this, R.string.log_tag_is_null, ILogger.Types.ERROR, Toast.LENGTH_LONG);
@@ -719,6 +725,29 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mCurTag = tag;
         LogManager.log(this, getString(R.string.log_open_tag_records) + tag);
         showRecords(tag.getRecords(), MainPageFragment.MAIN_VIEW_TAG_RECORDS);
+    }
+
+    /**
+     * Переименование метки в записях.
+     * @param tag
+     */
+    private void renameTag(TetroidTag tag) {
+        if (tag == null) {
+            LogManager.log(this, R.string.log_tag_is_null, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            return;
+        }
+        TagDialogs.createFileDialog(this, tag, name -> {
+            if (tag.getName().equals(name))
+                return;
+            if (TagsManager.renameTag(MainActivity.this, tag, name)) {
+                TetroidLog.logOperRes(MainActivity.this, TetroidLog.Objs.TAG, TetroidLog.Opers.RENAME);
+//                mListAdapterTags.notifyDataSetChanged();
+                updateTags();
+                mViewPagerAdapter.getMainFragment().updateRecordList();
+            } else {
+                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TAG, TetroidLog.Opers.RENAME);
+            }
+        });
     }
 
     /**
@@ -1633,14 +1662,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
         PopupMenu popupMenu = new PopupMenu(this, v);
         popupMenu.inflate(R.menu.tag_context);
 
+        Menu menu = popupMenu.getMenu();
+        visibleMenuItem(menu.findItem(R.id.action_rename), App.isFullVersion());
+
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.action_open_tag:
                     showTag(tag);
                     return true;
-//                case R.id.action_rename_tag:
-//                    renameTag(tag);
-//                    return true;
+                case R.id.action_rename:
+                    renameTag(tag);
+                    return true;
                 case R.id.action_copy_link:
                     copyTagLink(tag);
                     return true;

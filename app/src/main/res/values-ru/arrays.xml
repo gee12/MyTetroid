@@ -67,7 +67,12 @@
     <string-array name="obj_record_dir">
         <item>каталог записи</item>
         <item>Каталог записи&#160;</item>
-        <item>>каталога записи</item>
+        <item>каталога записи</item>
+    </string-array>
+    <string-array name="obj_tag">
+        <item>метка записи</item>
+        <item>Метка записи&#160;</item>
+        <item>метки записи</item>
     </string-array>
     <string-array name="obj_file">
         <item>файл</item>
