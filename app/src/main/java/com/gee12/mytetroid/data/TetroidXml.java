@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.data;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
@@ -97,7 +96,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     protected int mTagsCount;
     protected int mUniqueTagsCount;
     protected int mAuthorsCount;
-    protected int mIconsCount;
+//    protected int mIconsCount;
     protected int mMaxSubnodesCount;
     protected int mMaxDepthLevel;
 
@@ -149,7 +148,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         this.mTagsCount = 0;
         this.mUniqueTagsCount = 0;
         this.mAuthorsCount = 0;
-        this.mIconsCount = 0;
+//        this.mIconsCount = 0;
         this.mMaxSubnodesCount = 0;
         this.mMaxDepthLevel = 0;
     }
@@ -352,9 +351,9 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
                 this.mMaxSubnodesCount = subNodes.size();
             if (depthLevel > mMaxDepthLevel)
                 this.mMaxDepthLevel = depthLevel;
-            if (!TextUtils.isEmpty(iconName)) {
-                this.mIconsCount++;
-            }
+//            if (!TextUtils.isEmpty(iconName)) {
+//                this.mIconsCount++;
+//            }
         }
 
         return node;
@@ -723,7 +722,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         this.mTagsCount = 0;
         this.mUniqueTagsCount = 0;
         this.mAuthorsCount = 0;
-        this.mIconsCount = 0;
+//        this.mIconsCount = 0;
         this.mMaxSubnodesCount = 0;
         this.mMaxDepthLevel = 0;
 
@@ -742,8 +741,8 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         mNodesCount++;
         if (node.isCrypted())
             mCryptedNodesCount++;
-        if (!StringUtil.isBlank(node.getIconName()))
-            mIconsCount++;
+//        if (!StringUtil.isBlank(node.getIconName()))
+//            mIconsCount++;
         if (node.getLevel() > mMaxDepthLevel)
             mMaxDepthLevel = node.getLevel();
 
@@ -835,9 +834,9 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         return mAuthorsCount;
     }
 
-    public int getIconsCount() {
-        return mIconsCount;
-    }
+//    public int getIconsCount() {
+//        return mIconsCount;
+//    }
 
     public int getMaxSubnodesCount() {
         return mMaxSubnodesCount;

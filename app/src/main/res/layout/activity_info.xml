@@ -128,7 +128,7 @@
                         style="@style/grid_cell_value"/>
                 </TableRow>
 
-                <TableRow>
+                <!--<TableRow>
                     <TextView
                         android:text="@string/stats_icons_count"
                         android:paddingLeft="15dp"
@@ -137,7 +137,7 @@
                     <TextView
                         android:id="@+id/text_view_stats_icons_count"
                         style="@style/grid_cell_value"/>
-                </TableRow>
+                </TableRow>-->
 
                 <TableRow>
                     <View style="@style/stats_line" android:layout_span="2"/>

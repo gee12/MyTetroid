@@ -39,7 +39,7 @@ public class InfoActivity extends AppCompatActivity {
         storage.calcCounters();
         ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(String.valueOf(storage.getNodesCount()));
         ((TextView)findViewById(R.id.text_view_stats_crypt_nodes_count)).setText(String.valueOf(storage.getCryptedNodesCount()));
-        ((TextView)findViewById(R.id.text_view_stats_icons_count)).setText(String.valueOf(storage.getIconsCount()));
+//        ((TextView)findViewById(R.id.text_view_stats_icons_count)).setText(String.valueOf(storage.getIconsCount()));
 //        String maxSubnodes = (storage.getMaxSubnodesCount() >= 0) ? String.valueOf(storage.getMaxSubnodesCount()) : "?";
 //        ((TextView)findViewById(R.id.text_view_stats_max_subnodes)).setText(maxSubnodes);
         ((TextView)findViewById(R.id.text_view_stats_max_subnodes)).setText(String.valueOf(storage.getMaxSubnodesCount()));
