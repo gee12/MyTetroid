@@ -226,15 +226,13 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 //        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        // пустое пространство под списками
-        View footerView =  ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                .inflate(R.layout.list_view_empty_footer, null, false);
-
         // ветки
         mListViewNodes = findViewById(R.id.list_view_nodes);
         mListViewNodes.setOnItemClickListener(onNodeClickListener);
         mListViewNodes.setOnItemLongClickListener(onNodeLongClickListener);
-        mListViewNodes.getListView().addFooterView(footerView, null, false);
+        View nodesFooter =  ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.list_view_empty_footer, null, false);
+        mListViewNodes.getListView().addFooterView(nodesFooter, null, false);
 //        registerForContextMenu(mListViewNodes.getListView());
         this.mTextViewNodesEmpty = findViewById(R.id.nodes_text_view_empty);
         this.mFabCreateNode = findViewById(R.id.button_add_node);
@@ -253,7 +251,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
         mListViewTags.setOnItemLongClickListener(onTagLongClicklistener);
         this.mTextViewTagsEmpty = findViewById(R.id.tags_text_view_empty);
         mListViewTags.setEmptyView(mTextViewTagsEmpty);
-        mListViewTags.addFooterView(footerView, null, false);
+        View tagsFooter =  ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.list_view_empty_footer, null, false);
+        mListViewTags.addFooterView(tagsFooter, null, false);
 
         NavigationView tagsNavView = mDrawerLayout.findViewById(R.id.nav_view_right);
         View vTagsHeader = tagsNavView.getHeaderView(0);
