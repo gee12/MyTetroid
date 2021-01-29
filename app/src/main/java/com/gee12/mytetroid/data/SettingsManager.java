@@ -480,12 +480,21 @@ public class SettingsManager {
     }
 
     /**
-     * Выводить подтверждение запуска синхронизации.
+     * Выводить подтверждение запуска синхронизации перед загрузкой хранилища.
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isAskBeforeSync(Context context) {
+    public static boolean isAskBeforeSyncOnInit(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_sync, true);
+    }
+
+    /**
+     * Выводить подтверждение запуска синхронизации при выходе из приложения.
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isAskBeforeSyncOnExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_ask_before_exit_sync, false);
     }
 
     /**

@@ -201,7 +201,7 @@
     <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
     <string name="pref_is_sync_before_loading">Sync before loading</string>
     <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
-    <string name="pref_is_sync_before_exit">Sync before exit from app</string>
+    <string name="pref_is_sync_before_exit">Sync before exit</string>
     <string name="pref_is_sync_before_exit_summ">Start synchronization before exit from app</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
     <string name="pref_sync_command">Sync command</string>
@@ -234,8 +234,10 @@
     <string name="pref_key_is_show_tags_in_records" translatable="false">pref_key_is_show_tags_in_records</string>
     <string name="pref_keep_screen_on_summ">Do not turn off the screen when record is open</string>
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
-    <string name="pref_ask_before_sync">Ask before starting</string>
+    <string name="pref_key_is_ask_before_exit_sync" translatable="false">pref_key_is_answer_before_exit_sync</string>
+    <string name="pref_ask_before_sync">Ask before sync</string>
     <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start</string>
+    <string name="pref_ask_before_sync_summ_exit">Show confirmation of synchronization start before exit from app</string>
     <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
     <string name="pref_show_logs">Show logs</string>

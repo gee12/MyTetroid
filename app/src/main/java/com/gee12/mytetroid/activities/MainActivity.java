@@ -2424,9 +2424,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     private void onBeforeExit() {
         // синхронизация перед выходом из приложения
-        if (SettingsManager.isSyncBeforeExit(this)) {
-            StorageManager.startStorageSync(this, SettingsManager.getStoragePath(this), null);
-        }
+        StorageManager.startStorageSyncAndExit(this, () -> {
+            onExit();
+            finish();
+        });
     }
 
     private void onExit() {
