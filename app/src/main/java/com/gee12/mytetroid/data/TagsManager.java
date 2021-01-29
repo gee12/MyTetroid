@@ -41,8 +41,8 @@ public class TagsManager extends DataManager {
                 }
                 // удаляем старую метку-дубликат из записей
                 record.getTags().remove(tag);
-                // формировать заново tagsString у записей нет смысла,
-                //  т.к. названия меток совпадают
+                // формируем заново tagsString у записей метки
+                record.updateTagsString();
             }
             // удаляем старую метку-дубликат из общего списка
             tagsMap.remove(tag.getName());
@@ -58,11 +58,6 @@ public class TagsManager extends DataManager {
             tag.setName(newName);
             // сформируем заново tagsString у записей метки
             for (TetroidRecord record : tag.getRecords()) {
-//                for (TetroidTag recordTag : record.getTags()) {
-//                    if (recordTag == tag) {
-//                        recordTag.setName(newName);
-//                    }
-//                }
                 record.updateTagsString();
             }
         }
