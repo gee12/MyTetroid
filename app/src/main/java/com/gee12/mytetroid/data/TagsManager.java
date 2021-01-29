@@ -9,6 +9,8 @@ import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 
+import java.util.HashMap;
+
 public class TagsManager extends DataManager {
 
     /**
@@ -22,23 +24,49 @@ public class TagsManager extends DataManager {
             return false;
         }
 
-        String oldName = tag.getName();
-        for (TetroidRecord record : tag.getRecords()) {
-            for (TetroidTag recordTag : record.getTags()) {
-                if (recordTag == tag) {
-                    recordTag.setName(newName);
+        HashMap<String, TetroidTag> tagsMap = Instance.mXml.mTagsMap;
+        // смотрим, если есть метка с таким же названием в списке после переименования
+        if (tagsMap.containsKey(newName)) {
+            TetroidTag existsTag = tagsMap.get(newName);
+            // если есть, то сливаем 2 метки в одну уже имеющуюся в списке:
+            //  1) уже имеющуюся используем вместо старой (только что переименованной)
+            //  2) старую удаляем из общего списка
+            for (TetroidRecord record : tag.getRecords()) {
+                // добавляем записи из старой метки в существующую, только если записи еще нет
+                // (исправление дублирования записей по метке, если одна и та же метка
+                // добавлена в запись несколько раз)
+                if (!existsTag.getRecords().contains(record)) {
+                    existsTag.addRecord(record);
+                    record.addTag(existsTag);
                 }
+                // удаляем старую метку-дубликат из записей
+                record.getTags().remove(tag);
+                // формировать заново tagsString у записей нет смысла,
+                //  т.к. названия меток совпадают
             }
-            // сформируем заново список меток
-            record.updateTagsString();
+            // удаляем старую метку-дубликат из общего списка
+            tagsMap.remove(tag.getName());
+            tag = null;
+        } else {
+            // если название новой метки - уникально, то
+            //  1) удаляем запись из общего списка по старому ключу
+            tagsMap.remove(tag.getName());
+            //  2) добавляем ее по-новой в общий список (по новому ключу)
+            tagsMap.put(newName, tag);
+
+            // обновим название метки
+            tag.setName(newName);
+            // сформируем заново tagsString у записей метки
+            for (TetroidRecord record : tag.getRecords()) {
+//                for (TetroidTag recordTag : record.getTags()) {
+//                    if (recordTag == tag) {
+//                        recordTag.setName(newName);
+//                    }
+//                }
+                record.updateTagsString();
+            }
         }
 
-        if (Instance.saveStorage(context)) {
-            DataManager.getTags().remove(oldName);
-            DataManager.getTags().put(newName, tag);
-            return true;
-        } else {
-            return false;
-        }
+        return (Instance.saveStorage(context));
     }
 }
