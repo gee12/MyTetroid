@@ -137,7 +137,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private MainViewPager mViewPager;
     private PagerTabStrip mTitleStrip;
     private View mFavoritesNode;
-    private Button mButtonLoadStorage;
+    private Button mButtonLoadStorageNodes;
+    private Button mButtonLoadStorageTags;
     private FloatingActionButton mFabCreateNode;
 
     private boolean mIsActivityCreated;
@@ -264,14 +265,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         // избранное
         this.mFavoritesNode = findViewById(R.id.node_favorites);
-        this.mButtonLoadStorage = findViewById(R.id.button_load);
+        this.mButtonLoadStorageNodes = findViewById(R.id.button_load);
+        this.mButtonLoadStorageTags = findViewById(R.id.button_load_2);
         mFavoritesNode.setVisibility(View.GONE);
-        mButtonLoadStorage.setVisibility(View.GONE);
+        mButtonLoadStorageNodes.setVisibility(View.GONE);
+        mButtonLoadStorageTags.setVisibility(View.GONE);
         if (App.isFullVersion()) {
             mFavoritesNode.setOnClickListener(v -> showFavorites());
-            mButtonLoadStorage.setOnClickListener(v -> {
-                StorageManager.loadAllNodes(this);
-            });
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    StorageManager.loadAllNodes(MainActivity.this);
+                }
+            };
+            mButtonLoadStorageNodes.setOnClickListener(listener);
+            mButtonLoadStorageTags.setOnClickListener(listener);
         }
 
         initBroadcastReceiver();
@@ -503,7 +511,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
     @Override
     public void initGUI(boolean isLoaded, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // избранные записи
-        mButtonLoadStorage.setVisibility((isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE);
+        int loadButtonsVis = (isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE;
+        mButtonLoadStorageNodes.setVisibility(loadButtonsVis);
+        mButtonLoadStorageTags.setVisibility(loadButtonsVis);
         ViewUtils.setFabVisibility(mFabCreateNode, isLoaded);
         mListViewNodes.setVisibility((!isOnlyFavorites) ? View.VISIBLE : View.GONE);
         mFavoritesNode.setVisibility((isLoaded && App.isFullVersion()) ? View.VISIBLE : View.GONE);
