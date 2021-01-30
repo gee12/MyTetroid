@@ -29,7 +29,7 @@ public class FileDialogs {
      * @param handler
      */
     public static void createFileDialog(Context context, TetroidFile file, IFileFieldsResult handler) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_file);
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_attach);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
 
