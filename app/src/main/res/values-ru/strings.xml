@@ -107,6 +107,7 @@
     <string name="title_need_perm_init_storage">Сначала нужно предоставить разрешение на запись во внешнюю память и выбрать/создать хранилище</string>
     <string name="title_need_load_storage">Сначала нужно загрузить хранилище</string>
     <string name="title_record_info">Инфо о записи</string>
+    <string name="title_file_info">Инфо о файле</string>
     <string name="title_node_info">Инфо о ветке</string>
     <string name="title_folder_is_missing">Каталог отсутствует</string>
     <string name="title_use_global_search">Использовать глобальный поиск</string>
@@ -240,14 +241,16 @@
     <string name="label_author">Автор:</string>
     <string name="label_url">Url:</string>
     <string name="label_created">Создано:</string>
-    <string name="label_edited">Текст изменен:</string>
+    <string name="label_edited">Изменен:</string>
+    <string name="label_text_edited">Текст изменен:</string>
     <string name="label_pass">Пароль:</string>
     <string name="label_cur_pass">Текущий пароль:</string>
     <string name="label_new_pass">Новый пароль:</string>
     <string name="label_confirm_pass">Пароль повторно:</string>
     <string name="label_crypted">Зашифрована:</string>
     <string name="label_path">Путь к каталогу:</string>
-    <string name="label_size">Размер каталога:</string>
+    <string name="label_file_size">Размер файла:</string>
+    <string name="label_folder_size">Размер каталога:</string>
 
     <string name="filter_tags_by_query">Фильтр меток по запросу "%s"…</string>
     <string name="filter_records_hint">Фильтр записей</string>
@@ -526,6 +529,7 @@
     <string name="pref_quickly_node">Ветка для быстрой вставки</string>
     <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями</string>
     <string name="label_node">Ветка:</string>
+    <string name="label_record">Запись:</string>
     <string name="label_parent_node">Родительская ветка:</string>
     <string name="label_favorite">В избранное</string>
     <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>

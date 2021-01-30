@@ -746,7 +746,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             LogManager.log(this, R.string.log_tag_is_null, ILogger.Types.ERROR, Toast.LENGTH_LONG);
             return;
         }
-        TagDialogs.createFileDialog(this, tag, name -> {
+        TagDialogs.createTagDialog(this, tag, name -> {
             if (tag.getName().equals(name))
                 return;
             if (TagsManager.renameTag(MainActivity.this, tag, name)) {

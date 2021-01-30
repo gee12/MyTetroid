@@ -28,7 +28,7 @@ public class TagDialogs {
      * @param context
      * @param handler
      */
-    public static void createFileDialog(Context context, TetroidTag tag, ITagFieldsResult handler) {
+    public static void createTagDialog(Context context, TetroidTag tag, ITagFieldsResult handler) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_tag);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);

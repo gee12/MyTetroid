@@ -29,6 +29,7 @@ import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
+import com.gee12.mytetroid.dialogs.AttachDialogs;
 import com.gee12.mytetroid.dialogs.FileDialogs;
 import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.logs.ILogger;
@@ -769,7 +770,7 @@ public class MainPageFragment extends TetroidFragment {
             inflater.inflate(R.menu.record_context, menu);
             prepareRecordsContextMenu(menu, adapterMenuInfo);
         } else if (viewId == R.id.list_view_files) {
-            inflater.inflate(R.menu.file_context, menu);
+            inflater.inflate(R.menu.attach_context, menu);
             prepareFilesContextMenu(menu, adapterMenuInfo);
         }
     }
@@ -913,8 +914,8 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     private boolean onContextFileItemSelected(int id, int pos) {
-        TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(pos);
-        if (file == null) {
+        TetroidFile attach = (TetroidFile) mListAdapterFiles.getItem(pos);
+        if (attach == null) {
             LogManager.log(mContext, getString(R.string.log_get_item_is_null), ILogger.Types.ERROR, Toast.LENGTH_LONG);
             return true;
         }
@@ -923,7 +924,7 @@ public class MainPageFragment extends TetroidFragment {
                 openAttach(pos);
                 return true;
             case R.id.action_rename:
-                renameFile(file);
+                renameFile(attach);
                 return true;
             case R.id.action_copy_link:
 
@@ -931,7 +932,7 @@ public class MainPageFragment extends TetroidFragment {
 
                 return true;
             case R.id.action_save_as:
-                saveFileAs(file);
+                saveFileAs(attach);
                 return true;
             case R.id.action_move_up:
                 moveFile(pos, true);
@@ -939,8 +940,11 @@ public class MainPageFragment extends TetroidFragment {
             case R.id.action_move_down:
                 moveFile(pos, false);
                 return true;
+            case R.id.action_info:
+                AttachDialogs.createAttachInfoDialog(mContext, attach);
+                return true;
             case R.id.action_delete:
-                deleteFile(file);
+                deleteFile(attach);
                 return true;
             default:
                 return false;

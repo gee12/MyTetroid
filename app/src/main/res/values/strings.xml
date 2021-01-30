@@ -108,6 +108,7 @@
     <string name="title_need_perm_init_storage">First you need to grant write permission and select/create storage</string>
     <string name="title_need_load_storage">First need to load storage</string>
     <string name="title_record_info">Record info</string>
+    <string name="title_file_info">File info</string>
     <string name="title_node_info">Node info</string>
     <string name="title_folder_is_missing">Folder is missing</string>
     <string name="title_use_global_search">Use global search</string>
@@ -340,7 +341,8 @@
     <string name="label_author">Author:</string>
     <string name="label_url">Url:</string>
     <string name="label_created">Created:</string>
-    <string name="label_edited">Text edited:</string>
+    <string name="label_edited">Edited:</string>
+    <string name="label_text_edited">Text edited:</string>
     <string name="label_pass">Password:</string>
     <string name="label_cur_pass">Current password:</string>
     <string name="label_new_pass">New password:</string>
@@ -348,7 +350,8 @@
     <string name="label_crypted">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
     <string name="label_path">Path to folder:</string>
-    <string name="label_size">Folder size:</string>
+    <string name="label_file_size">File size:</string>
+    <string name="label_folder_size">Folder size:</string>
 
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
@@ -599,6 +602,7 @@
     <string name="pref_quickly_node">Node for quick insertion</string>
     <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>
     <string name="label_node">Node:</string>
+    <string name="label_record">Record:</string>
     <string name="label_parent_node">Parent node:</string>
     <string name="label_favorite">Favorite</string>
     <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>

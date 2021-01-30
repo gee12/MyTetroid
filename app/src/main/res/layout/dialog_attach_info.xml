@@ -19,11 +19,11 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_node"
+            android:text="@string/label_record"
             style="@style/grid_cell_label"/>
 
         <TextView
-            android:id="@+id/text_view_node"
+            android:id="@+id/text_view_record"
             style="@style/grid_cell_value"/>
     </TableRow>
 
@@ -51,7 +51,7 @@
         android:id="@+id/table_row_edited"
         android:visibility="gone">
         <TextView
-            android:text="@string/label_text_edited"
+            android:text="@string/label_edited"
             style="@style/grid_cell_label"/>
 
         <TextView
@@ -71,7 +71,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_folder_size"
+            android:text="@string/label_file_size"
             style="@style/grid_cell_label"/>
 
         <TextView

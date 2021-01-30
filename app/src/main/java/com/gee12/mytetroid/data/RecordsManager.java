@@ -941,6 +941,12 @@ public class RecordsManager extends DataManager {
         return true;
     }
 
+    /**
+     * Получение даты последнего изменения записи.
+     * @param context
+     * @param record
+     * @return
+     */
     public static Date getEditedDate(Context context, TetroidRecord record) {
         if (context == null || record == null) {
             LogManager.emptyParams(context, "RecordManager.getEditedDate()");
