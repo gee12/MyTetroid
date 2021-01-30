@@ -28,10 +28,4 @@
         android:summary="@string/pref_clear_search_history_summ"
         android:title="@string/pref_clear_search_history" />
 
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_is_confirm_app_exit"
-        android:summary="@string/pref_is_confirm_app_exit_summ"
-        android:title="@string/pref_is_confirm_app_exit" />
-
 </PreferenceScreen>

@@ -22,6 +22,10 @@
         android:title="@string/pref_category_display"
         android:icon="@drawable/ic_view"/>
 
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsHandlingFragment"
+        android:title="@string/pref_category_handling"
+        android:icon="@drawable/ic_handle"/>
+
     <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsOtherFragment"
         android:title="@string/pref_category_other"
         android:icon="@drawable/ic_dots"/>

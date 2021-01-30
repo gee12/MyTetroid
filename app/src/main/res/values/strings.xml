@@ -147,6 +147,7 @@
     <string name="pref_key_storage_path" translatable="false">pref_key_storage_path</string>
     <string name="pref_key_is_save_pass_hash_local" translatable="false">pref_key_is_save_pass_hash_local</string>
     <string name="pref_key_is_load_last_storage_path" translatable="false">pref_key_is_load_last_storage_path</string>
+    <string name="pref_category_handling">Handling</string>
     <string name="pref_category_other">Rest</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
     <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time</string>
@@ -647,4 +648,7 @@
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
     <string name="ask_permission_termux">Permission to run Termux commands</string>
     <string name="pref_key_is_sync_before_exit">pref_key_is_sync_before_exit</string>
+    <string name="pref_expand_empty_nodes">Expand empty nodes</string>
+    <string name="pref_expand_empty_nodes_summ">Expanding an empty nodes instead of opening a list of its records</string>
+    <string name="pref_key_is_expand_empty_nodes" translatable="false">pref_key_is_expand_empty_nodes</string>
 </resources>

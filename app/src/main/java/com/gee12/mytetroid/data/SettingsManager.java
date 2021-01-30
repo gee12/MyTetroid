@@ -691,7 +691,20 @@ public class SettingsManager {
     public static String getTagsSortMode(Context context, String def) {
         return getString(context, R.string.pref_key_tags_sort_mode, def);
     }
-    
+
+    /*
+    * Управление.
+     */
+
+    /**
+     * Разворот пустых веток вместо отображения их записей.
+     * @param context
+     * @return
+     */
+    public static boolean isExpandEmptyNode(Context context) {
+        return getBoolean(context, R.string.pref_key_is_expand_empty_nodes, false);
+    }
+
     /*
     * Остальное.
      */

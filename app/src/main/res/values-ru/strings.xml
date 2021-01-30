@@ -139,6 +139,7 @@
     <string name="word_received_images">изображений</string>
 
     <string name="pref_category_storage">Хранилище</string>
+    <string name="pref_category_handling">Управление</string>
     <string name="pref_category_other">Остальное</string>
     <string name="pref_storage_path">Каталог хранилища</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
@@ -566,4 +567,6 @@
     <string name="log_sync_command_empty">Не указана команда синхронизации</string>
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
     <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
+    <string name="pref_expand_empty_nodes">Разворачивать пустые ветки</string>
+    <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
 </resources>

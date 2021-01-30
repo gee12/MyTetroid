@@ -822,9 +822,8 @@ public class MainPageFragment extends TetroidFragment {
             return;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         activateMenuItem(menu.findItem(R.id.action_rename), !isLoadedFavoritesOnly);
-//        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly && menuInfo.position > 0);
-//        activateMenuItem(menu.findItem(R.id.action_move_down),
-//                !isLoadedFavoritesOnly && menuInfo.position < mListAdapterFiles.getCount() - 1);
+        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly);
+        activateMenuItem(menu.findItem(R.id.action_move_down), !isLoadedFavoritesOnly);
         int filesCount = mListAdapterFiles.getCount();
         activateMenuItem(menu.findItem(R.id.action_move_up), filesCount > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), filesCount > 0);

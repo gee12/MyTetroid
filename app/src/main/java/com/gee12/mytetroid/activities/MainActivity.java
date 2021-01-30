@@ -751,7 +751,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 return;
             if (TagsManager.renameTag(MainActivity.this, tag, name)) {
                 TetroidLog.logOperRes(MainActivity.this, TetroidLog.Objs.TAG, TetroidLog.Opers.RENAME);
-//                mListAdapterTags.notifyDataSetChanged();
                 updateTags();
                 mViewPagerAdapter.getMainFragment().updateRecordList();
             } else {
@@ -949,8 +948,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
         @Override
-        public void onClick(TetroidNode node) {
-            showNode(node);
+        public void onClick(TetroidNode node, int pos) {
+            if (node.isExpandable() && SettingsManager.isExpandEmptyNode(MainActivity.this)) {
+                if (node.getRecordsCount() > 0) {
+                    showNode(node);
+                } else {
+                    expandSubNodes(pos);
+                }
+            } else {
+                showNode(node);
+            }
         }
 
         @Override
