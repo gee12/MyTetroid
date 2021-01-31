@@ -2394,26 +2394,58 @@ public class MainActivity extends TetroidActivity implements IMainView {
         if (!onBeforeBackPressed()) {
             return;
         }
-        boolean needToExit = true;
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
-            mDrawerLayout.closeDrawer(GravityCompat.END);
+        if (SettingsManager.isShowNodesInsteadExit(this)) {
+            // показывать левую шторку вместо выхода
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                if (SettingsManager.isConfirmAppExit(this)) {
+                    askForExit();
+                } else {
+                    onBeforeExit();
+                    onExit();
+                    super.onBackPressed();
+                }
+            } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+                mDrawerLayout.closeDrawer(GravityCompat.END);
+            } else {
+                boolean needToOpenDrawer = true;
+                int curPage = mViewPager.getCurrentItem();
+                if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
+                    if (curPage == MainViewPager.PAGE_MAIN && mViewPagerAdapter.getMainFragment().onBackPressed()
+                            || curPage == MainViewPager.PAGE_FOUND && mViewPagerAdapter.getFoundFragment().onBackPressed()) {
+                        needToOpenDrawer = false;
+                    }
+                }
+                // открываем левую шторку, если все проверили
+                if (needToOpenDrawer) {
+                    mDrawerLayout.openDrawer(GravityCompat.START);
+                }
+            }
         } else {
-            int curPage = mViewPager.getCurrentItem();
-            if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
-                if (curPage == MainViewPager.PAGE_MAIN && !mViewPagerAdapter.getMainFragment().onBackPressed()
-                        || curPage == MainViewPager.PAGE_FOUND && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
-                    if (SettingsManager.isConfirmAppExit(this)) {
-                        askForExit();
+            boolean needToExit = true;
+            // выходить, если не отображаются боковые панели
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+            } else if (mDrawerLayout.isDrawerOpen(GravityCompat.END)) {
+                mDrawerLayout.closeDrawer(GravityCompat.END);
+            } else {
+                int curPage = mViewPager.getCurrentItem();
+                if (curPage == MainViewPager.PAGE_MAIN || curPage == MainViewPager.PAGE_FOUND) {
+                    if (curPage == MainViewPager.PAGE_MAIN && !mViewPagerAdapter.getMainFragment().onBackPressed()
+                            || curPage == MainViewPager.PAGE_FOUND && !mViewPagerAdapter.getFoundFragment().onBackPressed()) {
+                        if (SettingsManager.isConfirmAppExit(this)) {
+                            askForExit();
+                            needToExit = false;
+                        }
+                    } else {
                         needToExit = false;
                     }
                 }
-            }
-            if (needToExit) {
-                onBeforeExit();
-                onExit();
-                super.onBackPressed();
+                // выходим, если все проверили
+                if (needToExit) {
+                    onBeforeExit();
+                    onExit();
+                    super.onBackPressed();
+                }
             }
         }
     }

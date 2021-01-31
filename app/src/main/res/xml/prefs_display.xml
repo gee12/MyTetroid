@@ -7,12 +7,6 @@
         android:summary="@string/pref_keep_screen_on_summ"
         android:title="@string/pref_keep_screen_on" />
 
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_double_tap_fullscreen"
-        android:summary="@string/pref_double_tap_fullscreen_summ"
-        android:title="@string/pref_double_tap_fullscreen" />
-
     <ListPreference
         android:entries="@array/show_record_fields_entries"
         android:entryValues="@array/show_record_fields_entries"

@@ -96,7 +96,7 @@
     <string name="title_first_node">First node</string>
     <string name="title_file_save_as">Save as</string>
     <string name="title_save_file_to">Save file to..</string>
-    <string name="title_load_nodes">Load nodes</string>
+    <string name="title_load_nodes">Load all nodes</string>
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to davorites</string>
@@ -647,8 +647,11 @@
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
     <string name="ask_permission_termux">Permission to run Termux commands</string>
-    <string name="pref_key_is_sync_before_exit">pref_key_is_sync_before_exit</string>
+    <string name="pref_key_is_sync_before_exit" translatable="false">pref_key_is_sync_before_exit</string>
     <string name="pref_expand_empty_nodes">Expand empty nodes</string>
     <string name="pref_expand_empty_nodes_summ">Expanding an empty nodes instead of opening a list of its records</string>
     <string name="pref_key_is_expand_empty_nodes" translatable="false">pref_key_is_expand_empty_nodes</string>
+    <string name="pref_key_show_nodes_instead_exit" translatable="false">pref_key_show_nodes_instead_exit</string>
+    <string name="pref_show_nodes_instead_exit_summ">Show the nodes tree when clicking on the Back button, instead of app exit</string>
+    <string name="pref_show_nodes_instead_exit">Show nodes when clicking on the Back</string>
 </resources>

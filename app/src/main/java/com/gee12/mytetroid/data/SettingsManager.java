@@ -561,15 +561,6 @@ public class SettingsManager {
     }
 
     /**
-     * Включать/отключать полноэкранный режим при двойном тапе ?
-     * По-умолчанию - да.
-     * @return
-     */
-    public static boolean isDoubleTapFullscreen(Context context) {
-        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
-    }
-
-    /**
      * Отображать ли панель свойств записи при открытии ?
      * По-умолчанию - не отображать.
      * @param context
@@ -578,7 +569,6 @@ public class SettingsManager {
     public static String getShowRecordFields(Context context) {
         return getString(context, R.string.pref_key_show_record_fields,
                 context.getString(R.string.pref_show_record_fields_no));
-//                null);
     }
 
     /**
@@ -605,11 +595,6 @@ public class SettingsManager {
      * @return
      */
     public static int getHighlightColor(Context context) {
-//        final int def = R.color.colorHighlight;
-//        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
-//            return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
-//        }
-//        return def;
         return getInt(context, R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
     }
 
@@ -643,14 +628,6 @@ public class SettingsManager {
         return getString(context, R.string.pref_key_date_format_string,
                 context.getString(R.string.def_date_format_string));
     }
-
-    /**
-     * Отображать ли автора в списке записей ?
-     * @return
-     */
-/*    public static boolean isShowAuthorInRecordsList(Context context) {
-        return getBoolean(context, R.string.pref_key_is_show_author_in_records, true);
-    }*/
 
     /**
      * Отображать ли метки в списке записей ?
@@ -697,12 +674,39 @@ public class SettingsManager {
      */
 
     /**
+     * Включать/отключать полноэкранный режим при двойном тапе ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isDoubleTapFullscreen(Context context) {
+        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
+    }
+
+    /**
      * Разворот пустых веток вместо отображения их записей.
      * @param context
      * @return
      */
     public static boolean isExpandEmptyNode(Context context) {
         return getBoolean(context, R.string.pref_key_is_expand_empty_nodes, false);
+    }
+
+    /**
+     * Отображать ли список веток вместо выхода из приложения ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isShowNodesInsteadExit(Context context) {
+        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, false);
+    }
+
+    /**
+     * Подтверждать выход из приложения ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isConfirmAppExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /*
@@ -740,15 +744,6 @@ public class SettingsManager {
 
     public static void setLastChoosedFolder(Context context, String path) {
         setString(context, R.string.pref_key_last_folder, path);
-    }
-
-    /**
-     * Подтверждать выход из приложения ?
-     * По-умолчанию - нет.
-     * @return
-     */
-    public static boolean isConfirmAppExit(Context context) {
-        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /*

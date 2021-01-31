@@ -257,7 +257,7 @@ public class NodeDialogs {
                 adapter.notifyDataSetChanged();
             }
             @Override
-            public void onClick(TetroidNode node) {
+            public void onClick(TetroidNode node, int pos) {
                 onSelectNode(node);
             }
             @Override
