@@ -950,12 +950,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
         @Override
         public void onClick(TetroidNode node, int pos) {
             if (node.isExpandable() && SettingsManager.isExpandEmptyNode(MainActivity.this)) {
+                // если у ветки есть подветки и установлена опция
                 if (node.getRecordsCount() > 0) {
+                    // и в ветке есть записи - открываем список записей
                     showNode(node);
                 } else {
-                    expandSubNodes(pos);
+                    // иначе - разворачиваем/сворачиваем ветку
+                    mListAdapterNodes.toggleNodeExpand(pos);
                 }
             } else {
+                // сразу открываем список записей (даже если он пуст)
                 showNode(node);
             }
         }
@@ -2351,15 +2355,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_storage_reload:
                 reloadStorageAsk();
                 return true;
-//            case R.id.action_fullscreen:
-//                toggleFullscreen(false);
-//                return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
-//            case R.id.action_about_app:
-//                ViewUtils.startActivity(this, AboutActivity.class, null);
-//                return true;
             default:
                 if (mViewPagerAdapter.getMainFragment().onOptionsItemSelected(id)) {
                     return true;
