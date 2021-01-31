@@ -20,6 +20,7 @@
     <string-array name="search_in_cur_node">
         <item name="search_all_database">Поиск по всей базе</item>
         <item>@string/global_search_in_cur_node</item>
+        <item name="global_search_in_spec_node">В указанной ветке</item>
     </string-array>
     <string-array name="found_types">
         <item>имя записи</item>

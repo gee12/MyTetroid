@@ -60,9 +60,13 @@ public class ScanManager implements Parcelable {
      */
     private boolean isOnlyWholeWords;
     /**
-     * Искать только в текущей ветке.
+     * Искать только в ветке (текущей или указанной).
      */
     private boolean isSearchInNode;
+    /**
+     * Id ветки дл поиска.
+     */
+    private String nodeId;
 
     /**
      * Целевая ветка для поиска.
@@ -98,16 +102,17 @@ public class ScanManager implements Parcelable {
         this.isSplitToWords = in.readInt() == 1;
         this.isOnlyWholeWords = in.readInt() == 1;
         this.isSearchInNode = in.readInt() == 1;
+        this.nodeId = in.readString();
     }
 
     /**
      * Глобальный поиск.
-     * @param node
+     * @param context
      * @return
      */
-    public HashMap<ITetroidObject,FoundType> globalSearch(Context context, TetroidNode node) {
+    public HashMap<ITetroidObject,FoundType> globalSearch(Context context) {
         this.foundObjects = new HashMap<>();
-        this.node = node;
+        this.node = NodesManager.getNode(nodeId);
 
         if (isSplitToWords) {
             for (String word : query.split(QUERY_SEPAR)) {
@@ -458,6 +463,10 @@ public class ScanManager implements Parcelable {
         isSearchInNode = searchInNode;
     }
 
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
     public String getQuery() {
         return query;
     }
@@ -506,6 +515,10 @@ public class ScanManager implements Parcelable {
         return isSearchInNode;
     }
 
+    public String getNodeId() {
+        return nodeId;
+    }
+
     public TetroidNode getNode() {
         return node;
     }
@@ -533,6 +546,7 @@ public class ScanManager implements Parcelable {
         dest.writeInt((isSplitToWords) ? 1 : 0);
         dest.writeInt((isOnlyWholeWords) ? 1 : 0);
         dest.writeInt((isSearchInNode) ? 1 : 0);
+        dest.writeString(nodeId);
     }
 
     public static final Creator<ScanManager> CREATOR = new Creator<ScanManager>() {

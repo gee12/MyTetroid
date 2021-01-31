@@ -118,7 +118,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_FILE_PICKER = 7;
     public static final int REQUEST_CODE_FOLDER_PICKER = 8;
 
-    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
+//    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
+    public static final String EXTRA_CUR_NODE_ID = "EXTRA_CUR_NODE_ID";
     public static final String EXTRA_QUERY = "EXTRA_QUERY";
 
     private DrawerLayout mDrawerLayout;
@@ -2517,7 +2518,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
             if (query != null) {
                 intent.putExtra(EXTRA_QUERY, query);
             }
-            intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
+//            intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
+            intent.putExtra(EXTRA_CUR_NODE_ID, (mCurNode != null) ? mCurNode.getId() : null);
             startActivityForResult(intent, REQUEST_CODE_SEARCH_ACTIVITY);
         }
     }
@@ -2539,23 +2541,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     public boolean taskPreExecute(int sRes) {
         super.taskPreExecute(sRes);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-//        mTextViewProgress.setText(sRes);
-//        mLayoutProgress.setVisibility(View.VISIBLE);
         return isDrawerOpened;
     }
 
     public void taskPostExecute(boolean isDrawerOpened) {
         super.taskPostExecute(isDrawerOpened);
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         if (isDrawerOpened) {
             mDrawerLayout.openDrawer(Gravity.LEFT);
         }
-//        mLayoutProgress.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -2714,7 +2710,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected HashMap<ITetroidObject, FoundType> doInBackground(Void... values) {
-            return mScan.globalSearch(mContext, mCurNode);
+            return mScan.globalSearch(mContext);
         }
 
         @Override

@@ -49,8 +49,8 @@ public class NodeDialogs {
     /**
      * Для выбора ветки.
      */
-    static abstract class NodeChooserResult implements INodeChooserResult {
-        TetroidNode mSelectedNode;
+    public static abstract class NodeChooserResult implements INodeChooserResult {
+        public TetroidNode mSelectedNode;
 
         public TetroidNode getSelectedNode() {
             return mSelectedNode;

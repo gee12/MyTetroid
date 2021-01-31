@@ -224,6 +224,8 @@
     <string name="pref_key_search_split_to_words" translatable="false">pref_key_search_split_to_words</string>
     <string name="pref_key_search_in_whole_words" translatable="false">pref_key_search_in_whole_words</string>
     <string name="pref_key_search_in_cur_node" translatable="false">pref_key_search_in_cur_node</string>
+    <string name="pref_key_search_in_node_mode" translatable="false">pref_key_search_in_node_mode</string>
+    <string name="pref_key_search_node_id" translatable="false">pref_key_search_node_id</string>
     <string name="pref_key_search_query" translatable="false">pref_key_search_query</string>
     <string name="pref_key_is_record_auto_save" translatable="false">pref_key_is_record_auto_save</string>
     <string name="pref_category_edit">Edit</string>
@@ -437,6 +439,7 @@
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_global_search_return_null">Some error in global search…</string>
     <string name="log_cur_node_is_not_selected">Current node is not selected.\nOnly search in the entire database is possible</string>
+    <string name="log_select_node_to_search">Select the node to search</string>
     <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="log_cur_record_is_not_set">Current record is not set</string>
     <string name="log_no_app_found_for_open_file">No suitable application was found to open the file&#160;</string>

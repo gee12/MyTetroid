@@ -883,15 +883,42 @@ public class SettingsManager {
     }
 
     /**
-     * Поиск только в текущей ветке ?
+     * Поиск только в текущей ветке ? (устарело)
      * @return
      */
+    @Deprecated
     public static boolean isSearchInCurNode(Context context) {
         return getBoolean(context, R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
     }
 
+    @Deprecated
     public static void setSearchInCurNode(Context context, boolean value) {
         setBoolean(context, R.string.pref_key_search_in_cur_node, value);
+    }
+
+    /**
+     * Варианты поиска: по всей базе, в текущей ветке или в указанной ветке.
+     * @param context
+     * @return
+     */
+    public static int getSearchInNodeMode(Context context) {
+        return getInt(context, R.string.pref_key_search_in_node_mode, isSearchInCurNode(context) ? 1 : 0);
+    }
+
+    public static void setSearchInNodeMode(Context context, int mode) {
+        setInt(context, R.string.pref_key_search_in_node_mode, mode);
+    }
+
+    /**
+     * Id указанной ветки для поиска.
+     * @param context
+     */
+    public static String getSearchNodeId(Context context) {
+        return getString(context, R.string.pref_key_search_node_id, null);
+    }
+
+    public static void setSearchNodeId(Context context, String nodeId) {
+        setString(context, R.string.pref_key_search_node_id, nodeId);
     }
 
     /*
