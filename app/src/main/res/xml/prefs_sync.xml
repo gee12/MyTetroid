@@ -42,7 +42,6 @@
     <CheckBoxPreference
         android:defaultValue="true"
         android:dependency="@string/pref_key_is_sync_storage"
-        android:disableDependentsState="true"
         android:key="@string/pref_key_is_sync_before_exit"
         android:summary="@string/pref_is_sync_before_exit_summ"
         android:title="@string/pref_is_sync_before_exit" />

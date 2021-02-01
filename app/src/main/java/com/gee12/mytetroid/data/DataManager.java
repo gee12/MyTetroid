@@ -769,7 +769,7 @@ public class DataManager implements IRecordFileCrypter {
 
     @NonNull
     public static String getStoragePathBase() {
-        return Instance.mStoragePath + SEPAR + BASE_FOLDER_NAME;
+        return (Instance != null) ? Instance.mStoragePath + SEPAR + BASE_FOLDER_NAME : "";
     }
 
     public static TetroidTag getTag(String tagName) {

@@ -515,7 +515,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         int loadButtonsVis = (isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE;
         mButtonLoadStorageNodes.setVisibility(loadButtonsVis);
         mButtonLoadStorageTags.setVisibility(loadButtonsVis);
-        ViewUtils.setFabVisibility(mFabCreateNode, isLoaded);
+        ViewUtils.setFabVisibility(mFabCreateNode, isLoaded && !isOnlyFavorites);
         mListViewNodes.setVisibility((!isOnlyFavorites) ? View.VISIBLE : View.GONE);
         mFavoritesNode.setVisibility((isLoaded && App.isFullVersion()) ? View.VISIBLE : View.GONE);
         mTextViewNodesEmpty.setVisibility(View.GONE);
@@ -2465,8 +2465,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void askForExit() {
         AskDialogs.showExitDialog(this, () -> {
             onBeforeExit();
-            onExit();
-            finish();
         });
     }
 

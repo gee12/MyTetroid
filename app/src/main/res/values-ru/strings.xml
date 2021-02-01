@@ -524,7 +524,7 @@
     <string name="label_pin_code_size">Значение 4–8:</string>
     <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
     <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>
-    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по пустому месту экрана</string>
+    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по тексту записи</string>
     <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
@@ -542,7 +542,7 @@
     <string name="title_choose_node">Выберите ветку</string>
     <string name="ask_load_storage">Сначала нужно загрузить хранилище. Загрузить?</string>
     <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
-    <string name="hint_load_all_nodes"><![CDATA[<загрузите ветки>]]></string>
+    <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
     <string name="log_record_node_is_empty">У записи не задана ветка</string>
     <string name="log_func_disabled">Функционал отключен из-за ограничений по его разработке</string>

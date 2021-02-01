@@ -166,16 +166,19 @@ public class StorageManager extends DataManager {
         if (SettingsManager.isSyncStorage(activity) && SettingsManager.isSyncBeforeInit(activity)) {
             // спрашиваем о необходимости запуска синхронизации, если установлена опция
             if (SettingsManager.isAskBeforeSyncOnInit(activity)) {
-                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelResult() {
+                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelDismissResult() {
                     @Override
                     public void onApply() {
                         getInstance().mIsLoadStorageAfterSync = true;
                         startStorageSync(activity, storagePath, () ->
                                 initStorage(activity, storagePath, isCheckFavorMode));
                     }
-
                     @Override
                     public void onCancel() {
+                        initStorage(activity, storagePath, isCheckFavorMode);
+                    }
+                    @Override
+                    public void onDismiss() {
                         initStorage(activity, storagePath, isCheckFavorMode);
                     }
                 });
@@ -516,9 +519,9 @@ public class StorageManager extends DataManager {
      * @param handler Обработчик события после выполнения синхронизации или вместо нее.
      */
     public static void startStorageSyncAndExit(Activity activity, Runnable handler) {
-        if (SettingsManager.isSyncBeforeExit(activity)) {
+        if (SettingsManager.isSyncStorage(activity) && SettingsManager.isSyncBeforeExit(activity)) {
             if (SettingsManager.isAskBeforeSyncOnExit(activity)) {
-                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelResult() {
+                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelDismissResult() {
                     @Override
                     public void onApply() {
                         StorageManager.startStorageSync(activity, SettingsManager.getStoragePath(activity), null);
@@ -526,6 +529,10 @@ public class StorageManager extends DataManager {
                     }
                     @Override
                     public void onCancel() {
+                        handler.run();
+                    }
+                    @Override
+                    public void onDismiss() {
                         handler.run();
                     }
                 });

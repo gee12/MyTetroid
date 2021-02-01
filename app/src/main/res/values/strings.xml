@@ -599,7 +599,7 @@
     <string name="title_enter_pin_code_length">Enter PIN-code length</string>
     <string name="pref_key_double_tap_fullscreen" translatable="false">pref_key_double_tap_fullscreen</string>
     <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
-    <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a blank area of the screen</string>
+    <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a record text</string>
     <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
@@ -617,7 +617,7 @@
     <string name="title_choose_node">Select node</string>
     <string name="ask_load_storage">The storage is not loaded. Load?</string>
     <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
-    <string name="hint_load_all_nodes"><![CDATA[<load nodes>]]></string>
+    <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
     <string name="log_record_node_is_empty">Record node is empty</string>
     <string name="log_func_disabled">The functionality is disabled due to restrictions on its development</string>

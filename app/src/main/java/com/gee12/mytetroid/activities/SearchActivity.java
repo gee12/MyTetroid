@@ -25,6 +25,8 @@ import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.dialogs.NodeDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
 
@@ -148,7 +150,18 @@ public class SearchActivity extends AppCompatActivity {
         this.etNodeName = findViewById(R.id.edit_text_node);
         this.bNodeChooser = findViewById(R.id.button_node);
 
-        TetroidNode node = (StorageManager.isLoaded()) ? NodesManager.getNode(nodeId) : null;
+        TetroidNode node;
+        if (StorageManager.isLoaded()) {
+            node = NodesManager.getNode(nodeId);
+            if (node == null) {
+                // очищаем, если такой ветки нет
+                nodeId = null;
+            }
+        } else {
+            LogManager.log(this, R.string.title_storage_not_loaded, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            finish();
+            return;
+        }
 
         etNodeName.setText((node != null) ? node.getName() : getString(R.string.title_select_node));
         etNodeName.setInputType(InputType.TYPE_NULL);

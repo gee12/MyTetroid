@@ -795,6 +795,7 @@ public class MainPageFragment extends TetroidFragment {
                 activateMenuItem(menu.findItem(R.id.action_attached_files), false);
                 activateMenuItem(menu.findItem(R.id.action_open_record_folder), false);
                 activateMenuItem(menu.findItem(R.id.action_copy_link), false);
+                activateMenuItem(menu.findItem(R.id.action_info), false);
             }
             boolean isFavorite = record.isFavorite();
             activateMenuItem(menu.findItem(R.id.action_add_favorite), isPro && !isFavoritesView && !isFavorite);
@@ -806,8 +807,6 @@ public class MainPageFragment extends TetroidFragment {
                 !isLoadedFavoritesOnly && isFavoritesView && isNonCrypted);
         activateMenuItem(menu.findItem(R.id.action_insert),
                 !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
-//        activateMenuItem(menu.findItem(R.id.action_move_up), menuInfo.position > 0);
-//        activateMenuItem(menu.findItem(R.id.action_move_down), menuInfo.position < mListAdapterRecords.getCount() - 1);
         int recordsCount = mListAdapterRecords.getCount();
         activateMenuItem(menu.findItem(R.id.action_move_up), recordsCount > 0);
         activateMenuItem(menu.findItem(R.id.action_move_down), recordsCount > 0);
@@ -822,11 +821,9 @@ public class MainPageFragment extends TetroidFragment {
             return;
         boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
         activateMenuItem(menu.findItem(R.id.action_rename), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly);
-        activateMenuItem(menu.findItem(R.id.action_move_down), !isLoadedFavoritesOnly);
         int filesCount = mListAdapterFiles.getCount();
-        activateMenuItem(menu.findItem(R.id.action_move_up), filesCount > 0);
-        activateMenuItem(menu.findItem(R.id.action_move_down), filesCount > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly && filesCount > 0);
+        activateMenuItem(menu.findItem(R.id.action_move_down), !isLoadedFavoritesOnly && filesCount > 0);
         TetroidFile file = (TetroidFile) mListAdapterFiles.getItem(menuInfo.position);
         activateMenuItem(menu.findItem(R.id.action_save_as), file != null
                 && AttachesManager.getAttachedFileSize(mContext, file) != null);
