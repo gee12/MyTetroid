@@ -496,12 +496,13 @@ public class StorageManager extends DataManager {
      * @param callback
      */
     public static void startStorageSync(Activity activity, String storagePath, Runnable callback) {
-        SyncManager.startStorageSync(activity, storagePath, REQUEST_CODE_SYNC_STORAGE);
+        boolean res = SyncManager.startStorageSync(activity, storagePath, REQUEST_CODE_SYNC_STORAGE);
         if (callback != null) {
-            // запускаем обработчик сразу после синхронизации, не дожидаясь ответа,
-            //  только если выбрана синхронизация с помощью Termux,
+            // запускаем обработчик сразу после синхронизации, не дожидаясь ответа, если:
+            //  1) синхронизацию не удалось запустить
+            //  2) выбрана синхронизация с помощью Termux,
             //  т.к. в этом случае нет простого механизма получить ответ
-            if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
                 callback.run();
             }
         }

@@ -24,14 +24,14 @@ public class SyncManager {
      * Отправка запроса на синхронизацию стороннему приложению.
      * @param storagePath
      */
-    public static void startStorageSync(Activity activity, String storagePath, int requestCode) {
+    public static boolean startStorageSync(Activity activity, String storagePath, int requestCode) {
         String command = SettingsManager.getSyncCommand(activity);
         if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
             // termux
-            startTermuxSync(activity, storagePath, command);
+            return startTermuxSync(activity, storagePath, command);
         } else {
             // mgit
-            startMGitSync(activity, storagePath, command, requestCode);
+            return startMGitSync(activity, storagePath, command, requestCode);
         }
     }
 
@@ -39,7 +39,7 @@ public class SyncManager {
      * Отправка запроса на синхронизацию в MGit.
      * @param storagePath
      */
-    private static void startMGitSync(Activity activity, String storagePath, String command, int requestCode) {
+    private static boolean startMGitSync(Activity activity, String storagePath, String command, int requestCode) {
         Intent intent = SyncManager.createIntentToMGit(activity, storagePath, command);
 
         LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command);
@@ -54,7 +54,9 @@ public class SyncManager {
         } catch (Exception ex) {
             LogManager.log(activity, activity.getString(R.string.log_sync_app_not_installed), Toast.LENGTH_LONG);
             LogManager.log(activity, ex, -1);
+            return false;
         }
+        return true;
     }
 
     /**
@@ -82,14 +84,14 @@ public class SyncManager {
      * @param storagePath
      * @param command
      */
-    private static void startTermuxSync(Activity activity, String storagePath, String command) {
+    private static boolean startTermuxSync(Activity activity, String storagePath, String command) {
         if (TextUtils.isEmpty(command)) {
             LogManager.log(activity, R.string.log_sync_command_empty, ILogger.Types.WARNING, Toast.LENGTH_LONG);
-            return;
+            return false;
         }
         // проверяем разрешение на запуск сервиса
         if (!PermissionManager.checkTermuxPermission(activity, StorageManager.REQUEST_CODE_PERMISSION_TERMUX)) {
-            return;
+            return false;
         }
         // подставляем путь
         if (command.contains(STORAGE_PATH_REPLACEMENT)) {
@@ -103,7 +105,7 @@ public class SyncManager {
         } else {
             words = null;
         }
-        sendTermuxCommand(activity, first, words, null,true);
+        return sendTermuxCommand(activity, first, words, null,true);
     }
 
     /**
@@ -115,7 +117,7 @@ public class SyncManager {
      * @param command
      * @param args
      */
-    private static void sendTermuxCommand(Activity activity, String command, String[] args, String workDir, boolean bg) {
+    private static boolean sendTermuxCommand(Activity activity, String command, String[] args, String workDir, boolean bg) {
         Intent intent = new Intent();
         intent.setClassName("com.termux", "com.termux.app.RunCommandService");
         intent.setAction("com.termux.RUN_COMMAND");
@@ -138,6 +140,8 @@ public class SyncManager {
         } catch (Exception ex) {
             LogManager.log(activity, R.string.log_error_when_sync, ILogger.Types.ERROR, Toast.LENGTH_LONG);
             Message.showSnackMoreInLogs(activity);
+            return false;
         }
+        return true;
     }
 }
