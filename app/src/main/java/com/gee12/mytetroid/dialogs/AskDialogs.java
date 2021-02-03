@@ -12,7 +12,7 @@ public class AskDialogs {
     public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged,
                                                final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback,
-                (toCreate) ? R.string.ask_storage_folder_clear :
+                (toCreate) ? R.string.ask_create_storage_in_folder :
                         (pathChanged) ? R.string.ask_storage_path_was_changed : R.string.ask_reload_storage);
     }
 

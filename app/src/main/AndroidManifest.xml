@@ -4,14 +4,13 @@
     package="com.gee12.mytetroid"
     android:installLocation="auto">
 
-<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
     <!--
     requestLegacyExternalStorage=true - Temporarily opt-out of scoped storage from Android 10
     From: https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
     -->
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,8 +41,6 @@
         <!-- tools:replace="android:appComponentFactory" -->
         <!-- android:appComponentFactory="action_settings" -->
         <!-- tools:replace="android:theme" -->
-        <!-- For Android Q (10): -->
-        <!-- android:requestLegacyExternalStorage="true" -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -78,35 +75,12 @@
                 <data android:mimeType="image/*" />
                 <data android:mimeType="text/*" />
             </intent-filter>
-            <!--<intent-filter android:label="@string/title_intent_send">
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>-->
 
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_records" />
         </activity>
-        <!--
-        <activity-alias
-            android:name=".activities.MainActivityAlias"
-            android:targetActivity=".activities.MainActivity">
 
-            <intent-filter android:label="@string/title_intent_send_attach">
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
-
-            <intent-filter android:label="@string/title_intent_send_attach">
-                <action android:name="android.intent.action.SEND_MULTIPLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="image/*" />
-            </intent-filter>
-
-        </activity-alias>
-        -->
         <activity
             android:name=".activities.RecordActivity"
             android:configChanges="orientation|screenSize"
@@ -116,12 +90,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-<!--            <intent-filter android:label="@string/title_intent_send">
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-&lt;!&ndash;                <data android:mimeType="image/*" />&ndash;&gt;
-                <data android:mimeType="text/*" />
-            </intent-filter-->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
@@ -155,7 +123,6 @@
             android:name=".activities.LogsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_log_file_content"
-            android:parentActivityName=".activities.SettingsActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="com.gee12.mytetroid.activities.LogsActivity" />

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/data_item_row_height"
+    android:layout_height="wrap_content"
     android:paddingLeft="2dp"
-    android:paddingBottom="2dp"
-    android:paddingRight="5dp">
+    android:paddingStart="2dp"
+    android:paddingBottom="3dp"
+    android:paddingRight="5dp"
+    android:paddingEnd="5dp">
+<!--    android:layout_height="@dimen/data_item_row_height"-->
 
     <ImageView
         android:id="@+id/record_view_icon"
@@ -21,12 +24,13 @@
     <TextView
         android:id="@+id/record_view_name"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_toRightOf="@id/record_view_icon"
         android:layout_toEndOf="@id/record_view_icon"
         android:layout_gravity="center_vertical"
         android:textColor="@color/colorBaseText"
         android:paddingLeft="3dp"
+        android:paddingStart="3dp"
         android:paddingTop="5dp"
         android:paddingBottom ="2dp"
         android:textSize="@dimen/font_default" />
@@ -34,65 +38,111 @@
     <TextView
         android:id="@+id/record_view_line_num"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="false"
         android:layout_alignParentBottom="true"
+        android:layout_below="@id/record_view_name"
         android:layout_gravity="center_vertical|start"
         android:textAlignment="textStart"
         android:paddingLeft="3dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
+        android:paddingStart="3dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:textColor="@color/colorLightText"
         android:textSize="@dimen/font_small_small"/>
 
     <TextView
         android:id="@+id/record_view_node"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/record_view_name"
-        android:layout_alignParentBottom="true"
         android:layout_toRightOf="@id/record_view_line_num"
         android:layout_toEndOf="@id/record_view_line_num"
+        android:layout_toLeftOf="@id/layout_dates"
+        android:layout_toStartOf="@id/layout_dates"
         android:textAlignment="textStart"
         android:layout_gravity="start"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
+        android:lineSpacingExtra="-2sp"
         android:textColor="@color/colorLightText"
         android:textSize="@dimen/font_small_small" />
+
+    <TextView
+        android:id="@+id/record_view_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/record_view_node"
+        android:layout_toRightOf="@id/record_view_line_num"
+        android:layout_toEndOf="@id/record_view_line_num"
+        android:layout_toLeftOf="@id/layout_dates"
+        android:layout_toStartOf="@id/layout_dates"
+        android:textAlignment="textStart"
+        android:layout_gravity="start"
+        android:lineSpacingExtra="-2sp"
+        android:textColor="@color/colorLightText"
+        android:text="атвор 1, автор 2, автор 3, \nавтор 4, автор 5, автор 6"
+        android:textSize="@dimen/font_small_small" />
+<!--    android:layout_toLeftOf="@id/record_view_tags"-->
+<!--    android:layout_toStartOf="@id/record_view_tags"-->
 
     <TextView
         android:id="@+id/record_view_tags"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_below="@id/record_view_name"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/record_view_node"
-        android:layout_toEndOf="@id/record_view_node"
-        android:layout_toLeftOf="@id/record_view_created"
-        android:layout_toStartOf="@id/record_view_created"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/record_view_line_num"
+        android:layout_toEndOf="@id/record_view_line_num"
+        android:layout_below="@id/record_view_author"
+        android:layout_toLeftOf="@id/layout_dates"
+        android:layout_toStartOf="@id/layout_dates"
+        android:paddingBottom="2dp"
         android:textAlignment="textStart"
         android:layout_gravity="start"
-        android:layout_marginLeft="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
+        android:lineSpacingExtra="-2sp"
         android:textColor="@color/colorLightText"
+        android:text="234 6789 456 890 2345 6789 456"
         android:textSize="@dimen/font_small_small" />
 
-    <TextView
-        android:id="@+id/record_view_created"
+    <LinearLayout
+        android:id="@+id/layout_dates"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/record_view_name"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:textAlignment="textEnd"
-        android:layout_gravity="end"
-        android:textColor="@color/colorLightText"
-        android:textSize="@dimen/font_small_small" />
-<!--    android:layout_toRightOf="@id/record_view_tags"
-    android:layout_toEndOf="@id/record_view_tags"-->
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:gravity="bottom"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/record_view_created"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:layout_gravity="end"
+            android:textColor="@color/colorLightText"
+            android:text="10.10.10"
+            android:textSize="@dimen/font_small_small" />
+        <!--    android:layout_toRightOf="@id/record_view_tags"
+            android:layout_toEndOf="@id/record_view_tags"-->
+<!--        android:layout_below="@id/record_view_name"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentEnd="true"-->
+
+        <TextView
+            android:id="@+id/record_view_edited"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:layout_gravity="end"
+            android:textColor="@color/colorLightText"
+            android:text="11.11.10"
+            android:textSize="@dimen/font_small_small" />
+<!--        android:layout_below="@id/record_view_created"-->
+<!--        android:layout_alignParentRight="true"-->
+<!--        android:layout_alignParentEnd="true"-->
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/record_view_attached"

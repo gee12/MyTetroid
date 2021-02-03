@@ -29,7 +29,7 @@ public class FileDialogs {
      * @param handler
      */
     public static void createFileDialog(Context context, TetroidFile file, IFileFieldsResult handler) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_file);
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_attach);
 
         EditText etName = builder.getView().findViewById(R.id.edit_text_name);
 
@@ -80,18 +80,6 @@ public class FileDialogs {
     public static void deleteFile(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_file_delete);
     }
-
-/*    public static void deleteAttachWithoutDir(Context context, TetroidLog.Opers oper, final AskDialogs.IApplyResult callback) {
-        int resId = (oper == TetroidLog.Opers.DELETE) ? R.string.title_delete
-                : (oper == TetroidLog.Opers.CUT) ? R.string.title_cut
-                : R.string.title_insert;
-        String mes = String.format(context.getString(R.string.ask_record_oper_without_dir_mask),
-                context.getString(resId));
-//        AskDialogs.showYesDialog(context, callback, R.string.log_record_delete_without_dir);
-        AskDialogs.showAlertDialog(context, mes,
-                (dialog, which) -> callback.onApply(),
-                null);
-    }*/
 
     public static void deleteAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_attach_delete_without_file);

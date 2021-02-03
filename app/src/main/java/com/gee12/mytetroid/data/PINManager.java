@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.LogManager;
 
@@ -69,7 +70,8 @@ public class PINManager {
                 @Override
                 public void onApply() {
                     // задаем длину ПИН-кода
-                    PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(context), new PassDialogs.IPinLengthInputResult() {
+                    PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(context),
+                            new PassDialogs.IPinLengthInputResult() {
                         @Override
                         public void onApply(int length) {
                             SettingsManager.setPINCodeLength(context, length);
@@ -103,7 +105,8 @@ public class PINManager {
             });
         } else {
             // сбрасываем имеющийся ПИН-код, предварительнго его запросив
-            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false, new PassDialogs.IPinInputResult() {
+            PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false,
+                    new PassDialogs.IPinInputResult() {
                 @Override
                 public boolean onApply(String pin) {
                     // зашифровываем введеный пароль перед сравнением

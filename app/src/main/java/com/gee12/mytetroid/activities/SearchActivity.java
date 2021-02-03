@@ -3,20 +3,31 @@ package com.gee12.mytetroid.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.dialogs.NodeDialogs;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
 
 /**
@@ -37,8 +48,11 @@ public class SearchActivity extends AppCompatActivity {
     private CheckBox cbIds;
     private Spinner spSplitToWords;
     private Spinner spInWholeWords;
-    private Spinner spInCurrentNode;
-    private boolean isCurNodeNotNull;
+    private Spinner spInNodeMode;
+    private EditText etNodeName;
+    private ImageButton bNodeChooser;
+//    private boolean isCurNodeNotNull;
+    private String nodeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +73,21 @@ public class SearchActivity extends AppCompatActivity {
         this.cbIds = findViewById(R.id.check_box_ids);
         this.spSplitToWords = findViewById(R.id.spinner_split_to_words);
         this.spInWholeWords = findViewById(R.id.spinner_in_whole_words);
-        this.spInCurrentNode = findViewById(R.id.spinner_in_cur_node);
+        this.spInNodeMode = findViewById(R.id.spinner_in_cur_node);
 
         initSpinner(spSplitToWords, R.array.search_split_to_words);
         initSpinner(spInWholeWords, R.array.search_in_whole_words);
-        initSpinner(spInCurrentNode, R.array.search_in_cur_node);
+        initSpinner(spInNodeMode, R.array.search_in_cur_node);
+        spInNodeMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+               @Override
+               public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                   updateNodeChooser();
+               }
+               @Override
+               public void onNothingSelected(AdapterView<?> parent) {
+
+               }
+           });
 
         findViewById(R.id.button_clear).setOnClickListener(v -> etQuery.setText(""));
 
@@ -73,14 +97,23 @@ public class SearchActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            this.isCurNodeNotNull = extras.getBoolean(MainActivity.EXTRA_CUR_NODE_IS_NOT_NULL);
+//            this.isCurNodeNotNull = extras.getBoolean(MainActivity.EXTRA_CUR_NODE_IS_NOT_NULL);
+            if (SettingsManager.getSearchInNodeMode(this) == 1) {
+                this.nodeId = extras.getString(MainActivity.EXTRA_CUR_NODE_ID);
+            }
             String query = extras.getString(MainActivity.EXTRA_QUERY);
             if (query != null) {
                 etQuery.setText(query);
             }
         }
+
+        initNodeChooser();
+        updateNodeChooser();
     }
 
+    /**
+     *
+     */
     private void readSearchPrefs() {
         etQuery.setText(SettingsManager.getSearchQuery(this));
         cbText.setChecked(SettingsManager.isSearchInText(this));
@@ -93,9 +126,16 @@ public class SearchActivity extends AppCompatActivity {
         cbIds.setChecked(SettingsManager.isSearchInIds(this));
         spSplitToWords.setSelection(SettingsManager.isSearchSplitToWords(this) ? 0 : 1);
         spInWholeWords.setSelection(SettingsManager.isSearchInWholeWords(this) ? 0 : 1);
-        spInCurrentNode.setSelection(SettingsManager.isSearchInCurNode(this) ? 1 : 0);
+//        spInNodeMode.setSelection(SettingsManager.isSearchInCurNode(this) ? 1 : 0);
+        spInNodeMode.setSelection(SettingsManager.getSearchInNodeMode(this));
+        nodeId = SettingsManager.getSearchNodeId(this);
     }
 
+    /**
+     *
+     * @param spinner
+     * @param arrayId
+     */
     private void initSpinner(Spinner spinner, int arrayId) {
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 arrayId, android.R.layout.simple_spinner_item);
@@ -103,6 +143,79 @@ public class SearchActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
     }
 
+    /**
+     *
+     */
+    private void initNodeChooser() {
+        this.etNodeName = findViewById(R.id.edit_text_node);
+        this.bNodeChooser = findViewById(R.id.button_node);
+
+        TetroidNode node;
+        if (StorageManager.isLoaded()) {
+            node = NodesManager.getNode(nodeId);
+            if (node == null) {
+                // очищаем, если такой ветки нет
+                nodeId = null;
+            }
+        } else {
+            LogManager.log(this, R.string.title_storage_not_loaded, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            finish();
+            return;
+        }
+
+        etNodeName.setText((node != null) ? node.getName() : getString(R.string.title_select_node));
+        etNodeName.setInputType(InputType.TYPE_NULL);
+
+        // диалог выбора ветки
+        NodeDialogs.NodeChooserResult nodeCallback = new NodeDialogs.NodeChooserResult() {
+            @Override
+            public void onApply(TetroidNode node) {
+                this.mSelectedNode = node;
+                if (node != null) {
+                    etNodeName.setText(node.getName());
+                    nodeId = node.getId();
+                }
+            }
+            @Override
+            public void onProblem(int code) {
+                switch (code) {
+                    case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+                        Message.show(SearchActivity.this, getString(R.string.log_storage_need_load), Toast.LENGTH_LONG);
+                        break;
+                    case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+                        Message.show(SearchActivity.this, getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG);
+                        break;
+                }
+            }
+        };
+        View.OnClickListener clickListener = v -> {
+            NodeDialogs.createNodeChooserDialog(this,
+                    (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : node,
+                    false, true, false, nodeCallback);
+        };
+        etNodeName.setOnClickListener(clickListener);
+        bNodeChooser.setOnClickListener(clickListener);
+    }
+
+    /**
+     *
+     */
+    private void updateNodeChooser() {
+        if (spInNodeMode.getSelectedItemPosition() == 1) {
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                nodeId = extras.getString(MainActivity.EXTRA_CUR_NODE_ID);
+            }
+        }
+        boolean isNodeSelectionMode = (spInNodeMode.getSelectedItemPosition() == 2);
+        etNodeName.setEnabled(isNodeSelectionMode);
+        bNodeChooser.setEnabled(isNodeSelectionMode);
+    }
+
+    /**
+     *
+     * @return
+     */
     public ScanManager buildScanManager() {
         String query = etQuery.getText().toString();
         ScanManager scan = new ScanManager(query);
@@ -117,10 +230,14 @@ public class SearchActivity extends AppCompatActivity {
 
         scan.setSplitToWords(spSplitToWords.getSelectedItemPosition() == 0);
         scan.setOnlyWholeWords(spInWholeWords.getSelectedItemPosition() == 0);
-        scan.setSearchInNode(spInCurrentNode.getSelectedItemPosition() == 1);
+        scan.setSearchInNode(spInNodeMode.getSelectedItemPosition() != 0);
+        scan.setNodeId(nodeId);
         return scan;
     }
 
+    /**
+     *
+     */
     private void startSearch() {
         // сохраняем параметры поиск
         saveSearchPrefs();
@@ -131,6 +248,9 @@ public class SearchActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     *
+     */
     private void saveSearchPrefs() {
         SettingsManager.setSearchQuery(this, etQuery.getText().toString());
         SettingsManager.setSearchInText(this, cbText.isChecked());
@@ -143,7 +263,9 @@ public class SearchActivity extends AppCompatActivity {
         SettingsManager.setSearchInIds(this, cbIds.isChecked());
         SettingsManager.setSearchSplitToWords(this, spSplitToWords.getSelectedItemPosition() == 0);
         SettingsManager.setSearchInWholeWords(this, spInWholeWords.getSelectedItemPosition() == 0);
-        SettingsManager.setSearchInCurNode(this, spInCurrentNode.getSelectedItemPosition() == 1);
+//        SettingsManager.setSearchInCurNode(this, spInCurrentNode.getSelectedItemPosition() == 1);
+        SettingsManager.setSearchInNodeMode(this, spInNodeMode.getSelectedItemPosition());
+        SettingsManager.setSearchNodeId(this, nodeId);
     }
 
     /**
@@ -169,8 +291,10 @@ public class SearchActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(etQuery.getText().toString())) {
                 Message.show(this, getString(R.string.title_enter_query));
 //            } else if (spInCurrentNode.getSelectedItem().equals(getString(R.string.global_search_in_cur_node))
-            } else if (spInCurrentNode.getSelectedItemPosition() == 1 && !isCurNodeNotNull) {
+            } else if (spInNodeMode.getSelectedItemPosition() == 1 && TextUtils.isEmpty(nodeId)) {
                 Message.show(this, getString(R.string.log_cur_node_is_not_selected));
+            } else if (spInNodeMode.getSelectedItemPosition() == 2 && TextUtils.isEmpty(nodeId)) {
+                Message.show(this, getString(R.string.log_select_node_to_search));
             } else {
                 startSearch();
             }

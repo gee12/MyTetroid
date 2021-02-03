@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.fragments;
+package com.gee12.mytetroid.fragments.settings;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,25 +40,16 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
 
         getActivity().setTitle(R.string.pref_category_crypt);
 
+        boolean isStorageReady = DataManager.isInited() && DataManager.isLoaded() && !App.IsLoadedFavoritesOnly;
+
         Preference passPref = findPreference(getString(R.string.pref_key_change_pass));
-        boolean isInited = DataManager.isInited();
-        boolean isLoaded = DataManager.isLoaded();
-        boolean crypted = DataManager.isCrypted(mContext);
-        passPref.setTitle(crypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
-        passPref.setSummary(crypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
-        passPref.setEnabled(isInited && isLoaded && !App.IsLoadedFavoritesOnly);
+        boolean isCrypted = DataManager.isCrypted(mContext);
+        passPref.setTitle(isCrypted ? R.string.pref_change_pass : R.string.pref_setup_pass);
+        passPref.setSummary(isCrypted ? R.string.pref_change_pass_summ : R.string.pref_setup_pass_summ);
+        passPref.setEnabled(isStorageReady);
         passPref.setOnPreferenceClickListener(pref -> {
-            if (!isInited) {
-                String mes = getString((PermissionManager.writeExtStoragePermGranted(getContext()))
-                        ? R.string.title_need_init_storage
-                        : R.string.title_need_perm_init_storage);
-                Message.show(getContext(), mes, Toast.LENGTH_SHORT);
-            } else if (!isLoaded) {
-                Message.show(getContext(), getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT);
-            } else if (App.IsLoadedFavoritesOnly) {
-                Message.show(getContext(), getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT);
-            } else {
-                if (crypted) {
+            if (checkStorageIsReady(true)) {
+                if (isCrypted) {
                     changePass();
                 } else {
                     PassManager.setupPass(getContext());
@@ -85,11 +76,16 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
 
         CheckBoxPreference pinCodePref = findPreference(getString(R.string.pref_key_request_pin_code));
         disableIfFree(pinCodePref);
+        // проверять готовность хранилища достаточно только при установке кода
+        //  (а при сбросе не требуется)
+        pinCodePref.setEnabled(SettingsManager.isRequestPINCode(getContext()) || isStorageReady);
         pinCodePref.setOnPreferenceChangeListener((preference, newValue) -> {
-            PINManager.setupPINCode(getContext(), res -> {
-                SettingsManager.setIsRequestPINCode(mContext, res);
-                pinCodePref.setChecked(res);
-            });
+            if (SettingsManager.isRequestPINCode(getContext()) || checkStorageIsReady(true)) {
+                PINManager.setupPINCode(getContext(), res -> {
+                    SettingsManager.setIsRequestPINCode(mContext, res);
+                    pinCodePref.setChecked(res);
+                });
+            }
             return false;
         });
         setPINCodePrefAvailability();
@@ -165,6 +161,23 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
         }
     }
 
+    private boolean checkStorageIsReady(boolean checkIsFavorMode) {
+        if (!DataManager.isInited()) {
+            String mes = getString((PermissionManager.writeExtStoragePermGranted(getContext()))
+                    ? R.string.title_need_init_storage
+                    : R.string.title_need_perm_init_storage);
+            Message.show(getContext(), mes, Toast.LENGTH_SHORT);
+            return false;
+        } else if (!DataManager.isLoaded()) {
+            Message.show(getContext(), getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT);
+            return false;
+        } else if (checkIsFavorMode && App.IsLoadedFavoritesOnly) {
+            Message.show(getContext(), getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT);
+            return false;
+        }
+        return true;
+    }
+    
     public boolean onBackPressed() {
         if (mCurTask != null && mCurTask.isRunning()) {
             return true;
@@ -252,6 +265,7 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
                 LogManager.log(mContext, R.string.log_pass_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
                 LogManager.log(mContext, R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT);
+                showSnackMoreInLogs();
             }
         }
     }

@@ -2,12 +2,16 @@ package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
@@ -19,7 +23,9 @@ import com.gee12.mytetroid.adapters.NodesListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
+import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.views.Message;
 
 import java.util.List;
 import java.util.Random;
@@ -29,7 +35,7 @@ import pl.openrnd.multilevellistview.MultiLevelListView;
 public class NodeDialogs {
 
     public interface INodeFieldsResult {
-        void onApply(String name);
+        void onApply(String name, TetroidNode parent);
     }
 
     public interface INodeChooserResult {
@@ -41,14 +47,28 @@ public class NodeDialogs {
     }
 
     /**
+     * Для выбора ветки.
+     */
+    public static abstract class NodeChooserResult implements INodeChooserResult {
+        public TetroidNode mSelectedNode;
+
+        public TetroidNode getSelectedNode() {
+            return mSelectedNode;
+        }
+    }
+    /**
      * Диалог создания/изменения ветки.
      * @param context
      * @param callback
      */
-    public static void createNodeDialog(Context context, TetroidNode node, INodeFieldsResult callback) {
+    public static void createNodeDialog(Context context, TetroidNode node, boolean chooseParent, INodeFieldsResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_node);
 
-        EditText etName = builder.getView().findViewById(R.id.edit_text_name);
+        View view = builder.getView();
+        EditText etName = view.findViewById(R.id.edit_text_name);
+        RelativeLayout nodeLayout = view.findViewById(R.id.layout_node);
+        EditText etNode = view.findViewById(R.id.edit_text_node);
+        ImageButton bNode = view.findViewById(R.id.button_node);
 
         if (BuildConfig.DEBUG && node == null) {
             Random rand = new Random();
@@ -60,17 +80,72 @@ public class NodeDialogs {
             etName.setText(node.getName());
         }
 
-        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
-            callback.onApply(etName.getText().toString());
-        }).setNegativeButton(R.string.answer_cancel, null);
+        TetroidNode parentNode = (node != null)
+                ? (node != TetroidXml.ROOT_NODE) ? node.getParentNode() : TetroidXml.ROOT_NODE
+                : TetroidXml.ROOT_NODE;
+                //: NodesManager.getQuicklyNode();
+        if (chooseParent) {
+            nodeLayout.setVisibility(View.VISIBLE);
+            etNode.setText((parentNode != null) ? parentNode.getName() : context.getString(R.string.title_select_node));
+            etNode.setInputType(InputType.TYPE_NULL);
+        } else {
+            nodeLayout.setVisibility(View.GONE);
+        }
+
+//        builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
+//            callback.onApply(etName.getText().toString(),
+//
+//                    (chooseParent && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : recordNode,);
+//        }).setNegativeButton(R.string.answer_cancel, null);
 
         final AlertDialog dialog = builder.create();
 
+        // диалог выбора ветки
+        NodeChooserResult nodeCallback = new NodeChooserResult() {
+            @Override
+            public void onApply(TetroidNode node) {
+                this.mSelectedNode = node;
+                if (node != null) {
+                    etNode.setText(node.getName());
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setEnabled(!TextUtils.isEmpty(etName.getText()));
+                }
+            }
+            @Override
+            public void onProblem(int code) {
+                switch (code) {
+                    case INodeChooserResult.LOAD_STORAGE:
+                        Message.show(context, context.getString(R.string.log_storage_need_load), Toast.LENGTH_LONG);
+                        break;
+                    case INodeChooserResult.LOAD_ALL_NODES:
+                        Message.show(context, context.getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG);
+                        break;
+                }
+            }
+        };
+        if (chooseParent) {
+            View.OnClickListener clickListener = v -> {
+                NodeDialogs.createNodeChooserDialog(context,
+                        (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : parentNode,
+                        false, true, false, nodeCallback);
+            };
+            etNode.setOnClickListener(clickListener);
+            bNode.setOnClickListener(clickListener);
+        }
+
+        // кнопки результата
+        dialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.answer_ok), (dialog1, which) -> {
+            callback.onApply(etName.getText().toString(),
+                    (chooseParent && nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : parentNode);
+        });
+        dialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.answer_cancel), (dialog1, which) -> {
+            dialog1.cancel();
+        });
+
         dialog.setOnShowListener(dialog12 -> {
             // получаем okButton уже после вызова show()
-            final Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             if (TextUtils.isEmpty(etName.getText().toString())) {
-                okButton.setEnabled(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
             }
             etName.setSelection(etName.getText().length());
 //            Keyboard.showKeyboard(etName);
@@ -182,7 +257,7 @@ public class NodeDialogs {
                 adapter.notifyDataSetChanged();
             }
             @Override
-            public void onClick(TetroidNode node) {
+            public void onClick(TetroidNode node, int pos) {
                 onSelectNode(node);
             }
             @Override
@@ -245,4 +320,5 @@ public class NodeDialogs {
     public static void deleteNode(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_node_delete);
     }
+
 }

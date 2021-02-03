@@ -27,52 +27,21 @@ public class TetroidFileObserver {
 //        this.thread = new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-                mFileObserver = new FileObserver(filePath, mask) {
+        mFileObserver = new FileObserver(filePath, mask) {
 //                mFileObserver = new FileObserver(file, mask) {
-                    @Override
-                    public void onEvent(int event, String path) {
-                        if ((event & mask) > 0) {
-                            callback.run(true);
-                        }
-                    }
-                };
-                mFileObserver.startWatching();
+            @Override
+            public void onEvent(int event, String path) {
+                if ((event & mask) > 0) {
+                    callback.run(true);
+                }
+            }
+        };
+        startObserver();
 //            }
 //        });
 //        thread.setPriority(Thread.MIN_PRIORITY);
 //        thread.start();
     }
-
-    /**
-     * Запуск отслеживания изменения mytetra.xml.
-     * @param callback
-     */
-//    public static void startStorageObserver(/*Context context,*/ ICallback callback) {
-//        /*Intent intent = new Intent(context, FileObserverService.class);
-//        String filePath = DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME;
-//        intent.putExtra(FileObserverService.EXTRA_FILE_PATH, filePath);
-//        context.startService(intent);
-//        instance.mStorageObserver = intent;*/
-//
-//        Thread t = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                File file = new File(DataManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
-//                mFileObserver = new FileObserver(file, FileObserver.MODIFY) {
-//                    @Override
-//                    public void onEvent(int event, String path) {
-//                        if (event == FileObserver.MODIFY) {
-//                            callback.run(true);
-//                        }
-//                    }
-//
-//                };
-//                mFileObserver.startWatching();
-//            }
-//        });
-//        t.setPriority(Thread.MIN_PRIORITY);
-//        t.start();
-//    }
 
     /**
      * Запуск отслеживания изменений файла.
@@ -99,29 +68,10 @@ public class TetroidFileObserver {
      * Остановка отслеживания изменений файла.
 //     * @param context
      */
-    public void stopObserver(/*Context context*/) {
-//        context.stopService(instance.mStorageObserver);
+    public void stopObserver() {
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
             mFileObserver = null;
         }
     }
-
-    /**
-     * Запуск или остановка отслеживания (после изменения настроек программы).
-     * @param isStart
-//     * @param callback
-     */
-    /*public void startOrStopObserver(boolean isStart*//*, ICallback callback*//*) {
-        if (isStart) {
-            if (mFileObserver == null) {
-//                startObserver(callback);
-                startObserver();
-            } else {
-                restartObserver();
-            }
-        } else {
-            stopObserver();
-        }
-    }*/
 }

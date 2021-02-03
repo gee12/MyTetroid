@@ -20,18 +20,19 @@
     <string-array name="search_in_cur_node">
         <item name="search_all_database">Поиск по всей базе</item>
         <item>@string/global_search_in_cur_node</item>
+        <item name="global_search_in_spec_node">В указанной ветке</item>
     </string-array>
     <string-array name="found_types">
-        <item>Имя записи</item>
-        <item>Текст</item>
-        <item>Автор</item>
-        <item>Url</item>
-        <item>Имя файла</item>
-        <item>Метка</item>
-        <item>Имя ветки</item>
-        <item>Id ветки</item>
-        <item>Id записи</item>
-        <item>Id файла</item>
+        <item>имя записи</item>
+        <item>текст</item>
+        <item>автор</item>
+        <item>url</item>
+        <item>имя файла</item>
+        <item>метка</item>
+        <item>имя ветки</item>
+        <item>id ветки</item>
+        <item>id записи</item>
+        <item>id файла</item>
     </string-array>
 
     <string-array name="obj_storage">
@@ -67,7 +68,12 @@
     <string-array name="obj_record_dir">
         <item>каталог записи</item>
         <item>Каталог записи&#160;</item>
-        <item>>каталога записи</item>
+        <item>каталога записи</item>
+    </string-array>
+    <string-array name="obj_tag">
+        <item>метка записи</item>
+        <item>Метка записи&#160;</item>
+        <item>метки записи</item>
     </string-array>
     <string-array name="obj_file">
         <item>файл</item>

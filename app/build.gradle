@@ -5,17 +5,14 @@ android {
         debug {
             storeFile file("external/debug.keystore")
         }
-//        freeDebug {
-//            storeFile file("external/freedebug.keystore")
-//        }
     }
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.gee12.mytetroid"
         minSdkVersion 15
         targetSdkVersion 29
-        versionCode 40
-        versionName "4.1"
+        versionCode 45
+        versionName "4.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -34,13 +31,11 @@ android {
     productFlavors {
         free {
             dimension = 'default'
-//            signingConfig signingConfigs.freeDebug
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
         pro {
             dimension = 'default'
             applicationIdSuffix = '.pro'
-//            signingConfig signingConfigs.debug
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
     }
@@ -53,7 +48,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.android.material:material:1.3.0-alpha03'
+    implementation 'com.google.android.material:material:1.3.0-rc01'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -71,5 +66,6 @@ dependencies {
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'org.jdom:jdom2:2.0.6'
+    implementation 'com.google.android.play:core:1.9.0'
 //    implementation 'com.adityak:browsemyfiles:1.9'
 }

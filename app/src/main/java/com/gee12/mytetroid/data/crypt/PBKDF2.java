@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.crypt;
+package com.gee12.mytetroid.data.crypt;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

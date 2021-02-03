@@ -4,15 +4,23 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,10 +65,38 @@ public class SettingsManager {
             setIsLoadFavoritesOnly(context, false);
         }
 
+        // удаление неактуальной опции из версии 4.1
+        if (isContains(context, R.string.pref_key_is_show_tags_in_records)) {
+            boolean isShow = isShowTagsInRecordsList(context);
+            Set<String> valuesSet = getRecordFieldsInList(context);
+            String value = context.getString(R.string.title_tags);
+            // включение или отключение значения списка выбора
+            setRecordFieldsInList(context, setItemInStringSet(context, valuesSet, isShow, value));
+            // удаляем значение старой опции
+            removePref(context, R.string.pref_key_is_show_tags_in_records);
+        }
+
         App.IsHighlightAttach = isHighlightRecordWithAttach(context);
         App.IsHighlightCryptedNodes = isHighlightEncryptedNodes(context);
         App.HighlightAttachColor = getHighlightColor(context);
         App.DateFormatString = getDateFormatString(context);
+        App.RecordFieldsInList = new RecordFieldsSelector(context, getRecordFieldsInList(context));
+    }
+
+    /**
+     * Проверяем строку формата даты/времени, т.к. в версии приложения <= 11
+     * введенная строка в настройках не проверялась, что могло привести к падению приложения
+     * при отображении списка.
+     * @return
+     */
+    public static String checkDateFormatString(Context context) {
+        String dateFormatString = getDateFormatString(context);
+        if (Utils.checkDateFormatString(dateFormatString)) {
+            return dateFormatString;
+        } else {
+            LogManager.log(context, context.getString(R.string.log_incorrect_dateformat_in_settings), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            return context.getString(R.string.def_date_format_string);
+        }
     }
 
     /**
@@ -173,7 +209,6 @@ public class SettingsManager {
     public static void setStoragePath(Context context, String value) {
         String oldPath = getStoragePath(context);
         if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
-//            isAskReloadStorage = true;
             SettingsManager.setMiddlePassHash(context, null);
         }
         SharedPreferences.Editor editor = settings.edit();
@@ -413,8 +448,12 @@ public class SettingsManager {
         setBoolean(context, R.string.pref_key_is_sync_storage, value);
     }
 
+    public static String getSyncAppName(Context context) {
+        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.app_mgit));
+    }
+
     /**
-     * Команда синхронизации для стороннего приложения.
+     * Команда/скрипт синхронизации для стороннего приложения.
      * Например: "git pull".
      * @return
      */
@@ -432,21 +471,41 @@ public class SettingsManager {
     }
 
     /**
-     * Выводить подтверждение запуска синхронизации.
+     * Запускать синхронизацию хранилища перед выходом из приложения.
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isAskBeforeSync(Context context) {
+    public static boolean isSyncBeforeExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_sync_before_exit, true);
+    }
+
+    /**
+     * Выводить подтверждение запуска синхронизации перед загрузкой хранилища.
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isAskBeforeSyncOnInit(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_sync, true);
     }
 
     /**
+     * Выводить подтверждение запуска синхронизации при выходе из приложения.
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isAskBeforeSyncOnExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_ask_before_exit_sync, false);
+    }
+
+    /**
+     * (Устаревшее)
      * Не запоминать используемое приложения для синхронизации в последний раз.
      * По-умолчанию - нет.
      * @return
      */
     public static boolean isNotRememberSyncApp(Context context) {
-        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
+//        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
+        return false;
     }
 
     /**
@@ -502,12 +561,14 @@ public class SettingsManager {
     }
 
     /**
-     * Включать/отключать полноэкранный режим при двойном тапе ?
-     * По-умолчанию - да.
+     * Отображать ли панель свойств записи при открытии ?
+     * По-умолчанию - не отображать.
+     * @param context
      * @return
      */
-    public static boolean isDoubleTapFullscreen(Context context) {
-        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
+    public static String getShowRecordFields(Context context) {
+        return getString(context, R.string.pref_key_show_record_fields,
+                context.getString(R.string.pref_show_record_fields_no));
     }
 
     /**
@@ -534,11 +595,6 @@ public class SettingsManager {
      * @return
      */
     public static int getHighlightColor(Context context) {
-//        final int def = R.color.colorHighlight;
-//        if (settings.contains(context.getString(R.string.pref_key_highlight_attach_color))) {
-//            return settings.getInt(context.getString(R.string.pref_key_highlight_attach_color), def);
-//        }
-//        return def;
         return getInt(context, R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
     }
 
@@ -578,7 +634,79 @@ public class SettingsManager {
      * @return
      */
     public static boolean isShowTagsInRecordsList(Context context) {
-        return getBoolean(context, R.string.pref_key_is_show_tags_in_records, true);
+        return getBoolean(context, R.string.pref_key_is_show_tags_in_records, false);
+    }
+
+    public static void setIsShowTagsInRecordsList(Context context, boolean value) {
+        setBoolean(context, R.string.pref_key_is_show_tags_in_records, value);
+    }
+
+    /**
+     * Какие свойства отображать в списке записей ?
+     * @param context
+     * @return
+     */
+    public static Set<String> getRecordFieldsInList(Context context) {
+        HashSet<String> defValues = new HashSet<>(
+                Arrays.asList(context.getResources().getStringArray(R.array.record_fields_in_list_def_entries)));
+        return getStringSet(context, R.string.pref_key_record_fields_in_list, defValues);
+    }
+
+    public static void setRecordFieldsInList(Context context, Set<String> values) {
+        setStringSet(context, R.string.pref_key_record_fields_in_list, values);
+    }
+
+    /**
+     * Параметры сортировки списка меток (поле, направление).
+     * @param context
+     * @param mode
+     */
+    public static void setTagsSortMode(Context context, String mode) {
+        setString(context, R.string.pref_key_tags_sort_mode, mode);
+    }
+
+    public static String getTagsSortMode(Context context, String def) {
+        return getString(context, R.string.pref_key_tags_sort_mode, def);
+    }
+
+    /*
+    * Управление.
+     */
+
+    /**
+     * Включать/отключать полноэкранный режим при двойном тапе ?
+     * По-умолчанию - да.
+     * @return
+     */
+    public static boolean isDoubleTapFullscreen(Context context) {
+        return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
+    }
+
+    /**
+     * Разворот пустых веток вместо отображения их записей.
+     * @param context
+     * @return
+     */
+    public static boolean isExpandEmptyNode(Context context) {
+        return getBoolean(context, R.string.pref_key_is_expand_empty_nodes, false);
+    }
+
+    /**
+     * Отображать ли список веток вместо выхода из приложения ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isShowNodesInsteadExit(Context context) {
+        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, false);
+    }
+
+    /**
+     * Подтверждать выход из приложения ?
+     * По-умолчанию - нет.
+     * @return
+     */
+    public static boolean isConfirmAppExit(Context context) {
+        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /*
@@ -616,15 +744,6 @@ public class SettingsManager {
 
     public static void setLastChoosedFolder(Context context, String path) {
         setString(context, R.string.pref_key_last_folder, path);
-    }
-
-    /**
-     * Подтверждать выход из приложения ?
-     * По-умолчанию - нет.
-     * @return
-     */
-    public static boolean isConfirmAppExit(Context context) {
-        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
     }
 
     /*
@@ -764,15 +883,42 @@ public class SettingsManager {
     }
 
     /**
-     * Поиск только в текущей ветке ?
+     * Поиск только в текущей ветке ? (устарело)
      * @return
      */
+    @Deprecated
     public static boolean isSearchInCurNode(Context context) {
         return getBoolean(context, R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
     }
 
+    @Deprecated
     public static void setSearchInCurNode(Context context, boolean value) {
         setBoolean(context, R.string.pref_key_search_in_cur_node, value);
+    }
+
+    /**
+     * Варианты поиска: по всей базе, в текущей ветке или в указанной ветке.
+     * @param context
+     * @return
+     */
+    public static int getSearchInNodeMode(Context context) {
+        return getInt(context, R.string.pref_key_search_in_node_mode, isSearchInCurNode(context) ? 1 : 0);
+    }
+
+    public static void setSearchInNodeMode(Context context, int mode) {
+        setInt(context, R.string.pref_key_search_in_node_mode, mode);
+    }
+
+    /**
+     * Id указанной ветки для поиска.
+     * @param context
+     */
+    public static String getSearchNodeId(Context context) {
+        return getString(context, R.string.pref_key_search_node_id, null);
+    }
+
+    public static void setSearchNodeId(Context context, String nodeId) {
+        setString(context, R.string.pref_key_search_node_id, nodeId);
     }
 
     /*
@@ -840,7 +986,7 @@ public class SettingsManager {
     private static boolean getBoolean(Context context, int prefKeyStringRes, final boolean defValue) {
         if (settings == null)
             return defValue;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getBoolean(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
@@ -855,7 +1001,7 @@ public class SettingsManager {
     private static int getInt(Context context, int prefKeyStringRes, final int defValue) {
         if (settings == null)
             return defValue;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getInt(context.getString(prefKeyStringRes), defValue);
         }
         return defValue;
@@ -885,14 +1031,60 @@ public class SettingsManager {
     private static Set<String> getStringSet(Context context, int prefKeyStringRes, Set<String> defValues) {
         if (settings == null)
             return null;
-        if(settings.contains(context.getString(prefKeyStringRes))) {
+        if (settings.contains(context.getString(prefKeyStringRes))) {
             return settings.getStringSet(context.getString(prefKeyStringRes), defValues);
         }
-        return null;
+        return defValues;
     }
 
     /**
-     * Получить настройки.
+     * Удаление опции из настроек.
+     * @param context
+     * @param prefKeyStringRes
+     */
+    private static void removePref(Context context, int prefKeyStringRes) {
+        if (settings == null)
+            return;
+        if (settings.contains(context.getString(prefKeyStringRes))) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove(context.getString(prefKeyStringRes));
+            editor.apply();
+        }
+    }
+
+    /**
+     * Установка/отключение элемента списка выбора.
+     * @param context
+     * @param set
+     * @param isSet
+     * @param value
+     */
+    public static Set<String> setItemInStringSet(Context context, Set<String> set, boolean isSet, String value) {
+        List<String> valuesList = new ArrayList<>(set);
+        if (isSet) {
+            if (!valuesList.contains(value)) {
+                valuesList.add(value);
+            }
+        } else {
+            valuesList.remove(value);
+        }
+        return new HashSet<>(valuesList);
+    }
+
+    /**
+     * Проверка существования значения опции в настройках.
+     * @param context
+     * @param prefKeyStringRes
+     * @return
+     */
+    public static boolean isContains(Context context, int prefKeyStringRes) {
+        if (settings == null)
+            return false;
+        return settings.contains(context.getString(prefKeyStringRes));
+    }
+
+    /**
+     * Получение настроек.
      * @return
      */
     public static SharedPreferences getSettings(Context context) {

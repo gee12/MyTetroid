@@ -17,10 +17,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
-import com.gee12.mytetroid.fragments.SettingsFragment;
-import com.gee12.mytetroid.fragments.SettingsOtherFragment;
-import com.gee12.mytetroid.fragments.SettingsStorageFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsEncryptionFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsOtherFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsStorageFragment;
 
 import org.jetbrains.annotations.NotNull;
 

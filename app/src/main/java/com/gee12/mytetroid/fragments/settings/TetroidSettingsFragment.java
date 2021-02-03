@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.fragments;
+package com.gee12.mytetroid.fragments.settings;
 
 import android.content.Context;
 import android.content.Intent;
@@ -94,8 +94,32 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
         }
     }
 
+    protected void updateSummary(@StringRes int keyStringRes, String value, String defValue) {
+        Preference pref = findPreference(getString(keyStringRes));
+        if (pref == null)
+            return;
+        if (!StringUtil.isBlank(value)) {
+            pref.setSummary(value);
+        } else {
+            pref.setSummary(defValue);
+        }
+    }
+
+    protected void updateSummaryIfContains(@StringRes int keyStringRes, String value) {
+        if (SettingsManager.isContains(getContext(), keyStringRes)) {
+            updateSummary(keyStringRes, value);
+        }
+    }
+
     protected void refreshPreferences() {
         setPreferenceScreen(null);
         addPreferencesFromResource(R.xml.prefs);
+    }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    protected void showSnackMoreInLogs() {
+        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 }

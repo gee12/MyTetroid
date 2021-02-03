@@ -2,13 +2,12 @@ package com.gee12.mytetroid.adapters;
 
 import android.content.Context;
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -17,33 +16,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FoundListAdapter extends BaseAdapter {
+public class FoundListAdapter extends RecordsBaseListAdapter {
 
     /**
      *
      */
-    private class FoundViewHolder {
-        TextView lineNumView;
-        TextView nameView;
-        TextView nodeNameView;
+    private static class FoundViewHolder extends RecordViewHolder {
+        TextView foundInView;
         TextView typeView;
     }
 
-    private LayoutInflater inflater;
-    private List<ITetroidObject> dataSet;
+    private final List<ITetroidObject> dataSet;
     private HashMap<ITetroidObject, FoundType> hashMap;
-    private Context context;
 
-    public FoundListAdapter(Context context/*, List<ITetroidObject> dataSet*/) {
-        super();
-        this.context = context;
-        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        this.dataSet = dataSet;
-//        this.dataSet = new HashMap<>();
+    public FoundListAdapter(Context context, OnRecordAttachmentClickListener onAttachmentClickListener/*, List<ITetroidObject> dataSet*/) {
+        super(context, onAttachmentClickListener);
         this.dataSet = new ArrayList<>();
+        this.isShowNodeName = true;
     }
 
-//    public void setDataItems(List<ITetroidObject> dataSet) {
     public void setDataItems(HashMap<ITetroidObject, FoundType> hashMap) {
         this.hashMap = hashMap;
         this.dataSet.addAll(hashMap.keySet());
@@ -77,31 +68,38 @@ public class FoundListAdapter extends BaseAdapter {
         if (convertView == null) {
             viewHolder = new FoundViewHolder();
             convertView = inflater.inflate(R.layout.list_item_found, null);
-            viewHolder.lineNumView = convertView.findViewById(R.id.found_view_line_num);
-            viewHolder.nameView = convertView.findViewById(R.id.found_view_name);
-            viewHolder.nodeNameView = convertView.findViewById(R.id.found_view_node);
+            viewHolder.lineNumView = convertView.findViewById(R.id.record_view_line_num);
+            viewHolder.iconView = convertView.findViewById(R.id.record_view_icon);
+            viewHolder.nameView = convertView.findViewById(R.id.record_view_name);
+            viewHolder.nodeNameView = convertView.findViewById(R.id.record_view_node);
+            viewHolder.authorView = convertView.findViewById(R.id.record_view_author);
+            viewHolder.tagsView = convertView.findViewById(R.id.record_view_tags);
+            viewHolder.createdView = convertView.findViewById(R.id.record_view_created);
+            viewHolder.editedView = convertView.findViewById(R.id.record_view_edited);
+            viewHolder.attachedView = convertView.findViewById(R.id.record_view_attached);
+            viewHolder.foundInView = convertView.findViewById(R.id.found_view_founded_in);
             viewHolder.typeView = convertView.findViewById(R.id.found_view_type);
             convertView.setTag(viewHolder);
         } else {
-            viewHolder = (FoundViewHolder)convertView.getTag();
+            viewHolder = (FoundViewHolder) convertView.getTag();
         }
 
-        final ITetroidObject found = dataSet.get(position);
-        // номер строки
-        viewHolder.lineNumView.setText(String.valueOf(position + 1));
-        // название найденного объекта
-        viewHolder.nameView.setText(found.getName());
-        if (found.getType() == FoundType.TYPE_RECORD) {
-            TetroidRecord record = (TetroidRecord)found;
-            if (record != null) {
-                viewHolder.nodeNameView.setVisibility(View.VISIBLE);
-                viewHolder.nodeNameView.setText(record.getNode().getName());
-            }
+        final ITetroidObject foundObject = dataSet.get(position);
+        if (foundObject instanceof TetroidRecord) {
+            // если найденный объект - запись, то выводим его в списке как обычную запись
+            prepareView(position, viewHolder, convertView, (TetroidRecord) foundObject);
         } else {
-            viewHolder.nodeNameView.setVisibility(View.GONE);
+            // номер строки
+            viewHolder.lineNumView.setText(String.valueOf(position + 1));
+            // название найденного объекта
+            viewHolder.nameView.setText(foundObject.getName());
         }
+        // где найдено
+        String foundInString = hashMap.get(foundObject).getFoundTypeString(context);
+        viewHolder.foundInView.setText(context.getString(R.string.title_founded_in_mask, foundInString));
         // тип найденного объекта
-        viewHolder.typeView.setText(hashMap.get(found).getTypeString(context));
+        String typeName = DataManager.getTetroidObjectTypeString(context, foundObject);
+        viewHolder.typeView.setText(typeName.toUpperCase());
 
         return convertView;
     }

@@ -52,7 +52,7 @@
 
  */
 
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data.xml;
 
 import org.jdom2.Attribute;
 import org.jdom2.Content;

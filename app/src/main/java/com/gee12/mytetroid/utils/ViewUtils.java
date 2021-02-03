@@ -12,6 +12,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.IdRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -262,5 +263,34 @@ public class ViewUtils {
                 setEnabledStateOnViews(vg.getChildAt(i), enabled);
             }
         }
+    }
+
+    /**
+     * Get root view of activity from context.
+     * @param context
+     * @return
+     */
+    public static View getRootView(Context context) {
+        final Activity activity = (Activity) context;
+        if (activity == null) {
+            return null;
+        }
+        View rootView = activity.findViewById(android.R.id.content);
+        if (rootView == null) {
+            rootView = activity.getWindow().getDecorView().getRootView();
+        }
+        return rootView;
+    }
+
+    public static View getRootView(Context context, @IdRes int resId) {
+        final Activity activity = (Activity) context;
+        if (activity == null) {
+            return null;
+        }
+        View rootView = activity.findViewById(resId);
+        if (rootView == null) {
+            rootView = getRootView(context);
+        }
+        return rootView;
     }
 }

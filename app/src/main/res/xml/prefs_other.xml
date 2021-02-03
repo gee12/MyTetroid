@@ -1,36 +1,31 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_key_screen">
 
-        <PreferenceScreen
-            android:key="@string/pref_key_show_logs"
-            android:title="@string/pref_show_logs"
-            android:summary="@string/pref_show_logs_summ" >
-                <intent android:action="android.intent.action.VIEW"
-                    android:targetPackage="@string/app_id"
-                    android:targetClass="com.gee12.mytetroid.activities.LogsActivity" />
-        </PreferenceScreen>
+    <PreferenceScreen
+        android:key="@string/pref_key_show_logs"
+        android:summary="@string/pref_show_logs_summ"
+        android:title="@string/pref_show_logs">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.gee12.mytetroid.activities.LogsActivity"
+            android:targetPackage="@string/app_id" />
+    </PreferenceScreen>
 
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_write_log"
-            android:title="@string/pref_write_log_to_file"
-            android:summary="@string/pref_write_log_to_file_summ"
-            android:defaultValue="false" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_is_write_log"
+        android:summary="@string/pref_write_log_to_file_summ"
+        android:title="@string/pref_write_log_to_file" />
 
-        <Preference
-            android:dependency="@string/pref_key_is_write_log"
-            android:key="@string/pref_key_log_path"
-            android:title="@string/pref_log_path"
-            android:summary="@string/pref_log_path_summ" />
+    <Preference
+        android:dependency="@string/pref_key_is_write_log"
+        android:key="@string/pref_key_log_path"
+        android:summary="@string/pref_log_path_summ"
+        android:title="@string/pref_log_path" />
 
-        <Preference
-            android:key="@string/pref_key_clear_search_history"
-            android:title="@string/pref_clear_search_history"
-            android:summary="@string/pref_clear_search_history_summ"/>
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_confirm_app_exit"
-            android:title="@string/pref_is_confirm_app_exit"
-            android:summary="@string/pref_is_confirm_app_exit_summ"
-            android:defaultValue="true" />
+    <Preference
+        android:key="@string/pref_key_clear_search_history"
+        android:summary="@string/pref_clear_search_history_summ"
+        android:title="@string/pref_clear_search_history" />
 
 </PreferenceScreen>

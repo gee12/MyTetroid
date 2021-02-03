@@ -8,7 +8,7 @@ import androidx.annotation.StringRes;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.activities.MainActivity;
-import com.gee12.mytetroid.fragments.SettingsEncryptionFragment;
+import com.gee12.mytetroid.fragments.settings.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
@@ -29,6 +29,7 @@ public class TetroidLog extends LogManager {
         TEMP_RECORD(R.array.obj_temp_record),
         RECORD_FIELDS(R.array.obj_record_fields),
         RECORD_DIR(R.array.obj_record_dir),
+        TAG(R.array.obj_tag),
         FILE(R.array.obj_file),
         FILE_FIELDS(R.array.obj_file_fields),
         CUR_PASS(),
@@ -154,9 +155,12 @@ public class TetroidLog extends LogManager {
     public static String logOperError(Context context, Objs obj, Opers oper, String add, boolean more, int duration) {
         String mes = String.format(context.getString(R.string.log_oper_error_mask),
                 (oper.getString(context, PRESENT_SIMPLE)), (obj.getString(context, PRESENT_SIMPLE)),
-                (add != null) ? add : "",
-                (more) ? context.getString(R.string.log_more_in_logs) : "");
+                (add != null) ? add : "");
+//                (more) ? context.getString(R.string.log_more_in_logs) : "");
         log(context, mes, ILogger.Types.ERROR, duration);
+        if (more) {
+            showSnackMoreInLogs(context);
+        }
         return mes;
     }
 
@@ -164,6 +168,7 @@ public class TetroidLog extends LogManager {
         String mes = String.format(context.getString(R.string.log_during_oper_errors_mask),
                 (oper.getString(context, PRESENT_CONTINUOUS)), (obj.getString(context, PRESENT_CONTINUOUS)));
         log(context, mes, ILogger.Types.ERROR, duration);
+        showSnackMoreInLogs(context);
         return mes;
     }
 
@@ -203,7 +208,6 @@ public class TetroidLog extends LogManager {
      * @param stage
      * @return
      */
-//    public static String logTaskStage(TetroidLog.Objs obj, TetroidLog.Opers oper, TaskStage.Stages stage) {
     public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
@@ -251,5 +255,12 @@ public class TetroidLog extends LogManager {
             log(context, mes, type);
         }
         return mes;
+    }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    protected static void showSnackMoreInLogs(Context context) {
+        Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
     }
 }

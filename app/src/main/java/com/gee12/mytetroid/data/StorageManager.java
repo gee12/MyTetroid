@@ -10,7 +10,8 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
-import com.gee12.mytetroid.crypt.TetroidCrypter;
+import com.gee12.mytetroid.data.crypt.TetroidCrypter;
+import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.ILogger;
@@ -19,6 +20,7 @@ import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
 
 import java.io.File;
@@ -46,6 +48,7 @@ public class StorageManager extends DataManager {
     public static final int REQUEST_CODE_PERMISSION_WRITE_STORAGE = 1;
     public static final int REQUEST_CODE_PERMISSION_WRITE_TEMP = 2;
     public static final int REQUEST_CODE_PERMISSION_CAMERA = 3;
+    public static final int REQUEST_CODE_PERMISSION_TERMUX = 4;
 
 
     protected boolean mIsAlreadyTryDecrypt;
@@ -70,14 +73,6 @@ public class StorageManager extends DataManager {
         return (Instance != null) && Instance.mIsPINNeedEnter;
     }
 
-//    /**
-//     * Первоначальная инициализация.
-//     * @param storageInitCallback
-//     */
-//    public static void setStorageCallback(IStorageInitCallback storageInitCallback) {
-//        getInstance().mStorageInitCallback = storageInitCallback;
-//    }
-
     protected static IStorageInitCallback getStorageInitCallback() {
         return getInstance().mStorageInitCallback;
     }
@@ -89,6 +84,7 @@ public class StorageManager extends DataManager {
      */
     public static boolean initOrCreateStorage(Context context, String storagePath, boolean isNew) {
         DataManager inst = getInstance();
+        inst.mXml.mIsStorageLoaded = false;
         inst.mStoragePath = storagePath;
         ILogger logger = LogManager.createLogger(context);
         inst.mDatabaseConfig = new DatabaseConfig(logger,storagePath + SEPAR + DATABASE_INI_FILE_NAME);
@@ -99,10 +95,14 @@ public class StorageManager extends DataManager {
             if (isNew) {
                 LogManager.log(context, context.getString(R.string.log_start_storage_creating) + storagePath, ILogger.Types.DEBUG);
                 if (storageDir.exists()) {
-                    // очищаем каталог
+                    /*// очищаем каталог
                     LogManager.log(context, R.string.log_clear_storage_dir, ILogger.Types.INFO);
-                    FileUtils.clearDir(storageDir);
+                    FileUtils.clearDir(storageDir);*/
                     // проверяем, пуст ли каталог
+                    if (!FileUtils.isDirEmpty(storageDir)) {
+                        LogManager.log(context, R.string.log_dir_not_empty, ILogger.Types.ERROR);
+                        return false;
+                    }
                 } else {
                     LogManager.log(context, R.string.log_dir_is_missing, ILogger.Types.ERROR);
                     return false;
@@ -117,6 +117,8 @@ public class StorageManager extends DataManager {
                 // добавляем корневую ветку
                 inst.mXml.init();
                 inst.mXml.mIsStorageLoaded = true;
+                // создаем Favorites
+                FavoritesManager.create();
             }  else {
                 // загружаем database.ini
                 res = inst.mDatabaseConfig.load();
@@ -165,22 +167,27 @@ public class StorageManager extends DataManager {
     public static void initOrSyncStorage(Activity activity, final String storagePath, boolean isCheckFavorMode) {
         if (SettingsManager.isSyncStorage(activity) && SettingsManager.isSyncBeforeInit(activity)) {
             // спрашиваем о необходимости запуска синхронизации, если установлена опция
-            if (SettingsManager.isAskBeforeSync(activity)) {
-                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelResult() {
+            if (SettingsManager.isAskBeforeSyncOnInit(activity)) {
+                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelDismissResult() {
                     @Override
                     public void onApply() {
                         getInstance().mIsLoadStorageAfterSync = true;
-                        startStorageSync(activity, storagePath);
+                        startStorageSync(activity, storagePath, () ->
+                                initStorage(activity, storagePath, isCheckFavorMode));
                     }
-
                     @Override
                     public void onCancel() {
+                        initStorage(activity, storagePath, isCheckFavorMode);
+                    }
+                    @Override
+                    public void onDismiss() {
                         initStorage(activity, storagePath, isCheckFavorMode);
                     }
                 });
             } else {
                 getInstance().mIsLoadStorageAfterSync = true;
-                startStorageSync(activity, storagePath);
+                startStorageSync(activity, storagePath, () ->
+                                initStorage(activity, storagePath, isCheckFavorMode));
             }
         } else {
             initStorage(activity, storagePath, isCheckFavorMode);
@@ -223,6 +230,8 @@ public class StorageManager extends DataManager {
         } else {
             LogManager.log(context, context.getString(R.string.log_failed_storage_init) + storagePath,
                     ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
+
             /*mDrawerLayout.openDrawer(Gravity.LEFT);*/
             getStorageInitCallback().initGUI(false, isFavorMode, false);
         }
@@ -412,7 +421,8 @@ public class StorageManager extends DataManager {
     /**
      * Создание нового хранилища в указанном расположении.
      *
-     * @param storagePath //     * @param checkDirIsEmpty
+     * @param storagePath
+//     * @param checkDirIsEmpty
      */
     public static boolean createStorage(Context context, String storagePath/*, boolean checkDirIsEmpty*/) {
         boolean res = (initOrCreateStorage(context, storagePath, true));
@@ -474,29 +484,67 @@ public class StorageManager extends DataManager {
         Intent intent = new Intent(activity, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, activity.getString(R.string.title_storage_folder));
         intent.putExtra(FolderPicker.EXTRA_LOCATION, SettingsManager.getStoragePath(activity));
+        if (isNew) {
+            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
+        } else {
+            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, activity.getString(R.string.title_storage_path_desc));
+        }
         activity.startActivityForResult(intent, (isNew) ? REQUEST_CODE_CREATE_STORAGE : REQUEST_CODE_OPEN_STORAGE);
     }
 
     /**
-     * Отправка запроса на синхронизацию стороннему приложению.
+     * Отправка запроса на синхронизацию стороннему приложению перед загрузкой хранилища.
      * @param storagePath
+     * @param callback
      */
-    public static void startStorageSync(Activity activity, String storagePath) {
-        String command = SettingsManager.getSyncCommand(activity);
-        Intent intent = SyncManager.createCommandSender(activity, storagePath, command);
-
-        LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command);
-        try {
-            if (!SettingsManager.isNotRememberSyncApp(activity)) {
-                // использовать стандартный механизм запоминания используемого приложения
-                activity.startActivityForResult(intent, REQUEST_CODE_SYNC_STORAGE);
-            } else { // или спрашивать постоянно
-                activity.startActivityForResult(Intent.createChooser(intent,
-                        activity.getString(R.string.title_choose_sync_app)), REQUEST_CODE_SYNC_STORAGE);
+    public static void startStorageSync(Activity activity, String storagePath, Runnable callback) {
+        boolean res = SyncManager.startStorageSync(activity, storagePath, REQUEST_CODE_SYNC_STORAGE);
+        if (callback != null) {
+            // запускаем обработчик сразу после синхронизации, не дожидаясь ответа, если:
+            //  1) синхронизацию не удалось запустить
+            //  2) выбрана синхронизация с помощью Termux,
+            //  т.к. в этом случае нет простого механизма получить ответ
+            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+                callback.run();
             }
-        } catch (Exception ex) {
-            LogManager.log(activity, activity.getString(R.string.log_mgit_not_installed), Toast.LENGTH_LONG);
-            LogManager.log(activity, ex, -1);
+        }
+    }
+
+    public static void startStorageSyncAndInit(Activity activity) {
+        String storagePath = SettingsManager.getStoragePath(activity);
+        startStorageSync(activity, storagePath, () ->
+                initStorage(activity, storagePath, true));
+    }
+
+    /**
+     * Отправка запроса на синхронизацию стороннему приложению перед выходом из приложения.
+     * @param activity
+     * @param handler Обработчик события после выполнения синхронизации или вместо нее.
+     */
+    public static void startStorageSyncAndExit(Activity activity, Runnable handler) {
+        if (SettingsManager.isSyncStorage(activity) && SettingsManager.isSyncBeforeExit(activity)) {
+            if (SettingsManager.isAskBeforeSyncOnExit(activity)) {
+                AskDialogs.showSyncRequestDialog(activity, new Dialogs.IApplyCancelDismissResult() {
+                    @Override
+                    public void onApply() {
+                        StorageManager.startStorageSync(activity, SettingsManager.getStoragePath(activity), null);
+                        handler.run();
+                    }
+                    @Override
+                    public void onCancel() {
+                        handler.run();
+                    }
+                    @Override
+                    public void onDismiss() {
+                        handler.run();
+                    }
+                });
+            } else {
+                StorageManager.startStorageSync(activity, SettingsManager.getStoragePath(activity), null);
+                handler.run();
+            }
+        } else {
+            handler.run();
         }
     }
 

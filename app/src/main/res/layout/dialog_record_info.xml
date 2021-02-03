@@ -51,7 +51,7 @@
         android:id="@+id/table_row_edited"
         android:visibility="gone">
         <TextView
-            android:text="@string/label_edited"
+            android:text="@string/label_text_edited"
             style="@style/grid_cell_label"/>
 
         <TextView
@@ -71,7 +71,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_size"
+            android:text="@string/label_folder_size"
             style="@style/grid_cell_label"/>
 
         <TextView

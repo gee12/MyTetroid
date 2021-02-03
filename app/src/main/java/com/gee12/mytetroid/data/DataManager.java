@@ -16,10 +16,14 @@ import androidx.core.content.FileProvider;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.activities.MainActivity;
-import com.gee12.mytetroid.crypt.TetroidCrypter;
+import com.gee12.mytetroid.data.crypt.IRecordFileCrypter;
+import com.gee12.mytetroid.data.crypt.TetroidCrypter;
+import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TetroidLog;
+import com.gee12.mytetroid.model.FoundType;
+import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -30,6 +34,7 @@ import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.internal.StringUtil;
@@ -170,7 +175,8 @@ public class DataManager implements IRecordFileCrypter {
      */
     public boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
         boolean res = false;
-        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
+//        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
+        File file = new File(getPathToMyTetraXml());
         if (!file.exists()) {
             LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, ILogger.Types.ERROR);
             return false;
@@ -190,6 +196,7 @@ public class DataManager implements IRecordFileCrypter {
             NodesManager.updateQuicklyNode(context);
         } catch (Exception ex) {
             LogManager.log(context, ex);
+            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
         }
         return res;
     }
@@ -503,8 +510,15 @@ public class DataManager implements IRecordFileCrypter {
      *         0 - перемещение невозможно (пограничный элемент)
      *        -1 - ошибка
      */
-    public static int swapTetroidObjects(Context context, List list, int pos, boolean isUp) {
-        boolean isSwapped = Utils.swapListItems(list, pos, isUp);
+    public static int swapTetroidObjects(Context context, List list, int pos, boolean isUp, boolean through) {
+        boolean isSwapped;
+        try {
+            isSwapped = Utils.swapListItems(list, pos, isUp, through);
+        } catch (Exception ex) {
+            LogManager.log(context, ex, -1);
+            return -1;
+        }
+
         // перезаписываем файл структуры хранилища
         if (isSwapped) {
             return (Instance.saveStorage(context)) ? 1 : -1;
@@ -633,7 +647,7 @@ public class DataManager implements IRecordFileCrypter {
             return false;
         }
 
-        String destPath = Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
+        String destPath = getPathToMyTetraXml();
         String tempPath = destPath + "_tmp";
 
         LogManager.log(context, context.getString(R.string.log_saving_mytetra_xml), ILogger.Types.DEBUG);
@@ -664,11 +678,11 @@ public class DataManager implements IRecordFileCrypter {
                 }
 
                 // перезапускаем отслеживание, чтобы проверять новосозданный файл
-//                TetroidFileObserver.restartObserver();
-//                if (MainActivity.getInstance() != null) {
                 if (context instanceof MainActivity) {
                     // но только для MainActivity
                     FileObserverService.sendCommand((MainActivity)context, FileObserverService.ACTION_RESTART);
+                    LogManager.log(context, context.getString(R.string.log_mytetra_xml_observer_mask,
+                            context.getString(R.string.relaunched)), ILogger.Types.INFO);
                 }
 
                 return true;
@@ -685,11 +699,9 @@ public class DataManager implements IRecordFileCrypter {
      * @param tagsString Строка с метками (не зашифрована).
      *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
      */
-//    @Override
     public void parseRecordTags(TetroidRecord record, String tagsString) {
         if (record == null)
             return;
-//        String tagsString = record.getTagsString();
         if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TetroidXml.TAGS_SEPAR)) {
                 TetroidTag tag;
@@ -706,9 +718,7 @@ public class DataManager implements IRecordFileCrypter {
                     tagRecords.add(record);
                     tag = new TetroidTag(tagName, tagRecords);
                     mXml.mTagsMap.put(tagName, tag);
-                    /*this.mUniqueTagsCount++;*/
                 }
-               /* this.mTagsCount++;*/
                 record.addTag(tag);
             }
         }
@@ -718,7 +728,6 @@ public class DataManager implements IRecordFileCrypter {
      * Удаление меток записи из списка.
      * @param record
      */
-//    @Override
     public void deleteRecordTags(TetroidRecord record) {
         if (record == null)
             return;
@@ -732,9 +741,7 @@ public class DataManager implements IRecordFileCrypter {
                     } else {
                         // удаляем саму метку из списка
                         mXml.mTagsMap.remove(foundedTag.getName());
-                       /* this.mUniqueTagsCount--;*/
                     }
-                    /*this.mTagsCount--;*/
                 }
             }
             record.getTags().clear();
@@ -762,7 +769,7 @@ public class DataManager implements IRecordFileCrypter {
 
     @NonNull
     public static String getStoragePathBase() {
-        return Instance.mStoragePath + SEPAR + BASE_FOLDER_NAME;
+        return (Instance != null) ? Instance.mStoragePath + SEPAR + BASE_FOLDER_NAME : "";
     }
 
     public static TetroidTag getTag(String tagName) {
@@ -877,6 +884,10 @@ public class DataManager implements IRecordFileCrypter {
         return Instance.mStoragePath;
     }
 
+    public static String getPathToMyTetraXml() {
+        return Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME;
+    }
+
     public static boolean isInited() {
         return (Instance != null && Instance.mIsStorageInited);
     }
@@ -934,5 +945,25 @@ public class DataManager implements IRecordFileCrypter {
 
     public TetroidCrypter getCrypterManager() {
         return mCrypter;
+    }
+
+    public static String getTetroidObjectTypeString(Context context, ITetroidObject obj) {
+        int resId;
+        int type = obj.getType();
+        switch (type) {
+            case FoundType.TYPE_RECORD:
+                resId = R.string.title_record;
+                break;
+            case FoundType.TYPE_NODE:
+                resId = R.string.title_node;
+                break;
+            case FoundType.TYPE_TAG:
+                resId = R.string.title_tag;
+                break;
+            default:
+                String[] strings = context.getResources().getStringArray(R.array.found_types);
+                return (strings != null && strings.length < type) ? strings[type] : "";
+        }
+        return context.getString(resId);
     }
 }

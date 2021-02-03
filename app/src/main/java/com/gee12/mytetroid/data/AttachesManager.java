@@ -20,11 +20,13 @@ import com.gee12.mytetroid.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class AttachesManager extends DataManager {
+
     /**
      * Открытие прикрепленного файла сторонним приложением.
      * @param context
@@ -262,7 +264,7 @@ public class AttachesManager extends DataManager {
             if (srcFile.renameTo(destFile)) {
                 TetroidLog.logOperRes(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, -1);
             } else {
-                TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
+                    TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1);
                 return 0;
             }
         }
@@ -397,25 +399,49 @@ public class AttachesManager extends DataManager {
     }
 
     /**
-     * Получение размера прикрепленного файла.
-     * @param context
-     * @param file
+     * Получение полного имени файла.
+     * @param attach
      * @return
      */
-    public static String getAttachedFileSize(Context context, TetroidFile file) {
-        if (context == null || file == null) {
-            LogManager.emptyParams(context, "AttachesManager.getAttachedFileSize()");
+    public static String getAttachFullName(Context context, TetroidFile attach) {
+        if (attach == null) {
             return null;
         }
-        TetroidRecord record = file.getRecord();
+        TetroidRecord record = attach.getRecord();
         if (record == null) {
             LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR);
             return null;
         }
-
-        String ext = FileUtils.getExtensionWithComma(file.getName());
-        String fullFileName = RecordsManager.getPathToFileInRecordFolderInBase(record, file.getId() + ext);
-
-        return getFileSize(context, fullFileName);
+        String ext = FileUtils.getExtensionWithComma(attach.getName());
+        return RecordsManager.getPathToFileInRecordFolder(context, record, attach.getId() + ext);
     }
+
+    /**
+     * Получение размера прикрепленного файла.
+     * @param context
+     * @param attach
+     * @return
+     */
+    public static String getAttachedFileSize(Context context, TetroidFile attach) {
+        if (context == null || attach == null) {
+            LogManager.emptyParams(context, "AttachesManager.getAttachedFileSize()");
+            return null;
+        }
+        return getFileSize(context, getAttachFullName(context, attach));
+    }
+
+    /**
+     * Получение даты последнего изменения файла.
+     * @param context
+     * @param attach
+     * @return
+     */
+    public static Date getEditedDate(Context context, TetroidFile attach) {
+        if (context == null || attach == null) {
+            LogManager.emptyParams(context, "RecordManager.getEditedDate()");
+            return null;
+        }
+        return getFileModifiedDate(context, getAttachFullName(context, attach));
+    }
+
 }

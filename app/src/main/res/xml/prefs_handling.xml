@@ -1,0 +1,28 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_key_screen">
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_double_tap_fullscreen"
+        android:summary="@string/pref_double_tap_fullscreen_summ"
+        android:title="@string/pref_double_tap_fullscreen" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_is_expand_empty_nodes"
+        android:summary="@string/pref_expand_empty_nodes_summ"
+        android:title="@string/pref_expand_empty_nodes" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_show_nodes_instead_exit"
+        android:summary="@string/pref_show_nodes_instead_exit_summ"
+        android:title="@string/pref_show_nodes_instead_exit" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_is_confirm_app_exit"
+        android:summary="@string/pref_is_confirm_app_exit_summ"
+        android:title="@string/pref_is_confirm_app_exit" />
+
+</PreferenceScreen>

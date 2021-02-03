@@ -2,258 +2,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="pref_key_screen">
 
-    <!--<PreferenceCategory android:key="pref_key_category_storage" android:title="@string/pref_category_storage"
-        android:icon="@drawable/ic_storage">
-
-        <Preference
-            android:key="@string/pref_key_storage_path"
-            android:title="@string/pref_storage_path"
-            android:summary="@string/pref_storage_path_summ"/>
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_load_last_storage_path"
-            android:title="@string/pref_is_load_last_storage_path"
-            android:summary="@string/pref_is_load_last_storage_path_summ"
-            android:defaultValue="true"/>
-
-        <Preference
-            android:key="@string/pref_key_temp_path"
-            android:title="@string/pref_trash_path"
-            android:summary="@string/pref_trash_path_summ"/>
-
-        <Preference
-            android:key="@string/pref_key_clear_trash"
-            android:title="@string/pref_clear_trash"
-            android:summary="@string/pref_clear_trash_summ"/>
-
-        <Preference
-            android:key="@string/pref_key_quickly_node_id"
-            android:title="@string/pref_quickly_node"
-            android:summary="@string/pref_quickly_node_summ"/>
-
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
-            android:key="@string/pref_key_is_load_favorites"
-            android:disableDependentsState="true"
-            android:title="@string/pref_load_only_favorites"
-            android:summary="@string/pref_load_only_favorites_summ"
-            android:defaultValue="false" />
-
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
-            android:dependency="@string/pref_key_is_load_favorites"
-            android:key="@string/pref_key_is_keep_selected_node"
-            android:title="@string/pref_is_keep_selected_node"
-            android:summary="@string/pref_is_keep_selected_node_summ"
-            android:defaultValue="true" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsStorageFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsStorageFragment"
         android:title="@string/pref_category_storage"
-        android:icon="@drawable/ic_storage"
-        />
+        android:icon="@drawable/ic_storage"/>
 
-    <!--<PreferenceCategory android:key="pref_key_category_crypt" android:title="@string/pref_category_crypt">
-
-        <com.gee12.mytetroid.views.DisabledPreference
-            android:key="@string/pref_key_change_pass"
-            android:title="@string/pref_change_pass"
-            android:summary="@string/pref_change_pass_summ"/>
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_save_pass_hash_local"
-            android:disableDependentsState="true"
-            android:title="@string/pref_is_save_pass_hash_local"
-            android:summary="@string/pref_is_save_pass_hash_local_summ"
-            android:defaultValue="true" />
-
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
-            android:key="@string/pref_key_request_pin_code"
-            android:title="@string/pref_request_pin_code"
-            android:summary="@string/pref_request_pin_code_summ"
-            android:defaultValue="false" />
-
-        <com.gee12.mytetroid.views.DisabledListPreference
-            android:key="@string/pref_key_when_ask_password"
-            android:dependency="@string/pref_key_is_save_pass_hash_local"
-            android:title="@string/pref_when_ask_password"
-            android:entries="@array/when_ask_password_entries"
-            android:entryValues="@array/when_ask_password_entries"
-            android:summary="@string/pref_when_ask_password_summ"
-            android:defaultValue="@string/pref_when_ask_password_on_select"
-            />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_decrypt_in_temp"
-            android:title="@string/pref_decrypt_files_to_trash_dir"
-            android:summary="@string/pref_decrypt_files_to_trash_dir_summ"
-            android:defaultValue="false" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsEncryptionFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsEncryptionFragment"
         android:title="@string/pref_category_crypt"
-        android:icon="@drawable/ic_encrypt"
-    />
+        android:icon="@drawable/ic_encrypt"/>
 
-    <!--<PreferenceCategory android:key="pref_key_category_sync" android:title="@string/pref_category_sync">
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_sync_storage"
-            android:title="@string/pref_is_sync_storage"
-            android:summary="@string/pref_is_sync_summ"
-            android:defaultValue="false" />
-
-        <EditTextPreference
-            android:key="@string/pref_key_sync_command"
-            android:dependency="@string/pref_key_is_sync_storage"
-            android:dialogTitle="@string/pref_sync_command"
-            android:title="@string/pref_sync_command"
-            android:summary="@string/pref_sync_command_summ"
-            android:inputType="text" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_sync_before_init"
-            android:dependency="@string/pref_key_is_sync_storage"
-            android:title="@string/pref_is_sync_before_loading"
-            android:summary="@string/pref_is_sync_before_loading_summ"
-            android:defaultValue="true" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_ask_before_sync"
-            android:dependency="@string/pref_key_is_sync_before_init"
-            android:title="@string/pref_ask_before_sync"
-            android:summary="@string/pref_ask_before_sync_summ"
-            android:defaultValue="true" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_not_remember_sync_app"
-            android:dependency="@string/pref_key_is_sync_storage"
-            android:title="@string/pref_is_not_remember_sync_app"
-            android:summary="@string/pref_is_not_remember_sync_app_summ"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_check_outside_changing"
-            android:title="@string/pref_check_outside_changing"
-            android:summary="@string/pref_check_outside_changing_summ"
-            android:defaultValue="true" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsSyncFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsSyncFragment"
         android:title="@string/pref_category_sync"
-        android:icon="@drawable/ic_sync"
-        />
+        android:icon="@drawable/ic_sync"/>
 
-    <!--<PreferenceCategory android:key="pref_key_category_edit" android:title="@string/pref_category_edit">
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_record_edit_mode"
-            android:title="@string/title_recod_edit_mode"
-            android:summary="@string/pref_record_edit_mode_summ"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_record_auto_save"
-            android:title="@string/pref_record_auto_save"
-            android:summary="@string/pref_record_auto_save_summ"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_fix_empty_paragraphs"
-            android:title="@string/pref_fix_empty_paragraphs"
-            android:summary="@string/pref_fix_empty_paragraphs_summ"
-            android:defaultValue="true" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsEditFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsEditFragment"
         android:title="@string/pref_category_edit"
-        android:icon="@drawable/ic_edit"
-        />
+        android:icon="@drawable/ic_edit"/>
 
-    <!--<PreferenceCategory android:key="pref_key_category_display" android:title="@string/pref_category_display">
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_keep_screen_on"
-            android:title="@string/pref_keep_screen_on"
-            android:summary="@string/pref_keep_screen_on_summ"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_double_tap_fullscreen"
-            android:title="@string/pref_double_tap_fullscreen"
-            android:summary="@string/pref_double_tap_fullscreen_summ"
-            android:defaultValue="true" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_highlight_attach"
-            android:title="@string/pref_is_highlight_attach"
-            android:summary="@string/pref_is_highlight_attach_summ"
-            android:defaultValue="false" />
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_highlight_crypted_nodes"
-            android:title="@string/pref_is_highlight_crypted_nodes"
-            android:defaultValue="false" />
-
-        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:enabled="false"
-            android:key="@string/pref_key_highlight_attach_color"
-            android:title="@string/pref_highlight_attach_color"
-            android:defaultValue="@color/colorHighlight"/>
-
-        <com.gee12.mytetroid.views.DateTimeFormatPreference
-            android:key="@string/pref_key_date_format_string"
-            android:dialogTitle="@string/pref_date_format_string"
-            android:title="@string/pref_date_format_string"
-            android:summary="@string/pref_date_format_string_summ"
-            android:inputType="text"
-            android:defaultValue="@string/def_date_format_string" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsDisplayFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsDisplayFragment"
         android:title="@string/pref_category_display"
-        android:icon="@drawable/ic_view"
-        />
+        android:icon="@drawable/ic_view"/>
 
-    <!--<PreferenceCategory android:key="@string/pref_key_category_other" android:title="@string/pref_category_other">
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsHandlingFragment"
+        android:title="@string/pref_category_handling"
+        android:icon="@drawable/ic_handle"/>
 
-        <PreferenceScreen
-            android:key="@string/pref_key_show_logs"
-            android:title="@string/pref_show_logs"
-            android:summary="@string/pref_show_logs_summ" >
-            <intent android:action="android.intent.action.VIEW"
-                android:targetPackage="@string/app_id"
-                android:targetClass="com.gee12.mytetroid.activities.LogsActivity"
-                />
-&lt;!&ndash;            <intent android:action="${applicationId}.activities.LogsActivity"/>&ndash;&gt;
-&lt;!&ndash;            <intent android:action="com.gee12.mytetroid.activities.LogsActivity"/>&ndash;&gt;
-        </PreferenceScreen>
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_write_log"
-            android:title="@string/pref_write_log_to_file"
-            android:summary="@string/pref_write_log_to_file_summ"
-            android:defaultValue="false" />
-
-        <Preference
-            android:dependency="@string/pref_key_is_write_log"
-            android:key="@string/pref_key_log_path"
-            android:title="@string/pref_log_path"
-            android:summary="@string/pref_log_path_summ" />
-
-        <Preference
-            android:key="@string/pref_key_clear_search_history"
-            android:title="@string/pref_clear_search_history"
-            android:summary="@string/pref_clear_search_history_summ"/>
-
-        <CheckBoxPreference
-            android:key="@string/pref_key_is_confirm_app_exit"
-            android:title="@string/pref_is_confirm_app_exit"
-            android:summary="@string/pref_is_confirm_app_exit_summ"
-            android:defaultValue="true" />
-
-    </PreferenceCategory>-->
-    <Preference app:fragment="com.gee12.mytetroid.fragments.SettingsOtherFragment"
+    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsOtherFragment"
         android:title="@string/pref_category_other"
-        android:icon="@drawable/ic_dots"
-        />
+        android:icon="@drawable/ic_dots"/>
 
 </PreferenceScreen>

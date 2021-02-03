@@ -1,8 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="sync_apps">
+        <item>@string/app_mgit</item>
+        <item>@string/app_termux</item>
+    </string-array>
     <string-array name="when_ask_password_entries">
         <item>@string/pref_when_ask_password_on_select</item>
         <item>@string/pref_when_ask_password_on_start</item>
+    </string-array>
+    <string-array name="show_record_fields_entries">
+        <item>@string/pref_show_record_fields_yes</item>
+        <item>@string/pref_show_record_fields_no</item>
+        <item>@string/pref_show_record_fields_filled</item>
+    </string-array>
+    <string-array name="record_fields_in_list_entries">
+        <item>@string/title_author</item>
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
+    </string-array>
+    <string-array name="record_fields_in_list_entries_pro">
+        <item>@string/title_author</item>
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
+        <item>@string/title_edited</item>
+    </string-array>
+    <string-array name="record_fields_in_list_def_entries">
+        <item>@string/title_tags</item>
+        <item>@string/title_created</item>
     </string-array>
     <string-array name="view_type_titles">
         <!--<item name="none"> </item>-->
@@ -24,18 +48,19 @@
     <string-array name="search_in_cur_node">
         <item name="search_all_database">Search all database</item>
         <item>@string/global_search_in_cur_node</item>
+        <item name="global_search_in_spec_node">In specified node</item>
     </string-array>
     <string-array name="found_types">
-        <item>Record name</item>
-        <item>Text</item>
-        <item>Author</item>
-        <item>Url</item>
-        <item>File name</item>
-        <item>Tag</item>
-        <item>Node name</item>
-        <item>Node id</item>
-        <item>Record id</item>
-        <item>File id</item>
+        <item>record name</item>
+        <item>text</item>
+        <item>author</item>
+        <item>url</item>
+        <item>file name</item>
+        <item>tag</item>
+        <item>node name</item>
+        <item>node id</item>
+        <item>record id</item>
+        <item>file id</item>
     </string-array>
 
     <string-array name="obj_storage">
@@ -71,7 +96,12 @@
     <string-array name="obj_record_dir">
         <item>record catalog</item>
         <item>Record catalog was&#160;</item>
-        <item>>record catalog</item>
+        <item>record catalog</item>
+    </string-array>
+    <string-array name="obj_tag">
+        <item>record tag</item>
+        <item>Record tag was&#160;</item>
+        <item>record tag</item>
     </string-array>
     <string-array name="obj_file">
         <item>file</item>

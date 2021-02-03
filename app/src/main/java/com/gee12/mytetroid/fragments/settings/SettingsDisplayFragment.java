@@ -1,13 +1,15 @@
-package com.gee12.mytetroid.fragments;
+package com.gee12.mytetroid.fragments.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.DateTimeFormatDialog;
 import com.gee12.mytetroid.views.DateTimeFormatPreference;
@@ -24,6 +26,20 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         getActivity().setTitle(R.string.pref_category_display);
 
         setHighlightPrefAvailability();
+
+        if (App.isFullVersion()) {
+            // добавляем поле "Дата изменения"
+            MultiSelectListPreference prefFields = ((MultiSelectListPreference) findPreference(
+                    getString(R.string.pref_key_record_fields_in_list)));
+            int arrayId = (App.isFullVersion())
+                    ? R.array.record_fields_in_list_entries_pro
+                    : R.array.record_fields_in_list_entries;
+            prefFields.setEntryValues(arrayId);
+            prefFields.setEntries(arrayId);
+        }
+
+        updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
+        updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString());
     }
 
     @Override
@@ -42,7 +58,20 @@ public class SettingsDisplayFragment extends TetroidSettingsFragment {
         } else if (key.equals(getString(R.string.pref_key_date_format_string))) {
             // меняем формат даты
             App.DateFormatString = SettingsManager.getDateFormatString(mContext);
+        } else if (key.equals(getString(R.string.pref_key_show_record_fields))) {
+            updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(mContext));
+        } else if (key.equals(getString(R.string.pref_key_record_fields_in_list))) {
+            App.RecordFieldsInList = new RecordFieldsSelector(mContext, SettingsManager.getRecordFieldsInList(mContext));
+            updateSummary(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString(),
+                    getString(R.string.pref_record_fields_in_list_summ));
         }
+    }
+
+    private String getRecordFieldsValuesString() {
+        int arrayId = (App.isFullVersion())
+                ? R.array.record_fields_in_list_entries_pro
+                : R.array.record_fields_in_list_entries;
+        return App.RecordFieldsInList.joinToString(getResources().getStringArray(arrayId), 0);
     }
 
     private void setHighlightPrefAvailability() {

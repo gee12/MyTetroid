@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.fragments;
+package com.gee12.mytetroid.fragments.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +18,8 @@ import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.StorageChooserDialog;
+
+import org.jsoup.internal.StringUtil;
 
 import lib.folderpicker.FolderPicker;
 
@@ -174,10 +176,23 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
         // спрашиваем: создать или выбрать хранилище ?
         StorageChooserDialog.createDialog(getContext(), isNew -> {
             openFolderPicker(getString(R.string.title_storage_folder),
-                    SettingsManager.getStoragePath(mContext),
-                    (isNew) ? SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH
-                            : SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH);
+                    SettingsManager.getStoragePath(mContext), isNew);
         });
+    }
+
+    protected void openFolderPicker(String title, String location, boolean isNew) {
+        String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderPathOrDefault(getContext(), true);
+        Intent intent = new Intent(getContext(), FolderPicker.class);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, title);
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
+        if (isNew) {
+            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
+        } else {
+            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc));
+        }
+        getActivity().startActivityForResult(intent, (isNew)
+                ? SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH
+                : SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH);
     }
 
     private void selectTrashFolder() {

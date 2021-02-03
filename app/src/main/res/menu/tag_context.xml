@@ -12,7 +12,6 @@
         android:orderInCategory="20"
         android:title="@string/title_rename"
         android:icon="@drawable/ic_edit"
-        android:visible="false"
         app:showAsAction="ifRoom|withText" />
     <item
         android:id="@+id/action_copy_link"
