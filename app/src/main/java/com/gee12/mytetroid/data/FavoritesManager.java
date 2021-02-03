@@ -16,6 +16,13 @@ public class FavoritesManager {
     protected static FavoriteList mFavorites;
 
     /**
+     * Первоначальное создание списка Id избранных записей.
+     */
+    public static void create() {
+        mFavorites = new FavoriteList(null);
+    }
+
+    /**
      * Первоначальная загрузка списка Id избранных записей из настроек.
      */
     public static void load(Context context) {

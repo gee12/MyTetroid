@@ -117,6 +117,8 @@ public class StorageManager extends DataManager {
                 // добавляем корневую ветку
                 inst.mXml.init();
                 inst.mXml.mIsStorageLoaded = true;
+                // создаем Favorites
+                FavoritesManager.create();
             }  else {
                 // загружаем database.ini
                 res = inst.mDatabaseConfig.load();
