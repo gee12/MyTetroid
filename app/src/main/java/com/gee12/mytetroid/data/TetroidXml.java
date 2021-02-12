@@ -96,7 +96,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     protected int mTagsCount;
     protected int mUniqueTagsCount;
     protected int mAuthorsCount;
-//    protected int mIconsCount;
     protected int mMaxSubnodesCount;
     protected int mMaxDepthLevel;
 
@@ -148,7 +147,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         this.mTagsCount = 0;
         this.mUniqueTagsCount = 0;
         this.mAuthorsCount = 0;
-//        this.mIconsCount = 0;
         this.mMaxSubnodesCount = 0;
         this.mMaxDepthLevel = 0;
     }
@@ -351,9 +349,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
                 this.mMaxSubnodesCount = subNodes.size();
             if (depthLevel > mMaxDepthLevel)
                 this.mMaxDepthLevel = depthLevel;
-//            if (!TextUtils.isEmpty(iconName)) {
-//                this.mIconsCount++;
-//            }
         }
 
         return node;
@@ -492,10 +487,8 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         if (files != null) {
             record.setAttachedFiles(files);
         }
-//        record.setIsFavorite(isFavorite);
         if (isFavorite) {
             // добавляем избранную запись
-//            mFavoritesRecords.add(record);
             addRecordFavorite(record);
         }
 
@@ -623,9 +616,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
             boolean crypted = node.isCrypted();
             addAttribute(nodeElem, "crypt", (crypted) ? "1" : "");
-//            if (!TextUtils.isEmpty(node.getIconName())) {
             addCryptAttribute(nodeElem, node, "icon", node.getIconName(), node.getIconName(true));
-//            }
             addAttribute(nodeElem, "id", node.getId());
             addCryptAttribute(nodeElem, node, "name", node.getName(), node.getName(true));
 
@@ -722,7 +713,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         this.mTagsCount = 0;
         this.mUniqueTagsCount = 0;
         this.mAuthorsCount = 0;
-//        this.mIconsCount = 0;
         this.mMaxSubnodesCount = 0;
         this.mMaxDepthLevel = 0;
 
@@ -741,8 +731,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         mNodesCount++;
         if (node.isCrypted())
             mCryptedNodesCount++;
-//        if (!StringUtil.isBlank(node.getIconName()))
-//            mIconsCount++;
         if (node.getLevel() > mMaxDepthLevel)
             mMaxDepthLevel = node.getLevel();
 
@@ -833,10 +821,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     public int getAuthorsCount() {
         return mAuthorsCount;
     }
-
-//    public int getIconsCount() {
-//        return mIconsCount;
-//    }
 
     public int getMaxSubnodesCount() {
         return mMaxSubnodesCount;

@@ -29,9 +29,9 @@ public class TagsListAdapter extends BaseAdapter {
         TextView recordsCountView;
     }
 
-    private LayoutInflater mInflater;
+    private final LayoutInflater mInflater;
+    private final Context mContext;
     private ArrayList mData;
-    private Context mContext;
 
     public TagsListAdapter(Context context) {
         this.mContext = context;
@@ -75,7 +75,7 @@ public class TagsListAdapter extends BaseAdapter {
 
         Map.Entry<String, TetroidTag> item = getItem(position);
         // название метки
-        viewHolder.nameView.setText(item.getValue().getName());
+        viewHolder.nameView.setText(item.getKey());
         // количество записей
         final List<TetroidRecord> records = item.getValue().getRecords();
         viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", records.size()));
@@ -102,11 +102,11 @@ public class TagsListAdapter extends BaseAdapter {
                 } else {
                     int res;
                     if (byName) {
-                        res = o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+                        res = o1.getKey().compareTo(o2.getKey());
                     } else {
                         res = Integer.compare(o1.getValue().getRecords().size(), o2.getValue().getRecords().size());
                         if (res == 0) {
-                            res = o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+                            res = o1.getKey().compareTo(o2.getKey());
                         }
                     }
                     return (isAscent) ? res : res * -1;

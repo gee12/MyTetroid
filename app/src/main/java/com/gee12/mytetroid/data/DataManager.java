@@ -704,9 +704,10 @@ public class DataManager implements IRecordFileCrypter {
             return;
         if (!TextUtils.isEmpty(tagsString)) {
             for (String tagName : tagsString.split(TetroidXml.TAGS_SEPAR)) {
+                String lowerCaseTagName = tagName.toLowerCase();
                 TetroidTag tag;
-                if (mXml.mTagsMap.containsKey(tagName)) {
-                    tag = mXml.mTagsMap.get(tagName);
+                if (mXml.mTagsMap.containsKey(lowerCaseTagName)) {
+                    tag = mXml.mTagsMap.get(lowerCaseTagName);
                     // добавляем запись по метке, только если ее еще нет
                     // (исправление дублирования записей по метке, если одна и та же метка
                     // добавлена в запись несколько раз)
@@ -716,8 +717,8 @@ public class DataManager implements IRecordFileCrypter {
                 } else {
                     List<TetroidRecord> tagRecords = new ArrayList<>();
                     tagRecords.add(record);
-                    tag = new TetroidTag(tagName, tagRecords);
-                    mXml.mTagsMap.put(tagName, tag);
+                    tag = new TetroidTag(lowerCaseTagName, tagRecords);
+                    mXml.mTagsMap.put(lowerCaseTagName, tag);
                 }
                 record.addTag(tag);
             }
@@ -740,7 +741,7 @@ public class DataManager implements IRecordFileCrypter {
                         foundedTag.getRecords().remove(record);
                     } else {
                         // удаляем саму метку из списка
-                        mXml.mTagsMap.remove(foundedTag.getName());
+                        mXml.mTagsMap.remove(tag.getName().toLowerCase());
                     }
                 }
             }
@@ -772,9 +773,17 @@ public class DataManager implements IRecordFileCrypter {
         return (Instance != null) ? Instance.mStoragePath + SEPAR + BASE_FOLDER_NAME : "";
     }
 
+    /**
+     * Поиск объекта TetroidTag в списке всех меток по ключу.
+     * @param tagName Имя метки
+     * @return
+     */
     public static TetroidTag getTag(String tagName) {
+        if (TextUtils.isEmpty(tagName))
+            return null;
+        String lowerCaseTagName = tagName.toLowerCase();
         for (Map.Entry<String,TetroidTag> tag : Instance.getTags().entrySet()) {
-            if (tag.getKey().contentEquals(tagName))
+            if (tag.getKey().contentEquals(lowerCaseTagName))
                 return tag.getValue();
         }
         return null;
