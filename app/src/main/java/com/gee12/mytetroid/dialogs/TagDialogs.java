@@ -40,7 +40,7 @@ public class TagDialogs {
         }
 
         if (tag != null) {
-            etName.setText(tag.getName());
+            etName.setText(tag.getName().toLowerCase());
         }
 
         builder.setPositiveButton(R.string.answer_ok, (dialog1, which) -> {
