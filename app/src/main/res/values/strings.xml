@@ -321,7 +321,7 @@
     <string name="search_records_select_tag">Select not an empty tag or use the global search.</string>
     <string name="search_submit_title">Start search</string>
     <string name="search_text_hint">Search</string>
-    <string name="filter_nodes_by_query">FIlter nodes by query "%s"…</string>
+    <string name="filter_nodes_by_query">Filter nodes by query "%s"…</string>
     <string name="search_records_search_select_node">Select not an empty branch or use the global search.</string>
     <string name="search_records_in_node_not_found_mask">No records found for query \"%1$s\" in node [%2$s]…</string>
     <string name="search_records_in_tag_not_found_mak">No records found for query \"%1$s\" in tag [%2$s]…</string>

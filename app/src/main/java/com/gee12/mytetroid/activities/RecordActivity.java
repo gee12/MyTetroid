@@ -1441,6 +1441,9 @@ public class RecordActivity extends TetroidActivity implements
                 setFindButtonsVisibility(true);
             }
             @Override
+            public void onQueryChange(String query) {
+            }
+            @Override
             public void onSuggestionSelectOrClick(String query) {
                 mSearchView.setQuery(query, true);
             }

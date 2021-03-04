@@ -18,7 +18,8 @@ public abstract class SearchViewXListener {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                return false;
+                onQueryChange(newText);
+                return true;
             }
         });
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
@@ -50,6 +51,7 @@ public abstract class SearchViewXListener {
 
     public abstract void onSearchClick();
     public abstract void onQuerySubmit(String query);
+    public abstract void onQueryChange(String query);
     public abstract void onSuggestionSelectOrClick(String query);
     public abstract void onClose();
 }

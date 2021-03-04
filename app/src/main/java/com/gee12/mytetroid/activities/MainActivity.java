@@ -1047,7 +1047,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // ничего не делать, если хранилище не было загружено
                 if (mListAdapterNodes == null)
                     return;
-                mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+                searchInNodesNames(null);
                 setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.title_nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
                 ivIcon.setVisibility(View.VISIBLE);
@@ -1061,6 +1061,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
+                searchInNodesNames(query);
+            }
+
+            @Override
+            public void onQueryChange(String query) {
                 searchInNodesNames(query);
             }
 
@@ -1096,6 +1101,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
             @Override
+            public void onQueryChange(String query) {
+                searchInTags(query, true);
+            }
+
+            @Override
             public void onSuggestionSelectOrClick(String query) {
                 searchInTags(query, true);
             }
@@ -1107,6 +1117,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param query
      */
     private void searchInNodesNames(String query) {
+        if (TextUtils.isEmpty(query)) {
+            // просто выводим все ветки
+            mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+            return;
+        }
         LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
@@ -1169,7 +1184,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
-                searchInMainPage(query);
+                searchInMainPage(query, true);
+            }
+
+            @Override
+            public void onQueryChange(String query) {
+                searchInMainPage(query, false);
             }
 
             @Override
@@ -2204,8 +2224,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Поиск по записям, меткам или файлам (смотря какой список активен в данный момент).
      * @param query
      */
-    private void searchInMainPage(String query) {
-        TetroidSuggestionProvider.saveRecentQuery(this, query);
+    private void searchInMainPage(String query, boolean isSaveQuery) {
+        if (isSaveQuery) {
+            TetroidSuggestionProvider.saveRecentQuery(this, query);
+        }
         searchInMainPage(query, mViewPagerAdapter.getMainFragment().getCurMainViewId());
     }
 
