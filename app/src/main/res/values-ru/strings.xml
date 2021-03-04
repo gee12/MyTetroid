@@ -326,6 +326,7 @@
     <string name="ask_create_storage_in_folder">В выбранном каталоге будет создано новое хранилище. Продолжить?</string>
     <string name="ask_clear_pass_database_ini">Не осталось ни одной зашифрованной ветки. Очистить шифруюший пароль?</string>
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
+    <string name="ask_load_all_nodes_dialog_title">Для этого нужно загрузить все ветки. Продолжить?</string>
     <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>

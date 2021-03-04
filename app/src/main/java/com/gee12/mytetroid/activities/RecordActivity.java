@@ -668,6 +668,15 @@ public class RecordActivity extends TetroidActivity implements
             return;
         if (onSaveRecord(isAskForSave, new ResultObj(record)))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> showAnotherRecord(record));
+        } else {
+            showAnotherRecord(record);
+        }
+    }
+
+    private void showAnotherRecord(TetroidRecord record) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_OBJECT_ID, record.getId());
         if (mIsFieldsEdited) {
@@ -686,6 +695,15 @@ public class RecordActivity extends TetroidActivity implements
             return;
         if (onSaveRecord(isAskForSave, new ResultObj(node)))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> showAnotherNodeDirectly(node));
+        } else {
+            showAnotherNodeDirectly(node);
+        }
+    }
+
+    private void showAnotherNodeDirectly(TetroidNode node) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_OBJECT_ID, node.getId());
         finishWithResult(RESULT_OPEN_NODE, bundle);
@@ -727,6 +745,15 @@ public class RecordActivity extends TetroidActivity implements
     private void openTag(String tagName, boolean isAskForSave) {
         if (onSaveRecord(isAskForSave, new ResultObj(tagName)))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> openTagDirectly(tagName));
+        } else {
+            openTagDirectly(tagName);
+        }
+    }
+
+    private void openTagDirectly(String tagName) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
         if (mIsFieldsEdited) {
@@ -1671,7 +1698,8 @@ public class RecordActivity extends TetroidActivity implements
     private void finishWithResult(int resCode, Bundle bundle) {
         if (getCallingActivity() != null) {
             if (bundle != null) {
-                Intent intent = new Intent();
+                bundle.putInt(EXTRA_RESULT_CODE, resCode);
+                Intent intent = new Intent(ACTION_RECORD);
                 intent.putExtras(bundle);
                 setResult(resCode, intent);
             } else {

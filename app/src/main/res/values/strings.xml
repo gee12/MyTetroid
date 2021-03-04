@@ -396,6 +396,7 @@
     <string name="ask_clear_trash">Cleat trash folder?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
+    <string name="ask_load_all_nodes_dialog_title">To do thi, need to load all nodes. Proceed?</string>
     <string name="ask_reload_storage">Reload storage from device memory?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
 <!--    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>-->

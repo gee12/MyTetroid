@@ -276,7 +276,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    StorageManager.loadAllNodes(MainActivity.this);
+                    StorageManager.loadAllNodes(MainActivity.this, false);
                 }
             };
             mButtonLoadStorageNodes.setOnClickListener(listener);
@@ -1858,7 +1858,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                StorageManager.setStorageCallback(this);
                 StorageManager.startInitStorage(this, this, false);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, false)) {
-                StorageManager.loadAllNodes(this);
+                StorageManager.loadAllNodes(this, false);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                 // обновляем списки, т.к. хранилище должно было расшифроваться
                 updateNodeList();
@@ -1916,12 +1916,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
             case RecordActivity.RESULT_OPEN_RECORD:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String recordId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (recordId != null) {
                     openRecord(recordId);
                 }
                 break;
             case RecordActivity.RESULT_OPEN_NODE:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String nodeId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (nodeId != null) {
                     showNode(nodeId);
@@ -1935,6 +1939,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
             case RecordActivity.RESULT_SHOW_TAG:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String tagName = data.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
                 TetroidTag tag = DataManager.getTag(tagName);
                 if (tag != null) {
@@ -1952,6 +1958,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
         }
+    }
+
+    /**
+     * Если включен режим только избранных записей, то сначала нужно загрузить все ветки.
+     * @param data
+     * @return
+     */
+    private boolean checkIsNeedLoadAllNodes(Intent data) {
+        if (StorageManager.isFavoritesMode()) {
+            mReceivedIntent = data;
+            StorageManager.loadAllNodes(MainActivity.this, true);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -2153,7 +2173,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     () -> {
                         // сохраняем Intent и загружаем хранилище
                         this.mReceivedIntent = intent;
-                        StorageManager.loadAllNodes(this);
+                        StorageManager.loadAllNodes(this, false);
                     });
             return;
         }

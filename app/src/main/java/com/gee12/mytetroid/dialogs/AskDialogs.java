@@ -25,6 +25,10 @@ public class AskDialogs {
         AskDialogs.showYesNoDialog(context, callback, R.string.ask_start_sync_dialog_title);
     }
 
+    public static void showLoadAllNodesDialog(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_load_all_nodes_dialog_title);
+    }
+
     public static void showExitDialog(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_exit_from_app);
     }
