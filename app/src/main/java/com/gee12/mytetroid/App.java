@@ -6,6 +6,7 @@ import android.content.Context;
 import androidx.annotation.ColorInt;
 
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
@@ -64,9 +65,8 @@ public class App {
             LogManager.log(context, R.string.log_settings_copied_from_free, ILogger.Types.INFO);
         }
 
-        // ---отключаем с версии 3.5
-        //SettingsManager.setIsSyncStorage(context, false);
-
+        TetroidXml.ROOT_NODE.setName(context.getString(R.string.title_root_node));
+        
         IsInited = true;
     }
 }

@@ -657,4 +657,5 @@
     <string name="pref_key_show_nodes_instead_exit" translatable="false">pref_key_show_nodes_instead_exit</string>
     <string name="pref_show_nodes_instead_exit_summ">Show the nodes tree when clicking on the Back button, instead of app exit</string>
     <string name="pref_show_nodes_instead_exit">Show nodes when clicking on the Back</string>
+    <string name="title_root_node"><![CDATA[<Root node>]]></string>
 </resources>

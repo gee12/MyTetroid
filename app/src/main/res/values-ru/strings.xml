@@ -572,4 +572,5 @@
     <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
     <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
     <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
+    <string name="title_root_node"><![CDATA[<Корневая ветка>]]></string>
 </resources>
