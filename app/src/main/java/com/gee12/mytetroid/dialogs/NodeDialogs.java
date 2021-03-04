@@ -327,8 +327,8 @@ public class NodeDialogs {
      * @param context
      * @param callback
      */
-    public static void deleteNode(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_node_delete);
+    public static void deleteNode(Context context, String nodeName, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_node_delete_mask, nodeName));
     }
 
 }

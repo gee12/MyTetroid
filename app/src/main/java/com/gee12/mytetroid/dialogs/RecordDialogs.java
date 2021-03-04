@@ -223,8 +223,8 @@ public class RecordDialogs {
         AskDialogs.showYesNoDialog(context, callback, R.string.ask_save_record);
     }
 
-    public static void deleteRecord(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_record_delete);
+    public static void deleteRecord(Context context, String recordName, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_record_delete_mask, recordName));
     }
 
     public static void operWithoutDir(Context context, TetroidLog.Opers oper, final Dialogs.IApplyResult callback) {

@@ -1130,7 +1130,7 @@ public class RecordActivity extends TetroidActivity implements
      * Удаление записи.
      */
     public void deleteRecord() {
-        RecordDialogs.deleteRecord(this, () -> {
+        RecordDialogs.deleteRecord(this, mRecord.getName(), () -> {
             Bundle bundle = new Bundle();
             bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
             finishWithResult(RESULT_DELETE_RECORD, bundle);

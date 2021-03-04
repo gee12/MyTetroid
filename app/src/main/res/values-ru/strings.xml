@@ -304,9 +304,9 @@
     <string name="stats_authors_count">Авторов:</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
-    <string name="ask_record_delete">Удалить запись ?</string>
-    <string name="ask_node_delete">Удалить ветку ?</string>
-    <string name="ask_file_delete">Удалить файл ?</string>
+    <string name="ask_node_delete_mask">Удалить ветку \'%s\' ?</string>
+    <string name="ask_record_delete_mask">Удалить запись \'%s\' ?</string>
+    <string name="ask_file_delete_mask">Удалить файл \'%s\' ?</string>
     <string name="ask_oper_without_record_dir_mask">Каталог записи отсутствует. %s все равно ?</string>
     <string name="ask_attach_delete_without_file">Файл отсутствует на диске. Удалить все равно ?</string>
     <string name="ask_delete_attach_without_file">Файл отсутствует на диске. Удалить файл из хранилища ?</string>

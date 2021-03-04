@@ -77,8 +77,8 @@ public class FileDialogs {
         });
     }
 
-    public static void deleteFile(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_file_delete);
+    public static void deleteFile(Context context, String fileName, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_file_delete_mask, fileName));
     }
 
     public static void deleteAttachWithoutFile(Context context, final Dialogs.IApplyResult callback) {

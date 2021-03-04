@@ -59,6 +59,16 @@ public class AskDialogs {
      *
      * @param context
      * @param callback
+     * @param message
+     */
+    public static void showYesDialog(Context context, final Dialogs.IApplyResult callback, String message) {
+        Dialogs.showAlertDialog(context, message, true, true, callback);
+    }
+
+    /**
+     *
+     * @param context
+     * @param callback
      * @param messageRes
      */
     public static void showOkDialog(Context context, final Dialogs.IApplyResult callback, @StringRes int messageRes) {

@@ -1404,7 +1404,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         }
 
-        NodeDialogs.deleteNode(this, () -> {
+        NodeDialogs.deleteNode(this, node.getName(), () -> {
             boolean res = NodesManager.deleteNode(this, node);
             onDeleteNodeResult(node, res, pos, false);
         });
