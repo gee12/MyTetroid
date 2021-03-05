@@ -118,9 +118,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_FILE_PICKER = 7;
     public static final int REQUEST_CODE_FOLDER_PICKER = 8;
 
+    public static final String ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY";
 //    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
     public static final String EXTRA_CUR_NODE_ID = "EXTRA_CUR_NODE_ID";
     public static final String EXTRA_QUERY = "EXTRA_QUERY";
+    public static final String EXTRA_SHOW_STORAGE_INFO = "EXTRA_SHOW_STORAGE_INFO";
 
     private DrawerLayout mDrawerLayout;
     private MultiLevelListView mListViewNodes;
@@ -2105,6 +2107,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
             }*/
 
+        } else if (action.equals(ACTION_MAIN_ACTIVITY)) {
+            if (intent.hasExtra(EXTRA_SHOW_STORAGE_INFO)) {
+                showStorageInfoActivity();
+            }
+
         } else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста/изображения из другого приложения
             String type = intent.getType();
@@ -2543,8 +2550,17 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void showStorageInfoActivity() {
-        if (App.IsLoadedFavoritesOnly) {
-            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> {
+                        // помещаем Intent для обработки
+                        Intent intent = new Intent(ACTION_MAIN_ACTIVITY);
+                        intent.putExtra(EXTRA_SHOW_STORAGE_INFO, true);
+                        this.mReceivedIntent = intent;
+                        // загружаем все ветки
+                        StorageManager.loadAllNodes(MainActivity.this, true);
+                    });
+//            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
         } else {
             ViewUtils.startActivity(this, InfoActivity.class, null);
         }
