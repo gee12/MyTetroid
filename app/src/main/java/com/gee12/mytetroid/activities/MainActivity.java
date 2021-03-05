@@ -185,6 +185,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         };
         mDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+        mDrawerLayout.openDrawer(Gravity.LEFT);
 
         // обработчик нажатия на экране, когда ветка не выбрана
         mDrawerLayout.setOnTouchListener(this);
@@ -420,10 +421,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void reloadStorage() {
-        // сохраняем id выбранной ветки
-//        saveLastSelectedNode();
-
-        // перезагружаем хранилище
         reinitStorage();
     }
 
@@ -2560,7 +2557,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
                         // загружаем все ветки
                         StorageManager.loadAllNodes(MainActivity.this, true);
                     });
-//            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
         } else {
             ViewUtils.startActivity(this, InfoActivity.class, null);
         }
