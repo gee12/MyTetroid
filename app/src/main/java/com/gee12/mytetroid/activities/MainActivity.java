@@ -2579,18 +2579,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     }
 
-    public boolean taskPreExecute(int sRes) {
+    public int taskPreExecute(int sRes) {
         super.taskPreExecute(sRes);
-        boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
+        int openedDrawer = (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) ? Gravity.LEFT
+                : (mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) ? Gravity.RIGHT : Gravity.NO_GRAVITY;
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        return isDrawerOpened;
+        return openedDrawer;
     }
 
-    public void taskPostExecute(boolean isDrawerOpened) {
-        super.taskPostExecute(isDrawerOpened);
+    public void taskPostExecute(int openedDrawer) {
+        super.taskPostExecute(openedDrawer);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        if (isDrawerOpened) {
-            mDrawerLayout.openDrawer(Gravity.LEFT);
+        if (openedDrawer != Gravity.NO_GRAVITY) {
+            mDrawerLayout.openDrawer(openedDrawer);
         }
     }
 
@@ -2599,7 +2600,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class CryptNodeTask extends TetroidTask2<Void,String,Integer> {
 
-        boolean mIsDrawerOpened;
+        int mOpenedDrawer;
         TetroidNode mNode;
         boolean mIsEncrypt;
         boolean mWasCrypted;
@@ -2615,7 +2616,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            this.mIsDrawerOpened = taskPreExecute(
+            this.mOpenedDrawer = taskPreExecute(
                     (mIsEncrypt) ? R.string.task_node_encrypting : R.string.task_node_drop_crypting);
             TetroidLog.logOperStart(mContext, TetroidLog.Objs.NODE,
                     (mIsEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT, mNode);
@@ -2656,7 +2657,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Integer res) {
-            taskPostExecute(mIsDrawerOpened);
+            taskPostExecute(mOpenedDrawer);
             if (res > 0) {
                 TetroidLog.logOperRes(mContext, TetroidLog.Objs.NODE, mOper);
                 if (!mIsEncrypt && mWasCrypted) {
@@ -2695,7 +2696,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(TetroidFile res) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             mViewPagerAdapter.getMainFragment().attachFile(res);
         }
     }
@@ -2725,7 +2726,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             mViewPagerAdapter.getMainFragment().onSaveFileResult(res);
         }
     }
@@ -2755,7 +2756,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             if (found == null) {
                 LogManager.log(mContext, getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
                 return;

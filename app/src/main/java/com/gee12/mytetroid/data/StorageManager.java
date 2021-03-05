@@ -34,8 +34,8 @@ public class StorageManager extends DataManager {
      */
     public interface IStorageInitCallback extends TetroidTask2.IAsyncTaskCallback {
         void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode);
-        boolean taskPreExecute(int sRes);
-        void taskPostExecute(boolean isDrawerOpened);
+        int taskPreExecute(int sRes);
+        void taskPostExecute(int openedDrawer);
         void afterStorageLoaded(boolean res);
         void afterStorageDecrypted(TetroidNode node);
         void taskStarted(TetroidTask2 task);
@@ -558,6 +558,7 @@ public class StorageManager extends DataManager {
         boolean mIsDecrypt;
         boolean mIsFavoritesOnly;
         boolean mIsOpenLastNode;
+        int mOpenedDrawer;
 
         ReadStorageTask (IStorageInitCallback callback, Context context,
                          boolean isDecrypt, boolean isFavorites, boolean isOpenLastNode) {
@@ -569,7 +570,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPreExecute() {
-            getStorageInitCallback().taskPreExecute(R.string.task_storage_loading);
+            this.mOpenedDrawer = getStorageInitCallback().taskPreExecute(R.string.task_storage_loading);
         }
 
         @Override
@@ -579,7 +580,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getStorageInitCallback().taskPostExecute(true);
+            getStorageInitCallback().taskPostExecute(mOpenedDrawer);
             if (res) {
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mIsFavoritesOnly;
@@ -608,7 +609,7 @@ public class StorageManager extends DataManager {
      */
     private static class DecryptStorageTask extends TetroidTask2<Void,Void,Boolean> {
 
-        boolean mIsDrawerOpened;
+        int mOpenedDrawer;
         TetroidNode mNode;
 
         DecryptStorageTask(IStorageInitCallback callback, Context context, TetroidNode node) {
@@ -618,7 +619,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPreExecute() {
-            this.mIsDrawerOpened = getStorageInitCallback().taskPreExecute(R.string.task_storage_decrypting);
+            this.mOpenedDrawer = getStorageInitCallback().taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(mContext, TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
 
@@ -629,7 +630,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getStorageInitCallback().taskPostExecute(mIsDrawerOpened);
+            getStorageInitCallback().taskPostExecute(mOpenedDrawer);
             if (res) {
                 LogManager.log(mContext, R.string.log_storage_decrypted, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
