@@ -1420,6 +1420,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
             } else {
                 LogManager.log(this, getString(R.string.log_node_delete_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
             }
+            // обновляем label с количеством избранных записей
+            if (App.isFullVersion()) {
+                updateFavorites();
+            }
             // убираем список записей удаляемой ветки
             if (mCurNode == node || isNodeInNode(mCurNode, node)) {
                 mViewPagerAdapter.getMainFragment().clearView();
