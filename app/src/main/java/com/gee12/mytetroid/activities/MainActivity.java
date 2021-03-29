@@ -248,7 +248,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         View vNodesHeader = nodesNavView.getHeaderView(0);
         this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
         mSearchViewNodes.setVisibility(View.GONE);
-        initNodesSeachView(mSearchViewNodes, vNodesHeader);
+        initNodesSearchView(mSearchViewNodes, vNodesHeader);
 
         // метки
         this.mListViewTags = findViewById(R.id.tags_list_view);
@@ -1036,7 +1036,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Настройка элемента для фильтра веток.
      * @param nodesHeader
      */
-    private void initNodesSeachView(final SearchView searchView, View nodesHeader) {
+    private void initNodesSearchView(final SearchView searchView, View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
 
@@ -1117,8 +1117,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     private void searchInNodesNames(String query) {
         if (TextUtils.isEmpty(query)) {
-            // просто выводим все ветки
-            mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+            if (mListAdapterNodes != null) {
+                // просто выводим все ветки
+                mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+            }
             return;
         }
         LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
