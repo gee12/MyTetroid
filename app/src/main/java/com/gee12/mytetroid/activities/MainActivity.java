@@ -1121,9 +1121,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // просто выводим все ветки
                 mListAdapterNodes.setDataItems(DataManager.getRootNodes());
             }
+            setListEmptyViewState(mTextViewNodesEmpty, false, "");
             return;
         }
-        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
+//        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
@@ -1153,7 +1154,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInTags(String query, boolean isSearch) {
         Map<String, TetroidTag> tags;
         if (isSearch) {
-            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
+//            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
         } else {
             tags = DataManager.getTags();
