@@ -1535,14 +1535,18 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void expandFieldsIfNeed() {
         boolean needExpand;
-        String option = SettingsManager.getShowRecordFields(this);
-        if (getString(R.string.pref_show_record_fields_no).equals(option)) {
+        if (mRecord.isNew() || mIsReceivedImages || SettingsManager.isRecordEditMode(this)) {
             needExpand = false;
-        } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
-            needExpand = true;
         } else {
-            needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
-            || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
+            String option = SettingsManager.getShowRecordFields(this);
+            if (getString(R.string.pref_show_record_fields_no).equals(option)) {
+                needExpand = false;
+            } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
+                needExpand = true;
+            } else {
+                needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
+                        || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
+            }
         }
         expandRecordFields(needExpand);
     }
