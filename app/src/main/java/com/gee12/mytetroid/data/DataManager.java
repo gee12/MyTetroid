@@ -736,10 +736,9 @@ public class DataManager implements IRecordFileCrypter {
             for (TetroidTag tag : record.getTags()) {
                 TetroidTag foundedTag = getTag(tag.getName());
                 if (foundedTag != null) {
-                    if (foundedTag.getRecords().size() > 1) {
-                        // удаляем запись из метки
-                        foundedTag.getRecords().remove(record);
-                    } else {
+                    // удаляем запись из метки
+                    foundedTag.getRecords().remove(record);
+                    if (foundedTag.getRecords().isEmpty()) {
                         // удаляем саму метку из списка
                         mXml.mTagsMap.remove(tag.getName().toLowerCase());
                     }
