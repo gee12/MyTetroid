@@ -321,7 +321,7 @@
     <string name="search_records_select_tag">Select not an empty tag or use the global search.</string>
     <string name="search_submit_title">Start search</string>
     <string name="search_text_hint">Search</string>
-    <string name="filter_nodes_by_query">FIlter nodes by query "%s"…</string>
+    <string name="filter_nodes_by_query">Filter nodes by query "%s"…</string>
     <string name="search_records_search_select_node">Select not an empty branch or use the global search.</string>
     <string name="search_records_in_node_not_found_mask">No records found for query \"%1$s\" in node [%2$s]…</string>
     <string name="search_records_in_tag_not_found_mak">No records found for query \"%1$s\" in tag [%2$s]…</string>
@@ -378,7 +378,6 @@
     <string name="subtitle_record_edit">EDITOR</string>
     <string name="subtitle_record_html">HTML</string>
 
-    <string name="ask_record_delete">Delete record ?</string>
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="ask_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
@@ -387,8 +386,9 @@
     <string name="ask_sync_success_dialog_request">Sync done. Reboot storage?</string>
     <string name="ask_sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
     <string name="ask_save_record">Save record ?</string>
-    <string name="ask_node_delete">Delete node ?</string>
-    <string name="ask_file_delete">Delete file ?</string>
+    <string name="ask_node_delete_mask">Delete node \'%s\' ?</string>
+    <string name="ask_record_delete_mask">Delete record \'%s\' ?</string>
+    <string name="ask_file_delete_mask">Delete file \'%s\' ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
@@ -396,6 +396,7 @@
     <string name="ask_clear_trash">Cleat trash folder?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
+    <string name="ask_load_all_nodes_dialog_title">To do thi, need to load all nodes. Proceed?</string>
     <string name="ask_reload_storage">Reload storage from device memory?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
 <!--    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>-->
@@ -657,4 +658,5 @@
     <string name="pref_key_show_nodes_instead_exit" translatable="false">pref_key_show_nodes_instead_exit</string>
     <string name="pref_show_nodes_instead_exit_summ">Show the nodes tree when clicking on the Back button, instead of app exit</string>
     <string name="pref_show_nodes_instead_exit">Show nodes when clicking on the Back</string>
+    <string name="title_root_node"><![CDATA[<Root node>]]></string>
 </resources>

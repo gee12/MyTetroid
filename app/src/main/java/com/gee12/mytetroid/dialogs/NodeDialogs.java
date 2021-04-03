@@ -272,21 +272,33 @@ public class NodeDialogs {
         SearchView searchView = view.findViewById(R.id.search_view_nodes);
         searchView.setIconified(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            private void searchNodes(String query) {
+                if (TextUtils.isEmpty(query)) {
+                    adapter.setDataItems(DataManager.getRootNodes());
+                    tvEmpty.setVisibility(View.GONE);
+                } else {
+                    List<TetroidNode> found = ScanManager.searchInNodesNames(DataManager.getRootNodes(), query);
+                    adapter.setDataItems(found);
+                    if (found.isEmpty()) {
+                        tvEmpty.setVisibility(View.VISIBLE);
+                        tvEmpty.setText(String.format(context.getString(R.string.search_nodes_not_found_mask), query));
+                    } else {
+                        tvEmpty.setVisibility(View.GONE);
+                    }
+                }
+            }
+
             @Override
             public boolean onQueryTextSubmit(String query) {
-                List<TetroidNode> found = ScanManager.searchInNodesNames(DataManager.getRootNodes(), query);
-                adapter.setDataItems(found);
-                if (found.isEmpty()) {
-                    tvEmpty.setVisibility(View.VISIBLE);
-                    tvEmpty.setText(String.format(context.getString(R.string.search_nodes_not_found_mask), query));
-                } else {
-                    tvEmpty.setVisibility(View.GONE);
-                }
-                return false;
+                searchNodes(query);
+                return true;
             }
+
             @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
+            public boolean onQueryTextChange(String query) {
+                searchNodes(query);
+                return true;
             }
         });
         // Catch event on [x] button inside search view
@@ -296,9 +308,7 @@ public class NodeDialogs {
         View closeButton = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
         if (closeButton != null) {
             closeButton.setOnClickListener(v -> {
-                searchView.setQuery("", false);
-                adapter.setDataItems(DataManager.getRootNodes());
-                tvEmpty.setVisibility(View.GONE);
+                searchView.setQuery("", true);
             });
         }
 
@@ -317,8 +327,8 @@ public class NodeDialogs {
      * @param context
      * @param callback
      */
-    public static void deleteNode(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_node_delete);
+    public static void deleteNode(Context context, String nodeName, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_node_delete_mask, nodeName));
     }
 
 }

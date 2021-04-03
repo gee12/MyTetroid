@@ -107,27 +107,41 @@ public class RecordActivity extends TetroidActivity implements
         static final int OPEN_TAG = 6;
 
         int type;
+        String id;
         Object obj;
         boolean needReloadText;
 
         ResultObj(int type) {
-            this.type = type;
-            this.obj = null;
+            init(type, null, null);
+        }
+
+        ResultObj(int type, String id) {
+            // если есть id, значит obj использоваться не будет
+            init(type, id, null);
         }
 
         ResultObj(Object obj) {
             this.obj = obj;
             if (obj instanceof TetroidRecord) {
                 this.type = OPEN_RECORD;
+                this.id = ((TetroidRecord)obj).getId();
             } else if (obj instanceof TetroidNode) {
                 this.type = OPEN_NODE;
+                this.id = ((TetroidNode)obj).getId();
             } else if (obj instanceof TetroidFile) {
                 this.type = OPEN_FILE;
+                this.id = ((TetroidFile)obj).getId();
             } else if (obj instanceof String) {
                 this.type = OPEN_TAG;
             } else {
                 this.type = NONE;
             }
+        }
+
+        private void init(int type, String id, Object obj) {
+            this.type = type;
+            this.id = id;
+            this.obj = obj;
         }
     }
 
@@ -550,7 +564,7 @@ public class RecordActivity extends TetroidActivity implements
                 saveRecord(false, mResultObj);
                 // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
                 if (mModeToSwitch > 0) {
-                        switchMode(mModeToSwitch, false);
+                    switchMode(mModeToSwitch, false);
                 }
             });
         } else {
@@ -585,20 +599,28 @@ public class RecordActivity extends TetroidActivity implements
             // обрабатываем внутреннюю ссылку
             switch (obj.getType()) {
                 case FoundType.TYPE_RECORD: {
-                    TetroidRecord record = RecordsManager.getRecord(obj.getId());
-                    if (record != null) {
-                        openAnotherRecord(record, true);
+                    if (StorageManager.isFavoritesMode()) {
+                        openAnotherRecord(new ResultObj(ResultObj.OPEN_RECORD, obj.getId()), true);
                     } else {
-                        LogManager.log(this, getString(R.string.log_not_found_record) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                        TetroidRecord record = RecordsManager.getRecord(obj.getId());
+                        if (record != null) {
+                            openAnotherRecord(new ResultObj(record), true);
+                        } else {
+                            LogManager.log(this, getString(R.string.log_not_found_record) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                        }
                     }
                     break;
                 }
                 case FoundType.TYPE_NODE:
-                    TetroidNode node = NodesManager.getNode(obj.getId());
-                    if (node != null) {
-                        openAnotherNode(node, true);
+                    if (StorageManager.isFavoritesMode()) {
+                        openAnotherNode(new ResultObj(ResultObj.OPEN_NODE, obj.getId()), true);
                     } else {
-                        LogManager.log(this, getString(R.string.log_not_found_node_id) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                        TetroidNode node = NodesManager.getNode(obj.getId());
+                        if (node != null) {
+                            openAnotherNode(new ResultObj(node), true);
+                        } else {
+                            LogManager.log(this, getString(R.string.log_not_found_node_id) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+                        }
                     }
                     break;
                 case FoundType.TYPE_TAG:
@@ -660,16 +682,25 @@ public class RecordActivity extends TetroidActivity implements
 
     /**
      * Открытие другой записи по внутренней ссылке.
-     * @param record
+     * @param resObj
      * @param isAskForSave
      */
-    private void openAnotherRecord(TetroidRecord record, boolean isAskForSave) {
-        if (record == null)
+    private void openAnotherRecord(ResultObj resObj, boolean isAskForSave) {
+        if (resObj == null)
             return;
-        if (onSaveRecord(isAskForSave, new ResultObj(record)))
+        if (onSaveRecord(isAskForSave, resObj))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> showAnotherRecord(resObj.id));
+        } else {
+            showAnotherRecord(resObj.id);
+        }
+    }
+
+    private void showAnotherRecord(String id) {
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, record.getId());
+        bundle.putString(EXTRA_OBJECT_ID, id);
         if (mIsFieldsEdited) {
             bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
         }
@@ -678,16 +709,25 @@ public class RecordActivity extends TetroidActivity implements
 
     /**
      * Открытие другой ветки по внутренней ссылке.
-     * @param node
+     * @param resObj
      * @param isAskForSave
      */
-    private void openAnotherNode(TetroidNode node, boolean isAskForSave) {
-        if (node == null)
+    private void openAnotherNode(ResultObj resObj, boolean isAskForSave) {
+        if (resObj == null)
             return;
-        if (onSaveRecord(isAskForSave, new ResultObj(node)))
+        if (onSaveRecord(isAskForSave, new ResultObj(resObj)))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> showAnotherNodeDirectly(resObj.id));
+        } else {
+            showAnotherNodeDirectly(resObj.id);
+        }
+    }
+
+    private void showAnotherNodeDirectly(String id) {
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, node.getId());
+        bundle.putString(EXTRA_OBJECT_ID, id);
         finishWithResult(RESULT_OPEN_NODE, bundle);
     }
 
@@ -695,7 +735,7 @@ public class RecordActivity extends TetroidActivity implements
      * Открытие ветки записи.
      */
     private void showRecordNode() {
-        openAnotherNode(mRecord.getNode(), true);
+        openAnotherNode(new ResultObj(mRecord.getNode()), true);
     }
 
     /**
@@ -727,6 +767,15 @@ public class RecordActivity extends TetroidActivity implements
     private void openTag(String tagName, boolean isAskForSave) {
         if (onSaveRecord(isAskForSave, new ResultObj(tagName)))
             return;
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> openTagDirectly(tagName));
+        } else {
+            openTagDirectly(tagName);
+        }
+    }
+
+    private void openTagDirectly(String tagName) {
         Bundle bundle = new Bundle();
         bundle.putString(EXTRA_TAG_NAME, tagName);
         if (mIsFieldsEdited) {
@@ -1006,10 +1055,10 @@ public class RecordActivity extends TetroidActivity implements
                 }
                 break;
             case ResultObj.OPEN_RECORD:
-                openAnotherRecord((TetroidRecord) resObj.obj, false);
+                openAnotherRecord(resObj, false);
                 break;
             case ResultObj.OPEN_NODE:
-                openAnotherNode((TetroidNode) resObj.obj, false);
+                openAnotherNode(resObj, false);
                 break;
             case ResultObj.OPEN_FILE:
                 openRecordFiles(mRecord, false);
@@ -1130,7 +1179,7 @@ public class RecordActivity extends TetroidActivity implements
      * Удаление записи.
      */
     public void deleteRecord() {
-        RecordDialogs.deleteRecord(this, () -> {
+        RecordDialogs.deleteRecord(this, mRecord.getName(), () -> {
             Bundle bundle = new Bundle();
             bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
             finishWithResult(RESULT_DELETE_RECORD, bundle);
@@ -1441,6 +1490,9 @@ public class RecordActivity extends TetroidActivity implements
                 setFindButtonsVisibility(true);
             }
             @Override
+            public void onQueryChange(String query) {
+            }
+            @Override
             public void onSuggestionSelectOrClick(String query) {
                 mSearchView.setQuery(query, true);
             }
@@ -1483,14 +1535,18 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void expandFieldsIfNeed() {
         boolean needExpand;
-        String option = SettingsManager.getShowRecordFields(this);
-        if (getString(R.string.pref_show_record_fields_no).equals(option)) {
+        if (mRecord.isNew() || mIsReceivedImages || SettingsManager.isRecordEditMode(this)) {
             needExpand = false;
-        } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
-            needExpand = true;
         } else {
-            needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
-            || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
+            String option = SettingsManager.getShowRecordFields(this);
+            if (getString(R.string.pref_show_record_fields_no).equals(option)) {
+                needExpand = false;
+            } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
+                needExpand = true;
+            } else {
+                needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
+                        || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
+            }
         }
         expandRecordFields(needExpand);
     }
@@ -1668,7 +1724,8 @@ public class RecordActivity extends TetroidActivity implements
     private void finishWithResult(int resCode, Bundle bundle) {
         if (getCallingActivity() != null) {
             if (bundle != null) {
-                Intent intent = new Intent();
+                bundle.putInt(EXTRA_RESULT_CODE, resCode);
+                Intent intent = new Intent(ACTION_RECORD);
                 intent.putExtras(bundle);
                 setResult(resCode, intent);
             } else {

@@ -702,11 +702,11 @@ public class SettingsManager {
 
     /**
      * Подтверждать выход из приложения ?
-     * По-умолчанию - нет.
+     * По-умолчанию - да.
      * @return
      */
     public static boolean isConfirmAppExit(Context context) {
-        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, false);
+        return getBoolean(context, R.string.pref_key_is_confirm_app_exit, true);
     }
 
     /*

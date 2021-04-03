@@ -44,6 +44,8 @@ import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.Message;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public class MainPageFragment extends TetroidFragment {
@@ -293,8 +295,8 @@ public class MainPageFragment extends TetroidFragment {
      * Удаление записи.
      * @param record
      */
-    private void deleteRecord(TetroidRecord record) {
-        RecordDialogs.deleteRecord(mContext, () -> {
+    private void deleteRecord(@NotNull TetroidRecord record) {
+        RecordDialogs.deleteRecord(mContext, record.getName(), () -> {
             deleteRecordExactly(record);
         });
     }
@@ -569,8 +571,8 @@ public class MainPageFragment extends TetroidFragment {
      * Удаление прикрепленного файла.
      * @param file
      */
-    private void deleteFile(TetroidFile file) {
-        FileDialogs.deleteFile(mContext, () -> {
+    private void deleteFile(@NotNull TetroidFile file) {
+        FileDialogs.deleteFile(mContext, file.getName(), () -> {
             int res = AttachesManager.deleteAttachedFile(mContext, file, false);
             if (res == -2) {
                 FileDialogs.deleteAttachWithoutFile(mContext, () -> {
@@ -926,7 +928,7 @@ public class MainPageFragment extends TetroidFragment {
                 return true;
             case R.id.action_copy_link:
 
-                // TODO
+                // TODO: реализовать ссылки на файлы
 
                 return true;
             case R.id.action_save_as:

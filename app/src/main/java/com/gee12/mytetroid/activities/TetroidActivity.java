@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -321,15 +322,15 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean taskPreExecute(int sRes) {
+    public int taskPreExecute(int sRes) {
         mTextViewProgress.setText(sRes);
         mLayoutProgress.setVisibility(View.VISIBLE);
         ViewUtils.hideKeyboard(this, getWindow().getDecorView());
-        return true;
+        return Gravity.NO_GRAVITY;
     }
 
     @Override
-    public void taskPostExecute(boolean isDrawerOpened) {
+    public void taskPostExecute(int openedDrawer) {
         mLayoutProgress.setVisibility(View.INVISIBLE);
     }
 

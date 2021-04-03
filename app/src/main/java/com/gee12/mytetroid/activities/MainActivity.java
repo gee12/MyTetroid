@@ -118,9 +118,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_FILE_PICKER = 7;
     public static final int REQUEST_CODE_FOLDER_PICKER = 8;
 
+    public static final String ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY";
 //    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
     public static final String EXTRA_CUR_NODE_ID = "EXTRA_CUR_NODE_ID";
     public static final String EXTRA_QUERY = "EXTRA_QUERY";
+    public static final String EXTRA_SHOW_STORAGE_INFO = "EXTRA_SHOW_STORAGE_INFO";
 
     private DrawerLayout mDrawerLayout;
     private MultiLevelListView mListViewNodes;
@@ -183,6 +185,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         };
         mDrawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+        mDrawerLayout.openDrawer(Gravity.LEFT);
 
         // обработчик нажатия на экране, когда ветка не выбрана
         mDrawerLayout.setOnTouchListener(this);
@@ -245,7 +248,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
         View vNodesHeader = nodesNavView.getHeaderView(0);
         this.mSearchViewNodes = vNodesHeader.findViewById(R.id.search_view_nodes);
         mSearchViewNodes.setVisibility(View.GONE);
-        initNodesSeachView(mSearchViewNodes, vNodesHeader);
+        initNodesSearchView(mSearchViewNodes, vNodesHeader);
 
         // метки
         this.mListViewTags = findViewById(R.id.tags_list_view);
@@ -276,7 +279,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             View.OnClickListener listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    StorageManager.loadAllNodes(MainActivity.this);
+                    StorageManager.loadAllNodes(MainActivity.this, false);
                 }
             };
             mButtonLoadStorageNodes.setOnClickListener(listener);
@@ -418,10 +421,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void reloadStorage() {
-        // сохраняем id выбранной ветки
-//        saveLastSelectedNode();
-
-        // перезагружаем хранилище
         reinitStorage();
     }
 
@@ -1037,7 +1036,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Настройка элемента для фильтра веток.
      * @param nodesHeader
      */
-    private void initNodesSeachView(final SearchView searchView, View nodesHeader) {
+    private void initNodesSearchView(final SearchView searchView, View nodesHeader) {
         final TextView tvHeader = nodesHeader.findViewById(R.id.text_view_nodes_header);
         final ImageView ivIcon = nodesHeader.findViewById(R.id.image_view_app_icon);
 
@@ -1047,7 +1046,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 // ничего не делать, если хранилище не было загружено
                 if (mListAdapterNodes == null)
                     return;
-                mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+                searchInNodesNames(null);
                 setListEmptyViewState(mTextViewNodesEmpty, DataManager.getRootNodes().isEmpty(), R.string.title_nodes_is_missing);
                 tvHeader.setVisibility(View.VISIBLE);
                 ivIcon.setVisibility(View.VISIBLE);
@@ -1061,6 +1060,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
+                searchInNodesNames(query);
+            }
+
+            @Override
+            public void onQueryChange(String query) {
                 searchInNodesNames(query);
             }
 
@@ -1096,6 +1100,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
 
             @Override
+            public void onQueryChange(String query) {
+                searchInTags(query, true);
+            }
+
+            @Override
             public void onSuggestionSelectOrClick(String query) {
                 searchInTags(query, true);
             }
@@ -1107,7 +1116,15 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param query
      */
     private void searchInNodesNames(String query) {
-        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
+        if (TextUtils.isEmpty(query)) {
+            if (mListAdapterNodes != null) {
+                // просто выводим все ветки
+                mListAdapterNodes.setDataItems(DataManager.getRootNodes());
+            }
+            setListEmptyViewState(mTextViewNodesEmpty, false, "");
+            return;
+        }
+//        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
@@ -1137,7 +1154,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void searchInTags(String query, boolean isSearch) {
         Map<String, TetroidTag> tags;
         if (isSearch) {
-            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
+//            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
         } else {
             tags = DataManager.getTags();
@@ -1169,7 +1186,12 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
             @Override
             public void onQuerySubmit(String query) {
-                searchInMainPage(query);
+                searchInMainPage(query, true);
+            }
+
+            @Override
+            public void onQueryChange(String query) {
+                searchInMainPage(query, false);
             }
 
             @Override
@@ -1384,7 +1406,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
             return;
         }
 
-        NodeDialogs.deleteNode(this, () -> {
+        NodeDialogs.deleteNode(this, node.getName(), () -> {
             boolean res = NodesManager.deleteNode(this, node);
             onDeleteNodeResult(node, res, pos, false);
         });
@@ -1397,6 +1419,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, (!isCutted) ? TetroidLog.Opers.DELETE : TetroidLog.Opers.CUT);
             } else {
                 LogManager.log(this, getString(R.string.log_node_delete_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            }
+            // обновляем label с количеством избранных записей
+            if (App.isFullVersion()) {
+                updateFavorites();
             }
             // убираем список записей удаляемой ветки
             if (mCurNode == node || isNodeInNode(mCurNode, node)) {
@@ -1838,7 +1864,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 //                StorageManager.setStorageCallback(this);
                 StorageManager.startInitStorage(this, this, false);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, false)) {
-                StorageManager.loadAllNodes(this);
+                StorageManager.loadAllNodes(this, false);
             } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
                 // обновляем списки, т.к. хранилище должно было расшифроваться
                 updateNodeList();
@@ -1896,12 +1922,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
             case RecordActivity.RESULT_OPEN_RECORD:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String recordId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (recordId != null) {
                     openRecord(recordId);
                 }
                 break;
             case RecordActivity.RESULT_OPEN_NODE:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String nodeId = data.getStringExtra(RecordActivity.EXTRA_OBJECT_ID);
                 if (nodeId != null) {
                     showNode(nodeId);
@@ -1915,6 +1945,8 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
             case RecordActivity.RESULT_SHOW_TAG:
+                if (checkIsNeedLoadAllNodes(data)) return;
+
                 String tagName = data.getStringExtra(RecordActivity.EXTRA_TAG_NAME);
                 TetroidTag tag = DataManager.getTag(tagName);
                 if (tag != null) {
@@ -1932,6 +1964,20 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
                 break;
         }
+    }
+
+    /**
+     * Если включен режим только избранных записей, то сначала нужно загрузить все ветки.
+     * @param data
+     * @return
+     */
+    private boolean checkIsNeedLoadAllNodes(Intent data) {
+        if (StorageManager.isFavoritesMode()) {
+            mReceivedIntent = data;
+            StorageManager.loadAllNodes(MainActivity.this, true);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -2065,6 +2111,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 }
             }*/
 
+        } else if (action.equals(ACTION_MAIN_ACTIVITY)) {
+            if (intent.hasExtra(EXTRA_SHOW_STORAGE_INFO)) {
+                showStorageInfoActivity();
+            }
+
         } else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста/изображения из другого приложения
             String type = intent.getType();
@@ -2133,7 +2184,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     () -> {
                         // сохраняем Intent и загружаем хранилище
                         this.mReceivedIntent = intent;
-                        StorageManager.loadAllNodes(this);
+                        StorageManager.loadAllNodes(this, false);
                     });
             return;
         }
@@ -2204,8 +2255,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * Поиск по записям, меткам или файлам (смотря какой список активен в данный момент).
      * @param query
      */
-    private void searchInMainPage(String query) {
-        TetroidSuggestionProvider.saveRecentQuery(this, query);
+    private void searchInMainPage(String query, boolean isSaveQuery) {
+        if (isSaveQuery) {
+            TetroidSuggestionProvider.saveRecentQuery(this, query);
+        }
         searchInMainPage(query, mViewPagerAdapter.getMainFragment().getCurMainViewId());
     }
 
@@ -2501,8 +2554,16 @@ public class MainActivity extends TetroidActivity implements IMainView {
     }
 
     private void showStorageInfoActivity() {
-        if (App.IsLoadedFavoritesOnly) {
-            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
+        if (StorageManager.isFavoritesMode()) {
+            AskDialogs.showLoadAllNodesDialog(this,
+                    () -> {
+                        // помещаем Intent для обработки
+                        Intent intent = new Intent(ACTION_MAIN_ACTIVITY);
+                        intent.putExtra(EXTRA_SHOW_STORAGE_INFO, true);
+                        this.mReceivedIntent = intent;
+                        // загружаем все ветки
+                        StorageManager.loadAllNodes(MainActivity.this, true);
+                    });
         } else {
             ViewUtils.startActivity(this, InfoActivity.class, null);
         }
@@ -2537,18 +2598,19 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     }
 
-    public boolean taskPreExecute(int sRes) {
+    public int taskPreExecute(int sRes) {
         super.taskPreExecute(sRes);
-        boolean isDrawerOpened = mDrawerLayout.isDrawerOpen(Gravity.LEFT);
+        int openedDrawer = (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) ? Gravity.LEFT
+                : (mDrawerLayout.isDrawerOpen(Gravity.RIGHT)) ? Gravity.RIGHT : Gravity.NO_GRAVITY;
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        return isDrawerOpened;
+        return openedDrawer;
     }
 
-    public void taskPostExecute(boolean isDrawerOpened) {
-        super.taskPostExecute(isDrawerOpened);
+    public void taskPostExecute(int openedDrawer) {
+        super.taskPostExecute(openedDrawer);
         mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        if (isDrawerOpened) {
-            mDrawerLayout.openDrawer(Gravity.LEFT);
+        if (openedDrawer != Gravity.NO_GRAVITY) {
+            mDrawerLayout.openDrawer(openedDrawer);
         }
     }
 
@@ -2557,7 +2619,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
      */
     public class CryptNodeTask extends TetroidTask2<Void,String,Integer> {
 
-        boolean mIsDrawerOpened;
+        int mOpenedDrawer;
         TetroidNode mNode;
         boolean mIsEncrypt;
         boolean mWasCrypted;
@@ -2573,7 +2635,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPreExecute() {
-            this.mIsDrawerOpened = taskPreExecute(
+            this.mOpenedDrawer = taskPreExecute(
                     (mIsEncrypt) ? R.string.task_node_encrypting : R.string.task_node_drop_crypting);
             TetroidLog.logOperStart(mContext, TetroidLog.Objs.NODE,
                     (mIsEncrypt) ? TetroidLog.Opers.ENCRYPT : TetroidLog.Opers.DROPCRYPT, mNode);
@@ -2614,7 +2676,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Integer res) {
-            taskPostExecute(mIsDrawerOpened);
+            taskPostExecute(mOpenedDrawer);
             if (res > 0) {
                 TetroidLog.logOperRes(mContext, TetroidLog.Objs.NODE, mOper);
                 if (!mIsEncrypt && mWasCrypted) {
@@ -2653,7 +2715,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(TetroidFile res) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             mViewPagerAdapter.getMainFragment().attachFile(res);
         }
     }
@@ -2683,7 +2745,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             mViewPagerAdapter.getMainFragment().onSaveFileResult(res);
         }
     }
@@ -2713,7 +2775,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
         @Override
         protected void onPostExecute(HashMap<ITetroidObject,FoundType> found) {
-            taskPostExecute(false);
+            taskPostExecute(Gravity.NO_GRAVITY);
             if (found == null) {
                 LogManager.log(mContext, getString(R.string.log_global_search_return_null), Toast.LENGTH_SHORT);
                 return;

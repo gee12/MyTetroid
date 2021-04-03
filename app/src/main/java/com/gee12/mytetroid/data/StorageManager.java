@@ -34,8 +34,8 @@ public class StorageManager extends DataManager {
      */
     public interface IStorageInitCallback extends TetroidTask2.IAsyncTaskCallback {
         void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode);
-        boolean taskPreExecute(int sRes);
-        void taskPostExecute(boolean isDrawerOpened);
+        int taskPreExecute(int sRes);
+        void taskPostExecute(int openedDrawer);
         void afterStorageLoaded(boolean res);
         void afterStorageDecrypted(TetroidNode node);
         void taskStarted(TetroidTask2 task);
@@ -240,16 +240,18 @@ public class StorageManager extends DataManager {
 
     /**
      * Загрузка всех веток, когда загружено только избранное.
+     * @param context
+     * @param isHandleReceivedIntent Нужно ли обработать mReceivedIntent после загрузки веток.
      */
-    public static void loadAllNodes(Context context) {
+    public static void loadAllNodes(Context context, boolean isHandleReceivedIntent) {
         if (isCrypted(context)) {
             // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
             //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
             //    вводили ПИН-код (для расшифровки избранной записи)
             //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
-            Instance.decryptStorage(context, null, false, false, false);
+            Instance.decryptStorage(context, null, false, false, isHandleReceivedIntent);
         } else {
-            Instance.loadStorage(context, null, false, false, false);
+            Instance.loadStorage(context, null, false, false, isHandleReceivedIntent);
         }
     }
 
@@ -264,11 +266,11 @@ public class StorageManager extends DataManager {
      * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
      * @param isNodeOpening   Вызвана ли функция при попытке открытия зашифрованной ветки
      * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
+     * @param isHandleReceivedIntent  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранным (если именно она передана в node)
      */
     public void decryptStorage(Context context, TetroidNode node, boolean isNodeOpening,
-                                       boolean isOnlyFavorites, boolean isOpenLastNode) {
+                                       boolean isOnlyFavorites, boolean isHandleReceivedIntent) {
         // устанавливаем признак
         StorageManager.setIsPINNeedToEnter();
 
@@ -283,17 +285,17 @@ public class StorageManager extends DataManager {
                     initCryptPass(middlePassHash, true);
                     // запрос ПИН-кода
                     PINManager.askPINCode(context, isNodeOpening, () -> {
-                        loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
+                        loadStorage(context, node, true, isOnlyFavorites, isHandleReceivedIntent);
                     });
 
                 } else if (isNodeOpening) {
                     // спрашиваем пароль
-                    askPassword(context, node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
+                    askPassword(context, node, isNodeOpening, isOnlyFavorites, isHandleReceivedIntent);
                 } else {
                     LogManager.log(context, R.string.log_wrong_saved_pass, Toast.LENGTH_LONG);
                     if (!getInstance().mIsAlreadyTryDecrypt) {
                         getInstance().mIsAlreadyTryDecrypt = true;
-                        loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+                        loadStorage(context, node, false, isOnlyFavorites, isHandleReceivedIntent);
                     }
                 }
             } catch (DatabaseConfig.EmptyFieldException ex) {
@@ -307,7 +309,7 @@ public class StorageManager extends DataManager {
                                 initCryptPass(passHash, true);
                                 // запрос ПИН-кода
                                 PINManager.askPINCode(context, isNodeOpening, () -> {
-                                    loadStorage(context, node, true, isOnlyFavorites, isOpenLastNode);
+                                    loadStorage(context, node, true, isOnlyFavorites, isHandleReceivedIntent);
                                 });
                             }
 
@@ -315,7 +317,7 @@ public class StorageManager extends DataManager {
                             public void onCancel() {
                                 if (!isNodeOpening) {
                                     // загружаем хранилище без пароля
-                                    loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+                                    loadStorage(context, node, false, isOnlyFavorites, isHandleReceivedIntent);
                                 }
                             }
                         }
@@ -327,13 +329,13 @@ public class StorageManager extends DataManager {
             //      * если нужно расшифровывать хранилище сразу на старте
             //      * если функция вызвана во время открытия зашифрованной ветки
             //      * ??? если мы не вызвали загрузку всех веток
-            askPassword(context, node, isNodeOpening, isOnlyFavorites, isOpenLastNode);
+            askPassword(context, node, isNodeOpening, isOnlyFavorites, isHandleReceivedIntent);
         } else {
             // тогда просто загружаем хранилище без расшифровки, если:
             //      * не сохранен пароль
             //      * пароль не нужно спрашивать на старте
             //      * функция не вызвана во время открытия зашифрованной ветки
-            loadStorage(context, node, false, isOnlyFavorites, isOpenLastNode);
+            loadStorage(context, node, false, isOnlyFavorites, isHandleReceivedIntent);
         }
     }
 
@@ -392,10 +394,10 @@ public class StorageManager extends DataManager {
      * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
      * @param isDecrypt       Нужно ли вызвать процесс расшифровки хранилища.
      * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isOpenLastNode  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
+     * @param isHandleReceivedIntent  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
      *                        или ветку с избранным (если именно она передана в node)
      */
-    public void loadStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void loadStorage(Context context, TetroidNode node, boolean isDecrypt, boolean isOnlyFavorites, boolean isHandleReceivedIntent) {
         // расшифровуем хранилище только в том случаем, если:
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
@@ -413,7 +415,7 @@ public class StorageManager extends DataManager {
             // загружаем хранилище впервые, с расшифровкой
             TetroidLog.logOperStart(context, TetroidLog.Objs.STORAGE, TetroidLog.Opers.LOAD);
             getStorageInitCallback().taskStarted(
-                    new ReadStorageTask(getStorageInitCallback(), context, isDecrypt, isOnlyFavorites, isOpenLastNode)
+                    new ReadStorageTask(getStorageInitCallback(), context, isDecrypt, isOnlyFavorites, isHandleReceivedIntent)
                             .run());
         }
     }
@@ -556,6 +558,7 @@ public class StorageManager extends DataManager {
         boolean mIsDecrypt;
         boolean mIsFavoritesOnly;
         boolean mIsOpenLastNode;
+        int mOpenedDrawer;
 
         ReadStorageTask (IStorageInitCallback callback, Context context,
                          boolean isDecrypt, boolean isFavorites, boolean isOpenLastNode) {
@@ -567,7 +570,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPreExecute() {
-            getStorageInitCallback().taskPreExecute(R.string.task_storage_loading);
+            this.mOpenedDrawer = getStorageInitCallback().taskPreExecute(R.string.task_storage_loading);
         }
 
         @Override
@@ -577,7 +580,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getStorageInitCallback().taskPostExecute(true);
+            getStorageInitCallback().taskPostExecute(mOpenedDrawer);
             if (res) {
                 // устанавливаем глобальную переменную
                 App.IsLoadedFavoritesOnly = mIsFavoritesOnly;
@@ -606,7 +609,7 @@ public class StorageManager extends DataManager {
      */
     private static class DecryptStorageTask extends TetroidTask2<Void,Void,Boolean> {
 
-        boolean mIsDrawerOpened;
+        int mOpenedDrawer;
         TetroidNode mNode;
 
         DecryptStorageTask(IStorageInitCallback callback, Context context, TetroidNode node) {
@@ -616,7 +619,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPreExecute() {
-            this.mIsDrawerOpened = getStorageInitCallback().taskPreExecute(R.string.task_storage_decrypting);
+            this.mOpenedDrawer = getStorageInitCallback().taskPreExecute(R.string.task_storage_decrypting);
             TetroidLog.logOperStart(mContext, TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT);
         }
 
@@ -627,7 +630,7 @@ public class StorageManager extends DataManager {
 
         @Override
         protected void onPostExecute(Boolean res) {
-            getStorageInitCallback().taskPostExecute(mIsDrawerOpened);
+            getStorageInitCallback().taskPostExecute(mOpenedDrawer);
             if (res) {
                 LogManager.log(mContext, R.string.log_storage_decrypted, ILogger.Types.INFO, Toast.LENGTH_SHORT);
             } else {
