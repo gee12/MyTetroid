@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -239,8 +240,10 @@ public abstract class TetroidActivity extends AppCompatActivity
                 || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
                 && resultCode == RESULT_OK) {
             String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
-            openOrCreateStorage(folderPath, isCreate);
+            if (!TextUtils.isEmpty(folderPath)) {
+                boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
+                openOrCreateStorage(folderPath, isCreate);
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

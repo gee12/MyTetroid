@@ -147,8 +147,8 @@ public class RecordActivity extends TetroidActivity implements
 
     public static final String ACTION_RECORD = "ACTION_RECORD";
     public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
-    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-    public static final int REQUEST_CODE_CAMERA = 2;
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 11;
+    public static final int REQUEST_CODE_CAMERA = 12;
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
