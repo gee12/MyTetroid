@@ -506,7 +506,7 @@ public class StorageManager extends DataManager {
             //  1) синхронизацию не удалось запустить
             //  2) выбрана синхронизация с помощью Termux,
             //  т.к. в этом случае нет простого механизма получить ответ
-            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.title_app_termux))) {
                 callback.run();
             }
         }

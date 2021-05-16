@@ -7,6 +7,9 @@
     <string name="project_url_html"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 
+    <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
+    <string name="hint_error"><![CDATA[<error>]]></string>
+
     <string name="title_settings">Settings</string>
     <string name="title_open">Open</string>
     <string name="title_password_enter">Enter password</string>
@@ -52,8 +55,9 @@
     <string name="title_search_text">Search text</string>
     <string name="title_gallery">Gallery</string>
     <string name="title_show">Show</string>
-    <string name="title_log_file_content">Логи</string>
+    <string name="title_log_file_content">Logs</string>
     <string name="title_storage_info">Storage info</string>
+    <string name="title_node_icon_choice">Select icon</string>
     <string name="title_to_node">To node</string>
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
@@ -123,6 +127,19 @@
     <string name="title_record">Record</string>
     <string name="title_node">Node</string>
     <string name="title_tag">Tag</string>
+    <string name="title_enter_pin_code_length">Enter PIN-code length</string>
+    <string name="title_new_record">New record</string>
+    <string name="title_add_record">Add record</string>
+    <string name="title_select_node"><![CDATA[<Select the node>]]></string>
+    <string name="title_choose_node">Select node</string>
+    <string name="title_founded_in_mask">Founded in: %s</string>
+    <string name="title_by_records_num">By records num</string>
+    <string name="title_by_tag_name">By name desc</string>
+    <string name="title_root_node"><![CDATA[<Root node>]]></string>
+    <string name="title_drop_icon">Drop icon</string>
+    <string name="title_done">Done</string>
+    <string name="title_app_termux" translatable="false">Termux</string>
+    <string name="title_app_mgit" translatable="false">MGit</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -135,9 +152,21 @@
     <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[In the application the boot mode is <b>load only favorites</b>. To receive %s, you need to load all nodes of the storage.<br>Proceed?]]></string>
 
+    <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
+    <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
+    <string name="mes_select_decrypted_node">Select a decrypted node</string>
+    <string name="mes_select_first_level_node">Select the first level node</string>
+    <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
+    <string name="mes_attached_file_mask">Attached file \"%s\"</string>
+    <string name="mes_attached_files_mask">Attached files: %d</string>
+
     <string name="word_received_text">text</string>
     <string name="word_received_image">image</string>
     <string name="word_received_images">images</string>
+
+    <string name="launched">launched</string>
+    <string name="relaunched">re-launched</string>
+    <string name="stopped">stopped</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
     <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
@@ -287,6 +316,22 @@
     <string name="pref_key_record_fields_in_list" translatable="false">pref_key_record_fields_in_list</string>
     <string name="pref_record_fields_in_list">Record fields to show</string>
     <string name="pref_record_fields_in_list_summ">Record fields to show in list</string>
+    <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
+    <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
+    <string name="pref_app_for_sync">Application</string>
+    <string name="pref_app_for_sync_summ">Application used to start sync</string>
+    <string name="pref_key_is_sync_before_exit" translatable="false">pref_key_is_sync_before_exit</string>
+    <string name="pref_expand_empty_nodes">Expand empty nodes</string>
+    <string name="pref_expand_empty_nodes_summ">Expanding an empty nodes instead of opening a list of its records</string>
+    <string name="pref_key_is_expand_empty_nodes" translatable="false">pref_key_is_expand_empty_nodes</string>
+    <string name="pref_key_show_nodes_instead_exit" translatable="false">pref_key_show_nodes_instead_exit</string>
+    <string name="pref_show_nodes_instead_exit_summ">Show the nodes tree when clicking on the Back button, instead of app exit</string>
+    <string name="pref_show_nodes_instead_exit">Show nodes when clicking on the Back</string>
+    <string name="pref_key_double_tap_fullscreen" translatable="false">pref_key_double_tap_fullscreen</string>
+    <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
+    <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a record text</string>
+    <string name="pref_quickly_node">Node for quick insertion</string>
+    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -355,6 +400,15 @@
     <string name="label_path">Path to folder:</string>
     <string name="label_file_size">File size:</string>
     <string name="label_folder_size">Folder size:</string>
+    <string name="label_icons_section">Section:</string>
+    <string name="label_storage_path">Storage:</string>
+    <string name="label_storage_size">Size on disk:</string>
+    <string name="label_storage_last_edit">Last modified tree:</string>
+    <string name="label_node">Node:</string>
+    <string name="label_record">Record:</string>
+    <string name="label_parent_node">Parent node:</string>
+    <string name="label_favorite">Favorite</string>
+    <string name="label_pin_code_size">Value 4–8:</string>
 
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
@@ -405,6 +459,9 @@
     <string name="ask_storage_changed_outside">The record tree has been modified by a third party program. Reboot the storage to continue working with the new data outside?</string>
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="ask_dir_not_empty">The selected directory is not empty. Continue anyway?</string>
+    <string name="ask_permission_termux">Permission to run Termux commands</string>
+    <string name="ask_load_storage">The storage is not loaded. Load?</string>
+    <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -596,67 +653,19 @@
     <string name="log_run_termux_commands_perm_granted">Permission granted to run Termux commands</string>
     <string name="log_record_fields_changed">Record fields changed</string>
     <string name="log_record_saved">Record saved</string>
-    <string name="label_pin_code_size">Value 4–8:</string>
-    <string name="title_enter_pin_code_length">Enter PIN-code length</string>
-    <string name="pref_key_double_tap_fullscreen" translatable="false">pref_key_double_tap_fullscreen</string>
-    <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
-    <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a record text</string>
-    <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
-    <string name="title_new_record">New record</string>
-    <string name="title_add_record">Add record</string>
-    <string name="pref_quickly_node">Node for quick insertion</string>
-    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>
-    <string name="label_node">Node:</string>
-    <string name="label_record">Record:</string>
-    <string name="label_parent_node">Parent node:</string>
-    <string name="label_favorite">Favorite</string>
-    <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
-    <string name="mes_select_decrypted_node">Select a decrypted node</string>
-    <string name="mes_select_first_level_node">Select the first level node</string>
-    <string name="title_select_node"><![CDATA[<Select the node>]]></string>
-    <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
-    <string name="title_choose_node">Select node</string>
-    <string name="ask_load_storage">The storage is not loaded. Load?</string>
-    <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
-    <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
-    <string name="hint_error"><![CDATA[<error>]]></string>
     <string name="log_record_node_is_empty">Record node is empty</string>
     <string name="log_func_disabled">The functionality is disabled due to restrictions on its development</string>
-    <string name="mes_attached_file_mask">Attached file \"%s\"</string>
-    <string name="mes_attached_files_mask">Attached files: %d</string>
     <string name="log_storage_created">Storage was created</string>
     <string name="log_sync_app_not_installed">MGit app is not installed</string>
     <string name="log_review_request_not_succ" translatable="false">TetroidReview.showInAppReview(): request for review flow is not successful</string>
     <string name="log_start_review" translatable="false">Start in-app review</string>
-    <string name="label_storage_path">Storage:</string>
-    <string name="label_storage_size">Size on disk:</string>
-    <string name="label_storage_last_edit">Last modified tree:</string>
     <string name="log_storage_need_load">Storage must be loaded</string>
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
     <string name="log_dir_not_empty">Directory is not empty</string>
     <string name="log_mOptionsMenu_is_null" translatable="false">TetroidActivity.updateOptionsMenu(): mOptionsMenu is null</string>
-    <string name="title_founded_in_mask">Founded in: %s</string>
     <string name="log_mytetra_xml_observer_mask">Track changes to a file mytetra.xml was %s</string>
-    <string name="launched">launched</string>
-    <string name="relaunched">re-launched</string>
-    <string name="stopped">stopped</string>
-    <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
-    <string name="title_by_records_num">By records num</string>
-    <string name="title_by_tag_name">By name desc</string>
-    <string name="app_termux" translatable="false">Termux</string>
-    <string name="app_mgit" translatable="false">MGit</string>
-    <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
-    <string name="pref_app_for_sync">Application</string>
-    <string name="pref_app_for_sync_summ">Application used to start sync</string>
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
-    <string name="ask_permission_termux">Permission to run Termux commands</string>
-    <string name="pref_key_is_sync_before_exit" translatable="false">pref_key_is_sync_before_exit</string>
-    <string name="pref_expand_empty_nodes">Expand empty nodes</string>
-    <string name="pref_expand_empty_nodes_summ">Expanding an empty nodes instead of opening a list of its records</string>
-    <string name="pref_key_is_expand_empty_nodes" translatable="false">pref_key_is_expand_empty_nodes</string>
-    <string name="pref_key_show_nodes_instead_exit" translatable="false">pref_key_show_nodes_instead_exit</string>
-    <string name="pref_show_nodes_instead_exit_summ">Show the nodes tree when clicking on the Back button, instead of app exit</string>
-    <string name="pref_show_nodes_instead_exit">Show nodes when clicking on the Back</string>
-    <string name="title_root_node"><![CDATA[<Root node>]]></string>
+    <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
+    <string name="log_icons_dir_absent_mask">Directory with icons %s is missing</string>
 </resources>

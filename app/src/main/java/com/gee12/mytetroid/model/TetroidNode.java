@@ -47,7 +47,11 @@ public class TetroidNode extends TetroidObject {
     }
 
     public void loadIcon(Context context, String iconsFolderPath) {
-        if (iconsFolderPath == null || TextUtils.isEmpty(getIconName())) {
+        if (TextUtils.isEmpty(getIconName())) {
+            this.icon = null;
+            return;
+        }
+        if (iconsFolderPath == null) {
             return;
         }
         try {

@@ -117,6 +117,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
     public static final int REQUEST_CODE_SEARCH_ACTIVITY = 5;
     public static final int REQUEST_CODE_FILE_PICKER = 7;
     public static final int REQUEST_CODE_FOLDER_PICKER = 8;
+    public static final int REQUEST_CODE_ICON = 9;
 
     public static final String ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY";
 //    public static final String EXTRA_CUR_NODE_IS_NOT_NULL = "EXTRA_CUR_NODE_IS_NOT_NULL";
@@ -1382,7 +1383,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         NodeDialogs.createNodeDialog(this, node, false, (name, parNode) -> {
             if (NodesManager.editNodeFields(this, node, name)) {
                 TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
-//                mListAdapterNodes.notifyDataSetChanged();
                 updateNodeList();
                 if (mCurNode == node) {
                     setTitle(name);
@@ -1391,6 +1391,21 @@ public class MainActivity extends TetroidActivity implements IMainView {
                 TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.RENAME);
             }
         });
+    }
+
+    private void setNodeIcon(TetroidNode node) {
+        IconsActivity.startIconsActivity(this, node, REQUEST_CODE_ICON);
+    }
+
+    private void setNodeIcon(String nodeId, String iconPath, boolean isDrop) {
+        TetroidNode node = (mCurNode != null && mCurNode.getId() == nodeId) ? mCurNode
+                : NodesManager.getNode(nodeId);
+        if (NodesManager.setNodeIcon(this, node, iconPath, isDrop)) {
+            TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CHANGE);
+            updateNodeList();
+        } else {
+            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CHANGE);
+        }
     }
 
     /**
@@ -1654,6 +1669,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
                     renameNode(node);
                     return true;
                 case R.id.action_node_icon:
+                    setNodeIcon(node);
                     return true;
                 case R.id.action_copy_link:
                     copyNodeLink(node);
@@ -1824,6 +1840,11 @@ public class MainActivity extends TetroidActivity implements IMainView {
             // сохраняем путь
             SettingsManager.setLastChoosedFolder(this, folderPath);
             this.mCurTask = new SaveFileTask(mViewPagerAdapter.getMainFragment().getCurFile()).run(folderPath);
+        } else if (requestCode == REQUEST_CODE_ICON && resultCode == RESULT_OK) {
+            String nodeId = data.getStringExtra(IconsActivity.EXTRA_NODE_ID);
+            String iconPath = data.getStringExtra(IconsActivity.EXTRA_NODE_ICON_PATH);
+            boolean isDrop = data.getBooleanExtra(IconsActivity.EXTRA_IS_DROP, false);
+            setNodeIcon(nodeId, iconPath, isDrop);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
