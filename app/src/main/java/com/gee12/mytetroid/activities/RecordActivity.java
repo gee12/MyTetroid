@@ -32,6 +32,7 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
+import com.gee12.htmlwysiwygeditor.INetworkWorker;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
@@ -73,8 +74,13 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -91,6 +97,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener,
         IImagePicker,
         IColorPicker,
+        INetworkWorker,
         ColorPickerDialogListener {
 
     /**
@@ -251,6 +258,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setColorPickerListener(this);
         mEditor.setImagePickerListener(this);
+        mEditor.setNetworkWorkerListener(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
@@ -875,6 +883,44 @@ public class RecordActivity extends TetroidActivity implements
         if (!savedImages.isEmpty()) {
             mEditor.insertImages(savedImages);
         }
+    }
+
+    /**
+     * Загрузка содержимого Web-страницы.
+     * @param url
+     * @return
+     */
+    @Override
+    public void downloadWebPageContent(String url, boolean isTextOnly) {
+        setProgressVisibility(true);
+        new Thread(() -> {
+            try {
+                Connection conn = Jsoup.connect(url);
+                Document doc = conn.get();
+
+                runOnUiThread(() -> {
+                    String content = "";
+                    Element body = doc.body();
+                    if (body != null) {
+                        if (isTextOnly) {
+                            content = HtmlHelper.elementToText(body);
+                        } else {
+                            content = body.html();
+                        }
+                    }
+                    mEditor.insertWebPageContent(content, isTextOnly);
+                });
+            } catch (IOException ex) {
+                runOnUiThread(() -> {
+                    TetroidLog.log(RecordActivity.this,
+                            getString(R.string.log_error_download_web_page_content), ex, Toast.LENGTH_LONG);
+                });
+            } finally {
+                runOnUiThread(() -> {
+                    setProgressVisibility(false);
+                });
+            }
+        }).start();
     }
 
     /**

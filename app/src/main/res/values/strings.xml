@@ -668,4 +668,5 @@
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
     <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
     <string name="log_icons_dir_absent_mask">Directory with icons %s is missing</string>
+    <string name="log_error_download_web_page_content">Error loading web-page content</string>
 </resources>

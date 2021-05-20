@@ -3,6 +3,12 @@ package com.gee12.mytetroid.data;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeFilter;
+import org.jsoup.select.NodeTraversor;
+
 public class HtmlHelper {
 
     public static final String HTML_START_WITH =
@@ -63,4 +69,74 @@ public class HtmlHelper {
         return sb.toString();
     }
 
+    public static String elementToText(Element element)
+    {
+        final StringBuilder buffer = new StringBuilder();
+
+        NodeTraversor.filter(new NodeFilter() {
+            boolean isNewline = true;
+
+            @Override
+            public FilterResult head(Node node, int depth) {
+                if (node instanceof TextNode) {
+                    TextNode textNode = (TextNode) node;
+                    String text = textNode.text().replace('\u00A0', ' ').trim();
+                    if (!text.isEmpty())
+                    {
+                        buffer.append(text);
+                        isNewline = false;
+                    }
+                } else if (node instanceof Element) {
+                    Element element = (Element) node;
+                    if (!isNewline)
+                    {
+                        if((element.isBlock() || element.tagName().equals("br")))
+                        {
+                            buffer.append("\n");
+                            isNewline = true;
+                        }
+                    }
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            @Override
+            public FilterResult tail(Node node, int depth) {
+                return null;
+            }
+        }, element);
+
+//        new NodeTraversor(new NodeVisitor() {
+//            boolean isNewline = true;
+//
+//            @Override
+//            public void head(Node node, int depth) {
+//                if (node instanceof TextNode) {
+//                    TextNode textNode = (TextNode) node;
+//                    String text = textNode.text().replace('\u00A0', ' ').trim();
+//                    if(!text.isEmpty())
+//                    {
+//                        buffer.append(text);
+//                        isNewline = false;
+//                    }
+//                } else if (node instanceof Element) {
+//                    Element element = (Element) node;
+//                    if (!isNewline)
+//                    {
+//                        if((element.isBlock() || element.tagName().equals("br")))
+//                        {
+//                            buffer.append("\n");
+//                            isNewline = true;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void tail(Node node, int depth) {
+//            }
+//        }).traverse(element);
+
+        return buffer.toString();
+    }
 }
