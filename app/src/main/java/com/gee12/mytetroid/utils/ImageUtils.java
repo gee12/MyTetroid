@@ -24,9 +24,23 @@ public class ImageUtils {
      * @param quality
      * @throws Exception
      */
-    public static boolean convertImage(Context context, Uri srcUri, String destImagePath, Bitmap.CompressFormat format, int quality)
-            throws Exception {
+    public static boolean convertImage(Context context, Uri srcUri, String destImagePath,
+                                       Bitmap.CompressFormat format, int quality) throws Exception {
         Bitmap bitmap = getBitmap(context, srcUri);
+        return saveBitmap(bitmap, destImagePath, format, quality);
+    }
+
+    /**
+     * Сохранение изображения в файл в необходимом формате.
+     * @param bitmap
+     * @param destImagePath
+     * @param format
+     * @param quality
+     * @return
+     * @throws Exception
+     */
+    public static boolean saveBitmap(Bitmap bitmap, String destImagePath,
+                                     Bitmap.CompressFormat format, int quality) throws Exception {
         if (bitmap == null)
             return false;
         OutputStream stream = new FileOutputStream(destImagePath);

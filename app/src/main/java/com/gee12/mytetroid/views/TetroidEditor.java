@@ -124,6 +124,12 @@ public class TetroidEditor extends WysiwygEditor {
         mWebView.execJavascript(script);
     }
 
+    public void insertImage(TetroidImage image) {
+        ImageUtils.setImageDimensions(
+                RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
+        showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
+    }
+
     /**
      * Вставка выбранных изображений.
      * @param images
@@ -135,37 +141,13 @@ public class TetroidEditor extends WysiwygEditor {
         if (size > 0) {
             if (size == 1) {
                 // выводим диалог установки размера
-                TetroidImage image = images.get(0);
-//                ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
-                ImageUtils.setImageDimensions(
-                        RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
-                showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
+                insertImage(images.get(0));
             } else {
                 // спрашиваем о необходимости изменения размера
                 AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
                         createImageDimensDialog(images, 0);
-                        /*AtomicBoolean isSimilarParams = new AtomicBoolean(false);
-                        int[] lastDimens = new int[2];
-                        for (TetroidImage image : images) {
-                            if (!isSimilarParams.get()) {
-                                // выводим диалог установки размера
-                                ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
-                                Dialogs.createImageDimensDialog(getContext(), image.getWidth(), image.getHeight(), true,
-                                        (width, height, similar) -> {
-                                    isSimilarParams.set(similar);
-                                    if (similar) {
-                                        lastDimens[0] = width;
-                                        lastDimens[1] = height;
-                                    }
-                                    mWebView.insertImage(image.getName(), width, height);
-                                });
-                            } else {
-                                // устанавливаем "сохраненный" размер
-                                mWebView.insertImage(image.getName(), lastDimens[0], lastDimens[1]);
-                            }
-                        }*/
                     }
                     @Override
                     public void onCancel() {
@@ -183,7 +165,6 @@ public class TetroidEditor extends WysiwygEditor {
         if (images == null || pos < 0 || pos >= images.size())
             return;
         TetroidImage image = images.get(pos);
-//        ImageUtils.setImageDimensions(DataManager.getStoragePathBase(), image);
         ImageUtils.setImageDimensions(
                 RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
         // выводим диалог установки размера

@@ -108,6 +108,11 @@
         <item>File was&#160;</item>
         <item>file</item>
     </string-array>
+    <string-array name="obj_image">
+        <item>image</item>
+        <item>Image was&#160;</item>
+        <item>image</item>
+    </string-array>
     <string-array name="obj_file_fields">
         <item>file fields</item>
         <item>File fields was&#160;</item>

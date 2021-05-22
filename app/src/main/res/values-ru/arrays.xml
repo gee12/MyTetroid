@@ -80,6 +80,11 @@
         <item>Файл&#160;</item>
         <item>файла</item>
     </string-array>
+    <string-array name="obj_image">
+        <item>изображение</item>
+        <item>Изображение&#160;</item>
+        <item>изображения</item>
+    </string-array>
     <string-array name="obj_file_fields">
         <item>свойства файла</item>
         <item>Свойства файла&#160;</item>

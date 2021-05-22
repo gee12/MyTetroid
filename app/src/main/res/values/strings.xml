@@ -588,6 +588,7 @@
     <string name="log_error_image_file_saving">Failed to save image file</string>
 <!--    <string name="log_failed_to_save_images_mask">Failed to save images: %d (more in the logs)</string>-->
     <string name="log_failed_to_save_images_mask">Failed to save images: %d</string>
+    <string name="log_failed_to_save_image">Failed to save image: %d</string>
 <!--    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>-->
     <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
 <!--    <string name="log_error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>-->
@@ -668,5 +669,6 @@
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
     <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
     <string name="log_icons_dir_absent_mask">Directory with icons %s is missing</string>
-    <string name="log_error_download_web_page_content">Error loading web-page content</string>
+    <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
+    <string name="log_error_download_image_mask">Error loading image:\n%s</string>
 </resources>

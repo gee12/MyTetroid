@@ -31,6 +31,7 @@ public class TetroidLog extends LogManager {
         RECORD_DIR(R.array.obj_record_dir),
         TAG(R.array.obj_tag),
         FILE(R.array.obj_file),
+        IMAGE(R.array.obj_image),
         FILE_FIELDS(R.array.obj_file_fields),
         CUR_PASS(),
         NEW_PASS();

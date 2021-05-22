@@ -583,5 +583,6 @@
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
     <string name="log_icons_dirs_absent">Отсутствуют каталоги с иконками</string>
     <string name="log_icons_dir_absent_mask">Отсутствует каталог %s с иконками</string>
-    <string name="log_error_download_web_page_content">Ошибка загрузки содержимого страницы</string>
+    <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
+    <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
 </resources>

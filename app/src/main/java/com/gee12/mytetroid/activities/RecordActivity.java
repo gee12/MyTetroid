@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -39,6 +40,8 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.data.ImagesManager;
+import com.gee12.mytetroid.data.NetworkHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -74,13 +77,8 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 import net.cachapa.expandablelayout.ExpandableLayout;
 
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -868,7 +866,7 @@ public class RecordActivity extends TetroidActivity implements
         int errorCount = 0;
         List<TetroidImage> savedImages = new ArrayList<>();
         for (Uri uri : imageUris) {
-            TetroidImage savedImage = DataManager.saveImage(this, mRecord, uri, deleteSrcFile);
+            TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, uri, deleteSrcFile);
             if (savedImage != null) {
                 savedImages.add(savedImage);
             } else {
@@ -885,42 +883,68 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    private void saveImage(Bitmap bitmap) {
+        TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, bitmap);
+        if (savedImage != null) {
+            mEditor.insertImage(savedImage);
+        } else {
+            TetroidLog.logOperError(this, TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
     /**
-     * Загрузка содержимого Web-страницы.
+     * Загрузка содержимого Web-страницы по ссылке.
      * @param url
      * @return
      */
     @Override
     public void downloadWebPageContent(String url, boolean isTextOnly) {
         setProgressVisibility(true);
-        new Thread(() -> {
-            try {
-                Connection conn = Jsoup.connect(url);
-                Document doc = conn.get();
-
+        NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, new NetworkHelper.IWebPageContentResult() {
+            @Override
+            public void onSuccess(String content, boolean isTextOnly) {
                 runOnUiThread(() -> {
-                    String content = "";
-                    Element body = doc.body();
-                    if (body != null) {
-                        if (isTextOnly) {
-                            content = HtmlHelper.elementToText(body);
-                        } else {
-                            content = body.html();
-                        }
-                    }
                     mEditor.insertWebPageContent(content, isTextOnly);
-                });
-            } catch (IOException ex) {
-                runOnUiThread(() -> {
-                    TetroidLog.log(RecordActivity.this,
-                            getString(R.string.log_error_download_web_page_content), ex, Toast.LENGTH_LONG);
-                });
-            } finally {
-                runOnUiThread(() -> {
                     setProgressVisibility(false);
                 });
             }
-        }).start();
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> {
+                    TetroidLog.log(RecordActivity.this,
+                            getString(R.string.log_error_download_web_page_mask, ex.getMessage()), Toast.LENGTH_LONG);
+                    setProgressVisibility(false);
+                });
+            }
+        });
+    }
+
+    /**
+     * Загрузка изображение по ссылке.
+     * @param url
+     * @return
+     */
+    @Override
+    public void downloadImage(String url) {
+        setProgressVisibility(true);
+        NetworkHelper.downloadImageAsync(url, new NetworkHelper.IWebImageResult() {
+            @Override
+            public void onSuccess(Bitmap bitmap) {
+                runOnUiThread(() -> {
+                    saveImage(bitmap);
+                    setProgressVisibility(false);
+                });
+            }
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> {
+                    TetroidLog.log(RecordActivity.this,
+                            getString(R.string.log_error_download_image_mask, ex.getMessage()), Toast.LENGTH_LONG);
+                    setProgressVisibility(false);
+                });
+            }
+        });
     }
 
     /**
