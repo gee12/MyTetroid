@@ -1153,6 +1153,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
      * @param isSearch Если false, то происходит сброс фильтра.
      */
     private void searchInTags(String query, boolean isSearch) {
+        if (!DataManager.isLoaded()) {
+            onGUICreated();
+            return;
+        }
         Map<String, TetroidTag> tags;
         if (isSearch) {
 //            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
