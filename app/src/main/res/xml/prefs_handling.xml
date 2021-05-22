@@ -14,7 +14,7 @@
         android:title="@string/pref_expand_empty_nodes" />
 
     <CheckBoxPreference
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:key="@string/pref_key_show_nodes_instead_exit"
         android:summary="@string/pref_show_nodes_instead_exit_summ"
         android:title="@string/pref_show_nodes_instead_exit" />

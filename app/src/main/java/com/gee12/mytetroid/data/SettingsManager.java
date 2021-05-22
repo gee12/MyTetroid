@@ -697,7 +697,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isShowNodesInsteadExit(Context context) {
-        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, false);
+        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, true);
     }
 
     /**
