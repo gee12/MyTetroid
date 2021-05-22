@@ -101,7 +101,7 @@ public class SyncManager {
         String[] words = command.split(" ");
         String first = words[0];
         if (words.length > 1) {
-            Utils.removeArrayItem(words, 0);
+            words = Utils.removeArrayItem(words, 0);
         } else {
             words = null;
         }
