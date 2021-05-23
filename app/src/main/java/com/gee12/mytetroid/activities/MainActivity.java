@@ -320,10 +320,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         this.mIsActivityCreated = true;
     }
 
-/*    private void setMenuItemsDefVisible() {
-        ViewUtils.setVisibleIfNotNull(mMenuItemStorageSync, SettingsManager.isSyncStorage(this));
-    }*/
-
     /**
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
@@ -333,7 +329,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         // инициализация
         App.init(this);
         mViewPagerAdapter.getMainFragment().onSettingsInited();
-//        setMenuItemsDefVisible();
 
         if (StorageManager.isLoaded()) {
             // тут ничего не пишем.
@@ -1125,7 +1120,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             setListEmptyViewState(mTextViewNodesEmpty, false, "");
             return;
         }
-//        LogManager.log(this, String.format(getString(R.string.filter_nodes_by_query), query));
         List<TetroidNode> found = ScanManager.searchInNodesNames(
                 DataManager.getRootNodes(), query);
         mListAdapterNodes.setDataItems(found);
@@ -1159,7 +1153,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
         }
         Map<String, TetroidTag> tags;
         if (isSearch) {
-//            LogManager.log(this, String.format(getString(R.string.filter_tags_by_query), query));
             tags = ScanManager.searchInTags(DataManager.getTags(), query);
         } else {
             tags = DataManager.getTags();
@@ -1243,8 +1236,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
     private void changeToolBarByPage(int curPage) {
         if (curPage == MainViewPager.PAGE_MAIN) {
             mViewPagerAdapter.getMainFragment().restoreLastMainToolbarState();
-//            setRecordsSearchViewVisibility(true);
-//            invalidateOptionsMenu();
         } else {
             updateMainToolbar(MainPageFragment.MAIN_VIEW_GLOBAL_FOUND, null);
         }
