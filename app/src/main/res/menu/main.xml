@@ -9,11 +9,11 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:visible="false"/>
     <item
-        android:id="@+id/action_record_node"
+        android:id="@+id/action_move_back"
         android:orderInCategory="70"
-        android:title="@string/title_to_node"
+        android:title="@string/title_move_back"
         android:visible="false"
-        android:icon="@drawable/ic_show_node_white"
+        android:icon="@drawable/ic_move_back_white"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_cur_record"

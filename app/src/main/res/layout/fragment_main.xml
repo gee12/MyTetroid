@@ -82,12 +82,25 @@
                 android:gravity="center_horizontal"
                 android:text="@string/title_files_is_missing" />
 
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/button_add_file"
-                android:src="@android:drawable/ic_input_add"
-                app:backgroundTint="@color/colorGreen_50"
-                android:visibility="gone"
-                style="@style/fab"/>
+            <com.github.clans.fab.FloatingActionMenu
+                android:id="@+id/fab_add_attach"
+                app:menu_icon="@android:drawable/ic_input_add"
+                style="@style/fab_clans_menu"
+                app:menu_labels_style="@style/fab_clans_label">
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fab_attach_file_by_link"
+                    android:src="@drawable/ic_link_white"
+                    app:fab_label="@string/title_download_by_link"
+                    style="@style/fab_clans_button" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fab_attach_local_file"
+                    android:src="@drawable/ic_file_white"
+                    app:fab_label="@string/title_select_on_device"
+                    style="@style/fab_clans_button" />
+
+            </com.github.clans.fab.FloatingActionMenu>
 
         </RelativeLayout>
 
