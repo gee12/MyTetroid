@@ -21,7 +21,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.StorageChooserDialog;
+import com.gee12.mytetroid.dialogs.StorageChooserDialog;
 
 import java.io.File;
 
