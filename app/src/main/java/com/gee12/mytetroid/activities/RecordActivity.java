@@ -49,6 +49,7 @@ import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.fragments.settings.SettingsFragment;
+import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TetroidLog;
@@ -265,6 +266,7 @@ public class RecordActivity extends TetroidActivity implements
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
+        webView.setClipboardListener(new TetroidClipboardListener(this));
 
         this.mTextViewTags = findViewById(R.id.text_view_record_tags);
         mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());

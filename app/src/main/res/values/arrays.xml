@@ -62,6 +62,51 @@
         <item>record id</item>
         <item>file id</item>
     </string-array>
+    <string-array name="clipboard_simple_url">
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_url">
+        <item>@string/title_insert_web_page</item>
+        <item>@string/title_insert_web_page_as_text</item>
+        <item>@string/title_attach_web_page_as_file</item>
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_local_file">
+        <item>@string/title_attach_file</item>
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_web_file">
+        <item>@string/title_download_attach_file</item>
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_local_image">
+        <item>@string/title_insert_image</item>
+        <item>@string/title_attach_image</item>
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_web_image">
+        <item>@string/title_download_insert_image</item>
+        <item>@string/title_download_attach_image</item>
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_tetroid_record">
+<!--        TODO:-->
+<!--        <item>@string/title_insert_record_content</item>-->
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
+    <string-array name="clipboard_tetroid_file">
+<!--        TODO:-->
+<!--        <item>@string/title_attach_file</item>-->
+        <item>@string/title_insert_hyperlink</item>
+        <item>@string/title_insert_url_as_text</item>
+    </string-array>
 
     <string-array name="obj_storage">
         <item>storage</item>
