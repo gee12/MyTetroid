@@ -91,6 +91,60 @@ public class NodesManager extends DataManager {
     }
 
     /**
+     * Установка иконки ветки.
+     * @param node
+     * @param iconFileName
+     * @return
+     */
+    public static boolean setNodeIcon(Context context, TetroidNode node, String iconFileName) {
+        return setNodeIcon(context, node, iconFileName, false);
+    }
+
+    /**
+     * Сброс иконки ветки.
+     * @param node
+     * @return
+     */
+    public static boolean dropNodeIcon(Context context, TetroidNode node) {
+        return setNodeIcon(context, node, null, true);
+    }
+
+    /**
+     * Установка иконки ветки.
+     * @param node
+     * @param iconFileName
+     * @return
+     */
+    public static boolean setNodeIcon(Context context, TetroidNode node, String iconFileName, boolean isDrop) {
+        if (node == null || TextUtils.isEmpty(iconFileName) && !isDrop) {
+            LogManager.emptyParams(context, "DataManager.setNodeIcon()");
+            return false;
+        }
+        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE, node);
+
+        String oldIconName = node.getIconName(true);
+        // обновляем поля
+        boolean crypted = node.isCrypted();
+        node.setIconName(Instance.encryptField(crypted, iconFileName));
+        if (crypted) {
+            node.setDecryptedIconName(iconFileName);
+        }
+        // перезаписываем структуру хранилища в файл
+        if (Instance.saveStorage(context)) {
+            node.loadIcon(context, IconsManager.getIconsFolderPath());
+        } else {
+            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE);
+            // возвращаем изменения
+            node.setIconName(oldIconName);
+            if (crypted) {
+                node.setDecryptedIconName(Instance.decryptField(crypted, oldIconName));
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Удаление ветки.
      * @param node
      * @return

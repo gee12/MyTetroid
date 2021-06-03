@@ -24,8 +24,7 @@
         android:id="@+id/action_node_icon"
         android:orderInCategory="40"
         android:title="@string/title_set_node_icon"
-        android:icon="@drawable/ic_node_icon"
-        android:visible="false" />
+        android:icon="@drawable/ic_node_icon" />
     <item
         android:id="@+id/action_copy_link"
         android:orderInCategory="50"

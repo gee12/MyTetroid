@@ -21,7 +21,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.StorageChooserDialog;
+import com.gee12.mytetroid.dialogs.StorageChooserDialog;
 
 import java.io.File;
 
@@ -506,7 +506,7 @@ public class StorageManager extends DataManager {
             //  1) синхронизацию не удалось запустить
             //  2) выбрана синхронизация с помощью Termux,
             //  т.к. в этом случае нет простого механизма получить ответ
-            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+            if (!res || SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.title_app_termux))) {
                 callback.run();
             }
         }

@@ -14,11 +14,19 @@
     <color name="colorProgress_50">#BFEEEEEE</color>
     <color name="colorGray_50">#668B8B8B</color>
     <color name="colorGreen_50">#4D86B945</color>
+    <color name="colorGreenDark_50">#AA49780b</color>
     <color name="colorBlue_50">#8000BCD4</color>
     <color name="colorCurNode">#E8EDFF</color>
     <color name="emptySearch">#BBB</color>
+    <color name="colorGreenDark">#49780b</color>
 
     <color name="main_dark_color">#5A79AE</color>
     <color name="main_center_color">#8391DA</color>
     <color name="main_light_color">#A4B2E4</color>
+
+    <color name="fab_color_normal">@color/colorGreen_50</color>
+    <color name="fab_color_normal_dark">@color/colorGreenDark_50</color>
+    <color name="fab_color_pressed">#86B945</color>
+    <color name="fab_color_pressed_dark">#FF49780b</color>
+    <color name="fab_color_ripple">#99FFFFFF</color>
 </resources>

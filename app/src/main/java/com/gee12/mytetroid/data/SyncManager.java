@@ -26,7 +26,7 @@ public class SyncManager {
      */
     public static boolean startStorageSync(Activity activity, String storagePath, int requestCode) {
         String command = SettingsManager.getSyncCommand(activity);
-        if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.app_termux))) {
+        if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.title_app_termux))) {
             // termux
             return startTermuxSync(activity, storagePath, command);
         } else {
@@ -101,7 +101,7 @@ public class SyncManager {
         String[] words = command.split(" ");
         String first = words[0];
         if (words.length > 1) {
-            Utils.removeArrayItem(words, 0);
+            words = Utils.removeArrayItem(words, 0);
         } else {
             words = null;
         }

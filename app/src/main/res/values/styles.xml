@@ -94,4 +94,98 @@
         <item name="useCompatPadding">true</item>
     </style>
 
+    <style name="fab_clans_menu">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_margin">@dimen/fab_margin</item>
+
+        <item name="menu_fab_size">normal</item>
+        <item name="menu_buttonSpacing">0dp</item>
+        <item name="menu_animationDelayPerItem">50</item>
+        <item name="menu_openDirection">up</item>
+
+<!--        <item name="menu_fab_show_animation">@anim/fab_scale_up</item>-->
+<!--        <item name="menu_fab_hide_animation">@anim/fab_scale_down</item>-->
+
+        <item name="menu_colorNormal">@color/fab_color_normal</item>
+        <item name="menu_colorPressed">@color/fab_color_pressed</item>
+        <item name="menu_colorRipple">@color/fab_color_ripple</item>
+        <item name="menu_backgroundColor">@android:color/transparent</item>
+
+<!--        <item name="menu_showShadow">true</item>-->
+<!--        <item name="menu_shadowColor">#66000000</item>-->
+<!--        <item name="menu_shadowRadius">2dp</item>-->
+<!--        <item name="menu_shadowXOffset">1dp</item>-->
+<!--        <item name="menu_shadowYOffset">1dp</item>-->
+
+        <item name="elevation">0dp</item>
+        <item name="pressedTranslationZ">0dp</item>
+        <item name="useCompatPadding">true</item>
+
+        <!--Заменяется menu_labels_style-->
+<!--        <item name="menu_labels_showAnimation">@anim/fab_slide_in_from_left</item>-->
+<!--        <item name="menu_labels_hideAnimation">@anim/fab_slide_in_from_right</item>-->
+
+        <item name="menu_labels_margin">0dp</item>
+        <item name="menu_labels_paddingTop">4dp</item>
+        <item name="menu_labels_paddingRight">8dp</item>
+        <item name="menu_labels_paddingBottom">4dp</item>
+        <item name="menu_labels_paddingLeft">8dp</item>
+        <item name="menu_labels_padding">8dp</item>
+
+        <item name="menu_labels_textColor">#050</item>
+        <item name="menu_labels_textSize">16sp</item>
+        <item name="menu_labels_cornerRadius">6dp</item>
+
+        <item name="menu_labels_colorNormal">@color/fab_color_normal</item>
+        <item name="menu_labels_colorPressed">@color/fab_color_pressed</item>
+        <item name="menu_labels_colorRipple">@color/fab_color_ripple</item>
+
+        <item name="menu_labels_showShadow">true</item>
+        <item name="menu_labels_singleLine">false</item>
+        <item name="menu_labels_maxLines">-1</item>
+        <item name="menu_labels_ellipsize">none</item>
+        <item name="menu_labels_position">left</item>
+    </style>
+
+    <style name="fab_clans_label">
+        <item name="android:padding">12dp</item>
+
+        <item name="android:background">@drawable/fab_label_background</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:textStyle">bold</item>
+
+<!--        <item name="android:shadowColor">#000</item>-->
+<!--        <item name="android:shadowRadius">2</item>-->
+<!--        <item name="android:shadowDx">1</item>-->
+<!--        <item name="android:shadowDy">3</item>-->
+    </style>
+
+    <style name="fab_clans_button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:layout_marginRight">@dimen/fab_margin</item>
+
+<!--        <item name="fab_showAnimation">@anim/fab_slide_in_from_left</item>-->
+<!--        <item name="fab_hideAnimation">@anim/fab_slide_in_from_right</item>-->
+
+        <item name="fab_size">mini</item>
+        <item name="fab_colorNormal">@color/fab_color_normal_dark</item>
+        <item name="fab_colorPressed">@color/fab_color_pressed_dark</item>
+        <item name="fab_colorRipple">@color/fab_color_ripple</item>
+
+        <item name="elevation">0dp</item>
+        <item name="pressedTranslationZ">0dp</item>
+        <item name="useCompatPadding">true</item>
+    </style>
+
 </resources>

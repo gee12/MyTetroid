@@ -3,7 +3,9 @@ package com.gee12.mytetroid.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,12 +25,19 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
+import com.gee12.mytetroid.data.AttachesManager;
+import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.TetroidLog;
+import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 import com.gee12.mytetroid.views.Message;
@@ -41,6 +50,11 @@ import lib.folderpicker.FolderPicker;
 
 public abstract class TetroidActivity extends AppCompatActivity
         implements View.OnTouchListener, StorageManager.IStorageInitCallback {
+
+    public interface IDownloadFileResult {
+        void onSuccess(Uri uri);
+        void onError(Exception ex);
+    }
 
     protected GestureDetectorCompat gestureDetector;
     protected Menu mOptionsMenu;
@@ -156,6 +170,53 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     /**
+     * Загрузка файла по URL в каталог кэша
+     * @param url
+     * @param callback
+     */
+    public void downloadFileToCache(String url, IDownloadFileResult callback) {
+        if (TextUtils.isEmpty(url)) {
+            TetroidLog.log(this, R.string.log_link_is_empty, ILogger.Types.ERROR, Toast.LENGTH_SHORT);
+            return;
+        }
+        setProgressText(R.string.title_file_downloading);
+        String fileName = UriUtils.getFileName(url);
+        if (TextUtils.isEmpty(fileName)) {
+//            Exception ex = new Exception("");
+//            if (callback != null) {
+//                callback.onError(ex);
+//            }
+//            TetroidLog.log(TetroidActivity.this,
+//                    getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
+//            return;
+            fileName = DataManager.createDateTimePrefix();
+        }
+        String outputFileName = getExternalCacheDir() + "/" + fileName;
+        NetworkHelper.downloadFileAsync(url, outputFileName, new NetworkHelper.IWebFileResult() {
+            @Override
+            public void onSuccess() {
+                runOnUiThread(() -> {
+                    if (callback != null) {
+                        callback.onSuccess(Uri.fromFile(new File(outputFileName)));
+                    }
+                    setProgressVisibility(false);
+                });
+            }
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> {
+                    if (callback != null) {
+                        callback.onError(ex);
+                    }
+                    TetroidLog.log(TetroidActivity.this,
+                            getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
+                    setProgressVisibility(false);
+                });
+            }
+        });
+    }
+
+    /**
      * Переопределяем обработчик нажатия на экране
      * для обработки перехода в полноэкранный режим.
      * @param v
@@ -239,8 +300,10 @@ public abstract class TetroidActivity extends AppCompatActivity
                 || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
                 && resultCode == RESULT_OK) {
             String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
-            openOrCreateStorage(folderPath, isCreate);
+            if (!TextUtils.isEmpty(folderPath)) {
+                boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
+                openOrCreateStorage(folderPath, isCreate);
+            }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -323,15 +386,14 @@ public abstract class TetroidActivity extends AppCompatActivity
 
     @Override
     public int taskPreExecute(int sRes) {
-        mTextViewProgress.setText(sRes);
-        mLayoutProgress.setVisibility(View.VISIBLE);
+        setProgressText(sRes);
         ViewUtils.hideKeyboard(this, getWindow().getDecorView());
         return Gravity.NO_GRAVITY;
     }
 
     @Override
     public void taskPostExecute(int openedDrawer) {
-        mLayoutProgress.setVisibility(View.INVISIBLE);
+        setProgressVisibility(false);
     }
 
     @Override
@@ -361,11 +423,24 @@ public abstract class TetroidActivity extends AppCompatActivity
         return true;
     }
 
-    protected void setVisibilityActionHome(boolean isVis) {
+    protected void setVisibilityActionHome(boolean isVisible) {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(isVis);
+            actionBar.setDisplayHomeAsUpEnabled(isVisible);
         }
+    }
+
+    protected void setProgressVisibility(boolean isVisible) {
+        mLayoutProgress.setVisibility(ViewUtils.toVisibility(isVisible));
+    }
+
+    protected void setProgressText(int progressTextResId) {
+        setProgressText(getString(progressTextResId));
+    }
+
+    protected void setProgressText(String progressText) {
+        mLayoutProgress.setVisibility(View.VISIBLE);
+        mTextViewProgress.setText(progressText);
     }
 
     /**
@@ -411,4 +486,36 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected void showSnackMoreInLogs() {
         Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
+
+    /**
+     * Задание, в котором выполняется прикрепление нового файла к записи.
+     */
+    public class AttachFileTask extends TetroidTask2<String, Void, TetroidFile> {
+
+        TetroidRecord mRecord;
+        boolean mDeleteSrcFile;
+
+        public AttachFileTask(TetroidRecord record, boolean deleteSrcFile) {
+            super(TetroidActivity.this, TetroidActivity.this);
+            this.mRecord = record;
+            this.mDeleteSrcFile = deleteSrcFile;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            taskPreExecute(R.string.task_attach_file);
+        }
+
+        @Override
+        protected TetroidFile doInBackground(String... values) {
+            String fileFullName = values[0];
+            return AttachesManager.attachFile(mContext, fileFullName, mRecord, mDeleteSrcFile);
+        }
+
+        @Override
+        protected void onPostExecute(TetroidFile res) {
+            taskPostExecute(Gravity.NO_GRAVITY);
+        }
+    }
+
 }

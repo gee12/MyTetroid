@@ -449,7 +449,7 @@ public class SettingsManager {
     }
 
     public static String getSyncAppName(Context context) {
-        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.app_mgit));
+        return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.title_app_mgit));
     }
 
     /**
@@ -697,7 +697,7 @@ public class SettingsManager {
      * @return
      */
     public static boolean isShowNodesInsteadExit(Context context) {
-        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, false);
+        return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, true);
     }
 
     /**

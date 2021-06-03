@@ -16,6 +16,7 @@ import androidx.annotation.IdRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
@@ -35,6 +36,27 @@ public class ViewUtils {
         if (fab == null)
             return;
         if (isVisible) fab.show();
+        else fab.hide();
+    }
+
+    public static void setFabVisibility(ExtendedFloatingActionButton fab, boolean isVisible) {
+        if (fab == null)
+            return;
+        if (isVisible) fab.show();
+        else fab.hide();
+    }
+
+    public static void toggleFabVisibility(FloatingActionButton fab) {
+        if (fab == null)
+            return;
+        if (!fab.isShown()) fab.show();
+        else fab.hide();
+    }
+
+    public static void toggleFabVisibility(ExtendedFloatingActionButton fab) {
+        if (fab == null)
+            return;
+        if (!fab.isShown()) fab.show();
         else fab.hide();
     }
 

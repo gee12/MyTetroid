@@ -1,7 +1,16 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.helpers;
 
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeFilter;
+import org.jsoup.select.NodeTraversor;
 
 public class HtmlHelper {
 
@@ -63,4 +72,44 @@ public class HtmlHelper {
         return sb.toString();
     }
 
+    /**
+     * Получение содержимого элемента html в виде текста.
+     * @param element
+     * @return
+     */
+    public static String elementToText(Element element) {
+        final StringBuilder buffer = new StringBuilder();
+
+        NodeTraversor.filter(new NodeFilter() {
+            boolean isNewline = true;
+
+            @Override
+            public FilterResult head(Node node, int depth) {
+                if (node instanceof TextNode) {
+                    TextNode textNode = (TextNode) node;
+                    String text = textNode.text().replace('\u00A0', ' ').trim();
+                    if (!text.isEmpty()) {
+                        buffer.append(text);
+                        isNewline = false;
+                    }
+                } else if (node instanceof Element) {
+                    Element element = (Element) node;
+                    if (!isNewline) {
+                        if ((element.isBlock() || element.tagName().equals("br"))) {
+                            buffer.append("\n");
+                            isNewline = true;
+                        }
+                    }
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            @Override
+            public FilterResult tail(Node node, int depth) {
+                return null;
+            }
+        }, element);
+
+        return buffer.toString();
+    }
 }

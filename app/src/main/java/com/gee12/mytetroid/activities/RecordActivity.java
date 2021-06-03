@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,12 +34,15 @@ import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
+import com.gee12.htmlwysiwygeditor.INetworkWorker;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.helpers.HtmlHelper;
+import com.gee12.mytetroid.data.ImagesManager;
+import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -45,6 +50,7 @@ import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.dialogs.RecordDialogs;
 import com.gee12.mytetroid.fragments.settings.SettingsFragment;
+import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TetroidLog;
@@ -56,6 +62,7 @@ import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.services.FileObserverService;
+import com.gee12.mytetroid.helpers.UriHelper;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
@@ -91,6 +98,7 @@ public class RecordActivity extends TetroidActivity implements
         EditableWebView.IYoutubeLinkLoadListener,
         IImagePicker,
         IColorPicker,
+        INetworkWorker,
         ColorPickerDialogListener {
 
     /**
@@ -147,8 +155,8 @@ public class RecordActivity extends TetroidActivity implements
 
     public static final String ACTION_RECORD = "ACTION_RECORD";
     public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
-    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 1;
-    public static final int REQUEST_CODE_CAMERA = 2;
+    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 11;
+    public static final int REQUEST_CODE_CAMERA = 12;
     public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
     public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
     public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
@@ -164,7 +172,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_PASS_CHANGED = 2;
     public static final int RESULT_OPEN_RECORD = 3;
     public static final int RESULT_OPEN_NODE = 4;
-    public static final int RESULT_SHOW_FILES = 5;
+    public static final int RESULT_SHOW_ATTACHES = 5;
     public static final int RESULT_SHOW_TAG = 6;
     public static final int RESULT_DELETE_RECORD = 7;
 
@@ -251,6 +259,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setColorPickerListener(this);
         mEditor.setImagePickerListener(this);
+        mEditor.setNetworkWorkerListener(this);
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
@@ -259,6 +268,7 @@ public class RecordActivity extends TetroidActivity implements
         webView.setOnUrlLoadListener(this);
         webView.setOnHtmlReceiveListener(this);
         webView.setYoutubeLoadLinkListener(this);
+        webView.setClipboardListener(new TetroidClipboardListener(this));
 
         this.mTextViewTags = findViewById(R.id.text_view_record_tags);
         mTextViewTags.setMovementMethod(LinkMovementMethod.getInstance());
@@ -315,6 +325,9 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.log(this, ex);
         }
     }
+
+
+    // region OpenRecord
 
     /**
      * Получение записи из хранилища, т.к. актиность была запущена из MainActivity.
@@ -448,18 +461,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Обновление поля последнего изменения записи.
-     */
-    private void updateEditedDate() {
-        if (App.isFullVersion()) {
-            String dateFormat = getString(R.string.full_date_format_string);
-            Date edited = RecordsManager.getEditedDate(this, mRecord);
-            ((TextView) findViewById(R.id.text_view_record_edited)).setText(
-                    (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
-        }
-    }
-
-    /**
      * Загрузка html-кода записи в WebView.
      * @param record
      */
@@ -489,6 +490,11 @@ public class RecordActivity extends TetroidActivity implements
         mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(this, record),
                 text, "text/html", "UTF-8", null);
     }
+
+    // endregion OpenRecord
+
+
+    // region LoadPage
 
     /**
      * Событие запуска загрузки страницы.
@@ -576,6 +582,11 @@ public class RecordActivity extends TetroidActivity implements
             });
         }
     }
+
+    // endregion LoadPage
+
+
+    // region LoadLinks
 
     /**
      * Открытие ссылки в тексте.
@@ -680,6 +691,11 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    // endregion LoadLinks
+
+
+    // region OpenAnotherObjects
+
     /**
      * Открытие другой записи по внутренней ссылке.
      * @param resObj
@@ -739,27 +755,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Открытие списка файлов записи.
-     * @param isAskForSave
-     */
-    private void openRecordFiles(TetroidRecord record, boolean isAskForSave) {
-        if (record == null)
-            return;
-        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
-            return;
-        Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, record.getId());
-        finishWithResult(RESULT_SHOW_FILES, bundle);
-    }
-
-    /**
-     *
-     */
-    private void openRecordFiles() {
-        openRecordFiles(mRecord, true);
-    }
-
-    /**
      * Открытие записей метки в главной активности.
      * @param tagName
      * @param isAskForSave
@@ -783,6 +778,11 @@ public class RecordActivity extends TetroidActivity implements
         }
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
+
+    // endregion OpenAnotherObjects
+
+
+    // region ColorPicker
 
     @Override
     public void onPickColor(int curColor) {
@@ -817,6 +817,11 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onDialogDismissed(int dialogId) {
     }
+
+    // endregion ColorPicker
+
+
+    // region Image
 
     @Override
     public void startPicker() {
@@ -860,7 +865,7 @@ public class RecordActivity extends TetroidActivity implements
         int errorCount = 0;
         List<TetroidImage> savedImages = new ArrayList<>();
         for (Uri uri : imageUris) {
-            TetroidImage savedImage = DataManager.saveImage(this, mRecord, uri, deleteSrcFile);
+            TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, uri, deleteSrcFile);
             if (savedImage != null) {
                 savedImages.add(savedImage);
             } else {
@@ -876,6 +881,149 @@ public class RecordActivity extends TetroidActivity implements
             mEditor.insertImages(savedImages);
         }
     }
+
+    public void saveImage(Uri imageUri, boolean deleteSrcFile) {
+        TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, imageUri, deleteSrcFile);
+        saveImage(savedImage);
+    }
+
+    private void saveImage(Bitmap bitmap) {
+        TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, bitmap);
+        saveImage(savedImage);
+    }
+
+    private void saveImage(TetroidImage image) {
+        if (image != null) {
+            mEditor.insertImage(image);
+        } else {
+            TetroidLog.logOperError(this, TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
+    /**
+     * Загрузка содержимого Web-страницы по ссылке.
+     * @param url
+     * @return
+     */
+    @Override
+    public void downloadWebPageContent(String url, boolean isTextOnly) {
+        setProgressVisibility(true);
+        NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, new NetworkHelper.IWebPageContentResult() {
+            @Override
+            public void onSuccess(String content, boolean isTextOnly) {
+                runOnUiThread(() -> {
+                    mEditor.insertWebPageContent(content, isTextOnly);
+                    setProgressVisibility(false);
+                });
+            }
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> {
+                    TetroidLog.log(RecordActivity.this,
+                            getString(R.string.log_error_download_web_page_mask, ex.getMessage()), Toast.LENGTH_LONG);
+                    setProgressVisibility(false);
+                });
+            }
+        });
+    }
+
+    /**
+     * Загрузка изображение по ссылке.
+     * @param url
+     * @return
+     */
+    @Override
+    public void downloadImage(String url) {
+        setProgressVisibility(true);
+        NetworkHelper.downloadImageAsync(url, new NetworkHelper.IWebImageResult() {
+            @Override
+            public void onSuccess(Bitmap bitmap) {
+                runOnUiThread(() -> {
+                    saveImage(bitmap);
+                    setProgressVisibility(false);
+                });
+            }
+            @Override
+            public void onError(Exception ex) {
+                runOnUiThread(() -> {
+                    TetroidLog.log(RecordActivity.this,
+                            getString(R.string.log_error_download_image_mask, ex.getMessage()), Toast.LENGTH_LONG);
+                    setProgressVisibility(false);
+                });
+            }
+        });
+    }
+
+    // endregion Image
+
+
+    // region Attach
+
+    /**
+     *
+     * TODO: добавить удаление исходного файла
+     * @param uri
+     */
+    public void attachFile(Uri uri, boolean deleteSrcFile) {
+        UriHelper uriHelper = new UriHelper(this);
+        new AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri));
+    }
+
+    private void onFileAttached(TetroidFile res) {
+        if (res != null) {
+            AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    openRecordAttaches();
+                }
+                @Override
+                public void onCancel() {
+                }
+            }, R.string.ask_open_attaches);
+        } else {
+            LogManager.log(this, R.string.log_files_attach_error, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
+    public void downloadAndAttachFile(Uri uri) {
+        super.downloadFileToCache(uri.toString(), new IDownloadFileResult() {
+            @Override
+            public void onSuccess(Uri uri) {
+                attachFile(uri, true);
+            }
+            @Override
+            public void onError(Exception ex) {
+            }
+        });
+    }
+
+    /**
+     * Открытие списка прикрепленных файлов записи.
+     * @param isAskForSave
+     */
+    private void openRecordAttaches(TetroidRecord record, boolean isAskForSave) {
+        if (record == null)
+            return;
+        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_OBJECT_ID, record.getId());
+        finishWithResult(RESULT_SHOW_ATTACHES, bundle);
+    }
+
+    /**
+     * Открытие списка прикрепленных файлов записи.
+     */
+    private void openRecordAttaches() {
+        openRecordAttaches(mRecord, true);
+    }
+
+    //endregion Attach
+
+
+    // region Mode
 
     /**
      * Переключение режима отображения содержимого записи.
@@ -920,6 +1068,64 @@ public class RecordActivity extends TetroidActivity implements
 
         updateOptionsMenu();
     }
+
+    /**
+     *
+     * @param newMode
+     */
+    private void switchViews(int newMode) {
+        switch (newMode) {
+            case MODE_VIEW : {
+                mEditor.setVisibility(View.VISIBLE);
+                mEditor.setToolBarVisibility(false);
+                mScrollViewHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(true);
+                mEditor.setEditMode(false);
+                mEditor.setScrollButtonsVisibility(true);
+                setSubtitle(getString(R.string.subtitle_record_view));
+                ViewUtils.hideKeyboard(this, mEditor.getWebView());
+            } break;
+            case MODE_EDIT : {
+                mEditor.setVisibility(View.VISIBLE);
+                // загружаем Javascript (если нужно)
+//                if (!mEditor.getWebView().isEditorJSLoaded()) {
+//                    setProgressVisibility(true);
+//                }
+                mEditor.getWebView().loadEditorJSScript(false);
+
+                mEditor.setToolBarVisibility(true);
+                mScrollViewHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(false);
+                mEditor.setEditMode(true);
+                mEditor.setScrollButtonsVisibility(false);
+                setSubtitle(getString(R.string.subtitle_record_edit));
+                mEditor.getWebView().focusEditor();
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+            } break;
+            case MODE_HTML : {
+                mEditor.setVisibility(View.GONE);
+                if (mEditor.getWebView().isHtmlRequestMade()) {
+                    String htmlText = mEditor.getWebView().getEditableHtml();
+                    mEditTextHtml.setText(htmlText);
+                } else {
+                    setProgressVisibility(true);
+                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
+                    mEditor.getWebView().loadEditorJSScript(true);
+
+                }
+//                mEditor.getWebView().makeEditableHtmlRequest();
+                mScrollViewHtml.setVisibility(View.VISIBLE);
+                setRecordFieldsVisibility(false);
+                setSubtitle(getString(R.string.subtitle_record_html));
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+            } break;
+        }
+    }
+
+    // endregion Image
+
+
+    // region SaveRecord
 
     /**
      * Сохранение изменений при скрытии или выходе из активности.
@@ -990,29 +1196,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Старт загрузки хранилища.
-     */
-    @Override
-    protected void loadStorage(String folderPath) {
-        boolean isLoadLastForced = false;
-        boolean isCheckFavorMode = !mRecord.isTemp();
-        if (folderPath == null) {
-            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
-        } else {
-            StorageManager.initOrSyncStorage(this, folderPath, isCheckFavorMode);
-        }
-    }
-
-    @Override
-    public void afterStorageLoaded(boolean res) {
-        if (mIsSaveTempAfterStorageLoaded) {
-            this.mIsSaveTempAfterStorageLoaded = false;
-            // сохраняем временную запись
-            editFields(mResultObj);
-        }
-    }
-
-    /**
      * Предобработка html-текста перед сохранением.
      * Выполнение кода продолжиться в функции onReceiveEditableHtml().
      */
@@ -1040,6 +1223,18 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Обновление поля последнего изменения записи.
+     */
+    private void updateEditedDate() {
+        if (App.isFullVersion()) {
+            String dateFormat = getString(R.string.full_date_format_string);
+            Date edited = RecordsManager.getEditedDate(this, mRecord);
+            ((TextView) findViewById(R.id.text_view_record_edited)).setText(
+                    (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
+        }
+    }
+
+    /**
      * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
      * @param resObj
      */
@@ -1061,7 +1256,7 @@ public class RecordActivity extends TetroidActivity implements
                 openAnotherNode(resObj, false);
                 break;
             case ResultObj.OPEN_FILE:
-                openRecordFiles(mRecord, false);
+                openRecordAttaches(mRecord, false);
                 break;
             case ResultObj.OPEN_TAG:
                 openTag((String) resObj.obj, false);
@@ -1075,75 +1270,47 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
+    // endregion SaveRecord
+
+
+    // region Storage
+
     /**
      *
-     * @param newMode
      */
-    private void switchViews(int newMode) {
-        switch (newMode) {
-            case MODE_VIEW : {
-                mEditor.setVisibility(View.VISIBLE);
-                mEditor.setToolBarVisibility(false);
-                mScrollViewHtml.setVisibility(View.GONE);
-                setRecordFieldsVisibility(true);
-                mEditor.setEditMode(false);
-                mEditor.setScrollButtonsVisibility(true);
-                setSubtitle(getString(R.string.subtitle_record_view));
-                ViewUtils.hideKeyboard(this, mEditor.getWebView());
-            } break;
-            case MODE_EDIT : {
-                mEditor.setVisibility(View.VISIBLE);
-                // загружаем Javascript (если нужно)
-//                if (!mEditor.getWebView().isEditorJSLoaded()) {
-//                    setProgressVisibility(true);
-//                }
-                mEditor.getWebView().loadEditorJSScript(false);
+    @Override
+    protected void createStorage(String storagePath) {
+        boolean res = StorageManager.createStorage(this, storagePath);
+        initGUI(res && DataManager.createDefault(this), false, false);
+    }
 
-                mEditor.setToolBarVisibility(true);
-                mScrollViewHtml.setVisibility(View.GONE);
-                setRecordFieldsVisibility(false);
-                mEditor.setEditMode(true);
-                mEditor.setScrollButtonsVisibility(false);
-                setSubtitle(getString(R.string.subtitle_record_edit));
-                mEditor.getWebView().focusEditor();
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-            } break;
-            case MODE_HTML : {
-                mEditor.setVisibility(View.GONE);
-                if (mEditor.getWebView().isHtmlRequestMade()) {
-                    String htmlText = mEditor.getWebView().getEditableHtml();
-                    mEditTextHtml.setText(htmlText);
-                } else {
-                    setProgressVisibility(true);
-                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
-                    mEditor.getWebView().loadEditorJSScript(true);
-
-                }
-//                mEditor.getWebView().makeEditableHtmlRequest();
-                mScrollViewHtml.setVisibility(View.VISIBLE);
-                setRecordFieldsVisibility(false);
-                setSubtitle(getString(R.string.subtitle_record_html));
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-            } break;
+    /**
+     * Старт загрузки хранилища.
+     */
+    @Override
+    protected void loadStorage(String folderPath) {
+        boolean isLoadLastForced = false;
+        boolean isCheckFavorMode = !mRecord.isTemp();
+        if (folderPath == null) {
+            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+        } else {
+            StorageManager.initOrSyncStorage(this, folderPath, isCheckFavorMode);
         }
     }
 
     @Override
-    public int toggleFullscreen(boolean fromDoubleTap) {
-        int res = super.toggleFullscreen(fromDoubleTap);
-        if (res >= 0) {
-            boolean isFullscreen = (res == 1);
-            if (isFullscreen) {
-                mButtonFullscreen.show();
-            } else {
-                mButtonFullscreen.hide();
-            }
-            if (mCurMode == MODE_VIEW) {
-                setRecordFieldsVisibility(!isFullscreen);
-            }
+    public void afterStorageLoaded(boolean res) {
+        if (mIsSaveTempAfterStorageLoaded) {
+            this.mIsSaveTempAfterStorageLoaded = false;
+            // сохраняем временную запись
+            editFields(mResultObj);
         }
-        return res;
     }
+
+    // endregion Storage
+
+
+    // region OptionsRecord
 
     /**
      * Открытие каталога записи.
@@ -1153,7 +1320,6 @@ public class RecordActivity extends TetroidActivity implements
             LogManager.log(this, R.string.log_missing_file_manager, Toast.LENGTH_LONG);
         }
     }
-
 
     /**
      * Отправка записи.
@@ -1186,52 +1352,10 @@ public class RecordActivity extends TetroidActivity implements
         });
     }
 
-    /**
-     * Редактирование свойств записи.
-     */
-    private void editFields(ResultObj obj) {
-        boolean wasTemp = mRecord.isTemp();
-        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null,
-                (name, tags, author, url, node, isFavor) -> {
-            if (RecordsManager.editRecordFields(this, mRecord, name, tags, author, url, node, isFavor)) {
-                this.mIsFieldsEdited = true;
-                setTitle(name);
-                loadFields(mRecord);
-                if (wasTemp) {
-                    // сохраняем текст записи
-//                    save();
-                    final ResultObj resObj;
-                    if (obj == null) {
-                        resObj = new ResultObj(null);
-                        // baseUrl изменился, нужно перезагрузить в WebView
-                        resObj.needReloadText = true;
-                    } else {
-                        resObj = null;
-                    }
-                    saveRecord(resObj);
-//                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
-                    // показываем кнопку Home для возврата в ветку записи
-                    setVisibilityActionHome(true);
-                } else {
-//                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
-                    LogManager.log(this, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-                }
-            } else {
-                if (wasTemp) {
-                    /*// все равно сохраняем текст записи
-//                    save();
-                    if (obj == null) {
-                        // baseUrl изменился, нужно перезагрузить в WebView
-                        obj.needReloadText = true;
-                    }
-                    saveRecord(obj);*/
-                    TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
-                } else {
-                    TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
-                }
-            }
-        });
-    }
+    // endregion OptionsRecord
+
+
+    // region Search
 
     /**
      * Поиск по тексту записи.
@@ -1305,6 +1429,9 @@ public class RecordActivity extends TetroidActivity implements
                     ILogger.Types.INFO, false, Toast.LENGTH_LONG);
         }
     }
+
+    // endregion Search
+
 
     /**
      * Действия перед закрытием активности, если свойства записи были изменены.
@@ -1391,12 +1518,6 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
-    protected void createStorage(String storagePath) {
-        boolean res = StorageManager.createStorage(this, storagePath);
-        initGUI(res && DataManager.createDefault(this), false, false);
-    }
-
-    @Override
     protected void onNewIntent(Intent intent) {
         checkReceivedIntent(intent);
         super.onNewIntent(intent);
@@ -1419,6 +1540,9 @@ public class RecordActivity extends TetroidActivity implements
             mSearchView.setQuery(query, true);
         }
     }
+
+
+    // region OptionsMenu
 
     /**
      * Обработчик создания системного меню.
@@ -1505,6 +1629,124 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Обработчик выбора пунктов системного меню.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_record_view:
+                switchMode(MODE_VIEW);
+                return true;
+            case R.id.action_record_edit:
+                switchMode(MODE_EDIT);
+                return true;
+            case R.id.action_record_html:
+                switchMode(MODE_HTML);
+                return true;
+            case R.id.action_record_save:
+                saveRecord(null);
+                return true;
+            case R.id.action_record_edit_fields:
+                editFields(null);
+                return true;
+            case R.id.action_record_node:
+                showRecordNode();
+                return true;
+            case R.id.action_attached_files:
+                openRecordAttaches();
+                return true;
+            case R.id.action_cur_record_folder:
+                openRecordFolder();
+                return true;
+            case R.id.action_share:
+                shareRecord();
+                return true;
+            case R.id.action_delete:
+                deleteRecord();
+                return true;
+            case R.id.action_info:
+                RecordDialogs.createRecordInfoDialog(this, mRecord);
+                return true;
+            case R.id.action_fullscreen:
+                toggleFullscreen(false);
+                return true;
+            case R.id.action_settings:
+                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
+                return true;
+            case R.id.action_storage_info:
+                ViewUtils.startActivity(this, InfoActivity.class, null);
+                return true;
+            case android.R.id.home:
+                if (!onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
+                    // не был запущен асинхронный код при сохранении, поэтому
+                    //  можем выполнить стандартный обработчик кнопки home (должен быть возврат false),
+                    //  но после проверки изменения свойств (если изменены, то включится другой механизм
+                    //  выхода из активности)
+                    return onRecordFieldsIsEdited(true);
+                }
+                // был запущен асинхронный код при сохранении,
+                //  поэтому не выполняем стандартный обработчик кнопки home
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // endregion OptionsMenu
+
+
+    // region RecordFields
+
+    /**
+     * Редактирование свойств записи.
+     */
+    private void editFields(ResultObj obj) {
+        boolean wasTemp = mRecord.isTemp();
+        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null,
+                (name, tags, author, url, node, isFavor) -> {
+                    if (RecordsManager.editRecordFields(this, mRecord, name, tags, author, url, node, isFavor)) {
+                        this.mIsFieldsEdited = true;
+                        setTitle(name);
+                        loadFields(mRecord);
+                        if (wasTemp) {
+                            // сохраняем текст записи
+//                    save();
+                            final ResultObj resObj;
+                            if (obj == null) {
+                                resObj = new ResultObj(null);
+                                // baseUrl изменился, нужно перезагрузить в WebView
+                                resObj.needReloadText = true;
+                            } else {
+                                resObj = null;
+                            }
+                            saveRecord(resObj);
+//                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                            // показываем кнопку Home для возврата в ветку записи
+                            setVisibilityActionHome(true);
+                        } else {
+//                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                            LogManager.log(this, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
+                        }
+                    } else {
+                        if (wasTemp) {
+                    /*// все равно сохраняем текст записи
+//                    save();
+                    if (obj == null) {
+                        // baseUrl изменился, нужно перезагрузить в WebView
+                        obj.needReloadText = true;
+                    }
+                    saveRecord(obj);*/
+                            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
+                        } else {
+                            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
+                        }
+                    }
+                });
+    }
+
+    /**
      * Скрытие/раскрытие панели со свойствами записи.
      */
     private void toggleRecordFieldsVisibility() {
@@ -1552,6 +1794,41 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
+     * Управление видимостью панели со свойствами записи.
+     * Полностью, вместе с кнопкой управления видимостью панели.
+     * @param isVisible
+     */
+    private void setRecordFieldsVisibility(boolean isVisible) {
+        if (isVisible) {
+            mFieldsExpanderLayout.setVisibility(View.VISIBLE);
+            mButtonToggleFields.show();
+        } else {
+            mFieldsExpanderLayout.setVisibility(View.GONE);
+            mButtonToggleFields.hide();
+        }
+    }
+
+    // endregion RecordFields
+
+
+    @Override
+    public int toggleFullscreen(boolean fromDoubleTap) {
+        int res = super.toggleFullscreen(fromDoubleTap);
+        if (res >= 0) {
+            boolean isFullscreen = (res == 1);
+            if (isFullscreen) {
+                mButtonFullscreen.show();
+            } else {
+                mButtonFullscreen.hide();
+            }
+            if (mCurMode == MODE_VIEW) {
+                setRecordFieldsVisibility(!isFullscreen);
+            }
+        }
+        return res;
+    }
+
+    /**
      * Обновление расположения кнопок скроллинга записи вниз/вверх.
      */
     private void updateScrollButtonLocation() {
@@ -1575,21 +1852,6 @@ public class RecordActivity extends TetroidActivity implements
 //            params.topMargin = 0;
         }
         mButtonScrollTop.setLayoutParams(params);
-    }
-
-    /**
-     * Управление видимостью панели со свойствами записи.
-     * Полностью, вместе с кнопкой управления видимостью панели.
-     * @param isVisible
-     */
-    private void setRecordFieldsVisibility(boolean isVisible) {
-        if (isVisible) {
-            mFieldsExpanderLayout.setVisibility(View.VISIBLE);
-            mButtonToggleFields.show();
-        } else {
-            mFieldsExpanderLayout.setVisibility(View.GONE);
-            mButtonToggleFields.hide();
-        }
     }
 
     /**
@@ -1625,72 +1887,6 @@ public class RecordActivity extends TetroidActivity implements
         } else {
             updateScrollButtonLocation();
         }
-    }
-
-    /**
-     * Обработчик выбора пунктов системного меню.
-     * @param item
-     * @return
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_record_view:
-                switchMode(MODE_VIEW);
-                return true;
-            case R.id.action_record_edit:
-                switchMode(MODE_EDIT);
-                return true;
-            case R.id.action_record_html:
-                switchMode(MODE_HTML);
-                return true;
-            case R.id.action_record_save:
-                saveRecord(null);
-                return true;
-            case R.id.action_record_edit_fields:
-                editFields(null);
-                return true;
-            case R.id.action_record_node:
-                showRecordNode();
-                return true;
-            case R.id.action_attached_files:
-                openRecordFiles();
-                return true;
-            case R.id.action_cur_record_folder:
-                openRecordFolder();
-                return true;
-            case R.id.action_share:
-                shareRecord();
-                return true;
-            case R.id.action_delete:
-                deleteRecord();
-                return true;
-            case R.id.action_info:
-                RecordDialogs.createRecordInfoDialog(this, mRecord);
-                return true;
-            case R.id.action_fullscreen:
-                toggleFullscreen(false);
-                return true;
-            case R.id.action_settings:
-                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
-                return true;
-            case R.id.action_storage_info:
-                ViewUtils.startActivity(this, InfoActivity.class, null);
-                return true;
-            case android.R.id.home:
-                if (!onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
-                    // не был запущен асинхронный код при сохранении, поэтому
-                    //  можем выполнить стандартный обработчик кнопки home (должен быть возврат false),
-                    //  но после проверки изменения свойств (если изменены, то включится другой механизм
-                    //  выхода из активности)
-                    return onRecordFieldsIsEdited(true);
-                }
-                // был запущен асинхронный код при сохранении,
-                //  поэтому не выполняем стандартный обработчик кнопки home
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -1769,6 +1965,26 @@ public class RecordActivity extends TetroidActivity implements
 
     public void setProgressVisibility(boolean vis) {
         mHtmlProgressBar.setVisibility(ViewUtils.toVisibility(vis));
+    }
+
+    public TetroidEditor getEditor() {
+        return mEditor;
+    }
+
+    /**
+     * Задание, в котором выполняется прикрепление нового файла в записи.
+     */
+    public class AttachFileFromRecordTask extends AttachFileTask {
+
+        public AttachFileFromRecordTask(TetroidRecord record, boolean deleteSrcFile) {
+            super(record, deleteSrcFile);
+        }
+
+        @Override
+        protected void onPostExecute(TetroidFile res) {
+            taskPostExecute(Gravity.NO_GRAVITY);
+            onFileAttached(res);
+        }
     }
 
     /**

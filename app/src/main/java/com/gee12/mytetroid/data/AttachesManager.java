@@ -91,6 +91,17 @@ public class AttachesManager extends DataManager {
         return openFile(context, srcFile);
     }
 
+    public static TetroidFile attachFile(Context context, String fullName, TetroidRecord record, boolean deleteSrcFile) {
+        TetroidFile res = attachFile(context, fullName, record);
+        if (deleteSrcFile && res != null) {
+            File srcFile = new File(fullName);
+            if (!FileUtils.deleteRecursive(srcFile)) {
+                LogManager.log(context, context.getString(R.string.log_error_delete_file) + fullName, ILogger.Types.ERROR);
+            }
+        }
+        return res;
+    }
+
     /**
      * Прикрепление нового файла к записи.
      * @param fullName

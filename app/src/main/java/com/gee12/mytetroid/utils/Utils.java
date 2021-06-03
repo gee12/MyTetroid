@@ -12,6 +12,7 @@ import androidx.core.text.HtmlCompat;
 
 import com.gee12.mytetroid.logs.LogManager;
 
+import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -194,8 +195,10 @@ public class Utils {
      * @param array
      * @param index
      */
-    public static void removeArrayItem(String[] array, int index) {
-        System.arraycopy(array, index + 1, array, index, array.length - index - 1);
+    public static String[] removeArrayItem(String[] array, int index) {
+        if (array == null || index < 0 || index + 1 >= array.length)
+            return array;
+        return Arrays.copyOfRange(array, index + 1, array.length);
     }
 
     public static int[] splitToInts(String s, String separ) {

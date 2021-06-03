@@ -6,6 +6,9 @@
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
+    <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
+    <string name="hint_error"><![CDATA[<ошибка>]]></string>
+
     <string name="title_settings">Настройки</string>
     <string name="title_open">Открыть</string>
     <string name="title_show_node">Открыть ветку</string>
@@ -33,6 +36,7 @@
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
     <string name="title_storage_info">Инфо о хранилище</string>
+    <string name="title_node_icon_choice">Выбор иконки</string>
     <string name="title_expand_node_subnodes">Развернуть все подветки</string>
     <string name="title_collapse_node_subnodes">Свернуть все подветки</string>
     <string name="title_create_subnode">Добавить подветку</string>
@@ -51,7 +55,8 @@
     <string name="title_edit_mode">Редактирование</string>
     <string name="title_view_mode">Просмотр</string>
     <string name="title_open_tag_records">Открыть записи метки</string>
-    <string name="title_to_node">К ветке</string>
+    <string name="title_move_back">Вернуться обратно</string>
+    <string name="title_to_node">К ветке записи</string>
     <string name="title_show_record_content">Открыть запись</string>
     <string name="title_show_attached_files">Прикрепленные файлы</string>
     <string name="title_open_record_folder">Открыть каталог</string>
@@ -122,6 +127,18 @@
     <string name="title_record">Запись</string>
     <string name="title_node">Ветка</string>
     <string name="title_tag">Метка</string>
+    <string name="title_new_record">Новая запись</string>
+    <string name="title_add_record">Добавить запись</string>
+    <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
+    <string name="title_founded_in_mask">Найдено в: %s</string>
+    <string name="title_by_records_num">Количество записей</string>
+    <string name="title_by_tag_name">Имя метки</string>
+    <string name="title_root_node"><![CDATA[<Корневая ветка>]]></string>
+    <string name="title_drop_icon">Сбросить иконку</string>
+    <string name="title_done">Готово</string>
+    <string name="title_choose_node">Выберите ветку</string>
+    <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
+    <string name="title_download_attach_file_by_link">Прикрепить файл по ссылке</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -134,9 +151,21 @@
     <string name="text_create_storage_summ_html"><![CDATA[Выбрать пустой каталог в памяти телефона для создания нового хранилища]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[В приложении включен режим загрузки <b>только избранного</b>. Для принятия %s нужно загрузить все ветки хранилища.<br>Продолжить?]]></string>
 
+    <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
+    <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
+    <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
+    <string name="mes_select_first_level_node">Выберите ветку первого уровня</string>
+    <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
+    <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
+    <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
+
     <string name="word_received_text">текста</string>
     <string name="word_received_image">изображения</string>
     <string name="word_received_images">изображений</string>
+
+    <string name="launched">запущено</string>
+    <string name="relaunched">перезапущено</string>
+    <string name="stopped">остановлено</string>
 
     <string name="pref_category_storage">Хранилище</string>
     <string name="pref_category_handling">Управление</string>
@@ -223,6 +252,16 @@
     <string name="pref_show_record_fields_filled">Отображать если заполнено</string>
     <string name="pref_record_fields_in_list">Отображаемые свойства записей</string>
     <string name="pref_record_fields_in_list_summ">Свойства записей, отображаемые в списке</string>
+    <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>
+    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по тексту записи</string>
+    <string name="pref_quickly_node">Ветка для быстрой вставки</string>
+    <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями</string>
+    <string name="pref_app_for_sync">Приложение</string>
+    <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации</string>
+    <string name="pref_expand_empty_nodes">Разворачивать пустые ветки</string>
+    <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
+    <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
+    <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
 
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
@@ -252,6 +291,15 @@
     <string name="label_path">Путь к каталогу:</string>
     <string name="label_file_size">Размер файла:</string>
     <string name="label_folder_size">Размер каталога:</string>
+    <string name="label_icons_section">Раздел:</string>
+    <string name="label_pin_code_size">Значение 4–8:</string>
+    <string name="label_node">Ветка:</string>
+    <string name="label_record">Запись:</string>
+    <string name="label_parent_node">Родительская ветка:</string>
+    <string name="label_favorite">В избранное</string>
+    <string name="label_storage_path">Хранилище:</string>
+    <string name="label_storage_size">Размер на диске:</string>
+    <string name="label_storage_last_edit">Последнее изменение дерева:</string>
 
     <string name="filter_tags_by_query">Фильтр меток по запросу "%s"…</string>
     <string name="filter_records_hint">Фильтр записей</string>
@@ -330,6 +378,10 @@
     <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
+    <string name="ask_load_storage">Сначала нужно загрузить хранилище. Загрузить?</string>
+    <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
+    <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
+    <string name="ask_open_attaches">Открыть список прикрепленных файлов ?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -522,56 +574,37 @@
     <string name="log_run_termux_commands_perm_granted">Предоставлено разрешение на запуск команд Termux</string>
     <string name="log_record_fields_changed">Свойства записи изменены</string>
     <string name="log_record_saved">Запись сохранена</string>
-    <string name="label_pin_code_size">Значение 4–8:</string>
-    <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
-    <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>
-    <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по тексту записи</string>
-    <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
-    <string name="title_new_record">Новая запись</string>
-    <string name="title_add_record">Добавить запись</string>
-    <string name="pref_quickly_node">Ветка для быстрой вставки</string>
-    <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями</string>
-    <string name="label_node">Ветка:</string>
-    <string name="label_record">Запись:</string>
-    <string name="label_parent_node">Родительская ветка:</string>
-    <string name="label_favorite">В избранное</string>
-    <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
-    <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
-    <string name="mes_select_first_level_node">Выберите ветку первого уровня</string>
-    <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
-    <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
-    <string name="title_choose_node">Выберите ветку</string>
-    <string name="ask_load_storage">Сначала нужно загрузить хранилище. Загрузить?</string>
-    <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
-    <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
-    <string name="hint_error"><![CDATA[<ошибка>]]></string>
     <string name="log_record_node_is_empty">У записи не задана ветка</string>
     <string name="log_func_disabled">Функционал отключен из-за ограничений по его разработке</string>
-    <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
-    <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
     <string name="log_storage_created">Хранилище создано</string>
     <string name="log_sync_app_not_installed">По-видимому, приложение MGit не установлено</string>
-    <string name="label_storage_path">Хранилище:</string>
-    <string name="label_storage_size">Размер на диске:</string>
-    <string name="label_storage_last_edit">Последнее изменение дерева:</string>
     <string name="log_storage_need_load">Необходимо загрузить хранилище</string>
     <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
     <string name="log_dir_not_empty">Каталог не пуст</string>
-    <string name="title_founded_in_mask">Найдено в: %s</string>
     <string name="log_mytetra_xml_observer_mask">Отслеживание изменений файла mytetra.xml было %s</string>
-    <string name="launched">запущено</string>
-    <string name="relaunched">перезапущено</string>
-    <string name="stopped">остановлено</string>
-    <string name="title_by_records_num">Количество записей</string>
-    <string name="title_by_tag_name">Имя метки</string>
-    <string name="pref_app_for_sync">Приложение</string>
-    <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации</string>
     <string name="log_sync_command_empty">Не указана команда синхронизации</string>
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
-    <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
-    <string name="pref_expand_empty_nodes">Разворачивать пустые ветки</string>
-    <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
-    <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
-    <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
-    <string name="title_root_node"><![CDATA[<Корневая ветка>]]></string>
+    <string name="log_icons_dirs_absent">Отсутствуют каталоги с иконками</string>
+    <string name="log_icons_dir_absent_mask">Отсутствует каталог %s с иконками</string>
+    <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
+    <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
+    <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
+
+    <string name="title_insert_record_content">Вставить содержимо записи</string>
+    <string name="title_insert_hyperlink">Вставить ссылку</string>
+    <string name="title_insert_url_as_text">Вставить ссылку как текст</string>
+    <string name="title_attach_file">Прикрепить файл</string>
+    <string name="title_attach_image">Прикрепить изображение</string>
+    <string name="title_insert_image">Вставить изображение</string>
+    <string name="title_insert_web_page">Вставить содержимое web-страницы</string>
+    <string name="title_insert_web_page_as_text">Вставить содержимое как текст</string>
+    <string name="title_attach_web_page_as_file">Прикрепить web-страницу как файл</string>
+    <string name="title_download_attach_file">Скачать и прикрепить файл</string>
+    <string name="title_download_attach_image">Скачать и прикрепить изображение</string>
+    <string name="title_download_insert_image">Скачать и вставить изображение</string>
+    <string name="title_insert_as">Вставить как..</string>
+    <string name="title_file_downloading">Загрузка файла</string>
+    <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
+    <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
+    <string name="log_link_is_empty">Пустая ссылка</string>
 </resources>

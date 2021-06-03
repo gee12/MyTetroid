@@ -17,7 +17,7 @@ import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.StorageChooserDialog;
+import com.gee12.mytetroid.dialogs.StorageChooserDialog;
 
 import org.jsoup.internal.StringUtil;
 

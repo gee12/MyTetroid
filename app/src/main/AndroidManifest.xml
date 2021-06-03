@@ -4,7 +4,9 @@
     package="com.gee12.mytetroid"
     android:installLocation="auto">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
     <!--
@@ -130,6 +132,12 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activities.IconsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_node_icon_choice"
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.AboutActivity"
             android:configChanges="orientation|screenSize"

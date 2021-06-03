@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/data_item_row_height">
+
+    <ImageView
+        android:id="@+id/icon_view_image"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/icon_view_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="6dp"
+        android:textColor="@color/colorBaseText"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:scrollHorizontally="false"
+        android:textSize="@dimen/font_small"
+        tools:text="@tools:sample/cities"/>
+
+</LinearLayout>

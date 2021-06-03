@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.fragments;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.activities.TetroidActivity;
 import com.gee12.mytetroid.adapters.FilesListAdapter;
 import com.gee12.mytetroid.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.AttachesManager;
@@ -39,6 +41,7 @@ import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.helpers.UriHelper;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.Message;
@@ -62,8 +65,8 @@ public class MainPageFragment extends TetroidFragment {
     private ListView mListViewFiles;
     private TextView mTextViewRecordsEmpty;
     private TextView mTextViewFilesEmpty;
-    private FloatingActionButton mButtonAddRecord;
-    private FloatingActionButton mButtonAddFile;
+    private FloatingActionButton mFabAddRecord;
+    private com.github.clans.fab.FloatingActionMenu mFabAddAttach;
     private Button mUseGlobalSearchButton;
 
     private int mCurMainViewId;
@@ -73,6 +76,7 @@ public class MainPageFragment extends TetroidFragment {
     private TetroidRecord mCurRecord;
     private TetroidNode mCurNode;
     private TetroidFile mCurFile;
+    private boolean mIsFromRecordActivity;
 
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
@@ -129,11 +133,22 @@ public class MainPageFragment extends TetroidFragment {
         mListViewFiles.addFooterView(filesFooter, null, false);
         registerForContextMenu(mListViewFiles);
 
-        this.mButtonAddRecord = view.findViewById(R.id.button_add_record);
-//        mButtonAddRecord.setAlpha(0.1f);
-        mButtonAddRecord.setOnClickListener(v -> createRecord());
-        this.mButtonAddFile = view.findViewById(R.id.button_add_file);
-        mButtonAddFile.setOnClickListener(v -> attachFile());
+        this.mFabAddRecord = view.findViewById(R.id.button_add_record);
+        mFabAddRecord.setOnClickListener(v -> createRecord());
+
+        this.mFabAddAttach = view.findViewById(R.id.fab_add_attach);
+        mFabAddAttach.setClosedOnTouchOutside(true);
+
+        com.github.clans.fab.FloatingActionButton fabAddLocalFile = view.findViewById(R.id.fab_attach_local_file);
+        fabAddLocalFile.setOnClickListener(v -> {
+            mFabAddAttach.close(true);
+            attachFile();
+        });
+        com.github.clans.fab.FloatingActionButton fabAttachFileByLink = view.findViewById(R.id.fab_attach_file_by_link);
+        fabAttachFileByLink.setOnClickListener(v -> {
+            mFabAddAttach.close(true);
+            downloadAndAttachFile();
+        });
 
         this.mCurMainViewId = MainPageFragment.MAIN_VIEW_NONE;
         setMainView(getArguments());
@@ -171,8 +186,8 @@ public class MainPageFragment extends TetroidFragment {
      * @param viewId
      */
     public void showView(int viewId) {
-        mButtonAddRecord.hide();
-        mButtonAddFile.hide();
+        mFabAddRecord.hide();
+        mFabAddAttach.hideMenu(true);
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
         if (viewId != mCurMainViewId)
@@ -187,11 +202,11 @@ public class MainPageFragment extends TetroidFragment {
                 whichChild = MAIN_VIEW_NODE_RECORDS;
                 break;
             case MAIN_VIEW_NODE_RECORDS:
-                mButtonAddRecord.show();
+                mFabAddRecord.show();
                 break;
             case MainPageFragment.MAIN_VIEW_RECORD_FILES:
                 if (!App.IsLoadedFavoritesOnly) {
-                    mButtonAddFile.show();
+                    mFabAddAttach.showMenu(true);
                 }
                 title = ((mCurRecord != null) ? mCurRecord.getName() : "");
                 break;
@@ -233,6 +248,8 @@ public class MainPageFragment extends TetroidFragment {
         showGlobalSearchButton(false);
     }
 
+    // region Records
+
     /**
      * Отображение списка записей.
      * @param records
@@ -246,6 +263,25 @@ public class MainPageFragment extends TetroidFragment {
         this.mListAdapterRecords.setDataItems(records, viewId);
         mListViewRecords.setAdapter(mListAdapterRecords);
     }
+
+    /**
+     * Обновление списка записей.
+     */
+    public void updateRecordList() {
+        if (mListAdapterRecords != null) {
+            mListAdapterRecords.notifyDataSetInvalidated();
+        }
+    }
+
+    /**
+     * Обработчик клика на записи
+     */
+    private AdapterView.OnItemClickListener onRecordClicklistener = (parent, view, position, id) -> showRecord(position);
+
+    // endregion Records
+
+
+    // region Record
 
     /**
      * Отображение записи
@@ -360,73 +396,6 @@ public class MainPageFragment extends TetroidFragment {
     }
 
     /**
-     * Отображение списка прикрепленных файлов.
-     * @param record Запись
-     */
-    public void showRecordAttaches(TetroidRecord record) {
-        if (record == null)
-            return;
-        this.mCurRecord = record;
-        showRecordAttaches(record.getAttachedFiles());
-    }
-
-    public void showRecordAttaches(List<TetroidFile> files) {
-        showView(MAIN_VIEW_RECORD_FILES);
-        this.mListAdapterFiles.reset(files);
-        mListViewFiles.setAdapter(mListAdapterFiles);
-    }
-
-    /**
-     * Открытие прикрепленного файла.
-     * @param position Индекс файла в списке прикрепленных файлов записи
-     */
-    private void openAttach(int position) {
-        if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp(mContext)) {
-            LogManager.log(mContext, R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
-            return;
-        }
-        TetroidFile file = mCurRecord.getAttachedFiles().get(position);
-        mMainView.openAttach(file);
-    }
-
-    /**
-     * Выбор файла для прикрепления к записи.
-     */
-    private void attachFile() {
-        mMainView.openFilePicker();
-    }
-
-    public void attachFile(TetroidFile file) {
-        if (file != null) {
-            mListAdapterFiles.notifyDataSetInvalidated();
-            // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,
-            // если был прикреплен первый файл
-            if (mCurRecord.getAttachedFilesCount() == 1) {
-                mListAdapterRecords.notifyDataSetInvalidated();
-            }
-            LogManager.log(mContext, getString(R.string.log_file_was_attached), ILogger.Types.INFO, Toast.LENGTH_SHORT);
-        } else {
-            LogManager.log(mContext, getString(R.string.log_file_attaching_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            showSnackMoreInLogs();
-        }
-    }
-
-    /**
-     * Перемещение файла вверх/вниз по списку.
-     * @param pos
-     * @param isUp
-     */
-    private void moveFile(int pos, boolean isUp) {
-        int res = DataManager.swapTetroidObjects(mContext, mListAdapterFiles.getDataSet(), pos, isUp, true);
-        if (res > 0) {
-            mListAdapterFiles.notifyDataSetChanged();
-            TetroidLog.logOperRes(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
-        } else if (res < 0) {
-            TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
-        }
-    }
-
-    /**
      * Открытие каталога записи.
      * @param record
      */
@@ -469,15 +438,6 @@ public class MainPageFragment extends TetroidFragment {
         }
         mMainView.updateTags();
         updateFavorites(record);
-    }
-
-    /**
-     * Обновление списка записей.
-     */
-    public void updateRecordList() {
-        if (mListAdapterRecords != null) {
-            mListAdapterRecords.notifyDataSetInvalidated();
-        }
     }
 
     /**
@@ -564,6 +524,116 @@ public class MainPageFragment extends TetroidFragment {
             LogManager.log(mContext, getString(R.string.title_link_was_copied) + url, ILogger.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.log(mContext, getString(R.string.log_get_item_is_null), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    // endregion Record
+
+
+    // region Attaches
+
+    /**
+     * Отображение списка прикрепленных файлов.
+     * @param record Запись
+     */
+    public void showRecordAttaches(TetroidRecord record, boolean fromRecordActivity) {
+        if (record == null)
+            return;
+        this.mCurRecord = record;
+        this.mIsFromRecordActivity = fromRecordActivity;
+        showRecordAttaches(record.getAttachedFiles());
+    }
+
+    public void showRecordAttaches(List<TetroidFile> files) {
+        showView(MAIN_VIEW_RECORD_FILES);
+        this.mListAdapterFiles.reset(files);
+        mListViewFiles.setAdapter(mListAdapterFiles);
+    }
+
+
+    /**
+     * Обработчик клика на иконке прикрепленных файлов записи
+     */
+    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordAttaches(record, false);
+
+    /**
+     * Обработчик клика на прикрепленном файле
+     */
+    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openAttach(position);
+
+    // endregion Attaches
+
+
+    // region Attach
+
+    /**
+     * Открытие прикрепленного файла.
+     * @param position Индекс файла в списке прикрепленных файлов записи
+     */
+    private void openAttach(int position) {
+        if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp(mContext)) {
+            LogManager.log(mContext, R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
+            return;
+        }
+        TetroidFile file = mCurRecord.getAttachedFiles().get(position);
+        mMainView.openAttach(file);
+    }
+
+    /**
+     * Выбор файла на устройстве для прикрепления к записи.
+     */
+    private void attachFile() {
+        mMainView.openFilePicker();
+    }
+
+    private void attachFile(Uri uri) {
+        UriHelper uriHelper = new UriHelper(getContext());
+        mMainView.attachFile(uriHelper.getPath(uri), true);
+    }
+
+    /**
+     * Ввод URL для загрузки и прикрепления файла к записи.
+     */
+    private void downloadAndAttachFile() {
+        AttachDialogs.createAttachFileByURLDialog(getContext(), url ->
+                mMainView.downloadFileToCache(url, new TetroidActivity.IDownloadFileResult() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            attachFile(uri);
+                        }
+                        @Override
+                        public void onError(Exception ex) {
+                        }
+                    }));
+    }
+
+    public void attachFile(TetroidFile file) {
+        if (file != null) {
+            mListAdapterFiles.notifyDataSetInvalidated();
+            // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,
+            // если был прикреплен первый файл
+            if (mCurRecord.getAttachedFilesCount() == 1) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
+            LogManager.log(mContext, getString(R.string.log_file_was_attached), ILogger.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.log(mContext, getString(R.string.log_file_attaching_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
+    /**
+     * Перемещение файла вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
+    private void moveFile(int pos, boolean isUp) {
+        int res = DataManager.swapTetroidObjects(mContext, mListAdapterFiles.getDataSet(), pos, isUp, true);
+        if (res > 0) {
+            mListAdapterFiles.notifyDataSetChanged();
+            TetroidLog.logOperRes(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
+        } else if (res < 0) {
+            TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
         }
     }
 
@@ -664,6 +734,11 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    // endregion Attach
+
+
+    // region Favorites
+
     public void addFavorite(Context context, TetroidRecord record) {
         if (FavoritesManager.add(context, record)) {
             String mes = "Добавлено в избранное";
@@ -696,20 +771,10 @@ public class MainPageFragment extends TetroidFragment {
         mListAdapterRecords.notifyDataSetInvalidated();
     }
 
-    /**
-     * Обработчик клика на записи
-     */
-    private AdapterView.OnItemClickListener onRecordClicklistener = (parent, view, position, id) -> showRecord(position);
+    // endregion Favorites
 
-    /**
-     * Обработчик клика на иконке прикрепленных файлов записи
-     */
-    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordAttaches(record);
 
-    /**
-     * Обработчик клика на прикрепленном файле
-     */
-    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openAttach(position);
+    // region OptionsMenu
 
     /**
      *
@@ -730,7 +795,7 @@ public class MainPageFragment extends TetroidFragment {
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         boolean isRecordFilesView = (mCurMainViewId == MAIN_VIEW_RECORD_FILES);
         boolean mIsFavoritesView = (mCurMainViewId == MAIN_VIEW_FAVORITES);
-        activateMenuItem(menu.findItem(R.id.action_record_node), isRecordFilesView);
+        activateMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_insert),
@@ -756,6 +821,15 @@ public class MainPageFragment extends TetroidFragment {
         }
         return false;
     }
+
+    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isActivate);
+    }
+
+    // endregion OptionsMenu
+
+
+    // region ContextMenu
 
     /**
      * Обработчик создания контекстного меню при долгом тапе на записи.
@@ -834,10 +908,6 @@ public class MainPageFragment extends TetroidFragment {
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly);
     }
 
-    private void activateMenuItem(MenuItem menuItem, boolean isActivate) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isActivate);
-    }
-
     /**
      * Обработчик выбора пунктов контекстного меню записи.
      * @param item
@@ -882,7 +952,7 @@ public class MainPageFragment extends TetroidFragment {
                 insertRecord();
                 return true;
             case R.id.action_attached_files:
-                showRecordAttaches(record);
+                showRecordAttaches(record, false);
                 return true;
             case R.id.action_open_record_folder:
                 openRecordFolder(record);
@@ -951,6 +1021,9 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
+    // endregion ContextMenu
+
+
     /**
      * Обработчик нажатия кнопки Back
      */
@@ -1006,6 +1079,14 @@ public class MainPageFragment extends TetroidFragment {
 
     public int getLastViewId() {
         return mLastViewId;
+    }
+
+    public boolean isFromRecordActivity() {
+        return mIsFromRecordActivity;
+    }
+
+    public void dropIsFromRecordActivity() {
+        mIsFromRecordActivity = false;
     }
 
     @Override
