@@ -11,7 +11,7 @@ import com.gee12.htmlwysiwygeditor.ActionType;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
@@ -27,14 +27,20 @@ public class TetroidEditor extends WysiwygEditor {
 
     public TetroidEditor(Context context) {
         super(context);
+        init();
     }
 
     public TetroidEditor(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public TetroidEditor(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    protected void init() {
     }
 
     public List<ActionButton> getActionButtons() {

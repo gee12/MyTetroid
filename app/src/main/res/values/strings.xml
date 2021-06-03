@@ -58,7 +58,8 @@
     <string name="title_log_file_content">Logs</string>
     <string name="title_storage_info">Storage info</string>
     <string name="title_node_icon_choice">Select icon</string>
-    <string name="title_to_node">To node</string>
+    <string name="title_move_back">Move to back</string>
+    <string name="title_to_node">To record node</string>
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
     <string name="title_fullscreen">Fullscreen</string>
@@ -140,6 +141,7 @@
     <string name="title_done">Done</string>
     <string name="title_app_termux" translatable="false">Termux</string>
     <string name="title_app_mgit" translatable="false">MGit</string>
+    <string name="title_download_attach_file_by_link">Attach file from link</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -462,6 +464,7 @@
     <string name="ask_permission_termux">Permission to run Termux commands</string>
     <string name="ask_load_storage">The storage is not loaded. Load?</string>
     <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
+    <string name="ask_open_attaches">Open list of attached files ?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -588,7 +591,7 @@
     <string name="log_error_image_file_saving">Failed to save image file</string>
 <!--    <string name="log_failed_to_save_images_mask">Failed to save images: %d (more in the logs)</string>-->
     <string name="log_failed_to_save_images_mask">Failed to save images: %d</string>
-    <string name="log_failed_to_save_image">Failed to save image: %d</string>
+<!--    <string name="log_failed_to_save_image">Failed to save image: %d</string>-->
 <!--    <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>-->
     <string name="log_error_deleting_src_image_file">Failed to delete the source image file:&#160;</string>
 <!--    <string name="log_error_record_file_decrypting">Failed to decrypt the record file (more in the logs)</string>-->
@@ -670,5 +673,24 @@
     <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
     <string name="log_icons_dir_absent_mask">Directory with icons %s is missing</string>
     <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
+    <string name="log_error_download_file_mask">Error loading file:\n%s</string>
     <string name="log_error_download_image_mask">Error loading image:\n%s</string>
+
+    <string name="title_insert_record_content">Insert record content</string>
+    <string name="title_insert_hyperlink">Insert hyperlink</string>
+    <string name="title_insert_url_as_text">Insert link as text</string>
+    <string name="title_attach_file">Attach file</string>
+    <string name="title_attach_image">Attach image</string>
+    <string name="title_insert_image">Attach image</string>
+    <string name="title_insert_web_page">Insert web page content</string>
+    <string name="title_insert_web_page_as_text">Insert web page as text</string>
+    <string name="title_attach_web_page_as_file">Attach web page as file</string>
+    <string name="title_download_attach_file">Download and attach file</string>
+    <string name="title_download_attach_image">Download and attach image</string>
+    <string name="title_download_insert_image">Download and insert image</string>
+    <string name="title_insert_as">Insert as..</string>
+    <string name="title_file_downloading">File downloading</string>
+    <string name="title_download_by_link">DOWNLOAD BY LINK</string>
+    <string name="title_select_on_device">SELECT ON DEVICE</string>
+    <string name="log_link_is_empty">Link is empty</string>
 </resources>

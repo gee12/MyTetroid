@@ -39,6 +39,7 @@ import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.helpers.UriHelper;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.Message;
@@ -564,6 +565,116 @@ public class MainPageFragment extends TetroidFragment {
             LogManager.log(mContext, getString(R.string.title_link_was_copied) + url, ILogger.Types.INFO, Toast.LENGTH_SHORT);
         } else {
             LogManager.log(mContext, getString(R.string.log_get_item_is_null), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+        }
+    }
+
+    // endregion Record
+
+
+    // region Attaches
+
+    /**
+     * Отображение списка прикрепленных файлов.
+     * @param record Запись
+     */
+    public void showRecordAttaches(TetroidRecord record, boolean fromRecordActivity) {
+        if (record == null)
+            return;
+        this.mCurRecord = record;
+        this.mIsFromRecordActivity = fromRecordActivity;
+        showRecordAttaches(record.getAttachedFiles());
+    }
+
+    public void showRecordAttaches(List<TetroidFile> files) {
+        showView(MAIN_VIEW_RECORD_FILES);
+        this.mListAdapterFiles.reset(files);
+        mListViewFiles.setAdapter(mListAdapterFiles);
+    }
+
+
+    /**
+     * Обработчик клика на иконке прикрепленных файлов записи
+     */
+    RecordsListAdapter.OnRecordAttachmentClickListener onRecordAttachmentClickListener = record -> showRecordAttaches(record, false);
+
+    /**
+     * Обработчик клика на прикрепленном файле
+     */
+    private AdapterView.OnItemClickListener onFileClicklistener = (parent, view, position, id) -> openAttach(position);
+
+    // endregion Attaches
+
+
+    // region Attach
+
+    /**
+     * Открытие прикрепленного файла.
+     * @param position Индекс файла в списке прикрепленных файлов записи
+     */
+    private void openAttach(int position) {
+        if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp(mContext)) {
+            LogManager.log(mContext, R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
+            return;
+        }
+        TetroidFile file = mCurRecord.getAttachedFiles().get(position);
+        mMainView.openAttach(file);
+    }
+
+    /**
+     * Выбор файла на устройстве для прикрепления к записи.
+     */
+    private void attachFile() {
+        mMainView.openFilePicker();
+    }
+
+    private void attachFile(Uri uri) {
+        UriHelper uriHelper = new UriHelper(getContext());
+        mMainView.attachFile(uriHelper.getPath(uri), true);
+    }
+
+    /**
+     * Ввод URL для загрузки и прикрепления файла к записи.
+     */
+    private void downloadAndAttachFile() {
+        AttachDialogs.createAttachFileByURLDialog(getContext(), url ->
+                mMainView.downloadFileToCache(url, new TetroidActivity.IDownloadFileResult() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            attachFile(uri);
+                        }
+                        @Override
+                        public void onError(Exception ex) {
+                        }
+                    }));
+    }
+
+    public void attachFile(TetroidFile file) {
+        if (file != null) {
+            mListAdapterFiles.notifyDataSetInvalidated();
+            // обновляем список записей для обновления иконки о наличии прикрепляемых файлов у записи,
+            // если был прикреплен первый файл
+            if (mCurRecord.getAttachedFilesCount() == 1) {
+                mListAdapterRecords.notifyDataSetInvalidated();
+            }
+            LogManager.log(mContext, getString(R.string.log_file_was_attached), ILogger.Types.INFO, Toast.LENGTH_SHORT);
+        } else {
+            LogManager.log(mContext, getString(R.string.log_file_attaching_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
+    /**
+     * Перемещение файла вверх/вниз по списку.
+     * @param pos
+     * @param isUp
+     */
+    private void moveFile(int pos, boolean isUp) {
+        int res = DataManager.swapTetroidObjects(mContext, mListAdapterFiles.getDataSet(), pos, isUp, true);
+        if (res > 0) {
+            mListAdapterFiles.notifyDataSetChanged();
+            TetroidLog.logOperRes(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
+        } else if (res < 0) {
+            TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.FILE, TetroidLog.Opers.MOVE);
         }
     }
 

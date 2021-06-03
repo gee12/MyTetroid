@@ -55,7 +55,8 @@
     <string name="title_edit_mode">Редактирование</string>
     <string name="title_view_mode">Просмотр</string>
     <string name="title_open_tag_records">Открыть записи метки</string>
-    <string name="title_to_node">К ветке</string>
+    <string name="title_move_back">Вернуться обратно</string>
+    <string name="title_to_node">К ветке записи</string>
     <string name="title_show_record_content">Открыть запись</string>
     <string name="title_show_attached_files">Прикрепленные файлы</string>
     <string name="title_open_record_folder">Открыть каталог</string>
@@ -137,6 +138,7 @@
     <string name="title_done">Готово</string>
     <string name="title_choose_node">Выберите ветку</string>
     <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
+    <string name="title_download_attach_file_by_link">Прикрепить файл по ссылке</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -379,6 +381,7 @@
     <string name="ask_load_storage">Сначала нужно загрузить хранилище. Загрузить?</string>
     <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
     <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
+    <string name="ask_open_attaches">Открыть список прикрепленных файлов ?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -584,5 +587,24 @@
     <string name="log_icons_dirs_absent">Отсутствуют каталоги с иконками</string>
     <string name="log_icons_dir_absent_mask">Отсутствует каталог %s с иконками</string>
     <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
+    <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
     <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
+
+    <string name="title_insert_record_content">Вставить содержимо записи</string>
+    <string name="title_insert_hyperlink">Вставить ссылку</string>
+    <string name="title_insert_url_as_text">Вставить ссылку как текст</string>
+    <string name="title_attach_file">Прикрепить файл</string>
+    <string name="title_attach_image">Прикрепить изображение</string>
+    <string name="title_insert_image">Вставить изображение</string>
+    <string name="title_insert_web_page">Вставить содержимое web-страницы</string>
+    <string name="title_insert_web_page_as_text">Вставить содержимое как текст</string>
+    <string name="title_attach_web_page_as_file">Прикрепить web-страницу как файл</string>
+    <string name="title_download_attach_file">Скачать и прикрепить файл</string>
+    <string name="title_download_attach_image">Скачать и прикрепить изображение</string>
+    <string name="title_download_insert_image">Скачать и вставить изображение</string>
+    <string name="title_insert_as">Вставить как..</string>
+    <string name="title_file_downloading">Загрузка файла</string>
+    <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
+    <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
+    <string name="log_link_is_empty">Пустая ссылка</string>
 </resources>

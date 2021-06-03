@@ -39,9 +39,9 @@ import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.HtmlHelper;
+import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.ImagesManager;
-import com.gee12.mytetroid.data.NetworkHelper;
+import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -61,6 +61,7 @@ import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.services.FileObserverService;
+import com.gee12.mytetroid.helpers.UriHelper;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
@@ -170,7 +171,7 @@ public class RecordActivity extends TetroidActivity implements
     public static final int RESULT_PASS_CHANGED = 2;
     public static final int RESULT_OPEN_RECORD = 3;
     public static final int RESULT_OPEN_NODE = 4;
-    public static final int RESULT_SHOW_FILES = 5;
+    public static final int RESULT_SHOW_ATTACHES = 5;
     public static final int RESULT_SHOW_TAG = 6;
     public static final int RESULT_DELETE_RECORD = 7;
 
@@ -887,8 +888,12 @@ public class RecordActivity extends TetroidActivity implements
 
     private void saveImage(Bitmap bitmap) {
         TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, bitmap);
-        if (savedImage != null) {
-            mEditor.insertImage(savedImage);
+        saveImage(savedImage);
+    }
+
+    private void saveImage(TetroidImage image) {
+        if (image != null) {
+            mEditor.insertImage(image);
         } else {
             TetroidLog.logOperError(this, TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, Toast.LENGTH_LONG);
             showSnackMoreInLogs();
@@ -948,6 +953,76 @@ public class RecordActivity extends TetroidActivity implements
             }
         });
     }
+
+    // endregion Image
+
+
+    // region Attach
+
+    /**
+     *
+     * TODO: добавить удаление исходного файла
+     * @param uri
+     */
+    public void attachFile(Uri uri, boolean deleteSrcFile) {
+        UriHelper uriHelper = new UriHelper(this);
+        new AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri));
+    }
+
+    private void onFileAttached(TetroidFile res) {
+        if (res != null) {
+            AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    openRecordAttaches();
+                }
+                @Override
+                public void onCancel() {
+                }
+            }, R.string.ask_open_attaches);
+        } else {
+            LogManager.log(this, R.string.log_files_attach_error, ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            showSnackMoreInLogs();
+        }
+    }
+
+    public void downloadAndAttachFile(Uri uri) {
+        super.downloadFileToCache(uri.toString(), new IDownloadFileResult() {
+            @Override
+            public void onSuccess(Uri uri) {
+                attachFile(uri, true);
+            }
+            @Override
+            public void onError(Exception ex) {
+            }
+        });
+    }
+
+    /**
+     * Открытие списка прикрепленных файлов записи.
+     * @param isAskForSave
+     */
+    private void openRecordAttaches(TetroidRecord record, boolean isAskForSave) {
+        if (record == null)
+            return;
+        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString(EXTRA_OBJECT_ID, record.getId());
+        finishWithResult(RESULT_SHOW_ATTACHES, bundle);
+    }
+
+    /**
+     * Открытие списка прикрепленных файлов записи.
+     */
+    private void openRecordAttaches() {
+        openRecordAttaches(mRecord, true);
+    }
+
+    //endregion Attach
+
+
+    // region Mode
 
     /**
      * Переключение режима отображения содержимого записи.

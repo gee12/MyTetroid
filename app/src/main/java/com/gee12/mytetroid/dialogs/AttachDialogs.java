@@ -2,8 +2,10 @@ package com.gee12.mytetroid.dialogs;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
@@ -16,10 +18,15 @@ import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
+import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Date;
 
 public class AttachDialogs {
+
+    public interface IAttachFileByURLResult {
+        void onApply(String url);
+    }
 
     /**
      * Диалог информации о прикрепленном файле.
@@ -63,5 +70,29 @@ public class AttachDialogs {
         tvSize.setText(size);
 
         builder.show();
+    }
+
+    /**
+     * Диалог ввода URL изображения.
+     * FIXME: добавить деактивацию кнопки OK пока не введена URL
+     * @param context
+     * @param callback
+     */
+    public static void createAttachFileByURLDialog(Context context, IAttachFileByURLResult callback) {
+        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context,
+                com.lumyjuwon.richwysiwygeditor.R.layout.dialog_insert_web_content);
+        builder.setTitle(R.string.title_download_attach_file);
+        View view = builder.getView();
+        EditText etLink = view.findViewById(com.lumyjuwon.richwysiwygeditor.R.id.edit_text_link);
+        view.findViewById(com.lumyjuwon.richwysiwygeditor.R.id.checkbox_text_only).setVisibility(View.GONE);
+
+        final AlertDialog dialog = builder
+                .setPositiveButton(R.string.answer_ok, (dialog1, which) ->
+                        callback.onApply(etLink.getText().toString()))
+                .setNegativeButton(R.string.answer_cancel, null)
+                .create();
+        Keyboard.showSoftKeyboard(dialog);
+        etLink.requestFocus();
+        dialog.show();
     }
 }

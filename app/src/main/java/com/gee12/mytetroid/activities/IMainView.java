@@ -27,4 +27,6 @@ public interface IMainView extends Parcelable {
     void updateFavorites();
     void showGlobalSearchWithQuery();
     void updateOptionsMenu();
+    void downloadFileToCache(String url, TetroidActivity.IDownloadFileResult callback);
+    void attachFile(String fullFileName, boolean deleteSrcFile);
 }
