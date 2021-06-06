@@ -13,7 +13,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.RecordsManager;
-import com.gee12.mytetroid.dialogs.AskDialogs;
+import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.utils.ImageUtils;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;

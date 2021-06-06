@@ -8,7 +8,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.crypt.Base64;
 import com.gee12.mytetroid.data.crypt.Crypter;
 import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.dialogs.PassDialogs;
+import com.gee12.mytetroid.views.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TaskStage;

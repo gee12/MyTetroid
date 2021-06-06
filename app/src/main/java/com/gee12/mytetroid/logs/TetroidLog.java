@@ -7,8 +7,8 @@ import androidx.annotation.StringRes;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.activities.MainActivity;
-import com.gee12.mytetroid.fragments.settings.SettingsEncryptionFragment;
+import com.gee12.mytetroid.views.activities.MainActivity;
+import com.gee12.mytetroid.views.fragments.settings.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;

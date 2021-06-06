@@ -7,7 +7,7 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gee12.mytetroid.activities.AboutActivity">
+    tools:context=".views.activities.AboutActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

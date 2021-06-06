@@ -12,8 +12,8 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.data.crypt.TetroidCrypter;
 import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.dialogs.AskDialogs;
-import com.gee12.mytetroid.dialogs.PassDialogs;
+import com.gee12.mytetroid.views.dialogs.AskDialogs;
+import com.gee12.mytetroid.views.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.logs.TetroidLog;
@@ -21,7 +21,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.dialogs.StorageChooserDialog;
+import com.gee12.mytetroid.views.dialogs.StorageChooserDialog;
 
 import java.io.File;
 
