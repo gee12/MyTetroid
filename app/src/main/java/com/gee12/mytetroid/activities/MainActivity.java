@@ -2566,6 +2566,9 @@ public class MainActivity extends TetroidActivity implements IMainView {
             case R.id.action_storage_reload:
                 reloadStorageAsk();
                 return true;
+            case R.id.action_storages:
+                showStoragesActivity();
+                return true;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
@@ -2688,6 +2691,10 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
 
     // region StartActivity
+
+    private void showStoragesActivity() {
+        ViewUtils.startActivity(this, StoragesActivity.class, null);
+    }
 
     private void showStorageInfoActivity() {
         if (StorageManager.isFavoritesMode()) {

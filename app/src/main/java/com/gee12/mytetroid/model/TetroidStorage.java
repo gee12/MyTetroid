@@ -4,12 +4,14 @@ import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.data.crypt.TetroidCrypter;
 import com.gee12.mytetroid.data.ini.DatabaseConfig;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 public class TetroidStorage {
 
     // хранилище
+    private int mId;
     private boolean mIsMain;
     private int mOrder;
     private String mName;
@@ -79,7 +81,7 @@ public class TetroidStorage {
 
     public TetroidStorage(String path) {
         Date curDate = new Date();
-        init(path, getFolderNameFromPath(path), curDate, curDate);
+        init(getFolderNameFromPath(path), path, curDate, curDate);
     }
 
     public TetroidStorage(String name, String path, Date created, Date edited) {
@@ -94,6 +96,170 @@ public class TetroidStorage {
     }
 
     public static String getFolderNameFromPath(String path) {
-        return "";
+        return new File(path).getName();
+    }
+
+    public int getId() {
+        return mId;
+    }
+
+    public boolean isMain() {
+        return mIsMain;
+    }
+
+    public int getOrder() {
+        return mOrder;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public String getPath() {
+        return mPath;
+    }
+
+    public String getTrashPath() {
+        return mTrashPath;
+    }
+
+    public Date getCreatedDate() {
+        return mCreatedDate;
+    }
+
+    public Date getEditedDate() {
+        return mEditedDate;
+    }
+
+    public boolean isReadOnly() {
+        return mIsReadOnly;
+    }
+
+    public String getQuickNodeId() {
+        return mQuickNodeId;
+    }
+
+    public boolean isIsLoadFavoritesOnly() {
+        return mIsLoadFavoritesOnly;
+    }
+
+    public boolean isKeepLastNode() {
+        return mIsKeepLastNode;
+    }
+
+    public String getLastNodeId() {
+        return mLastNodeId;
+    }
+
+    public boolean isSavePassHash() {
+        return mIsSavePassHash;
+    }
+
+    public String getMiddlePassHash() {
+        return mMiddlePassHash;
+    }
+
+    public boolean isRequestPIN() {
+        return mIsRequestPIN;
+    }
+
+    public boolean isPINLength() {
+        return mPINLength;
+    }
+
+    public String getPINHash() {
+        return mPINHash;
+    }
+
+    public int getWhenAskPass() {
+        return mWhenAskPass;
+    }
+
+    public int isCheckOutsideChanging() {
+        return mIsCheckOutsideChanging;
+    }
+
+    public int isRecordEditMode() {
+        return mIsRecordEditMode;
+    }
+
+    public int isRecordAutoSave() {
+        return mIsRecordAutoSave;
+    }
+
+    public int isFixEmptyParagraphs() {
+        return mIsFixEmptyParagraphs;
+    }
+
+    public int isKeepScreenOn() {
+        return mIsKeepScreenOn;
+    }
+
+    public int isDoubleTapFullscreen() {
+        return mIsDoubleTapFullscreen;
+    }
+
+    public int isShowRecordFields() {
+        return mIsShowRecordFields;
+    }
+
+    public int isHighlightRecordWithAttach() {
+        return mIsHighlightRecordWithAttach;
+    }
+
+    public int isHighlightEncryptedNodes() {
+        return mIsHighlightEncryptedNodes;
+    }
+
+    public int getHighlightColor() {
+        return mHighlightColor;
+    }
+
+    public String getDateFormatString() {
+        return mDateFormatString;
+    }
+
+    public List<Integer> getRecordFieldsInList() {
+        return mRecordFieldsInList;
+    }
+
+    public int isWriteLogToFile() {
+        return mIsWriteLogToFile;
+    }
+
+    public String getLogPath() {
+        return mLogPath;
+    }
+
+    public TetroidNode getQuicklyNode() {
+        return mQuicklyNode;
+    }
+
+    public TetroidCrypter getCrypter() {
+        return mCrypter;
+    }
+
+    public DatabaseConfig getDatabaseConfig() {
+        return mDatabaseConfig;
+    }
+
+    public TetroidXml getXml() {
+        return mXml;
+    }
+
+    public boolean isInited() {
+        return isInited;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+
+    public boolean isDecrypted() {
+        return isDecrypted;
+    }
+
+    public boolean isCrypted() {
+        return isCrypted;
     }
 }

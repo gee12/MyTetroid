@@ -56,6 +56,7 @@
     <string name="title_gallery">Gallery</string>
     <string name="title_show">Show</string>
     <string name="title_log_file_content">Logs</string>
+    <string name="title_storages">Storages</string>
     <string name="title_storage_info">Storage info</string>
     <string name="title_node_icon_choice">Select icon</string>
     <string name="title_move_back">Move to back</string>

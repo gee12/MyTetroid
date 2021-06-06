@@ -35,6 +35,7 @@
     <string name="title_global_search">Глобальный поиск</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
+    <string name="title_storages">Список хранилищ</string>
     <string name="title_storage_info">Инфо о хранилище</string>
     <string name="title_node_icon_choice">Выбор иконки</string>
     <string name="title_expand_node_subnodes">Развернуть все подветки</string>

@@ -10,20 +10,20 @@
     android:padding="15dp">
 
     <TextView
-        android:id="@+id/text_view_title"
+        android:id="@+id/text_view_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/colorBaseText"
         android:paddingBottom="3dp"
-        tools:text="Пункт меню"
+        tools:text="@tools:sample/cities"
         android:textSize="@dimen/font_default" />
 
     <TextView
-        android:id="@+id/text_view_summ"
+        android:id="@+id/text_view_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/colorBase2Text"
-        tools:text="Подпись пункта меню на нескольких строках с длинной надписью"
+        tools:text="@tools:sample/lorem"
         android:textSize="@dimen/font_small" />
 
 </LinearLayout>
