@@ -23,6 +23,7 @@ public class StoragesAdapter extends ListAdapter<TetroidStorage, StoragesAdapter
 //    private Context mContext;
     private LayoutInflater mInflater;
     private View.OnClickListener mOnClickListener;
+    private View.OnLongClickListener mOnLongClickListener;
 
     public StoragesAdapter(Context context) {
         super(DIFF_CALLBACK);
@@ -34,12 +35,17 @@ public class StoragesAdapter extends ListAdapter<TetroidStorage, StoragesAdapter
         this.mOnClickListener = listener;
     }
 
+    public void setOnItemLongClickListener(View.OnLongClickListener listener) {
+        this.mOnLongClickListener = listener;
+    }
+
     @NonNull
     @Override
     public StoragesAdapter.StorageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.list_item_storage, parent, false);
         if (mOnClickListener != null) {
             view.setOnClickListener(mOnClickListener);
+            view.setOnLongClickListener(mOnLongClickListener);
         }
         return new StorageViewHolder(view);
     }

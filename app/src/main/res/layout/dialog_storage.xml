@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <RelativeLayout
+        android:id="@+id/layout_path"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/label_path"
+            android:text="@string/label_path"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            style="@style/dialog_labels"/>
+
+        <EditText
+            android:id="@+id/edit_text_path"
+            android:layout_below="@id/label_path"
+            android:layout_toLeftOf="@id/button_path"
+            android:layout_toStartOf="@id/button_path"
+            android:inputType="textMultiLine"
+            android:lines="2"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="@string/title_select_folder"
+            android:textSize="14sp"
+            style="@style/dialog_text_edit"/>
+
+        <ImageButton
+            android:id="@+id/button_path"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/label_path"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:clickable="false"
+            android:background="@drawable/ic_folder" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:text="@string/label_name"
+        style="@style/dialog_labels"/>
+
+    <EditText
+        android:id="@+id/edit_text_name"
+        android:inputType="text|textCapSentences"
+        style="@style/dialog_text_edit"/>
+
+<!--    <TextView-->
+<!--        android:text="@string/title_file_name_with_ext"-->
+<!--        style="@style/dialog_labels"-->
+<!--        android:textColor="@color/dark_gray"-->
+<!--        android:textSize="@dimen/font_small"/>-->
+
+    <CheckedTextView
+        android:id="@+id/check_box_read_only"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="end|center_vertical"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/label_read_only"
+        android:checked="false"
+        android:enabled="false"
+        style="@style/dialog_labels"/>
+
+</LinearLayout>

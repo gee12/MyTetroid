@@ -56,6 +56,7 @@ public class NodeDialogs {
             return mSelectedNode;
         }
     }
+
     /**
      * Диалог создания/изменения ветки.
      * @param context

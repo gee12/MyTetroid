@@ -17,7 +17,7 @@ import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.dialogs.StorageChooserDialog;
+import com.gee12.mytetroid.views.dialogs.StorageDialogs;
 
 import org.jsoup.internal.StringUtil;
 
@@ -174,7 +174,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 
     private void selectStorageFolder() {
         // спрашиваем: создать или выбрать хранилище ?
-        StorageChooserDialog.createDialog(getContext(), isNew -> {
+        StorageDialogs.createStorageSelectionDialog(getContext(), isNew -> {
             openFolderPicker(getString(R.string.title_storage_folder),
                     SettingsManager.getStoragePath(mContext), isNew);
         });

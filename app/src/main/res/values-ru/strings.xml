@@ -130,6 +130,9 @@
     <string name="title_tag">Метка</string>
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
+    <string name="title_add_storage">Добавить хранилище</string>
+    <string name="title_edit_storage">Изменить хранилище</string>
+    <string name="title_select_folder"><![CDATA[<Выберите каталог>]]></string>
     <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
     <string name="title_founded_in_mask">Найдено в: %s</string>
     <string name="title_by_records_num">Количество записей</string>
@@ -290,6 +293,7 @@
     <string name="label_confirm_pass">Пароль повторно:</string>
     <string name="label_crypted">Зашифрована:</string>
     <string name="label_path">Путь к каталогу:</string>
+    <string name="label_read_only">Только для чтения</string>
     <string name="label_file_size">Размер файла:</string>
     <string name="label_folder_size">Размер каталога:</string>
     <string name="label_icons_section">Раздел:</string>

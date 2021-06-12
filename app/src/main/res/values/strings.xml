@@ -132,6 +132,9 @@
     <string name="title_enter_pin_code_length">Enter PIN-code length</string>
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
+    <string name="title_add_storage">Add storage</string>
+    <string name="title_edit_storage">Edit storage</string>
+    <string name="title_select_folder"><![CDATA[<Select folder>]]></string>
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
     <string name="title_choose_node">Select node</string>
     <string name="title_founded_in_mask">Founded in: %s</string>
@@ -400,7 +403,8 @@
     <string name="label_confirm_pass">Confirm:</string>
     <string name="label_crypted">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
-    <string name="label_path">Path to folder:</string>
+    <string name="label_path">Read only</string>
+    <string name="label_read_only">Только для чтения</string>
     <string name="label_file_size">File size:</string>
     <string name="label_folder_size">Folder size:</string>
     <string name="label_icons_section">Section:</string>

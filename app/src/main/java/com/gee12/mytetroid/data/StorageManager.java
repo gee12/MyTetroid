@@ -21,7 +21,7 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.dialogs.StorageChooserDialog;
+import com.gee12.mytetroid.views.dialogs.StorageDialogs;
 
 import java.io.File;
 
@@ -155,7 +155,7 @@ public class StorageManager extends DataManager {
         if ((isLoadLastForced || SettingsManager.isLoadLastStoragePath(activity)) && storagePath != null) {
             initOrSyncStorage(activity, storagePath, isCheckFavorMode);
         } else {
-            StorageChooserDialog.createDialog(activity, isNew -> StorageManager.showStorageFolderChooser(activity, isNew));
+            StorageDialogs.createStorageSelectionDialog(activity, isNew -> StorageManager.showStorageFolderChooser(activity, isNew));
         }
     }
 
