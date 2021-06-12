@@ -4,6 +4,9 @@ import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.data.crypt.TetroidCrypter;
 import com.gee12.mytetroid.data.ini.DatabaseConfig;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -79,16 +82,23 @@ public class TetroidStorage {
     boolean isDecrypted;
     boolean isCrypted;
 
+    public TetroidStorage(int id, String name, String path, boolean isReadOnly) {
+        Date curDate = new Date();
+        init(id, name, path, curDate, curDate);
+        this.mIsReadOnly = isReadOnly;
+    }
+
     public TetroidStorage(String path) {
         Date curDate = new Date();
-        init(getFolderNameFromPath(path), path, curDate, curDate);
+        init(0, getFolderNameFromPath(path), path, curDate, curDate);
     }
 
     public TetroidStorage(String name, String path, Date created, Date edited) {
-        init(name, path, created, edited);
+        init(0, name, path, created, edited);
     }
 
-    private void init(String name, String path, Date created, Date edited) {
+    private void init(int id, String name, String path, Date created, Date edited) {
+        this.mId = id;
         this.mName = name;
         this.mPath = path;
         this.mCreatedDate = created;
