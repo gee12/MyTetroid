@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
+import androidx.annotation.IdRes;
+
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
@@ -420,6 +422,11 @@ public class SettingsManager {
     public static String getWhenAskPass(Context context) {
         return getString(context, R.string.pref_key_when_ask_password,
                 context.getString(R.string.pref_when_ask_password_on_select));
+    }
+
+    public static boolean isAskPassOnStart(Context context) {
+        String value = getWhenAskPass(context);
+        return value.equals(context.getString(R.string.pref_when_ask_password_on_start));
     }
 
     /**

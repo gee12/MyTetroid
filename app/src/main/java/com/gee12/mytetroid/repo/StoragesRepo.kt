@@ -14,25 +14,55 @@ class StoragesRepo(context: Context) {
         dataBase.storagesDao.getAll().map(::toStorage)
     }
 
-    suspend fun addStorage(name: String, path: String, isReadOnly: Boolean) = withContext(Dispatchers.IO) {
-        dataBase.storagesDao.insert(toStorageEntity(TetroidStorage(0, name, path, isReadOnly)))
+    suspend fun getDefaultStorage() = withContext(Dispatchers.IO) {
+        toStorage(dataBase.storagesDao.getDefaultStorage().first())
     }
 
-    suspend fun updateStorage(id: Int, name: String, path: String, isReadOnly: Boolean) = withContext(Dispatchers.IO) {
-        dataBase.storagesDao.update(toStorageEntity(TetroidStorage(id, name, path, isReadOnly)))
+    suspend fun getStorage(id: Int) = withContext(Dispatchers.IO) {
+        toStorage(dataBase.storagesDao.getById(id))
     }
 
+    suspend fun addStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
+        if (storage.isDefault) {
+            dataBase.storagesDao.insertDefault(storage)
+        } else {
+            dataBase.storagesDao.insert(storage)
+        }
+    }
+
+    suspend fun updateStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
+        if (storage.isDefault) {
+            dataBase.storagesDao.updateDefault(storage)
+        } else {
+            dataBase.storagesDao.update(storage)
+        }
+    }
+
+    suspend fun deleteStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
+        dataBase.storagesDao.deleteById(storage.id)
+    }
+
+    /**
+     * TODO: добавить остальные поля
+     */
     private fun toStorage(entity: StorageEntity) = TetroidStorage(
-        entity.id.toInt(),
         entity.name,
         entity.path,
+        entity.isDefault,
         entity.isReadOnly
-    )
-
-    private fun toStorageEntity(storage: TetroidStorage) = StorageEntity(
-        id = storage.id.toLong(),
-        name = storage.name,
-        path = storage.path,
-        isReadOnly = storage.isReadOnly
-    )
+    ).apply {
+        id = entity.id
+        createdDate = entity.createdDate
+        editedDate = entity.editedDate
+        order = entity.order
+        trashPath = entity.trashPath
+        quickNodeId = entity.quickNodeId
+        isLoadFavoritesOnly = entity.isLoadFavoritesOnly
+        isKeepLastNode = entity.isKeepLastNode
+        lastNodeId = entity.lastNodeId
+        isSavePassLocal = entity.isSavePassLocal
+        middlePassHash = entity.middlePassHash
+        isDecyptToTemp = entity.isDecyptToTemp
+        syncProfile = entity.syncProfile
+    }
 }

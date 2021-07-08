@@ -2,31 +2,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:key="pref_key_screen">
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsStorageFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsStorageFragment"
         android:title="@string/pref_category_storage"
         android:icon="@drawable/ic_storage"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsEncryptionFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsEncryptionFragment"
         android:title="@string/pref_category_crypt"
         android:icon="@drawable/ic_encrypt"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsSyncFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsSyncFragment"
         android:title="@string/pref_category_sync"
         android:icon="@drawable/ic_sync"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsEditFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsEditFragment"
         android:title="@string/pref_category_edit"
         android:icon="@drawable/ic_edit"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsDisplayFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsDisplayFragment"
         android:title="@string/pref_category_display"
         android:icon="@drawable/ic_view"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsHandlingFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsHandlingFragment"
         android:title="@string/pref_category_handling"
         android:icon="@drawable/ic_handle"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.fragments.settings.SettingsOtherFragment"
+    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.SettingsOtherFragment"
         android:title="@string/pref_category_other"
         android:icon="@drawable/ic_dots"/>
 

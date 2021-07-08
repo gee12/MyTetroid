@@ -1533,7 +1533,7 @@ public class MainActivity extends TetroidActivity implements IMainView {
 
     /**
      * Отображение всплывающего (контексного) меню ветки.
-     * <p>
+     *
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
      *
      * @param v
@@ -1689,19 +1689,6 @@ public class MainActivity extends TetroidActivity implements IMainView {
             }
         });
         setForceShowMenuIcons(v, (MenuBuilder) popupMenu.getMenu());
-    }
-
-    /**
-     * Принудительное отображение иконок у пунктов меню.
-     * @param v
-     * @param menu
-     */
-    @SuppressLint("RestrictedApi")
-    private void setForceShowMenuIcons(View v, MenuBuilder menu) {
-        // для отображения иконок
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, menu, v);
-        menuHelper.setForceShowIcon(true);
-        menuHelper.show();
     }
 
     // endregion ContextMenus

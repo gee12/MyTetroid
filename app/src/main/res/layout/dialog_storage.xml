@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-
     <RelativeLayout
         android:id="@+id/layout_path"
         android:layout_width="match_parent"
@@ -30,7 +29,6 @@
             android:clickable="false"
             android:focusable="false"
             android:text="@string/title_select_folder"
-            android:textSize="14sp"
             style="@style/dialog_text_edit"/>
 
         <ImageButton
@@ -55,11 +53,15 @@
         android:inputType="text|textCapSentences"
         style="@style/dialog_text_edit"/>
 
-<!--    <TextView-->
-<!--        android:text="@string/title_file_name_with_ext"-->
-<!--        style="@style/dialog_labels"-->
-<!--        android:textColor="@color/dark_gray"-->
-<!--        android:textSize="@dimen/font_small"/>-->
+    <CheckedTextView
+        android:id="@+id/check_box_is_default"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="end|center_vertical"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:text="@string/label_default_storage"
+        style="@style/dialog_labels"/>
 
     <CheckedTextView
         android:id="@+id/check_box_read_only"
@@ -69,8 +71,6 @@
         android:gravity="end|center_vertical"
         android:checkMark="?android:attr/listChoiceIndicatorMultiple"
         android:text="@string/label_read_only"
-        android:checked="false"
-        android:enabled="false"
         style="@style/dialog_labels"/>
 
 </LinearLayout>

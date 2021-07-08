@@ -9,6 +9,7 @@ import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -17,14 +18,18 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.model.TetroidStorage;
 import com.gee12.mytetroid.views.EditTextWatcher;
+import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.adapters.StorageChooserAdapter;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 public class StorageDialogs {
 
     public interface IStorageResult {
-        void onApply(String path, String name, boolean isReadOnly);
+//        void onApply(String path, String name, boolean isReadOnly);
+        void onApply(@NotNull TetroidStorage storage);
         void onSelectPath(String path);
     }
 
@@ -48,6 +53,7 @@ public class StorageDialogs {
             }
             this.mIsPathSelected = true;
             mEtPath.setText(path);
+            mEtPath.setTextSize(14);
             String folderName = new File(path).getName();
             mEtName.setText(folderName);
             mDialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -63,21 +69,20 @@ public class StorageDialogs {
             mEtPath.setInputType(InputType.TYPE_NULL);
             ImageButton bPath = view.findViewById(R.id.button_path);
             this.mEtName = view.findViewById(R.id.edit_text_name);
+            CheckedTextView cbIsDefault = view.findViewById(R.id.check_box_is_default);
+            cbIsDefault.setOnClickListener(v -> cbIsDefault.setChecked(!cbIsDefault.isChecked()));
             CheckedTextView cbReadOnly = view.findViewById(R.id.check_box_read_only);
-
-            if (BuildConfig.DEBUG && storage == null) {
-//                Random rand = new Random();
-//                int num = Math.abs(rand.nextInt());
-//                etPath.setText("path/to/storage/" + num);
-//                etName.setText("storage " + num);
-            }
+            // TODO: принудительно отключаем (пока)
+            cbReadOnly.setEnabled(false);
 
             if (storage != null) {
                 if (!TextUtils.isEmpty(storage.getPath())) {
                     mEtPath.setText(storage.getPath());
+                    mEtPath.setTextSize(14);
                     this.mIsPathSelected = true;
                 }
                 mEtName.setText(storage.getName());
+                cbIsDefault.setChecked(storage.isDefault());
             }
 
             View.OnClickListener clickListener = v -> {
@@ -90,11 +95,13 @@ public class StorageDialogs {
 
             // кнопки результата
             mDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.answer_ok), (dialog1, which) -> {
-                callback.onApply(
-                        mEtPath.getText().toString(),
+                TetroidStorage res = new TetroidStorage(
                         mEtName.getText().toString(),
+                        mEtPath.getText().toString(),
+                        cbIsDefault.isChecked(),
                         cbReadOnly.isChecked()
                 );
+                callback.onApply(res);
             });
             mDialog.setButton(AlertDialog.BUTTON_NEGATIVE, context.getString(R.string.answer_cancel), (dialog1, which) -> {
                 dialog1.cancel();

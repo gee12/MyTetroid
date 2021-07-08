@@ -34,13 +34,13 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 
         getActivity().setTitle(R.string.pref_category_storage);
 
-        Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
-        storageFolderPicker.setOnPreferenceClickListener(preference -> {
-            if (!checkPermission(SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH))
-                return true;
-            selectStorageFolder();
-            return true;
-        });
+//        Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
+//        storageFolderPicker.setOnPreferenceClickListener(preference -> {
+//            if (!checkPermission(SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH))
+//                return true;
+//            selectStorageFolder();
+//            return true;
+//        });
 
         Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
         tempFolderPicker.setOnPreferenceClickListener(preference -> {
@@ -50,54 +50,54 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             return true;
         });
 
-        findPreference(getString(R.string.pref_key_clear_trash))
-                .setOnPreferenceClickListener(preference -> {
-                    AskDialogs.showYesDialog(getContext(), () -> {
-                        if (DataManager.clearTrashFolder(getContext())) {
-                            LogManager.log(mContext, R.string.title_trash_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-                        } else {
-                            LogManager.log(mContext, R.string.title_trash_clear_error, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                        }
-                    }, R.string.ask_clear_trash);
-                    return true;
-                });
+//        findPreference(getString(R.string.pref_key_clear_trash))
+//                .setOnPreferenceClickListener(preference -> {
+//                    AskDialogs.showYesDialog(getContext(), () -> {
+//                        if (DataManager.clearTrashFolder(getContext())) {
+//                            LogManager.log(mContext, R.string.title_trash_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT);
+//                        } else {
+//                            LogManager.log(mContext, R.string.title_trash_clear_error, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//                        }
+//                    }, R.string.ask_clear_trash);
+//                    return true;
+//                });
 
-        findPreference(getString(R.string.pref_key_quickly_node_id))
-                .setOnPreferenceClickListener(preference -> {
-                    // диалог выбора ветки
-                    NodeDialogs.createNodeChooserDialog(getContext(), NodesManager.getQuicklyNode(),
-                            false, false, true, new NodeDialogs.INodeChooserResult() {
-                                @Override
-                                public void onApply(TetroidNode node) {
-                                    // устанавливаем ветку, если все хорошо
-                                    SettingsManager.setQuicklyNode(mContext, node);
-                                    NodesManager.setQuicklyNode(node);
-                                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
-                                }
-                                @Override
-                                public void onProblem(int code) {
-                                    // если хранилище недозагружено, спрашиваем о действиях
-                                    int mesId = (code == NodeDialogs.INodeChooserResult.LOAD_STORAGE)
-                                            ? R.string.ask_load_storage : R.string.ask_load_all_nodes;
-                                    AskDialogs.showYesDialog(getContext(), () -> {
-                                        // возвращаемся в MainActivity
-                                        Intent intent = new Intent();
-                                        switch (code) {
-                                            case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
-                                                intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_STORAGE, true);
-                                                break;
-                                            case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
-                                                intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, true);
-                                                break;
-                                        }
-                                        getActivity().setResult(RESULT_OK, intent);
-                                        getActivity().finish();
-                                    }, mesId);
-                                }
-                            });
-                    return true;
-                });
-        NodesManager.updateQuicklyNode(getContext());
+//        findPreference(getString(R.string.pref_key_quickly_node_id))
+//                .setOnPreferenceClickListener(preference -> {
+//                    // диалог выбора ветки
+//                    NodeDialogs.createNodeChooserDialog(getContext(), NodesManager.getQuicklyNode(),
+//                            false, false, true, new NodeDialogs.INodeChooserResult() {
+//                                @Override
+//                                public void onApply(TetroidNode node) {
+//                                    // устанавливаем ветку, если все хорошо
+//                                    SettingsManager.setQuicklyNode(mContext, node);
+//                                    NodesManager.setQuicklyNode(node);
+//                                    updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
+//                                }
+//                                @Override
+//                                public void onProblem(int code) {
+//                                    // если хранилище недозагружено, спрашиваем о действиях
+//                                    int mesId = (code == NodeDialogs.INodeChooserResult.LOAD_STORAGE)
+//                                            ? R.string.ask_load_storage : R.string.ask_load_all_nodes;
+//                                    AskDialogs.showYesDialog(getContext(), () -> {
+//                                        // возвращаемся в MainActivity
+//                                        Intent intent = new Intent();
+//                                        switch (code) {
+//                                            case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+//                                                intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_STORAGE, true);
+//                                                break;
+//                                            case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+//                                                intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, true);
+//                                                break;
+//                                        }
+//                                        getActivity().setResult(RESULT_OK, intent);
+//                                        getActivity().finish();
+//                                    }, mesId);
+//                                }
+//                            });
+//                    return true;
+//                });
+//        NodesManager.updateQuicklyNode(getContext());
 
         Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
         disableIfFree(loadFavorPref);
@@ -113,7 +113,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             keepNodePref.setDependency(getString(R.string.pref_key_is_load_favorites));
         }
 
-        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
+//        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
         updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(mContext));
         updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
     }

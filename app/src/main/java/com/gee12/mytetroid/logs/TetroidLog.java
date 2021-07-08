@@ -12,6 +12,7 @@ import com.gee12.mytetroid.views.fragments.settings.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
+import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -201,7 +202,7 @@ public class TetroidLog extends LogManager {
     }
 
     public static String getStringFormat(Context context, @StringRes int formatRes, String... args) {
-        return Utils.getStringFormat(context, formatRes, args);
+        return Utils.getStringFormat(context, formatRes, (args != null && args.length > 1) ? (Object[]) args : (Object)args);
     }
 
     /**
@@ -212,7 +213,7 @@ public class TetroidLog extends LogManager {
     public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
-                if (stage.clazz == SettingsEncryptionFragment.ChangePassTask.class) {
+                if (stage.clazz == StorageEncryptionSettingsFragment.ChangePassTask.class) {
                     switch (stage.oper) {
                         case CHECK:
                             return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);

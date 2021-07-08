@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_open"
+        android:title="@string/title_open"
+        android:orderInCategory="10"
+        android:icon="@drawable/ic_storage"
+        />
+    <item
+        android:id="@+id/action_edit"
+        android:title="@string/title_edit"
+        android:orderInCategory="20"
+        android:icon="@drawable/ic_edit"
+        />
+<!--    <item-->
+<!--        android:id="@+id/action_settings"-->
+<!--        android:title="Настройки"-->
+<!--        android:orderInCategory="30"-->
+<!--        android:icon="@drawable/ic_settings"-->
+<!--        />-->
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/title_delete"
+        android:orderInCategory="40"
+        android:icon="@drawable/ic_delete"
+        />
+</menu>

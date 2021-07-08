@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.views.fragments.settings;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +17,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.Message;
+import com.gee12.mytetroid.views.activities.TetroidSettingsActivity;
 
 import org.jsoup.internal.StringUtil;
 
@@ -39,6 +41,10 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    }
+
+    public void onSharedPreferenceChanged(String key) {
+        onSharedPreferenceChanged(SettingsManager.getSettings(getContext()), key);
     }
 
     @Override
@@ -87,15 +93,23 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
     }
 
     protected void updateSummary(@StringRes int keyStringRes, String value) {
+        updateSummary(getString(keyStringRes), value);
+    }
+
+    protected void updateSummary(String key, String value) {
         if (!StringUtil.isBlank(value)) {
-            Preference pref = findPreference(getString(keyStringRes));
+            Preference pref = findPreference(key);
             if (pref != null)
                 pref.setSummary(value);
         }
     }
 
     protected void updateSummary(@StringRes int keyStringRes, String value, String defValue) {
-        Preference pref = findPreference(getString(keyStringRes));
+        updateSummary(getString(keyStringRes), value, defValue);
+    }
+
+    protected void updateSummary(String key, String value, String defValue) {
+        Preference pref = findPreference(key);
         if (pref == null)
             return;
         if (!StringUtil.isBlank(value)) {
@@ -116,10 +130,22 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
         addPreferencesFromResource(R.xml.prefs);
     }
 
+    public void setTitle(int titleResId, String subtitle) {
+        TetroidSettingsActivity activity = (TetroidSettingsActivity)getActivity();
+        if (activity != null) {
+            activity.setTitle(titleResId);
+            activity.setSubTitle(subtitle);
+        }
+    }
+
     /**
      * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
      */
     protected void showSnackMoreInLogs() {
         Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+    }
+
+    protected Application getApplication() {
+        return (Application) getContext().getApplicationContext();
     }
 }

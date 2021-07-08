@@ -100,6 +100,17 @@
                 android:resource="@xml/searchable_text" />
         </activity>
         <activity
+            android:name=".views.activities.StorageSettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_storage_settings"
+            android:parentActivityName=".views.activities.MainActivity"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.activities.StoragesActivity" />
+        </activity>
+        <activity
             android:name=".views.activities.RecordActivity"
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
@@ -124,7 +135,8 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".views.activities.MainActivity" /></activity>
+                android:value=".views.activities.MainActivity" />
+        </activity>
         <activity
             android:name=".views.activities.SearchActivity"
             android:configChanges="orientation|screenSize"

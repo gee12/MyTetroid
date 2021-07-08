@@ -1,0 +1,60 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_is_sync_storage"
+        android:summary="@string/pref_is_sync_summ_storage"
+        android:title="@string/pref_is_sync_storage" />
+
+    <com.gee12.mytetroid.views.DisabledListPreference
+        android:defaultValue="@string/title_app_mgit"
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:entries="@array/sync_apps"
+        android:entryValues="@array/sync_apps"
+        android:key="@string/pref_key_app_for_sync"
+        android:summary="@string/pref_app_for_sync_summ_storage"
+        android:title="@string/pref_app_for_sync" />
+
+    <EditTextPreference
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:dialogTitle="@string/pref_sync_command"
+        android:inputType="text"
+        android:key="@string/pref_key_sync_command"
+        android:summary="@string/pref_sync_command_summ_storage"
+        android:title="@string/pref_sync_command" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:key="@string/pref_key_is_sync_before_init"
+        android:summary="@string/pref_is_sync_before_loading_summ_storage"
+        android:title="@string/pref_is_sync_before_loading" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="@string/pref_key_is_sync_before_init"
+        android:key="@string/pref_key_is_ask_before_sync"
+        android:summary="@string/pref_ask_before_sync_summ_storage"
+        android:title="@string/pref_ask_before_sync" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="@string/pref_key_is_sync_storage"
+        android:key="@string/pref_key_is_sync_before_exit"
+        android:summary="@string/pref_is_sync_before_exit_summ_storage"
+        android:title="@string/pref_is_sync_before_exit" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:dependency="@string/pref_key_is_sync_before_exit"
+        android:key="@string/pref_key_is_ask_before_exit_sync"
+        android:summary="@string/pref_ask_before_sync_summ_exit_storage"
+        android:title="@string/pref_ask_before_sync" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_check_outside_changing"
+        android:summary="@string/pref_check_outside_changing_summ_storage"
+        android:title="@string/pref_check_outside_changing" />
+
+</PreferenceScreen>

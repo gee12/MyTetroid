@@ -11,6 +11,7 @@
     <string name="hint_error"><![CDATA[<error>]]></string>
 
     <string name="title_settings">Settings</string>
+    <string name="title_storage_settings">Storage settings</string>
     <string name="title_open">Open</string>
     <string name="title_password_enter">Enter password</string>
     <string name="title_password_set">Set password</string>
@@ -175,17 +176,20 @@
     <string name="stopped">stopped</string>
 
     <string name="pref_is_load_last_storage_path">Load previous</string>
-    <string name="pref_is_load_last_storage_path_summ">Load last used storage</string>
+    <string name="pref_is_load_last_storage_path_summ">Load last used storage (if no default storage is specified)</string>
     <string name="pref_category_crypt">Encryption</string>
     <string name="pref_is_save_pass_hash_local">Save password</string>
-    <string name="pref_is_save_pass_hash_local_summ">Save password hash locally</string>
+    <string name="pref_is_save_pass_hash_local_summ">Save password hash locally (used as default value for storages)</string>
+    <string name="pref_is_save_pass_hash_local_summ_storage">Save password hash locally</string>
     <string name="pref_key_storage_path" translatable="false">pref_key_storage_path</string>
+    <string name="pref_key_storage_name" translatable="false">pref_key_storage_name</string>
     <string name="pref_key_is_save_pass_hash_local" translatable="false">pref_key_is_save_pass_hash_local</string>
     <string name="pref_key_is_load_last_storage_path" translatable="false">pref_key_is_load_last_storage_path</string>
     <string name="pref_category_handling">Handling</string>
     <string name="pref_category_other">Rest</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
-    <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time</string>
+    <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time (used as default value for storages)</string>
+    <string name="pref_is_keep_selected_node_summ_storage">Set the current branch selected last time</string>
     <string name="pref_key_is_keep_selected_node" translatable="false">pref_key_is_select_last_node</string>
     <string name="pref_record_fields_cols">Displayed field entries in the list</string>
     <string name="pref_key_record_fields_cols" translatable="false">pref_key_record_fields_cols</string>
@@ -203,7 +207,9 @@
     <string name="pref_key_picked_colors" translatable="false">pref_key_picked_colors</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
     <string name="pref_when_ask_password">Ask for a password</string>
+<!--    <string name="pref_when_ask_password_summ">When to ask for a password? (used as default value for storages)</string>-->
     <string name="pref_when_ask_password_summ">When to ask for a password?</string>
+<!--    <string name="pref_when_ask_password_summ_storage">When to ask for a password?</string>-->
     <string name="pref_key_when_ask_password" translatable="false">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">When choosing an encrypted node</string>
     <string name="pref_when_ask_password_on_start">When loading the storage </string>
@@ -211,13 +217,15 @@
     <string name="pref_key_pin_code_length" translatable="false">pref_key_pin_code_length</string>
     <string name="pref_key_pin_code_hash" translatable="false">pref_key_pin_code_hash</string>
     <string name="pref_key_selected_node_id" translatable="false">pref_key_selected_node_id</string>
+    <string name="pref_category_main">Main</string>
     <string name="pref_category_storage">Storage</string>
     <string name="pref_storage_path">Storage folder</string>
     <string name="pref_storage_path_summ">Path containing database.ini, mytetra.xml and base/</string>
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
     <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
     <string name="pref_trash_path">Trash catalog</string>
-    <string name="pref_trash_path_summ">Trash catalog path</string>
+    <string name="pref_trash_path_summ">Trash catalog path (used as default value for storages)</string>
+    <string name="pref_trash_path_summ_storage">Trash catalog path</string>
     <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
     <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
     <string name="pref_key_date_format_string" translatable="false">pref_key_date_format_string</string>
@@ -235,14 +243,18 @@
     <string name="pref_is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
     <string name="pref_category_sync">Sync</string>
     <string name="pref_is_sync_storage">Sync storage</string>
-    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application</string>
+    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application (used as default value for storages)</string>
+    <string name="pref_is_sync_summ_storage">The mechanism for transmitting a synchronization start command to the third-party application</string>
     <string name="pref_is_sync_before_loading">Sync before loading</string>
-    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage</string>
+    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage (used as default value for storages)</string>
+    <string name="pref_is_sync_before_loading_summ_storage">Start synchronization before loading storage</string>
     <string name="pref_is_sync_before_exit">Sync before exit</string>
-    <string name="pref_is_sync_before_exit_summ">Start synchronization before exit from app</string>
+    <string name="pref_is_sync_before_exit_summ">Start synchronization before exit from app (used as default value for storages)</string>
+    <string name="pref_is_sync_before_exit_summ_storage">Start synchronization before exit from app</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
     <string name="pref_sync_command">Sync command</string>
-    <string name="pref_sync_command_summ">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory</string>
+    <string name="pref_sync_command_summ">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory (used as default value for storages)</string>
+    <string name="pref_sync_command_summ_storage">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
     <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
     <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
@@ -275,8 +287,10 @@
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
     <string name="pref_key_is_ask_before_exit_sync" translatable="false">pref_key_is_answer_before_exit_sync</string>
     <string name="pref_ask_before_sync">Ask before sync</string>
-    <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start</string>
-    <string name="pref_ask_before_sync_summ_exit">Show confirmation of synchronization start before exit from app</string>
+    <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start (used as default value for storages)</string>
+    <string name="pref_ask_before_sync_summ_storage">Show confirmation of synchronization start</string>
+    <string name="pref_ask_before_sync_summ_exit">Show confirmation of synchronization start before exit from app (used as default value for storages)</string>
+    <string name="pref_ask_before_sync_summ_exit_storage">Show confirmation of synchronization start before exit from app</string>
     <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
     <string name="pref_show_logs">Show logs</string>
@@ -289,7 +303,8 @@
     <string name="pref_clear_search_history_summ">Delete query input hints and global search options</string>
     <string name="pref_record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="pref_decrypt_files_to_trash_dir">Decrypt files to directory</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when opening</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when opening (used as default value for storages)</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ_storage">Decrypt attachments to a trash directory when opening</string>
     <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
     <string name="pref_change_pass">Change password</string>
     <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
@@ -299,11 +314,13 @@
     <string name="pref_key_favorites" translatable="false">pref_key_favorites</string>
     <string name="pref_key_favorites_json" translatable="false">pref_key_favorites_json</string>
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
-    <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries</string>
+    <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries (used as default value for storages)</string>
+    <string name="pref_load_only_favorites_summ_storage">To speed up the startup, first load only favorite entries</string>
     <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
-    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs</string>
+    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs (used as default value for storages)</string>
+    <string name="pref_check_outside_changing_summ_storage">Check records tree for changes by third-party programs</string>
     <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
     <string name="pref_request_pin_code">Use PIN-code</string>
     <string name="pref_request_pin_code_summ">If the password is saved, prompt for a PIN to access encrypted data</string>
@@ -325,7 +342,8 @@
     <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
     <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
     <string name="pref_app_for_sync">Application</string>
-    <string name="pref_app_for_sync_summ">Application used to start sync</string>
+    <string name="pref_app_for_sync_summ">Application used to start sync (used as default value for storages)</string>
+    <string name="pref_app_for_sync_summ_storage">Application used to start sync</string>
     <string name="pref_key_is_sync_before_exit" translatable="false">pref_key_is_sync_before_exit</string>
     <string name="pref_expand_empty_nodes">Expand empty nodes</string>
     <string name="pref_expand_empty_nodes_summ">Expanding an empty nodes instead of opening a list of its records</string>
@@ -337,7 +355,8 @@
     <string name="pref_double_tap_fullscreen">Fullscreen mode on double tap</string>
     <string name="pref_double_tap_fullscreen_summ">Enable/disable fullscreen mode when double tap on a record text</string>
     <string name="pref_quickly_node">Node for quick insertion</string>
-    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>
+<!--    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>-->
+    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps. Available if this is the default storage</string>
 
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
@@ -404,7 +423,7 @@
     <string name="label_crypted">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
     <string name="label_path">Read only</string>
-    <string name="label_read_only">Только для чтения</string>
+    <string name="label_read_only">Read only (not implemented yet)</string>
     <string name="label_file_size">File size:</string>
     <string name="label_folder_size">Folder size:</string>
     <string name="label_icons_section">Section:</string>
@@ -698,4 +717,15 @@
     <string name="title_download_by_link">DOWNLOAD BY LINK</string>
     <string name="title_select_on_device">SELECT ON DEVICE</string>
     <string name="log_link_is_empty">Link is empty</string>
+    <string name="ask_delete_storage_from_list">Remove storage from the list? (files will be saved)</string>
+    <string name="pref_is_def_storage">Default storage</string>
+    <string name="pref_is_def_storage_summ">Storage loaded on application startup</string>
+    <string name="pref_storage_name">Storage name</string>
+    <string name="title_edit">Edit</string>
+    <string name="pref_key_is_def_storage" translatable="false">pref_key_is_def_storage</string>
+    <string name="pref_key_is_read_only" translatable="false">pref_key_is_read_only</string>
+    <string name="pref_is_read_only">Read only</string>
+    <string name="pref_is_read_only_summ">The storage cannot be changed from within the app (not implemented yet)</string>
+    <string name="title_context_menu">Context menu</string>
+    <string name="label_default_storage">Default storage</string>
 </resources>

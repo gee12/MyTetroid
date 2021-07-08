@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
 
@@ -78,7 +79,6 @@ public abstract class TetroidActivity extends AppCompatActivity
 
         this.mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setVisibilityActionHome(true);
 
         // обработчик нажатия на экране
@@ -459,6 +459,18 @@ public abstract class TetroidActivity extends AppCompatActivity
      */
     protected void enableMenuItem(MenuItem menuItem, boolean isEnabled) {
         ViewUtils.setEnabledIfNotNull(menuItem, isEnabled);
+    }
+
+    /**
+     * Принудительное отображение иконок у пунктов меню.
+     * @param v
+     * @param menu
+     */
+    @SuppressLint("RestrictedApi")
+    protected void setForceShowMenuIcons(View v, MenuBuilder menu) {
+        MenuPopupHelper menuHelper = new MenuPopupHelper(this, menu, v);
+        menuHelper.setForceShowIcon(true);
+        menuHelper.show();
     }
 
     /**

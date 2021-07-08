@@ -1,0 +1,36 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.gee12.mytetroid.views.DisabledPreference
+        android:key="@string/pref_key_change_pass"
+        android:summary="@string/pref_change_pass_summ"
+        android:title="@string/pref_change_pass" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:disableDependentsState="true"
+        android:key="@string/pref_key_is_save_pass_hash_local"
+        android:summary="@string/pref_is_save_pass_hash_local_summ_storage"
+        android:title="@string/pref_is_save_pass_hash_local" />
+
+<!--    <com.gee12.mytetroid.views.DisabledCheckBoxPreference-->
+<!--        android:defaultValue="false"-->
+<!--        android:key="@string/pref_key_request_pin_code"-->
+<!--        android:summary="@string/pref_request_pin_code_summ"-->
+<!--        android:title="@string/pref_request_pin_code" />-->
+
+<!--    <com.gee12.mytetroid.views.DisabledListPreference-->
+<!--        android:defaultValue="@string/pref_when_ask_password_on_select"-->
+<!--        android:dependency="@string/pref_key_is_save_pass_hash_local"-->
+<!--        android:entries="@array/when_ask_password_entries"-->
+<!--        android:entryValues="@array/when_ask_password_entries"-->
+<!--        android:key="@string/pref_key_when_ask_password"-->
+<!--        android:summary="@string/pref_when_ask_password_summ_storage"-->
+<!--        android:title="@string/pref_when_ask_password" />-->
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_is_decrypt_in_temp"
+        android:summary="@string/pref_decrypt_files_to_trash_dir_summ_storage"
+        android:title="@string/pref_decrypt_files_to_trash_dir" />
+
+</PreferenceScreen>

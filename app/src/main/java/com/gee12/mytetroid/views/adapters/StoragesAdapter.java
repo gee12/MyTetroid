@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,18 +17,17 @@ import com.gee12.mytetroid.model.TetroidStorage;
 
 public class StoragesAdapter extends ListAdapter<TetroidStorage, StoragesAdapter.StorageViewHolder> {
 
-//    public interface IStoragesListener {
-//        void onSelected(TetroidStorage storage);
-//    }
+    public interface IItemMenuClickListener {
+        void onClick(View itemView, View anchorView);
+    }
 
-//    private Context mContext;
     private LayoutInflater mInflater;
     private View.OnClickListener mOnClickListener;
     private View.OnLongClickListener mOnLongClickListener;
+    private IItemMenuClickListener mOnMenuClickListener;
 
     public StoragesAdapter(Context context) {
         super(DIFF_CALLBACK);
-//        this.mContext = context;
         this.mInflater = LayoutInflater.from(context);
     }
 
@@ -39,15 +39,25 @@ public class StoragesAdapter extends ListAdapter<TetroidStorage, StoragesAdapter
         this.mOnLongClickListener = listener;
     }
 
+    public void setOnItemMenuClickListener(IItemMenuClickListener listener) {
+        this.mOnMenuClickListener = listener;
+    }
+
     @NonNull
     @Override
     public StoragesAdapter.StorageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.list_item_storage, parent, false);
         if (mOnClickListener != null) {
             view.setOnClickListener(mOnClickListener);
+        }
+        if (mOnLongClickListener != null) {
             view.setOnLongClickListener(mOnLongClickListener);
         }
-        return new StorageViewHolder(view);
+        StorageViewHolder viewHolder = new StorageViewHolder(view);
+        if (mOnMenuClickListener != null) {
+            viewHolder.ivMenu.setOnClickListener(v -> mOnMenuClickListener.onClick(view, viewHolder.ivMenu));
+        }
+        return viewHolder;
     }
 
     @Override
@@ -63,21 +73,20 @@ public class StoragesAdapter extends ListAdapter<TetroidStorage, StoragesAdapter
      *
      */
     public static class StorageViewHolder extends RecyclerView.ViewHolder {
-
-        private TextView tvName;
-        private TextView tvPath;
+        private final TextView tvName;
+        private final TextView tvPath;
+        private final ImageView ivMenu;
 
         StorageViewHolder(View view) {
             super(view);
             this.tvName = itemView.findViewById(R.id.text_view_name);
             this.tvPath = itemView.findViewById(R.id.text_view_path);
-
+            this.ivMenu = itemView.findViewById(R.id.image_view_menu);
         }
 
         private void bind(TetroidStorage storage) {
-            if (storage == null) {
+            if (storage == null)
                 return;
-            }
             tvName.setText(storage.getName());
             tvPath.setText(storage.getPath());
         }

@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:descendantFocusability="blocksDescendants"
-    android:padding="15dp">
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="5dp">
 
     <TextView
         android:id="@+id/text_view_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/image_view_menu"
         android:textColor="@color/colorBaseText"
         android:paddingBottom="3dp"
         tools:text="@tools:sample/cities"
@@ -22,8 +30,24 @@
         android:id="@+id/text_view_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_name"
+        app:layout_constraintEnd_toStartOf="@id/image_view_menu"
+        android:layout_marginEnd="30dp"
         android:textColor="@color/colorBase2Text"
         tools:text="@tools:sample/lorem"
+        android:backgroundTint="@color/yellow"
         android:textSize="@dimen/font_small" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/image_view_menu"
+        android:layout_width="42dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_dots"
+        android:scaleType="center"
+        android:contentDescription="@string/title_context_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
