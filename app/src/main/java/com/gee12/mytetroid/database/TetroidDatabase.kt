@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.gee12.mytetroid.database.dao.StoragesDao
 import com.gee12.mytetroid.database.entity.StorageEntity
 
-@Database(entities = [StorageEntity::class], version = 1)
+@Database(entities = [StorageEntity::class], version = 16)
+@TypeConverters(DataConverter::class)
 abstract class TetroidDatabase : RoomDatabase() {
     abstract val storagesDao: StoragesDao
 
