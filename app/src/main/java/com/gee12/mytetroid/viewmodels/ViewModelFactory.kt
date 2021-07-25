@@ -9,8 +9,8 @@ class StoragesViewModelFactory(val app: Application): ViewModelProvider.NewInsta
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(StoragesViewModel::class.java)) {
             return StoragesViewModel(app, StoragesRepo(app)) as T
-        } else if (modelClass.isAssignableFrom(StorageViewModel::class.java)) {
-            return StorageViewModel(app, StoragesRepo(app)) as T
+        } else if (modelClass.isAssignableFrom(StorageSettingsViewModel::class.java)) {
+            return StorageSettingsViewModel(app, StoragesRepo(app)) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

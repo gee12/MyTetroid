@@ -9,11 +9,12 @@ import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.DataManager
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModelFactory
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
 import com.gee12.mytetroid.views.Message
@@ -21,21 +22,20 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.NodeDialogs
 import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
 import com.gee12.mytetroid.views.dialogs.StorageDialogs
-import com.gee12.mytetroid.views.fragments.settings.SettingsFragment
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import lib.folderpicker.FolderPicker
 import org.jsoup.internal.StringUtil
 
 class StorageMainSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var mViewModel: StorageViewModel
+    private lateinit var mViewModel: StorageSettingsViewModel
 //    private val mViewModel: StorageViewModel by activityViewModels()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
         mViewModel = ViewModelProvider(activity!!, StoragesViewModelFactory(application))
-            .get(StorageViewModel::class.java)
+            .get(StorageSettingsViewModel::class.java)
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
         preferenceManager?.preferenceDataStore = mViewModel.prefsDataStore
 
@@ -44,7 +44,7 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
 
         // выбор каталога хранилища
         findPreference<Preference>(getString(R.string.pref_key_storage_path))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (checkPermission(SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH)) {
+            if (checkPermission(Constants.REQUEST_CODE_OPEN_STORAGE_PATH)) {
                 selectStorageFolder()
             }
             true
@@ -60,7 +60,7 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
 
         // выбор каталога корзины
         findPreference<Preference>(getString(R.string.pref_key_temp_path))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (checkPermission(SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH)) {
+            if (checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) {
                 selectTrashFolder()
             }
             true
@@ -97,8 +97,8 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
                             // возвращаемся в MainActivity
                             val intent = Intent()
                             when (code) {
-                                INodeChooserResult.LOAD_STORAGE -> intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_STORAGE, true)
-                                INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(SettingsFragment.EXTRA_IS_LOAD_ALL_NODES, true)
+                                INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                                INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
                             }
                             activity!!.setResult(Activity.RESULT_OK, intent)
                             activity!!.finish()
@@ -153,8 +153,8 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         if (permGranted) {
             LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO)
             when (requestCode) {
-                SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
-                SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH -> selectTrashFolder()
+                Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
+                Constants.REQUEST_CODE_OPEN_TEMP_PATH -> selectTrashFolder()
             }
         } else {
             LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT)
@@ -184,7 +184,7 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         }
         activity!!.startActivityForResult(
             intent,
-            if (isNew) SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH else SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH
+            if (isNew) Constants.REQUEST_CODE_CREATE_STORAGE_PATH else Constants.REQUEST_CODE_OPEN_STORAGE_PATH
         )
     }
 
@@ -192,7 +192,7 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         openFolderPicker(
             getString(R.string.pref_trash_path),
             mViewModel.getTrashPath(),
-            SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH
+            Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
     }
 }

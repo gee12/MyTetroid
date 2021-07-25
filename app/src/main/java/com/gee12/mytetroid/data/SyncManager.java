@@ -25,8 +25,8 @@ public class SyncManager {
      * @param storagePath
      */
     public static boolean startStorageSync(Activity activity, String storagePath, int requestCode) {
-        String command = SettingsManager.getSyncCommand(activity);
-        if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.title_app_termux))) {
+        String command = SettingsManager.getSyncCommandDef(activity);
+        if (SettingsManager.getSyncAppNameDef(activity).equals(activity.getString(R.string.title_app_termux))) {
             // termux
             return startTermuxSync(activity, storagePath, command);
         } else {

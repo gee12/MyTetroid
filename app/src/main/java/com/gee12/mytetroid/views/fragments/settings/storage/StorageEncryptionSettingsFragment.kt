@@ -11,12 +11,12 @@ import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import com.gee12.mytetroid.TetroidTask
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.data.PassManager
-import com.gee12.mytetroid.views.fragments.settings.SettingsFragment
 import com.gee12.mytetroid.data.PINManager
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.views.dialogs.PassDialogs
 import com.gee12.mytetroid.data.ITaskProgress
 import com.gee12.mytetroid.logs.TetroidLog.Objs
@@ -27,14 +27,14 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModelFactory
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.SettingsActivity
 
 class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var mViewModel: StorageViewModel
+    private lateinit var mViewModel: StorageSettingsViewModel
 //    private lateinit var mCryptViewModel: CryptViewModel
 
     private var mCurTask: TetroidTask<*, *, *>? = null
@@ -43,7 +43,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
         mViewModel = ViewModelProvider(activity!!, StoragesViewModelFactory(application))
-            .get(StorageViewModel::class.java)
+            .get(StorageSettingsViewModel::class.java)
 //        mCryptViewModel = ViewModelProvider(this, StoragesViewModelFactory(application))
 //            .get(CryptViewModel::class.java)
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
@@ -68,7 +68,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
                 }
                 // устанавливаем флаг для MainActivity
                 val intent = Intent()
-                intent.putExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, true)
+                intent.putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
                 activity!!.setResult(Activity.RESULT_OK, intent)
             }
             true

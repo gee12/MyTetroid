@@ -571,7 +571,7 @@ public class MainPageFragment extends TetroidFragment {
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openAttach(int position) {
-        if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTemp(mContext)) {
+        if (mCurRecord.isCrypted() && !SettingsManager.isDecryptFilesInTempDef(mContext)) {
             LogManager.log(mContext, R.string.log_viewing_decrypted_not_possible, Toast.LENGTH_LONG);
             return;
         }

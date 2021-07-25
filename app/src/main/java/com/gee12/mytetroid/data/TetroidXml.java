@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
+import com.gee12.mytetroid.data.xml.IStorageLoadHelper;
 import com.gee12.mytetroid.data.xml.TetroidXMLProcessor;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -32,9 +33,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
+ * TODO: сделать класс не абстрактным, создать ITetroidXml
  */
-public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
+public class TetroidXml {
 
     /**
      * Формат даты создания записи.
@@ -44,7 +45,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     /**
      * Разделитель меток - запятая или запятая с пробелами.
      */
-    protected static final String TAGS_SEPAR = "\\s*,\\s*";
+    public static final String TAGS_SEPAR = "\\s*,\\s*";
 
     /**
      * Версия формата структуры хранилища.
@@ -78,12 +79,17 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     /**
      * Список корневых веток.
      */
-    protected List<TetroidNode> mRootNodesList;
+    public List<TetroidNode> mRootNodesList;
 
     /**
      * Список меток.
      */
-    protected HashMap<String, TetroidTag> mTagsMap;
+    public HashMap<String, TetroidTag> mTagsMap;
+
+    /**
+     * Помощник загрузки.
+     */
+    protected IStorageLoadHelper mLoadHelper;
 
     /**
      * Статистические данные.
@@ -99,35 +105,10 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     protected int mMaxSubnodesCount;
     protected int mMaxDepthLevel;
 
-    /**
-     * Обработчик события о необходимости расшифровки ветки (без дочерних объектов)
-     * сразу после загрузки ветки из xml.
-     * @param node
-     * @return
-     */
-    protected abstract boolean decryptNode(Context context, TetroidNode node);
 
-    /**
-     * Обработчик события о необходимости расшифровки записи (вместе с прикрепленными файлами)
-     * сразу после загрузки записи из xml.
-     * @param record
-     * @return
-     */
-    protected abstract boolean decryptRecord(Context context, TetroidRecord record);
-
-    /**
-     * Проверка является ли запись избранной.
-     * @param id
-     * @return
-     */
-    protected abstract boolean isRecordFavorite(String id);
-
-    /**
-     * Добавление записи в избранное.
-     * @param record
-     * @return
-     */
-    protected abstract void addRecordFavorite(TetroidRecord record);
+    public TetroidXml(IStorageLoadHelper helper) {
+        this.mLoadHelper = helper;
+    }
 
     /**
      * Первоначальная инициализация переменных.
@@ -331,7 +312,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
             // расшифровка
             if (crypt && mIsNeedDecrypt) {
-                decryptNode(context, node);
+                mLoadHelper.decryptNode(context, node);
             }
             /*//else if (!crypt) {
             if (node.isNonCryptedOrDecrypted()) {
@@ -340,7 +321,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
             }*/
 
             // загрузка иконки из файла (после расшифровки имени иконки)
-            loadIcon(context, node);
+            mLoadHelper.loadIcon(context, node);
 
             this.mNodesCount++;
             if (crypt)
@@ -398,20 +379,6 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
     }*/
 
     /**
-     * Разбираем строку с метками записи и добавляем метки в запись и в дерево.
-     * @param record
-     * @param tagsString Строка с метками (не зашифрована).
-     *                   Передается отдельно, т.к. поле в записи может быть зашифровано.
-     */
-    public abstract void parseRecordTags(TetroidRecord record, String tagsString);
-
-    /**
-     * Удаление меток записи из списка.
-     * @param record
-     */
-    public abstract void deleteRecordTags(TetroidRecord record);
-
-    /**
      *
      * @param parser
      * @param node
@@ -448,7 +415,7 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
             id = parser.getAttributeValue(ns, "id");
 
             // проверяем id на избранность
-            isFavorite = isRecordFavorite(id);
+            isFavorite = mLoadHelper.isRecordFavorite(id);
             if (mIsFavoritesMode && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
                 skip(parser); // пропускаем <files>, если есть
@@ -489,16 +456,16 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
         }
         if (isFavorite) {
             // добавляем избранную запись
-            addRecordFavorite(record);
+            mLoadHelper.addRecordFavorite(record);
         }
 
         // расшифровка
         if (crypt && mIsNeedDecrypt) {
-            decryptRecord(context, record);
+            mLoadHelper.decryptRecord(context, record);
         }
         if (record.isNonCryptedOrDecrypted()) {
             // парсим метки, если запись не зашифрована
-            parseRecordTags(record, record.getTagsString());
+            mLoadHelper.parseRecordTags(record, record.getTagsString());
         }
 
         parser.require(XmlPullParser.END_TAG, ns, "record");
@@ -828,5 +795,9 @@ public abstract class TetroidXml implements INodeIconLoader, ITagsParser {
 
     public int getMaxDepthLevel() {
         return mMaxDepthLevel;
+    }
+
+    public IStorageLoadHelper getLoadHelper() {
+        return mLoadHelper;
     }
 }

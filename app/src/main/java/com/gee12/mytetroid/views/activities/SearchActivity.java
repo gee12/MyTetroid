@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
@@ -34,8 +35,6 @@ import com.gee12.mytetroid.views.Message;
  * Аквтивность для настройки параметров глобального поиска.
  */
 public class SearchActivity extends AppCompatActivity {
-
-    public static final String EXTRA_KEY_SCAN_MANAGER = "ScanManager";
 
     private EditText etQuery;
     private CheckBox cbText;
@@ -243,7 +242,7 @@ public class SearchActivity extends AppCompatActivity {
         saveSearchPrefs();
         // запускаем поиск и выводим результат
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_KEY_SCAN_MANAGER, buildScanManager());
+        intent.putExtra(Constants.EXTRA_SCAN_MANAGER, buildScanManager());
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

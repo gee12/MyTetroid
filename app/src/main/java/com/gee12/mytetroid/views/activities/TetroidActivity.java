@@ -26,10 +26,10 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
@@ -37,9 +37,10 @@ import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
+import com.gee12.mytetroid.viewmodels.ReadDecryptStorageState;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 import com.gee12.mytetroid.views.Message;
 
@@ -47,10 +48,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-import lib.folderpicker.FolderPicker;
-
 public abstract class TetroidActivity extends AppCompatActivity
-        implements View.OnTouchListener, StorageManager.IStorageInitCallback {
+        implements View.OnTouchListener/*, StorageManager.IStorageInitCallback*/ {
 
     public interface IDownloadFileResult {
         void onSuccess(Uri uri);
@@ -70,6 +69,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected boolean mIsOnCreateProcessed;
     protected boolean mIsGUICreated;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +93,29 @@ public abstract class TetroidActivity extends AppCompatActivity
 
         this.mIsOnCreateProcessed = false;
         this.mIsGUICreated = false;
+
+        if (getViewModel() != null) {
+            getViewModel().getReadStorageStateEvent().observe(this, it -> {
+                Constants.ActivityEvents status = it.getStatus();
+                ReadDecryptStorageState params = it.getData();
+
+                if (status == Constants.ActivityEvents.TaskPreExecute) {
+                    int stringResId = (params.isDecrypt()) ? R.string.task_storage_decrypting : R.string.task_storage_loading;
+                    int openedDrawer = taskPreExecute(stringResId);
+                    params.setOpenedDrawer(openedDrawer);
+
+                } else if (status == Constants.ActivityEvents.TaskPostExecute) {
+                    taskPostExecute(params.getOpenedDrawer());
+
+                } else if (status == Constants.ActivityEvents.InitGUI) {
+                    initGUI(params.getResult(), params.isFavoritesOnly(), params.isOpenLastNode());
+                }
+            });
+        }
+    }
+
+    protected BaseStorageViewModel getViewModel() {
+        return null;
     }
 
     /**
@@ -118,6 +141,8 @@ public abstract class TetroidActivity extends AppCompatActivity
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
     protected abstract void onGUICreated();
+
+    protected void onPermissionGranted(int permission) {}
 
     /**
      * Установка заголовка активности.
@@ -287,44 +312,58 @@ public abstract class TetroidActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Обработка возвращаемого результата других активностей.
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ((requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE
-                || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
-                && resultCode == RESULT_OK) {
-            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            if (!TextUtils.isEmpty(folderPath)) {
-                boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
-                openOrCreateStorage(folderPath, isCreate);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+//    /**
+//     * Обработка возвращаемого результата других активностей.
+//     *
+//     * @param requestCode
+//     * @param resultCode
+//     * @param data
+//     */
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if ((requestCode == Constants.REQUEST_CODE_OPEN_STORAGE
+//                /*|| requestCode == Constants.REQUEST_CODE_CREATE_STORAGE*/)
+//                && resultCode == RESULT_OK) {
+//            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+//            if (!TextUtils.isEmpty(folderPath)) {
+////                boolean isCreate = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE);
+////                openOrCreateStorage(folderPath, isCreate);
+//                loadStorage(folderPath);
+//            }
+//        }
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+
+            case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    loadStorage(null);
+//                    loadStorage(null);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE);
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
-            case StorageManager.REQUEST_CODE_PERMISSION_TERMUX: {
+
+            case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
+                if (permGranted) {
+                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
+                } else {
+                    LogManager.log(this, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                }
+            } break;
+
+            case Constants.REQUEST_CODE_PERMISSION_TERMUX: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_run_termux_commands_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startStorageSyncAndInit(this);
+//                    StorageManager.startStorageSyncAndInit(this);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_TERMUX);
                 } else {
                     LogManager.log(this, R.string.log_missing_run_termux_commands_permissions,
                             ILogger.Types.WARNING, Toast.LENGTH_SHORT);
@@ -333,49 +372,71 @@ public abstract class TetroidActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Открытие существующего или создание нового хранилище в указанном каталоге.
-     * @param folderPath
-     * @param isCreate
-     */
-    private void openOrCreateStorage(String folderPath, boolean isCreate) {
-        if (isCreate) {
-            if (FileUtils.isDirEmpty(new File(folderPath))) {
-                createStorage(folderPath/*, true*/);
-            } else {
-                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            }
-        } else {
+    //TODO: убрано, т.к. createStorage() будет вызываться только в StoragesActivity и StorageSettingsActivity
+//    /**
+//     * Открытие существующего или создание нового хранилище в указанном каталоге.
+//     * @param folderPath
+//     * @param isCreate
+//     */
+//    private void openOrCreateStorage(String folderPath, boolean isCreate) {
+//        if (isCreate) {
+//            if (FileUtils.isDirEmpty(new File(folderPath))) {
+//                createStorage(folderPath/*, true*/);
+//            } else {
+//                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//            }
+//        } else {
 //            StorageManager.initOrSyncStorage(this, folderPath, true);
-            loadStorage(folderPath);
-        }
-        // сохраняем путь
-        SettingsManager.setLastChoosedFolder(this, folderPath);
-    }
+//            loadStorage(folderPath);
+//        }
+//        // сохраняем путь
+//        SettingsManager.setLastChoosedFolder(this, folderPath);
+//    }
 
     /**
-     * Старт загрузки существующего хранилища.
+     * Запуск загрузки хранилища.
+     *
+     * Будет вызываться при:
+     *  - получении Intent из другой активности с командой загрузки хранилища (по Id)
+     *      Например, 1) при выборе хранилища в StoragesActivity и переходе в MainActivity
+     *  - получении Intent из активности выбора каталога хранилища с получением выбранного пути
+     *      Например, ---1) при вызове FolderChooser в StoragesActivity при добавлении хранилища
+     *      Например, ---2) при вызове FolderChooser в StorageSettingsActivity при изменении пути хранилища
+     *  - загрузки хранилища в RecordActivity для сохранения временной записи, если оно еще не загружено
+     *
      */
-    protected abstract void loadStorage(String folderPath);
+//    protected void loadStorage(String storagePath) {
+////        boolean isLoadLastForced = false;
+////        boolean isCheckFavorMode = true;
+////        if (storagePath == null) {
+////            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+////        } else {
+////            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
+////            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
+////        }
+//        if (getViewModel() != null) {
+//            getViewModel().startloadStorage(storagePath, false, true);
+//        }
+//    }
 
-    /**
-     * Старт создания нового хранилища.
-     * @param storagePath
-     */
-    protected abstract void createStorage(String storagePath);
+//    /**
+//     * Старт создания нового хранилища.
+//     * @param storagePath
+//     */
+//    protected abstract void createStorage(String storagePath);
 
-    @Override
+//    @Override
     public void blockInterface() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    @Override
+//    @Override
     public void unblockInterface() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    @Override
+//    @Override
     public void taskStarted(TetroidTask2 task) {
         this.mCurTask = task;
     }
@@ -384,29 +445,29 @@ public abstract class TetroidActivity extends AppCompatActivity
         return (mCurTask != null && mCurTask.isRunning());
     }
 
-    @Override
+//    @Override
     public int taskPreExecute(int sRes) {
         setProgressText(sRes);
         ViewUtils.hideKeyboard(this, getWindow().getDecorView());
         return Gravity.NO_GRAVITY;
     }
 
-    @Override
+//    @Override
     public void taskPostExecute(int openedDrawer) {
         setProgressVisibility(false);
     }
 
-    @Override
+//    @Override
     public void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode) {
 
     }
 
-    @Override
+//    @Override
     public void afterStorageLoaded(boolean res) {
 
     }
 
-    @Override
+//    @Override
     public void afterStorageDecrypted(TetroidNode node) {
 
     }

@@ -61,7 +61,7 @@ public class AttachesManager extends DataManager {
             return false;
         }
         // если запись зашифрована
-        if (record.isCrypted() && SettingsManager.isDecryptFilesInTemp(context)) {
+        if (record.isCrypted() && SettingsManager.isDecryptFilesInTempDef(context)) {
             // создаем временный файл
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));

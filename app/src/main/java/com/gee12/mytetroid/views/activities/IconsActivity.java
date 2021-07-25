@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.views.adapters.IconsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.IconsManager;
@@ -32,10 +33,6 @@ import java.util.stream.IntStream;
  * Активность для выбора иконки ветки.
  */
 public class IconsActivity extends AppCompatActivity {
-
-    public static final String EXTRA_NODE_ID = "EXTRA_NODE_ID";
-    public static final String EXTRA_NODE_ICON_PATH = "EXTRA_NODE_ICON_PATH";
-    public static final String EXTRA_IS_DROP = "EXTRA_IS_DROP";
 
     private Spinner spFolders;
     private ArrayAdapter<String> mFoldersAdapter;
@@ -136,8 +133,8 @@ public class IconsActivity extends AppCompatActivity {
         // получаем данные
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mNodeId = extras.getString(EXTRA_NODE_ID);
-            String iconPath = extras.getString(EXTRA_NODE_ICON_PATH);
+            mNodeId = extras.getString(Constants.EXTRA_NODE_ID);
+            String iconPath = extras.getString(Constants.EXTRA_NODE_ICON_PATH);
             selectCurrentIcon(iconPath);
         }
     }
@@ -173,9 +170,9 @@ public class IconsActivity extends AppCompatActivity {
 
     private void setResult(TetroidIcon icon) {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_NODE_ID, mNodeId);
-        intent.putExtra(EXTRA_NODE_ICON_PATH, (icon != null) ? icon.getPath() : null);
-        intent.putExtra(EXTRA_IS_DROP, icon == null);
+        intent.putExtra(Constants.EXTRA_NODE_ID, mNodeId);
+        intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, (icon != null) ? icon.getPath() : null);
+        intent.putExtra(Constants.EXTRA_IS_DROP, icon == null);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
@@ -185,8 +182,8 @@ public class IconsActivity extends AppCompatActivity {
             return;
         }
         Intent intent = new Intent(activity, IconsActivity.class);
-        intent.putExtra(EXTRA_NODE_ID, node.getId());
-        intent.putExtra(EXTRA_NODE_ICON_PATH, node.getIconName());
+        intent.putExtra(Constants.EXTRA_NODE_ID, node.getId());
+        intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, node.getIconName());
         activity.startActivityForResult(intent, requestCode);
     }
 }

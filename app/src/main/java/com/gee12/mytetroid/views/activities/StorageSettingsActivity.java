@@ -4,28 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.model.TetroidStorage;
-import com.gee12.mytetroid.viewmodels.StorageViewModel;
+import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel;
 import com.gee12.mytetroid.viewmodels.StoragesViewModelFactory;
-import com.gee12.mytetroid.views.fragments.settings.SettingsEncryptionFragment;
 import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
-import com.gee12.mytetroid.views.fragments.settings.SettingsOtherFragment;
-import com.gee12.mytetroid.views.fragments.settings.SettingsStorageFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageSettingsFragment;
@@ -34,23 +22,22 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Активность для управления настройками хранилища.
+ * (замена SettingsManager для параметров хранилища)
  */
 public class StorageSettingsActivity extends TetroidSettingsActivity {
 
-    private static final String EXTRA_STORAGE_ID = "EXTRA_STORAGE_ID";
-
-    private StorageViewModel mViewModel;
+    private StorageSettingsViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.mViewModel = new ViewModelProvider(this, new StoragesViewModelFactory(getApplication()))
-                .get(StorageViewModel.class);
+                .get(StorageSettingsViewModel.class);
 
-        int storageId = (getIntent() != null && getIntent().hasExtra(EXTRA_STORAGE_ID))
-                ? getIntent().getIntExtra(EXTRA_STORAGE_ID, 0) : 0;
-        mViewModel.loadStorage(storageId);
+        int storageId = (getIntent() != null && getIntent().hasExtra(Constants.EXTRA_STORAGE_ID))
+                ? getIntent().getIntExtra(Constants.EXTRA_STORAGE_ID, 0) : 0;
+        mViewModel.setStorageFromBase(storageId);
     }
 
     @Override
@@ -124,7 +111,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
 
     public static Intent newIntent(Context context, TetroidStorage storage) {
         Intent intent = new Intent(context, StorageSettingsActivity.class);
-        intent.putExtra(EXTRA_STORAGE_ID, storage.getId());
+        intent.putExtra(Constants.EXTRA_STORAGE_ID, storage.getId());
         return intent;
     }
 }

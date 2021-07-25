@@ -15,12 +15,12 @@ import java.util.List;
 
 public class TetroidCrypter extends Crypter {
 
-    private ITagsParser mTagsParser;
-    private IRecordFileCrypter mRecordFileCrypter;
+    private final ITagsParser mTagsParser;
+    private final IRecordFileCrypter mRecordFileCrypter;
 
 
-    public TetroidCrypter(ILogger mLogger, ITagsParser tagsParser, IRecordFileCrypter recordFileCrypter) {
-        super(mLogger);
+    public TetroidCrypter(ILogger logger, ITagsParser tagsParser, IRecordFileCrypter recordFileCrypter) {
+        super(logger);
 
         this.mTagsParser = tagsParser;
         this.mRecordFileCrypter = recordFileCrypter;

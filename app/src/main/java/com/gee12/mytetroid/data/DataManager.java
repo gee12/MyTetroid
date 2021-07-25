@@ -14,6 +14,7 @@ import androidx.core.content.FileProvider;
 
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.data.xml.IStorageLoadHelper;
 import com.gee12.mytetroid.views.activities.MainActivity;
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter;
 import com.gee12.mytetroid.data.crypt.TetroidCrypter;
@@ -48,17 +49,17 @@ import java.util.Random;
 
 public class DataManager implements IRecordFileCrypter {
 
-    public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
-    public static final String QUOTES_PARAM_STRING = "\"\"";
-
-    public static final String SEPAR = File.separator;
-    public static final int UNIQUE_ID_HALF_LENGTH = 10;
-    public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
-
-    public static final String BASE_FOLDER_NAME = "base";
-    public static final String ICONS_FOLDER_NAME = "icons";
-    public static final String MYTETRA_XML_FILE_NAME = "mytetra.xml";
-    public static final String DATABASE_INI_FILE_NAME = "database.ini";
+//    public static final String ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz";
+//    public static final String QUOTES_PARAM_STRING = "\"\"";
+//
+//    public static final String SEPAR = File.separator;
+//    public static final int UNIQUE_ID_HALF_LENGTH = 10;
+//    public static final String PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS";
+//
+//    public static final String BASE_FOLDER_NAME = "base";
+//    public static final String ICONS_FOLDER_NAME = "icons";
+//    public static final String MYTETRA_XML_FILE_NAME = "mytetra.xml";
+//    public static final String DATABASE_INI_FILE_NAME = "database.ini";
 
     /**
      * Путь к хранилищу.
@@ -95,48 +96,47 @@ public class DataManager implements IRecordFileCrypter {
      */
     protected DatabaseConfig mDatabaseConfig;
 
-    /**
-     *
-     */
-    protected TetroidXml mXml = new TetroidXml() {
-        @Override
-        protected boolean decryptNode(Context context, TetroidNode node) {
-            return mCrypter.decryptNode(context, node, false, false,
-                    this, false, false);
-        }
 
-        @Override
-        protected boolean decryptRecord(Context context, TetroidRecord record) {
-            return mCrypter.decryptRecordAndFiles(context, record, false, false);
-        }
-
-        @Override
-        protected boolean isRecordFavorite(String id) {
-            return FavoritesManager.isFavorite(id);
-        }
-
-        @Override
-        protected void addRecordFavorite(TetroidRecord record) {
-            FavoritesManager.set(record);
-        }
-
-        @Override
-        public void parseRecordTags(TetroidRecord record, String tagsString) {
-            DataManager.this.parseRecordTags(record, tagsString);
-        }
-
-        @Override
-        public void deleteRecordTags(TetroidRecord record) {
-            DataManager.this.deleteRecordTags(record);
-        }
-
-        @Override
-        public void loadIcon(Context context, TetroidNode node) {
-            if (node.isNonCryptedOrDecrypted()) {
-                node.loadIcon(context, mStoragePath + SEPAR + ICONS_FOLDER_NAME);
-            }
-        }
-    };
+    // TODO: заменено на ViewModel
+//    protected TetroidXml mXml = new TetroidXml(new IStorageLoadHelper() {
+//        @Override
+//        public boolean decryptNode(Context context, TetroidNode node) {
+//            return mCrypter.decryptNode(context, node, false, false,
+//                    this, false, false);
+//        }
+//
+//        @Override
+//        public boolean decryptRecord(Context context, TetroidRecord record) {
+//            return mCrypter.decryptRecordAndFiles(context, record, false, false);
+//        }
+//
+//        @Override
+//        public boolean isRecordFavorite(String id) {
+//            return FavoritesManager.isFavorite(id);
+//        }
+//
+//        @Override
+//        public void addRecordFavorite(TetroidRecord record) {
+//            FavoritesManager.set(record);
+//        }
+//
+//        @Override
+//        public void parseRecordTags(TetroidRecord record, String tagsString) {
+//            DataManager.this.parseRecordTags(record, tagsString);
+//        }
+//
+//        @Override
+//        public void deleteRecordTags(TetroidRecord record) {
+//            DataManager.this.deleteRecordTags(record);
+//        }
+//
+//        @Override
+//        public void loadIcon(Context context, TetroidNode node) {
+//            if (node.isNonCryptedOrDecrypted()) {
+//                node.loadIcon(context, mStoragePath + SEPAR + ICONS_FOLDER_NAME);
+//            }
+//        }
+//    });
 
 
     /**
@@ -164,39 +164,40 @@ public class DataManager implements IRecordFileCrypter {
     public static boolean createDefault(Context context) {
         return (NodesManager.createNode(context, context.getString(R.string.title_first_node), TetroidXml.ROOT_NODE) != null);
     }
-    
-    /**
-     * Загрузка хранилища из файла mytetra.xml.
-     * @param isDecrypt Расшифровывать ли ветки
-     * @return
-     */
-    public boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
-        boolean res = false;
-//        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
-        File file = new File(getPathToMyTetraXml());
-        if (!file.exists()) {
-            LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, ILogger.Types.ERROR);
-            return false;
-        }
-        // получаем id избранных записей из настроек
-        FavoritesManager.load(context);
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            res = Instance.mXml.parse(context, fis, isDecrypt, isFavorite);
 
-//            if (BuildConfig.DEBUG) {
-//                TestData.addNodes(mInstance.mRootNodesList, 100, 100);
-//            }
-            // удаление не найденных записей из избранного
-            FavoritesManager.check();
-            // загрузка ветки для быстрой вставки
-            NodesManager.updateQuicklyNode(context);
-        } catch (Exception ex) {
-            LogManager.log(context, ex);
-            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
-        }
-        return res;
-    }
+    // TODO: заменено на ViewModel
+//    /**
+//     * Загрузка хранилища из файла mytetra.xml.
+//     * @param isDecrypt Расшифровывать ли ветки
+//     * @return
+//     */
+//    public boolean readStorage(Context context, boolean isDecrypt, boolean isFavorite) {
+//        boolean res = false;
+////        File file = new File(Instance.mStoragePath + SEPAR + MYTETRA_XML_FILE_NAME);
+//        File file = new File(getPathToMyTetraXml());
+//        if (!file.exists()) {
+//            LogManager.log(context, context.getString(R.string.log_file_is_absent) + MYTETRA_XML_FILE_NAME, ILogger.Types.ERROR);
+//            return false;
+//        }
+//        // получаем id избранных записей из настроек
+//        FavoritesManager.load(context);
+//        try {
+//            FileInputStream fis = new FileInputStream(file);
+//            res = Instance.mXml.parse(context, fis, isDecrypt, isFavorite);
+//
+////            if (BuildConfig.DEBUG) {
+////                TestData.addNodes(mInstance.mRootNodesList, 100, 100);
+////            }
+//            // удаление не найденных записей из избранного
+//            FavoritesManager.check();
+//            // загрузка ветки для быстрой вставки
+//            NodesManager.updateQuicklyNode(context);
+//        } catch (Exception ex) {
+//            LogManager.log(context, ex);
+//            Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
+//        }
+//        return res;
+//    }
 
     /**
      * Перешифровка хранилища (перед этим ветки должны быть расшифрованы).
@@ -214,7 +215,7 @@ public class DataManager implements IRecordFileCrypter {
     public boolean decryptStorage(Context context, boolean decryptFiles) {
 //        LogManager.log(R.string.log_start_storage_decrypt);
         boolean res = mCrypter.decryptNodes(context, mXml.mRootNodesList, true, true,
-                mXml, false, decryptFiles);
+                mXml.getLoadHelper(), false, decryptFiles);
         mIsStorageDecrypted = res;
         return res;
     }
@@ -226,7 +227,7 @@ public class DataManager implements IRecordFileCrypter {
      */
     public boolean dropCryptNode(Context context, @NonNull TetroidNode node) {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        boolean res = mCrypter.decryptNode(context, node, true, true, mXml, true, false);
+        boolean res = mCrypter.decryptNode(context, node, true, true, mXml.getLoadHelper(), true, false);
         if (res) {
             return saveStorage(context);
         }
@@ -317,148 +318,6 @@ public class DataManager implements IRecordFileCrypter {
                     return false;
                 }
             }
-        }
-        return true;
-    }
-
-    /**
-     * Отправка текста в стороннее приложение.
-     * @param context
-     * @param subject
-     * @param text
-     * @return
-     */
-    public static boolean shareText(Context context, String subject, String text) {
-        if (context == null)
-            return false;
-        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, text);
-//        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_using)));
-        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_send_to));
-        try {
-            // проверить, есть ли подходящее приложение для открытия файла
-            if (intent.resolveActivity(context.getPackageManager()) != null) {
-//                    context.startActivity(intent);
-                context.startActivity(chooser);
-            } else {
-                LogManager.log(context, context.getString(R.string.log_no_app_found_for_share_text), Toast.LENGTH_LONG);
-                return false;
-            }
-        }
-        catch (ActivityNotFoundException ex) {
-            LogManager.log(context, context.getString(R.string.log_no_app_found_for_share_text), Toast.LENGTH_LONG);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Открытие файла/каталога сторонним приложением.
-     * @param context
-     * @param file
-     * @return
-     */
-    public static boolean openFile(Context context, File file) {
-        if (file == null) {
-            LogManager.emptyParams(context, "DataManager.openFile()");
-            return false;
-        }
-        String fullFileName = file.getAbsolutePath();
-
-        // Начиная с API 24 (Android 7), для предоставления доступа к файлам, который
-        // ассоциируется с приложением (для открытия файла другими приложениями с помощью Intent, короче),
-        // нужно использовать механизм FileProvider.
-        // Путь к файлу должен быть сформирован так: content://<Uri for a file>
-        Uri fileUri;
-        try {
-            if (Build.VERSION.SDK_INT >= 24) {
-                fileUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
-            } else {
-                fileUri = Uri.fromFile(file);
-            }
-        } catch (Exception ex) {
-            LogManager.log(context, context.getString(R.string.log_file_sharing_error) + fullFileName,
-                    ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            LogManager.log(context, ex);
-            return false;
-        }
-        // grant permision for app with package "packageName", eg. before starting other app via intent
-        context.grantUriPermission(context.getPackageName(), fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        //revoke permisions
-//            context.revokeUriPermission(fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        String mimeType;
-        if (file.isDirectory()) {
-//            intent = new Intent(Intent.ACTION_GET_CONTENT); // открывается com.android.documentsui, но без каталога
-//            mimeType = "*/*";   // отображается список приложений, но не для открытия каталога
-//            mimeType = "application/*"; // тоже самое
-            mimeType = "resource/folder";
-//            mimeType = DocumentsContract.Document.MIME_TYPE_DIR; // открывается com.android.documentsui
-
-//            Uri selectedUri = Uri.fromFile(file.getAbsoluteFile());
-//            String fileExtension =  MimeTypeMap.getFileExtensionFromUrl(selectedUri.toString());
-//            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension);
-
-            intent.setDataAndType(fileUri, mimeType);
-
-            if (!openFile(context, file, intent, false)) {
-                mimeType = "*/*";
-//                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setDataAndType(fileUri, mimeType);
-                return openFile(context, file, intent, true);
-            }
-            return true;
-        } else {
-            String ext = FileUtils.getExtensionWithComma(fullFileName);
-            // определяем тип файла по расширению, если оно есть
-            mimeType = (!StringUtil.isBlank(ext) && ext.length() > 1)
-                    ? MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext.substring(1))
-                    : "text/plain";
-            intent.setDataAndType(fileUri, mimeType);
-            return openFile(context, file, intent, true);
-        }
-    }
-
-    /**
-     * Открытие файла/каталога сторонним приложением.
-     * @param context
-     * @param file
-     * @param intent
-     * @return
-     */
-    public static boolean openFile(Context context, File file, Intent intent, boolean needLog) {
-        if (context == null || file == null || intent == null) {
-            LogManager.emptyParams(context, "DataManager.openFile()");
-            return false;
-        }
-        String fileFullName = file.getAbsolutePath();
-        // устанавливаем флаг для того, чтобы дать внешнему приложению пользоваться нашим FileProvider
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-        Intent chooser = Intent.createChooser(intent, context.getString(R.string.title_open_with));
-        try {
-            // проверить, есть ли подходящее приложение для открытия файла
-            if (intent.resolveActivity(context.getPackageManager()) != null) {
-//                    context.startActivity(intent);
-                context.startActivity(chooser);
-            } else {
-                if (needLog) {
-                    LogManager.log(context, context.getString(R.string.log_no_app_found_for_open_file) + fileFullName, Toast.LENGTH_LONG);
-                }
-                return false;
-            }
-        }
-//        catch (ActivityNotFoundException ex) {
-        catch (Exception ex) {
-            if (needLog) {
-                LogManager.log(context, context.getString(R.string.log_error_file_open) + fileFullName, Toast.LENGTH_LONG);
-            }
-            return false;
         }
         return true;
     }

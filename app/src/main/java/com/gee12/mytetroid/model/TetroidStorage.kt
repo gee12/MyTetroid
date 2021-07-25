@@ -1,10 +1,6 @@
 package com.gee12.mytetroid.model
 
-import com.gee12.mytetroid.data.TetroidXml
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
-import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.database.entity.StorageEntity
-import com.gee12.mytetroid.database.entity.SyncProfileEntity
 import java.io.File
 import java.util.*
 
@@ -15,29 +11,17 @@ class TetroidStorage(
     name,
     path
 ) {
-    var quickNodeName: String? = null
+    var isNew = false
 
-    val isWriteLogToFile = 0
-    val logPath: String? = null
+//    val isWriteLogToFile = 0
+//    val logPath: String? = null
 
     /**
      * Ветка для быстрой вставки.
      */
+    var quickNodeName: String? = null
+        protected set
     var quicklyNode: TetroidNode? = null
-        protected set
-
-    /**
-     *
-     */
-    var crypter: TetroidCrypter? = null
-        protected set
-
-    /**
-     *
-     */
-    var databaseConfig: DatabaseConfig? = null
-        protected set
-    var xml: TetroidXml? = null
         protected set
 
     /**
@@ -49,11 +33,13 @@ class TetroidStorage(
     var isCrypted = false
 
 
-    constructor(name: String, path: String, isDefault: Boolean, isReadOnly: Boolean) : this(name, path) {
+    constructor(name: String, path: String, isDefault: Boolean, isReadOnly: Boolean, isNew: Boolean)
+            : this(name, path) {
         val curDate = Date()
         init(curDate, curDate)
         this.isReadOnly = isReadOnly
         this.isDefault = isDefault
+        this.isNew = isNew
     }
 
     constructor(path: String) : this(getFolderNameFromPath(path), path) {

@@ -638,4 +638,7 @@
     <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
     <string name="title_context_menu">Контекстное меню</string>
     <string name="label_default_storage">Хранилище по-умолчанию</string>
+    <string name="ask_load_storage_mask">Загрузить хранилище \'%s\' ?</string>
+    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \'%s\', продолжить ?</string>
+    <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
 </resources>
