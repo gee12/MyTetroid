@@ -7,8 +7,8 @@ import androidx.annotation.StringRes;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.views.activities.MainActivity;
-import com.gee12.mytetroid.views.fragments.settings.SettingsEncryptionFragment;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
@@ -63,7 +63,7 @@ public class TetroidLog extends LogManager {
         COPY(R.array.oper_copy),
         CUT(R.array.oper_cut),
         INSERT(R.array.oper_insert),
-        MOVE(R.array.oper_move),
+        REORDER(R.array.oper_move),
         SAVE(R.array.oper_save),
         ATTACH(R.array.oper_attach),
         ENCRYPT(R.array.oper_encrypt),
@@ -213,7 +213,8 @@ public class TetroidLog extends LogManager {
     public static String logTaskStage(Context context, TaskStage stage) {
         switch (stage.stage) {
             case START:
-                if (stage.clazz == StorageEncryptionSettingsFragment.ChangePassTask.class) {
+//                if (stage.task == StorageEncryptionSettingsFragment.ChangePassTask.class) {
+                if (stage.viewType == Constants.TetroidView.Settings) {
                     switch (stage.oper) {
                         case CHECK:
                             return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);
@@ -230,7 +231,8 @@ public class TetroidLog extends LogManager {
                         default:
                             return logOperStart(context, stage.obj, stage.oper);
                     }
-                } else if (stage.clazz == MainActivity.CryptNodeTask.class) {
+//                } else if (stage.viewType == MainActivity.CryptNodeTask.class) {
+                } else if (stage.viewType == Constants.TetroidView.Main) {
                     switch (stage.oper) {
                         case DECRYPT:
                             return logTaskStage(context, stage, R.string.stage_storage_decrypting, ILogger.Types.INFO);

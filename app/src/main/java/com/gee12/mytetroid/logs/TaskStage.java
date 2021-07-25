@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.logs;
 
+import com.gee12.mytetroid.common.Constants;
+
 public class TaskStage {
 
     public interface ITaskStageExecutor {
@@ -12,26 +14,26 @@ public class TaskStage {
         FAILED
     }
 
-    Class clazz;
+    Constants.TetroidView viewType;
     TetroidLog.Objs obj;
     TetroidLog.Opers oper;
     Stages stage;
     boolean writeLog;
 
-    public TaskStage(Class clazz) {
-        this.clazz = clazz;
+    public TaskStage(Constants.TetroidView viewType) {
+        this.viewType = viewType;
     }
 
-    public TaskStage(Class clazz, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
-        setValues(clazz, obj, oper, stage, true);
+    public TaskStage(Constants.TetroidView viewType, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage) {
+        setValues(viewType, obj, oper, stage, true);
     }
 
-    public TaskStage(Class clazz, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage, boolean writeLog) {
-        setValues(clazz, obj, oper, stage, writeLog);
+    public TaskStage(Constants.TetroidView viewType, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage, boolean writeLog) {
+        setValues(viewType, obj, oper, stage, writeLog);
     }
 
-    private void setValues(Class clazz, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage, boolean writeLog) {
-        this.clazz = clazz;
+    private void setValues(Constants.TetroidView task, TetroidLog.Objs obj, TetroidLog.Opers oper, Stages stage, boolean writeLog) {
+        this.viewType = task;
         this.obj = obj;
         this.oper = oper;
         this.stage = stage;

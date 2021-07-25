@@ -10,6 +10,7 @@ import android.view.WindowManager;
  * @param <Progress>
  * @param <Result>
  */
+@Deprecated
 public abstract class TetroidTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
     protected Activity mActivity;

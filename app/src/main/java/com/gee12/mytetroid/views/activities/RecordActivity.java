@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
@@ -39,6 +40,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.ImagesManager;
@@ -46,10 +48,11 @@ import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.data.StorageManager;
+//import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.viewmodels.StorageViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
-import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
@@ -153,17 +156,6 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
-    public static final String ACTION_RECORD = "ACTION_RECORD";
-    public static final String ACTION_ADD_RECORD = "ACTION_ADD_RECORD";
-    public static final int REQUEST_CODE_SETTINGS_ACTIVITY = 11;
-    public static final int REQUEST_CODE_CAMERA = 12;
-    public static final String EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE";
-    public static final String EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID";
-    public static final String EXTRA_TAG_NAME = "EXTRA_TAG_NAME";
-    public static final String EXTRA_IS_FIELDS_EDITED = "EXTRA_IS_FIELDS_EDITED";
-    public static final String EXTRA_IMAGES_URI = "EXTRA_IMAGES_URI";
-    public static final String EXTRA_ATTACHED_FILES = "EXTRA_ATTACHED_FILES";
-
     public static final int MODE_VIEW = 1;
     public static final int MODE_EDIT = 2;
     public static final int MODE_HTML = 3;
@@ -200,6 +192,9 @@ public class RecordActivity extends TetroidActivity implements
     private boolean mIsSaveTempAfterStorageLoaded;
     private ResultObj mResultObj;
 
+    private StorageViewModel mStorageViewModel;
+
+
     public RecordActivity() {
         super();
     }
@@ -213,18 +208,21 @@ public class RecordActivity extends TetroidActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.mStorageViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+                .get(StorageViewModel.class);
+
         String action;
-        if (mReceivedIntent == null || (action = mReceivedIntent.getAction()) == null) {
+        if (receivedIntent == null || (action = receivedIntent.getAction()) == null) {
             finish();
             return;
         }
         if (action.equals(Intent.ACTION_MAIN)) {
             // открытие или создание записи из главной активности
-            if (!initRecordFromMain(mReceivedIntent)) {
+            if (!initRecordFromMain(receivedIntent)) {
                 finish();
                 return;
             }
-        } else if (action.equals(ACTION_ADD_RECORD)) {
+        } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
             // создание записи из виджета
             // сначала инициализируем службы
             App.init(this);
@@ -254,7 +252,7 @@ public class RecordActivity extends TetroidActivity implements
         }
 
         // проверяем передавались ли изображения
-        this.mIsReceivedImages = mReceivedIntent.hasExtra(EXTRA_IMAGES_URI);
+        this.mIsReceivedImages = receivedIntent.hasExtra(Constants.EXTRA_IMAGES_URI);
 
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setColorPickerListener(this);
@@ -314,6 +312,22 @@ public class RecordActivity extends TetroidActivity implements
         App.checkKeepScreenOn(this);
 
         afterOnCreate();
+
+        // TODO: перенести в TetroidActivity (с использованием Generic типов ?)
+        mStorageViewModel.getMessage().observe(this, message -> {
+            if (message.getType() == ILogger.Types.INFO) {
+                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
+            } else if (message.getType() == ILogger.Types.ERROR) {
+
+                // TODO: переделать
+                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
+                Message.showSnackMoreInLogs(RecordActivity.this, R.id.layout_coordinator);
+            } else {
+
+                // TODO: ?
+                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -336,7 +350,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private boolean initRecordFromMain(Intent intent) {
         // получаем переданную запись
-        String recordId = intent.getStringExtra(EXTRA_OBJECT_ID);
+        String recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID);
         if (recordId != null) {
             // получаем запись
             this.mRecord = RecordsManager.getRecord(recordId);
@@ -347,7 +361,7 @@ public class RecordActivity extends TetroidActivity implements
                 setTitle(mRecord.getName());
 //                setVisibilityActionHome(!mRecord.isTemp());
 
-                if (intent.hasExtra(EXTRA_ATTACHED_FILES)) {
+                if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
                     // временная запись создана для прикрепления файлов
                     int filesCount = mRecord.getAttachedFilesCount();
                     if (filesCount > 0) {
@@ -551,7 +565,7 @@ public class RecordActivity extends TetroidActivity implements
 
         // вставляем переданные изображения
         if (mIsReceivedImages) {
-            List<Uri> uris = getIntent().getParcelableArrayListExtra(EXTRA_IMAGES_URI);
+            List<Uri> uris = getIntent().getParcelableArrayListExtra(Constants.EXTRA_IMAGES_URI);
             saveImages(uris, false);
         }
     }
@@ -610,7 +624,8 @@ public class RecordActivity extends TetroidActivity implements
             // обрабатываем внутреннюю ссылку
             switch (obj.getType()) {
                 case FoundType.TYPE_RECORD: {
-                    if (StorageManager.isFavoritesMode()) {
+//                    if (StorageManager.isFavoritesMode()) {
+                    if (mStorageViewModel.isLoadedFavoritesOnly()) {
                         openAnotherRecord(new ResultObj(ResultObj.OPEN_RECORD, obj.getId()), true);
                     } else {
                         TetroidRecord record = RecordsManager.getRecord(obj.getId());
@@ -623,7 +638,8 @@ public class RecordActivity extends TetroidActivity implements
                     break;
                 }
                 case FoundType.TYPE_NODE:
-                    if (StorageManager.isFavoritesMode()) {
+//                    if (StorageManager.isFavoritesMode()) {
+                        if (mStorageViewModel.isLoadedFavoritesOnly()) {
                         openAnotherNode(new ResultObj(ResultObj.OPEN_NODE, obj.getId()), true);
                     } else {
                         TetroidNode node = NodesManager.getNode(obj.getId());
@@ -706,7 +722,8 @@ public class RecordActivity extends TetroidActivity implements
             return;
         if (onSaveRecord(isAskForSave, resObj))
             return;
-        if (StorageManager.isFavoritesMode()) {
+//        if (StorageManager.isFavoritesMode()) {
+        if (mStorageViewModel.isLoadedFavoritesOnly()) {
             AskDialogs.showLoadAllNodesDialog(this,
                     () -> showAnotherRecord(resObj.id));
         } else {
@@ -716,9 +733,9 @@ public class RecordActivity extends TetroidActivity implements
 
     private void showAnotherRecord(String id) {
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, id);
+        bundle.putString(Constants.EXTRA_OBJECT_ID, id);
         if (mIsFieldsEdited) {
-            bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
+            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true);
         }
         finishWithResult(RESULT_OPEN_RECORD, bundle);
     }
@@ -733,7 +750,8 @@ public class RecordActivity extends TetroidActivity implements
             return;
         if (onSaveRecord(isAskForSave, new ResultObj(resObj)))
             return;
-        if (StorageManager.isFavoritesMode()) {
+//        if (StorageManager.isFavoritesMode()) {
+        if (mStorageViewModel.isLoadedFavoritesOnly()) {
             AskDialogs.showLoadAllNodesDialog(this,
                     () -> showAnotherNodeDirectly(resObj.id));
         } else {
@@ -743,7 +761,7 @@ public class RecordActivity extends TetroidActivity implements
 
     private void showAnotherNodeDirectly(String id) {
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, id);
+        bundle.putString(Constants.EXTRA_OBJECT_ID, id);
         finishWithResult(RESULT_OPEN_NODE, bundle);
     }
 
@@ -762,7 +780,8 @@ public class RecordActivity extends TetroidActivity implements
     private void openTag(String tagName, boolean isAskForSave) {
         if (onSaveRecord(isAskForSave, new ResultObj(tagName)))
             return;
-        if (StorageManager.isFavoritesMode()) {
+//        if (StorageManager.isFavoritesMode()) {
+        if (mStorageViewModel.isLoadedFavoritesOnly()) {
             AskDialogs.showLoadAllNodesDialog(this,
                     () -> openTagDirectly(tagName));
         } else {
@@ -772,9 +791,9 @@ public class RecordActivity extends TetroidActivity implements
 
     private void openTagDirectly(String tagName) {
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_TAG_NAME, tagName);
+        bundle.putString(Constants.EXTRA_TAG_NAME, tagName);
         if (mIsFieldsEdited) {
-            bundle.putBoolean(EXTRA_IS_FIELDS_EDITED, true);
+            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true);
         }
         finishWithResult(RESULT_SHOW_TAG, bundle);
     }
@@ -831,7 +850,7 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void startCamera() {
         // проверка разрешения
-        if (!PermissionManager.checkCameraPermission(this, StorageManager.REQUEST_CODE_PERMISSION_CAMERA)) {
+        if (!PermissionManager.checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
         // не удалось сохранять сделанную фотографию сразу в каталог записи
@@ -839,7 +858,7 @@ public class RecordActivity extends TetroidActivity implements
 //        Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
         Intent intent = ImagePicker.cameraOnly()
                 .getIntent(this);
-        startActivityForResult(intent, REQUEST_CODE_CAMERA);
+        startActivityForResult(intent, Constants.REQUEST_CODE_CAMERA);
     }
 
     /**
@@ -1009,7 +1028,7 @@ public class RecordActivity extends TetroidActivity implements
         if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
             return;
         Bundle bundle = new Bundle();
-        bundle.putString(EXTRA_OBJECT_ID, record.getId());
+        bundle.putString(Constants.EXTRA_OBJECT_ID, record.getId());
         finishWithResult(RESULT_SHOW_ATTACHES, bundle);
     }
 
@@ -1184,7 +1203,7 @@ public class RecordActivity extends TetroidActivity implements
                     this.runOnUiThread(() -> editFields(obj));
                 } else {
                     this.mIsSaveTempAfterStorageLoaded = true;
-                    this.runOnUiThread(() -> loadStorage(null));
+                    this.runOnUiThread(() -> loadStorage());
                 }
                 return true;
             } else {
@@ -1275,27 +1294,29 @@ public class RecordActivity extends TetroidActivity implements
 
     // region Storage
 
-    /**
-     *
-     */
-    @Override
-    protected void createStorage(String storagePath) {
-        boolean res = StorageManager.createStorage(this, storagePath);
-        initGUI(res && DataManager.createDefault(this), false, false);
-    }
+//    /**
+//     *
+//     */
+//    @Override
+//    protected void createStorage(String storagePath) {
+//        boolean res = StorageManager.createStorage(this, storagePath);
+//        initGUI(res && DataManager.createDefault(this), false, false);
+//    }
 
     /**
      * Старт загрузки хранилища.
      */
-    @Override
-    protected void loadStorage(String folderPath) {
-        boolean isLoadLastForced = false;
-        boolean isCheckFavorMode = !mRecord.isTemp();
-        if (folderPath == null) {
-            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
-        } else {
-            StorageManager.initOrSyncStorage(this, folderPath, isCheckFavorMode);
-        }
+//    @Override
+//    protected void loadStorage(String storagePath) {
+    protected void loadStorage() {
+//        boolean isLoadLastForced = false;
+//        boolean isCheckFavorMode = !mRecord.isTemp();
+//        if (storagePath == null) {
+//            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+//        } else {
+//            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
+//        }
+        mStorageViewModel.startInitStorage(false, !mRecord.isTemp());
     }
 
     @Override
@@ -1347,7 +1368,7 @@ public class RecordActivity extends TetroidActivity implements
     public void deleteRecord() {
         RecordDialogs.deleteRecord(this, mRecord.getName(), () -> {
             Bundle bundle = new Bundle();
-            bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+            bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getId());
             finishWithResult(RESULT_DELETE_RECORD, bundle);
         });
     }
@@ -1446,7 +1467,7 @@ public class RecordActivity extends TetroidActivity implements
                 // закрываем активность, возвращая результат:
                 // указываем родительской активности, что нужно обновить список записей
                 Intent intent = new Intent();
-                intent.putExtra(EXTRA_IS_FIELDS_EDITED, true);
+                intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true);
 //            intent.setAction(ACTION_ADD_RECORD);
                 setResult(RESULT_OK, intent);
             } else if (startMainActivity) {
@@ -1454,9 +1475,9 @@ public class RecordActivity extends TetroidActivity implements
                 Bundle bundle = new Bundle();
 //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
                 if (mRecord.getNode() != null) {
-                    bundle.putInt(EXTRA_RESULT_CODE, RESULT_OPEN_NODE);
-                    bundle.putString(EXTRA_OBJECT_ID, mRecord.getNode().getId());
-                    ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_RECORD, 0, null);
+                    bundle.putInt(Constants.EXTRA_RESULT_CODE, RESULT_OPEN_NODE);
+                    bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getNode().getId());
+                    ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, null);
                     finish();
                 } else {
                     Message.show(this, getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG);
@@ -1491,26 +1512,27 @@ public class RecordActivity extends TetroidActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE_SETTINGS_ACTIVITY) {
+        if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
             if (data != null) {
-                if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, false)) {
+                if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
                     // хранилище изменено
-                    if (StorageManager.isLoaded()) {
+//                    if (StorageManager.isLoaded()) {
+                    if (mStorageViewModel.isLoaded()) {
                         // спрашиваем о перезагрузке хранилище, только если оно уже загружено
-                        boolean isCreate = data.getBooleanExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, false);
+                        boolean isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false);
                         AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
                             // перезагружаем хранилище в главной активности, если изменили путь,
                             finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
                         });
                     }
-                } else if (data.getBooleanExtra(SettingsFragment.EXTRA_IS_PASS_CHANGED, false)) {
+                } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // пароль изменен
                     finishWithResult(RESULT_PASS_CHANGED, data.getExtras());
                 }
             }
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
-        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
+        } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
             saveSelectedImages(data, false);
@@ -1554,7 +1576,7 @@ public class RecordActivity extends TetroidActivity implements
         if (!super.onBeforeCreateOptionsMenu(menu))
             return true;
         getMenuInflater().inflate(R.menu.record, menu);
-        this.mOptionsMenu = menu;
+        this.optionsMenu = menu;
 
         initSearchView(menu);
 
@@ -1674,7 +1696,7 @@ public class RecordActivity extends TetroidActivity implements
                 toggleFullscreen(false);
                 return true;
             case R.id.action_settings:
-                showActivityForResult(SettingsActivity.class, REQUEST_CODE_SETTINGS_ACTIVITY);
+                showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_storage_info:
                 ViewUtils.startActivity(this, InfoActivity.class, null);
@@ -1894,7 +1916,7 @@ public class RecordActivity extends TetroidActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case StorageManager.REQUEST_CODE_PERMISSION_CAMERA: {
+            case Constants.REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_camera_perm_granted, ILogger.Types.INFO);
                     startCamera();
@@ -1920,8 +1942,8 @@ public class RecordActivity extends TetroidActivity implements
     private void finishWithResult(int resCode, Bundle bundle) {
         if (getCallingActivity() != null) {
             if (bundle != null) {
-                bundle.putInt(EXTRA_RESULT_CODE, resCode);
-                Intent intent = new Intent(ACTION_RECORD);
+                bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode);
+                Intent intent = new Intent(Constants.ACTION_RECORD);
                 intent.putExtras(bundle);
                 setResult(resCode, intent);
             } else {
@@ -1931,8 +1953,8 @@ public class RecordActivity extends TetroidActivity implements
             if (bundle == null) {
                 bundle = new Bundle();
             }
-            bundle.putInt(EXTRA_RESULT_CODE, resCode);
-            ViewUtils.startActivity(this, MainActivity.class, bundle, ACTION_RECORD, 0, 0);
+            bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode);
+            ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, 0);
         }
         finish();
     }

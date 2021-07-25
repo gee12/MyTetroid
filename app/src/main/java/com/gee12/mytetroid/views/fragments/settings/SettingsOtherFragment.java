@@ -9,6 +9,7 @@ import androidx.preference.Preference;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.logs.ILogger;
@@ -29,7 +30,7 @@ public class SettingsOtherFragment extends TetroidSettingsFragment {
 
         Preference logFolderPicker = findPreference(getString(R.string.pref_key_log_path));
         logFolderPicker.setOnPreferenceClickListener(preference -> {
-            if (!checkPermission(SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH))
+            if (!checkPermission(Constants.REQUEST_CODE_OPEN_LOG_PATH))
                 return true;
             selectLogsFolder();
             return true;
@@ -60,7 +61,7 @@ public class SettingsOtherFragment extends TetroidSettingsFragment {
         if (permGranted) {
             LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
             switch (requestCode) {
-                case SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH:
+                case Constants.REQUEST_CODE_OPEN_LOG_PATH:
                     selectLogsFolder();
                     break;
             }
@@ -73,7 +74,7 @@ public class SettingsOtherFragment extends TetroidSettingsFragment {
         if (resultCode != RESULT_OK)
             return;
         String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-        if (requestCode == SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH) {
+        if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
             SettingsManager.setLogPath(mContext, folderPath);
             SettingsManager.setLastChoosedFolder(mContext, folderPath);
             LogManager.setLogPath(mContext, folderPath);
@@ -84,6 +85,6 @@ public class SettingsOtherFragment extends TetroidSettingsFragment {
     private void selectLogsFolder() {
         openFolderPicker(getString(R.string.pref_log_path),
                 SettingsManager.getLogPath(mContext),
-                SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH);
+                Constants.REQUEST_CODE_OPEN_LOG_PATH);
     }
 }

@@ -14,6 +14,7 @@ import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
 
+@Deprecated
 public class SyncManager {
 
     public static final String EXTRA_APP_NAME = "com.gee12.mytetroid.EXTRA_APP_NAME";
@@ -25,8 +26,8 @@ public class SyncManager {
      * @param storagePath
      */
     public static boolean startStorageSync(Activity activity, String storagePath, int requestCode) {
-        String command = SettingsManager.getSyncCommand(activity);
-        if (SettingsManager.getSyncAppName(activity).equals(activity.getString(R.string.title_app_termux))) {
+        String command = SettingsManager.getSyncCommandDef(activity);
+        if (SettingsManager.getSyncAppNameDef(activity).equals(activity.getString(R.string.title_app_termux))) {
             // termux
             return startTermuxSync(activity, storagePath, command);
         } else {

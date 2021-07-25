@@ -5,11 +5,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.TetroidXml;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.viewmodels.StorageViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
 
 import java.util.Date;
 
@@ -17,6 +20,8 @@ import java.util.Date;
  * Активность для просмотра информации о хранилище.
  */
 public class InfoActivity extends AppCompatActivity {
+
+    private StorageViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,16 +31,20 @@ public class InfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String path = DataManager.getStoragePath();
+        StorageViewModel storageViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+                .get(StorageViewModel.class);
+
+        String path = storageViewModel.getStoragePath();
         ((TextView)findViewById(R.id.text_view_path)).setText(path);
-        String tetraXml = DataManager.getPathToMyTetraXml();
-        Date edited = DataManager.getFileModifiedDate(this, tetraXml);
+        // FIXME: не использовать интерактор напрямую
+        String tetraXml = storageViewModel.getStorageInteractor().getPathToMyTetraXml();
+        Date edited = FileUtils.getFileModifiedDate(this, tetraXml);
         ((TextView)findViewById(R.id.text_view_last_edit)).setText(
                 Utils.dateToString(edited, getString(R.string.full_date_format_string)));
         ((TextView)findViewById(R.id.text_view_size)).setText(
-                DataManager.getFileSize(this, path));
+                FileUtils.getFileSize(this, path));
         // статистика
-        TetroidXml storage = DataManager.getInstance().getXmlManager();
+        TetroidXml storage = storageViewModel.getXmlLoader();
         storage.calcCounters();
         ((TextView)findViewById(R.id.text_view_stats_nodes_count)).setText(String.valueOf(storage.getNodesCount()));
         ((TextView)findViewById(R.id.text_view_stats_crypt_nodes_count)).setText(String.valueOf(storage.getCryptedNodesCount()));

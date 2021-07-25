@@ -6,6 +6,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
+import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.LogManager;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
@@ -341,6 +344,9 @@ public class FileUtils {
      * @return
      */
     public static String getFileFolder(String fileFullName) {
+        if (fileFullName == null) {
+            return null;
+        }
         int slashIndex = fileFullName.lastIndexOf("/");
         return (slashIndex > -1) ? fileFullName.substring(0, slashIndex) : "";
     }
@@ -413,10 +419,36 @@ public class FileUtils {
 
     /**
      * Получение размера файла/каталога.
+     * @param context
+     * @param fullFileName
+     * @return
+     */
+    public static String getFileSize(Context context, String fullFileName) {
+        long size;
+        try {
+            File file = new File(fullFileName);
+            if (!file.exists()) {
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
+                return null;
+            }
+            size = getFileSize(file);
+        } catch (SecurityException ex) {
+            LogManager.log(context, context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.log(context, context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+//        return FileUtils.fileSizeToStringBin(context, size);
+        return android.text.format.Formatter.formatFileSize(context, size);
+    }
+
+    /**
+     * Получение размера файла/каталога в байтах.
      * @param file
      * @return
      */
-    public static long fileSize(File file) {
+    public static long getFileSize(File file) {
         if (file == null || !file.exists())
             return 0;
         long size = 0;
@@ -443,11 +475,36 @@ public class FileUtils {
     }
 
     /**
+     *
+     * @param context
+     * @param fullFileName
+     * @return
+     */
+    public static Date getFileModifiedDate(Context context, String fullFileName) {
+        Date date;
+        try {
+            File file = new File(fullFileName);
+            if (!file.exists()) {
+                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
+                return null;
+            }
+            date = getFileLastModifiedDate(file);
+        } catch (SecurityException ex) {
+            LogManager.log(context, context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
+            return null;
+        } catch (Exception ex) {
+            LogManager.log(context, context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
+            return null;
+        }
+        return date;
+    }
+
+    /**
      * Получение даты последнего изменения файла.
      * @param file
      * @return
      */
-    public static Date fileLastModifiedDate(File file) {
+    public static Date getFileLastModifiedDate(File file) {
         if (file == null)
             return null;
         return new Date(file.lastModified());

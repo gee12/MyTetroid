@@ -3,19 +3,19 @@ package com.gee12.mytetroid.views.fragments.settings.storage
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.StoragesViewModelFactory
+import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 
 class StorageSyncSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var mViewModel: StorageViewModel
+    private lateinit var mViewModel: StorageSettingsViewModel
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
-        mViewModel = ViewModelProvider(activity!!, StoragesViewModelFactory(application))
-            .get(StorageViewModel::class.java)
+        mViewModel = ViewModelProvider(requireActivity(), StorageViewModelFactory(application))
+            .get(StorageSettingsViewModel::class.java)
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
         preferenceManager?.preferenceDataStore = mViewModel.prefsDataStore
 

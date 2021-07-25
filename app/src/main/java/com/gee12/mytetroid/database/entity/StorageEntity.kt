@@ -13,6 +13,7 @@ open class StorageEntity(
     @ColumnInfo(name = "path")
     var path: String
 ) : BaseEntity() {
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     var id: Int = 0
@@ -50,6 +51,6 @@ open class StorageEntity(
     @ColumnInfo(name = "isDecyptToTemp")
     var isDecyptToTemp: Boolean = false
 
-    @Embedded(prefix="some_name")
+    @Embedded(prefix="syncProfile")
     var syncProfile = SyncProfileEntity(false)
 }

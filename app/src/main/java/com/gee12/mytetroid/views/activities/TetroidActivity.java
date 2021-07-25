@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -26,31 +24,22 @@ import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
-import com.gee12.mytetroid.data.AttachesManager;
-import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.data.StorageManager;
-import com.gee12.mytetroid.helpers.NetworkHelper;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TetroidLog;
-import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.FileUtils;
-import com.gee12.mytetroid.utils.UriUtils;
 import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-
 import lib.folderpicker.FolderPicker;
 
 public abstract class TetroidActivity extends AppCompatActivity
-        implements View.OnTouchListener, StorageManager.IStorageInitCallback {
+        implements View.OnTouchListener {
 
     public interface IDownloadFileResult {
         void onSuccess(Uri uri);
@@ -58,41 +47,53 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     protected GestureDetectorCompat gestureDetector;
-    protected Menu mOptionsMenu;
-    protected Toolbar mToolbar;
+    protected Menu optionsMenu;
+    protected Toolbar toolbar;
     protected TextView tvTitle;
     protected TextView tvSubtitle;
-    protected LinearLayout mLayoutProgress;
-    protected TextView mTextViewProgress;
-    protected TetroidTask2 mCurTask;
-    protected Intent mReceivedIntent;
-    protected boolean mIsFullScreen;
-    protected boolean mIsOnCreateProcessed;
-    protected boolean mIsGUICreated;
+    protected LinearLayout layoutProgress;
+    protected TextView tvProgress;
+    protected TetroidTask2 curTask;
+    protected Intent receivedIntent;
+    protected boolean isFullScreen;
+    protected boolean isOnCreateProcessed;
+    protected boolean isGUICreated;
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResourceId());
 
-        this.mReceivedIntent = getIntent();
+        this.receivedIntent = getIntent();
 
-        this.mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
+        this.toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         setVisibilityActionHome(true);
 
         // обработчик нажатия на экране
         this.gestureDetector = new GestureDetectorCompat(this,
                 new ActivityDoubleTapListener(() -> toggleFullscreen(true)));
 
-        this.tvTitle = mToolbar.findViewById(R.id.text_view_title);
-        this.tvSubtitle = mToolbar.findViewById(R.id.text_view_subtitle);
+        this.tvTitle = toolbar.findViewById(R.id.text_view_title);
+        this.tvSubtitle = toolbar.findViewById(R.id.text_view_subtitle);
 
-        this.mLayoutProgress = findViewById(R.id.layout_progress_bar);
-        this.mTextViewProgress = findViewById(R.id.progress_text);
+        this.layoutProgress = findViewById(R.id.layout_progress_bar);
+        this.tvProgress = findViewById(R.id.progress_text);
 
-        this.mIsOnCreateProcessed = false;
-        this.mIsGUICreated = false;
+        this.isOnCreateProcessed = false;
+        this.isGUICreated = false;
+
+        BaseStorageViewModel viewModel = getViewModel();
+        if (viewModel != null) {
+            viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
+            viewModel.getStorageEvent().observe(this, it -> onStorageStateChanged(it.getState(), it.getData()));
+            viewModel.getMessage().observe(this, this::onMessage);
+        }
+    }
+
+    protected BaseStorageViewModel getViewModel() {
+        return null;
     }
 
     /**
@@ -100,10 +101,10 @@ public abstract class TetroidActivity extends AppCompatActivity
      *  следующие за ним (а не вразнобой на разных устройствах).
      */
     protected void afterOnCreate() {
-        this.mIsOnCreateProcessed = true;
-        if (mOptionsMenu != null) {
-            onCreateOptionsMenu(mOptionsMenu);
-            onPrepareOptionsMenu(mOptionsMenu);
+        this.isOnCreateProcessed = true;
+        if (optionsMenu != null) {
+            onCreateOptionsMenu(optionsMenu);
+            onPrepareOptionsMenu(optionsMenu);
         }
     }
 
@@ -118,6 +119,76 @@ public abstract class TetroidActivity extends AppCompatActivity
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
     protected abstract void onGUICreated();
+
+    /**
+     *
+     * @param event
+     * @param data
+     */
+    private void onActivityEvent(Constants.ViewEvents event, Object data) {
+        switch (event) {
+//            case TaskStarted:
+//                int stringResId = (int) data;
+//                taskPreExecute(stringResId);
+//                break;
+//            case TaskFinished:
+//                taskPostExecute();
+//                break;
+            case ShowProgress:
+                setProgressVisibility((boolean) data);
+                break;
+            case ShowProgressText:
+                setProgressText((String) data);
+                break;
+        }
+    }
+
+    /**
+     * Обработчик изменения состояния хранилища.
+     * @param state
+     * @param data
+     */
+    private void onStorageStateChanged(Constants.StorageEvents state, Object data) {
+        switch (state) {
+            case Loaded:
+                afterStorageLoaded((boolean) data);
+                break;
+            case Decrypted:
+                afterStorageDecrypted((TetroidNode) data);
+                break;
+        }
+    }
+
+    public void afterStorageLoaded(boolean res) {}
+
+    public void afterStorageDecrypted(TetroidNode node) {}
+
+    protected void onPermissionGranted(int permission) {}
+
+    // region FileFolderPicker
+
+    public void openFilePicker() {
+        openFileFolderPicker(true);
+    }
+
+    public void openFolderPicker() {
+        openFileFolderPicker(false);
+    }
+
+    /**
+     * Открытие активности для выбора файла или каталога в файловой системе.
+     */
+    public void openFileFolderPicker(boolean isPickFile) {
+        Intent intent = new Intent(this, FolderPicker.class);
+        intent.putExtra(FolderPicker.EXTRA_TITLE, (isPickFile) ? getString(R.string.title_select_file_to_upload) : getString(R.string.title_save_file_to));
+        if (getViewModel() != null) {
+            intent.putExtra(FolderPicker.EXTRA_LOCATION, getViewModel().getLastFolderPathOrDefault(false));
+        }
+        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile);
+        startActivityForResult(intent, (isPickFile) ? Constants.REQUEST_CODE_FILE_PICKER : Constants.REQUEST_CODE_FOLDER_PICKER);
+    }
+
+    // endregion FileFolderPicker
 
     /**
      * Установка заголовка активности.
@@ -158,62 +229,15 @@ public abstract class TetroidActivity extends AppCompatActivity
     public int toggleFullscreen(boolean fromDoubleTap) {
         if (this instanceof RecordActivity) {
             if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(this)) {
-                boolean newValue = !mIsFullScreen;
+                boolean newValue = !isFullScreen;
                 ViewUtils.setFullscreen(this, newValue);
-                this.mIsFullScreen = newValue;
+                this.isFullScreen = newValue;
                 return (newValue) ? 1 : 0;
             }
         } else {
             return -1;
         }
         return -1;
-    }
-
-    /**
-     * Загрузка файла по URL в каталог кэша
-     * @param url
-     * @param callback
-     */
-    public void downloadFileToCache(String url, IDownloadFileResult callback) {
-        if (TextUtils.isEmpty(url)) {
-            TetroidLog.log(this, R.string.log_link_is_empty, ILogger.Types.ERROR, Toast.LENGTH_SHORT);
-            return;
-        }
-        setProgressText(R.string.title_file_downloading);
-        String fileName = UriUtils.getFileName(url);
-        if (TextUtils.isEmpty(fileName)) {
-//            Exception ex = new Exception("");
-//            if (callback != null) {
-//                callback.onError(ex);
-//            }
-//            TetroidLog.log(TetroidActivity.this,
-//                    getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
-//            return;
-            fileName = DataManager.createDateTimePrefix();
-        }
-        String outputFileName = getExternalCacheDir() + "/" + fileName;
-        NetworkHelper.downloadFileAsync(url, outputFileName, new NetworkHelper.IWebFileResult() {
-            @Override
-            public void onSuccess() {
-                runOnUiThread(() -> {
-                    if (callback != null) {
-                        callback.onSuccess(Uri.fromFile(new File(outputFileName)));
-                    }
-                    setProgressVisibility(false);
-                });
-            }
-            @Override
-            public void onError(Exception ex) {
-                runOnUiThread(() -> {
-                    if (callback != null) {
-                        callback.onError(ex);
-                    }
-                    TetroidLog.log(TetroidActivity.this,
-                            getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
-                    setProgressVisibility(false);
-                });
-            }
-        });
     }
 
     /**
@@ -232,7 +256,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     public boolean onBeforeCreateOptionsMenu(Menu menu) {
         boolean onCreateCalled = isOnCreateProcessed();
         if (!onCreateCalled) {
-            this.mOptionsMenu = menu;
+            this.optionsMenu = menu;
         }
         return onCreateCalled;
     }
@@ -240,7 +264,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     @SuppressLint("RestrictedApi")
     public boolean onAfterCreateOptionsMenu(Menu menu) {
         // запускаем только 1 раз
-        if (!mIsGUICreated) {
+        if (!isGUICreated) {
             // для отображения иконок
             if (menu instanceof MenuBuilder){
                 MenuBuilder m = (MenuBuilder) menu;
@@ -249,7 +273,7 @@ public abstract class TetroidActivity extends AppCompatActivity
             // устанавливаем флаг, что стандартные элементы активности созданы
             onGUICreated();
         }
-        this.mIsGUICreated = true;
+        this.isGUICreated = true;
         return true;
     }
 
@@ -261,8 +285,8 @@ public abstract class TetroidActivity extends AppCompatActivity
     }*/
 
     public void updateOptionsMenu() {
-        if (mOptionsMenu != null) {
-            onPrepareOptionsMenu(mOptionsMenu);
+        if (optionsMenu != null) {
+            onPrepareOptionsMenu(optionsMenu);
         } else {
             LogManager.log(this, getString(R.string.log_mOptionsMenu_is_null), ILogger.Types.WARNING, -1);
         }
@@ -287,44 +311,58 @@ public abstract class TetroidActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Обработка возвращаемого результата других активностей.
-     *
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if ((requestCode == StorageManager.REQUEST_CODE_OPEN_STORAGE
-                || requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE)
-                && resultCode == RESULT_OK) {
-            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-            if (!TextUtils.isEmpty(folderPath)) {
-                boolean isCreate = (requestCode == StorageManager.REQUEST_CODE_CREATE_STORAGE);
-                openOrCreateStorage(folderPath, isCreate);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+//    /**
+//     * Обработка возвращаемого результата других активностей.
+//     *
+//     * @param requestCode
+//     * @param resultCode
+//     * @param data
+//     */
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if ((requestCode == Constants.REQUEST_CODE_OPEN_STORAGE
+//                /*|| requestCode == Constants.REQUEST_CODE_CREATE_STORAGE*/)
+//                && resultCode == RESULT_OK) {
+//            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
+//            if (!TextUtils.isEmpty(folderPath)) {
+////                boolean isCreate = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE);
+////                openOrCreateStorage(folderPath, isCreate);
+//                loadStorage(folderPath);
+//            }
+//        }
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
-            case StorageManager.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
+
+            case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-                    loadStorage(null);
+//                    loadStorage(null);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE);
                 } else {
                     LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
                 }
             } break;
-            case StorageManager.REQUEST_CODE_PERMISSION_TERMUX: {
+
+            case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
+                if (permGranted) {
+                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
+                } else {
+                    LogManager.log(this, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                }
+            } break;
+
+            case Constants.REQUEST_CODE_PERMISSION_TERMUX: {
                 if (permGranted) {
                     LogManager.log(this, R.string.log_run_termux_commands_perm_granted, ILogger.Types.INFO);
-                    StorageManager.startStorageSyncAndInit(this);
+//                    StorageManager.startStorageSyncAndInit(this);
+                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_TERMUX);
                 } else {
                     LogManager.log(this, R.string.log_missing_run_termux_commands_permissions,
                             ILogger.Types.WARNING, Toast.LENGTH_SHORT);
@@ -333,82 +371,78 @@ public abstract class TetroidActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Открытие существующего или создание нового хранилище в указанном каталоге.
-     * @param folderPath
-     * @param isCreate
-     */
-    private void openOrCreateStorage(String folderPath, boolean isCreate) {
-        if (isCreate) {
-            if (FileUtils.isDirEmpty(new File(folderPath))) {
-                createStorage(folderPath/*, true*/);
-            } else {
-                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            }
-        } else {
+    //TODO: убрано, т.к. createStorage() будет вызываться только в StoragesActivity и StorageSettingsActivity
+//    /**
+//     * Открытие существующего или создание нового хранилище в указанном каталоге.
+//     * @param folderPath
+//     * @param isCreate
+//     */
+//    private void openOrCreateStorage(String folderPath, boolean isCreate) {
+//        if (isCreate) {
+//            if (FileUtils.isDirEmpty(new File(folderPath))) {
+//                createStorage(folderPath/*, true*/);
+//            } else {
+//                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//            }
+//        } else {
 //            StorageManager.initOrSyncStorage(this, folderPath, true);
-            loadStorage(folderPath);
-        }
-        // сохраняем путь
-        SettingsManager.setLastChoosedFolder(this, folderPath);
+//            loadStorage(folderPath);
+//        }
+//        // сохраняем путь
+//        SettingsManager.setLastChoosedFolder(this, folderPath);
+//    }
+
+    /**
+     * Запуск загрузки хранилища.
+     *
+     * Будет вызываться при:
+     *  - получении Intent из другой активности с командой загрузки хранилища (по Id)
+     *      Например, 1) при выборе хранилища в StoragesActivity и переходе в MainActivity
+     *  - получении Intent из активности выбора каталога хранилища с получением выбранного пути
+     *      Например, ---1) при вызове FolderChooser в StoragesActivity при добавлении хранилища
+     *      Например, ---2) при вызове FolderChooser в StorageSettingsActivity при изменении пути хранилища
+     *  - загрузки хранилища в RecordActivity для сохранения временной записи, если оно еще не загружено
+     *
+     */
+//    protected void loadStorage(String storagePath) {
+////        boolean isLoadLastForced = false;
+////        boolean isCheckFavorMode = true;
+////        if (storagePath == null) {
+////            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
+////        } else {
+////            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
+////        }
+//        if (getViewModel() != null) {
+//            getViewModel().startloadStorage(storagePath, false, true);
+//        }
+//    }
+
+    public void taskStarted(TetroidTask2 task) {
+        this.curTask = task;
     }
 
-    /**
-     * Старт загрузки существующего хранилища.
-     */
-    protected abstract void loadStorage(String folderPath);
+    public boolean isCurTaskRunning() {
+        return (curTask != null && curTask.isRunning());
+    }
 
-    /**
-     * Старт создания нового хранилища.
-     * @param storagePath
-     */
-    protected abstract void createStorage(String storagePath);
+    public void taskPreExecute(int progressTextResId) {
+        blockInterface();
+        setProgressText(progressTextResId);
+        ViewUtils.hideKeyboard(this, getWindow().getDecorView());
+    }
 
-    @Override
+    public void taskPostExecute() {
+        unblockInterface();
+        setProgressVisibility(false);
+    }
+
     public void blockInterface() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    @Override
     public void unblockInterface() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    }
-
-    @Override
-    public void taskStarted(TetroidTask2 task) {
-        this.mCurTask = task;
-    }
-
-    public boolean isCurTaskRunning() {
-        return (mCurTask != null && mCurTask.isRunning());
-    }
-
-    @Override
-    public int taskPreExecute(int sRes) {
-        setProgressText(sRes);
-        ViewUtils.hideKeyboard(this, getWindow().getDecorView());
-        return Gravity.NO_GRAVITY;
-    }
-
-    @Override
-    public void taskPostExecute(int openedDrawer) {
-        setProgressVisibility(false);
-    }
-
-    @Override
-    public void initGUI(boolean res, boolean mIsFavoritesOnly, boolean mIsOpenLastNode) {
-
-    }
-
-    @Override
-    public void afterStorageLoaded(boolean res) {
-
-    }
-
-    @Override
-    public void afterStorageDecrypted(TetroidNode node) {
-
     }
 
     /**
@@ -431,7 +465,7 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     protected void setProgressVisibility(boolean isVisible) {
-        mLayoutProgress.setVisibility(ViewUtils.toVisibility(isVisible));
+        layoutProgress.setVisibility(ViewUtils.toVisibility(isVisible));
     }
 
     protected void setProgressText(int progressTextResId) {
@@ -439,8 +473,8 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     protected void setProgressText(String progressText) {
-        mLayoutProgress.setVisibility(View.VISIBLE);
-        mTextViewProgress.setText(progressText);
+        layoutProgress.setVisibility(View.VISIBLE);
+        tvProgress.setText(progressText);
     }
 
     /**
@@ -489,7 +523,28 @@ public abstract class TetroidActivity extends AppCompatActivity
     }
 
     public boolean isOnCreateProcessed() {
-        return mIsOnCreateProcessed;
+        return isOnCreateProcessed;
+    }
+
+    /**
+     * Публикация сообщений.
+     * @param message
+     */
+    private void onMessage(com.gee12.mytetroid.logs.Message message) {
+        switch (message.getType()) {
+            case INFO:
+                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
+                break;
+            case ERROR:
+                // TODO: переделать
+                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
+                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+                break;
+            default:
+                // TODO: ?
+                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
 
     /**
@@ -497,37 +552,6 @@ public abstract class TetroidActivity extends AppCompatActivity
      */
     protected void showSnackMoreInLogs() {
         Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
-    }
-
-    /**
-     * Задание, в котором выполняется прикрепление нового файла к записи.
-     */
-    public class AttachFileTask extends TetroidTask2<String, Void, TetroidFile> {
-
-        TetroidRecord mRecord;
-        boolean mDeleteSrcFile;
-
-        public AttachFileTask(TetroidRecord record, boolean deleteSrcFile) {
-            super(TetroidActivity.this, TetroidActivity.this);
-            this.mRecord = record;
-            this.mDeleteSrcFile = deleteSrcFile;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            taskPreExecute(R.string.task_attach_file);
-        }
-
-        @Override
-        protected TetroidFile doInBackground(String... values) {
-            String fileFullName = values[0];
-            return AttachesManager.attachFile(mContext, fileFullName, mRecord, mDeleteSrcFile);
-        }
-
-        @Override
-        protected void onPostExecute(TetroidFile res) {
-            taskPostExecute(Gravity.NO_GRAVITY);
-        }
     }
 
 }

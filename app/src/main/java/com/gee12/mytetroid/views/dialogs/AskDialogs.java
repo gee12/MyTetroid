@@ -6,8 +6,21 @@ import androidx.annotation.StringRes;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.model.TetroidStorage;
 
 public class AskDialogs {
+
+    public static void showLoadStorageDialog(Context context, String storageName, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_load_storage_mask, storageName));
+    }
+
+    public static void showCreateNewStorageDialog(Context context, String storagePath, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_create_new_storage_mask, storagePath));
+    }
+
+    public static void showOpenStorageSettingsDialog(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_open_storage_settings));
+    }
 
     public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged,
                                                final Dialogs.IApplyResult callback) {
@@ -22,7 +35,7 @@ public class AskDialogs {
     }
 
     public static void showSyncRequestDialog(Context context, final Dialogs.IApplyCancelResult callback) {
-        AskDialogs.showYesNoDialog(context, callback, R.string.ask_start_sync_dialog_title);
+        AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_start_sync_dialog_title);
     }
 
     public static void showLoadAllNodesDialog(Context context, final Dialogs.IApplyResult callback) {

@@ -9,8 +9,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.core.view.GestureDetectorCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.viewmodels.MainViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
 import com.gee12.mytetroid.views.adapters.FoundListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsBaseListAdapter;
 import com.gee12.mytetroid.data.ScanManager;
@@ -21,10 +25,13 @@ import java.util.HashMap;
 
 public class FoundPageFragment extends TetroidFragment {
 
-    private ListView mListViewFound;
-    private FoundListAdapter mListAdapter;
-    private TextView mTextViewEmpty;
-    private int mFoundCount;
+    private ListView lvFound;
+    private FoundListAdapter listAdapterFound;
+    private TextView tvEmpty;
+    private int foundCount;
+
+    private MainViewModel viewModel;
+
 
     public FoundPageFragment(GestureDetectorCompat detector) {
         super(detector);
@@ -34,9 +41,12 @@ public class FoundPageFragment extends TetroidFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_found, container, false);
+
+        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getActivity().getApplication()))
+                .get(MainViewModel.class);
+
         // ?
 //        rootView.setOnTouchListener(this);
 //        RelativeLayout rl = rootView.findViewById(R.id.layout_found);
@@ -46,56 +56,50 @@ public class FoundPageFragment extends TetroidFragment {
         View footerView =  ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.list_view_empty_footer, null, false);
 
-
-        this.mListViewFound = rootView.findViewById(R.id.list_view_found);
-        this.mTextViewEmpty = rootView.findViewById(R.id.text_view_empty_found);
-        mListViewFound.setEmptyView(mTextViewEmpty);
-        mListViewFound.addFooterView(footerView, null, false);
-        registerForContextMenu(mListViewFound);
-        mListViewFound.setOnItemClickListener((parent, view, position, id) -> openFoundObject(position));
-        mListViewFound.setOnTouchListener(this);
+        this.lvFound = rootView.findViewById(R.id.list_view_found);
+        this.tvEmpty = rootView.findViewById(R.id.text_view_empty_found);
+        lvFound.setEmptyView(tvEmpty);
+        lvFound.addFooterView(footerView, null, false);
+        registerForContextMenu(lvFound);
+        lvFound.setOnItemClickListener((parent, view, position, id) -> openFoundObject(position));
+        lvFound.setOnTouchListener(this);
 
 //        this.mListAdapter = new FoundListAdapter(mContext);
 //        mListViewFound.setAdapter(mListAdapter);
-        setMainView(getArguments());
 
-        rootView.findViewById(R.id.button_research).setOnClickListener(view -> mMainView.research());
-        rootView.findViewById(R.id.button_close).setOnClickListener(view -> mMainView.closeFoundFragment());
-
-
+        rootView.findViewById(R.id.button_research).setOnClickListener(view -> viewModel.research());
+        rootView.findViewById(R.id.button_close).setOnClickListener(view -> viewModel.closeFoundFragment());
 
         return rootView;
     }
 
     public void setFounds(HashMap<ITetroidObject, FoundType> found, ScanManager scan) {
         RecordsBaseListAdapter.OnRecordAttachmentClickListener mOnAttachmentClickListener = record -> {
-            if (mMainView != null) {
-                mMainView.openRecordAttaches(record);
-            }
+            viewModel.showRecordAttaches(record, false);
         };
-        this.mListAdapter = new FoundListAdapter(mContext, mOnAttachmentClickListener);
-        mListViewFound.setAdapter(mListAdapter);
-        mListAdapter.setDataItems(found);
-        this.mFoundCount = found.size();
+        this.listAdapterFound = new FoundListAdapter(context, mOnAttachmentClickListener);
+        lvFound.setAdapter(listAdapterFound);
+        listAdapterFound.setDataItems(found);
+        this.foundCount = found.size();
         if (found.isEmpty()) {
             if (scan.isSearchInNode() && scan.getNode() != null) {
-                mTextViewEmpty.setText(String.format(getString(R.string.global_search_not_found_in_node),
+                tvEmpty.setText(String.format(getString(R.string.global_search_not_found_in_node),
                         scan.getQuery(), scan.getNode().getName()));
             } else {
-                mTextViewEmpty.setText(String.format(getString(R.string.global_search_not_found), scan.getQuery()));
+                tvEmpty.setText(String.format(getString(R.string.global_search_not_found), scan.getQuery()));
             }
         }
     }
 
     private void openFoundObject(int position) {
-        ITetroidObject found = (ITetroidObject) mListAdapter.getItem(position);
-        mMainView.openFoundObject(found);
+        ITetroidObject found = (ITetroidObject) listAdapterFound.getItem(position);
+        viewModel.openFoundObject(found);
     }
 
     @Override
     public String getTitle() {
-        if (mContext != null)
-            return String.format(getString(R.string.search_found_mask), mFoundCount);
+        if (context != null)
+            return String.format(getString(R.string.search_found_mask), foundCount);
         else
             return null;
     }
@@ -104,7 +108,7 @@ public class FoundPageFragment extends TetroidFragment {
      * Обработчик нажатия кнопки Назад
      */
     public boolean onBackPressed() {
-        mMainView.openMainPage();
+        viewModel.openPage(Constants.PAGE_MAIN);
         return true;
     }
 

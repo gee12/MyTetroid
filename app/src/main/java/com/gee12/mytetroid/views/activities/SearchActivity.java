@@ -18,12 +18,17 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.StorageManager;
+import com.gee12.mytetroid.viewmodels.IconsViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.NodeDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
@@ -35,7 +40,7 @@ import com.gee12.mytetroid.views.Message;
  */
 public class SearchActivity extends AppCompatActivity {
 
-    public static final String EXTRA_KEY_SCAN_MANAGER = "ScanManager";
+    private StorageViewModel viewModel;
 
     private EditText etQuery;
     private CheckBox cbText;
@@ -61,6 +66,9 @@ public class SearchActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+                .get(StorageViewModel.class);
 
         this.etQuery = findViewById(R.id.edit_text_query);
         this.cbText = findViewById(R.id.check_box_records_text);
@@ -99,9 +107,9 @@ public class SearchActivity extends AppCompatActivity {
         if (extras != null) {
 //            this.isCurNodeNotNull = extras.getBoolean(MainActivity.EXTRA_CUR_NODE_IS_NOT_NULL);
             if (SettingsManager.getSearchInNodeMode(this) == 1) {
-                this.nodeId = extras.getString(MainActivity.EXTRA_CUR_NODE_ID);
+                this.nodeId = extras.getString(Constants.EXTRA_CUR_NODE_ID);
             }
-            String query = extras.getString(MainActivity.EXTRA_QUERY);
+            String query = extras.getString(Constants.EXTRA_QUERY);
             if (query != null) {
                 etQuery.setText(query);
             }
@@ -151,8 +159,8 @@ public class SearchActivity extends AppCompatActivity {
         this.bNodeChooser = findViewById(R.id.button_node);
 
         TetroidNode node;
-        if (StorageManager.isLoaded()) {
-            node = NodesManager.getNode(nodeId);
+        if (viewModel.isLoaded()) {
+            node = viewModel.getNode(nodeId);
             if (node == null) {
                 // очищаем, если такой ветки нет
                 nodeId = null;
@@ -204,7 +212,7 @@ public class SearchActivity extends AppCompatActivity {
         if (spInNodeMode.getSelectedItemPosition() == 1) {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
-                nodeId = extras.getString(MainActivity.EXTRA_CUR_NODE_ID);
+                nodeId = extras.getString(Constants.EXTRA_CUR_NODE_ID);
             }
         }
         boolean isNodeSelectionMode = (spInNodeMode.getSelectedItemPosition() == 2);
@@ -243,7 +251,7 @@ public class SearchActivity extends AppCompatActivity {
         saveSearchPrefs();
         // запускаем поиск и выводим результат
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_KEY_SCAN_MANAGER, buildScanManager());
+        intent.putExtra(Constants.EXTRA_SCAN_MANAGER, buildScanManager());
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

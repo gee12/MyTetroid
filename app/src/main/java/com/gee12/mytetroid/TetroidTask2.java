@@ -9,6 +9,7 @@ import android.os.AsyncTask;
  * @param <Progress>
  * @param <Result>
  */
+@Deprecated
 public abstract class TetroidTask2<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
     public interface IAsyncTaskCallback {

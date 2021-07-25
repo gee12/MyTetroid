@@ -8,9 +8,6 @@ import androidx.viewpager.widget.ViewPager;
 
 public class MainViewPager extends ViewPager {
 
-    public static int PAGE_MAIN = 0;
-    public static int PAGE_FOUND = 1;
-
     private boolean isSwipeEnabled;
 
     public MainViewPager(Context context, AttributeSet attrs) {

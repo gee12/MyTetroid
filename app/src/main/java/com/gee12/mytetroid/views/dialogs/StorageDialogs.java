@@ -46,8 +46,9 @@ public class StorageDialogs {
         private final EditText mEtPath;
         private final EditText mEtName;
         private boolean mIsPathSelected;
+        private boolean isNew;
 
-        public void setPath(String path) {
+        public void setPath(String path, boolean isNew) {
             if (TextUtils.isEmpty(path)) {
                 return;
             }
@@ -99,7 +100,8 @@ public class StorageDialogs {
                         mEtName.getText().toString(),
                         mEtPath.getText().toString(),
                         cbIsDefault.isChecked(),
-                        cbReadOnly.isChecked()
+                        cbReadOnly.isChecked(),
+                        isNew
                 );
                 callback.onApply(res);
             });

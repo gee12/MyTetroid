@@ -345,7 +345,7 @@
     <string name="search_text_hint">Найти</string>
     <string name="search_records_search_select_node">Выберите не пустую ветку или воспользуйтесь глобальным поиском</string>
     <string name="search_records_in_node_not_found_mask">По запросу \"%1$s\" в ветке [%2$s] не найдено записей…</string>
-    <string name="search_records_in_tag_not_found_mak">По запросу \"%1$s\" в записях метки [%2$s] не найдено записей…</string>
+    <string name="search_records_in_tag_not_found_mask">По запросу \"%1$s\" в записях метки [%2$s] не найдено записей…</string>
     <string name="search_files_not_found_mask">По запросу \"%s\" не найдено файлов…</string>
     <string name="search_nodes_not_found_mask">По запросу \"%s\" не найдено веток…</string>
     <string name="filter_nodes_by_query">Фильтр веток по запросу "%s"…</string>
@@ -638,4 +638,11 @@
     <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
     <string name="title_context_menu">Контекстное меню</string>
     <string name="label_default_storage">Хранилище по-умолчанию</string>
+    <string name="ask_load_storage_mask">Загрузить хранилище \'%s\' ?</string>
+    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \'%s\', продолжить ?</string>
+    <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
+    <string name="log_added_to_favor">Добавлено в избранное</string>
+    <string name="log_deleted_from_favor">Удалено из избранного</string>
+    <string name="log_with_id_to_favor_mask">\" с id=%s в избранное\"</string>
+    <string name="log_with_id_from_favor_mask">\" с id=%s из избранного\"</string>
 </resources>

@@ -30,6 +30,7 @@ import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.views.Message;
 
@@ -208,7 +209,7 @@ public class RecordDialogs {
         }
         String path = RecordsManager.getPathToRecordFolderInBase(record);
         ((TextView)view.findViewById(R.id.text_view_path)).setText(path);
-        String size = DataManager.getFileSize(context, path);
+        String size = FileUtils.getFileSize(context, path);
         TextView tvSize = view.findViewById(R.id.text_view_size);
         if (size == null) {
             size = context.getString(R.string.title_folder_is_missing);

@@ -42,7 +42,7 @@ public class FavoritesManager {
      * @param id
      * @return
      */
-    protected static boolean isFavorite(String id) {
+    public static boolean isFavorite(String id) {
         return (mFavorites.getPosition(id) >= 0);
     }
 

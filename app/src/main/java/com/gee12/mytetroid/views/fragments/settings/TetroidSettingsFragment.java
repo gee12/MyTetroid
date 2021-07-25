@@ -16,6 +16,7 @@ import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity;
 
@@ -60,7 +61,7 @@ public class TetroidSettingsFragment extends PreferenceFragmentCompat implements
     }
 
     protected void openFolderPicker(String title, String location, int requestCode) {
-        String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderPathOrDefault(getContext(), true);
+        String path = (!StringUtil.isBlank(location)) ? location : StorageInteractor.Companion.getLastFolderPathOrDefault(getContext(), true);
         Intent intent = new Intent(getContext(), FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, title);
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path);

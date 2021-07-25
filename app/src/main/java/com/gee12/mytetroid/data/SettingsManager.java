@@ -13,6 +13,7 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -200,23 +201,33 @@ public class SettingsManager {
     * Хранилище.
      */
 
+    public static int getLastStorageId(Context context) {
+        return getInt(context, R.string.pref_key_last_storage_id, 0);
+    }
+
+    public static void setLastStorageId(Context context, int value) {
+        setInt(context, R.string.pref_key_last_storage_id, value);
+    }
+
     /**
-     * Путь к хранилищу.
+     * Путь к хранилищу (устаревшее).
+     * Используется для совместимости.
      * @return
      */
+    @Deprecated
     public static String getStoragePath(Context context) {
         return getString(context, R.string.pref_key_storage_path, null);
     }
 
-    public static void setStoragePath(Context context, String value) {
-        String oldPath = getStoragePath(context);
-        if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
-            SettingsManager.setMiddlePassHash(context, null);
-        }
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString(context.getString(R.string.pref_key_storage_path), value);
-        editor.apply();
-    }
+//    public static void setStoragePath(Context context, String value) {
+//        String oldPath = getStoragePath(context);
+//        if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
+//            SettingsManager.setMiddlePassHash(context, null);
+//        }
+//        SharedPreferences.Editor editor = settings.edit();
+//        editor.putString(context.getString(R.string.pref_key_storage_path), value);
+//        editor.apply();
+//    }
 
     /**
      * Загружать хранилище, используемое при прошлом запуске.
@@ -269,7 +280,7 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isLoadFavoritesOnly(Context context) {
+    public static boolean isLoadFavoritesOnlyDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_load_favorites, false);
     }
 
@@ -313,7 +324,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isKeepLastNode(Context context) {
+    public static boolean isKeepLastNodeDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_keep_selected_node, true);
     }
 
@@ -358,7 +369,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isSaveMiddlePassHashLocal(Context context) {
+    public static boolean isSaveMiddlePassHashLocalDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_save_pass_hash_local, true);
     }
 
@@ -434,7 +445,7 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isDecryptFilesInTemp(Context context) {
+    public static boolean isDecryptFilesInTempDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_decrypt_in_temp, false);
     }
 
@@ -447,7 +458,7 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isSyncStorage(Context context) {
+    public static boolean isSyncStorageDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_storage, false);
     }
 
@@ -455,7 +466,7 @@ public class SettingsManager {
         setBoolean(context, R.string.pref_key_is_sync_storage, value);
     }
 
-    public static String getSyncAppName(Context context) {
+    public static String getSyncAppNameDef(Context context) {
         return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.title_app_mgit));
     }
 
@@ -464,7 +475,7 @@ public class SettingsManager {
      * Например: "git pull".
      * @return
      */
-    public static String getSyncCommand(Context context) {
+    public static String getSyncCommandDef(Context context) {
         return getString(context, R.string.pref_key_sync_command, null);
     }
 
@@ -473,7 +484,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isSyncBeforeInit(Context context) {
+    public static boolean isSyncBeforeInitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_before_init, true);
     }
 
@@ -482,7 +493,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isSyncBeforeExit(Context context) {
+    public static boolean isSyncBeforeExitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_before_exit, true);
     }
 
@@ -491,7 +502,7 @@ public class SettingsManager {
      * По-умолчанию - да.
      * @return
      */
-    public static boolean isAskBeforeSyncOnInit(Context context) {
+    public static boolean isAskBeforeSyncOnInitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_sync, true);
     }
 
@@ -500,7 +511,7 @@ public class SettingsManager {
      * По-умолчанию - нет.
      * @return
      */
-    public static boolean isAskBeforeSyncOnExit(Context context) {
+    public static boolean isAskBeforeSyncOnExitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_exit_sync, false);
     }
 
@@ -519,7 +530,7 @@ public class SettingsManager {
      * Отслеживать изменения структуры хранилища внешними программами.
      * @return
      */
-    public static boolean isCheckOutsideChanging(Context context) {
+    public static boolean isCheckOutsideChangingDef(Context context) {
         return getBoolean(context, R.string.pref_key_check_outside_changing, true);
     }
 

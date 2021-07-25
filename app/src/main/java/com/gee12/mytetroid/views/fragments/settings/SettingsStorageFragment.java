@@ -8,14 +8,11 @@ import androidx.preference.Preference;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.views.dialogs.AskDialogs;
-import com.gee12.mytetroid.views.dialogs.NodeDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.dialogs.StorageDialogs;
 
@@ -44,7 +41,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 
         Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
         tempFolderPicker.setOnPreferenceClickListener(preference -> {
-            if (!checkPermission(SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH))
+            if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH))
                 return true;
             selectTrashFolder();
             return true;
@@ -104,7 +101,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 
         Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
         keepNodePref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isLoadFavoritesOnly(mContext)) {
+            if (SettingsManager.isLoadFavoritesOnlyDef(mContext)) {
                 Message.show(getContext(), getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT);
             }
             return true;
@@ -122,10 +119,10 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
         if (permGranted) {
             LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
             switch (requestCode) {
-                case SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH:
+                case Constants.REQUEST_CODE_OPEN_STORAGE_PATH:
                     selectStorageFolder();
                     break;
-                case SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH:
+                case Constants.REQUEST_CODE_OPEN_TEMP_PATH:
                     selectTrashFolder();
                     break;
             }
@@ -139,15 +136,15 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             return;
         String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
 //        String folderPath = new UriUtils(getContext()).getPath(data.getData());
-        boolean isCreate = requestCode == SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH;
-        if (requestCode == SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
+        boolean isCreate = requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH;
+        if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
             boolean pathChanged = !folderPath.equals(SettingsManager.getStoragePath(mContext)) || isCreate;
             if (pathChanged) {
                 Intent intent = new Intent();
-                intent.putExtra(SettingsFragment.EXTRA_IS_REINIT_STORAGE, true);
+                intent.putExtra(Constants.EXTRA_IS_REINIT_STORAGE, true);
                 if (isCreate) {
-                    intent.putExtra(SettingsFragment.EXTRA_IS_CREATE_STORAGE, true);
+                    intent.putExtra(Constants.EXTRA_IS_CREATE_STORAGE, true);
                 }
                 getActivity().setResult(RESULT_OK, intent);
             }
@@ -159,12 +156,12 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
                 getActivity().finish();
             }
         }
-        else if (requestCode == SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH) {
+        else if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
             SettingsManager.setTrashPath(mContext, folderPath);
             SettingsManager.setLastChoosedFolder(mContext, folderPath);
             updateSummary(R.string.pref_key_temp_path, folderPath);
         }
-        else if (requestCode == SettingsFragment.REQUEST_CODE_OPEN_LOG_PATH) {
+        else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
             SettingsManager.setLogPath(mContext, folderPath);
             SettingsManager.setLastChoosedFolder(mContext, folderPath);
             LogManager.setLogPath(mContext, folderPath);
@@ -191,13 +188,13 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc));
         }
         getActivity().startActivityForResult(intent, (isNew)
-                ? SettingsFragment.REQUEST_CODE_CREATE_STORAGE_PATH
-                : SettingsFragment.REQUEST_CODE_OPEN_STORAGE_PATH);
+                ? Constants.REQUEST_CODE_CREATE_STORAGE_PATH
+                : Constants.REQUEST_CODE_OPEN_STORAGE_PATH);
     }
 
     private void selectTrashFolder() {
         openFolderPicker(getString(R.string.pref_trash_path),
                 SettingsManager.getTrashPath(mContext),
-                SettingsFragment.REQUEST_CODE_OPEN_TEMP_PATH);
+                Constants.REQUEST_CODE_OPEN_TEMP_PATH);
     }
 }

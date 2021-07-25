@@ -394,7 +394,7 @@
     <string name="filter_nodes_by_query">Filter nodes by query "%s"…</string>
     <string name="search_records_search_select_node">Select not an empty branch or use the global search.</string>
     <string name="search_records_in_node_not_found_mask">No records found for query \"%1$s\" in node [%2$s]…</string>
-    <string name="search_records_in_tag_not_found_mak">No records found for query \"%1$s\" in tag [%2$s]…</string>
+    <string name="search_records_in_tag_not_found_mask">No records found for query \"%1$s\" in tag [%2$s]…</string>
     <string name="search_files_not_found_mask">No files found for query \"%s\"…</string>
     <string name="search_nodes_not_found_mask">No nodes found for query \"%s\"…</string>
     <string name="search_tags_not_found_mask">No tags found for query \"%s\"…</string>
@@ -699,6 +699,7 @@
     <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
     <string name="log_error_download_file_mask">Error loading file:\n%s</string>
     <string name="log_error_download_image_mask">Error loading image:\n%s</string>
+    <string name="log_failed_storage_create_mask">Storage creation error:\n%s</string>
 
     <string name="title_insert_record_content">Insert record content</string>
     <string name="title_insert_hyperlink">Insert hyperlink</string>
@@ -728,4 +729,12 @@
     <string name="pref_is_read_only_summ">The storage cannot be changed from within the app (not implemented yet)</string>
     <string name="title_context_menu">Context menu</string>
     <string name="label_default_storage">Default storage</string>
+    <string name="ask_load_storage_mask">Load storage \'%s\' ?</string>
+    <string name="ask_create_new_storage_mask">Will be created storage files along the path \'%s\', continue ?</string>
+    <string name="ask_open_storage_settings">Open storage settings?</string>
+    <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
+    <string name="log_added_to_favor">Added to favorites</string>
+    <string name="log_deleted_from_favor">Deleted from favorites</string>
+    <string name="log_with_id_to_favor_mask"> with id=%s to favorites</string>
+    <string name="log_with_id_from_favor_mask"> with id=%s from favorites</string>
 </resources>

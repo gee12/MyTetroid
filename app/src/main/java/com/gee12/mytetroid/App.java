@@ -21,7 +21,7 @@ public class App {
     public static boolean IsHighlightCryptedNodes;
     @ColorInt public static int HighlightAttachColor;
     public static String DateFormatString;
-    public static boolean IsLoadedFavoritesOnly;
+//    public static boolean IsLoadedFavoritesOnly;
     public static RecordFieldsSelector RecordFieldsInList;
 
     /**

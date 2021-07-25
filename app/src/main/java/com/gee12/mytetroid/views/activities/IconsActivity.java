@@ -2,6 +2,7 @@ package com.gee12.mytetroid.views.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -12,10 +13,18 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.interactors.StorageInteractor;
+import com.gee12.mytetroid.viewmodels.IconsViewModel;
+import com.gee12.mytetroid.viewmodels.OtherViewModelFactory;
+import com.gee12.mytetroid.viewmodels.StorageViewModel;
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
 import com.gee12.mytetroid.views.adapters.IconsListAdapter;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.IconsManager;
@@ -33,16 +42,14 @@ import java.util.stream.IntStream;
  */
 public class IconsActivity extends AppCompatActivity {
 
-    public static final String EXTRA_NODE_ID = "EXTRA_NODE_ID";
-    public static final String EXTRA_NODE_ICON_PATH = "EXTRA_NODE_ICON_PATH";
-    public static final String EXTRA_IS_DROP = "EXTRA_IS_DROP";
-
     private Spinner spFolders;
     private ArrayAdapter<String> mFoldersAdapter;
     private IconsListAdapter mIconsAdapter;
     private View btnSubmit;
     private String mNodeId;
     private TetroidIcon mSelectedIcon;
+
+    private IconsViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +59,15 @@ public class IconsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // FIXME: передать с использованием DI
+        StorageViewModel storageViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+                .get(StorageViewModel.class);
+        this.viewModel = new ViewModelProvider(this, new OtherViewModelFactory(getApplication(), storageViewModel.getStorageInteractor()))
+                .get(IconsViewModel.class);
+
         // список иконок
         ListView mListView = findViewById(R.id.list_view_icons);
-        this.mIconsAdapter = new IconsListAdapter(this, IconsManager.getIconsFolderPath());
+        this.mIconsAdapter = new IconsListAdapter(this, viewModel.getPathToIcons());
         mListView.setAdapter(mIconsAdapter);
         mListView.setOnItemClickListener((adapterView, view, i, l) -> {
             TetroidIcon icon = (TetroidIcon) mIconsAdapter.getItem(i);
@@ -68,7 +81,7 @@ public class IconsActivity extends AppCompatActivity {
 
         // список каталогов
         this.spFolders = findViewById(R.id.spinner_folders);
-        List<String> folders = IconsManager.getIconsFolders(this);
+        List<String> folders = viewModel.getIconsFolders();
         if (folders != null) {
             if (folders.size() == 0) {
                 TetroidLog.log(this, R.string.log_icons_dirs_absent, Toast.LENGTH_LONG);
@@ -80,16 +93,17 @@ public class IconsActivity extends AppCompatActivity {
             spFolders.setAdapter(mFoldersAdapter);
 
             spFolders.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @RequiresApi(api = Build.VERSION_CODES.N)
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String folder = mFoldersAdapter.getItem(position);
                     if (folder != null) {
-                        List<TetroidIcon> icons = IconsManager.getIconsFromFolder(IconsActivity.this, folder);
+                        List<TetroidIcon> icons = viewModel.getIconsFromFolder(folder);
                         if (icons != null) {
                             // пришлось заново пересоздавать адаптер, т.к. при простой установке dataSet
                             // с помощью reset(icons)
                             // не сбрасывалось выделение от предыдущего списка icons (из другого раздела)
-                            mIconsAdapter = new IconsListAdapter(IconsActivity.this, IconsManager.getIconsFolderPath());
+                            mIconsAdapter = new IconsListAdapter(IconsActivity.this, viewModel.getPathToIcons());
                             mListView.setAdapter(mIconsAdapter);
                             if (mSelectedIcon != null && folder.equals(mSelectedIcon.getFolder())) {
                                 String selectedIconName = mSelectedIcon.getName();
@@ -126,7 +140,7 @@ public class IconsActivity extends AppCompatActivity {
             });
         } else {
             TetroidLog.log(this,
-                    getString(R.string.log_icons_dir_absent_mask, DataManager.ICONS_FOLDER_NAME), Toast.LENGTH_LONG);
+                    getString(R.string.log_icons_dir_absent_mask, StorageInteractor.ICONS_FOLDER_NAME), Toast.LENGTH_LONG);
         }
 
         findViewById(R.id.button_clear_icon).setOnClickListener(view -> setResult(null));
@@ -136,8 +150,8 @@ public class IconsActivity extends AppCompatActivity {
         // получаем данные
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mNodeId = extras.getString(EXTRA_NODE_ID);
-            String iconPath = extras.getString(EXTRA_NODE_ICON_PATH);
+            mNodeId = extras.getString(Constants.EXTRA_NODE_ID);
+            String iconPath = extras.getString(Constants.EXTRA_NODE_ICON_PATH);
             selectCurrentIcon(iconPath);
         }
     }
@@ -173,9 +187,9 @@ public class IconsActivity extends AppCompatActivity {
 
     private void setResult(TetroidIcon icon) {
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_NODE_ID, mNodeId);
-        intent.putExtra(EXTRA_NODE_ICON_PATH, (icon != null) ? icon.getPath() : null);
-        intent.putExtra(EXTRA_IS_DROP, icon == null);
+        intent.putExtra(Constants.EXTRA_NODE_ID, mNodeId);
+        intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, (icon != null) ? icon.getPath() : null);
+        intent.putExtra(Constants.EXTRA_IS_DROP, icon == null);
         setResult(Activity.RESULT_OK, intent);
         finish();
     }
@@ -185,8 +199,8 @@ public class IconsActivity extends AppCompatActivity {
             return;
         }
         Intent intent = new Intent(activity, IconsActivity.class);
-        intent.putExtra(EXTRA_NODE_ID, node.getId());
-        intent.putExtra(EXTRA_NODE_ICON_PATH, node.getIconName());
+        intent.putExtra(Constants.EXTRA_NODE_ID, node.getId());
+        intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, node.getIconName());
         activity.startActivityForResult(intent, requestCode);
     }
 }

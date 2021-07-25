@@ -1,33 +1,14 @@
 package com.gee12.mytetroid.views.fragments.settings;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidTask;
-import com.gee12.mytetroid.views.activities.SettingsActivity;
-import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.ITaskProgress;
-import com.gee12.mytetroid.data.PINManager;
-import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.views.dialogs.AskDialogs;
-import com.gee12.mytetroid.views.dialogs.PassDialogs;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TaskStage;
-import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.views.Message;
-
-import static android.app.Activity.RESULT_OK;
 
 public class SettingsEncryptionFragment extends TetroidSettingsFragment {
 
@@ -96,12 +77,12 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
         // когда запрашивать пароль
         Preference askPassPref = findPreference(getString(R.string.pref_key_when_ask_password));
         askPassPref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isSaveMiddlePassHashLocal(mContext)) {
+            if (SettingsManager.isSaveMiddlePassHashLocalDef(mContext)) {
                 Message.show(getContext(), getString(R.string.title_not_avail_when_save_pass), Toast.LENGTH_SHORT);
             }
             return true;
         });
-        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
+        updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocalDef(mContext))
                 ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
     }
 
@@ -116,7 +97,7 @@ public class SettingsEncryptionFragment extends TetroidSettingsFragment {
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals(getString(R.string.pref_key_is_save_pass_hash_local))) {
 //            setPINCodePrefAvailability();
-            updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocal(mContext))
+            updateSummary(R.string.pref_key_when_ask_password, (SettingsManager.isSaveMiddlePassHashLocalDef(mContext))
                     ? getString(R.string.pref_when_ask_password_summ) : SettingsManager.getWhenAskPass(mContext));
         } else if (key.equals(getString(R.string.pref_key_when_ask_password))) {
             updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass(mContext));

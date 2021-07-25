@@ -6,18 +6,18 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.DataManager
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
-import com.gee12.mytetroid.viewmodels.StoragesViewModelFactory
+import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.StorageDialogs
@@ -29,15 +29,9 @@ import org.jsoup.internal.StringUtil
 
 class StoragesActivity : TetroidActivity() {
 
-    companion object {
-        private const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 1
-        private const val REQUEST_CODE_OPEN_STORAGE_PATH = 2
-        private const val REQUEST_CODE_CREATE_STORAGE_PATH = 3
-    }
-
-    private lateinit var mViewModel: StoragesViewModel
-    private lateinit var mRecyclerView: RecyclerView
-    private var mStorageDialog: StorageDialog? = null
+    private lateinit var viewModel: StoragesViewModel
+    private lateinit var recyclerView: RecyclerView
+    private var storageDialog: StorageDialog? = null
 
     override fun getLayoutResourceId(): Int {
         return R.layout.activity_storages
@@ -46,50 +40,98 @@ class StoragesActivity : TetroidActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mViewModel = ViewModelProvider(this, StoragesViewModelFactory(application))
+        viewModel = ViewModelProvider(this, StorageViewModelFactory(application))
             .get(StoragesViewModel::class.java)
 
-        mRecyclerView = findViewById(R.id.recycle_view)
-        mRecyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView = findViewById(R.id.recycle_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
         val adapter = StoragesAdapter(this)
         adapter.setOnItemClickListener { v: View ->
-            val itemPosition = mRecyclerView.getChildLayoutPosition(v)
+            val itemPosition = recyclerView.getChildLayoutPosition(v)
             val item = adapter.getItem(itemPosition)
             selectStorage(item)
         }
         adapter.setOnItemLongClickListener { v: View ->
-            val itemPosition = mRecyclerView.getChildLayoutPosition(v)
+            val itemPosition = recyclerView.getChildLayoutPosition(v)
             val item = adapter.getItem(itemPosition)
             showStoragePopupMenu(v, item)
             true
         }
         adapter.setOnItemMenuClickListener { itemView: View, anchorView: View ->
-            val itemPosition = mRecyclerView.getChildLayoutPosition(itemView)
+            val itemPosition = recyclerView.getChildLayoutPosition(itemView)
             val item = adapter.getItem(itemPosition)
             showStoragePopupMenu(anchorView, item)
         }
-        mRecyclerView.adapter = adapter
+        recyclerView.adapter = adapter
 
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add_storage)
         fabAdd.setOnClickListener { addStorage() }
 
-        mViewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
+        viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
+        viewModel.storageEvent.observe(this, {
+            when (it.state) {
+                Constants.StorageEvents.PermissionCheck -> checkPermission()
+                Constants.StorageEvents.PermissionChecked -> {}
+                Constants.StorageEvents.Added -> (it.data as TetroidStorage?)?.let { storage -> onStorageAdded(storage) }
+                Constants.StorageEvents.FilesCreated -> (it.data as TetroidStorage?)?.let { storage -> onStorageFilesCreated(storage) }
+                else -> {}
+            }
+        })
         loadList()
     }
 
     override fun onGUICreated() {}
 
-    override fun loadStorage(folderPath: String) {}
+//    override fun loadStorage(folderPath: String) {}
 
-    override fun createStorage(storagePath: String) {}
+//    override fun createStorage(storagePath: String) {}
+
+    fun checkPermission() {
+        if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
+            viewModel.onPermissionChecked()
+        }
+    }
 
     fun loadList() {
-        mViewModel.loadStorages()
+        viewModel.loadStorages()
     }
 
     fun selectStorage(storage: TetroidStorage) {
-        // FIXME:
-        Toast.makeText(this, storage.name, Toast.LENGTH_LONG).show()
+        AskDialogs.showLoadStorageDialog(this, storage.name) { finishWithResult(storage) }
+    }
+
+    private fun finishWithResult(storage: TetroidStorage) {
+//        val bundle = Bundle()
+//        if (callingActivity != null) {
+//            if (bundle != null) {
+//                bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
+//                val intent = Intent(Constants.ACTION_RECORD)
+//                intent.putExtras(bundle)
+//                setResult(resCode, intent)
+//            } else {
+//                setResult(resCode)
+//            }
+//        } else {
+//            bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
+//            ViewUtils.startActivity(this, MainActivity::class.java, bundle)
+//        }
+
+        val intent = Intent().apply {
+            putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+            putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
+        }
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    private fun onStorageAdded(storage: TetroidStorage) {
+        if (storage.isNew) {
+            AskDialogs.showCreateNewStorageDialog(this, storage.path) { viewModel.createStorage(storage) }
+        }
+    }
+
+    private fun onStorageFilesCreated(storage: TetroidStorage) {
+        AskDialogs.showOpenStorageSettingsDialog(this) { editStorage(storage) }
     }
 
     private fun addStorage() {
@@ -97,22 +139,22 @@ class StoragesActivity : TetroidActivity() {
     }
 
     private fun editStorage(storage: TetroidStorage) {
-        startActivityForResult(StorageSettingsActivity.newIntent(this, storage), REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
+        startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
     }
 
     private fun deleteStorage(storage: TetroidStorage) {
         AskDialogs.showYesNoDialog(this, object : Dialogs.IApplyCancelResult {
             override fun onApply() {
-                mViewModel.deleteStorage(storage)
+                viewModel.deleteStorage(storage)
             }
             override fun onCancel() {}
         }, R.string.ask_delete_storage_from_list)
     }
 
     private fun showStorageDialog(storage: TetroidStorage?) {
-        mStorageDialog = StorageDialog(this, storage, object : StorageDialogs.IStorageResult {
+        storageDialog = StorageDialog(this, storage, object : StorageDialogs.IStorageResult {
             override fun onApply(storage: TetroidStorage) {
-                mViewModel.addStorage(storage)
+                viewModel.addStorage(storage)
             }
             override fun onSelectPath(path: String?) {
                 selectStorageFolder(storage?.path ?: "")
@@ -128,7 +170,7 @@ class StoragesActivity : TetroidActivity() {
     }
 
     private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
-        val path = if (!StringUtil.isBlank(location)) location else DataManager.getLastFolderPathOrDefault(this, true)
+        val path = if (!StringUtil.isBlank(location)) location else viewModel.getLastFolderPathOrDefault(true)
         val intent = Intent(this, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
@@ -139,7 +181,7 @@ class StoragesActivity : TetroidActivity() {
         }
         startActivityForResult(
             intent,
-            if (isNew) REQUEST_CODE_CREATE_STORAGE_PATH else REQUEST_CODE_OPEN_STORAGE_PATH
+            if (isNew) Constants.REQUEST_CODE_CREATE_STORAGE_PATH else Constants.REQUEST_CODE_OPEN_STORAGE_PATH
         )
     }
 
@@ -211,15 +253,16 @@ class StoragesActivity : TetroidActivity() {
         setForceShowMenuIcons(anchorView, popupMenu.menu as MenuBuilder)
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (data != null && requestCode == REQUEST_CODE_CREATE_STORAGE_PATH
-            || requestCode == REQUEST_CODE_OPEN_STORAGE_PATH) {
-            val path = data!!.getStringExtra(FolderPicker.EXTRA_DATA)
-            mStorageDialog?.setPath(path)
-        } else if (requestCode == REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
+        // активити выбора каталога
+        if (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH
+            || requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH) {
+            val isNew = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH)
+            val path = data?.getStringExtra(FolderPicker.EXTRA_DATA) ?: ""
+            storageDialog?.setPath(path, isNew)
+        } else if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
             loadList()
         }
     }

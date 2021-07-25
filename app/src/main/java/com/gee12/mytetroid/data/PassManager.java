@@ -187,7 +187,7 @@ public class PassManager extends DataManager {
      */
     public static void initPass(Context context, String pass) {
         String passHash = Instance.mCrypter.passToHash(pass);
-        if (SettingsManager.isSaveMiddlePassHashLocal(context)) {
+        if (SettingsManager.isSaveMiddlePassHashLocalDef(context)) {
             // сохраняем хэш пароля
             SettingsManager.setMiddlePassHash(context, passHash);
             // записываем проверочную строку
