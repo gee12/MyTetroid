@@ -76,8 +76,15 @@ object Constants {
 
     enum class ViewEvents {
         // activity
+        StartActivity,
+        SetActivityResult,
+        FinishActivity,
+        FinishWithResult,
+
+        // ui
         InitGUI,
         UpdateToolbar,
+        UpdateOptionsMenu,
         HandleReceivedIntent,
 
         // pages
@@ -112,6 +119,7 @@ object Constants {
         EmptyPassCheck,
         AskPassword,
         AskPinCode,
+        AskForClearStoragePass,
 
         ChangedOutside
     }
@@ -121,11 +129,12 @@ object Constants {
 
         // nodes
         ShowNode,
+        NodeCreated,
+        NodeInserted,
         NodeRenamed,
         AskForDeleteNode,
         NodeCutted,
         NodeDeleted,
-        AskForClearStoragePass,
         UpdateNodes,
 
         // records

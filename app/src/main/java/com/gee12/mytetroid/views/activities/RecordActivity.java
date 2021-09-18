@@ -4,18 +4,15 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +29,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.model.Image;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.htmlwysiwygeditor.INetworkWorker;
@@ -41,12 +37,7 @@ import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.helpers.HtmlHelper;
-import com.gee12.mytetroid.data.ImagesManager;
-import com.gee12.mytetroid.helpers.NetworkHelper;
-import com.gee12.mytetroid.data.NodesManager;
-import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
 //import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
@@ -56,16 +47,9 @@ import com.gee12.mytetroid.views.dialogs.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TetroidLog;
-import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
-import com.gee12.mytetroid.model.TetroidImage;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.services.FileObserverService;
-import com.gee12.mytetroid.helpers.UriHelper;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
@@ -84,10 +68,6 @@ import net.cachapa.expandablelayout.ExpandableLayout;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -102,7 +82,8 @@ public class RecordActivity extends TetroidActivity implements
         IImagePicker,
         IColorPicker,
         INetworkWorker,
-        ColorPickerDialogListener {
+        ColorPickerDialogListener,
+        TetroidEditor.IEditorListener {
 
     /**
      *
@@ -176,7 +157,6 @@ public class RecordActivity extends TetroidActivity implements
     private TetroidEditText mEditTextHtml;
     protected ProgressBar mHtmlProgressBar;
     private TetroidEditor mEditor;
-    private FloatingActionButton mButtonScrollBottom;
     private FloatingActionButton mButtonScrollTop;
     private FloatingActionButton mButtonFindNext;
     private FloatingActionButton mButtonFindPrev;
@@ -261,6 +241,7 @@ public class RecordActivity extends TetroidActivity implements
         mEditor.setToolBarVisibility(false);
 //        mEditor.setOnTouchListener(this);
         mEditor.setOnPageLoadListener(this);
+        mEditor.setEditorListener(this);
         EditableWebView webView = mEditor.getWebView();
         webView.setOnTouchListener(this);
         webView.setOnUrlLoadListener(this);
@@ -283,7 +264,7 @@ public class RecordActivity extends TetroidActivity implements
         this.mButtonFullscreen = findViewById(R.id.button_fullscreen);
         mButtonFullscreen.setOnClickListener(v -> toggleFullscreen(false));
 
-        this.mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
+        FloatingActionButton mButtonScrollBottom = findViewById(R.id.button_scroll_bottom);
         this.mButtonScrollTop = findViewById(R.id.button_scroll_top);
         // прокидывание кнопок пролистывания в редактор
         mEditor.initScrollButtons(mButtonScrollBottom, mButtonScrollTop);
@@ -430,7 +411,7 @@ public class RecordActivity extends TetroidActivity implements
                 int end = spannable.getSpanEnd(span);
                 ClickableSpan clickableSpan = new ClickableSpan() {
                     public void onClick(View view) {
-                        onTagUrlLoad(span.getURL());
+                        viewModel.onTagUrlLoad(span.getURL());
                     }
                 };
                 spannable.removeSpan(span);
@@ -526,26 +507,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onPageLoaded() {
-        if (mIsFirstLoad) {
-            this.mIsFirstLoad = false;
-            // переключаем режим отображения
-            int defMode = (mRecord.isNew() || mIsReceivedImages || SettingsManager.isRecordEditMode(this))
-                    ? MODE_EDIT : MODE_VIEW;
-
-            // сбрасываем флаг, т.к. уже воспользовались
-            mRecord.setIsNew(false);
-
-            switchMode(defMode);
-
-            /*if (defMode == MODE_EDIT) {
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-//                Keyboard.showKeyboard(mEditor);
-            }*/
-
-        } else {
-            // переключаем только views
-            switchViews(mCurMode);
-        }
+       viewModel.onPageLoaded();
     }
 
     /**
@@ -562,12 +524,12 @@ public class RecordActivity extends TetroidActivity implements
     @Override
     public void onEditorJSLoaded() {
 //        setProgressVisibility(false);
+        viewModel.onEditorJSLoaded(getIntent());
+    }
 
-        // вставляем переданные изображения
-        if (mIsReceivedImages) {
-            List<Uri> uris = getIntent().getParcelableArrayListExtra(Constants.EXTRA_IMAGES_URI);
-            saveImages(uris, false);
-        }
+    @Override
+    public void onIsEditedChanged(boolean isEdited) {
+        viewModel.setEdited(isEdited);
     }
 
     /**
@@ -580,12 +542,7 @@ public class RecordActivity extends TetroidActivity implements
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             mEditor.setHtmlRequestHandled();
             runOnUiThread(() -> {
-                // теперь сохраняем текст заметки без вызова предварительных методов
-                saveRecord(false, mResultObj);
-                // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
-                if (mModeToSwitch > 0) {
-                    switchMode(mModeToSwitch, false);
-                }
+                viewModel.onHtmlRequestHandled();
             });
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
@@ -599,7 +556,6 @@ public class RecordActivity extends TetroidActivity implements
 
     // endregion LoadPage
 
-
     // region LoadLinks
 
     /**
@@ -608,71 +564,8 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public boolean onLinkLoad(String url) {
-        // раскодируем url, т.к. он может содержать кириллицу и прочее
-        try {
-            url = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-        }
-        // удаляем baseUrl из строки адреса
         String baseUrl = mEditor.getWebView().getBaseUrl();
-        if (baseUrl != null && url.startsWith(baseUrl)) {
-            url = url.replace(baseUrl, "");
-        }
-
-        TetroidObject obj;
-        if ((obj = TetroidObject.parseUrl(url)) != null) {
-            // обрабатываем внутреннюю ссылку
-            switch (obj.getType()) {
-                case FoundType.TYPE_RECORD: {
-//                    if (StorageManager.isFavoritesMode()) {
-                    if (mStorageViewModel.isLoadedFavoritesOnly()) {
-                        openAnotherRecord(new ResultObj(ResultObj.OPEN_RECORD, obj.getId()), true);
-                    } else {
-                        TetroidRecord record = RecordsManager.getRecord(obj.getId());
-                        if (record != null) {
-                            openAnotherRecord(new ResultObj(record), true);
-                        } else {
-                            LogManager.log(this, getString(R.string.log_not_found_record) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
-                        }
-                    }
-                    break;
-                }
-                case FoundType.TYPE_NODE:
-//                    if (StorageManager.isFavoritesMode()) {
-                        if (mStorageViewModel.isLoadedFavoritesOnly()) {
-                        openAnotherNode(new ResultObj(ResultObj.OPEN_NODE, obj.getId()), true);
-                    } else {
-                        TetroidNode node = NodesManager.getNode(obj.getId());
-                        if (node != null) {
-                            openAnotherNode(new ResultObj(node), true);
-                        } else {
-                            LogManager.log(this, getString(R.string.log_not_found_node_id) + obj.getId(), ILogger.Types.WARNING, Toast.LENGTH_LONG);
-                        }
-                    }
-                    break;
-                case FoundType.TYPE_TAG:
-                    String tag = obj.getId();
-                    if (!TextUtils.isEmpty(tag)) {
-                        openTag(tag, true);
-                    } else {
-                        LogManager.log(this, getString(R.string.title_tag_name_is_empty), ILogger.Types.WARNING, Toast.LENGTH_LONG);
-                    }
-                    break;
-                case FoundType.TYPE_AUTHOR:
-                case FoundType.TYPE_FILE:
-                    break;
-                default:
-                    LogManager.log(this, getString(R.string.log_link_to_obj_parsing_error), ILogger.Types.WARNING, Toast.LENGTH_LONG);
-            }
-        } else {
-            // обрабатываем внешнюю ссылку
-            try {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            } catch (Exception ex) {
-                LogManager.log(this, ex, Toast.LENGTH_LONG);
-            }
-        }
+        viewModel.onLinkLoad(url, baseUrl);
         return true;
     }
 
@@ -682,124 +575,16 @@ public class RecordActivity extends TetroidActivity implements
         startActivity(webIntent);
     }
 
-    /**
-     * Открытие метки по ссылке.
-     *
-     * TODO: Заменить на TetroidObject.parseUrl(url)
-     *
-     * @param url
-     */
-    private void onTagUrlLoad(String url) {
-        String decodedUrl;
-        // декодируем url
+    private void openWebLink(String url) {
         try {
-            decodedUrl = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            LogManager.log(this, getString(R.string.log_url_decode_error) + url, ex);
-            return;
-        }
-        if (decodedUrl.startsWith(TetroidTag.LINKS_PREFIX)) {
-            // избавляемся от приставки "tag:"
-            String tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length());
-            openTag(tagName, true);
-        } else {
-            LogManager.log(this, getString(R.string.log_wrong_tag_link_format), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
+        } catch (Exception ex) {
+            LogManager.log(this, ex, Toast.LENGTH_LONG);
         }
     }
 
     // endregion LoadLinks
-
-
-    // region OpenAnotherObjects
-
-    /**
-     * Открытие другой записи по внутренней ссылке.
-     * @param resObj
-     * @param isAskForSave
-     */
-    private void openAnotherRecord(ResultObj resObj, boolean isAskForSave) {
-        if (resObj == null)
-            return;
-        if (onSaveRecord(isAskForSave, resObj))
-            return;
-//        if (StorageManager.isFavoritesMode()) {
-        if (mStorageViewModel.isLoadedFavoritesOnly()) {
-            AskDialogs.showLoadAllNodesDialog(this,
-                    () -> showAnotherRecord(resObj.id));
-        } else {
-            showAnotherRecord(resObj.id);
-        }
-    }
-
-    private void showAnotherRecord(String id) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.EXTRA_OBJECT_ID, id);
-        if (mIsFieldsEdited) {
-            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true);
-        }
-        finishWithResult(RESULT_OPEN_RECORD, bundle);
-    }
-
-    /**
-     * Открытие другой ветки по внутренней ссылке.
-     * @param resObj
-     * @param isAskForSave
-     */
-    private void openAnotherNode(ResultObj resObj, boolean isAskForSave) {
-        if (resObj == null)
-            return;
-        if (onSaveRecord(isAskForSave, new ResultObj(resObj)))
-            return;
-//        if (StorageManager.isFavoritesMode()) {
-        if (mStorageViewModel.isLoadedFavoritesOnly()) {
-            AskDialogs.showLoadAllNodesDialog(this,
-                    () -> showAnotherNodeDirectly(resObj.id));
-        } else {
-            showAnotherNodeDirectly(resObj.id);
-        }
-    }
-
-    private void showAnotherNodeDirectly(String id) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.EXTRA_OBJECT_ID, id);
-        finishWithResult(RESULT_OPEN_NODE, bundle);
-    }
-
-    /**
-     * Открытие ветки записи.
-     */
-    private void showRecordNode() {
-        openAnotherNode(new ResultObj(mRecord.getNode()), true);
-    }
-
-    /**
-     * Открытие записей метки в главной активности.
-     * @param tagName
-     * @param isAskForSave
-     */
-    private void openTag(String tagName, boolean isAskForSave) {
-        if (onSaveRecord(isAskForSave, new ResultObj(tagName)))
-            return;
-//        if (StorageManager.isFavoritesMode()) {
-        if (mStorageViewModel.isLoadedFavoritesOnly()) {
-            AskDialogs.showLoadAllNodesDialog(this,
-                    () -> openTagDirectly(tagName));
-        } else {
-            openTagDirectly(tagName);
-        }
-    }
-
-    private void openTagDirectly(String tagName) {
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.EXTRA_TAG_NAME, tagName);
-        if (mIsFieldsEdited) {
-            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true);
-        }
-        finishWithResult(RESULT_SHOW_TAG, bundle);
-    }
-
-    // endregion OpenAnotherObjects
-
 
     // region ColorPicker
 
@@ -839,7 +624,6 @@ public class RecordActivity extends TetroidActivity implements
 
     // endregion ColorPicker
 
-
     // region Image
 
     @Override
@@ -861,63 +645,8 @@ public class RecordActivity extends TetroidActivity implements
         startActivityForResult(intent, Constants.REQUEST_CODE_CAMERA);
     }
 
-    /**
-     * Обработка выбранных изображений.
-     * @param data
-     */
-    private void saveSelectedImages(Intent data, boolean isCamera) {
-        List<Image> images = ImagePicker.getImages(data);
-        if (images == null) {
-            LogManager.log(this, getString(R.string.log_selected_files_is_missing), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            return;
-        }
-        List<Uri> uris = new ArrayList<>();
-        for (Image image : images) {
-            uris.add(Uri.fromFile(new File(image.getPath())));
-        }
-        saveImages(uris, isCamera);
-    }
-
-    private void saveImages(List<Uri> imageUris, boolean deleteSrcFile) {
-        if (imageUris == null)
-            return;
-        int errorCount = 0;
-        List<TetroidImage> savedImages = new ArrayList<>();
-        for (Uri uri : imageUris) {
-            TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, uri, deleteSrcFile);
-            if (savedImage != null) {
-                savedImages.add(savedImage);
-            } else {
-                errorCount++;
-            }
-        }
-        if (errorCount > 0) {
-            LogManager.log(this, String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
-                    ILogger.Types.WARNING, Toast.LENGTH_LONG);
-            showSnackMoreInLogs();
-        }
-        if (!savedImages.isEmpty()) {
-            mEditor.insertImages(savedImages);
-        }
-    }
-
-    public void saveImage(Uri imageUri, boolean deleteSrcFile) {
-        TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, imageUri, deleteSrcFile);
-        saveImage(savedImage);
-    }
-
-    private void saveImage(Bitmap bitmap) {
-        TetroidImage savedImage = ImagesManager.saveImage(this, mRecord, bitmap);
-        saveImage(savedImage);
-    }
-
-    private void saveImage(TetroidImage image) {
-        if (image != null) {
-            mEditor.insertImage(image);
-        } else {
-            TetroidLog.logOperError(this, TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, Toast.LENGTH_LONG);
-            showSnackMoreInLogs();
-        }
+    public void saveImage(Uri uri, boolean deleteSrcFile) {
+        viewModel.saveImage(uri, deleteSrcFile);
     }
 
     /**
@@ -927,24 +656,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void downloadWebPageContent(String url, boolean isTextOnly) {
-        setProgressVisibility(true);
-        NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, new NetworkHelper.IWebPageContentResult() {
-            @Override
-            public void onSuccess(String content, boolean isTextOnly) {
-                runOnUiThread(() -> {
-                    mEditor.insertWebPageContent(content, isTextOnly);
-                    setProgressVisibility(false);
-                });
-            }
-            @Override
-            public void onError(Exception ex) {
-                runOnUiThread(() -> {
-                    TetroidLog.log(RecordActivity.this,
-                            getString(R.string.log_error_download_web_page_mask, ex.getMessage()), Toast.LENGTH_LONG);
-                    setProgressVisibility(false);
-                });
-            }
-        });
+        viewModel.downloadWebPageContent(url, isTextOnly);
     }
 
     /**
@@ -954,139 +666,72 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void downloadImage(String url) {
-        setProgressVisibility(true);
-        NetworkHelper.downloadImageAsync(url, new NetworkHelper.IWebImageResult() {
-            @Override
-            public void onSuccess(Bitmap bitmap) {
-                runOnUiThread(() -> {
-                    saveImage(bitmap);
-                    setProgressVisibility(false);
-                });
-            }
-            @Override
-            public void onError(Exception ex) {
-                runOnUiThread(() -> {
-                    TetroidLog.log(RecordActivity.this,
-                            getString(R.string.log_error_download_image_mask, ex.getMessage()), Toast.LENGTH_LONG);
-                    setProgressVisibility(false);
-                });
-            }
-        });
+        viewModel.downloadImage(url);
     }
 
     // endregion Image
 
-
     // region Attach
 
-    /**
-     *
-     * TODO: добавить удаление исходного файла
-     * @param uri
-     */
     public void attachFile(Uri uri, boolean deleteSrcFile) {
-        UriHelper uriHelper = new UriHelper(this);
-        new AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri));
+        viewModel.attachFile(uri, deleteSrcFile);
     }
 
     private void onFileAttached(TetroidFile res) {
-        if (res != null) {
-            AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
-                @Override
-                public void onApply() {
-                    openRecordAttaches();
-                }
-                @Override
-                public void onCancel() {
-                }
-            }, R.string.ask_open_attaches);
-        } else {
-            LogManager.log(this, R.string.log_files_attach_error, ILogger.Types.WARNING, Toast.LENGTH_LONG);
-            showSnackMoreInLogs();
-        }
+        AskDialogs.showYesNoDialog(this, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.openRecordAttaches();
+            }
+            @Override
+            public void onCancel() {
+            }
+        }, R.string.ask_open_attaches);
     }
 
     public void downloadAndAttachFile(Uri uri) {
-        super.downloadFileToCache(uri.toString(), new IDownloadFileResult() {
-            @Override
-            public void onSuccess(Uri uri) {
-                attachFile(uri, true);
-            }
-            @Override
-            public void onError(Exception ex) {
-            }
-        });
-    }
-
-    /**
-     * Открытие списка прикрепленных файлов записи.
-     * @param isAskForSave
-     */
-    private void openRecordAttaches(TetroidRecord record, boolean isAskForSave) {
-        if (record == null)
-            return;
-        if (onSaveRecord(isAskForSave, new ResultObj(ResultObj.OPEN_FILE)))
-            return;
-        Bundle bundle = new Bundle();
-        bundle.putString(Constants.EXTRA_OBJECT_ID, record.getId());
-        finishWithResult(RESULT_SHOW_ATTACHES, bundle);
-    }
-
-    /**
-     * Открытие списка прикрепленных файлов записи.
-     */
-    private void openRecordAttaches() {
-        openRecordAttaches(mRecord, true);
+        viewModel.downloadAndAttachFile(uri);
     }
 
     //endregion Attach
 
+    //region Mode
 
-    // region Mode
-
-    /**
-     * Переключение режима отображения содержимого записи.
-     * @param newMode
-     */
-    private void switchMode(int newMode) {
-        switchMode(newMode, true);
-    }
-
-    private void switchMode(int newMode, boolean isNeedSave) {
-        this.mModeToSwitch = -1;
-        int oldMode = mCurMode;
-        // сохраняем
-//        onSaveRecord();
-        boolean runBeforeSaving = false;
-        if (isNeedSave && SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
-            // автоматически сохраняем текст записи, если:
-            //  * есть изменения
-            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
-            //  * запись не временная
-            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
-                runBeforeSaving = saveRecord(null);
-            }
-        }
-        // если асинхронно запущена предобработка сохранения, то выходим
-        if (runBeforeSaving) {
-            this.mModeToSwitch = newMode;
-            return;
-        }
-        // перезагружаем html-текст записи в webView, если был режим редактирования HTML
-        if (oldMode == MODE_HTML) {
-            loadRecordText(mRecord, true);
-        }
-        // переключаем элементы интерфейса, только если не редактировали только что html,
-        // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
-        // на событии onPageLoaded())
-//        if (oldMode != MODE_HTML) {
-        else {
-            switchViews(newMode);
-        }
-        this.mCurMode = newMode;
-
-        updateOptionsMenu();
-    }
+//    private void switchMode(int newMode, boolean isNeedSave) {
+//        this.mModeToSwitch = -1;
+//        int oldMode = mCurMode;
+//        // сохраняем
+////        onSaveRecord();
+//        boolean runBeforeSaving = false;
+//        if (isNeedSave && SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
+//            // автоматически сохраняем текст записи, если:
+//            //  * есть изменения
+//            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
+//            //  * запись не временная
+//            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
+//                runBeforeSaving = saveRecord(null);
+//            }
+//        }
+//        // если асинхронно запущена предобработка сохранения, то выходим
+//        if (runBeforeSaving) {
+//            this.mModeToSwitch = newMode;
+//            return;
+//        }
+//        // перезагружаем html-текст записи в webView, если был режим редактирования HTML
+//        if (oldMode == MODE_HTML) {
+//            loadRecordText(mRecord, true);
+//        }
+//        // переключаем элементы интерфейса, только если не редактировали только что html,
+//        // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
+//        // на событии onPageLoaded())
+////        if (oldMode != MODE_HTML) {
+//        else {
+//            switchViews(newMode);
+//        }
+//        this.mCurMode = newMode;
+//
+//        updateOptionsMenu();
+//    }
 
     /**
      *
@@ -1094,7 +739,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void switchViews(int newMode) {
         switch (newMode) {
-            case MODE_VIEW : {
+            case Constants.MODE_VIEW : {
                 mEditor.setVisibility(View.VISIBLE);
                 mEditor.setToolBarVisibility(false);
                 mScrollViewHtml.setVisibility(View.GONE);
@@ -1104,7 +749,7 @@ public class RecordActivity extends TetroidActivity implements
                 setSubtitle(getString(R.string.subtitle_record_view));
                 ViewUtils.hideKeyboard(this, mEditor.getWebView());
             } break;
-            case MODE_EDIT : {
+            case Constants.MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
                 // загружаем Javascript (если нужно)
 //                if (!mEditor.getWebView().isEditorJSLoaded()) {
@@ -1121,7 +766,7 @@ public class RecordActivity extends TetroidActivity implements
                 mEditor.getWebView().focusEditor();
                 ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
             } break;
-            case MODE_HTML : {
+            case Constants.MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
                 if (mEditor.getWebView().isHtmlRequestMade()) {
                     String htmlText = mEditor.getWebView().getEditableHtml();
@@ -1143,75 +788,49 @@ public class RecordActivity extends TetroidActivity implements
 
     // endregion Image
 
-
     // region SaveRecord
 
-    /**
-     * Сохранение изменений при скрытии или выходе из активности.
-     * @param showAskDialog
-     * @param obj если null - закрываем активность, иначе - выполняем действия с объектом
-     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
-     * действие нужно прервать, чтобы дождаться результата из диалога
-     */
-    private boolean onSaveRecord(boolean showAskDialog, ResultObj obj) {
-        if (mEditor.isEdited()) {
-            if (SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
-                // сохраняем без запроса
-                return saveRecord(obj);
-            } else if (showAskDialog) {
-                // спрашиваем о сохранении, если нужно
-                RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        saveRecord(obj);
-                    }
-                    @Override
-                    public void onCancel() {
-                        onAfterSaving(obj);
-                    }
-                });
-                return true;
-            }
-        }
-        return false;
-    }
+//    /**
+//     * Сохранение изменений при скрытии или выходе из активности.
+//     * @param showAskDialog
+//     * @param obj если null - закрываем активность, иначе - выполняем действия с объектом
+//     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
+//     * действие нужно прервать, чтобы дождаться результата из диалога
+//     */
+//    private boolean onSaveRecord(boolean showAskDialog, ResultObj obj) {
+//        if (mEditor.isEdited()) {
+//            if (SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
+//                // сохраняем без запроса
+//                return saveRecord(obj);
+//            } else if (showAskDialog) {
+//                // спрашиваем о сохранении, если нужно
+//                RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
+//                    @Override
+//                    public void onApply() {
+//                        saveRecord(obj);
+//                    }
+//                    @Override
+//                    public void onCancel() {
+//                        onAfterSaving(obj);
+//                    }
+//                });
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
-    /**
-     * Сохранение html-текста записи в файл.
-     * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
-     */
-    private boolean saveRecord(ResultObj obj) {
-        boolean runBeforeSaving = SettingsManager.isFixEmptyParagraphs(this);
-        if (runBeforeSaving) {
-            this.mResultObj = obj;
-        }
-        return saveRecord(runBeforeSaving, obj) || runBeforeSaving;
-    }
-
-    /**
-     * Сохранение html-текста записи в файл с предобработкой.
-     * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
-     * @return true - запущен ли код в асинхронном режиме.
-     */
-    private boolean saveRecord(boolean callBefore, ResultObj obj) {
-        if (callBefore) {
-            onBeforeSavingAsync();
-            return true;
-        } else {
-            if (mRecord.isTemp()) {
-                if (DataManager.isLoaded()) {
-                    this.runOnUiThread(() -> editFields(obj));
-                } else {
-                    this.mIsSaveTempAfterStorageLoaded = true;
-                    this.runOnUiThread(() -> loadStorage());
-                }
-                return true;
-            } else {
-                save();
-                this.runOnUiThread(() -> onAfterSaving(obj));
+    private void askForSaving(ResultObj obj) {
+        RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.saveRecord(obj);
             }
-        }
-        return false;
+            @Override
+            public void onCancel() {
+                viewModel.onAfterSaving(obj);
+            }
+        });
     }
 
     /**
@@ -1222,159 +841,39 @@ public class RecordActivity extends TetroidActivity implements
         mEditor.beforeSaveAsync(true);
     }
 
-    /**
-     * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
-     */
-    private void save() {
-        LogManager.log(this, getString(R.string.log_before_record_save) + mRecord.getId(), ILogger.Types.INFO);
-        String htmlText = mEditor.getDocumentHtml();
-//        String htmlText = (mCurMode == MODE_HTML)
-//                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
-        if (RecordsManager.saveRecordHtmlText(this, mRecord, htmlText)) {
-//            TetroidLog.logOperRes(TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
-            LogManager.log(this, R.string.log_record_saved, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-            // сбрасываем пометку изменения записи
-            mEditor.setIsEdited(false);
-            updateEditedDate();
-        } else {
-            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD, TetroidLog.Opers.SAVE);
-        }
-    }
-
-    /**
-     * Обновление поля последнего изменения записи.
-     */
-    private void updateEditedDate() {
-        if (App.isFullVersion()) {
-            String dateFormat = getString(R.string.full_date_format_string);
-            Date edited = RecordsManager.getEditedDate(this, mRecord);
-            ((TextView) findViewById(R.id.text_view_record_edited)).setText(
-                    (edited != null) ? Utils.dateToString(edited, dateFormat) : "");
-        }
-    }
-
-    /**
-     * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
-     * @param resObj
-     */
-    public void onAfterSaving(ResultObj resObj) {
-        if (resObj == null) {
-            resObj = new ResultObj(null);
-        }
-        switch (resObj.type) {
-            case ResultObj.EXIT:
-            case ResultObj.START_MAIN_ACTIVITY:
-                if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
-                    finish();
-                }
-                break;
-            case ResultObj.OPEN_RECORD:
-                openAnotherRecord(resObj, false);
-                break;
-            case ResultObj.OPEN_NODE:
-                openAnotherNode(resObj, false);
-                break;
-            case ResultObj.OPEN_FILE:
-                openRecordAttaches(mRecord, false);
-                break;
-            case ResultObj.OPEN_TAG:
-                openTag((String) resObj.obj, false);
-                break;
-            case ResultObj.NONE:
-                if (resObj.needReloadText) {
-                    // перезагружаем baseUrl в WebView
-                    loadRecordText(mRecord, false);
-                }
-                break;
-        }
-    }
-
     // endregion SaveRecord
-
 
     // region Storage
 
-//    /**
-//     *
-//     */
-//    @Override
-//    protected void createStorage(String storagePath) {
-//        boolean res = StorageManager.createStorage(this, storagePath);
-//        initGUI(res && DataManager.createDefault(this), false, false);
-//    }
-
-    /**
-     * Старт загрузки хранилища.
-     */
-//    @Override
-//    protected void loadStorage(String storagePath) {
-    protected void loadStorage() {
-//        boolean isLoadLastForced = false;
-//        boolean isCheckFavorMode = !mRecord.isTemp();
-//        if (storagePath == null) {
-//            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
-//        } else {
-//            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
-//        }
-        mStorageViewModel.startInitStorage(false, !mRecord.isTemp());
-    }
-
     @Override
     public void afterStorageLoaded(boolean res) {
-        if (mIsSaveTempAfterStorageLoaded) {
-            this.mIsSaveTempAfterStorageLoaded = false;
-            // сохраняем временную запись
-            editFields(mResultObj);
-        }
+        viewModel.afterStorageLoaded();
     }
 
     // endregion Storage
 
-
     // region OptionsRecord
-
-    /**
-     * Открытие каталога записи.
-     */
-    public void openRecordFolder() {
-        if (!RecordsManager.openRecordFolder(this, mRecord)) {
-            LogManager.log(this, R.string.log_missing_file_manager, Toast.LENGTH_LONG);
-        }
-    }
 
     /**
      * Отправка записи.
      */
     public void shareRecord() {
-        String text = (mCurMode == MODE_HTML)
+        String text = (viewModel.isHtmlMode())
                 ? mEditTextHtml.getText().toString()
                 : Utils.fromHtml(mEditor.getWebView().getEditableHtml()).toString();
-
-        // FIXME: если получать текст из html-кода ВСЕЙ страницы,
-        //  то Html.fromHtml() неверно обрабатывает код стиля в шапке:
-        //  <header><style> p, li { white-space: pre-wrap; } </style></header>
-        //  добавляя его в результат
-        String except = "p, li { white-space: pre-wrap; } ";
-        if (text.startsWith(except)) {
-            text = text.substring(except.length());
-        }
-
-        DataManager.shareText(this, mRecord.getName(), text);
+        viewModel.shareRecord(text);
     }
 
     /**
      * Удаление записи.
      */
     public void deleteRecord() {
-        RecordDialogs.deleteRecord(this, mRecord.getName(), () -> {
-            Bundle bundle = new Bundle();
-            bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getId());
-            finishWithResult(RESULT_DELETE_RECORD, bundle);
+        RecordDialogs.deleteRecord(this, viewModel.getRecordName(), () -> {
+            viewModel.deleteRecord();
         });
     }
 
     // endregion OptionsRecord
-
 
     // region Search
 
@@ -1384,7 +883,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     private void searchInRecordText(String query) {
         TetroidSuggestionProvider.saveRecentQuery(this, query);
-        if (mCurMode == MODE_HTML) {
+        if (viewModel.isHtmlMode()) {
             int matches = mEditTextHtml.getSearcher().findAll(query);
             if (matches >= 0) {
                 onFindTextResult(matches);
@@ -1399,7 +898,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void findPrev() {
-        if (mCurMode == MODE_HTML) {
+        if (viewModel.isHtmlMode()) {
             mEditTextHtml.getSearcher().prevMatch();
         } else {
             mEditor.prevMatch();
@@ -1407,7 +906,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void findNext() {
-        if (mCurMode == MODE_HTML) {
+        if (viewModel.isHtmlMode()) {
             mEditTextHtml.getSearcher().nextMatch();
         } else {
             mEditor.nextMatch();
@@ -1415,7 +914,7 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     private void stopSearch() {
-        if (mCurMode == MODE_HTML) {
+        if (viewModel.isHtmlMode()) {
             mEditTextHtml.getSearcher().stopSearch();
         } else {
             mEditor.stopSearch();
@@ -1431,8 +930,6 @@ public class RecordActivity extends TetroidActivity implements
             if (isDoneCounting && isStartSearch) {
                 this.isStartSearch = false;
                 onFindTextResult(numberOfMatches);
-            } else {
-
             }
         }
 
@@ -1454,41 +951,46 @@ public class RecordActivity extends TetroidActivity implements
     // endregion Search
 
 
-    /**
-     * Действия перед закрытием активности, если свойства записи были изменены.
-     * @param startMainActivity
-     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
-     *         действие нужно прервать, чтобы дождаться результата из диалога
-     */
-    private boolean onRecordFieldsIsEdited(boolean startMainActivity) {
-        if (mIsFieldsEdited) {
-//                ActivityCompat.getReferrer()
-            if (getCallingActivity() != null) {
-                // закрываем активность, возвращая результат:
-                // указываем родительской активности, что нужно обновить список записей
-                Intent intent = new Intent();
-                intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true);
-//            intent.setAction(ACTION_ADD_RECORD);
-                setResult(RESULT_OK, intent);
-            } else if (startMainActivity) {
-                // запускаем главную активность, помещая результат
-                Bundle bundle = new Bundle();
-//                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                if (mRecord.getNode() != null) {
-                    bundle.putInt(Constants.EXTRA_RESULT_CODE, RESULT_OPEN_NODE);
-                    bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getNode().getId());
-                    ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, null);
-                    finish();
-                } else {
-                    Message.show(this, getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG);
-                }
-                return true;
-            } else {
-                finish();
-                return true;
-            }
-        }
-        return false;
+//    /**
+//     * Действия перед закрытием активности, если свойства записи были изменены.
+//     * @param startMainActivity
+//     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
+//     *         действие нужно прервать, чтобы дождаться результата из диалога
+//     */
+//    private boolean onRecordFieldsIsEdited(boolean startMainActivity) {
+//        if (mIsFieldsEdited) {
+////                ActivityCompat.getReferrer()
+//            if (getCallingActivity() != null) {
+//                // закрываем активность, возвращая результат:
+//                // указываем родительской активности, что нужно обновить список записей
+//                Intent intent = new Intent();
+//                intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true);
+////            intent.setAction(ACTION_ADD_RECORD);
+//                setResult(RESULT_OK, intent);
+//            } else if (startMainActivity) {
+//                // запускаем главную активность, помещая результат
+//                Bundle bundle = new Bundle();
+////                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+//                if (mRecord.getNode() != null) {
+//                    bundle.putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE);
+//                    bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getNode().getId());
+//                    ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, null);
+//                    finish();
+//                } else {
+//                    Message.show(this, getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG);
+//                }
+//                return true;
+//            } else {
+//                finish();
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    private boolean isFromAnotherActivity() {
+//        ActivityCompat.getReferrer()
+        return getCallingActivity() != null;
     }
 
     /**
@@ -1496,9 +998,7 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onPause() {
-        if (!mRecord.isTemp()) {
-            onSaveRecord(false, null);
-        }
+        viewModel.onPause();
         super.onPause();
     }
 
@@ -1517,25 +1017,25 @@ public class RecordActivity extends TetroidActivity implements
                 if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
                     // хранилище изменено
 //                    if (StorageManager.isLoaded()) {
-                    if (mStorageViewModel.isLoaded()) {
+                    if (viewModel.isLoaded()) {
                         // спрашиваем о перезагрузке хранилище, только если оно уже загружено
                         boolean isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false);
                         AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
                             // перезагружаем хранилище в главной активности, если изменили путь,
-                            finishWithResult(RESULT_REINIT_STORAGE, data.getExtras());
+                            finishWithResult(Constants.RESULT_REINIT_STORAGE, data.getExtras());
                         });
                     }
                 } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // пароль изменен
-                    finishWithResult(RESULT_PASS_CHANGED, data.getExtras());
+                    finishWithResult(Constants.RESULT_PASS_CHANGED, data.getExtras());
                 }
             }
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
         } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-            saveSelectedImages(data, true);
+            viewModel.saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
-            saveSelectedImages(data, false);
+            viewModel.saveSelectedImages(data, false);
         }
     }
 
@@ -1563,7 +1063,6 @@ public class RecordActivity extends TetroidActivity implements
         }
     }
 
-
     // region OptionsMenu
 
     /**
@@ -1588,15 +1087,18 @@ public class RecordActivity extends TetroidActivity implements
         if (!isOnCreateProcessed())
             return true;
         // режимы
-        activateMenuItem(menu.findItem(R.id.action_record_view), mCurMode == MODE_EDIT);
-        activateMenuItem(menu.findItem(R.id.action_record_edit), mCurMode == MODE_VIEW
-            || mCurMode == MODE_HTML);
-        activateMenuItem(menu.findItem(R.id.action_record_html), mCurMode == MODE_VIEW
-                || mCurMode == MODE_EDIT);
-        activateMenuItem(menu.findItem(R.id.action_record_save), mCurMode == MODE_EDIT);
+        int mode = viewModel.getMCurMode();
+        activateMenuItem(menu.findItem(R.id.action_record_view), mode == Constants.MODE_EDIT);
+        activateMenuItem(menu.findItem(R.id.action_record_edit), mode == Constants.MODE_VIEW
+            || mode == Constants.MODE_HTML);
+        activateMenuItem(menu.findItem(R.id.action_record_html), mode == Constants.MODE_VIEW
+                || mode == Constants.MODE_EDIT);
+        activateMenuItem(menu.findItem(R.id.action_record_save), mode == Constants.MODE_EDIT);
 
-        boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
-        boolean isTemp = (mRecord == null || mRecord.isTemp());
+//        boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
+        boolean isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly();
+//        boolean isTemp = (mRecord == null || mRecord.isTemp());
+        boolean isTemp = viewModel.isRecordTemprorary();
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
         activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly, !isTemp);
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly, !isTemp);
@@ -1660,28 +1162,28 @@ public class RecordActivity extends TetroidActivity implements
         int id = item.getItemId();
         switch (id) {
             case R.id.action_record_view:
-                switchMode(MODE_VIEW);
+                viewModel.switchMode(Constants.MODE_VIEW);
                 return true;
             case R.id.action_record_edit:
-                switchMode(MODE_EDIT);
+                viewModel.switchMode(Constants.MODE_EDIT);
                 return true;
             case R.id.action_record_html:
-                switchMode(MODE_HTML);
+                viewModel.switchMode(Constants.MODE_HTML);
                 return true;
             case R.id.action_record_save:
-                saveRecord(null);
+                viewModel.saveRecord(null);
                 return true;
             case R.id.action_record_edit_fields:
                 editFields(null);
                 return true;
             case R.id.action_record_node:
-                showRecordNode();
+                viewModel.showRecordNode();
                 return true;
             case R.id.action_attached_files:
-                openRecordAttaches();
+                viewModel.openRecordAttaches();
                 return true;
             case R.id.action_cur_record_folder:
-                openRecordFolder();
+                viewModel.openRecordFolder();
                 return true;
             case R.id.action_share:
                 shareRecord();
@@ -1690,7 +1192,7 @@ public class RecordActivity extends TetroidActivity implements
                 deleteRecord();
                 return true;
             case R.id.action_info:
-                RecordDialogs.createRecordInfoDialog(this, mRecord);
+                RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
                 return true;
             case R.id.action_fullscreen:
                 toggleFullscreen(false);
@@ -1702,22 +1204,12 @@ public class RecordActivity extends TetroidActivity implements
                 ViewUtils.startActivity(this, InfoActivity.class, null);
                 return true;
             case android.R.id.home:
-                if (!onSaveRecord(true, new ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
-                    // не был запущен асинхронный код при сохранении, поэтому
-                    //  можем выполнить стандартный обработчик кнопки home (должен быть возврат false),
-                    //  но после проверки изменения свойств (если изменены, то включится другой механизм
-                    //  выхода из активности)
-                    return onRecordFieldsIsEdited(true);
-                }
-                // был запущен асинхронный код при сохранении,
-                //  поэтому не выполняем стандартный обработчик кнопки home
-                return true;
+                return viewModel.onHomePressed();
         }
         return super.onOptionsItemSelected(item);
     }
 
     // endregion OptionsMenu
-
 
     // region RecordFields
 
@@ -1725,46 +1217,9 @@ public class RecordActivity extends TetroidActivity implements
      * Редактирование свойств записи.
      */
     private void editFields(ResultObj obj) {
-        boolean wasTemp = mRecord.isTemp();
-        RecordDialogs.createRecordFieldsDialog(this, mRecord, true, null,
+        RecordDialogs.createRecordFieldsDialog(this, viewModel.getMRecord(), true, null,
                 (name, tags, author, url, node, isFavor) -> {
-                    if (RecordsManager.editRecordFields(this, mRecord, name, tags, author, url, node, isFavor)) {
-                        this.mIsFieldsEdited = true;
-                        setTitle(name);
-                        loadFields(mRecord);
-                        if (wasTemp) {
-                            // сохраняем текст записи
-//                    save();
-                            final ResultObj resObj;
-                            if (obj == null) {
-                                resObj = new ResultObj(null);
-                                // baseUrl изменился, нужно перезагрузить в WebView
-                                resObj.needReloadText = true;
-                            } else {
-                                resObj = null;
-                            }
-                            saveRecord(resObj);
-//                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
-                            // показываем кнопку Home для возврата в ветку записи
-                            setVisibilityActionHome(true);
-                        } else {
-//                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
-                            LogManager.log(this, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-                        }
-                    } else {
-                        if (wasTemp) {
-                    /*// все равно сохраняем текст записи
-//                    save();
-                    if (obj == null) {
-                        // baseUrl изменился, нужно перезагрузить в WebView
-                        obj.needReloadText = true;
-                    }
-                    saveRecord(obj);*/
-                            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
-                        } else {
-                            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
-                        }
-                    }
+                    viewModel.editFields(obj, name, tags, author, url, node, isFavor);
                 });
     }
 
@@ -1798,21 +1253,7 @@ public class RecordActivity extends TetroidActivity implements
      * Отображение или скрытие панели свойств в зависимости от настроек.
      */
     private void expandFieldsIfNeed() {
-        boolean needExpand;
-        if (mRecord.isNew() || mIsReceivedImages || SettingsManager.isRecordEditMode(this)) {
-            needExpand = false;
-        } else {
-            String option = SettingsManager.getShowRecordFields(this);
-            if (getString(R.string.pref_show_record_fields_no).equals(option)) {
-                needExpand = false;
-            } else if (getString(R.string.pref_show_record_fields_yes).equals(option)) {
-                needExpand = true;
-            } else {
-                needExpand = (mRecord != null && (!TextUtils.isEmpty(mRecord.getTagsString())
-                        || !TextUtils.isEmpty(mRecord.getAuthor()) || !TextUtils.isEmpty(mRecord.getUrl())));
-            }
-        }
-        expandRecordFields(needExpand);
+        expandRecordFields(viewModel.isNeedExpandFields());
     }
 
     /**
@@ -1843,7 +1284,7 @@ public class RecordActivity extends TetroidActivity implements
             } else {
                 mButtonFullscreen.hide();
             }
-            if (mCurMode == MODE_VIEW) {
+            if (viewModel.isViewMode()) {
                 setRecordFieldsVisibility(!isFullscreen);
             }
         }
@@ -1883,7 +1324,7 @@ public class RecordActivity extends TetroidActivity implements
     public void setFindButtonsVisibility(boolean vis) {
         ViewUtils.setFabVisibility(mButtonFindNext, vis);
         ViewUtils.setFabVisibility(mButtonFindPrev, vis);
-        setRecordFieldsVisibility(!vis && mCurMode != MODE_HTML);
+        setRecordFieldsVisibility(!vis && viewModel.getMCurMode() != Constants.MODE_HTML);
         // установим позиционирование кнопки FindNext от правого края
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonFindNext.getLayoutParams();
         if (vis) {
@@ -1968,10 +1409,8 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
         // выполняем родительский метод только если не был запущен асинхронный код
-        if (!onSaveRecord(true, new ResultObj(ResultObj.EXIT))) {
-            if (!onRecordFieldsIsEdited(false)) {
-                super.onBackPressed();
-            }
+        if (viewModel.isCanBack(isFromAnotherActivity())) {
+            super.onBackPressed();
         }
     }
 
@@ -1994,35 +1433,19 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     /**
-     * Задание, в котором выполняется прикрепление нового файла в записи.
-     */
-    public class AttachFileFromRecordTask extends AttachFileTask {
-
-        public AttachFileFromRecordTask(TetroidRecord record, boolean deleteSrcFile) {
-            super(record, deleteSrcFile);
-        }
-
-        @Override
-        protected void onPostExecute(TetroidFile res) {
-            taskPostExecute(Gravity.NO_GRAVITY);
-            onFileAttached(res);
-        }
-    }
-
-    /**
-     *
+     * Обработчк изменения текста в окне HTML-кода записи.
      */
     private class HtmlEditTextEditTextListener implements TetroidEditText.ITetroidEditTextListener {
 
         @Override
         public void onAfterTextInited() {
-            if (mCurMode == MODE_HTML) {
+            if (viewModel.isHtmlMode()) {
                 setProgressVisibility(false);
             }
         }
         @Override
         public void onAfterTextChanged() {
-            if (mCurMode == MODE_HTML) {
+            if (viewModel.isHtmlMode()) {
                 mEditor.setIsEdited();
             }
         }

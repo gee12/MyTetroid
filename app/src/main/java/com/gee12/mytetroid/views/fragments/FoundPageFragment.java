@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.adapters.FoundListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsBaseListAdapter;
 import com.gee12.mytetroid.data.ScanManager;

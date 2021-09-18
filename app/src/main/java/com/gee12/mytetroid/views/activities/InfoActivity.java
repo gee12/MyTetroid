@@ -12,7 +12,7 @@ import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 
 import java.util.Date;
 

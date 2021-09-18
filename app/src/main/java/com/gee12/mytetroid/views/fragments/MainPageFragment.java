@@ -25,7 +25,7 @@ import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.adapters.FilesListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.TetroidClipboard;

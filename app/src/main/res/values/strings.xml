@@ -715,6 +715,8 @@
     <string name="title_download_insert_image">Download and insert image</string>
     <string name="title_insert_as">Insert as..</string>
     <string name="title_file_downloading">File downloading</string>
+    <string name="title_image_downloading">Image downloading</string>
+    <string name="title_page_downloading">Web page content downloading</string>
     <string name="title_download_by_link">DOWNLOAD BY LINK</string>
     <string name="title_select_on_device">SELECT ON DEVICE</string>
     <string name="log_link_is_empty">Link is empty</string>

@@ -12,7 +12,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.model.TetroidStorage;
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment;

@@ -10,12 +10,11 @@ import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.DataManager
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.AskDialogs

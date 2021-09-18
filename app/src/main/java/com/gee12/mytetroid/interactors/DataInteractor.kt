@@ -51,7 +51,7 @@ class DataInteractor(
      * 0 - перемещение невозможно (пограничный элемент)
      * -1 - ошибка
      */
-    fun swapTetroidObjects(context: Context, list: List<*>?, pos: Int, isUp: Boolean, through: Boolean): Int {
+    suspend fun swapTetroidObjects(context: Context, list: List<*>?, pos: Int, isUp: Boolean, through: Boolean): Int {
         val isSwapped: Boolean = try {
             Utils.swapListItems(list, pos, isUp, through)
         } catch (ex: Exception) {

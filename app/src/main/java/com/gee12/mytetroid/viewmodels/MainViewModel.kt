@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.FileObserver
 import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -15,13 +16,16 @@ import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.helpers.UriHelper
+import com.gee12.mytetroid.interactors.AttachesInteractor
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
+import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.logs.TetroidLog.*
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
@@ -50,6 +54,7 @@ class MainViewModel(
     var lastScan: ScanManager? = null
     var lastFilterQuery: String? = null
     var isFromRecordActivity = false
+    private var isStorageChangingHandled = false
 
 
     //region Pages
@@ -186,7 +191,8 @@ class MainViewModel(
                 url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
             }
             // создаем запись
-            val record: TetroidRecord = recordsInteractor.createTempRecord(getContext(), subject, url, text) ?: return@launch
+            val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
+            val record: TetroidRecord = recordsInteractor.createTempRecord(getContext(), subject, url, text, node) ?: return@launch
             if (isText) {
                 // запускаем активность просмотра записи
                 openRecord(record.id)
@@ -494,31 +500,46 @@ class MainViewModel(
         }
     }
 
+    fun createNode(name: String, trueParentNode: TetroidNode?) {
+        viewModelScope.launch {
+            val node = nodesInteractor.createNode(getContext(), name, trueParentNode)
+            if (node != null) {
+                doAction(Constants.MainEvents.NodeCreated, node)
+            } else {
+                logOperErrorMore(getContext(), Objs.NODE, Opers.CREATE)
+            }
+        }
+    }
+
     /**
      * Переименование ветки.
      * @param node
      */
     fun renameNode(node: TetroidNode, newName: String) {
-        if (nodesInteractor.editNodeFields(getContext(), node, newName)) {
-            logOperRes(getContext(), Objs.NODE, Opers.RENAME)
+        viewModelScope.launch {
+            if (nodesInteractor.editNodeFields(getContext(), node, newName)) {
+                logOperRes(getContext(), Objs.NODE, Opers.RENAME)
 //            if (mCurNode === node) {
 //                setTitle(name)
 //            }
-            updateNodes();
-            doAction(Constants.ObjectEvents.NodeRenamed, node)
-        } else {
-            logOperErrorMore(getContext(), Objs.NODE, Opers.RENAME)
+                updateNodes();
+                doAction(Constants.MainEvents.NodeRenamed, node)
+            } else {
+                logOperErrorMore(getContext(), Objs.NODE, Opers.RENAME)
+            }
         }
     }
 
     fun setNodeIcon(nodeId: String?, iconPath: String?, isDrop: Boolean) {
         if (nodeId == null) return
-        val node = if (curNode?.id == nodeId) curNode else nodesInteractor.getNode(nodeId)
-        if (nodesInteractor.setNodeIcon(getContext(), node, iconPath, isDrop)) {
-            logOperRes(getContext(), Objs.NODE, Opers.CHANGE)
-            updateNodes()
-        } else {
-            logOperErrorMore(getContext(), Objs.NODE, Opers.CHANGE)
+        viewModelScope.launch {
+            val node = if (curNode?.id == nodeId) curNode else nodesInteractor.getNode(nodeId)
+            if (nodesInteractor.setNodeIcon(getContext(), node, iconPath, isDrop)) {
+                logOperRes(getContext(), Objs.NODE, Opers.CHANGE)
+                updateNodes()
+            } else {
+                logOperErrorMore(getContext(), Objs.NODE, Opers.CHANGE)
+            }
         }
     }
 
@@ -528,17 +549,23 @@ class MainViewModel(
      * @param pos        Позиция в списке родительской ветки
      * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
-    fun insertNode(parentNode: TetroidNode, isSubNode: Boolean): Boolean {
+    fun insertNode(parentNode: TetroidNode, isSubNode: Boolean) {
         // на всякий случай проверяем тип
-        if (!TetroidClipboard.hasObject(FoundType.TYPE_NODE))
-            return false
+        if (!TetroidClipboard.hasObject(FoundType.TYPE_NODE)) return
         // достаем объект из "буфера обмена"
         val clipboard = TetroidClipboard.getInstance()
         // вставляем с попыткой восстановить каталог записи
         val node = clipboard.getObject() as TetroidNode
         val isCutted = clipboard.isCutted
         val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
-        return nodesInteractor.insertNode(getContext(), node, trueParentNode, isCutted)
+
+        viewModelScope.launch {
+            if (nodesInteractor.insertNode(getContext(), node, trueParentNode, isCutted)) {
+                doAction(Constants.MainEvents.NodeInserted, node)
+            } else {
+                logOperErrorMore(getContext(), Objs.NODE, Opers.INSERT)
+            }
+        }
     }
 
     /**
@@ -552,9 +579,11 @@ class MainViewModel(
         }
         // добавляем в "буфер обмена"
         TetroidClipboard.cut(node)
-        // удаляем ветку из родительской ветки вместе с записями
-        val res = nodesInteractor.cutNode(getContext(), node)
-        onDeleteNodeResult(node, res, true)
+        viewModelScope.launch {
+            // удаляем ветку из родительской ветки вместе с записями
+            val res = nodesInteractor.cutNode(getContext(), node)
+            onDeleteNodeResult(node, res, true)
+        }
     }
 
     /**
@@ -572,8 +601,10 @@ class MainViewModel(
     }
 
     fun deleteNode(node: TetroidNode) {
-        val res = nodesInteractor.deleteNode(getContext(), node)
-        onDeleteNodeResult(node, res, false)
+        viewModelScope.launch {
+            val res = nodesInteractor.deleteNode(getContext(), node)
+            onDeleteNodeResult(node, res, false)
+        }
     }
 
     private fun onDeleteNodeResult(node: TetroidNode, res: Boolean, isCutted: Boolean) {
@@ -1205,6 +1236,44 @@ class MainViewModel(
     }
 
     //endregion Filter
+
+    //region FileObserver
+
+    /**
+     * Обработчик изменения структуры хранилища извне.
+     */
+    fun startStorageTreeObserver() {
+        if (isCheckOutsideChanging()) {
+            // запускаем мониторинг, только если хранилище загружено
+            if (isLoaded()) {
+                this.isStorageChangingHandled = false
+                val bundle = Bundle()
+                bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START)
+//                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
+                bundle.putString(FileObserverService.EXTRA_FILE_PATH, storageInteractor.getPathToMyTetraXml())
+                bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY)
+
+                doAction(Constants.MainEvents.StartFileObserver, bundle)
+            }
+        } else {
+            doAction(Constants.MainEvents.StopFileObserver)
+        }
+    }
+
+    fun onStorageOutsideChanged() {
+        // проверяем, не был ли запущен обработчик второй раз подряд
+        if (!isStorageChangingHandled) {
+            isStorageChangingHandled = true
+            LogManager.log(getContext(), R.string.ask_storage_changed_outside, ILogger.Types.INFO)
+            updateStorageState(Constants.StorageEvents.ChangedOutside)
+        }
+    }
+
+    fun dropIsStorageChangingHandled() {
+        isStorageChangingHandled = false
+    }
+
+    //endregion FileObserver
 
     fun onMainViewBackPressed(curView: Int): Boolean {
         var res = false

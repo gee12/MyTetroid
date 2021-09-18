@@ -17,7 +17,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.StorageDialogs

@@ -49,7 +49,8 @@ class StoragesRepo(context: Context) {
         entity.name,
         entity.path,
         entity.isDefault,
-        entity.isReadOnly
+        entity.isReadOnly,
+        false
     ).apply {
         id = entity.id
         createdDate = entity.createdDate

@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 
 class StorageSettingsFragment : TetroidSettingsFragment() {

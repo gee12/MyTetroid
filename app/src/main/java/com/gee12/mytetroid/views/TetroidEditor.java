@@ -23,7 +23,12 @@ import java.util.List;
 
 public class TetroidEditor extends WysiwygEditor {
 
+    public interface IEditorListener {
+        void onIsEditedChanged(boolean isEdited);
+    }
+
     boolean mIsCalledHtmlRequest;
+    IEditorListener editorListener;
 
     public TetroidEditor(Context context) {
         super(context);
@@ -41,6 +46,10 @@ public class TetroidEditor extends WysiwygEditor {
     }
 
     protected void init() {
+    }
+
+    public void setEditorListener(IEditorListener listener) {
+        this.editorListener = listener;
     }
 
     public List<ActionButton> getActionButtons() {
@@ -132,9 +141,8 @@ public class TetroidEditor extends WysiwygEditor {
         mWebView.execJavascript(script);
     }
 
-    public void insertImage(TetroidImage image) {
-        ImageUtils.setImageDimensions(
-                RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
+    public void insertImage(TetroidImage image, String pathToImageFolder) {
+        ImageUtils.setImageDimensions(pathToImageFolder, image);
         showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
     }
 
@@ -142,20 +150,20 @@ public class TetroidEditor extends WysiwygEditor {
      * Вставка выбранных изображений.
      * @param images
      */
-    public void insertImages(List<TetroidImage> images) {
+    public void insertImages(List<TetroidImage> images, String pathToImageFolder) {
         if (images == null)
             return;
         int size = images.size();
         if (size > 0) {
             if (size == 1) {
                 // выводим диалог установки размера
-                insertImage(images.get(0));
+                insertImage(images.get(0), pathToImageFolder);
             } else {
                 // спрашиваем о необходимости изменения размера
                 AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
                     @Override
                     public void onApply() {
-                        createImageDimensDialog(images, 0);
+                        createImageDimensDialog(images, 0, pathToImageFolder);
                     }
                     @Override
                     public void onCancel() {
@@ -169,12 +177,11 @@ public class TetroidEditor extends WysiwygEditor {
         }
     }
 
-    private void createImageDimensDialog(List<TetroidImage> images, int pos) {
+    private void createImageDimensDialog(List<TetroidImage> images, int pos, String pathToImageFolder) {
         if (images == null || pos < 0 || pos >= images.size())
             return;
         TetroidImage image = images.get(pos);
-        ImageUtils.setImageDimensions(
-                RecordsManager.getPathToRecordFolder(getContext(), image.getRecord()), image);
+        ImageUtils.setImageDimensions(pathToImageFolder, image);
         // выводим диалог установки размера
         boolean isSeveral = (pos < images.size() - 1);
         Dialogs.createImageDimensDialog(getContext(), image.getWidth(), image.getHeight(), isSeveral,
@@ -182,7 +189,7 @@ public class TetroidEditor extends WysiwygEditor {
                     mWebView.insertImage(image.getName(), width, height);
                     if (!similar) {
                         // вновь выводим диалог установки размера
-                        createImageDimensDialog(images, pos + 1);
+                        createImageDimensDialog(images, pos + 1, pathToImageFolder);
                     } else {
                         // устанавливаем "сохраненный" размер
                         for (int i = pos + 1; i < images.size(); i++) {
@@ -202,6 +209,14 @@ public class TetroidEditor extends WysiwygEditor {
 
     public String getDocumentHtml() {
         return getDocumentHtml(mWebView.getEditableHtml());
+    }
+
+    @Override
+    public void setIsEdited(boolean isEdited) {
+        super.setIsEdited(isEdited);
+        if (editorListener != null) {
+            editorListener.onIsEditedChanged(isEdited);
+        }
     }
 
     public boolean isCalledHtmlRequest() {

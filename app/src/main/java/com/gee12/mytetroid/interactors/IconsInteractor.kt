@@ -1,9 +1,7 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.DataManager
 import com.gee12.mytetroid.model.TetroidIcon
 import java.io.File
 import java.util.*

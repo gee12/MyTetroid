@@ -626,6 +626,8 @@
     <string name="title_download_insert_image">Скачать и вставить изображение</string>
     <string name="title_insert_as">Вставить как..</string>
     <string name="title_file_downloading">Загрузка файла</string>
+    <string name="title_image_downloading">Загрузка изображения</string>
+    <string name="title_page_downloading">Загрузка содержимого веб-страницы</string>
     <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
     <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
     <string name="log_link_is_empty">Пустая ссылка</string>

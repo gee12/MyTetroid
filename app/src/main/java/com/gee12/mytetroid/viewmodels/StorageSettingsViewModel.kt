@@ -48,8 +48,6 @@ open class StorageSettingsViewModel(
     protected val cryptInteractor = EncryptionInteractor(xmlLoader, logger, this)
     protected val recordsInteractor = RecordsInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, storageLoadHelper, xmlLoader)
     val nodesInteractor = NodesInteractor(storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageLoadHelper, xmlLoader)
-    protected val tagsInteractor = TagsInteractor(storageInteractor, xmlLoader)
-    protected val attachesInteractor = AttachesInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
     protected val syncInteractor =  SyncInteractor()
 
     var quicklyNode: TetroidNode?

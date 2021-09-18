@@ -52,7 +52,7 @@ import com.gee12.mytetroid.viewmodels.GlobalSearchParams;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.viewmodels.ObjectsInView;
 import com.gee12.mytetroid.viewmodels.ReadDecryptStorageState;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.viewmodels.ToolbarParams;
 import com.gee12.mytetroid.views.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.views.adapters.NodesListAdapter;
@@ -308,7 +308,6 @@ public class MainActivity extends TetroidActivity {
                 break;
             case PermissionChecked:
                 viewModel.initOrSyncStorage(this);
-
                 break;
             case AskBeforeSyncOnInit:
                 AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
@@ -322,14 +321,12 @@ public class MainActivity extends TetroidActivity {
                         viewModel.initStorageAndLoad();
                     }
                 });
-
                 break;
             case AskAfterSyncOnInit:
                 boolean isSyncSuccess = (boolean) data;
                 AskDialogs.showSyncDoneDialog(this, isSyncSuccess, () -> {
                     viewModel.initStorageAndLoad();
                 });
-
                 break;
             case AskBeforeSyncOnExit:
                 AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
@@ -343,36 +340,31 @@ public class MainActivity extends TetroidActivity {
                         viewModel.initStorageAndLoad();
                     }
                 });
-
                 break;
             case InitFailed:
                 boolean isFavorMode = (boolean) data;
                 initGUI(false, isFavorMode, false);
-
                 break;
             case EmptyPassCheck: {
-                AskPasswordParams params = (AskPasswordParams)data;
+                AskPasswordParams params = (AskPasswordParams) data;
                 PassDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, params.getFieldName(),
                         viewModel.getEmptyPassCheckingFieldCallback(params));
-
-                break;
-            }
+            } break;
             case AskPassword: {
                 AskPasswordParams params = (AskPasswordParams) data;
                 // выводим окно с запросом пароля
                 PassDialogs.showPassEnterDialog(MainActivity.this, params.getNode(), false,
                         viewModel.getPassInputHandler(params));
-
-                break;
-            }
+            } break;
             case AskPinCode: {
                 AskPasswordParams params = (AskPasswordParams) data;
                 // выводим окно с запросом пароля
                 PINManager.askPINCode(MainActivity.this, params.isNodeOpening(),
                         viewModel.getPinCodeInputHandler(params));
-
+            } break;
+            case AskForClearStoragePass:
+                showNoCryptedNodesLeftDialog();
                 break;
-            }
             case ChangedOutside:
                 // выводим уведомление
                 AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
@@ -405,14 +397,17 @@ public class MainActivity extends TetroidActivity {
             case ShowNode:
                 setCurNode((TetroidNode) data);
                 break;
+            case NodeCreated:
+                onNodeCreated((TetroidNode) data);
+                break;
+            case NodeInserted:
+                onNodeInserted((TetroidNode) data);
+                break;
             case NodeRenamed:
                 onNodeRenamed((TetroidNode) data);
                 break;
             case AskForDeleteNode:
                 showDeleteNodeDialog((TetroidNode) data);
-                break;
-            case AskForClearStoragePass:
-                showNoCryptedNodesLeftDialog();
                 break;
             case NodeCutted:
                 onDeleteNodeResult((TetroidNode) data, true);
@@ -1032,16 +1027,17 @@ public class MainActivity extends TetroidActivity {
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
         NodeDialogs.createNodeDialog(this, null, false, (name, parNode) -> {
             TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
-            TetroidNode node = viewModel.createNode(name, trueParentNode);
-            if (node != null) {
-                if (listAdapterNodes.addItem(pos, isSubNode)) {
-                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
-                } else {
-                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                }
-            } else {
-                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
-            }
+            viewModel.createNode(name, trueParentNode);
+//            TetroidNode node = viewModel.createNode(name, trueParentNode);
+//            if (node != null) {
+//                if (listAdapterNodes.addItem(pos, isSubNode)) {
+//                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+//                } else {
+//                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//                }
+//            } else {
+//                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+//            }
         });
     }
 
@@ -1050,17 +1046,26 @@ public class MainActivity extends TetroidActivity {
      */
     private void createNode() {
         NodeDialogs.createNodeDialog(this, null, true, (name, parNode) -> {
-            TetroidNode node = viewModel.createNode(name, parNode);
-            if (node != null) {
-                if (listAdapterNodes.addItem(parNode)) {
-                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
-                } else {
-                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                }
-            } else {
-                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
-            }
+            viewModel.createNode(name, parNode);
+//            TetroidNode node = viewModel.createNode(name, parNode);
+//            if (node != null) {
+//                if (listAdapterNodes.addItem(parNode)) {
+//                    TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+//                } else {
+//                    LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//                }
+//            } else {
+//                TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE);
+//            }
         });
+    }
+
+    private void onNodeCreated(TetroidNode node) {
+        if (listAdapterNodes.addItem(node.getParentNode())) {
+            TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE, node, false);
+        } else {
+            LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+        }
     }
 
     /**
@@ -1223,14 +1228,15 @@ public class MainActivity extends TetroidActivity {
      * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void insertNode(TetroidNode parentNode, int pos, boolean isSubNode) {
-        if (viewModel.insertNode(parentNode, isSubNode)) {
-            if (listAdapterNodes.addItem(pos, isSubNode)) {
-                TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
-            } else {
-                LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            }
+        viewModel.insertNode(parentNode, isSubNode);
+    }
+
+    private void onNodeInserted(TetroidNode node) {
+//        if (listAdapterNodes.addItem(pos, isSubNode)) {
+        if (listAdapterNodes.addItem(node)) {
+            TetroidLog.logOperRes(this, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
         } else {
-            TetroidLog.logOperErrorMore(this, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT);
+            LogManager.log(this, getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
         }
     }
 

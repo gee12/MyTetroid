@@ -37,7 +37,7 @@ object NetworkHelper {
         }
     }
 
-    suspend fun downloadImage(url: String?, callback: IWebImageResult?) {
+    suspend fun downloadImageAsync(url: String?, callback: IWebImageResult?) {
         withContext(Dispatchers.IO) {
             try {
                 val input = URL(url).openStream()

@@ -26,7 +26,7 @@ class NodesInteractor(
      * @param parentNode
      * @return
      */
-    fun createNode(context: Context, name: String, parentNode: TetroidNode?): TetroidNode? {
+    suspend fun createNode(context: Context, name: String, parentNode: TetroidNode?): TetroidNode? {
         if (TextUtils.isEmpty(name)) {
             LogManager.emptyParams(context, "DataManager.createNode()")
             return null
@@ -68,7 +68,7 @@ class NodesInteractor(
      * @param name
      * @return
      */
-    fun editNodeFields(context: Context, node: TetroidNode, name: String): Boolean {
+    suspend fun editNodeFields(context: Context, node: TetroidNode, name: String): Boolean {
         if (TextUtils.isEmpty(name)) {
             LogManager.emptyParams(context, "DataManager.editNodeFields()")
             return false
@@ -100,7 +100,7 @@ class NodesInteractor(
      * @param iconFileName
      * @return
      */
-    fun setNodeIcon(context: Context, node: TetroidNode, iconFileName: String): Boolean {
+    suspend fun setNodeIcon(context: Context, node: TetroidNode, iconFileName: String): Boolean {
         return setNodeIcon(context, node, iconFileName, false)
     }
 
@@ -109,7 +109,7 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    fun dropNodeIcon(context: Context, node: TetroidNode): Boolean {
+    suspend fun dropNodeIcon(context: Context, node: TetroidNode): Boolean {
         return setNodeIcon(context, node, null, true)
     }
 
@@ -119,7 +119,7 @@ class NodesInteractor(
      * @param iconFileName
      * @return
      */
-    fun setNodeIcon(context: Context, node: TetroidNode?, iconFileName: String?, isDrop: Boolean): Boolean {
+    suspend fun setNodeIcon(context: Context, node: TetroidNode?, iconFileName: String?, isDrop: Boolean): Boolean {
         if (node == null || TextUtils.isEmpty(iconFileName) && !isDrop) {
             LogManager.emptyParams(context, "DataManager.setNodeIcon()")
             return false
@@ -154,7 +154,7 @@ class NodesInteractor(
      * @param isCutted Если true, то запись была вырезана. Иначе - скопирована
      * @return
      */
-    fun insertNode(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode, isCutted: Boolean): Boolean {
+    suspend fun insertNode(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode, isCutted: Boolean): Boolean {
         TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT, srcNode)
         val newNode = insertNodeRecursively(context, srcNode, destParentNode, isCutted, false)
 
@@ -172,7 +172,7 @@ class NodesInteractor(
      * Вставка ветки в указанную ветку.
      * @param srcNode
      */
-    fun insertNodeRecursively(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode,
+    suspend fun insertNodeRecursively(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode,
                               isCutted: Boolean, breakOnFSErrors: Boolean): TetroidNode? {
         // генерируем уникальный идентификатор, если ветка копируется
         val id = if (isCutted) srcNode.id else dataInteractor.createUniqueId()
@@ -224,7 +224,7 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    fun deleteNode(context: Context, node: TetroidNode): Boolean {
+    suspend fun deleteNode(context: Context, node: TetroidNode): Boolean {
         return deleteNode(context, node, SettingsManager.getTrashPath(context), false)
     }
 
@@ -233,7 +233,7 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    fun cutNode(context: Context, node: TetroidNode): Boolean {
+    suspend fun cutNode(context: Context, node: TetroidNode): Boolean {
         return deleteNode(context, node, SettingsManager.getTrashPath(context), true)
     }
 
@@ -242,7 +242,7 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    private fun deleteNode(context: Context, node: TetroidNode, movePath: String, isCutting: Boolean): Boolean {
+    private suspend fun deleteNode(context: Context, node: TetroidNode, movePath: String, isCutting: Boolean): Boolean {
         TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, if (isCutting) TetroidLog.Opers.CUT else TetroidLog.Opers.DELETE, node)
 
         // удаляем ветку из дерева
@@ -267,7 +267,7 @@ class NodesInteractor(
      * Удаление объектов ветки.
      * @param node
      */
-    private fun deleteNodeRecursively(context: Context, node: TetroidNode, movePath: String, breakOnFSErrors: Boolean): Boolean {
+    private suspend fun deleteNodeRecursively(context: Context, node: TetroidNode, movePath: String, breakOnFSErrors: Boolean): Boolean {
         val recordsCount = node.recordsCount
         if (recordsCount > 0) {
             for (record in node.records) {

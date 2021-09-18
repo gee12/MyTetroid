@@ -22,13 +22,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.NodesManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.data.StorageManager;
-import com.gee12.mytetroid.viewmodels.IconsViewModel;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.NodeDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;

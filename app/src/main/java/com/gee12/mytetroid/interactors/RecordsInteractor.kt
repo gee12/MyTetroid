@@ -452,8 +452,8 @@ class RecordsInteractor(
      * Создание временной записи (без сохранения в дерево) при использовании виджета.
      * @return
      */
-    suspend fun createTempRecord(context: Context, name: String?, url: String?, text: String?): TetroidRecord? {
-        var name = name
+    suspend fun createTempRecord(context: Context, srcName: String?, url: String?, text: String?, node: TetroidNode): TetroidRecord? {
+        var name = srcName
         TetroidLog.logOperStart(context, TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.CREATE)
         // генерируем уникальный идентификатор
         val id = dataInteractor.createUniqueId()
@@ -465,7 +465,7 @@ class RecordsInteractor(
 //            name = String.format(Locale.getDefault(), "%1$te %1$tb %1$tY %1$tR", new Date());
             name = String.format(Locale.getDefault(), "%1\$te %1\$tb %1\$tR", Date())
         }
-        val node = if (storageInteractor.quicklyNode != null) NodesManager.getQuicklyNode() else TetroidXml.ROOT_NODE
+//        val node = if (storageInteractor.quicklyNode != null) NodesManager.getQuicklyNode() else TetroidXml.ROOT_NODE
         val record = TetroidRecord(
             false, id,
             name, null, null, url,
@@ -488,11 +488,13 @@ class RecordsInteractor(
             return null
         }
         val file = File(fileUri.path!!)
-        try {
-            file.createNewFile()
-        } catch (ex: IOException) {
-            LogManager.log(context, context.getString(R.string.log_error_creating_record_file) + filePath, ex)
-            return null
+        withContext(Dispatchers.IO) {
+            try {
+                file.createNewFile()
+            } catch (ex: IOException) {
+                LogManager.log(context, context.getString(R.string.log_error_creating_record_file) + filePath, ex)
+                return@withContext null
+            }
         }
         // текст записи
         if (!TextUtils.isEmpty(text)) {

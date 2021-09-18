@@ -35,6 +35,7 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.PassDialogs.IPassInputResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -48,6 +49,10 @@ open class StorageViewModel(
     private val storagesRepo: StoragesRepo
 ) : StorageSettingsViewModel(app, storagesRepo) {
 
+    protected val tagsInteractor = TagsInteractor(storageInteractor, xmlLoader)
+    protected val attachesInteractor = AttachesInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
+
+
     val objectAction: SingleLiveEvent<ViewModelEvent<Constants.ObjectEvents, Any>> = SingleLiveEvent()
 
     override val storageLoadHelper = StorageLoadHelper()
@@ -59,8 +64,6 @@ open class StorageViewModel(
 
     var databaseConfig: DatabaseConfig? = null
         private set
-
-    private var isStorageChangingHandled = false
 
 
     //region Init
@@ -676,8 +679,6 @@ open class StorageViewModel(
 
     fun getNode(nodeId: String) = nodesInteractor.getNode(nodeId)
 
-    fun createNode(name: String, trueParentNode: TetroidNode?) = nodesInteractor.createNode(getContext(), name, trueParentNode)
-
     fun createNodesHierarchy(node: TetroidNode) = nodesInteractor.createNodesHierarchy(node)
 
     /**
@@ -845,7 +846,8 @@ open class StorageViewModel(
     //region Other
 
     fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
-        return dataInteractor.swapTetroidObjects(getContext(), list, pos, isUp, through)
+        // FIXME: костыль с runBlocking(), чтобы не переделывать и вернуть результат
+        return runBlocking(Dispatchers.IO) { dataInteractor.swapTetroidObjects(getContext(), list, pos, isUp, through) }
     }
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()

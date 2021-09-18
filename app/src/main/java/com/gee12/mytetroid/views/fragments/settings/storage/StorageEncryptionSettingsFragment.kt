@@ -9,7 +9,6 @@ import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import com.gee12.mytetroid.TetroidTask
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.data.PassManager
 import com.gee12.mytetroid.data.PINManager
 import com.gee12.mytetroid.views.dialogs.AskDialogs
@@ -28,7 +27,7 @@ import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.SettingsActivity
 
@@ -53,7 +52,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         setTitle(R.string.pref_category_crypt, mViewModel.getStorageName())
 
         // установка или смена пароля хранилища
-        val isStorageReady = mViewModel.isInited() && mViewModel.isLoaded() && !App.IsLoadedFavoritesOnly
+        val isStorageReady = mViewModel.isInited() && mViewModel.isLoaded() && !mViewModel.isLoadedFavoritesOnly()
         val passPref = findPreference<Preference>(getString(R.string.pref_key_change_pass))
         val isCrypted = mViewModel.isCrypted()
         passPref!!.setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
@@ -138,7 +137,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         } else if (!mViewModel.isLoaded()) {
             Message.show(context, getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT)
             return false
-        } else if (checkIsFavorMode && App.IsLoadedFavoritesOnly) {
+        } else if (checkIsFavorMode && mViewModel.isLoadedFavoritesOnly()) {
             Message.show(context, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT)
             return false
         }
@@ -165,6 +164,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     }
 
     /**
+     * TODO: Переписать на корутины.
      * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
      */
     inner class ChangePassTask : TetroidTask<String?, String?, Boolean?>(activity) {
@@ -194,7 +194,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         }
 
         private fun setStage(obj: Objs, oper: Opers, stage: Stages) {
-            val taskStage = TaskStage(ChangePassTask::class.java, obj, oper, stage)
+            val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
             val mes = TetroidLog.logTaskStage(mContext, taskStage)
             publishProgress(mes)
         }
