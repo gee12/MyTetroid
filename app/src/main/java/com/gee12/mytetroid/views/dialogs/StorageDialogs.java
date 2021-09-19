@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+@Deprecated
 public class StorageDialogs {
 
     public interface IStorageResult {
@@ -38,6 +39,7 @@ public class StorageDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог создания/изменения хранилища.
      */
     public static class StorageDialog {

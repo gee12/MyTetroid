@@ -1,148 +1,195 @@
-package com.gee12.mytetroid.views.dialogs;
+package com.gee12.mytetroid.views.dialogs
 
-import android.content.Context;
-import android.net.Uri;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.content.Context
+import android.net.Uri
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogResult
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogListResult
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogURLResult
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogFileURLResult
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogImageURLResult
+import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.views.dialogs.ClipboardDialogs.IDialogTetroidObjectURLResult
+import com.gee12.mytetroid.model.FoundType
+import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
+import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.mytetroid.R
 
-import androidx.appcompat.app.AlertDialog;
+object ClipboardDialogs {
 
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.FoundType;
-import com.gee12.mytetroid.model.TetroidObject;
-
-import java.util.Objects;
-
-public class ClipboardDialogs {
-
-    public interface IDialogListResult {
-        void itemSelected(String item);
+    interface IDialogListResult {
+        fun itemSelected(item: String?)
     }
 
-    public interface IDialogResult {
-        void insertHyperlink(Uri uri);
-        void insertAsText(Uri uri);
+    interface IDialogResult {
+        fun insertHyperlink(uri: Uri?)
+        fun insertAsText(uri: Uri?)
     }
 
-    public interface IDialogURLResult extends IDialogResult {
-        void downloadAndInsertWebPage(Uri uri);
-        void downloadAndInsertWebPageAsText(Uri uri);
-        void downloadAndAttachWebPage(Uri uri);
+    interface IDialogURLResult : IDialogResult {
+        fun downloadAndInsertWebPage(uri: Uri?)
+        fun downloadAndInsertWebPageAsText(uri: Uri?)
+        fun downloadAndAttachWebPage(uri: Uri?)
     }
 
-    public interface IDialogFileURLResult extends IDialogResult {
-        void attachLocalFile(Uri uri);
-        void downloadAndAttachWebFile(Uri uri);
+    interface IDialogFileURLResult : IDialogResult {
+        fun attachLocalFile(uri: Uri?)
+        fun downloadAndAttachWebFile(uri: Uri?)
     }
 
-    public interface IDialogImageURLResult extends IDialogFileURLResult {
-        void insertLocalImage(Uri uri);
-        void downloadAndInsertWebImage(Uri uri);
+    interface IDialogImageURLResult : IDialogFileURLResult {
+        fun insertLocalImage(uri: Uri?)
+        fun downloadAndInsertWebImage(uri: Uri?)
     }
 
-    public interface IDialogTetroidObjectURLResult extends IDialogResult {
-        void insertRecordContent(Uri uri, TetroidObject record);
-        void attachFile(Uri uri, TetroidObject attach);
+    interface IDialogTetroidObjectURLResult : IDialogResult {
+        fun insertRecordContent(uri: Uri?, record: TetroidObject?)
+        fun attachFile(uri: Uri?, attach: TetroidObject?)
     }
 
-    public static void createSimpleURLDialog(Context context, Uri uri, IDialogResult callback) {
-        String[] dataSet = context.getResources().getStringArray(R.array.clipboard_simple_url);
-        createListDialog(context, dataSet, item -> {
-            if (Objects.equals(item, context.getString(R.string.title_insert_hyperlink))) {
-                callback.insertHyperlink(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_url_as_text))) {
-                callback.insertAsText(uri);
+    fun createSimpleURLDialog(context: Context, uri: Uri?, callback: IDialogResult) {
+        val dataSet = context.resources.getStringArray(R.array.clipboard_simple_url)
+        createListDialog(context, dataSet, object : IDialogListResult {
+            override fun itemSelected(item: String?) {
+                when (item) {
+                    context.getString(R.string.title_insert_hyperlink) -> {
+                        callback.insertHyperlink(uri)
+                    }
+                    context.getString(R.string.title_insert_url_as_text) -> {
+                        callback.insertAsText(uri)
+                    }
+                }
             }
-        });
+        })
     }
 
-    public static void createURLDialog(Context context, Uri uri, IDialogURLResult callback) {
-        String[] dataSet = context.getResources().getStringArray(R.array.clipboard_url);
-        createListDialog(context, dataSet, item -> {
-            if (Objects.equals(item, context.getString(R.string.title_insert_hyperlink))) {
-                callback.insertHyperlink(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_url_as_text))) {
-                callback.insertAsText(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_attach_web_page_as_file))) {
-                callback.downloadAndAttachWebPage(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_web_page))) {
-                callback.downloadAndInsertWebPage(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_web_page_as_text))) {
-                callback.downloadAndInsertWebPageAsText(uri);
+    @JvmStatic
+    fun createURLDialog(context: Context, uri: Uri?, callback: IDialogURLResult) {
+        val dataSet = context.resources.getStringArray(R.array.clipboard_url)
+        createListDialog(context, dataSet, object : IDialogListResult {
+            override fun itemSelected(item: String?) {
+                when (item) {
+                    context.getString(R.string.title_insert_hyperlink) -> {
+                        callback.insertHyperlink(uri)
+                    }
+                    context.getString(R.string.title_insert_url_as_text) -> {
+                        callback.insertAsText(uri)
+                    }
+                    context.getString(R.string.title_attach_web_page_as_file) -> {
+                        callback.downloadAndAttachWebPage(uri)
+                    }
+                    context.getString(R.string.title_insert_web_page) -> {
+                        callback.downloadAndInsertWebPage(uri)
+                    }
+                    context.getString(R.string.title_insert_web_page_as_text) -> {
+                        callback.downloadAndInsertWebPageAsText(uri)
+                    }
+                }
             }
-        });
+        })
     }
 
-    public static void createFileDialog(Context context, Uri uri, boolean isLocal, IDialogFileURLResult callback) {
-        String[] dataSet = context.getResources().getStringArray(
-                (isLocal) ? R.array.clipboard_local_file : R.array.clipboard_web_file);
-        createListDialog(context, dataSet, item -> {
-            if (Objects.equals(item, context.getString(R.string.title_insert_hyperlink))) {
-                callback.insertHyperlink(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_url_as_text))) {
-                callback.insertAsText(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_attach_file))) {
-                callback.attachLocalFile(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_download_attach_file))) {
-                callback.downloadAndAttachWebFile(uri);
+    @JvmStatic
+    fun createFileDialog(context: Context, uri: Uri?, isLocal: Boolean, callback: IDialogFileURLResult) {
+        val dataSet = context.resources.getStringArray(
+            if (isLocal) R.array.clipboard_local_file else R.array.clipboard_web_file
+        )
+        createListDialog(context, dataSet, object : IDialogListResult {
+            override fun itemSelected(item: String?) {
+                when (item) {
+                    context.getString(R.string.title_insert_hyperlink) -> {
+                        callback.insertHyperlink(uri)
+                    }
+                    context.getString(R.string.title_insert_url_as_text) -> {
+                        callback.insertAsText(uri)
+                    }
+                    context.getString(R.string.title_attach_file) -> {
+                        callback.attachLocalFile(uri)
+                    }
+                    context.getString(R.string.title_download_attach_file) -> {
+                        callback.downloadAndAttachWebFile(uri)
+                    }
+                }
             }
-        });
+        })
     }
 
-    public static void createImageDialog(Context context, Uri uri, boolean isLocal, IDialogImageURLResult callback) {
-        String[] dataSet = context.getResources().getStringArray(
-                (isLocal) ? R.array.clipboard_local_image : R.array.clipboard_web_image);
-        createListDialog(context, dataSet, item -> {
-            if (Objects.equals(item, context.getString(R.string.title_insert_hyperlink))) {
-                callback.insertHyperlink(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_url_as_text))) {
-                callback.insertAsText(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_image))) {
-                callback.insertLocalImage(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_download_insert_image))) {
-                callback.downloadAndInsertWebImage(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_attach_image))) {
-                callback.attachLocalFile(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_download_attach_image))) {
-                callback.downloadAndAttachWebFile(uri);
+    @JvmStatic
+    fun createImageDialog(context: Context, uri: Uri?, isLocal: Boolean, callback: IDialogImageURLResult) {
+        val dataSet = context.resources.getStringArray(
+            if (isLocal) R.array.clipboard_local_image else R.array.clipboard_web_image
+        )
+        createListDialog(context, dataSet, object : IDialogListResult {
+            override fun itemSelected(item: String?) {
+                when (item) {
+                    context.getString(R.string.title_insert_hyperlink) -> {
+                        callback.insertHyperlink(uri)
+                    }
+                    context.getString(R.string.title_insert_url_as_text) -> {
+                        callback.insertAsText(uri)
+                    }
+                    context.getString(R.string.title_insert_image) -> {
+                        callback.insertLocalImage(uri)
+                    }
+                    context.getString(R.string.title_download_insert_image) -> {
+                        callback.downloadAndInsertWebImage(uri)
+                    }
+                    context.getString(R.string.title_attach_image) -> {
+                        callback.attachLocalFile(uri)
+                    }
+                    context.getString(R.string.title_download_attach_image) -> {
+                        callback.downloadAndAttachWebFile(uri)
+                    }
+                }
             }
-        });
+        })
     }
 
-    public static void createTetroidObjectURLDialog(Context context, Uri uri, TetroidObject obj,
-                                                    IDialogTetroidObjectURLResult callback) {
-        String[] dataSet = context.getResources().getStringArray(
-                (obj.getType() == FoundType.TYPE_RECORD) ? R.array.clipboard_tetroid_record
-                        : (obj.getType() == FoundType.TYPE_FILE) ? R.array.clipboard_tetroid_file
-                        : R.array.clipboard_simple_url);
-        createListDialog(context, dataSet, item -> {
-            if (Objects.equals(item, context.getString(R.string.title_insert_hyperlink))) {
-                callback.insertHyperlink(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_url_as_text))) {
-                callback.insertAsText(uri);
-            } else if (Objects.equals(item, context.getString(R.string.title_insert_record_content))) {
-                callback.insertRecordContent(uri, obj);
-            } else if (Objects.equals(item, context.getString(R.string.title_attach_file))) {
-                callback.attachFile(uri, obj);
+    @JvmStatic
+    fun createTetroidObjectURLDialog(
+        context: Context, uri: Uri?, obj: TetroidObject,
+        callback: IDialogTetroidObjectURLResult
+    ) {
+        val dataSet = context.resources.getStringArray(
+            if (obj.type == FoundType.TYPE_RECORD) R.array.clipboard_tetroid_record else if (obj.type == FoundType.TYPE_FILE) R.array.clipboard_tetroid_file else R.array.clipboard_simple_url
+        )
+        createListDialog(context, dataSet, object : IDialogListResult {
+            override fun itemSelected(item: String?) {
+                when (item) {
+                    context.getString(R.string.title_insert_hyperlink) -> {
+                        callback.insertHyperlink(uri)
+                    }
+                    context.getString(R.string.title_insert_url_as_text) -> {
+                        callback.insertAsText(uri)
+                    }
+                    context.getString(R.string.title_insert_record_content) -> {
+                        callback.insertRecordContent(uri, obj)
+                    }
+                    context.getString(R.string.title_attach_file) -> {
+                        callback.attachFile(uri, obj)
+                    }
+                }
             }
-        });
+        })
     }
 
-    private static void createListDialog(Context context, String[] dataSet, IDialogListResult callback) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_list_view);
-        builder.setTitle(R.string.title_insert_as);
-        final AlertDialog dialog = builder.create();
-
-        ListView listView = builder.getView().findViewById(R.id.list_view);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, dataSet);
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            String item = adapter.getItem(position);
-            if (callback != null)
-                callback.itemSelected(item);
-            dialog.cancel();
-        });
-        listView.setAdapter(adapter);
-        dialog.show();
+    private fun createListDialog(context: Context, dataSet: Array<String>, callback: IDialogListResult?) {
+        val builder = AskDialogBuilder.create(context, R.layout.dialog_list_view)
+        builder.setTitle(R.string.title_insert_as)
+        val dialog = builder.create()
+        val listView = builder.view.findViewById<ListView>(R.id.list_view)
+        val adapter = ArrayAdapter(context, android.R.layout.simple_list_item_1, dataSet)
+        listView.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+            val item = adapter.getItem(position)
+            callback?.itemSelected(item)
+            dialog.cancel()
+        }
+        listView.adapter = adapter
+        dialog.show()
     }
+
 }

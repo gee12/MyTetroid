@@ -20,6 +20,7 @@ import com.lumyjuwon.richwysiwygeditor.RichEditor.Utils;
 
 import java.util.Locale;
 
+@Deprecated
 public class PassDialogs {
 
     public interface IPassInputResult {
@@ -57,6 +58,7 @@ public class PassDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог ввода пароля.
      * @param context
      * @param node
@@ -89,6 +91,7 @@ public class PassDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог установки пароля.
      * @param context
      * @param node
@@ -136,6 +139,7 @@ public class PassDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог изменения пароля.
      * @param context
      * @param passResult
@@ -188,6 +192,7 @@ public class PassDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог ввода длины ПИН-кода.
      * Значение должно быть в диапазоне 4-8.
      * @param context
@@ -246,6 +251,9 @@ public class PassDialogs {
         showPINCodeDialog(context, length, isSetup, false, null, callback);
     }
 
+    /**
+     * TODO: Перенести в DialogFragment.
+     */
     public static void showPINCodeDialog(Context context, int length, boolean isSetup, boolean isConfirm, String firstPin,
                                          IPinInputResult callback) {
         Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_pin_code);

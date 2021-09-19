@@ -18,6 +18,7 @@ import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Random;
 
+@Deprecated
 public class FileDialogs {
 
     public interface IFileFieldsResult {
@@ -25,6 +26,7 @@ public class FileDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог создания/изменения файла.
      * @param context
      * @param handler

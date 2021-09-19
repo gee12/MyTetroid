@@ -1,77 +1,74 @@
 package com.gee12.mytetroid.views.dialogs
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.logs.ILogger
+import com.gee12.mytetroid.logs.LogManager
+import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
-import java.util.*
 
 /**
- * Диалог информации о записи.
+ * Диалог информации о прикрепленном файле.
  */
-class RecordInfoDialog(
-    val record: TetroidRecord?
+class AttachInfoDialog(
+    val attach: TetroidFile?
 ) : TetroidDialogFragment() {
 
     private lateinit var viewModel: StorageViewModel
 
-
     override fun getRequiredTag() = TAG
 
-    override fun isPossibleToShow() = (record != null && !record.isNonCryptedOrDecrypted)
+    override fun isPossibleToShow(): Boolean {
+        if (attach == null || !attach.isNonCryptedOrDecrypted) {
+            return false
+        }
+        if (attach.record == null) {
+            LogManager.log(context, getString(R.string.log_file_record_is_null), ILogger.Types.ERROR)
+            return false
+        }
+        return true
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
         viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
-        val builder = AskDialogBuilder.create(context, R.layout.dialog_record_info)
+        val builder = AskDialogBuilder.create(context, R.layout.dialog_attach_info)
         builder.setPositiveButton(R.string.answer_ok, null)
-        builder.setTitle(record?.name)
+        builder.setTitle(attach?.name)
+
+        val record = attach?.record
 
         val view = builder.view
-        (view.findViewById<View>(R.id.text_view_id) as TextView).text = record?.id
-        val tvNode = view.findViewById<View>(R.id.text_view_node) as TextView
-        if (viewModel.isLoadedFavoritesOnly()) {
-            tvNode.setText(R.string.hint_load_all_nodes)
-            tvNode.setTextColor(Color.LTGRAY)
-        } else if (record?.node != null) {
-            tvNode.text = record.node.name
-        } else {
-            tvNode.setText(R.string.hint_error)
-            tvNode.setTextColor(Color.LTGRAY)
-        }
+        (view.findViewById<View>(R.id.text_view_id) as TextView).text = attach?.id
+        (view.findViewById<View>(R.id.text_view_record) as TextView).text = record?.name
         (view.findViewById<View>(R.id.text_view_crypted) as TextView).setText(
-            if (record?.isCrypted == true) R.string.answer_yes else R.string.answer_no
+            if (attach?.isCrypted == true) R.string.answer_yes else R.string.answer_no
         )
         val dateFormat = getString(R.string.full_date_format_string)
-        val created = record?.created
-        (view.findViewById<View>(R.id.text_view_created) as TextView).text =
-            if (created != null) Utils.dateToString(created, dateFormat) else "-"
 
         if (App.isFullVersion()) {
             view.findViewById<View>(R.id.table_row_edited).visibility = View.VISIBLE
-            val edited: Date? = viewModel.recordsInteractor.getEditedDate(context, record!!)
+            val edited = viewModel.attachesInteractor.getEditedDate(requireContext(), attach!!)
             (view.findViewById<View>(R.id.text_view_edited) as TextView).text =
                 if (edited != null) Utils.dateToString(edited, dateFormat) else "-"
         }
         val path: String = viewModel.getPathToRecordFolder(record!!)
         (view.findViewById<View>(R.id.text_view_path) as TextView).text = path
-        var size = FileUtils.getFileSize(context, path)
+        var size: String = viewModel.attachesInteractor.getAttachedFileSize(requireContext(), attach!!)
         val tvSize = view.findViewById<TextView>(R.id.text_view_size)
         if (size == null) {
-            size = requireContext().getString(R.string.title_folder_is_missing)
-            tvSize.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDarkRed))
+            size = getString(R.string.title_folder_is_missing)
+            tvSize.setTextColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.colorDarkRed))
         }
         tvSize.text = size
 
@@ -79,7 +76,6 @@ class RecordInfoDialog(
     }
 
     companion object {
-        const val TAG = "RecordInfoDialog"
-
+        const val TAG = "AttachInfoDialog"
     }
 }

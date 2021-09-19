@@ -30,6 +30,7 @@ import com.gee12.mytetroid.views.adapters.FilesListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.views.dialogs.AttachDialogs;
+import com.gee12.mytetroid.views.dialogs.AttachInfoDialog;
 import com.gee12.mytetroid.views.dialogs.FileDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
 import com.gee12.mytetroid.logs.ILogger;
@@ -433,6 +434,13 @@ public class MainPageFragment extends TetroidFragment {
         });
     }
 
+    void showAttachInfoDialog(TetroidFile attach) {
+//        AttachDialogs.createAttachInfoDialog(context, attach);
+        new AttachInfoDialog(
+                attach
+        ).showIfPossible(getParentFragmentManager());
+    }
+
     // endregion Attach
 
     // region OptionsMenu
@@ -671,7 +679,7 @@ public class MainPageFragment extends TetroidFragment {
                 reorderAttach(pos, false);
                 return true;
             case R.id.action_info:
-                AttachDialogs.createAttachInfoDialog(context, attach);
+                showAttachInfoDialog(attach);
                 return true;
             case R.id.action_delete:
                 deleteAttach(attach);

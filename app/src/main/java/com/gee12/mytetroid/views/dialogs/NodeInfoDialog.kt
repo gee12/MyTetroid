@@ -15,7 +15,7 @@ import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
  * Диалог информации о ветке.
  */
 class NodeInfoDialog(
-    val node: TetroidNode
+    val node: TetroidNode?
 ) : TetroidDialogFragment() {
 
     private lateinit var viewModel: StorageViewModel
@@ -31,12 +31,13 @@ class NodeInfoDialog(
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_node_info)
         builder.setPositiveButton(R.string.answer_ok, null)
-        builder.setTitle(node.name)
+        builder.setTitle(node?.name)
 
         val view = builder.view
-        (view.findViewById<View>(R.id.text_view_id) as TextView).text = node.id
-        (view.findViewById<View>(R.id.text_view_crypted) as TextView).setText(if (node.isCrypted) R.string.answer_yes else R.string.answer_no)
-        val nodesRecords: IntArray = viewModel.nodesInteractor.getNodesRecordsCount(node)
+        (view.findViewById<View>(R.id.text_view_id) as TextView).text = node?.id
+        (view.findViewById<View>(R.id.text_view_crypted) as TextView).setText(
+            if (node?.isCrypted == true) R.string.answer_yes else R.string.answer_no)
+        val nodesRecords: IntArray = viewModel.nodesInteractor.getNodesRecordsCount(node!!)
         if (nodesRecords != null) {
             (view.findViewById<View>(R.id.text_view_nodes) as TextView).text = nodesRecords[0].toString()
             (view.findViewById<View>(R.id.text_view_records) as TextView).text = nodesRecords[1].toString()

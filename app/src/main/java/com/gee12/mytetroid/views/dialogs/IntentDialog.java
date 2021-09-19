@@ -10,6 +10,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.views.adapters.IntentsAdapter;
 import com.gee12.mytetroid.model.ReceivedData;
 
+@Deprecated
 public class IntentDialog {
 
     public interface IItemClickListener {
@@ -17,6 +18,7 @@ public class IntentDialog {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог со списком вариантов обработки переданного объекта.
      * @param context
      * @param isText

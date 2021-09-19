@@ -17,6 +17,7 @@ import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard;
 
 import java.util.Random;
 
+@Deprecated
 public class TagDialogs {
 
     public interface ITagFieldsResult {
@@ -24,6 +25,7 @@ public class TagDialogs {
     }
 
     /**
+     * TODO: Перенести в DialogFragment.
      * Диалог изменения имени метки.
      * @param context
      * @param handler
