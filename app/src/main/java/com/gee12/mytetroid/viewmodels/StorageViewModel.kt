@@ -43,7 +43,7 @@ import java.util.*
 /**
  * (замена StorageManager)
  */
-open class StorageViewModel<E>(
+open class StorageViewModel/*<E>*/(
     app: Application,
     private val storagesRepo: StoragesRepo
 ) : StorageSettingsViewModel(app, storagesRepo) {
@@ -52,7 +52,11 @@ open class StorageViewModel<E>(
     val attachesInteractor = AttachesInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
 
 
-    val objectAction: SingleLiveEvent<ViewModelEvent<E, Any>> = SingleLiveEvent()
+//    val objectAction: SingleLiveEvent<ViewModelEvent<E, Any>> = SingleLiveEvent()
+//
+//    fun doAction(action: E, param: Any? = null) {
+//        objectAction.postValue(ViewModelEvent(action, param))
+//    }
 
     override val storageLoadHelper = StorageLoadHelper()
 
@@ -818,10 +822,6 @@ open class StorageViewModel<E>(
             val storage = storagesRepo.getDefaultStorage()
             _storage.postValue(storage)
         }
-    }
-
-    fun doAction(action: E, param: Any? = null) {
-        objectAction.postValue(ViewModelEvent(action, param))
     }
 
     //endregion Other

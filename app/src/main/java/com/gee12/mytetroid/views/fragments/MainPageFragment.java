@@ -38,6 +38,8 @@ import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.views.dialogs.RecordFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.RecordInfoDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
@@ -280,10 +282,18 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        recordDialogs.createRecordFieldsDialog(context, null, true, viewModel.getCurNode(),
+//        recordDialogs.createRecordFieldsDialog(context, null, true, viewModel.getCurNode(),
+//                (name, tags, author, url, node, isFavor) -> {
+//            viewModel.createRecord(name, tags, author, url, node, isFavor);
+//        });
+        new RecordFieldsDialog(
+                null,
+                true,
+                viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
-            viewModel.createRecord(name, tags, author, url, node, isFavor);
-        });
+                    viewModel.createRecord(name, tags, author, url, node, isFavor);
+                }
+        ).showIfPossible(getParentFragmentManager());
     }
 
     /**
@@ -321,9 +331,19 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void editRecordFields(TetroidRecord record) {
 //        TetroidNode oldNode = record.getNode();
-        recordDialogs.createRecordFieldsDialog(context, record, true, viewModel.getCurNode(),
+//        recordDialogs.createRecordFieldsDialog(context, record, true, viewModel.getCurNode(),
+//                (name, tags, author, url, node, isFavor) -> {
+//            viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
+
+        new RecordFieldsDialog(
+                null,
+                true,
+                viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
-            viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
+                    viewModel.createRecord(name, tags, author, url, node, isFavor);
+                }
+        ).showIfPossible(getParentFragmentManager());
+
             // VM
 //            if (viewModel.editRecordFields(record, name, tags, author, url, node, isFavor)) {
 //                onRecordFieldsUpdated(record, oldNode != record.getNode());
@@ -332,7 +352,14 @@ public class MainPageFragment extends TetroidFragment {
 //            } else {
 //                TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
 //            }
-        });
+//        });
+    }
+
+    void showRecordInfoDialog(TetroidRecord record) {
+//        recordDialogs.createRecordInfoDialog(context, record);
+        new RecordInfoDialog(
+                record
+        ).showIfPossible(getParentFragmentManager());
     }
 
     // endregion Record
@@ -606,7 +633,7 @@ public class MainPageFragment extends TetroidFragment {
                 viewModel.removeFavorite(context, record);
                 return true;
             case R.id.action_info:
-                recordDialogs.createRecordInfoDialog(context, record);
+                showRecordInfoDialog(record);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);

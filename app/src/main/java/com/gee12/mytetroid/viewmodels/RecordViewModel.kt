@@ -13,6 +13,7 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebImageResult
@@ -39,7 +40,13 @@ import java.util.*
 class RecordViewModel(
     app: Application,
     private val storagesRepo: StoragesRepo
-): StorageViewModel<Constants.RecordEvents>(app, storagesRepo) {
+): StorageViewModel/*<Constants.RecordEvents>*/(app, storagesRepo) {
+
+    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.RecordEvents, Any>> = SingleLiveEvent()
+
+    fun doAction(action: Constants.RecordEvents, param: Any? = null) {
+        objectAction.postValue(ViewModelEvent(action, param))
+    }
 
     protected val imagesInteractor = ImagesInteractor(dataInteractor, recordsInteractor)
 

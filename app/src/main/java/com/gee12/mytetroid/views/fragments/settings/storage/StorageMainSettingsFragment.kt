@@ -18,6 +18,7 @@ import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.AskDialogs
+import com.gee12.mytetroid.views.dialogs.NodeChooserDialog
 import com.gee12.mytetroid.views.dialogs.NodeDialogs
 import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
 import com.gee12.mytetroid.views.dialogs.StorageDialogs
@@ -80,30 +81,39 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         // ветка для быстрых записей
         findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // диалог выбора ветки
-            NodeDialogs.createNodeChooserDialog(
-                context, viewModel.quicklyNode,
-                false, false, true, object : INodeChooserResult {
-                    override fun onApply(node: TetroidNode) {
-                        // устанавливаем ветку, если все хорошо
-                        viewModel.quicklyNode = node
-                    }
+//            NodeDialogs.createNodeChooserDialog(
+//                context, viewModel.quicklyNode,
+//                false, false, true, )
+            val nodeCallback = object : NodeChooserDialog.Result() {
+                override fun onApply(node: TetroidNode?) {
+                    // устанавливаем ветку, если все хорошо
+                    viewModel.quicklyNode = node
+                }
 
-                    override fun onProblem(code: Int) {
-                        // если хранилище недозагружено, спрашиваем о действиях
-                        val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
-                        AskDialogs.showYesDialog(context, {
+                override fun onProblem(code: Int) {
+                    // если хранилище недозагружено, спрашиваем о действиях
+                    val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
+                    AskDialogs.showYesDialog(context, {
 
-                            // возвращаемся в MainActivity
-                            val intent = Intent()
-                            when (code) {
-                                INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                                INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                            }
-                            activity!!.setResult(Activity.RESULT_OK, intent)
-                            activity!!.finish()
-                        }, mesId)
-                    }
-                })
+                        // возвращаемся в MainActivity
+                        val intent = Intent()
+                        when (code) {
+                            INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                            INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                        }
+                        activity!!.setResult(Activity.RESULT_OK, intent)
+                        activity!!.finish()
+                    }, mesId)
+                }
+            }
+            NodeChooserDialog(
+                viewModel.quicklyNode,
+                false,
+                false,
+                true,
+                nodeCallback
+            ).showIfPossible(parentFragmentManager)
+
             true
         }
         viewModel.updateQuicklyNode()

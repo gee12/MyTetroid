@@ -26,6 +26,7 @@ import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
 import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
+import com.gee12.mytetroid.views.dialogs.NodeChooserDialog;
 import com.gee12.mytetroid.views.dialogs.NodeDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
@@ -172,10 +173,10 @@ public class SearchActivity extends AppCompatActivity {
         etNodeName.setInputType(InputType.TYPE_NULL);
 
         // диалог выбора ветки
-        NodeDialogs.NodeChooserResult nodeCallback = new NodeDialogs.NodeChooserResult() {
+        NodeChooserDialog.Result nodeCallback = new NodeChooserDialog.Result() {
             @Override
             public void onApply(TetroidNode node) {
-                this.mSelectedNode = node;
+                setSelectedNode(node);
                 if (node != null) {
                     etNodeName.setText(node.getName());
                     nodeId = node.getId();
@@ -184,20 +185,28 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public void onProblem(int code) {
                 switch (code) {
-                    case NodeDialogs.INodeChooserResult.LOAD_STORAGE:
+                    case NodeChooserDialog.IResult.LOAD_STORAGE:
                         Message.show(SearchActivity.this, getString(R.string.log_storage_need_load), Toast.LENGTH_LONG);
                         break;
-                    case NodeDialogs.INodeChooserResult.LOAD_ALL_NODES:
+                    case NodeChooserDialog.IResult.LOAD_ALL_NODES:
                         Message.show(SearchActivity.this, getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG);
                         break;
                 }
             }
         };
         View.OnClickListener clickListener = v -> {
-            NodeDialogs.createNodeChooserDialog(this,
+//            NodeDialogs.createNodeChooserDialog(this,
+//                    (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : node,
+//                    false, true, false, nodeCallback);
+            new NodeChooserDialog(
                     (nodeCallback.getSelectedNode() != null) ? nodeCallback.getSelectedNode() : node,
-                    false, true, false, nodeCallback);
+                    false,
+                    true,
+                    false,
+                    nodeCallback
+            ).showIfPossible(getSupportFragmentManager());
         };
+
         etNodeName.setOnClickListener(clickListener);
         bNodeChooser.setOnClickListener(clickListener);
     }

@@ -14,14 +14,13 @@ import androidx.annotation.RequiresPermission
 import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.helpers.UriHelper
-import com.gee12.mytetroid.interactors.AttachesInteractor
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
-import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.logs.TetroidLog.*
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -38,8 +37,14 @@ import java.util.HashMap
 
 class MainViewModel(
     app: Application,
-    private storagesRepo: StoragesRepo
-): StorageViewModel<Constants.MainEvents>(app, storagesRepo) {
+    storagesRepo: StoragesRepo
+): StorageViewModel/*<Constants.MainEvents>*/(app, storagesRepo) {
+
+    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.MainEvents, Any>> = SingleLiveEvent()
+
+    fun doAction(action: Constants.MainEvents, param: Any? = null) {
+        objectAction.postValue(ViewModelEvent(action, param))
+    }
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0

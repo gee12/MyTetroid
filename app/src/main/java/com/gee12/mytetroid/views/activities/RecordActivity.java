@@ -60,6 +60,8 @@ import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
+import com.gee12.mytetroid.views.dialogs.RecordFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.RecordInfoDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -863,6 +865,13 @@ public class RecordActivity extends TetroidActivity implements
         });
     }
 
+    void showRecordInfoDialog() {
+//        RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
+        new RecordInfoDialog(
+                viewModel.getMRecord()
+        ).showIfPossible(getSupportFragmentManager());
+    }
+
     // endregion OptionsRecord
 
     // region Search
@@ -1182,7 +1191,7 @@ public class RecordActivity extends TetroidActivity implements
                 deleteRecord();
                 return true;
             case R.id.action_info:
-                RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
+                showRecordInfoDialog();
                 return true;
             case R.id.action_fullscreen:
                 toggleFullscreen(false);
@@ -1207,10 +1216,19 @@ public class RecordActivity extends TetroidActivity implements
      * Редактирование свойств записи.
      */
     private void editFields(ResultObj obj) {
-        RecordDialogs.createRecordFieldsDialog(this, viewModel.getMRecord(), true, null,
+//        RecordDialogs.createRecordFieldsDialog(this, viewModel.getMRecord(), true, null,
+//                (name, tags, author, url, node, isFavor) -> {
+//                    viewModel.editFields(obj, name, tags, author, url, node, isFavor);
+//                });
+
+        new RecordFieldsDialog(
+                viewModel.getMRecord(),
+                true,
+                null,
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.editFields(obj, name, tags, author, url, node, isFavor);
-                });
+                }
+        ).show(getSupportFragmentManager(), RecordFieldsDialog.TAG);
     }
 
     /**
