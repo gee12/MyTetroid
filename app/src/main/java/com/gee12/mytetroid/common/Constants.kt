@@ -43,6 +43,18 @@ object Constants {
     const val MAIN_VIEW_TAG_RECORDS = 3
     const val MAIN_VIEW_FAVORITES = 4
 
+    const val MODE_VIEW = 1
+    const val MODE_EDIT = 2
+    const val MODE_HTML = 3
+
+    const val RESULT_REINIT_STORAGE = 1
+    const val RESULT_PASS_CHANGED = 2
+    const val RESULT_OPEN_RECORD = 3
+    const val RESULT_OPEN_NODE = 4
+    const val RESULT_SHOW_ATTACHES = 5
+    const val RESULT_SHOW_TAG = 6
+    const val RESULT_DELETE_RECORD = 7
+
     const val EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID"
     const val EXTRA_CUR_NODE_ID = "EXTRA_CUR_NODE_ID"
     const val EXTRA_NODE_ID = "EXTRA_NODE_ID"
@@ -86,6 +98,9 @@ object Constants {
         UpdateToolbar,
         UpdateOptionsMenu,
         HandleReceivedIntent,
+        UpdateTitle,
+        ShowMoreInLogs,
+        ShowHomeButton,
 
         // pages
         OpenPage,
@@ -98,7 +113,7 @@ object Constants {
         TaskStarted,
         TaskFinished,
         ShowProgress,
-        ShowProgressText,
+        ShowProgressText
     }
 
     enum class StorageEvents {
@@ -124,9 +139,7 @@ object Constants {
         ChangedOutside
     }
 
-    enum class ObjectEvents {
-        ShowMoreInLogs,
-
+    enum class MainEvents {
         // nodes
         ShowNode,
         NodeCreated,
@@ -173,5 +186,24 @@ object Constants {
         AskForOperationWithoutFile,
         OpenFilePicker,
         OpenFolderPicker
+    }
+
+    enum class RecordEvents {
+        LoadFields,
+        EditFields,
+        LoadRecordTextFromFile,
+        LoadRecordTextFromHtml,
+        AskForLoadAllNodes,
+        FileAttached,
+        SwitchViews,
+        AskForSaving,
+        BeforeSaving,
+        IsEditedChanged,
+        EditedDateChanged,
+        InsertImages,
+        OpenWebLink,
+        Save,
+        InsertWebPageContent,
+        InsertWebPageText,
     }
 }

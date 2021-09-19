@@ -22,7 +22,6 @@ import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.logs.TetroidLog.*
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -44,16 +43,16 @@ import java.util.*
 /**
  * (замена StorageManager)
  */
-open class StorageViewModel(
+open class StorageViewModel<E>(
     app: Application,
     private val storagesRepo: StoragesRepo
 ) : StorageSettingsViewModel(app, storagesRepo) {
 
-    protected val tagsInteractor = TagsInteractor(storageInteractor, xmlLoader)
-    protected val attachesInteractor = AttachesInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
+    val tagsInteractor = TagsInteractor(storageInteractor, xmlLoader)
+    val attachesInteractor = AttachesInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
 
 
-    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.ObjectEvents, Any>> = SingleLiveEvent()
+    val objectAction: SingleLiveEvent<ViewModelEvent<E, Any>> = SingleLiveEvent()
 
     override val storageLoadHelper = StorageLoadHelper()
 
@@ -686,7 +685,7 @@ open class StorageViewModel(
      */
     protected fun checkExistenceCryptedNodes() {
         if (!nodesInteractor.isExistCryptedNodes(true)) {
-            doAction(Constants.ObjectEvents.AskForClearStoragePass)
+            updateStorageState(Constants.StorageEvents.AskForClearStoragePass)
         }
     }
 
@@ -805,44 +804,6 @@ open class StorageViewModel(
 
     //endregion Attaches
 
-    //region FileObserver
-
-    /**
-     * Обработчик изменения структуры хранилища извне.
-     */
-    fun startStorageTreeObserver() {
-        if (isCheckOutsideChanging()) {
-            // запускаем мониторинг, только если хранилище загружено
-            if (isLoaded()) {
-                this.isStorageChangingHandled = false
-                val bundle = Bundle()
-                bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START)
-//                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
-                bundle.putString(FileObserverService.EXTRA_FILE_PATH, storageInteractor.getPathToMyTetraXml())
-                bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY)
-
-                doAction(Constants.ObjectEvents.StartFileObserver, bundle)
-            }
-        } else {
-            doAction(Constants.ObjectEvents.StopFileObserver)
-        }
-    }
-
-    fun onStorageOutsideChanged() {
-        // проверяем, не был ли запущен обработчик второй раз подряд
-        if (!isStorageChangingHandled) {
-            isStorageChangingHandled = true
-            LogManager.log(getContext(), R.string.ask_storage_changed_outside, ILogger.Types.INFO)
-            updateStorageState(Constants.StorageEvents.ChangedOutside)
-        }
-    }
-
-    fun dropIsStorageChangingHandled() {
-        isStorageChangingHandled = false
-    }
-    
-    //endregion FileObserver
-
     //region Other
 
     fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
@@ -859,7 +820,7 @@ open class StorageViewModel(
         }
     }
 
-    fun doAction(action: Constants.ObjectEvents, param: Any? = null) {
+    fun doAction(action: E, param: Any? = null) {
         objectAction.postValue(ViewModelEvent(action, param))
     }
 

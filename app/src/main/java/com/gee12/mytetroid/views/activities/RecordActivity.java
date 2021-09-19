@@ -40,8 +40,11 @@ import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.SettingsManager;
 //import com.gee12.mytetroid.data.StorageManager;
-import com.gee12.mytetroid.viewmodels.StorageViewModel;
-import com.gee12.mytetroid.viewmodels.StorageViewModelFactory;
+import com.gee12.mytetroid.model.TetroidImage;
+import com.gee12.mytetroid.viewmodels.ActivityResult;
+import com.gee12.mytetroid.viewmodels.RecordViewModel;
+import com.gee12.mytetroid.viewmodels.ResultObj;
+import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
@@ -85,70 +88,6 @@ public class RecordActivity extends TetroidActivity implements
         ColorPickerDialogListener,
         TetroidEditor.IEditorListener {
 
-    /**
-     *
-     */
-    private static class ResultObj {
-
-        static final int NONE = 0;
-        static final int EXIT = 1;
-        static final int START_MAIN_ACTIVITY = 2;
-        static final int OPEN_RECORD = 3;
-        static final int OPEN_NODE = 4;
-        static final int OPEN_FILE = 5;
-        static final int OPEN_TAG = 6;
-
-        int type;
-        String id;
-        Object obj;
-        boolean needReloadText;
-
-        ResultObj(int type) {
-            init(type, null, null);
-        }
-
-        ResultObj(int type, String id) {
-            // если есть id, значит obj использоваться не будет
-            init(type, id, null);
-        }
-
-        ResultObj(Object obj) {
-            this.obj = obj;
-            if (obj instanceof TetroidRecord) {
-                this.type = OPEN_RECORD;
-                this.id = ((TetroidRecord)obj).getId();
-            } else if (obj instanceof TetroidNode) {
-                this.type = OPEN_NODE;
-                this.id = ((TetroidNode)obj).getId();
-            } else if (obj instanceof TetroidFile) {
-                this.type = OPEN_FILE;
-                this.id = ((TetroidFile)obj).getId();
-            } else if (obj instanceof String) {
-                this.type = OPEN_TAG;
-            } else {
-                this.type = NONE;
-            }
-        }
-
-        private void init(int type, String id, Object obj) {
-            this.type = type;
-            this.id = id;
-            this.obj = obj;
-        }
-    }
-
-    public static final int MODE_VIEW = 1;
-    public static final int MODE_EDIT = 2;
-    public static final int MODE_HTML = 3;
-
-    public static final int RESULT_REINIT_STORAGE = 1;
-    public static final int RESULT_PASS_CHANGED = 2;
-    public static final int RESULT_OPEN_RECORD = 3;
-    public static final int RESULT_OPEN_NODE = 4;
-    public static final int RESULT_SHOW_ATTACHES = 5;
-    public static final int RESULT_SHOW_TAG = 6;
-    public static final int RESULT_DELETE_RECORD = 7;
-
     private ExpandableLayout mFieldsExpanderLayout;
     private FloatingActionButton mButtonToggleFields;
     private FloatingActionButton mButtonFullscreen;
@@ -161,18 +100,10 @@ public class RecordActivity extends TetroidActivity implements
     private FloatingActionButton mButtonFindNext;
     private FloatingActionButton mButtonFindPrev;
 
-    private TetroidRecord mRecord;
-    private int mCurMode;
-    private boolean mIsFirstLoad = true;
-    private boolean mIsFieldsEdited;
     private TextFindListener mFindListener;
     private SearchView mSearchView;
-    private boolean mIsReceivedImages;
-    private int mModeToSwitch = -1;
-    private boolean mIsSaveTempAfterStorageLoaded;
-    private ResultObj mResultObj;
 
-    private StorageViewModel mStorageViewModel;
+    private RecordViewModel viewModel;
 
 
     public RecordActivity() {
@@ -188,8 +119,8 @@ public class RecordActivity extends TetroidActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.mStorageViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
-                .get(StorageViewModel.class);
+        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+                .get(RecordViewModel.class);
 
         String action;
         if (receivedIntent == null || (action = receivedIntent.getAction()) == null) {
@@ -198,18 +129,20 @@ public class RecordActivity extends TetroidActivity implements
         }
         if (action.equals(Intent.ACTION_MAIN)) {
             // открытие или создание записи из главной активности
-            if (!initRecordFromMain(receivedIntent)) {
-                finish();
-                return;
-            }
+            viewModel.initRecordFromMain(receivedIntent);
+//            if (!initRecordFromMain(receivedIntent)) {
+//                finish();
+//                return;
+//            }
         } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
             // создание записи из виджета
             // сначала инициализируем службы
             App.init(this);
-            if (!initRecordFromWidget()) {
-                finish();
-                return;
-            }
+            viewModel.initRecordFromWidget();
+//            if (!initRecordFromWidget()) {
+//                finish();
+//                return;
+//            }
         /*} else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста из другого приложения
             String type = mReceivedIntent.getType();
@@ -231,8 +164,7 @@ public class RecordActivity extends TetroidActivity implements
             return;
         }
 
-        // проверяем передавались ли изображения
-        this.mIsReceivedImages = receivedIntent.hasExtra(Constants.EXTRA_IMAGES_URI);
+        viewModel.onCreate(receivedIntent);
 
         this.mEditor = findViewById(R.id.html_editor);
         mEditor.setColorPickerListener(this);
@@ -294,102 +226,175 @@ public class RecordActivity extends TetroidActivity implements
 
         afterOnCreate();
 
-        // TODO: перенести в TetroidActivity (с использованием Generic типов ?)
-        mStorageViewModel.getMessage().observe(this, message -> {
-            if (message.getType() == ILogger.Types.INFO) {
-                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
-            } else if (message.getType() == ILogger.Types.ERROR) {
+        viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
+        viewModel.getStorageEvent().observe(this, it -> onStorageStateChanged(it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onObjectActions(it.getState(), it.getData()));
+        // TODO: перенести в TetroidActivity (с использованием Generic типов)
+        viewModel.getMessage().observe(this, it -> onMessage(it.getType(), it.getMes()));
+    }
 
-                // TODO: переделать
-                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
-                Message.showSnackMoreInLogs(RecordActivity.this, R.id.layout_coordinator);
-            } else {
+    /**
+     *
+     * @param event
+     * @param data
+     */
+    private void onActivityEvent(Constants.ViewEvents event, Object data) {
+        switch (event) {
+            // activity
+            case StartActivity:
+                startActivity((Intent) data);
+                break;
+            case SetActivityResult:
+                ActivityResult result1 = (ActivityResult) data;
+                setResult(result1.getCode(), result1.getIntent());
+                break;
+            case FinishActivity:
+                finish();
+                break;
+            case FinishWithResult:
+                ActivityResult result = (ActivityResult) data;
+                finishWithResult(result.getCode(), result.getBundle());
+                break;
 
-                // TODO: ?
-                Toast.makeText(RecordActivity.this, message.getMes(), Toast.LENGTH_SHORT).show();
-            }
-        });
+            // ui
+            case UpdateTitle:
+                setTitle((String) data);
+                break;
+            case UpdateOptionsMenu:
+                updateOptionsMenu();
+                break;
+            case ShowHomeButton:
+                setVisibilityActionHome(false);
+                break;
+
+            // long-term tasks
+            case TaskStarted:
+                taskPreExecute((int)data);
+                break;
+            case TaskFinished:
+                taskPostExecute();
+                break;
+        }
+    }
+
+    /**
+     * Обработчик изменения состояния хранилища.
+     * @param state
+     * @param data
+     */
+    private void onStorageStateChanged(Constants.StorageEvents state, Object data) {
+        switch (state) {
+            case PermissionCheck:
+                break;
+        }
+    }
+
+    /**
+     * Обработчик действий в окне записи.
+     * @param action
+     * @param data
+     */
+    private void onObjectActions(Constants.RecordEvents action, Object data) {
+        switch (action) {
+            case Save:
+                viewModel.save(mEditor.getDocumentHtml());
+                break;
+            case LoadFields:
+                loadFields((TetroidRecord) data);
+                expandFieldsIfNeed();
+                break;
+            case EditFields:
+                editFields((ResultObj) data);
+                break;
+            case LoadRecordTextFromFile:
+                loadRecordText((String) data);
+                break;
+            case LoadRecordTextFromHtml:
+                loadRecordTextFromHtmlEditor();
+                break;
+            case AskForLoadAllNodes:
+                ResultObj obj = (ResultObj) data;
+                AskDialogs.showLoadAllNodesDialog(this, () -> {
+                    switch (obj.getType()) {
+                        case ResultObj.OPEN_RECORD:
+                            viewModel.showAnotherRecord(obj.getId());
+                            break;
+                        case ResultObj.OPEN_NODE:
+                            viewModel.showAnotherNodeDirectly(obj.getId());
+                            break;
+                        case ResultObj.OPEN_TAG:
+                            // id - это tagName
+                            viewModel.openTagDirectly(obj.getId());
+                            break;
+                    }
+                });
+                break;
+            case FileAttached:
+                onFileAttached((TetroidFile) data);
+                break;
+            case SwitchViews:
+                switchViews((int) data);
+                break;
+            case AskForSaving:
+                askForSaving((ResultObj) data);
+                break;
+            case BeforeSaving:
+                onBeforeSavingAsync();
+                break;
+            case IsEditedChanged:
+                mEditor.setIsEdited((boolean) data);
+                break;
+            case EditedDateChanged:
+                ((TextView)findViewById(R.id.text_view_record_edited)).setText((String) data);
+                break;
+            case InsertImages:
+                List<TetroidImage> images = (List<TetroidImage>) data;
+                mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getMRecord()));
+                break;
+            case OpenWebLink:
+                openWebLink((String) data);
+                break;
+            case InsertWebPageContent:
+                mEditor.insertWebPageContent((String) data, false);
+                break;
+            case InsertWebPageText:
+                mEditor.insertWebPageContent((String) data, true);
+                break;
+        }
+    }
+
+    /**
+     * Обработчик изменения состояния хранилища.
+     * @param type
+     * @param mes
+     */
+    private void onMessage(ILogger.Types type, String mes) {
+        if (type == ILogger.Types.INFO) {
+            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
+        } else if (type == ILogger.Types.ERROR) {
+
+            // TODO: переделать
+            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
+            Message.showSnackMoreInLogs(RecordActivity.this, R.id.layout_coordinator);
+        } else {
+
+            // TODO: ?
+            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onGUICreated() {
-        try {
-            // загрузка записи выполняется в последнюю очередь (после создания пунктов меню)
-            openRecord(mRecord);
-        } catch (Exception ex) {
-            LogManager.log(this, ex);
-        }
+        viewModel.onGUICreated();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.setFromAnotherActivity(isFromAnotherActivity());
+    }
 
     // region OpenRecord
-
-    /**
-     * Получение записи из хранилища, т.к. актиность была запущена из MainActivity.
-     * @param intent
-     * @return
-     */
-    private boolean initRecordFromMain(Intent intent) {
-        // получаем переданную запись
-        String recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID);
-        if (recordId != null) {
-            // получаем запись
-            this.mRecord = RecordsManager.getRecord(recordId);
-            if (mRecord == null) {
-                LogManager.log(this, getString(R.string.log_not_found_record) + recordId, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                return false;
-            } else {
-                setTitle(mRecord.getName());
-//                setVisibilityActionHome(!mRecord.isTemp());
-
-                if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
-                    // временная запись создана для прикрепления файлов
-                    int filesCount = mRecord.getAttachedFilesCount();
-                    if (filesCount > 0) {
-                        String mes = (filesCount == 1)
-                                ? String.format(getString(R.string.mes_attached_file_mask), mRecord.getAttachedFiles().get(0).getName())
-                                : String.format(getString(R.string.mes_attached_files_mask), filesCount);
-                        Message.show(this, mes, Toast.LENGTH_LONG);
-                    }
-                }
-            }
-        } else {
-            LogManager.log(this, getString(R.string.log_not_transferred_record_id), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Создание новой временной записи, т.к. активность была запущена из виджета AddRecordWidget.
-     * @return
-     */
-    private boolean initRecordFromWidget() {
-        setVisibilityActionHome(false);
-        // создаем временную запись
-        this.mRecord = RecordsManager.createTempRecord(this, null, null, null);
-        if (mRecord != null) {
-            setTitle(mRecord.getName());
-        } else {
-            TetroidLog.logOperError(this, TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Отображение записи (свойств и текста).
-     * @param record
-     */
-    public void openRecord(TetroidRecord record) {
-        if (record == null)
-            return;
-        LogManager.log(this, getString(R.string.log_record_loading) + record.getId(), ILogger.Types.INFO);
-        loadFields(record);
-        expandFieldsIfNeed();
-        // текст
-        loadRecordText(record, false);
-    }
 
     /**
      * Отображние свойств записи.
@@ -450,40 +455,25 @@ public class RecordActivity extends TetroidActivity implements
             (findViewById(R.id.label_record_edited)).setVisibility(View.VISIBLE);
             TextView tvEdited = findViewById(R.id.text_view_record_edited);
             tvEdited.setVisibility(View.VISIBLE);
-            Date edited = RecordsManager.getEditedDate(this, record);
+            Date edited = viewModel.getRecordEditedDate(record);
             tvEdited.setText((edited != null) ? Utils.dateToString(edited, dateFormat) : "-");
         }
     }
 
     /**
-     * Загрузка html-кода записи в WebView.
-     * @param record
+     * Загрузка html-кода записи из редактора html-кода (fromHtmlEditor) в WebView.
      */
-    private void loadRecordText(TetroidRecord record, boolean fromHtmlEditor) {
-        // 1) если только что вернулись из редактора html-кода (fromHtmlEditor)
-        // /*-------и не используется авто-сохранение изменений,-------*/
-        // то загружаем html-код из редактора
-        String textHtml = null;
-        if (fromHtmlEditor /*&& !SettingsManager.isRecordAutoSave()*/) {
-            textHtml = mEditTextHtml.getText().toString();
-        } else {
-            // 2) если нет, то загружаем html-код из файла записи, только если он не новый
-            if (!record.isNew()) {
-                textHtml = RecordsManager.getRecordHtmlTextDecrypted(this, record, Toast.LENGTH_LONG);
-                if (textHtml == null) {
-                    if (record.isCrypted() && DataManager.getInstance().getCrypterManager().getErrorCode() > 0) {
-                        LogManager.log(this, R.string.log_error_record_file_decrypting, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-                        showSnackMoreInLogs();
-                    }
-                }
-            }
-        }
+    private void loadRecordTextFromHtmlEditor() {
+        String textHtml = mEditTextHtml.getText().toString();
+        loadRecordText(textHtml);
+    }
+
+    private void loadRecordText(String textHtml) {
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
-        final String text = textHtml;
 //        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
-        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(this, record),
-                text, "text/html", "UTF-8", null);
+        mEditor.getWebView().loadDataWithBaseURL(viewModel.getUriToRecordFolder(viewModel.getMRecord()),
+                textHtml, "text/html", "UTF-8", null);
     }
 
     // endregion OpenRecord

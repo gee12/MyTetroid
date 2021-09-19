@@ -44,16 +44,17 @@ open class StorageSettingsViewModel(
 
     val dataInteractor = DataInteractor(this)
     val storageInteractor = StorageInteractor(storage.value!!, logger, xmlLoader, dataInteractor)
-    protected val interactionInteractor =  InteractionInteractor()
-    protected val cryptInteractor = EncryptionInteractor(xmlLoader, logger, this)
-    protected val recordsInteractor = RecordsInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, storageLoadHelper, xmlLoader)
+    val interactionInteractor =  InteractionInteractor()
+    val cryptInteractor = EncryptionInteractor(xmlLoader, logger, this)
+    val recordsInteractor = RecordsInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, storageLoadHelper, xmlLoader)
     val nodesInteractor = NodesInteractor(storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageLoadHelper, xmlLoader)
-    protected val syncInteractor =  SyncInteractor()
+    val syncInteractor =  SyncInteractor()
 
+    // FIXME: Проверить:
     var quicklyNode: TetroidNode?
         get() {
             val nodeId = storage.value?.quickNodeId
-            if (nodeId != null && isLoaded() && isLoadedFavoritesOnly()) {
+            if (nodeId != null && isLoaded() && !isLoadedFavoritesOnly()) {
                 storage.value?.quicklyNode = nodesInteractor.getNode(nodeId)
                 onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
             }

@@ -16,6 +16,8 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.utils.FileUtils
 import com.gee12.mytetroid.utils.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.io.File
 import java.io.IOException
@@ -59,7 +61,7 @@ class RecordsInteractor(
      * @param record
      * @return
      */
-    fun getRecordHtmlTextDecrypted(context: Context, record: TetroidRecord, duration: Int): String? {
+    suspend fun getRecordHtmlTextDecrypted(context: Context, record: TetroidRecord, duration: Int): String? {
 //        if (record == null) {
 //            LogManager.emptyParams(context, "DataManager.getRecordHtmlTextDecrypted()")
 //            return null
@@ -88,7 +90,7 @@ class RecordsInteractor(
         if (record.isCrypted) {
             if (record.isDecrypted) {
                 val bytes: ByteArray? = try {
-                    FileUtils.readFile(uri)
+                    withContext(Dispatchers.IO) { FileUtils.readFile(uri) }
                 } catch (ex: Exception) {
                     LogManager.log(context, context.getString(R.string.log_error_read_record_file) + path, ex)
                     return null
@@ -102,14 +104,14 @@ class RecordsInteractor(
                 }
                 // расшифровываем содержимое файла
                 LogManager.log(context, context.getString(R.string.log_start_record_text_decrypting), ILogger.Types.DEBUG)
-                res = getCrypter().decryptText(bytes)
+                res = withContext(Dispatchers.IO) { getCrypter().decryptText(bytes) }
                 if (res == null) {
                     LogManager.log(context, context.getString(R.string.log_error_decrypt_record_file) + path, ILogger.Types.ERROR)
                 }
             }
         } else {
             try {
-                res = FileUtils.readTextFile(uri)
+                res = withContext(Dispatchers.IO) { FileUtils.readTextFile(uri) }
             } catch (ex: Exception) {
                 LogManager.log(context, context.getString(R.string.log_error_read_record_file) + path, ex)
             }
@@ -122,7 +124,7 @@ class RecordsInteractor(
      * @param record
      * @return
      */
-    fun getRecordTextDecrypted(context: Context, record: TetroidRecord): String? {
+    suspend fun getRecordTextDecrypted(context: Context, record: TetroidRecord): String? {
         var text: String? = null
         val html = getRecordHtmlTextDecrypted(context, record, -1)
         if (html != null) {

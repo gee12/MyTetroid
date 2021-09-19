@@ -20,6 +20,14 @@ class NodesInteractor(
     val xmlLoader: TetroidXml
 ) {
 
+    fun getQuicklyNode(): TetroidNode? {
+        val nodeId = storageInteractor.storage.quickNodeId
+        if (nodeId != null && storageInteractor.isLoaded()) {
+            return getNode(nodeId)
+        }
+        return null
+    }
+
     /**
      * Создание ветки.
      * @param name

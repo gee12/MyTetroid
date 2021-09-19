@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.views.activities.RecordActivity;
 
 /**
@@ -19,7 +20,7 @@ public class AddRecordWidget extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_add_record);
 
         Intent intent = new Intent(context, RecordActivity.class);
-        intent.setAction(RecordActivity.ACTION_ADD_RECORD);
+        intent.setAction(Constants.ACTION_ADD_RECORD);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent pending = PendingIntent.getActivity(context, 0, intent, 0);

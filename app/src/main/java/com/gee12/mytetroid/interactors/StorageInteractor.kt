@@ -144,6 +144,10 @@ class StorageInteractor(
         return (!baseDir.mkdir())
     }
 
+    fun isLoaded() = storage.isLoaded
+
+    fun isLoadedFavoritesOnly() = xmlLoader.mIsFavoritesMode
+
     fun getPathToMyTetraXml(): String {
         return storage.path + Constants.SEPAR + MYTETRA_XML_FILE_NAME
     }

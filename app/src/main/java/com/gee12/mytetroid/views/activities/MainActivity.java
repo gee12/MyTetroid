@@ -263,6 +263,9 @@ public class MainActivity extends TetroidActivity {
             case HandleReceivedIntent:
                 checkReceivedIntent(receivedIntent);
                 break;
+            case ShowMoreInLogs:
+                showSnackMoreInLogs();
+                break;
 
             // pages
             case OpenPage:
@@ -387,11 +390,11 @@ public class MainActivity extends TetroidActivity {
     }
 
     /**
-     * Обработчик действий в приложении.
+     * Обработчик действий в главном окне приложения.
      * @param action
      * @param data
      */
-    private void onObjectActions(Constants.ObjectEvents action, Object data) {
+    private void onObjectActions(Constants.MainEvents action, Object data) {
         switch (action) {
             // nodes
             case ShowNode:
@@ -505,9 +508,6 @@ public class MainActivity extends TetroidActivity {
                 FileDialogs.operWithoutFile(this, clipboardParams2.getOperation(), () -> {
                     viewModel.doOperationWithoutFile(clipboardParams2);
                 });
-                break;
-            case ShowMoreInLogs:
-                showSnackMoreInLogs();
                 break;
             case OpenFilePicker:
                 openFilePicker();
@@ -1815,7 +1815,7 @@ public class MainActivity extends TetroidActivity {
             }
         }
         switch (resCode) {
-            case RecordActivity.RESULT_REINIT_STORAGE:
+            case Constants.RESULT_REINIT_STORAGE:
                 /*if (data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)) {
                     createStorage(SettingsManager.getStoragePath(this)*//*, true*//*);
                 } else*/ {
@@ -1824,14 +1824,14 @@ public class MainActivity extends TetroidActivity {
                     this.receivedIntent = null;
                 }
                 break;
-            case RecordActivity.RESULT_PASS_CHANGED:
+            case Constants.RESULT_PASS_CHANGED:
                 if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
                     updateNodes();
                     updateTags();
                 }
                 break;
-            case RecordActivity.RESULT_OPEN_RECORD:
+            case Constants.RESULT_OPEN_RECORD:
                 if (checkIsNeedLoadAllNodes(data)) return;
 
                 String recordId = data.getStringExtra(Constants.EXTRA_OBJECT_ID);
@@ -1839,7 +1839,7 @@ public class MainActivity extends TetroidActivity {
                     viewModel.openRecord(recordId);
                 }
                 break;
-            case RecordActivity.RESULT_OPEN_NODE:
+            case Constants.RESULT_OPEN_NODE:
                 if (checkIsNeedLoadAllNodes(data)) return;
 
                 String nodeId = data.getStringExtra(Constants.EXTRA_OBJECT_ID);
@@ -1847,20 +1847,20 @@ public class MainActivity extends TetroidActivity {
                     showNode(nodeId);
                 }
                 break;
-            case RecordActivity.RESULT_SHOW_ATTACHES:
+            case Constants.RESULT_SHOW_ATTACHES:
                 String recordId2 = data.getStringExtra(Constants.EXTRA_OBJECT_ID);
                 TetroidRecord record = viewModel.getRecord(recordId2);
                 if (record != null) {
                     viewModel.showRecordAttaches(record, true);
                 }
                 break;
-            case RecordActivity.RESULT_SHOW_TAG:
+            case Constants.RESULT_SHOW_TAG:
                 if (checkIsNeedLoadAllNodes(data)) return;
 
                 String tagName = data.getStringExtra(Constants.EXTRA_TAG_NAME);
                 viewModel.showTag(tagName);
                 break;
-            case RecordActivity.RESULT_DELETE_RECORD:
+            case Constants.RESULT_DELETE_RECORD:
                 String recordId3 = data.getStringExtra(Constants.EXTRA_OBJECT_ID);
                 if (recordId3 != null) {
                     TetroidRecord record2 = viewModel.getRecord(recordId3);

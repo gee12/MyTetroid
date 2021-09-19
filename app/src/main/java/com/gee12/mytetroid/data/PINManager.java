@@ -10,7 +10,6 @@ import com.gee12.mytetroid.data.ini.DatabaseConfig;
 import com.gee12.mytetroid.views.dialogs.PassDialogs;
 import com.gee12.mytetroid.logs.LogManager;
 
-import static com.gee12.mytetroid.data.DataManager.Instance;
 
 public class PINManager {
 

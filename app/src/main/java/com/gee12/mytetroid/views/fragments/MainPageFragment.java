@@ -59,6 +59,7 @@ public class MainPageFragment extends TetroidFragment {
 
 
     private MainViewModel viewModel;
+    private RecordDialogs recordDialogs;
 
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
@@ -78,6 +79,12 @@ public class MainPageFragment extends TetroidFragment {
 
         this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getActivity().getApplication()))
                 .get(MainViewModel.class);
+
+        // TODO: использовать DI
+        this.recordDialogs = new RecordDialogs(
+                viewModel.getStorageInteractor(),
+                viewModel.getRecordsInteractor(),
+                viewModel.getNodesInteractor());
 
         this.viewFlipperMain = view.findViewById(R.id.view_flipper_main);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
@@ -148,7 +155,7 @@ public class MainPageFragment extends TetroidFragment {
         }
         // список файлов
         if (lvAttaches != null) {
-            this.listAdapterAttaches = new FilesListAdapter(context);
+            this.listAdapterAttaches = new FilesListAdapter(context, viewModel.getAttachesInteractor());
             lvAttaches.setAdapter(listAdapterAttaches);
         }
     }
@@ -240,7 +247,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     private AdapterView.OnItemClickListener onRecordClicklistener = (parent, view, position, id) -> showRecord(position);
 
-    void onRecordsFiltered(String query, List<TetroidRecord> found, int viewId) {
+    public void onRecordsFiltered(String query, List<TetroidRecord> found, int viewId) {
         if (found.isEmpty()) {
             String emptyText = (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
                     ? String.format(getString(R.string.search_records_in_node_not_found_mask), query, viewModel.getCurNodeName())
@@ -273,7 +280,7 @@ public class MainPageFragment extends TetroidFragment {
      * Создание новой записи.
      */
     public void createRecord() {
-        RecordDialogs.createRecordFieldsDialog(context, null, true, viewModel.getCurNode(),
+        recordDialogs.createRecordFieldsDialog(context, null, true, viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
             viewModel.createRecord(name, tags, author, url, node, isFavor);
         });
@@ -314,7 +321,7 @@ public class MainPageFragment extends TetroidFragment {
      */
     private void editRecordFields(TetroidRecord record) {
 //        TetroidNode oldNode = record.getNode();
-        RecordDialogs.createRecordFieldsDialog(context, record, true, viewModel.getCurNode(),
+        recordDialogs.createRecordFieldsDialog(context, record, true, viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
             viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
             // VM
@@ -599,7 +606,7 @@ public class MainPageFragment extends TetroidFragment {
                 viewModel.removeFavorite(context, record);
                 return true;
             case R.id.action_info:
-                RecordDialogs.createRecordInfoDialog(context, record);
+                recordDialogs.createRecordInfoDialog(context, record);
                 return true;
             case R.id.action_delete:
                 deleteRecord(record);

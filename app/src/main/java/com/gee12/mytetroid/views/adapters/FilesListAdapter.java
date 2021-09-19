@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.AttachesManager;
+import com.gee12.mytetroid.interactors.AttachesInteractor;
 import com.gee12.mytetroid.model.TetroidFile;
 
 import java.util.ArrayList;
@@ -27,12 +28,14 @@ public class FilesListAdapter extends BaseAdapter {
     }
 
     private LayoutInflater mInflater;
+    private AttachesInteractor attachesInteractor;
     private List<TetroidFile> mDataSet;
     private Context mContext;
 
-    public FilesListAdapter(Context context) {
+    public FilesListAdapter(Context context, AttachesInteractor attachesInteractor) {
         this.mContext = context;
         this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.attachesInteractor = attachesInteractor;
         this.mDataSet = new ArrayList<>();
     }
 
@@ -77,7 +80,7 @@ public class FilesListAdapter extends BaseAdapter {
         viewHolder.nameView.setText(file.getName());
         // размер
         ImageView icon = convertView.findViewById(R.id.file_view_icon);
-        String fileSize = AttachesManager.getAttachedFileSize(mContext, file);
+        String fileSize = attachesInteractor.getAttachedFileSize(mContext, file);
         if (fileSize != null) {
             icon.setImageResource(R.drawable.ic_file);
             viewHolder.sizeView.setText(fileSize);
