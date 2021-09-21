@@ -17,6 +17,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.Utils;
@@ -49,16 +50,22 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
     }
 
     protected final LayoutInflater inflater;
+    protected final RecordsInteractor recordsInteractor;
     protected final OnRecordAttachmentClickListener onAttachmentClickListener;
     protected final Context context;
     protected boolean isShowNodeName;
     protected String dateTimeFormat;
 
 
-    public RecordsBaseListAdapter(Context context, OnRecordAttachmentClickListener onAttachmentClickListener) {
+    public RecordsBaseListAdapter(
+            Context context,
+            RecordsInteractor recordsInteractor,
+            OnRecordAttachmentClickListener onAttachmentClickListener
+    ) {
         super();
         this.context = context;
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.recordsInteractor = recordsInteractor;
         this.onAttachmentClickListener = onAttachmentClickListener;
         this.dateTimeFormat = SettingsManager.checkDateFormatString(context);
     }
@@ -129,7 +136,7 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
         // дата изменения
         if (App.isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
             viewHolder.editedView.setVisibility(View.VISIBLE);
-            Date edited = RecordsManager.getEditedDate(context, record);
+            Date edited = recordsInteractor.getEditedDate(context, record);
             viewHolder.editedView.setText((edited != null) ? Utils.dateToString(edited, dateTimeFormat) : "-");
         } else {
             viewHolder.editedView.setVisibility(View.GONE);

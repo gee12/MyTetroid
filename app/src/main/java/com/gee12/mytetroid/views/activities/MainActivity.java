@@ -44,9 +44,12 @@ import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.PINManager;
+import com.gee12.mytetroid.model.SearchProfile;
 import com.gee12.mytetroid.viewmodels.AskPasswordParams;
+//import com.gee12.mytetroid.viewmodels.AskPinParams;
+import com.gee12.mytetroid.viewmodels.CallbackParam;
 import com.gee12.mytetroid.viewmodels.ClipboardParams;
+import com.gee12.mytetroid.viewmodels.EmptyPassCheckingFieldCallbackParam;
 import com.gee12.mytetroid.viewmodels.FilteredObjectsInView;
 import com.gee12.mytetroid.viewmodels.GlobalSearchParams;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
@@ -58,7 +61,6 @@ import com.gee12.mytetroid.views.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.views.adapters.NodesListAdapter;
 import com.gee12.mytetroid.views.adapters.TagsListAdapter;
 import com.gee12.mytetroid.data.FavoritesManager;
-import com.gee12.mytetroid.data.PassManager;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 //import com.gee12.mytetroid.data.StorageManager;
@@ -70,8 +72,6 @@ import com.gee12.mytetroid.views.dialogs.NodeFieldsDialog;
 import com.gee12.mytetroid.views.dialogs.NodeInfoDialog;
 import com.gee12.mytetroid.views.dialogs.PassDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
-import com.gee12.mytetroid.views.dialogs.RecordFieldsDialog;
-import com.gee12.mytetroid.views.dialogs.RecordInfoDialog;
 import com.gee12.mytetroid.views.dialogs.TagDialogs;
 import com.gee12.mytetroid.views.fragments.FoundPageFragment;
 import com.gee12.mytetroid.views.fragments.MainPageFragment;
@@ -244,8 +244,8 @@ public class MainActivity extends TetroidActivity {
         initBroadcastReceiver();
 
         viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
-        viewModel.getStorageEvent().observe(this, it -> onStorageStateChanged(it.getState(), it.getData()));
-        viewModel.getObjectAction().observe(this, it -> onObjectActions(it.getState(), it.getData()));
+        viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.MainEvents) it.getState(), it.getData()));
     }
 
     /**
@@ -306,7 +306,7 @@ public class MainActivity extends TetroidActivity {
      * @param state
      * @param data
      */
-    private void onStorageStateChanged(Constants.StorageEvents state, Object data) {
+    private void onStorageEvent(Constants.StorageEvents state, Object data) {
         switch (state) {
             case PermissionCheck:
                 if (PermissionManager.checkWriteExtStoragePermission(MainActivity.this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
@@ -358,19 +358,26 @@ public class MainActivity extends TetroidActivity {
                         viewModel.getEmptyPassCheckingFieldCallback(params));
             } break;
             case AskPassword: {
-                AskPasswordParams params = (AskPasswordParams) data;
-                // выводим окно с запросом пароля
-                PassDialogs.showPassEnterDialog(MainActivity.this, params.getNode(), false,
-                        viewModel.getPassInputHandler(params));
+                if (data instanceof AskPasswordParams) {
+                    AskPasswordParams params = (AskPasswordParams) data;
+                    // выводим окно с запросом пароля
+                    showPasswordEnterDialog(params);
+                } else if (data instanceof CallbackParam) {
+                    // TODO: объединить с showPasswordEnterDialog()
+                    CallbackParam params = (CallbackParam) data;
+                    showPasswordEnterDialog2(params);
+                }
             } break;
             case AskPinCode: {
-                AskPasswordParams params = (AskPasswordParams) data;
+//                AskPinParams params = (AskPinParams) data;
                 // выводим окно с запросом пароля
-                PINManager.askPINCode(MainActivity.this, params.isNodeOpening(),
-                        viewModel.getPinCodeInputHandler(params));
+                showPinCodeDialog(/*params.isSetup()*/);
             } break;
             case AskForClearStoragePass:
                 showNoCryptedNodesLeftDialog();
+                break;
+            case AskForEmptyPassCheckingField:
+                showEmptyPassCheckingFieldDialog((EmptyPassCheckingFieldCallbackParam) data);
                 break;
             case ChangedOutside:
                 // выводим уведомление
@@ -398,8 +405,18 @@ public class MainActivity extends TetroidActivity {
      * @param action
      * @param data
      */
-    private void onObjectActions(Constants.MainEvents action, Object data) {
+    private void onEvent(Constants.MainEvents action, Object data) {
         switch (action) {
+            // crypt
+            case EncryptNode: {
+//                Object callbackData = ((CallbackParam) data).getData();
+                encryptNode((TetroidNode) data);
+            } break;
+            case DropEncryptNode: {
+//                Object callbackData = ((CallbackParam) data).getData();
+                dropEncryptNode((TetroidNode) data);
+            } break;
+
             // nodes
             case ShowNode:
                 setCurNode((TetroidNode) data);
@@ -492,7 +509,7 @@ public class MainActivity extends TetroidActivity {
                 break;
             case GlobalSearchFinished:
                 GlobalSearchParams searchParams = (GlobalSearchParams)data;
-                onGlobalSearchFinished(searchParams.getFound(), searchParams.getScan());
+                onGlobalSearchFinished(searchParams.getFound(), searchParams.getProfile());
                 break;
 
             case AskForOperationWithoutDir:
@@ -754,8 +771,8 @@ public class MainActivity extends TetroidActivity {
             } else /*if (titleId < 0)*/ {
                 tvSubtitle.setVisibility(View.GONE);
             }
-        } else if (viewModel.getLastScan() != null) {
-            setSubtitle("\"" + viewModel.getLastScan().getQuery() + "\"");
+        } else if (viewModel.getLastSearchProfile() != null) {
+            setSubtitle("\"" + viewModel.getLastSearchProfile().getQuery() + "\"");
         } else {
             tvSubtitle.setVisibility(View.GONE);
         }
@@ -899,6 +916,63 @@ public class MainActivity extends TetroidActivity {
 
     // endregion LoadStorage
 
+    //region Encryption
+
+    private void showPasswordEnterDialog(AskPasswordParams params) {
+        PassDialogs.showPassEnterDialog(
+                this,
+                params.getNode(),
+                false,
+                viewModel.getPassInputHandler(params)
+        );
+    }
+
+    /**
+     * TODO: объединить с showPasswordEnterDialog()
+     */
+    private void showPasswordEnterDialog2(CallbackParam params) {
+        boolean isNewPass = !viewModel.isCrypted();
+        // FIXME: по-идее node уже не нужно.
+        PassDialogs.showPassEnterDialog(
+                this,
+                null,
+                isNewPass,
+                new PassDialogs.IPassInputResult() {
+                    @Override
+                    public void applyPass(String pass, TetroidNode node) {
+                        viewModel.onPasswordAsked(pass, isNewPass, params);
+                    }
+
+                    @Override
+                    public void cancelPass() {
+
+                    }
+                });
+    }
+
+    private void showPinCodeDialog() {
+//        PINManager.askPINCode(MainActivity.this, params.isNodeOpening(),
+//                viewModel.getPinCodeInputHandler(params));
+        boolean isSetup = !viewModel.isCrypted();
+        PassDialogs.showPINCodeDialog(
+                this,
+                SettingsManager.getPINCodeLength(this),
+                isSetup,
+                new PassDialogs.IPinInputResult() {
+                    @Override
+                    public boolean onApply(String pin) {
+                        return viewModel.startCheckPinCode(pin);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                }
+        );
+    }
+
+    //endregion Encryption
+
     // region Nodes
 
     /**
@@ -1018,7 +1092,6 @@ public class MainActivity extends TetroidActivity {
     };
 
     // endregion Nodes
-
 
     // region Node
 
@@ -1285,17 +1358,18 @@ public class MainActivity extends TetroidActivity {
             Message.show(this, getString(R.string.mes_quickly_node_cannot_encrypt));
             return;
         }
-        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+        viewModel.checkStoragePass(new CallbackParam(Constants.MainEvents.EncryptNode, node)
+                /*new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {
 //                mCurTask = new CryptNodeTask(node, true).run();
                 viewModel.encryptNode(node);
             }
-
             @Override
             public void onCancel() {
             }
-        });
+        }*/);
     }
 
     /**
@@ -1303,16 +1377,17 @@ public class MainActivity extends TetroidActivity {
      * @param node
      */
     private void dropEncryptNode(TetroidNode node) {
-        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
+        viewModel.checkStoragePass(new CallbackParam(Constants.MainEvents.DropEncryptNode, node)
+                /*new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {
                 viewModel.decryptNode(node);
             }
-
             @Override
             public void onCancel() {
             }
-        });
+        }*/);
     }
 
     /**
@@ -1322,8 +1397,24 @@ public class MainActivity extends TetroidActivity {
         AskDialogs.showYesDialog(this, () -> viewModel.clearSavedPass(), R.string.ask_clear_pass_database_ini);
     }
 
-    // endregion Node
+    /**
+     * Если поля в INI-файле для проверки пустые, спрашиваем "Continue anyway?"
+     * @param param
+     */
+    private void showEmptyPassCheckingFieldDialog(EmptyPassCheckingFieldCallbackParam param) {
+        PassDialogs.showEmptyPassCheckingFieldDialog(this, param.getFieldName(), new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.confirmEmptyPassCheckingFieldDialog(param);
+            }
+            @Override
+            public void onCancel() {
 
+            }
+        });
+    }
+
+    // endregion Node
 
     // region Favorites
 
@@ -1370,7 +1461,6 @@ public class MainActivity extends TetroidActivity {
 
     // endregion Favorites
 
-
     // region Tags
 
     private void setTagsDataItems(Map<String,TetroidTag> tags) {
@@ -1386,7 +1476,6 @@ public class MainActivity extends TetroidActivity {
     }
 
     // endregion Tags
-
 
     // region Tag
 
@@ -1424,7 +1513,6 @@ public class MainActivity extends TetroidActivity {
 
     // endregion Tag
 
-
     // region Records
 
     /**
@@ -1461,7 +1549,6 @@ public class MainActivity extends TetroidActivity {
     }
 
     // endregion Records
-
 
     // region Record
 
@@ -1724,8 +1811,8 @@ public class MainActivity extends TetroidActivity {
             } break;
             case Constants.REQUEST_CODE_SEARCH_ACTIVITY: {
                 if (resultCode == RESULT_OK) {
-                    ScanManager scan = data.getParcelableExtra(Constants.EXTRA_SCAN_MANAGER);
-                    viewModel.startGlobalSearch(scan);
+                    SearchProfile profile = data.getParcelableExtra(Constants.EXTRA_SEARCH_PROFILE);
+                    viewModel.startGlobalSearch(profile);
                 }
             } break;
             case Constants.REQUEST_CODE_SYNC_STORAGE: {
@@ -1933,8 +2020,8 @@ public class MainActivity extends TetroidActivity {
         titleStrip.setVisibility((isVisible) ? View.VISIBLE : View.GONE);
     }
 
-    void onGlobalSearchFinished(HashMap<ITetroidObject, FoundType> found, ScanManager scan) {
-        getFoundPage().setFounds(found, scan);
+    void onGlobalSearchFinished(HashMap<ITetroidObject, FoundType> found, SearchProfile profile) {
+        getFoundPage().setFounds(found, profile);
         viewPagerAdapter.notifyDataSetChanged(); // для обновления title у страницы
         setFoundPageVisibility(true);
         viewPager.setCurrent(Constants.PAGE_FOUND);
@@ -2482,7 +2569,6 @@ public class MainActivity extends TetroidActivity {
     }
 
     // endregion Exit
-
 
     // region StartActivity
 

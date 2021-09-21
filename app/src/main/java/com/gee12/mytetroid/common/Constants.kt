@@ -72,7 +72,7 @@ object Constants {
     const val EXTRA_NODE_ICON_PATH = "EXTRA_NODE_ICON_PATH"
     const val EXTRA_IS_DROP = "EXTRA_IS_DROP"
 
-    const val EXTRA_SCAN_MANAGER = "EXTRA_SCAN_MANAGER"
+    const val EXTRA_SEARCH_PROFILE = "EXTRA_SEARCH_PROFILE"
 
     const val EXTRA_IS_REINIT_STORAGE = "EXTRA_IS_REINIT_STORAGE"
     const val EXTRA_IS_CREATE_STORAGE = "EXTRA_IS_CREATE_STORAGE"
@@ -126,6 +126,11 @@ object Constants {
         FilesCreated,
         Loaded,
         Decrypted,
+        LoadOrDecryptStorage,
+        AskForEmptyPassCheckingField,
+        SavePassHashLocalChanged,
+        SetupPinCode,
+        DropPinCode,
 
         Added,
         Edited,
@@ -136,10 +141,16 @@ object Constants {
         AskPinCode,
         AskForClearStoragePass,
 
+        PinChecked,
+
         ChangedOutside
     }
 
     enum class MainEvents {
+        // crypt
+        EncryptNode,
+        DropEncryptNode,
+
         // nodes
         ShowNode,
         NodeCreated,

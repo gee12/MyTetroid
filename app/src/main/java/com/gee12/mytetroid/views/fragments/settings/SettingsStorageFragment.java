@@ -11,6 +11,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.views.Message;
@@ -136,7 +137,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
             return;
         String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
 //        String folderPath = new UriUtils(getContext()).getPath(data.getData());
-        boolean isCreate = requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH;
+        /*boolean isCreate = requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
             boolean pathChanged = !folderPath.equals(SettingsManager.getStoragePath(mContext)) || isCreate;
@@ -156,7 +157,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
                 getActivity().finish();
             }
         }
-        else if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
+        else*/ if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
             SettingsManager.setTrashPath(mContext, folderPath);
             SettingsManager.setLastChoosedFolder(mContext, folderPath);
             updateSummary(R.string.pref_key_temp_path, folderPath);
@@ -178,7 +179,7 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
     }
 
     protected void openFolderPicker(String title, String location, boolean isNew) {
-        String path = (!StringUtil.isBlank(location)) ? location : DataManager.getLastFolderPathOrDefault(getContext(), true);
+        String path = (!StringUtil.isBlank(location)) ? location : StorageInteractor.Companion.getLastFolderPathOrDefault(getContext(), true);
         Intent intent = new Intent(getContext(), FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, title);
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path);

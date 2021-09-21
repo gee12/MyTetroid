@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.DataManager;
+import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -29,8 +30,13 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
     private final List<ITetroidObject> dataSet;
     private HashMap<ITetroidObject, FoundType> hashMap;
 
-    public FoundListAdapter(Context context, OnRecordAttachmentClickListener onAttachmentClickListener/*, List<ITetroidObject> dataSet*/) {
-        super(context, onAttachmentClickListener);
+    public FoundListAdapter(
+            Context context,
+            RecordsInteractor recordsInteractor,
+            OnRecordAttachmentClickListener onAttachmentClickListener
+            /*, List<ITetroidObject> dataSet*/
+    ) {
+        super(context, recordsInteractor, onAttachmentClickListener);
         this.dataSet = new ArrayList<>();
         this.isShowNodeName = true;
     }

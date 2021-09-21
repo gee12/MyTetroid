@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
  * Поиск объектов хранилища.
  * Название такое, а не SearchManager, из-за существования одноименного класса в пакете android.app.
  */
+@Deprecated
 public class ScanManager implements Parcelable {
 
     public static final String QUERY_SEPAR = " ";
@@ -105,58 +106,58 @@ public class ScanManager implements Parcelable {
         this.nodeId = in.readString();
     }
 
-    /**
-     * Глобальный поиск.
-     * @param context
-     * @return
-     */
-    public HashMap<ITetroidObject,FoundType> globalSearch(Context context) {
-        this.foundObjects = new HashMap<>();
-        this.node = NodesManager.getNode(nodeId);
-
-        if (isSplitToWords) {
-            for (String word : query.split(QUERY_SEPAR)) {
-                foundObjects.putAll(globalSearch(context, node, word));
-            }
-        } else {
-            foundObjects.putAll(globalSearch(context, node, query));
-        }
-        return foundObjects;
-    }
-
-    /**
-     * Глобальный поиск
-     * @param node
-     * @param query
-     * @return
-     */
-    private HashMap<ITetroidObject,FoundType> globalSearch(Context context, TetroidNode node, String query) {
-        List<TetroidNode> srcNodes;
-        if (isSearchInNode) {
-            if (node != null) {
-                srcNodes = new ArrayList<>();
-                srcNodes.add(node);
-            } else {
-                return foundObjects;
-            }
-        } else {
-            srcNodes = DataManager.getInstance().getRootNodes();
-        }
-        String regex = buildRegex(query, isOnlyWholeWords);
-        // поиск по веткам, записям, реквизитам записей, файлам
-        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles || inIds
-                // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
-                || inTags;
-        if (inNodes || inRecords) {
-            globalSearchInNodes(context, srcNodes, regex, inRecords);
-        }
-        // поиск по всем меткам в базе, если не указана ветка для поиска
-        // 2 - если используем тип (2), то комментируем
-//        if (inTags && !isSearchInNode) {
-//            globalSearchInTags(DataManager.getTags(), regex, isOnlyWholeWords);
+//    /**
+//     * Глобальный поиск.
+//     * @param context
+//     * @return
+//     */
+//    public HashMap<ITetroidObject,FoundType> globalSearch(Context context) {
+//        this.foundObjects = new HashMap<>();
+//        this.node = NodesManager.getNode(nodeId);
+//
+//        if (isSplitToWords) {
+//            for (String word : query.split(QUERY_SEPAR)) {
+//                foundObjects.putAll(globalSearch(context, node, word));
+//            }
+//        } else {
+//            foundObjects.putAll(globalSearch(context, node, query));
 //        }
-        return foundObjects;
-    }
+//        return foundObjects;
+//    }
+
+//    /**
+//     * Глобальный поиск
+//     * @param node
+//     * @param query
+//     * @return
+//     */
+//    private HashMap<ITetroidObject,FoundType> globalSearch(Context context, TetroidNode node, String query) {
+//        List<TetroidNode> srcNodes;
+//        if (isSearchInNode) {
+//            if (node != null) {
+//                srcNodes = new ArrayList<>();
+//                srcNodes.add(node);
+//            } else {
+//                return foundObjects;
+//            }
+//        } else {
+//            srcNodes = DataManager.getInstance().getRootNodes();
+//        }
+//        String regex = buildRegex(query, isOnlyWholeWords);
+//        // поиск по веткам, записям, реквизитам записей, файлам
+//        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles || inIds
+//                // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
+//                || inTags;
+//        if (inNodes || inRecords) {
+//            globalSearchInNodes(context, srcNodes, regex, inRecords);
+//        }
+//        // поиск по всем меткам в базе, если не указана ветка для поиска
+//        // 2 - если используем тип (2), то комментируем
+////        if (inTags && !isSearchInNode) {
+////            globalSearchInTags(DataManager.getTags(), regex, isOnlyWholeWords);
+////        }
+//        return foundObjects;
+//    }
 
     /**
      * Поиск по названиям веток (рекурсивно с подветками).
@@ -186,83 +187,83 @@ public class ScanManager implements Parcelable {
         return res;
     }
 
-    /**
-     * Глобальный поиск по названиям веток.
-     * Пропускает зашифрованные ветки.
-     * @param nodes
-     * @param regex
-     * @param inRecords
-     */
-    private void globalSearchInNodes(Context context, List<TetroidNode> nodes, String regex, boolean inRecords) {
-        for (TetroidNode node : nodes) {
-            if (!node.isNonCryptedOrDecrypted()) {
-                this.existCryptedNodes = true;
-                continue;
-            }
-            // поиск по именам веток
-            if (inNodes && node.getName().matches(regex)) {
-                addFoundObject(node, FoundType.TYPE_NODE);
-            }
-            // поиск по id веток
-            if (inIds && node.getId().matches(regex)) {
-                addFoundObject(node, FoundType.TYPE_NODE_ID);
-            }
-            if (inRecords && node.getRecordsCount() > 0) {
-                globalSearchInRecords(context, node.getRecords(), regex);
-            }
-            if (node.getSubNodesCount() > 0) {
-                globalSearchInNodes(context, node.getSubNodes(), regex, inRecords);
-            }
-        }
-    }
+//    /**
+//     * Глобальный поиск по названиям веток.
+//     * Пропускает зашифрованные ветки.
+//     * @param nodes
+//     * @param regex
+//     * @param inRecords
+//     */
+//    private void globalSearchInNodes(Context context, List<TetroidNode> nodes, String regex, boolean inRecords) {
+//        for (TetroidNode node : nodes) {
+//            if (!node.isNonCryptedOrDecrypted()) {
+//                this.existCryptedNodes = true;
+//                continue;
+//            }
+//            // поиск по именам веток
+//            if (inNodes && node.getName().matches(regex)) {
+//                addFoundObject(node, FoundType.TYPE_NODE);
+//            }
+//            // поиск по id веток
+//            if (inIds && node.getId().matches(regex)) {
+//                addFoundObject(node, FoundType.TYPE_NODE_ID);
+//            }
+//            if (inRecords && node.getRecordsCount() > 0) {
+//                globalSearchInRecords(context, node.getRecords(), regex);
+//            }
+//            if (node.getSubNodesCount() > 0) {
+//                globalSearchInNodes(context, node.getSubNodes(), regex, inRecords);
+//            }
+//        }
+//    }
 
-    /**
-     * Поиск по названиям записей.
-     * @param srcRecords
-     * @param regex
-     * @return
-     */
-    private void globalSearchInRecords(Context context, List<TetroidRecord> srcRecords, String regex) {
-        for (TetroidRecord record : srcRecords) {
-            // поиск по именам записей
-            if (inRecordsNames && record.getName().matches(regex)) {
-                addFoundObject(record, FoundType.TYPE_RECORD);
-            }
-            // поиск по авторам
-            if (inAuthor && record.getAuthor().matches(regex)) {
-                addFoundObject(record, FoundType.TYPE_AUTHOR);
-            }
-            // поиск по ссылкам
-            if (inUrl && record.getAuthor().matches(regex)) {
-                addFoundObject(record, FoundType.TYPE_URL);
-            }
-            // поиск по файлам записи
-            if (inFiles && record.getAttachedFilesCount() > 0) {
-                globalSearchInFiles(record.getAttachedFiles(), regex);
-            }
-            // поиск по id записей
-            if (inIds && record.getId().matches(regex)) {
-                addFoundObject(record, FoundType.TYPE_RECORD_ID);
-            }
-            // поиск по тексту записи (читаем текст html файла)
-            if (inText) {
-                String text = RecordsManager.getRecordTextDecrypted(context, record);
-                if (text != null && text.matches(regex)) {
-                    addFoundObject(record, FoundType.TYPE_RECORD_TEXT);
-                }
-            }
-            // поиск по меткам (только если указана ветка для поиска)
-            // 2 - комментируем isSearchInNode, если используем тип (2)
-            if (inTags /*&& isSearchInNode*/) {
-                // 1 - добавляем саму метку в результат
-//                globalSearchInTags(record.getTags(), query, isOnlyWholeWords);
-                // 2 - добавляем запись, содержащую метку
-                if (record.getTagsString().matches(regex)) {
-                    addFoundObject(record, FoundType.TYPE_TAG);
-                }
-            }
-        }
-    }
+//    /**
+//     * Поиск по названиям записей.
+//     * @param srcRecords
+//     * @param regex
+//     * @return
+//     */
+//    private void globalSearchInRecords(Context context, List<TetroidRecord> srcRecords, String regex) {
+//        for (TetroidRecord record : srcRecords) {
+//            // поиск по именам записей
+//            if (inRecordsNames && record.getName().matches(regex)) {
+//                addFoundObject(record, FoundType.TYPE_RECORD);
+//            }
+//            // поиск по авторам
+//            if (inAuthor && record.getAuthor().matches(regex)) {
+//                addFoundObject(record, FoundType.TYPE_AUTHOR);
+//            }
+//            // поиск по ссылкам
+//            if (inUrl && record.getAuthor().matches(regex)) {
+//                addFoundObject(record, FoundType.TYPE_URL);
+//            }
+//            // поиск по файлам записи
+//            if (inFiles && record.getAttachedFilesCount() > 0) {
+//                globalSearchInFiles(record.getAttachedFiles(), regex);
+//            }
+//            // поиск по id записей
+//            if (inIds && record.getId().matches(regex)) {
+//                addFoundObject(record, FoundType.TYPE_RECORD_ID);
+//            }
+//            // поиск по тексту записи (читаем текст html файла)
+//            if (inText) {
+//                String text = RecordsManager.getRecordTextDecrypted(context, record);
+//                if (text != null && text.matches(regex)) {
+//                    addFoundObject(record, FoundType.TYPE_RECORD_TEXT);
+//                }
+//            }
+//            // поиск по меткам (только если указана ветка для поиска)
+//            // 2 - комментируем isSearchInNode, если используем тип (2)
+//            if (inTags /*&& isSearchInNode*/) {
+//                // 1 - добавляем саму метку в результат
+////                globalSearchInTags(record.getTags(), query, isOnlyWholeWords);
+//                // 2 - добавляем запись, содержащую метку
+//                if (record.getTagsString().matches(regex)) {
+//                    addFoundObject(record, FoundType.TYPE_TAG);
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Поиск по названиям записей.

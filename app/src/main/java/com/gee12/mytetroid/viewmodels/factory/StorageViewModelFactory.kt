@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.gee12.mytetroid.viewmodels.RecordViewModel
+import com.gee12.mytetroid.viewmodels.StorageEncryptionViewModel
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 
 class StorageViewModelFactory(val app: Application): ViewModelProvider.NewInstanceFactory() {
@@ -16,6 +17,9 @@ class StorageViewModelFactory(val app: Application): ViewModelProvider.NewInstan
             }
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> {
                 RecordViewModel(app, StoragesRepo(app)) as T
+            }
+            modelClass.isAssignableFrom(StorageEncryptionViewModel::class.java) -> {
+                StorageEncryptionViewModel(app, StoragesRepo(app)) as T
             }
             modelClass.isAssignableFrom(StorageSettingsViewModel::class.java) -> {
                 StorageSettingsViewModel(app, StoragesRepo(app)) as T

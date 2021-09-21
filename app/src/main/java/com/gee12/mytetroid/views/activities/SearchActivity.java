@@ -24,10 +24,10 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.model.SearchProfile;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
 import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.NodeChooserDialog;
-import com.gee12.mytetroid.views.dialogs.NodeDialogs;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -230,23 +230,22 @@ public class SearchActivity extends AppCompatActivity {
      *
      * @return
      */
-    public ScanManager buildScanManager() {
-        String query = etQuery.getText().toString();
-        ScanManager scan = new ScanManager(query);
-        scan.setInText(cbText.isChecked());
-        scan.setInRecordsNames(cbRecordsNames.isChecked());
-        scan.setInAuthor(cbAuthor.isChecked());
-        scan.setInUrl(cbUrl.isChecked());
-        scan.setInTags(cbTags.isChecked());
-        scan.setInNodes(cbNodes.isChecked());
-        scan.setInFiles(cbFiles.isChecked());
-        scan.setInIds(cbIds.isChecked());
-
-        scan.setSplitToWords(spSplitToWords.getSelectedItemPosition() == 0);
-        scan.setOnlyWholeWords(spInWholeWords.getSelectedItemPosition() == 0);
-        scan.setSearchInNode(spInNodeMode.getSelectedItemPosition() != 0);
-        scan.setNodeId(nodeId);
-        return scan;
+    public SearchProfile buildSearchProfile() {
+        return new SearchProfile(
+            etQuery.getText().toString(),
+            cbText.isChecked(),
+            cbRecordsNames.isChecked(),
+            cbAuthor.isChecked(),
+            cbUrl.isChecked(),
+            cbTags.isChecked(),
+            cbNodes.isChecked(),
+            cbFiles.isChecked(),
+            cbIds.isChecked(),
+            spSplitToWords.getSelectedItemPosition() == 0,
+            spInWholeWords.getSelectedItemPosition() == 0,
+            spInNodeMode.getSelectedItemPosition() != 0,
+            nodeId
+        );
     }
 
     /**
@@ -257,7 +256,7 @@ public class SearchActivity extends AppCompatActivity {
         saveSearchPrefs();
         // запускаем поиск и выводим результат
         Intent intent = new Intent();
-        intent.putExtra(Constants.EXTRA_SCAN_MANAGER, buildScanManager());
+        intent.putExtra(Constants.EXTRA_SEARCH_PROFILE, buildSearchProfile());
         setResult(Activity.RESULT_OK, intent);
         finish();
     }

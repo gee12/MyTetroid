@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
@@ -91,7 +92,7 @@ public class SyncManager {
             return false;
         }
         // проверяем разрешение на запуск сервиса
-        if (!PermissionManager.checkTermuxPermission(activity, StorageManager.REQUEST_CODE_PERMISSION_TERMUX)) {
+        if (!PermissionManager.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
             return false;
         }
         // подставляем путь

@@ -10,19 +10,27 @@ open class BaseStorageViewModel(app: Application, private val repo: StoragesRepo
 
     val viewEvent: SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>> = SingleLiveEvent()
     val storageEvent: SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>> = SingleLiveEvent()
+    val objectAction: SingleLiveEvent<ViewModelEvent<Any, Any>> = SingleLiveEvent()
 
-
-    fun updateViewState(state: Constants.ViewEvents, param: Any? = null) {
+    fun makeViewEvent(state: Constants.ViewEvents, param: Any? = null) {
         viewEvent.postValue(ViewModelEvent(state, param))
     }
 
-    fun updateStorageState(state: Constants.StorageEvents, param: Any? = null) {
+    fun makeStorageEvent(state: Constants.StorageEvents, param: Any? = null) {
         storageEvent.postValue(ViewModelEvent(state, param))
+    }
+
+    fun makeEvent(event: Any, param: Any? = null) {
+        objectAction.postValue(ViewModelEvent(event, param))
+    }
+
+    fun makeEvent(callback: CallbackParam) {
+        makeEvent(callback.event, callback.data)
     }
 
     fun getLastFolderPathOrDefault(forWrite: Boolean) = StorageInteractor.getLastFolderPathOrDefault(getContext(), forWrite)
 
     fun onPermissionChecked() {
-        storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.PermissionChecked))
+        makeStorageEvent(Constants.StorageEvents.PermissionChecked)
     }
 }

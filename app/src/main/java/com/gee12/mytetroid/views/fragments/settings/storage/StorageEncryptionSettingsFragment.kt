@@ -9,52 +9,43 @@ import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import com.gee12.mytetroid.TetroidTask
-import com.gee12.mytetroid.data.PassManager
-import com.gee12.mytetroid.data.PINManager
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.data.SettingsManager
 import com.gee12.mytetroid.views.dialogs.PassDialogs
-import com.gee12.mytetroid.data.ITaskProgress
-import com.gee12.mytetroid.logs.TetroidLog.Objs
-import com.gee12.mytetroid.logs.TetroidLog.Opers
-import com.gee12.mytetroid.logs.TaskStage.Stages
-import com.gee12.mytetroid.logs.TaskStage.ITaskStageExecutor
-import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.logs.TetroidLog
-import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
+import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.viewmodels.CallbackParam
+import com.gee12.mytetroid.viewmodels.StorageEncryptionViewModel
 import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.SettingsActivity
 
 class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var mViewModel: StorageSettingsViewModel
-//    private lateinit var mCryptViewModel: CryptViewModel
+    private lateinit var viewModel: StorageEncryptionViewModel
 
     private var mCurTask: TetroidTask<*, *, *>? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
-        mViewModel = ViewModelProvider(activity!!, StorageViewModelFactory(application))
-            .get(StorageSettingsViewModel::class.java)
-//        mCryptViewModel = ViewModelProvider(this, StoragesViewModelFactory(application))
-//            .get(CryptViewModel::class.java)
+        viewModel = ViewModelProvider(this, StorageViewModelFactory(application))
+            .get(StorageEncryptionViewModel::class.java)
+
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
-        preferenceManager?.preferenceDataStore = mViewModel.prefsDataStore
+        preferenceManager?.preferenceDataStore = viewModel.prefsDataStore
 
         setPreferencesFromResource(R.xml.storage_prefs_encryption, rootKey)
-        setTitle(R.string.pref_category_crypt, mViewModel.getStorageName())
+        setTitle(R.string.pref_category_crypt, viewModel.getStorageName())
 
         // установка или смена пароля хранилища
-        val isStorageReady = mViewModel.isInited() && mViewModel.isLoaded() && !mViewModel.isLoadedFavoritesOnly()
+        val isStorageReady = viewModel.isInited() && viewModel.isLoaded() && !viewModel.isLoadedFavoritesOnly()
         val passPref = findPreference<Preference>(getString(R.string.pref_key_change_pass))
-        val isCrypted = mViewModel.isCrypted()
+        val isCrypted = viewModel.isCrypted()
         passPref!!.setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
         passPref.setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
         passPref.isEnabled = isStorageReady
@@ -63,12 +54,12 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
                 if (isCrypted) {
                     changePass()
                 } else {
-                    PassManager.setupPass(context)
+                    setupPass()
                 }
                 // устанавливаем флаг для MainActivity
                 val intent = Intent()
                 intent.putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
-                activity!!.setResult(Activity.RESULT_OK, intent)
+                requireActivity().setResult(Activity.RESULT_OK, intent)
             }
             true
         }
@@ -77,30 +68,83 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         val prefIsSavePassLocal = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
         prefIsSavePassLocal?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _: Preference?, newValue: Any ->
-                if (mViewModel.getMiddlePassHash() == null) {
+                if (viewModel.getMiddlePassHash() == null) {
                     // если пароль не задан, то нечего очищать, не задаем вопрос
                     true
                 } else {
-                    PINManager.askPINCode(context, true) { changeSavePassHashLocal(newValue as Boolean) }
+                    viewModel.askPinCode( true,
+                        CallbackParam(Constants.StorageEvents.SavePassHashLocalChanged, newValue)
+                    )
+//                    viewModel.askPinCode( true, CallbackParam(Constants.StorageEvents.SavePassHashLocalChanged, newValue)) {
+//                        changeSavePassHashLocal(newValue as Boolean)
+//                    }
                     false
                 }
             }
 
         // can't access viewLifecycleOwner when getView() is null yet
-        mViewModel.updateStorageField.observe(this, { pair ->
+        viewModel.updateStorageField.observe(this, { pair ->
             updateSummary(pair.first, pair.second.toString(), "")
         })
+
+        viewModel.storageEvent.observe(this, { event ->
+            onStorageEvent(event.state, event.data)
+        })
+    }
+
+    fun onStorageEvent(state: Constants.StorageEvents, data: Any?) {
+        when (state) {
+            Constants.StorageEvents.SavePassHashLocalChanged -> changeSavePassHashLocal(data as Boolean)
+            Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
+            Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
+        }
+    }
+
+    private fun showSetupPinCodeDialog() {
+        // задаем длину ПИН-кода
+        PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(context),
+            object : PassDialogs.IPinLengthInputResult {
+                override fun onApply(length: Int) {
+                    viewModel.setupPinCodeLength(length)
+
+                    // задаем новый ПИН-код
+                    PassDialogs.showPINCodeDialog(context, length, true,
+                        object : PassDialogs.IPinInputResult {
+                            override fun onApply(pin: String): Boolean {
+                                viewModel.setupPinCode(pin)
+                                return true
+                            }
+
+                            override fun onCancel() {}
+                        })
+                }
+
+                override fun onCancel() {}
+            })
+    }
+
+    private fun showDropPinCodeDialog() {
+        // сбрасываем имеющийся ПИН-код, предварительнго его запросив
+        PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false,
+            object : PassDialogs.IPinInputResult {
+                override fun onApply(pin: String): Boolean {
+                    // зашифровываем введеный пароль перед сравнением
+                    return viewModel.checkAndDropPinCode(pin)
+                }
+
+                override fun onCancel() {}
+            })
     }
 
     /**
      * Обработка сброса опции локального сохранения пароля.
      */
     private fun changeSavePassHashLocal(newValue: Boolean) {
-        if (!newValue && mViewModel.isSaveMiddlePassLocal()) {
+        if (!newValue && viewModel.isSaveMiddlePassLocal()) {
             // удалить сохраненный хэш пароля?
             AskDialogs.showYesNoDialog(context, object : IApplyCancelResult {
                 override fun onApply() {
-                    mViewModel.dropSavedLocalPassHash()
+                    viewModel.dropSavedLocalPassHash()
                     // удаляем хэш пароля, если сняли галку
 //                    mViewModel.setMiddlePassHash(null)
                     // сбрасываем галку
@@ -129,15 +173,15 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     }*/
 
     private fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
-        if (!mViewModel.isInited()) {
+        if (!viewModel.isInited()) {
             val mes =
                 getString(if (PermissionManager.writeExtStoragePermGranted(context)) R.string.title_need_init_storage else R.string.title_need_perm_init_storage)
             Message.show(context, mes, Toast.LENGTH_SHORT)
             return false
-        } else if (!mViewModel.isLoaded()) {
+        } else if (!viewModel.isLoaded()) {
             Message.show(context, getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT)
             return false
-        } else if (checkIsFavorMode && mViewModel.isLoadedFavoritesOnly()) {
+        } else if (checkIsFavorMode && viewModel.isLoadedFavoritesOnly()) {
             Message.show(context, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT)
             return false
         }
@@ -154,65 +198,34 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     fun changePass() {
         LogManager.log(mContext, R.string.log_start_pass_change)
         // вводим пароли (с проверкой на пустоту и равенство)
-        PassDialogs.showPassChangeDialog(context) { curPass: String?, newPass: String? ->
-            PassManager.checkPass(context, curPass, { res: Boolean ->
-                if (res) {
-                    mCurTask = ChangePassTask().run(curPass, newPass)
-                }
-            }, R.string.log_cur_pass_is_incorrect)
-        }
+        PassDialogs.showPassChangeDialog(context, object : PassDialogs.IPassChangeResult {
+
+            override fun applyPass(curPass: String?, newPass: String?): Boolean {
+                return viewModel.checkPass(curPass, { res: Boolean ->
+                    if (res) {
+//                        mCurTask = ChangePassTask().run(curPass, newPass)
+                        viewModel.startChangePass(curPass!!, newPass!!)
+                    }
+                }, R.string.log_cur_pass_is_incorrect)
+            }
+        })
+
     }
 
     /**
-     * TODO: Переписать на корутины.
-     * Задание (параллельный поток), в котором выполняется перешифровка хранилища.
+     * Установка пароля хранилища впервые.
      */
-    inner class ChangePassTask : TetroidTask<String?, String?, Boolean?>(activity) {
-        override fun onPreExecute() {
-            settingsActivity!!.setProgressVisibility(true, getString(R.string.task_pass_changing))
-        }
+    fun setupPass() {
+        LogManager.log(context, R.string.log_start_pass_setup)
+        // вводим пароль
+        PassDialogs.showPassEnterDialog(context, null, true, object : PassDialogs.IPassInputResult {
 
-        override fun doInBackground(vararg values: String?): Boolean {
-            val curPass = values[0]
-            val newPass = values[1]
-            return PassManager.changePass(context, curPass, newPass, object : ITaskProgress {
-                override fun nextStage(obj: Objs, oper: Opers, stage: Stages) {
-                    setStage(obj, oper, stage)
-                }
-
-                override fun nextStage(obj: Objs, oper: Opers, stageExecutor: ITaskStageExecutor): Boolean {
-                    setStage(obj, oper, Stages.START)
-                    return if (stageExecutor.execute()) {
-                        setStage(obj, oper, Stages.SUCCESS)
-                        true
-                    } else {
-                        setStage(obj, oper, Stages.FAILED)
-                        false
-                    }
-                }
-            })
-        }
-
-        private fun setStage(obj: Objs, oper: Opers, stage: Stages) {
-            val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
-            val mes = TetroidLog.logTaskStage(mContext, taskStage)
-            publishProgress(mes)
-        }
-
-        override fun onProgressUpdate(vararg values: String?) {
-            val mes = values[0]
-            settingsActivity!!.setProgressVisibility(true, mes)
-        }
-
-        override fun onPostExecute(res: Boolean?) {
-            settingsActivity!!.setProgressVisibility(false, null)
-            if (res == true) {
-                LogManager.log(mContext, R.string.log_pass_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT)
-            } else {
-                LogManager.log(mContext, R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT)
-                showSnackMoreInLogs()
+            override fun applyPass(pass: String, node: TetroidNode) {
+                viewModel.setupPass(pass)
             }
-        }
+
+            override fun cancelPass() {}
+        })
     }
 
     private val settingsActivity: SettingsActivity?

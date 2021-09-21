@@ -13,7 +13,6 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebImageResult
@@ -39,14 +38,14 @@ import java.util.*
 
 class RecordViewModel(
     app: Application,
-    private val storagesRepo: StoragesRepo
+    storagesRepo: StoragesRepo
 ): StorageViewModel/*<Constants.RecordEvents>*/(app, storagesRepo) {
 
-    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.RecordEvents, Any>> = SingleLiveEvent()
-
-    fun doAction(action: Constants.RecordEvents, param: Any? = null) {
-        objectAction.postValue(ViewModelEvent(action, param))
-    }
+//    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.RecordEvents, Any>> = SingleLiveEvent()
+//
+//    fun doAction(action: Constants.RecordEvents, param: Any? = null) {
+//        objectAction.postValue(ViewModelEvent(action, param))
+//    }
 
     protected val imagesInteractor = ImagesInteractor(dataInteractor, recordsInteractor)
 
@@ -103,7 +102,7 @@ class RecordViewModel(
         } else {
             // переключаем только views
 //            switchViews(mCurMode)
-            doAction(Constants.RecordEvents.SwitchViews, mCurMode)
+            makeEvent(Constants.RecordEvents.SwitchViews, mCurMode)
         }
     }
 
@@ -184,7 +183,7 @@ class RecordViewModel(
             }
         } else {
             // обрабатываем внешнюю ссылку
-            doAction(Constants.RecordEvents.OpenWebLink, url)
+            makeEvent(Constants.RecordEvents.OpenWebLink, url)
         }
     }
 
@@ -229,7 +228,7 @@ class RecordViewModel(
             mRecord = recordsInteractor.getRecord(recordId)
             if (mRecord == null) {
                 LogManager.log(getContext(), getString(R.string.log_not_found_record) + recordId, ILogger.Types.ERROR, Toast.LENGTH_LONG)
-                updateViewState(Constants.ViewEvents.FinishActivity)
+                makeViewEvent(Constants.ViewEvents.FinishActivity)
             } else {
                 setTitle(mRecord!!.name)
                 //                setVisibilityActionHome(!mRecord.isTemp());
@@ -247,7 +246,7 @@ class RecordViewModel(
             }
         } else {
             LogManager.log(getContext(), getString(R.string.log_not_transferred_record_id), ILogger.Types.ERROR, Toast.LENGTH_LONG)
-            updateViewState(Constants.ViewEvents.FinishActivity)
+            makeViewEvent(Constants.ViewEvents.FinishActivity)
         }
     }
 
@@ -256,7 +255,7 @@ class RecordViewModel(
      * @return
      */
     fun initRecordFromWidget() {
-        updateViewState(Constants.ViewEvents.ShowHomeButton)
+        makeViewEvent(Constants.ViewEvents.ShowHomeButton)
         viewModelScope.launch {
             // создаем временную запись
             val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
@@ -265,7 +264,7 @@ class RecordViewModel(
                 setTitle(mRecord!!.name)
             } else {
                 TetroidLog.logOperError(getContext(), TetroidLog.Objs.RECORD, TetroidLog.Opers.CREATE, Toast.LENGTH_LONG)
-                updateViewState(Constants.ViewEvents.FinishActivity)
+                makeViewEvent(Constants.ViewEvents.FinishActivity)
             }
         }
     }
@@ -278,7 +277,7 @@ class RecordViewModel(
         if (record == null) return
         mRecord = record
         LogManager.log(getContext(), getString(R.string.log_record_loading) + record.id, ILogger.Types.INFO)
-        doAction(Constants.RecordEvents.LoadFields, record)
+        makeEvent(Constants.RecordEvents.LoadFields, record)
         // FIXME: сделал вызов после обработки LoadFields. Проверить
 //        expandFieldsIfNeed()
         // текст
@@ -290,11 +289,11 @@ class RecordViewModel(
             viewModelScope.launch {
                 val text = recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, Toast.LENGTH_LONG)
                 if (text != null) {
-                    doAction(Constants.RecordEvents.LoadRecordTextFromFile, text)
+                    makeEvent(Constants.RecordEvents.LoadRecordTextFromFile, text)
                 } else {
                     if (record.isCrypted && cryptInteractor.crypter.errorCode > 0) {
                         LogManager.log(getContext(), R.string.log_error_record_file_decrypting, ILogger.Types.ERROR, Toast.LENGTH_LONG)
-                        updateViewState(Constants.ViewEvents.ShowMoreInLogs)
+                        makeViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                     }
                 }
             }
@@ -316,7 +315,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherRecord(resObj.id) })
-            doAction(Constants.RecordEvents.AskForLoadAllNodes, resObj)
+            makeEvent(Constants.RecordEvents.AskForLoadAllNodes, resObj)
         } else {
             showAnotherRecord(resObj.id)
         }
@@ -329,7 +328,7 @@ class RecordViewModel(
             bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
         }
 //        finishWithResult(RESULT_OPEN_RECORD, bundle)
-        updateViewState(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_RECORD, bundle))
+        makeViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_RECORD, bundle))
     }
 
     /**
@@ -343,7 +342,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherNodeDirectly(resObj.id) })
-            doAction(Constants.RecordEvents.AskForLoadAllNodes, resObj)
+            makeEvent(Constants.RecordEvents.AskForLoadAllNodes, resObj)
         } else {
             showAnotherNodeDirectly(resObj.id)
         }
@@ -353,7 +352,7 @@ class RecordViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, id)
 //        finishWithResult(RESULT_OPEN_NODE, bundle)
-        updateViewState(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_NODE, bundle))
+        makeViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_NODE, bundle))
     }
 
     /**
@@ -367,7 +366,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { openTagDirectly(tagName) })
-            doAction(Constants.RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
+            makeEvent(Constants.RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
         } else {
             openTagDirectly(tagName)
         }
@@ -380,7 +379,7 @@ class RecordViewModel(
             bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
         }
 //        finishWithResult(RESULT_SHOW_TAG, bundle)
-        updateViewState(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_TAG, bundle))
+        makeViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_TAG, bundle))
     }
 
     /**
@@ -428,11 +427,11 @@ class RecordViewModel(
                 getContext(), String.format(getString(R.string.log_failed_to_save_images_mask), errorCount),
                 ILogger.Types.WARNING, Toast.LENGTH_LONG
             )
-            updateViewState(Constants.ViewEvents.ShowMoreInLogs)
+            makeViewEvent(Constants.ViewEvents.ShowMoreInLogs)
         }
         if (!savedImages.isEmpty()) {
 //            mEditor.insertImages(savedImages)
-            doAction(Constants.RecordEvents.InsertImages, savedImages)
+            makeEvent(Constants.RecordEvents.InsertImages, savedImages)
         }
     }
 
@@ -449,27 +448,27 @@ class RecordViewModel(
     fun saveImage(image: TetroidImage?) {
         if (image != null) {
 //            mEditor.insertImage(image)
-            doAction(Constants.RecordEvents.InsertImages, listOf(image))
+            makeEvent(Constants.RecordEvents.InsertImages, listOf(image))
         } else {
             TetroidLog.logOperError(getContext(), TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, Toast.LENGTH_LONG)
-            updateViewState(Constants.ViewEvents.ShowMoreInLogs)
+            makeViewEvent(Constants.ViewEvents.ShowMoreInLogs)
         }
     }
 
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
         viewModelScope.launch {
-            updateViewState(Constants.ViewEvents.ShowProgress, getString(R.string.title_page_downloading))
+            makeViewEvent(Constants.ViewEvents.ShowProgress, getString(R.string.title_page_downloading))
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String?, isTextOnly: Boolean) {
 //                    mEditor.insertWebPageContent(content, isTextOnly)
-                    if (isTextOnly) doAction(Constants.RecordEvents.InsertWebPageText)
-                    else doAction(Constants.RecordEvents.InsertWebPageContent)
-                    updateViewState(Constants.ViewEvents.ShowProgress, false)
+                    if (isTextOnly) makeEvent(Constants.RecordEvents.InsertWebPageText)
+                    else makeEvent(Constants.RecordEvents.InsertWebPageContent)
+                    makeViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     TetroidLog.log(getContext(), getString(R.string.log_error_download_web_page_mask, ex.message!!), Toast.LENGTH_LONG)
-                    updateViewState(Constants.ViewEvents.ShowProgress, false)
+                    makeViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
             })
         }
@@ -477,16 +476,16 @@ class RecordViewModel(
 
     fun downloadImage(url: String?) {
         viewModelScope.launch {
-            updateViewState(Constants.ViewEvents.ShowProgress, getString(R.string.title_image_downloading))
+            makeViewEvent(Constants.ViewEvents.ShowProgress, getString(R.string.title_image_downloading))
             NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
                 override fun onSuccess(bitmap: Bitmap?) {
                     saveImage(bitmap)
-                    updateViewState(Constants.ViewEvents.ShowProgress, false)
+                    makeViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     TetroidLog.log(getContext(), getString(R.string.log_error_download_image_mask, ex.message!!), Toast.LENGTH_LONG)
-                    updateViewState(Constants.ViewEvents.ShowProgress, false)
+                    makeViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
             })
         }
@@ -521,17 +520,17 @@ class RecordViewModel(
 //    }
 
     fun attachFile(fileFullName: String?, record: TetroidRecord?, deleteSrcFile: Boolean) {
-        updateViewState(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
+        makeViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val attach = attachesInteractor.attachFile(getContext(), fileFullName, record, deleteSrcFile)
-                updateViewState(Constants.ViewEvents.TaskFinished)
+                makeViewEvent(Constants.ViewEvents.TaskFinished)
                 if (attach != null) {
                     TetroidLog.log(getContext(), getString(R.string.log_file_was_attached), ILogger.Types.INFO, Toast.LENGTH_SHORT)
-                    doAction(Constants.RecordEvents.FileAttached, attach)
+                    makeEvent(Constants.RecordEvents.FileAttached, attach)
                 } else {
                     TetroidLog.log(getContext(), getString(R.string.log_files_attach_error), ILogger.Types.ERROR, Toast.LENGTH_LONG)
-                    updateViewState(Constants.ViewEvents.ShowMoreInLogs)
+                    makeViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                 }
             }
         }
@@ -558,7 +557,7 @@ class RecordViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, record.id)
 //        finishWithResult(RESULT_SHOW_ATTACHES, bundle)
-        updateViewState(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_ATTACHES, bundle))
+        makeViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_ATTACHES, bundle))
     }
 
     /**
@@ -605,14 +604,14 @@ class RecordViewModel(
         // перезагружаем html-текст записи в webView, если был режим редактирования HTML
         if (oldMode == Constants.MODE_HTML) {
 //            loadRecordText(mRecord, true)
-            doAction(Constants.RecordEvents.LoadRecordTextFromHtml)
+            makeEvent(Constants.RecordEvents.LoadRecordTextFromHtml)
         } else {
 //            switchViews(newMode)
-            doAction(Constants.RecordEvents.SwitchViews, newMode)
+            makeEvent(Constants.RecordEvents.SwitchViews, newMode)
         }
         mCurMode = newMode
 //        updateOptionsMenu()
-        updateViewState(Constants.ViewEvents.UpdateOptionsMenu)
+        makeViewEvent(Constants.ViewEvents.UpdateOptionsMenu)
     }
 
     //endregion Mode
@@ -633,7 +632,7 @@ class RecordViewModel(
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
-                doAction(Constants.RecordEvents.AskForSaving, obj)
+                makeEvent(Constants.RecordEvents.AskForSaving, obj)
                 return true
             }
         }
@@ -660,13 +659,13 @@ class RecordViewModel(
     fun saveRecord(callBefore: Boolean, obj: ResultObj?): Boolean {
         if (callBefore) {
 //            onBeforeSavingAsync()
-            doAction(Constants.RecordEvents.BeforeSaving)
+            makeEvent(Constants.RecordEvents.BeforeSaving)
             return true
         } else {
             if (mRecord!!.isTemp) {
                 if (isLoaded()) {
 //                    this.runOnUiThread(Runnable { editFields(obj) })
-                    doAction(Constants.RecordEvents.EditFields, obj)
+                    makeEvent(Constants.RecordEvents.EditFields, obj)
                 } else {
                     mIsSaveTempAfterStorageLoaded = true
 //                    this.runOnUiThread(Runnable { loadStorage() })
@@ -684,7 +683,7 @@ class RecordViewModel(
 
     private fun save() {
         // запрашиваем у View html-текст записи и сохраняем
-        doAction(Constants.RecordEvents.Save)
+        makeEvent(Constants.RecordEvents.Save)
     }
 
     /**
@@ -715,7 +714,7 @@ class RecordViewModel(
             val edited = recordsInteractor.getEditedDate(getContext(), mRecord!!)
 //            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
             val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
-            doAction(Constants.RecordEvents.EditedDateChanged, editedDate)
+            makeEvent(Constants.RecordEvents.EditedDateChanged, editedDate)
         }
     }
 
@@ -732,7 +731,7 @@ class RecordViewModel(
             ResultObj.EXIT,
             ResultObj.START_MAIN_ACTIVITY ->
                 if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
-                    updateViewState(Constants.ViewEvents.FinishActivity)
+                    makeViewEvent(Constants.ViewEvents.FinishActivity)
                 }
             ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
             ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
@@ -763,21 +762,21 @@ class RecordViewModel(
                 intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
                 //            intent.setAction(ACTION_ADD_RECORD);
 //                setResult(Activity.RESULT_OK, intent)
-                updateViewState(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
+                makeViewEvent(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
             } else if (startMainActivity) {
                 // запускаем главную активность, помещая результат
                 //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
                 if (mRecord!!.node != null) {
 
 //                    finish()
-                    updateViewState(Constants.ViewEvents.FinishActivity)
+                    makeViewEvent(Constants.ViewEvents.FinishActivity)
                 } else {
                     Message.show(getContext(), getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG)
                 }
                 return true
             } else {
 //                finish()
-                updateViewState(Constants.ViewEvents.FinishActivity)
+                makeViewEvent(Constants.ViewEvents.FinishActivity)
                 return true
             }
         }
@@ -797,7 +796,7 @@ class RecordViewModel(
 //            this,
 //            MainActivity::class.java, bundle, Constants.ACTION_RECORD, 0, null
 //        )
-        updateViewState(Constants.ViewEvents.StartActivity, intent)
+        makeViewEvent(Constants.ViewEvents.StartActivity, intent)
     }
 
     //endregion SaveRecord
@@ -845,7 +844,7 @@ class RecordViewModel(
             mIsSaveTempAfterStorageLoaded = false
             // сохраняем временную запись
 //            editFields(mResultObj)
-            doAction(Constants.RecordEvents.EditFields, mResultObj)
+            makeEvent(Constants.RecordEvents.EditFields, mResultObj)
         }
     }
 
@@ -920,12 +919,12 @@ class RecordViewModel(
     fun deleteRecord() {
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord!!.id)
-        updateViewState(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_DELETE_RECORD, bundle))
+        makeViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_DELETE_RECORD, bundle))
     }
 
     fun dropIsEdited() {
         isEdited = false
-        doAction(Constants.RecordEvents.IsEditedChanged, false)
+        makeEvent(Constants.RecordEvents.IsEditedChanged, false)
     }
 
     fun editFields(obj: ResultObj?, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
@@ -935,7 +934,7 @@ class RecordViewModel(
                 mIsFieldsEdited = true
                 setTitle(name)
 //                loadFields(mRecord)
-                doAction(Constants.RecordEvents.LoadFields, mRecord)
+                makeEvent(Constants.RecordEvents.LoadFields, mRecord)
                 if (wasTemp) {
                     // сохраняем текст записи
 //                    save();
@@ -950,7 +949,7 @@ class RecordViewModel(
                     saveRecord(resObj)
                     //                    TetroidLog.logOperRes(TetroidLog.Objs.TEMP_RECORD, TetroidLog.Opers.SAVE);
                     // показываем кнопку Home для возврата в ветку записи
-                    updateViewState(Constants.ViewEvents.ShowHomeButton)
+                    makeViewEvent(Constants.ViewEvents.ShowHomeButton)
                 } else {
 //                    TetroidLog.logOperRes(TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
                     LogManager.log(getContext(), R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT)
@@ -1012,7 +1011,7 @@ class RecordViewModel(
     fun isHtmlMode() = mCurMode == Constants.MODE_HTML
 
     fun setTitle(title: String) {
-        updateViewState(Constants.ViewEvents.UpdateTitle, title)
+        makeViewEvent(Constants.ViewEvents.UpdateTitle, title)
     }
 }
 

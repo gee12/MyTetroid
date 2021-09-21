@@ -153,7 +153,11 @@ public class MainPageFragment extends TetroidFragment {
     public void initListAdapters(Context context) {
         // список записей
         if (lvRecords != null) {
-            this.listAdapterRecords = new RecordsListAdapter(context, onRecordAttachmentClickListener);
+            this.listAdapterRecords = new RecordsListAdapter(
+                    context,
+                    viewModel.getRecordsInteractor(),
+                    onRecordAttachmentClickListener
+            );
             lvRecords.setAdapter(listAdapterRecords);
         }
         // список файлов

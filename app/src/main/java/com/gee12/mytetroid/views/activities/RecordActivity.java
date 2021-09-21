@@ -229,8 +229,8 @@ public class RecordActivity extends TetroidActivity implements
         afterOnCreate();
 
         viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
-        viewModel.getStorageEvent().observe(this, it -> onStorageStateChanged(it.getState(), it.getData()));
-        viewModel.getObjectAction().observe(this, it -> onObjectActions(it.getState(), it.getData()));
+        viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
         // TODO: перенести в TetroidActivity (с использованием Generic типов)
         viewModel.getMessage().observe(this, it -> onMessage(it.getType(), it.getMes()));
     }
@@ -284,7 +284,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param state
      * @param data
      */
-    private void onStorageStateChanged(Constants.StorageEvents state, Object data) {
+    private void onStorageEvent(Constants.StorageEvents state, Object data) {
         switch (state) {
             case PermissionCheck:
                 break;
@@ -296,7 +296,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param action
      * @param data
      */
-    private void onObjectActions(Constants.RecordEvents action, Object data) {
+    private void onEvent(Constants.RecordEvents action, Object data) {
         switch (action) {
             case Save:
                 viewModel.save(mEditor.getDocumentHtml());

@@ -21,8 +21,8 @@ import java.io.File
 
 open class StorageSettingsViewModel(
     app: Application,
-    private val repo: StoragesRepo
-) : BaseStorageViewModel(app, repo), IStorageCallback {
+    protected val storagesRepo: StoragesRepo
+) : BaseStorageViewModel(app, storagesRepo), IStorageCallback {
 
     protected val _storage = MutableLiveData<TetroidStorage>()
     val storage: LiveData<TetroidStorage> get() = _storage
@@ -68,14 +68,14 @@ open class StorageSettingsViewModel(
     open fun setStorageFromBase(id: Int) {
         viewModelScope.launch {
             // TODO: нужно обрабатывать ошибки бд
-            val storage = repo.getStorage(id)
+            val storage = storagesRepo.getStorage(id)
             _storage.postValue(storage)
         }
     }
 
     fun updateStorage(storage: TetroidStorage) {
         viewModelScope.launch {
-            if (repo.updateStorage(storage) > 0) {
+            if (storagesRepo.updateStorage(storage) > 0) {
             }
         }
     }

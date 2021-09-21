@@ -1,36 +1,11 @@
 package com.gee12.mytetroid.views.dialogs;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.views.adapters.NodesListAdapter;
-import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.NodesManager;
-import com.gee12.mytetroid.data.ScanManager;
-import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.views.Message;
 
-import java.util.List;
-import java.util.Random;
-
-import pl.openrnd.multilevellistview.MultiLevelListView;
 
 @Deprecated
 public class NodeDialogs {

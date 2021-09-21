@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.model.SearchProfile;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.adapters.FoundListAdapter;
@@ -73,20 +74,24 @@ public class FoundPageFragment extends TetroidFragment {
         return rootView;
     }
 
-    public void setFounds(HashMap<ITetroidObject, FoundType> found, ScanManager scan) {
+    public void setFounds(HashMap<ITetroidObject, FoundType> found, SearchProfile profile) {
         RecordsBaseListAdapter.OnRecordAttachmentClickListener mOnAttachmentClickListener = record -> {
             viewModel.showRecordAttaches(record, false);
         };
-        this.listAdapterFound = new FoundListAdapter(context, mOnAttachmentClickListener);
+        this.listAdapterFound = new FoundListAdapter(
+                context,
+                viewModel.getRecordsInteractor(),
+                mOnAttachmentClickListener
+        );
         lvFound.setAdapter(listAdapterFound);
         listAdapterFound.setDataItems(found);
         this.foundCount = found.size();
         if (found.isEmpty()) {
-            if (scan.isSearchInNode() && scan.getNode() != null) {
+            if (profile.isSearchInNode() && profile.getNode() != null) {
                 tvEmpty.setText(String.format(getString(R.string.global_search_not_found_in_node),
-                        scan.getQuery(), scan.getNode().getName()));
+                        profile.getQuery(), profile.getNode().getName()));
             } else {
-                tvEmpty.setText(String.format(getString(R.string.global_search_not_found), scan.getQuery()));
+                tvEmpty.setText(String.format(getString(R.string.global_search_not_found), profile.getQuery()));
             }
         }
     }
