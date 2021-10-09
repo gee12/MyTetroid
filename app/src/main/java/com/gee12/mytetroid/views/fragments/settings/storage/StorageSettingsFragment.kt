@@ -3,27 +3,31 @@ package com.gee12.mytetroid.views.fragments.settings.storage
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 
 class StorageSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var mViewModel: StorageSettingsViewModel
+    private lateinit var viewModel: StorageSettingsViewModel
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.storage_prefs, rootKey)
         requireActivity().setTitle(R.string.title_storage_settings)
 
-        mViewModel = ViewModelProvider(requireActivity(), StorageViewModelFactory(application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(application))
             .get(StorageSettingsViewModel::class.java)
 
 //        val storageId = arguments?.get(EXTRA_STORAGE_ID) as Int
 //        mViewModel.loadStorage(storageId)
 
-        mViewModel.storage.observe(this, { storage ->
-            setTitle(R.string.title_storage_settings, storage.name)
+        viewModel.storageEvent.observe(this, { event ->
+            if (event.state == Constants.StorageEvents.Changed) {
+                setTitle(R.string.title_storage_settings, (event.data as? TetroidStorage)?.name)
+            }
         })
     }
 

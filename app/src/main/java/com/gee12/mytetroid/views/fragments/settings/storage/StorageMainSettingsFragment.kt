@@ -10,16 +10,13 @@ import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.NodeChooserDialog
-import com.gee12.mytetroid.views.dialogs.NodeDialogs
 import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
 import com.gee12.mytetroid.views.dialogs.StorageDialogs
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
@@ -29,13 +26,13 @@ import org.jsoup.internal.StringUtil
 class StorageMainSettingsFragment : TetroidSettingsFragment() {
 
     private lateinit var viewModel: StorageSettingsViewModel
-//    private val mViewModel: StorageViewModel by activityViewModels()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
-        viewModel = ViewModelProvider(requireActivity(), StorageViewModelFactory(application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(application))
             .get(StorageSettingsViewModel::class.java)
+
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
         preferenceManager?.preferenceDataStore = viewModel.prefsDataStore
 
@@ -70,9 +67,9 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         findPreference<Preference>(getString(R.string.pref_key_clear_trash))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             AskDialogs.showYesDialog(context, {
                 if (viewModel.clearTrashFolder()) {
-                    LogManager.log(mContext, R.string.title_trash_cleared, ILogger.Types.INFO, Toast.LENGTH_SHORT)
+                    baseViewModel.log(R.string.title_trash_cleared, true)
                 } else {
-                    LogManager.log(mContext, R.string.title_trash_clear_error, ILogger.Types.ERROR, Toast.LENGTH_LONG)
+                    baseViewModel.logError(R.string.title_trash_clear_error, true)
                 }
             }, R.string.ask_clear_trash)
             true
@@ -119,8 +116,9 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
         viewModel.updateQuicklyNode()
 
         // загрузка только избранного (отключаем для Free)
-        val prefIsLoadFavorites = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_load_favorites))
-        disableIfFree(prefIsLoadFavorites)
+        findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_load_favorites))?.let {
+            disableIfFree(it)
+        }
 
         // открывать прошлую ветку
         val prefIsKeepLastNode = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_keep_selected_node))
@@ -161,13 +159,13 @@ class StorageMainSettingsFragment : TetroidSettingsFragment() {
 
     fun onRequestPermissionsResult(permGranted: Boolean, requestCode: Int) {
         if (permGranted) {
-            LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO)
+            baseViewModel.log(R.string.log_write_ext_storage_perm_granted, true)
             when (requestCode) {
                 Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
                 Constants.REQUEST_CODE_OPEN_TEMP_PATH -> selectTrashFolder()
             }
         } else {
-            LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT)
+            baseViewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true)
         }
     }
 

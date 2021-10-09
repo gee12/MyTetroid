@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
-import com.gee12.mytetroid.TetroidTask
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.mytetroid.PermissionManager
@@ -16,24 +15,23 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.SettingsManager
 import com.gee12.mytetroid.views.dialogs.PassDialogs
-import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.CallbackParam
 import com.gee12.mytetroid.viewmodels.StorageEncryptionViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.SettingsActivity
 
 class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
-    private lateinit var viewModel: StorageEncryptionViewModel
+    lateinit var viewModel: StorageEncryptionViewModel
 
-    private var mCurTask: TetroidTask<*, *, *>? = null
+//    private var mCurTask: TetroidTask<*, *, *>? = null
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(application))
+        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application))
             .get(StorageEncryptionViewModel::class.java)
 
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
@@ -43,25 +41,28 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
         setTitle(R.string.pref_category_crypt, viewModel.getStorageName())
 
         // установка или смена пароля хранилища
-        val isStorageReady = viewModel.isInited() && viewModel.isLoaded() && !viewModel.isLoadedFavoritesOnly()
-        val passPref = findPreference<Preference>(getString(R.string.pref_key_change_pass))
-        val isCrypted = viewModel.isCrypted()
-        passPref!!.setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
-        passPref.setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
-        passPref.isEnabled = isStorageReady
-        passPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (checkStorageIsReady(true)) {
-                if (isCrypted) {
-                    changePass()
-                } else {
-                    setupPass()
+        val isStorageReady = viewModel.isInited()
+                && viewModel.isLoaded()
+                && !viewModel.isLoadedFavoritesOnly()
+        findPreference<Preference>(getString(R.string.pref_key_change_pass))?.apply {
+            val isCrypted = viewModel.isCrypted()
+            setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
+            setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
+            isEnabled = isStorageReady
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                if (checkStorageIsReady(true)) {
+                    if (isCrypted) {
+                        changePass()
+                    } else {
+                        setupPass()
+                    }
+                    // устанавливаем флаг для MainActivity
+                    val intent = Intent()
+                    intent.putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
+                    requireActivity().setResult(Activity.RESULT_OK, intent)
                 }
-                // устанавливаем флаг для MainActivity
-                val intent = Intent()
-                intent.putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
-                requireActivity().setResult(Activity.RESULT_OK, intent)
+                true
             }
-            true
         }
 
         // сохранение пароля локально
@@ -97,6 +98,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
             Constants.StorageEvents.SavePassHashLocalChanged -> changeSavePassHashLocal(data as Boolean)
             Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
             Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
+            else -> {}
         }
     }
 
@@ -173,33 +175,39 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     }*/
 
     private fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
-        if (!viewModel.isInited()) {
-            val mes =
-                getString(if (PermissionManager.writeExtStoragePermGranted(context)) R.string.title_need_init_storage else R.string.title_need_perm_init_storage)
-            Message.show(context, mes, Toast.LENGTH_SHORT)
-            return false
-        } else if (!viewModel.isLoaded()) {
-            Message.show(context, getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT)
-            return false
-        } else if (checkIsFavorMode && viewModel.isLoadedFavoritesOnly()) {
-            Message.show(context, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT)
-            return false
+        when {
+            !viewModel.isInited() -> {
+                val mes = getString(
+                    if (PermissionManager.writeExtStoragePermGranted(context)) R.string.title_need_init_storage
+                    else R.string.title_need_perm_init_storage
+                )
+                Message.show(context, mes, Toast.LENGTH_SHORT)
+                return false
+            }
+            !viewModel.isLoaded() -> {
+                Message.show(context, getString(R.string.title_need_load_storage), Toast.LENGTH_SHORT)
+                return false
+            }
+            checkIsFavorMode && viewModel.isLoadedFavoritesOnly() -> {
+                Message.show(context, getString(R.string.title_need_load_nodes), Toast.LENGTH_SHORT)
+                return false
+            }
+            else -> return true
         }
-        return true
     }
 
     fun onBackPressed(): Boolean {
-        return (mCurTask != null && mCurTask!!.isRunning)
+//        return (mCurTask != null && mCurTask!!.isRunning)
+        return viewModel.isBusy
     }
 
     /**
      * Смена пароля хранилища.
      */
     fun changePass() {
-        LogManager.log(mContext, R.string.log_start_pass_change)
+        viewModel.log(R.string.log_start_pass_change)
         // вводим пароли (с проверкой на пустоту и равенство)
         PassDialogs.showPassChangeDialog(context, object : PassDialogs.IPassChangeResult {
-
             override fun applyPass(curPass: String?, newPass: String?): Boolean {
                 return viewModel.checkPass(curPass, { res: Boolean ->
                     if (res) {
@@ -216,10 +224,9 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
      * Установка пароля хранилища впервые.
      */
     fun setupPass() {
-        LogManager.log(context, R.string.log_start_pass_setup)
+        viewModel.log(R.string.log_start_pass_setup)
         // вводим пароль
         PassDialogs.showPassEnterDialog(context, null, true, object : PassDialogs.IPassInputResult {
-
             override fun applyPass(pass: String, node: TetroidNode) {
                 viewModel.setupPass(pass)
             }

@@ -14,18 +14,17 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
+import com.gee12.mytetroid.views.activities.MainActivity;
 import com.gee12.mytetroid.views.adapters.FilesListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.TetroidClipboard;
@@ -33,8 +32,6 @@ import com.gee12.mytetroid.views.dialogs.AttachDialogs;
 import com.gee12.mytetroid.views.dialogs.AttachInfoDialog;
 import com.gee12.mytetroid.views.dialogs.FileDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -47,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MainPageFragment extends TetroidFragment {
+public class MainPageFragment extends TetroidFragment<MainViewModel> {
 
     private ViewFlipper viewFlipperMain;
     private ListView lvRecords;
@@ -61,9 +58,10 @@ public class MainPageFragment extends TetroidFragment {
     private FilesListAdapter listAdapterAttaches;
 
 
-    private MainViewModel viewModel;
-    private RecordDialogs recordDialogs;
-
+    @Override
+    protected Class<MainViewModel> getViewModelClazz() {
+        return MainViewModel.class;
+    }
 
     public MainPageFragment(GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
@@ -78,16 +76,11 @@ public class MainPageFragment extends TetroidFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = super.onCreateView(inflater, container, R.layout.fragment_main);
+//        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getActivity().getApplication()))
-                .get(MainViewModel.class);
-
-        // TODO: использовать DI
-        this.recordDialogs = new RecordDialogs(
-                viewModel.getStorageInteractor(),
-                viewModel.getRecordsInteractor(),
-                viewModel.getNodesInteractor());
+//        this.viewModel = new ViewModelProvider(getActivity(), new StorageViewModelFactory(getActivity().getApplication()))
+//                .get(MainViewModel.class);
 
         this.viewFlipperMain = view.findViewById(R.id.view_flipper_main);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
@@ -95,6 +88,7 @@ public class MainPageFragment extends TetroidFragment {
 
         // список записей
         this.lvRecords = view.findViewById(R.id.list_view_records);
+
         // обработка нажатия на пустом месте списка записей
         lvRecords.setOnTouchListener(this);
         //
@@ -103,6 +97,7 @@ public class MainPageFragment extends TetroidFragment {
         this.btnUseGlobalSearch = view.findViewById(R.id.button_global_search);
         btnUseGlobalSearch.setOnClickListener(v -> viewModel.startGlobalSearchFromFilterQuery());
         lvRecords.setEmptyView(tvRecordsEmpty);
+
         // пустое пространство под списками
         View recordsFooter =  ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.list_view_empty_footer, null, false);
@@ -114,6 +109,7 @@ public class MainPageFragment extends TetroidFragment {
                 return false;
             }
         });*/
+
         // список файлов
         this.lvAttaches = view.findViewById(R.id.list_view_files);
         // обработка нажатия на пустом месте списка файлов
@@ -121,6 +117,7 @@ public class MainPageFragment extends TetroidFragment {
         lvAttaches.setOnItemClickListener(onFileClicklistener);
         this.tvFilesEmpty = view.findViewById(R.id.text_view_empty_files);
         lvAttaches.setEmptyView(tvFilesEmpty);
+
         // пустое пространство под списками
         View filesFooter =  ((LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.list_view_empty_footer, null, false);
@@ -145,9 +142,20 @@ public class MainPageFragment extends TetroidFragment {
         });
 
         // можно загружать настройки и хранилище
-        viewModel.onMainPageCreated();
+        // FIXME: observer в MainActivity еще по ходу не готов принимать события
+//        viewModel.onMainPageCreated();
+//        ((MainActivity)getActivity()).onMainPageCreated();
+
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+//        viewModel.onMainPageCreated();
+        ((MainActivity)getActivity()).onMainPageCreated();
     }
 
     public void initListAdapters(Context context) {
@@ -167,13 +175,13 @@ public class MainPageFragment extends TetroidFragment {
         }
     }
 
-    /**
-     * Вызывается после инициализации настроек.
-     */
-    public void onSettingsInited() {
+//    /**
+//     * Вызывается после инициализации настроек.
+//     */
+//    public void onSettingsInited() {
 //        this.curRecordViewId = getDefaultRecordViewId();
 //        updateFab(curRecordViewId);
-    }
+//    }
 
     /**
      *
@@ -465,6 +473,7 @@ public class MainPageFragment extends TetroidFragment {
      *
      * @param menu
      */
+    @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         boolean isRecordFilesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_RECORD_FILES);
         boolean mIsFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
@@ -532,7 +541,7 @@ public class MainPageFragment extends TetroidFragment {
     private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
         if (menuInfo == null)
             return;
-        boolean isPro = App.isFullVersion();
+        boolean isPro = App.INSTANCE.isFullVersion();
         boolean isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly();
         boolean isFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
         boolean isNonCrypted = false;
@@ -601,7 +610,7 @@ public class MainPageFragment extends TetroidFragment {
     private boolean onContextRecordItemSelected(int id, int pos) {
         TetroidRecord record = (TetroidRecord) listAdapterRecords.getItem(pos);
         if (record == null) {
-            LogManager.log(context, getString(R.string.log_get_item_is_null), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            viewModel.logError(getString(R.string.log_get_item_is_null), true);
             return true;
         }
         switch (id) {
@@ -658,7 +667,7 @@ public class MainPageFragment extends TetroidFragment {
     private boolean onContextFileItemSelected(int id, int pos) {
         TetroidFile attach = (TetroidFile) listAdapterAttaches.getItem(pos);
         if (attach == null) {
-            LogManager.log(context, getString(R.string.log_get_item_is_null), ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            viewModel.logError(getString(R.string.log_get_item_is_null), true);
             return true;
         }
         switch (id) {

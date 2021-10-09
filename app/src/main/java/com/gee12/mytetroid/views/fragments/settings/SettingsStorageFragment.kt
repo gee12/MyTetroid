@@ -1,36 +1,26 @@
-package com.gee12.mytetroid.views.fragments.settings;
+package com.gee12.mytetroid.views.fragments.settings
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Toast
+import androidx.preference.Preference
+import com.gee12.mytetroid.App
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.data.SettingsManager
+import lib.folderpicker.FolderPicker
+import com.gee12.mytetroid.views.dialogs.StorageDialogs
+import com.gee12.mytetroid.interactors.StorageInteractor
+import com.gee12.mytetroid.views.Message
+import org.jsoup.internal.StringUtil
 
-import androidx.preference.Preference;
+class SettingsStorageFragment : TetroidSettingsFragment() {
 
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.interactors.StorageInteractor;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.dialogs.StorageDialogs;
-
-import org.jsoup.internal.StringUtil;
-
-import lib.folderpicker.FolderPicker;
-
-import static android.app.Activity.RESULT_OK;
-
-public class SettingsStorageFragment extends TetroidSettingsFragment {
-
-    @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-        super.onCreatePreferences(savedInstanceState, rootKey);
-        setPreferencesFromResource(R.xml.prefs_storage, rootKey);
-
-        getActivity().setTitle(R.string.pref_category_storage);
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
+        setPreferencesFromResource(R.xml.prefs_storage, rootKey)
+        requireActivity().setTitle(R.string.pref_category_storage)
 
 //        Preference storageFolderPicker = findPreference(getString(R.string.pref_key_storage_path));
 //        storageFolderPicker.setOnPreferenceClickListener(preference -> {
@@ -40,13 +30,12 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 //            return true;
 //        });
 
-        Preference tempFolderPicker = findPreference(getString(R.string.pref_key_temp_path));
-        tempFolderPicker.setOnPreferenceClickListener(preference -> {
-            if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH))
-                return true;
-            selectTrashFolder();
-            return true;
-        });
+        findPreference<Preference>(getString(R.string.pref_key_temp_path))
+            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) return@OnPreferenceClickListener true
+            selectTrashFolder()
+            true
+        }
 
 //        findPreference(getString(R.string.pref_key_clear_trash))
 //                .setOnPreferenceClickListener(preference -> {
@@ -96,47 +85,42 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
 //                    return true;
 //                });
 //        NodesManager.updateQuicklyNode(getContext());
+        val loadFavorPref = findPreference<Preference>(getString(R.string.pref_key_is_load_favorites))
+        disableIfFree(loadFavorPref!!)
 
-        Preference loadFavorPref = findPreference(getString(R.string.pref_key_is_load_favorites));
-        disableIfFree(loadFavorPref);
-
-        Preference keepNodePref = findPreference(getString(R.string.pref_key_is_keep_selected_node));
-        keepNodePref.setOnPreferenceClickListener(pref -> {
-            if (SettingsManager.isLoadFavoritesOnlyDef(mContext)) {
-                Message.show(getContext(), getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT);
+        val keepNodePref = findPreference<Preference>(getString(R.string.pref_key_is_keep_selected_node))
+        keepNodePref!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            if (SettingsManager.isLoadFavoritesOnlyDef(context)) {
+                Message.show(context, getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT)
             }
-            return true;
-        });
+            true
+        }
         if (App.isFullVersion()) {
-            keepNodePref.setDependency(getString(R.string.pref_key_is_load_favorites));
+            keepNodePref.dependency = getString(R.string.pref_key_is_load_favorites)
         }
 
 //        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
-        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(mContext));
-        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(mContext));
+        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(context))
+        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(context))
     }
 
-    public void onRequestPermissionsResult(boolean permGranted, int requestCode) {
+    fun onRequestPermissionsResult(permGranted: Boolean, requestCode: Int) {
         if (permGranted) {
-            LogManager.log(mContext, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
-            switch (requestCode) {
-                case Constants.REQUEST_CODE_OPEN_STORAGE_PATH:
-                    selectStorageFolder();
-                    break;
-                case Constants.REQUEST_CODE_OPEN_TEMP_PATH:
-                    selectTrashFolder();
-                    break;
+            baseViewModel.log(R.string.log_write_ext_storage_perm_granted)
+            when (requestCode) {
+                Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
+                Constants.REQUEST_CODE_OPEN_TEMP_PATH -> selectTrashFolder()
             }
         } else {
-            LogManager.log(mContext, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+            baseViewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true)
         }
     }
 
-    public void onResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != RESULT_OK)
-            return;
-        String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-//        String folderPath = new UriUtils(getContext()).getPath(data.getData());
+    fun onResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (resultCode != Activity.RESULT_OK) return
+
+        val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
+        //        String folderPath = new UriUtils(getContext()).getPath(data.getData());
         /*boolean isCreate = requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем
@@ -157,45 +141,51 @@ public class SettingsStorageFragment extends TetroidSettingsFragment {
                 getActivity().finish();
             }
         }
-        else*/ if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
-            SettingsManager.setTrashPath(mContext, folderPath);
-            SettingsManager.setLastChoosedFolder(mContext, folderPath);
-            updateSummary(R.string.pref_key_temp_path, folderPath);
-        }
-        else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
-            SettingsManager.setLogPath(mContext, folderPath);
-            SettingsManager.setLastChoosedFolder(mContext, folderPath);
-            LogManager.setLogPath(mContext, folderPath);
-            updateSummary(R.string.pref_key_log_path, folderPath);
+        else*/
+        if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
+            SettingsManager.setTrashPath(context, folderPath)
+            SettingsManager.setLastChoosedFolder(context, folderPath)
+            updateSummary(R.string.pref_key_temp_path, folderPath)
+        } else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
+            SettingsManager.setLogPath(context, folderPath)
+            SettingsManager.setLastChoosedFolder(context, folderPath)
+            baseViewModel.logger.setLogPath(folderPath)
+            updateSummary(R.string.pref_key_log_path, folderPath)
         }
     }
 
-    private void selectStorageFolder() {
+    private fun selectStorageFolder() {
         // спрашиваем: создать или выбрать хранилище ?
-        StorageDialogs.createStorageSelectionDialog(getContext(), isNew -> {
-            openFolderPicker(getString(R.string.title_storage_folder),
-                    SettingsManager.getStoragePath(mContext), isNew);
-        });
-    }
-
-    protected void openFolderPicker(String title, String location, boolean isNew) {
-        String path = (!StringUtil.isBlank(location)) ? location : StorageInteractor.Companion.getLastFolderPathOrDefault(getContext(), true);
-        Intent intent = new Intent(getContext(), FolderPicker.class);
-        intent.putExtra(FolderPicker.EXTRA_TITLE, title);
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, path);
-        if (isNew) {
-            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true);
-        } else {
-            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc));
+        StorageDialogs.createStorageSelectionDialog(context) { isNew: Boolean ->
+            openFolderPicker(
+                getString(R.string.title_storage_folder),
+                SettingsManager.getStoragePath(context), isNew
+            )
         }
-        getActivity().startActivityForResult(intent, (isNew)
-                ? Constants.REQUEST_CODE_CREATE_STORAGE_PATH
-                : Constants.REQUEST_CODE_OPEN_STORAGE_PATH);
     }
 
-    private void selectTrashFolder() {
-        openFolderPicker(getString(R.string.pref_trash_path),
-                SettingsManager.getTrashPath(mContext),
-                Constants.REQUEST_CODE_OPEN_TEMP_PATH);
+    protected fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
+        val path = if (!StringUtil.isBlank(location)) location
+            else StorageInteractor.getLastFolderPathOrDefault(requireContext(), true)
+        val intent = Intent(context, FolderPicker::class.java)
+        intent.putExtra(FolderPicker.EXTRA_TITLE, title)
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
+        if (isNew) {
+            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true)
+        } else {
+            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc))
+        }
+        requireActivity().startActivityForResult(
+            intent,
+            if (isNew) Constants.REQUEST_CODE_CREATE_STORAGE_PATH else Constants.REQUEST_CODE_OPEN_STORAGE_PATH
+        )
+    }
+
+    private fun selectTrashFolder() {
+        openFolderPicker(
+            getString(R.string.pref_trash_path),
+            SettingsManager.getTrashPath(context),
+            Constants.REQUEST_CODE_OPEN_TEMP_PATH
+        )
     }
 }

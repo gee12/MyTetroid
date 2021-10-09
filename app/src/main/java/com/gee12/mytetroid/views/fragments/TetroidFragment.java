@@ -1,21 +1,31 @@
 package com.gee12.mytetroid.views.fragments;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.Message;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class TetroidFragment extends Fragment implements View.OnTouchListener {
+public abstract class TetroidFragment<VM extends BaseStorageViewModel> extends Fragment implements View.OnTouchListener {
 
     protected Context context;
     protected GestureDetectorCompat mGestureDetector;
+
+    protected VM viewModel;
 
     public TetroidFragment() {}
 
@@ -23,11 +33,31 @@ public abstract class TetroidFragment extends Fragment implements View.OnTouchLi
         this.mGestureDetector = detector;
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        initViewModel();
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Nullable
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, int resId) {
+        initViewModel();
+        return inflater.inflate(resId, container, false);
+    }
+
+    protected void initViewModel() {
+        this.viewModel = new ViewModelProvider(getActivity(), new TetroidViewModelFactory(getActivity().getApplication()))
+                .get(getViewModelClazz());
+    }
+
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
         this.context = getContext();
     }
+
+    protected abstract Class<VM> getViewModelClazz();
 
     public abstract String getTitle();
 
