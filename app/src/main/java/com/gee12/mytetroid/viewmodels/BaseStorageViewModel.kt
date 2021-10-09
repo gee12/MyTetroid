@@ -1,36 +1,66 @@
 package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
+import android.util.Log
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.repo.StoragesRepo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlin.coroutines.CoroutineContext
 
-open class BaseStorageViewModel(app: Application, private val repo: StoragesRepo) : BaseViewModel(app) {
+open class BaseStorageViewModel(
+    app: Application,
+    private val repo: StoragesRepo
+) : BaseViewModel(app), CoroutineScope {
 
-    val viewEvent: SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>> = SingleLiveEvent()
-    val storageEvent: SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>> = SingleLiveEvent()
-    val objectAction: SingleLiveEvent<ViewModelEvent<Any, Any>> = SingleLiveEvent()
+    override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    fun makeViewEvent(state: Constants.ViewEvents, param: Any? = null) {
-        viewEvent.postValue(ViewModelEvent(state, param))
+    val storageEvent = SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>>()
+    val objectAction = SingleLiveEvent<ViewModelEvent<Any, Any>>()
+
+    //region Storage event
+
+    fun postStorageEvent(event: Constants.StorageEvents, param: Any? = null) {
+        Log.i("MYTETROID", "postStorageEvent(): state=$event param=$param")
+        storageEvent.postValue(ViewModelEvent(event, param))
     }
 
-    fun makeStorageEvent(state: Constants.StorageEvents, param: Any? = null) {
-        storageEvent.postValue(ViewModelEvent(state, param))
+    fun setStorageEvent(event: Constants.StorageEvents, param: Any? = null) {
+        Log.i("MYTETROID", "setStorageEvent(): state=$event param=$param")
+        storageEvent.value = ViewModelEvent(event, param)
     }
 
-    fun makeEvent(event: Any, param: Any? = null) {
+    //endregion Storage event
+
+    //region Event
+
+    fun postEvent(event: Any, param: Any? = null) {
+        Log.i("MYTETROID", "postEvent(): state=$event param=$param")
         objectAction.postValue(ViewModelEvent(event, param))
     }
 
-    fun makeEvent(callback: CallbackParam) {
-        makeEvent(callback.event, callback.data)
+    fun setEvent(event: Any, param: Any? = null) {
+        Log.i("MYTETROID", "setEvent(): state=$event param=$param")
+        objectAction.value = ViewModelEvent(event, param)
     }
+
+    fun postEvent(callback: CallbackParam) {
+        postEvent(callback.event, callback.data)
+    }
+
+    //endregion Event
+
+    //region Other
 
     fun getLastFolderPathOrDefault(forWrite: Boolean) = StorageInteractor.getLastFolderPathOrDefault(getContext(), forWrite)
 
     fun onPermissionChecked() {
-        makeStorageEvent(Constants.StorageEvents.PermissionChecked)
+        postStorageEvent(Constants.StorageEvents.PermissionChecked)
     }
+
+    //endregion Other
+
 }

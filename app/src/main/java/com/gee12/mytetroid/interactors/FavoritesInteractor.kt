@@ -1,4 +1,9 @@
 package com.gee12.mytetroid.interactors
 
-class FavoritesInteractor {
+import com.gee12.mytetroid.logs.ITetroidLogger
+
+// TODO:
+class FavoritesInteractor(
+    val logger: ITetroidLogger
+) {
 }

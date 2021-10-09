@@ -3,18 +3,20 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.widget.Toast
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.utils.ImageUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.Exception
 
 class ImagesInteractor(
+    val logger: ITetroidLogger,
     val dataInteractor: DataInteractor,
     val recordsInteractor: RecordsInteractor
 ) {
@@ -27,18 +29,13 @@ class ImagesInteractor(
      * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    fun saveImage(context: Context, record: TetroidRecord?, srcUri: Uri?, deleteSrcFile: Boolean): TetroidImage? {
+    suspend fun saveImage(context: Context, record: TetroidRecord?, srcUri: Uri?, deleteSrcFile: Boolean): TetroidImage? {
         if (record == null || srcUri == null) {
-            LogManager.emptyParams(context, "ImagesInteractor.saveImage()")
+            logger.logEmptyParams("ImagesInteractor.saveImage()")
             return null
         }
         val srcPath = srcUri.path
-        LogManager.log(
-            context, String.format(
-                context.getString(R.string.log_start_image_file_saving_mask),
-                srcPath, record.id
-            ), ILogger.Types.DEBUG
-        )
+        logger.logDebug(context.getString(R.string.log_start_image_file_saving_mask).format(srcPath, record.id))
 
         // генерируем уникальное имя файла
         val nameId: String = dataInteractor.createUniqueImageName()
@@ -51,41 +48,28 @@ class ImagesInteractor(
             return null
         }
         val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(context, record, nameId)
-        LogManager.log(
-            context, String.format(
-                context.getString(R.string.log_start_image_file_converting_mask),
-                destFullName
-            ), ILogger.Types.DEBUG
-        )
+        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            ImageUtils.convertImage(context, srcUri, destFullName, Bitmap.CompressFormat.PNG, 100)
+            withContext(Dispatchers.IO) {
+                ImageUtils.convertImage(context, srcUri, destFullName, Bitmap.CompressFormat.PNG, 100)
+            }
             val destFile = File(destFullName)
             if (destFile.exists()) {
                 if (deleteSrcFile) {
-                    LogManager.log(
-                        context, String.format(
-                            context.getString(R.string.log_start_image_file_deleting_mask),
-                            srcUri
-                        ), ILogger.Types.DEBUG
-                    )
+                    logger.logDebug(context.getString(R.string.log_start_image_file_deleting_mask).format(srcUri))
                     val srcFile = File(srcPath)
                     // удаляем исходный файл за ненадобностью
                     if (!srcFile.delete()) {
-                        LogManager.log(
-                            context,
-                            context.getString(R.string.log_error_deleting_src_image_file) + srcPath,
-                            ILogger.Types.WARNING,
-                            Toast.LENGTH_LONG
-                        )
+                        logger.logWarning(context.getString(R.string.log_error_deleting_src_image_file) + srcPath, true)
                     }
                 }
             } else {
-                LogManager.log(context, context.getString(R.string.log_error_image_file_saving), ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_error_image_file_saving))
                 return null
             }
         } catch (ex: Exception) {
-            LogManager.log(context, context.getString(R.string.log_error_image_file_saving), ex)
+            logger.logError(context.getString(R.string.log_error_image_file_saving), ex)
             return null
         }
         return image
@@ -98,12 +82,12 @@ class ImagesInteractor(
      * @param bitmap
      * @return
      */
-    fun saveImage(context: Context, record: TetroidRecord?, bitmap: Bitmap?): TetroidImage? {
+    suspend fun saveImage(context: Context, record: TetroidRecord?, bitmap: Bitmap?): TetroidImage? {
         if (record == null || bitmap == null) {
-            LogManager.emptyParams(context, "ImagesInteractor.saveImage()")
+            logger.logEmptyParams("ImagesInteractor.saveImage()")
             return null
         }
-        TetroidLog.logOperRes(context, TetroidLog.Objs.IMAGE, TetroidLog.Opers.SAVE, record, -1)
+        logger.logOperRes(LogObj.IMAGE, LogOper.SAVE, record, false)
 
         // генерируем уникальное имя файла
         val nameId: String = dataInteractor.createUniqueImageName()
@@ -116,22 +100,19 @@ class ImagesInteractor(
             return null
         }
         val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(context, record, nameId)
-        LogManager.log(
-            context, String.format(
-                context.getString(R.string.log_start_image_file_converting_mask),
-                destFullName
-            ), ILogger.Types.DEBUG
-        )
+        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            ImageUtils.saveBitmap(bitmap, destFullName, Bitmap.CompressFormat.PNG, 100)
+            withContext(Dispatchers.IO) {
+                ImageUtils.saveBitmap(bitmap, destFullName, Bitmap.CompressFormat.PNG, 100)
+            }
             val destFile = File(destFullName)
             if (!destFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_error_image_file_saving), ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_error_image_file_saving))
                 return null
             }
         } catch (ex: Exception) {
-            LogManager.log(context, context.getString(R.string.log_error_image_file_saving), ex)
+            logger.logError(context.getString(R.string.log_error_image_file_saving), ex)
             return null
         }
         return image

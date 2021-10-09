@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data.crypt;
 
-import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.ITetroidLogger;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.io.BufferedInputStream;
@@ -25,7 +25,7 @@ public class Crypter {
     /**
      *
      */
-    private final ILogger mLogger;
+    private final ITetroidLogger mLogger;
 
     /**
      * Реализация алгритма шифрования RC5.
@@ -46,7 +46,7 @@ public class Crypter {
      *
      * @param logger
      */
-    public Crypter(ILogger logger) {
+    public Crypter(ITetroidLogger logger) {
         this.mLogger = logger;
         this.rc5 = new RC5Simple(logger);
     }
@@ -326,13 +326,13 @@ public class Crypter {
 
     private void addLog(String s) {
         if (mLogger != null) {
-            mLogger.log(s);
+            mLogger.log(s, false);
         }
     }
 
     private void addLog(Exception ex) {
         if (mLogger != null) {
-            mLogger.log(ex);
+            mLogger.logError(ex, false);
         }
     }
 

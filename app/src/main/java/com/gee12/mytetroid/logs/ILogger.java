@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.logs;
 
+@Deprecated
 public interface ILogger {
     /**
      * Типы логов.

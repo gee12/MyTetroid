@@ -4,29 +4,30 @@ import android.content.Context
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.DataManager
 import com.gee12.mytetroid.data.SettingsManager
-import com.gee12.mytetroid.data.TetroidClipboard
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
+import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.utils.FileUtils
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.views.activities.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.internal.StringUtil
 import java.io.File
 import java.io.FileOutputStream
+import java.util.*
 
 class StorageInteractor(
-    val storage: TetroidStorage,
-    val logger: ILogger,
+    val logger: ITetroidLogger,
+    val storageHelper: IStorageLoadHelper,
     val xmlLoader: TetroidXml,
     val dataInteractor: DataInteractor
 ) {
@@ -44,7 +45,7 @@ class StorageInteractor(
                 }
             }
         } catch (ex: Exception) {
-            logger.log(ex)
+            logger.logError(ex)
         }
         return false
     }
@@ -66,14 +67,14 @@ class StorageInteractor(
                 return false
             }
         } else {
-            logger.log(R.string.log_dir_is_missing, ILogger.Types.ERROR)
+            logger.log(R.string.log_dir_is_missing, LogType.ERROR)
             return false
         }
 
         // сохраняем новый database.ini
         val databaseConfig = DatabaseConfig(logger, storagePath + Constants.SEPAR + DATABASE_INI_FILE_NAME)
         if (!databaseConfig.saveDefault()) {
-            return false;
+            return false
         }
 
         // создаем каталог base
@@ -91,12 +92,12 @@ class StorageInteractor(
     suspend fun saveStorage(context: Context): Boolean {
         if (xmlLoader.mRootNodesList == null) {
 //            LogManager.log("Попытка сохранения mytetra.xml в режиме загрузки только избранных записей", LogManager.Types.WARNING);
-            LogManager.log(context, R.string.log_attempt_save_empty_nodes, ILogger.Types.ERROR)
+            logger.logError(R.string.log_attempt_save_empty_nodes)
             return false
         }
         val destPath = getPathToMyTetraXml()
         val tempPath = destPath + "_tmp"
-        LogManager.log(context, context.getString(R.string.log_saving_mytetra_xml), ILogger.Types.DEBUG)
+        logger.logDebug(context.getString(R.string.log_saving_mytetra_xml))
         try {
             val fos = FileOutputStream(tempPath, false)
             val save = withContext(Dispatchers.IO) { xmlLoader.save(fos) }
@@ -109,16 +110,16 @@ class StorageInteractor(
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
 //                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
-                        TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE, destPath, false, -1)
+                        logger.logOperError(LogObj.FILE, LogOper.DELETE, destPath, false, false)
                         return false
                     }
                 }
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 val from = File(tempPath)
                 if (!from.renameTo(to)) {
-                    val fromTo = Utils.getStringFromTo(context, tempPath, destPath)
+                    val fromTo = StringUtils.getStringFromTo(context, tempPath, destPath)
 //                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask), tempPath, destPath), LogManager.Types.ERROR);
-                    TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1)
+                    logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
                     return false
                 }
 
@@ -126,15 +127,15 @@ class StorageInteractor(
                 if (context is MainActivity) {
                     // но только для MainActivity
                     FileObserverService.sendCommand(context, FileObserverService.ACTION_RESTART)
-                    LogManager.log(context, context.getString(
+                    logger.log(context.getString(
                             R.string.log_mytetra_xml_observer_mask,
                             context.getString(R.string.relaunched)
-                        ), ILogger.Types.INFO)
+                        ))
                 }
                 return true
             }
-        } catch (ex: java.lang.Exception) {
-            LogManager.log(context, ex)
+        } catch (ex: Exception) {
+            logger.logError(ex)
         }
         return false
     }

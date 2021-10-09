@@ -1,27 +1,20 @@
 package com.gee12.mytetroid.interactors
 
 import android.content.Context
-import android.widget.Toast
-//import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
-//import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.Base64
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.viewmodels.CallbackParam
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-//import com.gee12.mytetroid.views.dialogs.PassDialogs
 import java.lang.Exception
 
 class PasswordInteractor(
-    val storage: TetroidStorage,
+    val logger: ITetroidLogger,
+    val storage: TetroidStorage?,
     val databaseConfig: DatabaseConfig,
     val cryptInteractor: EncryptionInteractor,
     val storageInteractor: StorageInteractor,
@@ -62,7 +55,7 @@ class PasswordInteractor(
     suspend fun initPass(context: Context, pass: String) {
         val passHash = cryptInteractor.crypter.passToHash(pass)
 //        if (SettingsManager.isSaveMiddlePassHashLocal(context)) {
-        if (storage.isSavePassLocal) {
+        if (storage?.isSavePassLocal == true) {
             // сохраняем хэш пароля
 //            SettingsManager.setMiddlePassHash(context, passHash)
             storage.middlePassHash = passHash
@@ -84,10 +77,10 @@ class PasswordInteractor(
     suspend fun setupPass(context: Context, pass: String) {
         // сохраняем в database.ini
         if (savePassCheckData(context, pass)) {
-            LogManager.log(context, R.string.log_pass_setted, ILogger.Types.INFO, Toast.LENGTH_SHORT)
+            logger.log(R.string.log_pass_setted, true)
             initPass(context, pass)
         } else {
-            LogManager.log(context, R.string.log_pass_set_error, ILogger.Types.ERROR, Toast.LENGTH_LONG)
+            logger.log(R.string.log_pass_set_error, true)
         }
     }
 
@@ -137,7 +130,7 @@ class PasswordInteractor(
         val passHash = try {
             Crypter.calculatePBKDF2Hash(newPass, salt)
         } catch (ex: Exception) {
-            LogManager.log(context, ex)
+            logger.logError(ex)
             return false
         }
         return databaseConfig.savePass(
@@ -162,7 +155,7 @@ class PasswordInteractor(
      */
     fun clearPassCheckData(): Boolean {
 //        SettingsManager.setMiddlePassHash(context, null)
-        storage.middlePassHash = null
+        storage?.middlePassHash = null
         return databaseConfig.savePass(null, null, false)
     }
 

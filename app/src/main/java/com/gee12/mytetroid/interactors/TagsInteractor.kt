@@ -2,17 +2,14 @@ package com.gee12.mytetroid.interactors
 
 import android.content.Context
 import android.text.TextUtils
-import android.widget.Toast
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.DataManager
 import com.gee12.mytetroid.data.TetroidXml
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
 
 class TagsInteractor(
+    val logger: ITetroidLogger,
     val storageInteractor: StorageInteractor,
     val xmlLoader: TetroidXml
 ) {
@@ -40,7 +37,7 @@ class TagsInteractor(
      */
     suspend fun renameTag(context: Context, tag: TetroidTag, newName: String): Boolean {
         if (TextUtils.isEmpty(newName)) {
-            LogManager.log(context, R.string.log_tag_is_null, ILogger.Types.ERROR, Toast.LENGTH_LONG)
+            logger.logError(R.string.log_tag_is_null, true)
             return false
         }
         // если новое имя метки совпадает со старым (в т.ч. и по регистру), ничего не делаем

@@ -5,17 +5,17 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import android.widget.Toast
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.SettingsManager
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.Message
 
-class SyncInteractor {
+class SyncInteractor(
+    val logger: ITetroidLogger
+) {
 
     companion object {
         const val EXTRA_APP_NAME = "com.gee12.mytetroid.EXTRA_APP_NAME"
@@ -44,7 +44,7 @@ class SyncInteractor {
      */
     private fun startMGitSync(activity: Activity, storagePath: String, command: String, requestCode: Int): Boolean {
         val intent = createIntentToMGit(activity, storagePath, command)
-        LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command)
+        logger.log(activity.getString(R.string.log_start_storage_sync) + command)
         try {
             if (!SettingsManager.isNotRememberSyncApp(activity)) {
                 // использовать стандартный механизм запоминания используемого приложения
@@ -58,8 +58,8 @@ class SyncInteractor {
                 )
             }
         } catch (ex: Exception) {
-            LogManager.log(activity, activity.getString(R.string.log_sync_app_not_installed), Toast.LENGTH_LONG)
-            LogManager.log(activity, ex, -1)
+            logger.logError(activity.getString(R.string.log_sync_app_not_installed), true)
+            logger.logError(ex, false)
             return false
         }
         return true
@@ -90,7 +90,7 @@ class SyncInteractor {
      */
     private fun startTermuxSync(activity: Activity, storagePath: String, command: String): Boolean {
         if (TextUtils.isEmpty(command)) {
-            LogManager.log(activity, R.string.log_sync_command_empty, ILogger.Types.WARNING, Toast.LENGTH_LONG)
+            logger.logError(R.string.log_sync_command_empty, true)
             return false
         }
         // проверяем разрешение на запуск сервиса
@@ -136,11 +136,11 @@ class SyncInteractor {
             putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg)
         }
         val fullCommand = (command + " " + args?.let { TextUtils.join(" ", args) })
-        LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + fullCommand)
+        logger.log(activity.getString(R.string.log_start_storage_sync) + fullCommand)
         try {
             activity.startService(intent)
         } catch (ex: Exception) {
-            LogManager.log(activity, R.string.log_error_when_sync, ILogger.Types.ERROR, Toast.LENGTH_LONG)
+            logger.logError(R.string.log_error_when_sync, true)
             Message.showSnackMoreInLogs(activity)
             return false
         }

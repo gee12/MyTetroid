@@ -4,8 +4,8 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
@@ -16,16 +16,21 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.FileUtils
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 open class StorageSettingsViewModel(
     app: Application,
-    protected val storagesRepo: StoragesRepo
-) : BaseStorageViewModel(app, storagesRepo), IStorageCallback {
+    protected val storagesRepo: StoragesRepo,
+    val xmlLoader: TetroidXml
+) : BaseStorageViewModel(app, storagesRepo), IStorageCallback, IStorageLoadHelper {
 
-    protected val _storage = MutableLiveData<TetroidStorage>()
-    val storage: LiveData<TetroidStorage> get() = _storage
+//    protected val _storage = MutableLiveData<TetroidStorage>()
+//    val storage: LiveData<TetroidStorage> get() = _storage
+    var storage: TetroidStorage? = null
+        protected set
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()
     val updateStorageField: LiveData<Pair<String,Any>> get() = _updateStorageField
@@ -39,42 +44,48 @@ open class StorageSettingsViewModel(
         }
     })
 
-    open val storageLoadHelper = StorageLoadHelper()
-    val xmlLoader = TetroidXml(storageLoadHelper)
+    // TODO: расшарить между разными viewModel
+//    val xmlLoader = TetroidXml(this)
 
-    val dataInteractor = DataInteractor(this)
-    val storageInteractor = StorageInteractor(storage.value!!, logger, xmlLoader, dataInteractor)
-    val interactionInteractor =  InteractionInteractor()
-    val cryptInteractor = EncryptionInteractor(xmlLoader, logger, this)
-    val recordsInteractor = RecordsInteractor(storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, storageLoadHelper, xmlLoader)
-    val nodesInteractor = NodesInteractor(storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageLoadHelper, xmlLoader)
-    val syncInteractor =  SyncInteractor()
+    val dataInteractor = DataInteractor(logger, this)
+    val storageInteractor = StorageInteractor(logger, this, xmlLoader, dataInteractor)
+    val interactionInteractor =  InteractionInteractor(logger)
+    val cryptInteractor = EncryptionInteractor(logger, xmlLoader, this, this)
+    val recordsInteractor = RecordsInteractor(logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, this, xmlLoader)
+    val nodesInteractor = NodesInteractor(logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, this, xmlLoader)
+    val syncInteractor =  SyncInteractor(logger)
 
     // FIXME: Проверить:
     var quicklyNode: TetroidNode?
         get() {
-            val nodeId = storage.value?.quickNodeId
+            val nodeId = storage?.quickNodeId
             if (nodeId != null && isLoaded() && !isLoadedFavoritesOnly()) {
-                storage.value?.quicklyNode = nodesInteractor.getNode(nodeId)
+                storage?.quicklyNode = nodesInteractor.getNode(nodeId)
                 onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
             }
-            return storage.value?.quicklyNode
+            return storage?.quicklyNode
         }
         set(value) {
-            storage.value?.quicklyNode = value
+            storage?.quicklyNode = value
             onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
         }
 
     open fun setStorageFromBase(id: Int) {
-        viewModelScope.launch {
+        launch {
             // TODO: нужно обрабатывать ошибки бд
-            val storage = storagesRepo.getStorage(id)
-            _storage.postValue(storage)
+            this@StorageSettingsViewModel.storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
+            setStorageEvent(Constants.StorageEvents.Changed, storage)
+//            _storage.postValue(storage)
+
+            if (xmlLoader.mIsStorageLoaded) {
+                storage?.isLoaded = true
+            }
+            setStorageEvent(Constants.StorageEvents.Inited, storage)
         }
     }
 
     fun updateStorage(storage: TetroidStorage) {
-        viewModelScope.launch {
+        launch {
             if (storagesRepo.updateStorage(storage) > 0) {
             }
         }
@@ -83,8 +94,28 @@ open class StorageSettingsViewModel(
     /**
      *
      */
+    override fun decryptNode(context: Context, node: TetroidNode?): Boolean = false
+
+    override fun decryptRecord(context: Context, record: TetroidRecord?): Boolean = false
+
+    override fun isRecordFavorite(id: String?): Boolean = false
+
+    override fun addRecordFavorite(record: TetroidRecord?) {}
+
+    override fun parseRecordTags(record: TetroidRecord?, tagsString: String) {}
+
+    override fun deleteRecordTags(record: TetroidRecord?) {}
+
+    override fun loadIcon(context: Context, node: TetroidNode) {}
+
+    override fun isStorageLoaded() = isLoaded()
+
+
+    /**
+     *
+     */
     fun updateStorageOption(key: String, value: Any) {
-        _storage.value?.apply {
+        storage?.apply {
             var isFieldChanged = true
             when (key) {
                 // основное
@@ -119,7 +150,7 @@ open class StorageSettingsViewModel(
     }
 
     fun getStorageOption(key: String): Any? {
-        return _storage.value?.let {
+        return storage?.let {
             when (key) {
                 // основное
                 getString(R.string.pref_key_storage_path) -> it.path
@@ -160,7 +191,7 @@ open class StorageSettingsViewModel(
     }
 
     fun dropSavedLocalPassHash() {
-        _storage.value?.apply {
+        storage?.apply {
             // удаляем хэш пароля и сбрасываем галку
             middlePassHash = null
             isSavePassLocal = false
@@ -178,33 +209,37 @@ open class StorageSettingsViewModel(
 
     //region Getters
 
-    fun getStorageId() = _storage.value?.id ?: 0
+    fun getStorageId() = storage?.id ?: 0
 
-    fun getStoragePath() = _storage.value?.path ?: ""
+    override fun getStoragePath() = storage?.path ?: ""
 
-    fun getStorageName() = _storage.value?.name ?: ""
+    fun getStorageName() = storage?.name ?: ""
 
-    fun getTrashPath() = _storage.value?.trashPath ?: ""
+    fun getTrashPath() = storage?.trashPath ?: ""
 
-    fun getQuicklyNodeName() = _storage.value?.quicklyNode?.name ?: ""
+    fun getQuicklyNodeName() = storage?.quicklyNode?.name ?: ""
 
-    fun getSyncProfile() = _storage.value?.syncProfile
+    fun getSyncProfile() = storage?.syncProfile
 
-    fun getSyncAppName() = _storage.value?.syncProfile?.appName ?: ""
+    fun getSyncAppName() = storage?.syncProfile?.appName ?: ""
 
-    fun getSyncCommand() = _storage.value?.syncProfile?.command ?: ""
+    fun getSyncCommand() = storage?.syncProfile?.command ?: ""
 
-    fun isDefault() = _storage.value?.isDefault ?: false
+    fun isDefault() = storage?.isDefault ?: false
 
-    fun isReadOnly() = _storage.value?.isReadOnly ?: false
+    fun isReadOnly() = storage?.isReadOnly ?: false
 
-    fun isLoadFavoritesOnly() = _storage.value?.isLoadFavoritesOnly ?: false
+    fun isLoadFavoritesOnly() = storage?.isLoadFavoritesOnly ?: false
 
-    fun isKeepLastNode() = _storage.value?.isKeepLastNode ?: false
+    fun isKeepLastNode() = storage?.isKeepLastNode ?: false
 
-    fun isInited() = _storage.value?.isInited ?: false
+    fun isInited() = storage?.isInited ?: false
 
-    fun isLoaded() = _storage.value?.isLoaded ?: false
+    fun isLoaded() = (storage?.isLoaded ?: false) && xmlLoader.mIsStorageLoaded
+
+    // TODO: пока нигде не устанавливается
+    //  Добавить установку или удалить поле
+//    fun isCrypted() = storage?.isCrypted ?: false
 
     fun isCrypted() = nodesInteractor.isExistCryptedNodes(false)
 /*    fun isCrypted(): Boolean {
@@ -223,17 +258,17 @@ open class StorageSettingsViewModel(
         return iniFlag || DataManager.Instance.mXml.mIsExistCryptedNodes
     }*/
 
-    fun isDecrypted() = _storage.value?.isDecrypted ?: false
+    fun isDecrypted() = storage?.isDecrypted ?: false
 
 //    fun isInFavoritesMode() = DataManager.isFavoritesMode()
 
-    fun isSaveMiddlePassLocal() = _storage.value?.isSavePassLocal ?: false
+    fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
 
-    fun isDecryptToTemp() = _storage.value?.isDecyptToTemp ?: false
+    fun isDecryptToTemp() = storage?.isDecyptToTemp ?: false
 
-    fun getMiddlePassHash() = _storage.value?.middlePassHash
+    fun getMiddlePassHash() = storage?.middlePassHash
 
-    fun isCheckOutsideChanging() = storage.value?.syncProfile?.isCheckOutsideChanging ?: false
+    fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
 
     fun getCrypter() = cryptInteractor.crypter
 
@@ -241,7 +276,7 @@ open class StorageSettingsViewModel(
 
     fun isLoadedFavoritesOnly() = xmlLoader.mIsFavoritesMode
 
-    fun getRootNodes(): List<TetroidNode> = xmlLoader.mRootNodesList
+    fun getRootNodes(): List<TetroidNode> = xmlLoader.mRootNodesList ?: emptyList()
 
     fun getTags(): Map<String,TetroidTag> = xmlLoader.mTagsMap
 
@@ -267,24 +302,6 @@ open class StorageSettingsViewModel(
 
     //endregion IStorageCallback
 
-    /**
-     *
-     */
-    open inner class StorageLoadHelper : IStorageLoadHelper {
-        override fun decryptNode(context: Context, node: TetroidNode?): Boolean = false
-
-        override fun decryptRecord(context: Context, record: TetroidRecord?): Boolean = false
-
-        override fun isRecordFavorite(id: String?): Boolean = false
-
-        override fun addRecordFavorite(record: TetroidRecord?) {}
-
-        override fun parseRecordTags(record: TetroidRecord?, tagsString: String) {}
-
-        override fun deleteRecordTags(record: TetroidRecord?) {}
-
-        override fun loadIcon(context: Context, node: TetroidNode) {}
-    }
 }
 
 interface IStorageCallback {

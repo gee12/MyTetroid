@@ -1,29 +1,29 @@
 package com.gee12.mytetroid.interactors
 
 import android.content.Context
-import android.widget.Toast
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
+import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.viewmodels.IStorageCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
 class EncryptionInteractor(
+    val logger: ITetroidLogger,
     val xmlHelper: TetroidXml,
-    val logger: ILogger,
+    val loadHelper: IStorageLoadHelper,
     val callback: IStorageCallback
 ) : IRecordFileCrypter {
 
-    var crypter = TetroidCrypter(logger, xmlHelper.loadHelper, this)
+    var crypter = TetroidCrypter(logger, loadHelper, this)
         protected set
 
     /**
@@ -55,7 +55,7 @@ class EncryptionInteractor(
     suspend fun decryptStorage(context: Context, decryptFiles: Boolean): Boolean = withContext(Dispatchers.IO) {
 //        LogManager.log(R.string.log_start_storage_decrypt);
         crypter.decryptNodes(context, xmlHelper.mRootNodesList, true, true,
-            xmlHelper.loadHelper, false, decryptFiles
+            loadHelper, false, decryptFiles
         )
     }
 
@@ -66,7 +66,7 @@ class EncryptionInteractor(
      */
     suspend fun dropCryptNode(context: Context, node: TetroidNode): Boolean {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        val res: Boolean = crypter.decryptNode(context, node, true, true, xmlHelper.loadHelper, true, false)
+        val res: Boolean = crypter.decryptNode(context, node, true, true, loadHelper, true, false)
         return if (res) {
             callback.saveStorage(context)
         } else false
@@ -114,7 +114,7 @@ class EncryptionInteractor(
                 // расшифровуем файл записи
                 if (encryptDecryptFile(file, file, false)) 1 else -1
             } catch (ex: Exception) {
-                LogManager.log(context, context.getString(R.string.log_error_file_decrypt) + file.absolutePath, ex)
+                logger.logError(context.getString(R.string.log_error_file_decrypt) + file.absolutePath, ex)
                 -1
             }
         } else if (!isCrypted && isEncrypt) {
@@ -122,7 +122,7 @@ class EncryptionInteractor(
                 // зашифровуем файл записи
                 if (encryptDecryptFile(file, file, true)) 1 else -1
             } catch (ex: Exception) {
-                LogManager.log(context, context.getString(R.string.log_error_file_encrypt) + file.absolutePath, ex)
+                logger.logError(context.getString(R.string.log_error_file_encrypt) + file.absolutePath, ex)
                 -1
             }
         }
@@ -146,8 +146,7 @@ class EncryptionInteractor(
             for (attach in record.attachedFiles) {
                 file = File(recordFolderPath, attach.idName)
                 if (!file.exists()) {
-                    LogManager.log(context, context.getString(R.string.log_file_is_missing) + TetroidLog.getIdString(context, attach),
-                        ILogger.Types.WARNING, Toast.LENGTH_LONG)
+                    logger.logWarning(context.getString(R.string.log_file_is_missing) + StringUtils.getIdString(context, attach))
                     continue
                 }
                 if (cryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {

@@ -5,13 +5,14 @@ import android.text.TextUtils
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import java.util.*
 
 class NodesInteractor(
+    val logger: ITetroidLogger,
     val storageInteractor: StorageInteractor,
     val cryptInteractor: EncryptionInteractor,
     val dataInteractor: DataInteractor,
@@ -19,14 +20,6 @@ class NodesInteractor(
     val storageLoadHelper: IStorageLoadHelper,
     val xmlLoader: TetroidXml
 ) {
-
-    fun getQuicklyNode(): TetroidNode? {
-        val nodeId = storageInteractor.storage.quickNodeId
-        if (nodeId != null && storageInteractor.isLoaded()) {
-            return getNode(nodeId)
-        }
-        return null
-    }
 
     /**
      * Создание ветки.
@@ -36,10 +29,10 @@ class NodesInteractor(
      */
     suspend fun createNode(context: Context, name: String, parentNode: TetroidNode?): TetroidNode? {
         if (TextUtils.isEmpty(name)) {
-            LogManager.emptyParams(context, "DataManager.createNode()")
+            logger.logEmptyParams("DataManager.createNode()")
             return null
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE)
+        logger.logOperStart(LogObj.NODE, LogOper.CREATE)
 
         // генерируем уникальные идентификаторы
         val id: String = dataInteractor.createUniqueId()
@@ -62,7 +55,7 @@ class NodesInteractor(
         list.add(node)
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE, TetroidLog.Opers.CREATE)
+            logger.logOperCancel(LogObj.NODE, LogOper.CREATE)
             // удаляем запись из дерева
             list.remove(node)
             return null
@@ -78,10 +71,10 @@ class NodesInteractor(
      */
     suspend fun editNodeFields(context: Context, node: TetroidNode, name: String): Boolean {
         if (TextUtils.isEmpty(name)) {
-            LogManager.emptyParams(context, "DataManager.editNodeFields()")
+            logger.logEmptyParams("DataManager.editNodeFields()")
             return false
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE, node)
+        logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
         val oldName = node.getName(true)
         // обновляем поля
         val crypted = node.isCrypted
@@ -91,7 +84,7 @@ class NodesInteractor(
         }
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE)
+            logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
             node.name = oldName
             if (crypted) {
@@ -129,10 +122,10 @@ class NodesInteractor(
      */
     suspend fun setNodeIcon(context: Context, node: TetroidNode?, iconFileName: String?, isDrop: Boolean): Boolean {
         if (node == null || TextUtils.isEmpty(iconFileName) && !isDrop) {
-            LogManager.emptyParams(context, "DataManager.setNodeIcon()")
+            logger.logEmptyParams("DataManager.setNodeIcon()")
             return false
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE, node)
+        logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
         val oldIconName = node.getIconName(true)
         // обновляем поля
         val crypted = node.isCrypted
@@ -144,7 +137,7 @@ class NodesInteractor(
         if (storageInteractor.saveStorage(context)) {
             node.loadIcon(context, storageInteractor.getPathToIcons())
         } else {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE_FIELDS, TetroidLog.Opers.CHANGE)
+            logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
             node.iconName = oldIconName
             if (crypted) {
@@ -163,12 +156,12 @@ class NodesInteractor(
      * @return
      */
     suspend fun insertNode(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode, isCutted: Boolean): Boolean {
-        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT, srcNode)
+        logger.logOperStart(LogObj.NODE, LogOper.INSERT, srcNode)
         val newNode = insertNodeRecursively(context, srcNode, destParentNode, isCutted, false)
 
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE, TetroidLog.Opers.INSERT)
+            logger.logOperCancel(LogObj.NODE, LogOper.INSERT)
             // удаляем запись из дерева
             destParentNode.subNodes.remove(newNode)
             return false
@@ -251,12 +244,12 @@ class NodesInteractor(
      * @return
      */
     private suspend fun deleteNode(context: Context, node: TetroidNode, movePath: String, isCutting: Boolean): Boolean {
-        TetroidLog.logOperStart(context, TetroidLog.Objs.NODE, if (isCutting) TetroidLog.Opers.CUT else TetroidLog.Opers.DELETE, node)
+        logger.logOperStart(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE, node)
 
         // удаляем ветку из дерева
         val parentNodes = (if (node.parentNode != null) node.parentNode.subNodes else storageInteractor.getRootNodes()).toMutableList()
         if (!parentNodes.remove(node)) {
-            LogManager.log(context, context.getString(R.string.log_not_found_node_id) + node.id, ILogger.Types.ERROR)
+            logger.logError(context.getString(R.string.log_not_found_node_id) + node.id)
             return false
         }
 
@@ -265,7 +258,7 @@ class NodesInteractor(
             // удаление всех объектов ветки рекурсивно
             deleteNodeRecursively(context, node, movePath, false)
         } else {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.NODE, if (isCutting) TetroidLog.Opers.CUT else TetroidLog.Opers.DELETE)
+            logger.logOperCancel(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE)
             return false
         }
         return true

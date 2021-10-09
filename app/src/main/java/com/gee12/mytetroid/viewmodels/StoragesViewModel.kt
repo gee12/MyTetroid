@@ -3,7 +3,6 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.SettingsManager
@@ -23,7 +22,7 @@ class StoragesViewModel(
     val storages: LiveData<List<TetroidStorage>> get() = _storages
 
     fun loadStorages() {
-        viewModelScope.launch {
+        launch {
             var storages = storagesRepo.getStorages()
 
             if (storages.isEmpty() && SettingsManager.getStoragePath(getContext())?.isNotEmpty() == true) {
@@ -36,7 +35,7 @@ class StoragesViewModel(
     }
 
 //    fun getDefaultStorage(): TetroidStorage {
-//        viewModelScope.launch {
+//        launch {
 //            return@launch repo.getDefaultStorage()
 //        }
 //    }
@@ -45,7 +44,7 @@ class StoragesViewModel(
         // заполняем поля настройками по-умолчанию
         initStorage(storage)
 
-        viewModelScope.launch {
+        launch {
             if (storagesRepo.addStorage(storage) > 0) {
                 loadStorages()
 
@@ -55,8 +54,8 @@ class StoragesViewModel(
     }
 
     fun createStorage(storage: TetroidStorage) {
-        viewModelScope.launch {
-            log(getString(R.string.log_start_storage_creating) + storage.path, ILogger.Types.DEBUG)
+        launch {
+            logDebug(getString(R.string.log_start_storage_creating) + storage.path)
 
             if (storageInteractor.createStorage(storage)) {
                 log((R.string.log_storage_created), true)
@@ -68,7 +67,7 @@ class StoragesViewModel(
     }
 
     fun deleteStorage(storage: TetroidStorage) {
-        viewModelScope.launch {
+        launch {
             if (storagesRepo.deleteStorage(storage) > 0) {
                 loadStorages()
             }

@@ -3,33 +3,33 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
-import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ICallback
 import com.gee12.mytetroid.data.ITaskProgress
 import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.interactors.PasswordInteractor
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.logs.TetroidLog
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.launch
 
 open class StorageEncryptionViewModel(
     app: Application,
-    storagesRepo: StoragesRepo
-) : StorageSettingsViewModel(app, storagesRepo) {
+    storagesRepo: StoragesRepo,
+    xmlLoader: TetroidXml
+) : StorageSettingsViewModel(app, storagesRepo, xmlLoader) {
 
-    var databaseConfig: DatabaseConfig? = null
-        protected set
+    val databaseConfig = DatabaseConfig(logger)
 
-    val passInteractor = PasswordInteractor(storage.value!!, databaseConfig!!, cryptInteractor, storageInteractor, nodesInteractor)
+    val passInteractor = PasswordInteractor(logger, storage, databaseConfig, cryptInteractor, storageInteractor, nodesInteractor)
 //    val pinInteractor = PinInteractor(passInteractor, cryptInteractor, nodesInteractor)
 
+    var isBusy = false
     var isPinNeedEnter = false
 
 
@@ -50,9 +50,9 @@ open class StorageEncryptionViewModel(
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // callback.onApply()
-                makeEvent(callback)
+                postEvent(callback)
             }
-            storage.value?.middlePassHash.also { middlePassHash = it } != null -> {
+            storage?.middlePassHash.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен "на диске", проверяем
                 try {
                     if (passInteractor.checkMiddlePassHash(middlePassHash)) {
@@ -64,13 +64,13 @@ open class StorageEncryptionViewModel(
 //                        }
                         askPinCode(true, callback)
                     } else {
-                        TetroidLog.log(getContext(), R.string.log_wrong_saved_pass, Toast.LENGTH_LONG)
+                        logger.log(R.string.log_wrong_saved_pass, true)
                         // спрашиваем пароль
-                        makeEvent(callback)
+                        postEvent(callback)
                     }
                 } catch (ex: DatabaseConfig.EmptyFieldException) {
                     // если поля в INI-файле для проверки пустые
-                    TetroidLog.log(getContext(), ex)
+                    logger.logError(ex)
                     // if (DataManager.isExistsCryptedNodes()) {
                     if (isCrypted()) {
 //                        val hash = middlePassHash
@@ -92,7 +92,7 @@ open class StorageEncryptionViewModel(
 //                        confirmEmptyPassCheckingFieldDialog(
 //                            EmptyPassCheckingFieldCallbackParam(middlePassHash!!, callback)
 //                        )
-                        makeStorageEvent(Constants.StorageEvents.AskForEmptyPassCheckingField,
+                        postStorageEvent(Constants.StorageEvents.AskForEmptyPassCheckingField,
                             EmptyPassCheckingFieldCallbackParam(ex.fieldName, middlePassHash!!, callback)
                         )
                     } else {
@@ -139,14 +139,14 @@ open class StorageEncryptionViewModel(
      * @param node
      */
     fun askPassword(/*node: TetroidNode?,*/ callback: CallbackParam /*callback: Dialogs.IApplyCancelResult*/) {
-        TetroidLog.log(getContext(), R.string.log_show_pass_dialog)
+        logger.log(R.string.log_show_pass_dialog)
 //        val isNewPass = !isCrypted()
         // выводим окно с запросом пароля в асинхронном режиме
-        makeStorageEvent(Constants.StorageEvents.AskPassword, callback)
+        postStorageEvent(Constants.StorageEvents.AskPassword, callback)
 //        PassDialogs.showPassEnterDialog(context, node, isNewPass, object : PassDialogs.IPassInputResult {
 //            override fun applyPass(pass: String, node: TetroidNode?) {
 //                if (isNewPass) {
-//                    TetroidLog.log(getContext(), R.string.log_start_pass_setup)
+//                    logger.log(R.string.log_start_pass_setup)
 //                    passInteractor.setupPass(getContext(), pass)
 //                    // callback.onApply();
 //                    askPINCode(node != null) {
@@ -178,8 +178,8 @@ open class StorageEncryptionViewModel(
 
     fun onPasswordAsked(pass: String, isNewPass: Boolean, callback: CallbackParam) {
         if (isNewPass) {
-            viewModelScope.launch {
-                TetroidLog.log(getContext(), R.string.log_start_pass_setup)
+            launch {
+                logger.log(R.string.log_start_pass_setup)
                 setupPass(pass)
                 // callback.onApply();
 //            askPINCode(node != null) {
@@ -190,7 +190,7 @@ open class StorageEncryptionViewModel(
             }
         } else {
             checkPass(pass, { res: Boolean ->
-                viewModelScope.launch {
+                launch {
                     if (res) {
                         initPass(pass)
 //                            callback.onApply();
@@ -209,15 +209,17 @@ open class StorageEncryptionViewModel(
     }
 
     fun setupPass(pass: String) {
-        viewModelScope.launch {
+        launch {
+            isBusy = true
             passInteractor.setupPass(getContext(), pass)
-            updateStorage(storage.value!!)
+            updateStorage(storage!!)
+            isBusy = false
         }
     }
 
     suspend fun initPass(pass: String) {
         passInteractor.initPass(getContext(), pass)
-        updateStorage(storage.value!!)
+        updateStorage(storage!!)
     }
 
     /**
@@ -232,13 +234,13 @@ open class StorageEncryptionViewModel(
             if (passInteractor.checkPass(pass)) {
                 callback!!.run(true)
             } else {
-                TetroidLog.log(getContext(), wrongPassRes, Toast.LENGTH_LONG)
+                logger.logError(wrongPassRes, true)
                 callback!!.run(false)
                 return false
             }
         } catch (ex: DatabaseConfig.EmptyFieldException) {
             // если поля в INI-файле для проверки пустые
-            TetroidLog.log(getContext(), ex)
+            logger.logError(ex)
             // спрашиваем "continue anyway?"
 //            PassDialogs.showEmptyPassCheckingFieldDialog(context, ex.fieldName, object : Dialogs.IApplyCancelResult {
 //                override fun onApply() {
@@ -249,7 +251,7 @@ open class StorageEncryptionViewModel(
 //
 //                override fun onCancel() {}
 //            })
-            makeStorageEvent(Constants.StorageEvents.AskForEmptyPassCheckingField,
+            postStorageEvent(Constants.StorageEvents.AskForEmptyPassCheckingField,
                 // TODO: тут спрашиваем нормально ли расшифровались данные
                 //  ...
                 callback!!.run(true)
@@ -262,7 +264,7 @@ open class StorageEncryptionViewModel(
 //    fun checkPassword(pass: String, callback: CallbackParam) {
 //        if (!isCrypted()) {
 //            // хранилище не зашифровано, значит задаем новый пароль
-//            TetroidLog.log(getContext(), R.string.log_start_pass_setup)
+//            logger.log(R.string.log_start_pass_setup)
 //            passInteractor.setupPass(getContext(), pass)
 //            // callback.onApply();
 ////            askPinCode(node != null) {
@@ -290,45 +292,47 @@ open class StorageEncryptionViewModel(
 //    }
 
     fun startChangePass(curPass: String, newPass: String) {
-        makeViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.task_pass_changing))
-        viewModelScope.launch {
+        postViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.task_pass_changing))
+        launch {
+            isBusy = true
             val res = changePass(getContext(), curPass, newPass, taskProgressHandler)
-            makeViewEvent(Constants.ViewEvents.ShowProgress, false)
+            isBusy = false
+            postViewEvent(Constants.ViewEvents.ShowProgress, false)
             if (res) {
-                LogManager.log(getContext(), R.string.log_pass_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT)
+                logger.log(R.string.log_pass_changed, true)
             } else {
-                LogManager.log(getContext(), R.string.log_pass_change_error, ILogger.Types.INFO, Toast.LENGTH_SHORT)
-                makeViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                logger.logError(R.string.log_pass_change_error, true)
+                postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
             }
         }
     }
 
     suspend fun changePass(context: Context, curPass: String, newPass: String, taskProgress: ITaskProgress): Boolean {
         // сначала устанавливаем текущий пароль
-        taskProgress.nextStage(TetroidLog.Objs.CUR_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START)
+        taskProgress.nextStage(LogObj.CUR_PASS, LogOper.SET, TaskStage.Stages.START)
         initPass(curPass)
 
         // и расшифровываем хранилище
-        if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.DECRYPT) {
+        if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
                     cryptInteractor.decryptStorage(context, true)
             }) return false
 
         // теперь устанавливаем новый пароль
-        taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SET, TaskStage.Stages.START)
+        taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SET, TaskStage.Stages.START)
         initPass(newPass)
 
         // и перешифровываем зашифрованные ветки
-        if (!taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.REENCRYPT) {
+        if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
                 cryptInteractor.reencryptStorage(context)
             }) return false
 
         // сохраняем mytetra.xml
-        taskProgress.nextStage(TetroidLog.Objs.STORAGE, TetroidLog.Opers.SAVE) {
+        taskProgress.nextStage(LogObj.STORAGE, LogOper.SAVE) {
             storageInteractor.saveStorage(context)
         }
 
         // сохраняем данные в database.ini
-        taskProgress.nextStage(TetroidLog.Objs.NEW_PASS, TetroidLog.Opers.SAVE, TaskStage.Stages.START)
+        taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SAVE, TaskStage.Stages.START)
         passInteractor.savePassCheckData(context, newPass)
 
         return true
@@ -347,11 +351,11 @@ open class StorageEncryptionViewModel(
 //            val curPass = values[0]
 //            val newPass = values[1]
 //            return viewModel.changePass(context, curPass, newPass, object : ITaskProgress {
-//                override fun nextStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stage: TaskStage.Stages) {
+//                override fun nextStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
 //                    setStage(obj, oper, stage)
 //                }
 //
-//                override fun nextStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stageExecutor: TaskStage.ITaskStageExecutor): Boolean {
+//                override fun nextStage(obj: LogObj, oper: LogOper, stageExecutor: TaskStage.ITaskStageExecutor): Boolean {
 //                    setStage(obj, oper, TaskStage.Stages.START)
 //                    return if (stageExecutor.execute()) {
 //                        setStage(obj, oper, TaskStage.Stages.SUCCESS)
@@ -364,7 +368,7 @@ open class StorageEncryptionViewModel(
 //            })
 //        }
 //
-//        private fun setStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stage: TaskStage.Stages) {
+//        private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
 //            val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
 //            val mes = TetroidLog.logTaskStage(mContext, taskStage)
 //            publishProgress(mes)
@@ -426,7 +430,7 @@ open class StorageEncryptionViewModel(
     fun askPinCode(specialFlag: Boolean, callback: CallbackParam /*callback: Dialogs.IApplyResult*/) {
         if (isRequestPINCode() && specialFlag) {
             // выводим запрос ввода ПИН-кода
-            makeStorageEvent(Constants.StorageEvents.AskPinCode, callback)
+            postStorageEvent(Constants.StorageEvents.AskPinCode, callback)
            /* PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false, object : PassDialogs.IPinInputResult {
                 override fun onApply(pin: String): Boolean {
 //                    // зашифровываем введеный пароль перед сравнением
@@ -446,7 +450,7 @@ open class StorageEncryptionViewModel(
             })*/
         } else {
 //            callback.onApply()
-            makeEvent(callback)
+            postEvent(callback)
         }
     }
 
@@ -458,9 +462,9 @@ open class StorageEncryptionViewModel(
             // сбрасываем признак
 //            StorageManager.resetIsPINNeedToEnter()
             isPinNeedEnter = false
-            LogManager.log(getContext(), R.string.log_pin_code_enter)
+            logger.log(R.string.log_pin_code_enter)
         }
-        makeStorageEvent(Constants.StorageEvents.PinChecked, res)
+        postStorageEvent(Constants.StorageEvents.PinChecked, res)
         return res
     }
 
@@ -479,7 +483,7 @@ open class StorageEncryptionViewModel(
 
     fun setupPinCodeLength(length: Int) {
         SettingsManager.setPINCodeLength(getContext(), length)
-        LogManager.log(getContext(), getString(R.string.log_pin_code_length_setup) + length)
+        logger.log(getString(R.string.log_pin_code_length_setup) + length)
     }
 
     fun setupPinCode(pin: String) {
@@ -488,7 +492,7 @@ open class StorageEncryptionViewModel(
         SettingsManager.setPINCodeHash(getContext(), pinHash)
         // устанавливаем признак
         isPinNeedEnter = true
-        LogManager.log(getContext(), R.string.log_pin_code_setup, Toast.LENGTH_SHORT)
+        logger.log(R.string.log_pin_code_setup, true)
     }
 
     fun checkAndDropPinCode(pin: String): Boolean {
@@ -509,7 +513,7 @@ open class StorageEncryptionViewModel(
     protected fun dropPinCode() {
         SettingsManager.setPINCodeHash(getContext(), null)
 //        callback.run(false)
-        LogManager.log(getContext(), R.string.log_pin_code_clean, Toast.LENGTH_SHORT)
+        logger.log(R.string.log_pin_code_clean, true)
     }
 
     // FIXME: из PinManager: по сути, дубликат метода из PassManager
@@ -570,11 +574,11 @@ open class StorageEncryptionViewModel(
     //endregion Pin
 
     private val taskProgressHandler = object : ITaskProgress {
-        override suspend fun nextStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stage: TaskStage.Stages) {
+        override suspend fun nextStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
             setStage(obj, oper, stage)
         }
 
-        override suspend fun nextStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stageExecutor: suspend () -> Boolean): Boolean {
+        override suspend fun nextStage(obj: LogObj, oper: LogOper, stageExecutor: suspend () -> Boolean): Boolean {
             setStage(obj, oper, TaskStage.Stages.START)
             return if (stageExecutor.invoke()) {
                 setStage(obj, oper, TaskStage.Stages.SUCCESS)
@@ -585,10 +589,10 @@ open class StorageEncryptionViewModel(
             }
         }
 
-        private fun setStage(obj: TetroidLog.Objs, oper: TetroidLog.Opers, stage: TaskStage.Stages) {
+        private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
             val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
-            val mes = TetroidLog.logTaskStage(getContext(), taskStage)
-            makeViewEvent(Constants.ViewEvents.ShowProgressText, mes)
+            val mes = logger.logTaskStage(taskStage)
+            postViewEvent(Constants.ViewEvents.ShowProgressText, mes)
         }
     }
 

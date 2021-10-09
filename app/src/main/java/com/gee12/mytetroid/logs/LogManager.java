@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;
 
+@Deprecated
 public class LogManager {
 
     private static final String LOG_TAG = "MYTETROID";
@@ -246,41 +247,41 @@ public class LogManager {
         return buffer.toString();
     }
 
-    /**
-     *
-     * @param context
-     * @return
-     */
-    public static ILogger createLogger(Context context) {
-        return new ILogger() {
-            @Override
-            public void log(String s) {
-                LogManager.log(context, s);
-            }
-
-            public void log(int resId) {
-                LogManager.log(context, resId);
-            }
-
-            @Override
-            public void log(String s, Types type) {
-                LogManager.log(context, s, type);
-            }
-
-            @Override
-            public void log(int resId, Types type) {
-                LogManager.log(context, resId, type);
-            }
-
-            @Override
-            public void log(Exception ex) {
-                LogManager.log(context, ex);
-            }
-
-            @Override
-            public void log(String s, Exception ex) {
-                LogManager.log(context, s, ex);
-            }
-        };
-    }
+//    /**
+//     *
+//     * @param context
+//     * @return
+//     */
+//    public static ILogger createLogger(Context context) {
+//        return new ILogger() {
+//            @Override
+//            public void log(String s) {
+//                LogManager.log(context, s);
+//            }
+//
+//            public void log(int resId) {
+//                LogManager.log(context, resId);
+//            }
+//
+//            @Override
+//            public void log(String s, Types type) {
+//                LogManager.log(context, s, type);
+//            }
+//
+//            @Override
+//            public void log(int resId, Types type) {
+//                LogManager.log(context, resId, type);
+//            }
+//
+//            @Override
+//            public void log(Exception ex) {
+//                LogManager.log(context, ex);
+//            }
+//
+//            @Override
+//            public void log(String s, Exception ex) {
+//                LogManager.log(context, s, ex);
+//            }
+//        };
+//    }
 }

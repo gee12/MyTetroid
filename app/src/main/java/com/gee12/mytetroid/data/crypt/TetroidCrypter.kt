@@ -1,16 +1,16 @@
 package com.gee12.mytetroid.data.crypt
 
 import android.content.Context
-import com.gee12.mytetroid.logs.ILogger
 import com.gee12.mytetroid.data.ITagsParser
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.data.INodeIconLoader
+import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jsoup.internal.StringUtil
 
 class TetroidCrypter(
-    logger: ILogger?,
+    logger: ITetroidLogger?,
     private val tagsParser: ITagsParser,
     private val recordFileCrypter: IRecordFileCrypter
 ) : Crypter(logger) {

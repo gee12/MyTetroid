@@ -9,12 +9,13 @@ import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.logs.ILogger
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.logs.TetroidLog
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,6 +25,7 @@ import java.lang.Exception
 import java.util.*
 
 class AttachesInteractor(
+    val logger: ITetroidLogger,
     val storageInteractor: StorageInteractor,
     val cryptInteractor: EncryptionInteractor,
     val dataInteractor: DataInteractor,
@@ -40,10 +42,10 @@ class AttachesInteractor(
     @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     suspend fun openAttach(context: Context, file: TetroidFile): Boolean {
         if (file == null) {
-            LogManager.emptyParams(context, "AttachesManager.openAttach()")
+            logger.logEmptyParams("AttachesManager.openAttach()")
             return false
         }
-        LogManager.log(context, context.getString(R.string.log_start_attach_file_opening) + file.id, ILogger.Types.DEBUG)
+        logger.logDebug(context.getString(R.string.log_start_attach_file_opening) + file.id)
         val record = file.record
         val fileDisplayName = file.name
         val ext = FileUtils.getExtensionWithComma(fileDisplayName)
@@ -53,17 +55,14 @@ class AttachesInteractor(
         srcFile = try {
             File(fullFileName)
         } catch (ex: Exception) {
-            LogManager.log(
-                context, context.getString(R.string.log_error_file_open) + fullFileName,
-                ILogger.Types.ERROR, Toast.LENGTH_LONG
-            )
-            LogManager.log(context, ex)
+            logger.logError(context.getString(R.string.log_error_file_open) + fullFileName, true)
+            logger.logError(ex, false)
             return false
         }
         //
-        LogManager.log(context, context.getString(R.string.log_open_file) + fullFileName)
+        logger.log(context.getString(R.string.log_open_file) + fullFileName)
         if (!srcFile.exists()) {
-            LogManager.log(context, context.getString(R.string.log_file_is_absent) + fullFileName, Toast.LENGTH_SHORT)
+            logger.logError(context.getString(R.string.log_file_is_absent) + fullFileName, true)
             return false
         }
         // если запись зашифрована
@@ -76,7 +75,7 @@ class AttachesInteractor(
             val tempFolderPath: String = recordsInteractor.getPathToRecordFolderInTrash(context, record)
             val tempFolder = File(tempFolderPath)
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
-                LogManager.log(context, context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, Toast.LENGTH_LONG)
+                logger.logError(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, true)
             }
             val tempFile = File(tempFolder, fileIdName)
 
@@ -87,11 +86,11 @@ class AttachesInteractor(
                 ) {
                     tempFile
                 } else {
-                    LogManager.log(context, context.getString(R.string.log_could_not_decrypt_file) + fullFileName, Toast.LENGTH_LONG)
+                    logger.logError(context.getString(R.string.log_could_not_decrypt_file) + fullFileName, true)
                     return false
                 }
             } catch (ex: IOException) {
-                LogManager.log(context, context.getString(R.string.log_file_decryption_error) + ex.message, Toast.LENGTH_LONG)
+                logger.logError(context.getString(R.string.log_file_decryption_error) + ex.message, true)
                 return false
             }
         }
@@ -103,7 +102,7 @@ class AttachesInteractor(
         if (deleteSrcFile && res != null) {
             val srcFile = File(fullName)
             if (!FileUtils.deleteRecursive(srcFile)) {
-                LogManager.log(context, context.getString(R.string.log_error_delete_file) + fullName, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_error_delete_file) + fullName)
             }
         }
         return res
@@ -117,20 +116,20 @@ class AttachesInteractor(
      */
     suspend fun attachFile(context: Context, fullName: String?, record: TetroidRecord?): TetroidFile? {
         if (record == null || TextUtils.isEmpty(fullName)) {
-            LogManager.emptyParams(context, "AttachesManager.attachFile()")
+            logger.logEmptyParams("AttachesManager.attachFile()")
             return null
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH, ": $fullName")
+        logger.logOperStart(LogObj.FILE, LogOper.ATTACH, ": $fullName")
         val id: String = dataInteractor.createUniqueId()
         // проверка исходного файла
         val srcFile = File(fullName)
         try {
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fullName, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_file_is_absent) + fullName, true)
                 return null
             }
         } catch (ex: Exception) {
-            LogManager.log(context, context.getString(R.string.log_file_checking_error) + fullName, ex)
+            logger.logError(context.getString(R.string.log_file_checking_error) + fullName, ex)
             return null
         }
         val fileDisplayName = srcFile.name
@@ -149,7 +148,7 @@ class AttachesInteractor(
         }
         // проверка каталога записи
         val dirPath: String = recordsInteractor.getPathToRecordFolder(context, record)
-        if (recordsInteractor.checkRecordFolder(context, dirPath, true, Toast.LENGTH_LONG) <= 0) {
+        if (recordsInteractor.checkRecordFolder(context, dirPath, true, true) <= 0) {
             return null
         }
         // формируем путь к файлу назначения в каталоге записи
@@ -157,38 +156,30 @@ class AttachesInteractor(
         val destFileUri: Uri = try {
             Uri.parse(destFilePath)
         } catch (ex: Exception) {
-            LogManager.log(context, context.getString(R.string.log_error_generate_file_path) + destFilePath, ex)
+            logger.logError(context.getString(R.string.log_error_generate_file_path) + destFilePath, ex)
             return null
         }
         // копирование файла в каталог записи, зашифровуя при необходимости
         val destFile = File(destFileUri.path!!)
-        val fromTo: String = Utils.getStringFromTo(context, fullName, destFilePath)
+        val fromTo: String = StringUtils.getStringFromTo(context, fullName, destFilePath)
         try {
             if (record.isCrypted) {
-                TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT)
+                logger.logOperStart(LogObj.FILE, LogOper.ENCRYPT)
                 if (!cryptInteractor.encryptDecryptFile(srcFile, destFile, true)) {
-                    TetroidLog.logOperError(
-                        context, TetroidLog.Objs.FILE, TetroidLog.Opers.ENCRYPT,
-                        fromTo, false, -1
-                    )
+                    logger.logOperError(LogObj.FILE, LogOper.ENCRYPT, fromTo, false, false)
                     return null
                 }
             } else {
-                TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.COPY)
+                logger.logOperStart(LogObj.FILE, LogOper.COPY)
                 val copyFile = withContext(Dispatchers.IO) { FileUtils.copyFile(srcFile, destFile) }
                 if (!copyFile) {
-                    TetroidLog.logOperError(
-                        context, TetroidLog.Objs.FILE, TetroidLog.Opers.COPY,
-                        fromTo, false, -1
-                    )
+                    logger.logOperError(LogObj.FILE, LogOper.COPY, fromTo, false, false)
                     return null
                 }
             }
         } catch (ex: IOException) {
-            TetroidLog.logOperError(
-                context, TetroidLog.Objs.FILE, if (record.isCrypted) TetroidLog.Opers.ENCRYPT else TetroidLog.Opers.COPY,
-                fromTo, false, -1
-            )
+            logger.logOperError(LogObj.FILE, if (record.isCrypted) LogOper.ENCRYPT else LogOper.COPY,
+                fromTo, false, false)
             return null
         }
 
@@ -203,7 +194,7 @@ class AttachesInteractor(
         if (storageInteractor.saveStorage(context)) {
             /*   instance.mFilesCount++;*/
         } else {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE, TetroidLog.Opers.ATTACH)
+            logger.logOperCancel(LogObj.FILE, LogOper.ATTACH)
             // удаляем файл из записи
             files.remove(file)
             // удаляем файл
@@ -226,13 +217,13 @@ class AttachesInteractor(
      */
     suspend fun editAttachedFileFields(context: Context, file: TetroidFile?, name: String?): Int {
         if (file == null || TextUtils.isEmpty(name)) {
-            LogManager.emptyParams(context, "AttachesManager.editAttachedFileFields()")
+            logger.logEmptyParams("AttachesManager.editAttachedFileFields()")
             return 0
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE, file)
+        logger.logOperStart(LogObj.FILE_FIELDS, LogOper.CHANGE, file)
         val record = file.record
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR)
+            logger.logError(context.getString(R.string.log_file_record_is_null))
             return 0
         }
         // сравниваем расширения
@@ -254,7 +245,7 @@ class AttachesInteractor(
             filePath = dirPath + Constants.SEPAR.toString() + fileIdName
             srcFile = File(filePath)
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + filePath, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_file_is_missing) + filePath)
                 return -2
             }
         }
@@ -268,7 +259,7 @@ class AttachesInteractor(
 
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE)
+            logger.logOperCancel(LogObj.FILE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
             file.name = oldName
             if (crypted) {
@@ -281,11 +272,11 @@ class AttachesInteractor(
             val newFileIdName = file.id + newExt
             val newFilePath = dirPath + Constants.SEPAR.toString() + newFileIdName
             val destFile = File(newFilePath)
-            val fromTo: String = Utils.getStringFromTo(context, filePath, newFileIdName)
+            val fromTo: String = StringUtils.getStringFromTo(context, filePath, newFileIdName)
             if (srcFile!!.renameTo(destFile)) {
-                TetroidLog.logOperRes(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, -1)
+                logger.logOperRes(LogObj.FILE, LogOper.RENAME, fromTo, false)
             } else {
-                TetroidLog.logOperError(context, TetroidLog.Objs.FILE, TetroidLog.Opers.RENAME, fromTo, false, -1)
+                logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
                 return 0
             }
         }
@@ -303,13 +294,13 @@ class AttachesInteractor(
      */
     suspend fun deleteAttachedFile(context: Context, file: TetroidFile?, withoutFile: Boolean): Int {
         if (file == null) {
-            LogManager.emptyParams(context, "AttachesManager.deleteAttachedFile()")
+            logger.logEmptyParams("AttachesManager.deleteAttachedFile()")
             return 0
         }
-        TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE, file)
+        logger.logOperStart(LogObj.FILE, LogOper.DELETE, file)
         val record = file.record
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR)
+            logger.logError(context.getString(R.string.log_file_record_is_null))
             return 0
         }
         val dirPath: String
@@ -328,7 +319,7 @@ class AttachesInteractor(
             destFilePath = dirPath + Constants.SEPAR.toString() + fileIdName
             destFile = File(destFilePath)
             if (!destFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + destFilePath, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_file_is_missing) + destFilePath)
                 return -2
             }
         }
@@ -337,24 +328,24 @@ class AttachesInteractor(
         val files = record.attachedFiles
         if (files != null) {
             if (!files.remove(file)) {
-                LogManager.log(context, context.getString(R.string.log_not_found_file_in_record), ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_not_found_file_in_record))
                 return 0
             }
         } else {
-            LogManager.log(context, context.getString(R.string.log_record_not_have_attached_files), ILogger.Types.ERROR)
+            logger.logError(context.getString(R.string.log_record_not_have_attached_files))
             return 0
         }
 
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
-            TetroidLog.logOperCancel(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DELETE)
+            logger.logOperCancel(LogObj.FILE, LogOper.DELETE)
             return 0
         }
 
         // удаляем сам файл
         if (!withoutFile) {
             if (!FileUtils.deleteRecursive(destFile)) {
-                LogManager.log(context, context.getString(R.string.log_error_delete_file) + destFilePath, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_error_delete_file) + destFilePath)
                 return 0
             }
         }
@@ -369,11 +360,11 @@ class AttachesInteractor(
      */
     suspend fun saveFile(context: Context, file: TetroidFile?, destPath: String?): Boolean {
         if (file == null || TextUtils.isEmpty(destPath)) {
-            LogManager.emptyParams(context, "AttachesManager.saveFile()")
+            logger.logEmptyParams("AttachesManager.saveFile()")
             return false
         }
-        val mes = TetroidLog.getIdString(context, file) + Utils.getStringTo(context, destPath)
-        TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.SAVE, ": $mes")
+        val mes = StringUtils.getIdString(context, file) + StringUtils.getStringTo(context, destPath)
+        logger.logOperStart(LogObj.FILE, LogOper.SAVE, ": $mes")
 
         // проверка исходного файла
         val fileIdName = file.idName
@@ -381,42 +372,33 @@ class AttachesInteractor(
         val srcFile = File(recordPath, fileIdName)
         try {
             if (!srcFile.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_absent) + fileIdName, ILogger.Types.ERROR)
+                logger.logError(context.getString(R.string.log_file_is_absent) + fileIdName)
                 return false
             }
         } catch (ex: Exception) {
-            LogManager.log(context, context.getString(R.string.log_file_checking_error) + fileIdName, ex)
+            logger.logError(context.getString(R.string.log_file_checking_error) + fileIdName, ex)
             return false
         }
         // копирование файла в указанный каталог, расшифровуя при необходимости
         val destFile = File(destPath, file.name)
-        val fromTo: String = Utils.getStringFromTo(context, srcFile.absolutePath, destFile.absolutePath)
+        val fromTo: String = StringUtils.getStringFromTo(context, srcFile.absolutePath, destFile.absolutePath)
         try {
             if (file.isCrypted) {
-                TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT)
+                logger.logOperStart(LogObj.FILE, LogOper.DECRYPT)
                 if (!cryptInteractor.encryptDecryptFile(srcFile, destFile, false)) {
-                    TetroidLog.logOperError(
-                        context, TetroidLog.Objs.FILE, TetroidLog.Opers.DECRYPT,
-                        fromTo, false, -1
-                    )
+                    logger.logOperError(LogObj.FILE, LogOper.DECRYPT, fromTo, false, false)
                     return false
                 }
             } else {
-                TetroidLog.logOperStart(context, TetroidLog.Objs.FILE, TetroidLog.Opers.COPY)
+                logger.logOperStart(LogObj.FILE, LogOper.COPY)
                 if (!FileUtils.copyFile(srcFile, destFile)) {
-                    TetroidLog.logOperError(
-                        context, TetroidLog.Objs.FILE, TetroidLog.Opers.COPY,
-                        fromTo, false, -1
-                    )
+                    logger.logOperError(LogObj.FILE, LogOper.COPY, fromTo, false, false)
                     return false
                 }
             }
         } catch (ex: IOException) {
-            TetroidLog.logOperError(
-                context, TetroidLog.Objs.FILE,
-                if (file.isCrypted) TetroidLog.Opers.DECRYPT else TetroidLog.Opers.COPY,
-                fromTo, false, -1
-            )
+            logger.logOperError(LogObj.FILE, if (file.isCrypted) LogOper.DECRYPT else LogOper.COPY,
+                fromTo, false, false)
             return false
         }
         return true
@@ -433,7 +415,7 @@ class AttachesInteractor(
         }
         val record = attach.record
         if (record == null) {
-            LogManager.log(context, context.getString(R.string.log_file_record_is_null), ILogger.Types.ERROR)
+            logger.logError(context.getString(R.string.log_file_record_is_null))
             return null
         }
         val ext = FileUtils.getExtensionWithComma(attach.name)

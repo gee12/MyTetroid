@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.data.ini;
 
-import com.gee12.mytetroid.logs.ILogger;
+import com.gee12.mytetroid.logs.ITetroidLogger;
 
 import org.ini4j.Ini;
 
@@ -11,17 +11,22 @@ import java.util.Map;
 
 public class INIConfig {
 
-    protected ILogger mLogger;
+    protected ITetroidLogger logger;
     protected Ini config;
     private String fileName;
 
     /**
-     *
-     * @param fileName
+     * Параметры хранилища.
      */
-    public INIConfig(ILogger logger, String fileName) {
-        this.mLogger = logger;
+    public INIConfig(ITetroidLogger logger) {
+        this.logger = logger;
         config = new Ini();
+    }
+
+    /**
+     * Установка имени конфигурационного файла.
+     */
+    public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
@@ -33,8 +38,8 @@ public class INIConfig {
         try {
             config.load(new FileReader(fileName));
         } catch (IOException e) {
-            if (mLogger != null) {
-                mLogger.log("Configuration error: ", e);
+            if (logger != null) {
+                logger.logError("Configuration error: ", e, false);
             }
             return false;
         }
@@ -49,8 +54,8 @@ public class INIConfig {
         try {
             config.store(new FileWriter(fileName));
         } catch (IOException e) {
-            if (mLogger != null) {
-                mLogger.log("Configuration error: ", e);
+            if (logger != null) {
+                logger.logError("Configuration error: ", e, false);
             }
             return false;
         }

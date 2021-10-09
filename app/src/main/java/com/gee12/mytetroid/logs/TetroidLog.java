@@ -8,6 +8,7 @@ import androidx.annotation.StringRes;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.utils.StringUtils;
 import com.gee12.mytetroid.views.activities.MainActivity;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.utils.Utils;
@@ -16,12 +17,15 @@ import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSet
 
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
 public class TetroidLog extends LogManager {
 
     public static final int PRESENT_SIMPLE = 0;
     public static final int PAST_PERFECT = 1;
     public static final int PRESENT_CONTINUOUS = 2;
 
+
+    @Deprecated
     public enum Objs {
         STORAGE(R.array.obj_storage),
         NODE(R.array.obj_node),
@@ -47,11 +51,12 @@ public class TetroidLog extends LogManager {
             this.maRes = arrayRes;
         }
 
-        String getString(Context context, int tense) {
+        public String getString(Context context, int tense) {
             return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
 
+    @Deprecated
     public enum Opers {
         SET(R.array.oper_set),
         LOAD(R.array.oper_load),
@@ -82,7 +87,7 @@ public class TetroidLog extends LogManager {
             this.maRes = arrayRes;
         }
 
-        String getString(Context context, int tense) {
+        public String getString(Context context, int tense) {
             return (maRes > 0 && tense >= 0 && tense < 3) ? context.getResources().getStringArray(maRes)[tense] : "";
         }
     }
@@ -97,9 +102,9 @@ public class TetroidLog extends LogManager {
 
     public static String logOperStart(Context context, Objs obj, Opers oper, String add) {
         // меняем местами существительное и глагол в зависимости от языка
-        String first = ((App.isRusLanguage()) ? oper.getString(context, PRESENT_CONTINUOUS)
+        String first = ((App.INSTANCE.isRusLanguage()) ? oper.getString(context, PRESENT_CONTINUOUS)
                 : obj.getString(context, PRESENT_CONTINUOUS));
-        String second = ((App.isRusLanguage()) ? obj.getString(context, PRESENT_CONTINUOUS)
+        String second = ((App.INSTANCE.isRusLanguage()) ? obj.getString(context, PRESENT_CONTINUOUS)
                 : oper.getString(context, PRESENT_CONTINUOUS));
         String mes = String.format(context.getString(R.string.log_oper_start_mask), first, second) + add;
         log(context, mes, ILogger.Types.INFO);
@@ -202,7 +207,7 @@ public class TetroidLog extends LogManager {
     }
 
     public static String getStringFormat(Context context, @StringRes int formatRes, String... args) {
-        return Utils.getStringFormat(context, formatRes, (args != null && args.length > 1) ? (Object[]) args : (Object)args);
+        return StringUtils.INSTANCE.getStringFormat(context, formatRes, (args != null && args.length > 1) ? (Object[]) args : (Object)args);
     }
 
     /**
@@ -210,56 +215,56 @@ public class TetroidLog extends LogManager {
      * @param stage
      * @return
      */
-    public static String logTaskStage(Context context, TaskStage stage) {
-        switch (stage.stage) {
-            case START:
-//                if (stage.task == StorageEncryptionSettingsFragment.ChangePassTask.class) {
-                if (stage.viewType == Constants.TetroidView.Settings) {
-                    switch (stage.oper) {
-                        case CHECK:
-                            return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);
-                        case SET:
-                            return logTaskStage(context, stage, (stage.obj == Objs.CUR_PASS)
-                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass, ILogger.Types.INFO);
-                        case DECRYPT:
-                            return logTaskStage(context, stage, R.string.stage_old_pass_decrypting, ILogger.Types.INFO);
-                        case REENCRYPT:
-                            return logTaskStage(context, stage, R.string.stage_new_pass_reencrypting, ILogger.Types.INFO);
-                        case SAVE:
-                            return logTaskStage(context, stage, (stage.obj == Objs.STORAGE)
-                                    ? R.string.stage_storage_saving : R.string.log_save_pass, ILogger.Types.INFO);
-                        default:
-                            return logOperStart(context, stage.obj, stage.oper);
-                    }
-//                } else if (stage.viewType == MainActivity.CryptNodeTask.class) {
-                } else if (stage.viewType == Constants.TetroidView.Main) {
-                    switch (stage.oper) {
-                        case DECRYPT:
-                            return logTaskStage(context, stage, R.string.stage_storage_decrypting, ILogger.Types.INFO);
-                        case ENCRYPT:
-                            return logTaskStage(context, stage, R.string.task_node_encrypting, ILogger.Types.INFO);
-                        case DROPCRYPT:
-                            return logTaskStage(context, stage, R.string.task_node_drop_crypting, ILogger.Types.INFO);
-                        default:
-                            return logOperStart(context, stage.obj, stage.oper);
-                    }
-                }
-                return logOperStart(context, stage.obj, stage.oper);
-            case SUCCESS:
-                return logOperRes(context, stage.obj, stage.oper, "", DURATION_NONE);
-            case FAILED:
-                return logDuringOperErrors(context, stage.obj, stage.oper, DURATION_NONE);
-        }
-        return null;
-    }
-
-    public static String logTaskStage(Context context, TaskStage taskStage, int resId, ILogger.Types type) {
-        String mes = context.getString(resId);
-        if (taskStage.writeLog) {
-            log(context, mes, type);
-        }
-        return mes;
-    }
+//    public static String logTaskStage(Context context, TaskStage stage) {
+//        switch (stage.stage) {
+//            case START:
+////                if (stage.task == StorageEncryptionSettingsFragment.ChangePassTask.class) {
+//                if (stage.viewType == Constants.TetroidView.Settings) {
+//                    switch (stage.oper) {
+//                        case CHECK:
+//                            return logTaskStage(context, stage, R.string.stage_pass_checking, ILogger.Types.INFO);
+//                        case SET:
+//                            return logTaskStage(context, stage, (stage.obj == Objs.CUR_PASS)
+//                                    ? R.string.log_set_cur_pass : R.string.log_set_new_pass, ILogger.Types.INFO);
+//                        case DECRYPT:
+//                            return logTaskStage(context, stage, R.string.stage_old_pass_decrypting, ILogger.Types.INFO);
+//                        case REENCRYPT:
+//                            return logTaskStage(context, stage, R.string.stage_new_pass_reencrypting, ILogger.Types.INFO);
+//                        case SAVE:
+//                            return logTaskStage(context, stage, (stage.obj == Objs.STORAGE)
+//                                    ? R.string.stage_storage_saving : R.string.log_save_pass, ILogger.Types.INFO);
+//                        default:
+//                            return logOperStart(context, stage.obj, stage.oper);
+//                    }
+////                } else if (stage.viewType == MainActivity.CryptNodeTask.class) {
+//                } else if (stage.viewType == Constants.TetroidView.Main) {
+//                    switch (stage.oper) {
+//                        case DECRYPT:
+//                            return logTaskStage(context, stage, R.string.stage_storage_decrypting, ILogger.Types.INFO);
+//                        case ENCRYPT:
+//                            return logTaskStage(context, stage, R.string.task_node_encrypting, ILogger.Types.INFO);
+//                        case DROPCRYPT:
+//                            return logTaskStage(context, stage, R.string.task_node_drop_crypting, ILogger.Types.INFO);
+//                        default:
+//                            return logOperStart(context, stage.obj, stage.oper);
+//                    }
+//                }
+//                return logOperStart(context, stage.obj, stage.oper);
+//            case SUCCESS:
+//                return logOperRes(context, stage.obj, stage.oper, "", DURATION_NONE);
+//            case FAILED:
+//                return logDuringOperErrors(context, stage.obj, stage.oper, DURATION_NONE);
+//        }
+//        return null;
+//    }
+//
+//    public static String logTaskStage(Context context, TaskStage taskStage, int resId, ILogger.Types type) {
+//        String mes = context.getString(resId);
+//        if (taskStage.writeLog) {
+//            log(context, mes, type);
+//        }
+//        return mes;
+//    }
 
     /**
      * Вывод интерактивного уведомления SnackBar "Подробнее в логах".

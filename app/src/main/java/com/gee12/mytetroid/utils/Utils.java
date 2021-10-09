@@ -99,22 +99,6 @@ public class Utils {
         return HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY);
     }
 
-    public static String getStringFormat(String format, Object... args) {
-        return String.format(Locale.getDefault(), format, args);
-    }
-
-    public static String getStringFormat(Context context, int format, Object... args) {
-        return String.format(Locale.getDefault(), context.getString(format), args);
-    }
-
-    public static String getStringFromTo(Context context, String from, String to) {
-        return getStringFormat(context, R.string.log_from_to_mask, from, to);
-    }
-
-    public static String getStringTo(Context context, String to) {
-        return Utils.getStringFormat(context, R.string.log_to_mask, to);
-    }
-
     /**
      * Преобразование текста в MD5.
      * @param data Массив байт данных (можно signed, не имеет значение)
