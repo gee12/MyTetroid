@@ -24,7 +24,6 @@ import androidx.core.view.GestureDetectorCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.model.TetroidNode;
@@ -53,7 +52,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     protected TextView tvSubtitle;
     protected LinearLayout layoutProgress;
     protected TextView tvProgress;
-    protected TetroidTask2 curTask;
     protected Intent receivedIntent;
     protected boolean isFullScreen;
     protected boolean isOnCreateProcessed;
@@ -421,14 +419,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 //        }
 //    }
 
-    public void taskStarted(TetroidTask2 task) {
-        this.curTask = task;
-    }
-
-    public boolean isCurTaskRunning() {
-        return (curTask != null && curTask.isRunning());
-    }
-
     public void taskPreExecute(int progressTextResId) {
         blockInterface();
         setProgressText(progressTextResId);
@@ -454,7 +444,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @return true - можно продолжить работу обработчика onBackPressed(), иначе - прервать
      */
     public boolean onBeforeBackPressed() {
-        if (isCurTaskRunning()) {
+        if (viewModel.isBusy()) {
             // если выполняется задание, то не реагируем на нажатие кнопки Back
             return false;
         }

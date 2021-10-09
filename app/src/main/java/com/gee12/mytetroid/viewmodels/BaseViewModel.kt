@@ -15,6 +15,7 @@ import java.util.*
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
+    var isBusy = false
 
     // FIXME: почему open ?
     open var logger: TetroidLogger = BaseLogger().apply {

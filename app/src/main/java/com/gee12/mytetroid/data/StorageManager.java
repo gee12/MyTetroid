@@ -9,7 +9,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.crypt.TetroidCrypter;
 import com.gee12.mytetroid.data.ini.DatabaseConfig;

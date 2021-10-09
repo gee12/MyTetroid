@@ -29,7 +29,6 @@ open class StorageEncryptionViewModel(
     val passInteractor = PasswordInteractor(logger, storage, databaseConfig, cryptInteractor, storageInteractor, nodesInteractor)
 //    val pinInteractor = PinInteractor(passInteractor, cryptInteractor, nodesInteractor)
 
-    var isBusy = false
     var isPinNeedEnter = false
 
 
