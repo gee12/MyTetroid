@@ -9,7 +9,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 
 /**
  * Диалог информации о ветке.
@@ -26,7 +26,7 @@ class NodeInfoDialog(
     override fun isPossibleToShow() = (node != null && !node.isNonCryptedOrDecrypted)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_node_info)

@@ -15,7 +15,9 @@ class StoragesRepo(context: Context) {
     }
 
     suspend fun getDefaultStorage() = withContext(Dispatchers.IO) {
-        toStorage(dataBase.storagesDao.getDefaultStorage().first())
+        dataBase.storagesDao.getDefaultStorage().firstOrNull()?.let {
+            toStorage(it)
+        }
     }
 
     suspend fun getStorage(id: Int) = withContext(Dispatchers.IO) {

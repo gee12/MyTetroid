@@ -22,9 +22,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.viewmodels.IconsViewModel;
-import com.gee12.mytetroid.viewmodels.factory.OtherViewModelFactory;
-import com.gee12.mytetroid.viewmodels.StorageViewModel;
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.adapters.IconsListAdapter;
 import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidIcon;
@@ -57,10 +55,7 @@ public class IconsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // FIXME: передать с использованием DI
-        StorageViewModel storageViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
-                .get(StorageViewModel.class);
-        this.viewModel = new ViewModelProvider(this, new OtherViewModelFactory(getApplication(), storageViewModel.getStorageInteractor()))
+        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
                 .get(IconsViewModel.class);
 
         // список иконок

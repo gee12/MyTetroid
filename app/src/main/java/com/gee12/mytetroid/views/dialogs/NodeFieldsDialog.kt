@@ -2,28 +2,21 @@ package com.gee12.mytetroid.views.dialogs
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
-import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
-import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.Message
-import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
-import com.gee12.mytetroid.views.dialogs.NodeDialogs.NodeChooserResult
 import java.util.*
 
 /**
@@ -49,7 +42,7 @@ class NodeFieldsDialog(
     override fun isPossibleToShow() = true
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_node)

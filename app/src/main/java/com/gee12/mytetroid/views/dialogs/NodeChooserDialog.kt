@@ -12,10 +12,9 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.ScanManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
 import com.gee12.mytetroid.views.adapters.NodesListAdapter.OnNodeHeaderClickListener
-import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
 import pl.openrnd.multilevellistview.MultiLevelListView
 
 /**
@@ -65,7 +64,7 @@ class NodeChooserDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_nodes)

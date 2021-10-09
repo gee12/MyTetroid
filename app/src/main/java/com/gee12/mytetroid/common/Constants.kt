@@ -104,7 +104,6 @@ object Constants {
 
         // pages
         OpenPage,
-        MainPageCreated,
         ShowMainView,
         ClearMainView,
         CloseFoundView,
@@ -117,12 +116,13 @@ object Constants {
     }
 
     enum class StorageEvents {
+        Changed,
         PermissionCheck,
         PermissionChecked,
         AskBeforeSyncOnInit,
         AskAfterSyncOnInit,
         AskBeforeSyncOnExit,
-        Init,
+        Inited,
         FilesCreated,
         Loaded,
         Decrypted,

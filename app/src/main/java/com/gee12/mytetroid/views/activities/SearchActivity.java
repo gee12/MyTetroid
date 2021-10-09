@@ -22,14 +22,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.model.SearchProfile;
 import com.gee12.mytetroid.viewmodels.StorageViewModel;
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.NodeChooserDialog;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.views.Message;
 
@@ -65,7 +62,7 @@ public class SearchActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
                 .get(StorageViewModel.class);
 
         this.etQuery = findViewById(R.id.edit_text_query);
@@ -164,7 +161,7 @@ public class SearchActivity extends AppCompatActivity {
                 nodeId = null;
             }
         } else {
-            LogManager.log(this, R.string.title_storage_not_loaded, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+            viewModel.logError(R.string.title_storage_not_loaded, true);
             finish();
             return;
         }

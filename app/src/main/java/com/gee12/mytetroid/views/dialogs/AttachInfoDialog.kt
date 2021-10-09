@@ -14,7 +14,7 @@ import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 
 /**
  * Диалог информации о прикрепленном файле.
@@ -39,7 +39,7 @@ class AttachInfoDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_attach_info)

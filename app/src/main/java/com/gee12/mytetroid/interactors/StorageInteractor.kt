@@ -72,7 +72,9 @@ class StorageInteractor(
         }
 
         // сохраняем новый database.ini
-        val databaseConfig = DatabaseConfig(logger, storagePath + Constants.SEPAR + DATABASE_INI_FILE_NAME)
+        val databaseConfig = DatabaseConfig(logger).apply {
+            setFileName(storagePath + Constants.SEPAR + DATABASE_INI_FILE_NAME)
+        }
         if (!databaseConfig.saveDefault()) {
             return false
         }
@@ -140,30 +142,51 @@ class StorageInteractor(
         return false
     }
 
+    // TODO: переделать на Either, чтобы вернуть строку с ошибкой
+    fun getStorageFolderSize(context: Context): String? {
+        return try {
+            FileUtils.getFileSize(context, getStoragePath())
+        } catch (ex: Exception) {
+            logger.logError(context.getString(R.string.error_get_storage_folder_size_mask).format(ex.localizedMessage))
+            null
+        }
+    }
+
+    fun getMyTetraXmlLastModifiedDate(context: Context): Date? {
+        return try {
+            FileUtils.getFileModifiedDate(context, getPathToMyTetraXml())
+        } catch (ex: Exception) {
+            logger.logError(context.getString(R.string.error_get_mytetra_xml_modified_date_mask).format(ex.localizedMessage))
+            null
+        }
+    }
+
     fun createBaseFolder(): Boolean {
-        val baseDir = File(storage.path, BASE_FOLDER_NAME)
+        val baseDir = File(getStoragePath(), BASE_FOLDER_NAME)
         return (!baseDir.mkdir())
     }
 
-    fun isLoaded() = storage.isLoaded
+    fun isLoaded() = storageHelper.isStorageLoaded()
 
     fun isLoadedFavoritesOnly() = xmlLoader.mIsFavoritesMode
 
     fun getPathToMyTetraXml(): String {
-        return storage.path + Constants.SEPAR + MYTETRA_XML_FILE_NAME
+        return getStoragePath()  + Constants.SEPAR + MYTETRA_XML_FILE_NAME
     }
 
     fun getPathToStorageBaseFolder(): String {
-        return storage.path + Constants.SEPAR + BASE_FOLDER_NAME
+        return getStoragePath()  + Constants.SEPAR + BASE_FOLDER_NAME
     }
 
     fun getPathToDatabaseIniConfig(): String {
-        return storage.path + Constants.SEPAR + DATABASE_INI_FILE_NAME
+        return getStoragePath()  + Constants.SEPAR + DATABASE_INI_FILE_NAME
     }
 
     fun getPathToIcons(): String {
-        return storage.path + Constants.SEPAR + ICONS_FOLDER_NAME
+        return getStoragePath()  + Constants.SEPAR + ICONS_FOLDER_NAME
     }
+
+    private fun getStoragePath() = storageHelper.getStoragePath()
 
     fun getTrashPathBaseUri(context: Context): Uri {
         return Uri.parse("file://" + SettingsManager.getTrashPath(context))
@@ -182,7 +205,7 @@ class StorageInteractor(
         fun getLastFolderPathOrDefault(context: Context, forWrite: Boolean): String? {
             val lastFolder = SettingsManager.getLastChoosedFolderPath(context)
             return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
-            else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
+                else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
         }
     }
 }

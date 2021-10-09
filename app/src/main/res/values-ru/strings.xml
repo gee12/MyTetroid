@@ -469,7 +469,7 @@
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
     <string name="log_sync_failed">Не удалось выполнить синхронизацию</string>
     <string name="log_open_file">Открытие файла:&#160;</string>
-    <string name="log_open_tag_records">Открытие записей метки:&#160;</string>
+    <string name="log_open_tag_records_mask">Открытие записей метки: %s</string>
     <string name="log_start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
     <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
     <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
@@ -481,6 +481,8 @@
     <string name="log_not_found_node_id">Не найдена ветка с id=</string>
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
+    <string name="log_not_transferred_storage_id">Не передан Id хранилища</string>
+    <string name="log_not_transferred_storage">Не передан объект хранилища</string>
     <string name="log_editing_crypted_records">Редактирование зашифрованных записей пока не реализовано..</string>
     <string name="log_url_decode_error">Ошибка декодирования url:&#160;</string>
     <string name="log_before_record_save">Сохранение текста записи id=</string>
@@ -647,4 +649,10 @@
     <string name="log_deleted_from_favor">Удалено из избранного</string>
     <string name="log_with_id_to_favor_mask">\" с id=%s в избранное\"</string>
     <string name="log_with_id_from_favor_mask">\" с id=%s из избранного\"</string>
+    <string name="error_log_file_path_is_null">Не задан путь к лог-файлу</string>
+    <string name="error_get_storage_folder_size_mask">Ошибка получения размера хранилища: %s</string>
+    <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога хаписи: %s</string>
+    <string name="error_get_mytetra_xml_modified_date_mask">Ошибка получения даты последнего изменения файла mytetra.xml: %s</string>
+    <string name="error_get_record_modified_date_mask">Ошибка получения даты последнего изменения файла записи: %s</string>
+    <string name="title_error">Ошибка</string>
 </resources>

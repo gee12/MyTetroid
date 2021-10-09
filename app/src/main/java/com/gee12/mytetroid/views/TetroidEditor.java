@@ -97,7 +97,7 @@ public class TetroidEditor extends WysiwygEditor {
     @Override
     protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
         super.initActionButton(button, type, isCheckable, isPopup);
-        if ((App.isFreeVersion()
+        if ((App.INSTANCE.isFreeVersion()
                 // TODO: в качестве исключения
                  || type != ActionType.INSERT_VIDEO)
                 && !type.isFree()) {

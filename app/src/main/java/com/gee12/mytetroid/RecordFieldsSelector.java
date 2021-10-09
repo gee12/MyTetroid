@@ -22,7 +22,7 @@ public class RecordFieldsSelector extends StringsIntMask {
      */
     public RecordFieldsSelector(Context context, Set<String> option) {
         super(option, context.getResources().getStringArray(
-                (App.isFullVersion())
+                (App.INSTANCE.isFullVersion())
                     ? R.array.record_fields_in_list_entries_pro
                     : R.array.record_fields_in_list_entries));
     }

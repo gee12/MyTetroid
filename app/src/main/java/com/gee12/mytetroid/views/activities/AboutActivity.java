@@ -10,15 +10,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.viewmodels.MainViewModel;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 
 /**
  * Активность для просмотра информации о приложении.
  */
 public class AboutActivity extends AppCompatActivity {
+
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +31,9 @@ public class AboutActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
+                .get(MainViewModel.class);
 
         TextView tvVersion = findViewById(R.id.text_view_version);
         tvVersion.setText(Utils.getVersionName(this));
@@ -45,8 +52,8 @@ public class AboutActivity extends AppCompatActivity {
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         try {
             startActivity(goToMarket);
-        } catch (ActivityNotFoundException e) {
-            LogManager.log(this, e);
+        } catch (ActivityNotFoundException ex) {
+            viewModel.logError(ex, true);
             startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("https://play.google.com/store/apps/details?id=" + getPackageName())));
         }

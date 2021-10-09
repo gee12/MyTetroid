@@ -27,7 +27,7 @@ public class FavoritesManager {
      */
     public static void load(Context context) {
         mFavorites = new FavoriteList(
-                (App.isFullVersion()) ? SettingsManager.getFavorites(context) : null);
+                (App.INSTANCE.isFullVersion()) ? SettingsManager.getFavorites(context) : null);
     }
 
     /**

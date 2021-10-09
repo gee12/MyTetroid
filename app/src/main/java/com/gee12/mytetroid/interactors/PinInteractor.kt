@@ -8,10 +8,6 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
-import com.gee12.mytetroid.logs.LogManager
-import com.gee12.mytetroid.views.dialogs.PassDialogs
-import com.gee12.mytetroid.views.dialogs.PassDialogs.IPinInputResult
-import com.gee12.mytetroid.views.dialogs.PassDialogs.IPinLengthInputResult
 
 class PinInteractor(
     val passwordInteractor: PasswordInteractor,

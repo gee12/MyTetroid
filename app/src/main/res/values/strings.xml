@@ -551,7 +551,7 @@
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
     <string name="log_open_file">Open file:&#160;</string>
-    <string name="log_open_tag_records">Open tag records:&#160;</string>
+    <string name="log_open_tag_records_mask">Open tag records: %s</string>
     <string name="log_start_storage_sync">Start storage sync. Command:&#160;</string>
     <string name="log_get_file_size_error">Error getting file size:&#160;</string>
     <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
@@ -563,6 +563,8 @@
     <string name="log_not_found_node_id">Not found node with id=</string>
     <string name="log_not_found_record">Not found record with id=</string>
     <string name="log_not_transferred_record_id">Record Id not passed</string>
+    <string name="log_not_transferred_storage_id">Storage Id not passed</string>
+    <string name="log_not_transferred_storage">Storage not passed</string>
     <string name="log_editing_crypted_records">Editing encrypted records is not implemented yet..</string>
     <string name="log_url_decode_error">Url decoding error:&#160;</string>
     <string name="log_before_record_save">Saving record with id=</string>
@@ -739,4 +741,10 @@
     <string name="log_deleted_from_favor">Deleted from favorites</string>
     <string name="log_with_id_to_favor_mask"> with id=%s to favorites</string>
     <string name="log_with_id_from_favor_mask"> with id=%s from favorites</string>
+    <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
+    <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
+    <string name="error_get_record_folder_size_mask">Error getting record folder size: %s</string>
+    <string name="error_get_mytetra_xml_modified_date_mask">Error getting mytetra.xml last modified date: %s</string>
+    <string name="error_get_record_modified_date_mask">Error getting record last modified date: %s</string>
+    <string name="title_error">Error</string>
 </resources>

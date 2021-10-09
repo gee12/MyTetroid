@@ -21,16 +21,16 @@ import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GestureDetectorCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidTask2;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.SettingsManager;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
 import com.gee12.mytetroid.views.Message;
 
@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 import lib.folderpicker.FolderPicker;
 
-public abstract class TetroidActivity extends AppCompatActivity
+public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends AppCompatActivity
         implements View.OnTouchListener {
 
     public interface IDownloadFileResult {
@@ -58,6 +58,8 @@ public abstract class TetroidActivity extends AppCompatActivity
     protected boolean isFullScreen;
     protected boolean isOnCreateProcessed;
     protected boolean isGUICreated;
+
+    protected VM viewModel;
 
     @SuppressWarnings("ConstantConditions")
     @Override
@@ -84,17 +86,19 @@ public abstract class TetroidActivity extends AppCompatActivity
         this.isOnCreateProcessed = false;
         this.isGUICreated = false;
 
-        BaseStorageViewModel viewModel = getViewModel();
-        if (viewModel != null) {
-            viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
-            viewModel.getStorageEvent().observe(this, it -> onStorageStateChanged(it.getState(), it.getData()));
-            viewModel.getMessage().observe(this, this::onMessage);
-        }
+        initViewModel();
     }
 
-    protected BaseStorageViewModel getViewModel() {
-        return null;
+    protected void initViewModel() {
+        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
+                .get(getViewModelClazz());
+
+        viewModel.getViewEvent().observe(this, it -> onViewEvent(it.getState(), it.getData()));
+        viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
+        viewModel.getMessageObservable().observe(this, this::onMessage);
     }
+
+    protected abstract Class<VM> getViewModelClazz();
 
     /**
      * Установка пометки, что обработчик OnCreate был вызван, и можно вызвать другие обработчики,
@@ -125,7 +129,7 @@ public abstract class TetroidActivity extends AppCompatActivity
      * @param event
      * @param data
      */
-    private void onActivityEvent(Constants.ViewEvents event, Object data) {
+    protected void onViewEvent(Constants.ViewEvents event, Object data) {
         switch (event) {
 //            case TaskStarted:
 //                int stringResId = (int) data;
@@ -148,7 +152,7 @@ public abstract class TetroidActivity extends AppCompatActivity
      * @param state
      * @param data
      */
-    private void onStorageStateChanged(Constants.StorageEvents state, Object data) {
+    protected void onStorageEvent(Constants.StorageEvents state, Object data) {
         switch (state) {
             case Loaded:
                 afterStorageLoaded((boolean) data);
@@ -181,9 +185,10 @@ public abstract class TetroidActivity extends AppCompatActivity
     public void openFileFolderPicker(boolean isPickFile) {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, (isPickFile) ? getString(R.string.title_select_file_to_upload) : getString(R.string.title_save_file_to));
-        if (getViewModel() != null) {
-            intent.putExtra(FolderPicker.EXTRA_LOCATION, getViewModel().getLastFolderPathOrDefault(false));
-        }
+//        if (getViewModel() != null) {
+//            intent.putExtra(FolderPicker.EXTRA_LOCATION, getViewModel().getLastFolderPathOrDefault(false));
+//        }
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false));
         intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile);
         startActivityForResult(intent, (isPickFile) ? Constants.REQUEST_CODE_FILE_PICKER : Constants.REQUEST_CODE_FOLDER_PICKER);
     }
@@ -288,7 +293,7 @@ public abstract class TetroidActivity extends AppCompatActivity
         if (optionsMenu != null) {
             onPrepareOptionsMenu(optionsMenu);
         } else {
-            LogManager.log(this, getString(R.string.log_mOptionsMenu_is_null), ILogger.Types.WARNING, -1);
+            viewModel.logWarning(getString(R.string.log_mOptionsMenu_is_null), false);
         }
     }
 
@@ -341,31 +346,30 @@ public abstract class TetroidActivity extends AppCompatActivity
 
             case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
-                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+                    viewModel.log(R.string.log_write_ext_storage_perm_granted);
 //                    loadStorage(null);
                     onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE);
                 } else {
-                    LogManager.log(this, R.string.log_missing_read_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                    viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true);
                 }
             } break;
 
             case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
                 if (permGranted) {
-                    LogManager.log(this, R.string.log_write_ext_storage_perm_granted, ILogger.Types.INFO);
+                    viewModel.log(R.string.log_write_ext_storage_perm_granted);
                     onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
                 } else {
-                    LogManager.log(this, R.string.log_missing_write_ext_storage_permissions, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                    viewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true);
                 }
             } break;
 
             case Constants.REQUEST_CODE_PERMISSION_TERMUX: {
                 if (permGranted) {
-                    LogManager.log(this, R.string.log_run_termux_commands_perm_granted, ILogger.Types.INFO);
+                    viewModel.log(R.string.log_run_termux_commands_perm_granted);
 //                    StorageManager.startStorageSyncAndInit(this);
                     onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_TERMUX);
                 } else {
-                    LogManager.log(this, R.string.log_missing_run_termux_commands_permissions,
-                            ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                    viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true);
                 }
             } break;
         }
@@ -382,7 +386,7 @@ public abstract class TetroidActivity extends AppCompatActivity
 //            if (FileUtils.isDirEmpty(new File(folderPath))) {
 //                createStorage(folderPath/*, true*/);
 //            } else {
-//                LogManager.log(this, R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
+//                LogManager.log(R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
 //            }
 //        } else {
 //            StorageManager.initOrSyncStorage(this, folderPath, true);
@@ -530,19 +534,21 @@ public abstract class TetroidActivity extends AppCompatActivity
      * Публикация сообщений.
      * @param message
      */
-    private void onMessage(com.gee12.mytetroid.logs.Message message) {
+    protected void onMessage(com.gee12.mytetroid.logs.Message message) {
         switch (message.getType()) {
             case INFO:
-                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, message.getMessage(), Toast.LENGTH_SHORT).show();
+                break;
+            case WARNING:
+                Toast.makeText(this, message.getMessage(), Toast.LENGTH_LONG).show();
                 break;
             case ERROR:
-                // TODO: переделать
-                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
-                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+                Toast.makeText(this, message.getMessage(), Toast.LENGTH_LONG).show();
+//                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
                 break;
             default:
                 // TODO: ?
-                Toast.makeText(this, message.getMes(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, message.getMessage(), Toast.LENGTH_SHORT).show();
                 break;
         }
     }

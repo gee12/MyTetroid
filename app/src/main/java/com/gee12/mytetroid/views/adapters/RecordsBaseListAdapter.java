@@ -134,7 +134,7 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
             viewHolder.createdView.setVisibility(View.GONE);
         }
         // дата изменения
-        if (App.isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
+        if (App.INSTANCE.isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
             viewHolder.editedView.setVisibility(View.VISIBLE);
             Date edited = recordsInteractor.getEditedDate(context, record);
             viewHolder.editedView.setText((edited != null) ? Utils.dateToString(edited, dateTimeFormat) : "-");

@@ -106,7 +106,10 @@ public class TetroidXml {
     protected int mMaxDepthLevel;
 
 
-    public TetroidXml(IStorageLoadHelper helper) {
+    public TetroidXml() {
+    }
+
+    public void setStorageLoadHelper(IStorageLoadHelper helper) {
         this.mLoadHelper = helper;
     }
 

@@ -17,7 +17,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.StorageDialogs
@@ -27,25 +27,24 @@ import lib.folderpicker.FolderPicker
 import org.jsoup.internal.StringUtil
 
 
-class StoragesActivity : TetroidActivity() {
+class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
-    private lateinit var viewModel: StoragesViewModel
     private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: StoragesAdapter
     private var storageDialog: StorageDialog? = null
 
     override fun getLayoutResourceId(): Int {
         return R.layout.activity_storages
     }
 
+    override fun getViewModelClazz() = StoragesViewModel::class.java
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(application))
-            .get(StoragesViewModel::class.java)
-
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = StoragesAdapter(this)
+        adapter = StoragesAdapter(this)
         adapter.setOnItemClickListener { v: View ->
             val itemPosition = recyclerView.getChildLayoutPosition(v)
             val item = adapter.getItem(itemPosition)
@@ -67,6 +66,13 @@ class StoragesActivity : TetroidActivity() {
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add_storage)
         fabAdd.setOnClickListener { addStorage() }
 
+        loadList()
+    }
+
+    override fun initViewModel() {
+        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application))
+            .get(StoragesViewModel::class.java)
+
         viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
         viewModel.storageEvent.observe(this, {
             when (it.state) {
@@ -77,14 +83,9 @@ class StoragesActivity : TetroidActivity() {
                 else -> {}
             }
         })
-        loadList()
     }
 
     override fun onGUICreated() {}
-
-//    override fun loadStorage(folderPath: String) {}
-
-//    override fun createStorage(storagePath: String) {}
 
     fun checkPermission() {
         if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
@@ -266,4 +267,5 @@ class StoragesActivity : TetroidActivity() {
             loadList()
         }
     }
+
 }

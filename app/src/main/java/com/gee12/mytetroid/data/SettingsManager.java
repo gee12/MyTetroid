@@ -3,19 +3,13 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.widget.Toast;
-
-import androidx.annotation.IdRes;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
-import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
@@ -63,7 +57,7 @@ public class SettingsManager {
         if (getLogPath(context) == null) {
             setLogPath(context, FileUtils.getAppExternalFilesDir(context));
         }
-        if (App.isFreeVersion()) {
+        if (App.INSTANCE.isFreeVersion()) {
             // принудительно отключаем
             setIsLoadFavoritesOnly(context, false);
         }
@@ -97,7 +91,7 @@ public class SettingsManager {
         if (Utils.checkDateFormatString(dateFormatString)) {
             return dateFormatString;
         } else {
-            LogManager.log(context, context.getString(R.string.log_incorrect_dateformat_in_settings), ILogger.Types.WARNING, Toast.LENGTH_LONG);
+            App.logger.logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
             return context.getString(R.string.def_date_format_string);
         }
     }
@@ -114,7 +108,7 @@ public class SettingsManager {
         String defAppId = BuildConfig.DEF_APPLICATION_ID;
         //if (BuildConfig.DEBUG) defAppId += ".debug";
         SharedPreferences prefs;
-        if (App.isFullVersion()) {
+        if (App.INSTANCE.isFullVersion()) {
             prefs = getPrefs(context, Context.MODE_PRIVATE);
 
             if (prefs != null && prefs.getAll().size() == 0) {

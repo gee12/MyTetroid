@@ -7,8 +7,6 @@ import android.os.Build;
 import android.os.Environment;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.larvalabs.svgandroid.SVG;
 import com.larvalabs.svgandroid.SVGParseException;
 import com.larvalabs.svgandroid.SVGParser;
@@ -423,21 +421,18 @@ public class FileUtils {
      * @param fullFileName
      * @return
      */
-    public static String getFileSize(Context context, String fullFileName) {
+    public static String getFileSize(Context context, String fullFileName) throws Exception {
         long size;
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
-                return null;
+                throw new Exception(context.getString(R.string.log_file_is_missing) + fullFileName);
             }
             size = getFileSize(file);
         } catch (SecurityException ex) {
-            LogManager.log(context, context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
-            return null;
+            throw new Exception(context.getString(R.string.log_denied_read_file_access) + fullFileName);
         } catch (Exception ex) {
-            LogManager.log(context, context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
-            return null;
+            throw new Exception(context.getString(R.string.log_get_file_size_error) + fullFileName);
         }
 //        return FileUtils.fileSizeToStringBin(context, size);
         return android.text.format.Formatter.formatFileSize(context, size);
@@ -480,21 +475,18 @@ public class FileUtils {
      * @param fullFileName
      * @return
      */
-    public static Date getFileModifiedDate(Context context, String fullFileName) {
+    public static Date getFileModifiedDate(Context context, String fullFileName) throws Exception {
         Date date;
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                LogManager.log(context, context.getString(R.string.log_file_is_missing) + fullFileName, ILogger.Types.ERROR);
-                return null;
+                throw new Exception(context.getString(R.string.log_file_is_missing) + fullFileName);
             }
             date = getFileLastModifiedDate(file);
         } catch (SecurityException ex) {
-            LogManager.log(context, context.getString(R.string.log_denied_read_file_access) + fullFileName, ex);
-            return null;
+            throw new Exception(context.getString(R.string.log_denied_read_file_access) + fullFileName);
         } catch (Exception ex) {
-            LogManager.log(context, context.getString(R.string.log_get_file_size_error) + fullFileName, ex);
-            return null;
+            throw new Exception(context.getString(R.string.log_get_file_size_error) + fullFileName);
         }
         return date;
     }

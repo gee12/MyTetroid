@@ -22,11 +22,9 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.gee12.htmlwysiwygeditor.Dialogs;
@@ -39,24 +37,19 @@ import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.data.SettingsManager;
-//import com.gee12.mytetroid.data.StorageManager;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.viewmodels.ActivityResult;
 import com.gee12.mytetroid.viewmodels.RecordViewModel;
 import com.gee12.mytetroid.viewmodels.ResultObj;
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.ImgPicker;
-import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
@@ -79,7 +72,7 @@ import java.util.List;
 /**
  * Активность просмотра и редактирования содержимого записи.
  */
-public class RecordActivity extends TetroidActivity implements
+public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         EditableWebView.IPageLoadListener,
         EditableWebView.ILinkLoadListener,
         EditableWebView.IHtmlReceiveListener,
@@ -105,7 +98,7 @@ public class RecordActivity extends TetroidActivity implements
     private TextFindListener mFindListener;
     private SearchView mSearchView;
 
-    private RecordViewModel viewModel;
+//    private RecordViewModel viewModel;
 
 
     public RecordActivity() {
@@ -118,11 +111,16 @@ public class RecordActivity extends TetroidActivity implements
     }
 
     @Override
+    protected Class<RecordViewModel> getViewModelClazz() {
+        return RecordViewModel.class;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
-                .get(RecordViewModel.class);
+//        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+//                .get(RecordViewModel.class);
 
         String action;
         if (receivedIntent == null || (action = receivedIntent.getAction()) == null) {
@@ -131,7 +129,12 @@ public class RecordActivity extends TetroidActivity implements
         }
         if (action.equals(Intent.ACTION_MAIN)) {
             // открытие или создание записи из главной активности
-            viewModel.initRecordFromMain(receivedIntent);
+//            viewModel.initRecordFromStorage(receivedIntent);
+            if (!viewModel.initStorage(receivedIntent)) {
+                finish();
+                return;
+            }
+
 //            if (!initRecordFromMain(receivedIntent)) {
 //                finish();
 //                return;
@@ -139,8 +142,14 @@ public class RecordActivity extends TetroidActivity implements
         } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
             // создание записи из виджета
             // сначала инициализируем службы
-            App.init(this);
-            viewModel.initRecordFromWidget();
+//            App.init(this);
+            viewModel.initApp();
+//            viewModel.initRecordFromWidget();
+            if (!viewModel.initStorage(receivedIntent)) {
+                finish();
+                return;
+            }
+
 //            if (!initRecordFromWidget()) {
 //                finish();
 //                return;
@@ -228,11 +237,7 @@ public class RecordActivity extends TetroidActivity implements
 
         afterOnCreate();
 
-        viewModel.getViewEvent().observe(this, it -> onActivityEvent(it.getState(), it.getData()));
-        viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
         viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
-        // TODO: перенести в TetroidActivity (с использованием Generic типов)
-        viewModel.getMessage().observe(this, it -> onMessage(it.getType(), it.getMes()));
     }
 
     /**
@@ -240,7 +245,8 @@ public class RecordActivity extends TetroidActivity implements
      * @param event
      * @param data
      */
-    private void onActivityEvent(Constants.ViewEvents event, Object data) {
+    @Override
+    protected void onViewEvent(Constants.ViewEvents event, Object data) {
         switch (event) {
             // activity
             case StartActivity:
@@ -277,18 +283,24 @@ public class RecordActivity extends TetroidActivity implements
                 taskPostExecute();
                 break;
         }
+        super.onViewEvent(event, data);
     }
 
     /**
      * Обработчик изменения состояния хранилища.
-     * @param state
+     * @param event
      * @param data
      */
-    private void onStorageEvent(Constants.StorageEvents state, Object data) {
-        switch (state) {
+    @Override
+    protected void onStorageEvent(Constants.StorageEvents event, Object data) {
+        switch (event) {
+            case Inited:
+                viewModel.onStorageInited(receivedIntent);
+                break;
             case PermissionCheck:
                 break;
         }
+        super.onStorageEvent(event, data);
     }
 
     /**
@@ -296,7 +308,7 @@ public class RecordActivity extends TetroidActivity implements
      * @param action
      * @param data
      */
-    private void onEvent(Constants.RecordEvents action, Object data) {
+    protected void onEvent(Constants.RecordEvents action, Object data) {
         switch (action) {
             case Save:
                 viewModel.save(mEditor.getDocumentHtml());
@@ -351,7 +363,7 @@ public class RecordActivity extends TetroidActivity implements
                 break;
             case InsertImages:
                 List<TetroidImage> images = (List<TetroidImage>) data;
-                mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getMRecord()));
+                mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getCurRecord()));
                 break;
             case OpenWebLink:
                 openWebLink((String) data);
@@ -362,26 +374,6 @@ public class RecordActivity extends TetroidActivity implements
             case InsertWebPageText:
                 mEditor.insertWebPageContent((String) data, true);
                 break;
-        }
-    }
-
-    /**
-     * Обработчик изменения состояния хранилища.
-     * @param type
-     * @param mes
-     */
-    private void onMessage(ILogger.Types type, String mes) {
-        if (type == ILogger.Types.INFO) {
-            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
-        } else if (type == ILogger.Types.ERROR) {
-
-            // TODO: переделать
-            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
-            Message.showSnackMoreInLogs(RecordActivity.this, R.id.layout_coordinator);
-        } else {
-
-            // TODO: ?
-            Toast.makeText(RecordActivity.this, mes, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -453,7 +445,7 @@ public class RecordActivity extends TetroidActivity implements
         Date created = record.getCreated();
         tvCreated.setText((created != null) ? Utils.dateToString(created, dateFormat) : "");
 
-        if (App.isFullVersion()) {
+        if (App.INSTANCE.isFullVersion()) {
             (findViewById(R.id.label_record_edited)).setVisibility(View.VISIBLE);
             TextView tvEdited = findViewById(R.id.text_view_record_edited);
             tvEdited.setVisibility(View.VISIBLE);
@@ -474,7 +466,7 @@ public class RecordActivity extends TetroidActivity implements
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
 //        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
-        mEditor.getWebView().loadDataWithBaseURL(viewModel.getUriToRecordFolder(viewModel.getMRecord()),
+        mEditor.getWebView().loadDataWithBaseURL(viewModel.getUriToRecordFolder(viewModel.getCurRecord()),
                 textHtml, "text/html", "UTF-8", null);
     }
 
@@ -507,7 +499,6 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onStartEditorJSLoading() {
-//        setProgressVisibility(true);
     }
 
     /**
@@ -515,7 +506,6 @@ public class RecordActivity extends TetroidActivity implements
      */
     @Override
     public void onEditorJSLoaded() {
-//        setProgressVisibility(false);
         viewModel.onEditorJSLoaded(getIntent());
     }
 
@@ -572,7 +562,7 @@ public class RecordActivity extends TetroidActivity implements
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(browserIntent);
         } catch (Exception ex) {
-            LogManager.log(this, ex, Toast.LENGTH_LONG);
+            viewModel.logError(ex, true);
         }
     }
 
@@ -730,52 +720,53 @@ public class RecordActivity extends TetroidActivity implements
      * @param newMode
      */
     private void switchViews(int newMode) {
-        switch (newMode) {
-            case Constants.MODE_VIEW : {
-                mEditor.setVisibility(View.VISIBLE);
-                mEditor.setToolBarVisibility(false);
-                mScrollViewHtml.setVisibility(View.GONE);
-                setRecordFieldsVisibility(true);
-                mEditor.setEditMode(false);
-                mEditor.setScrollButtonsVisibility(true);
-                setSubtitle(getString(R.string.subtitle_record_view));
-                ViewUtils.hideKeyboard(this, mEditor.getWebView());
-            } break;
-            case Constants.MODE_EDIT : {
-                mEditor.setVisibility(View.VISIBLE);
-                // загружаем Javascript (если нужно)
-//                if (!mEditor.getWebView().isEditorJSLoaded()) {
+        viewModel.log("switchViews: mode=" + newMode);
+//        switch (newMode) {
+//            case Constants.MODE_VIEW : {
+//                mEditor.setVisibility(View.VISIBLE);
+//                mEditor.setToolBarVisibility(false);
+//                mScrollViewHtml.setVisibility(View.GONE);
+//                setRecordFieldsVisibility(true);
+//                mEditor.setEditMode(false);
+//                mEditor.setScrollButtonsVisibility(true);
+//                setSubtitle(getString(R.string.subtitle_record_view));
+//                ViewUtils.hideKeyboard(this, mEditor.getWebView());
+//            } break;
+//            case Constants.MODE_EDIT : {
+//                mEditor.setVisibility(View.VISIBLE);
+//                // загружаем Javascript (если нужно)
+////                if (!mEditor.getWebView().isEditorJSLoaded()) {
+////                    setProgressVisibility(true);
+////                }
+//                mEditor.getWebView().loadEditorJSScript(false);
+//
+//                mEditor.setToolBarVisibility(true);
+//                mScrollViewHtml.setVisibility(View.GONE);
+//                setRecordFieldsVisibility(false);
+//                mEditor.setEditMode(true);
+//                mEditor.setScrollButtonsVisibility(false);
+//                setSubtitle(getString(R.string.subtitle_record_edit));
+//                mEditor.getWebView().focusEditor();
+//                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+//            } break;
+//            case Constants.MODE_HTML : {
+//                mEditor.setVisibility(View.GONE);
+//                if (mEditor.getWebView().isHtmlRequestMade()) {
+//                    String htmlText = mEditor.getWebView().getEditableHtml();
+//                    mEditTextHtml.setText(htmlText);
+//                } else {
 //                    setProgressVisibility(true);
+//                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
+//                    mEditor.getWebView().loadEditorJSScript(true);
+//
 //                }
-                mEditor.getWebView().loadEditorJSScript(false);
-
-                mEditor.setToolBarVisibility(true);
-                mScrollViewHtml.setVisibility(View.GONE);
-                setRecordFieldsVisibility(false);
-                mEditor.setEditMode(true);
-                mEditor.setScrollButtonsVisibility(false);
-                setSubtitle(getString(R.string.subtitle_record_edit));
-                mEditor.getWebView().focusEditor();
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-            } break;
-            case Constants.MODE_HTML : {
-                mEditor.setVisibility(View.GONE);
-                if (mEditor.getWebView().isHtmlRequestMade()) {
-                    String htmlText = mEditor.getWebView().getEditableHtml();
-                    mEditTextHtml.setText(htmlText);
-                } else {
-                    setProgressVisibility(true);
-                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
-                    mEditor.getWebView().loadEditorJSScript(true);
-
-                }
-//                mEditor.getWebView().makeEditableHtmlRequest();
-                mScrollViewHtml.setVisibility(View.VISIBLE);
-                setRecordFieldsVisibility(false);
-                setSubtitle(getString(R.string.subtitle_record_html));
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-            } break;
-        }
+////                mEditor.getWebView().makeEditableHtmlRequest();
+//                mScrollViewHtml.setVisibility(View.VISIBLE);
+//                setRecordFieldsVisibility(false);
+//                setSubtitle(getString(R.string.subtitle_record_html));
+//                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+//            } break;
+//        }
     }
 
     // endregion Image
@@ -868,7 +859,7 @@ public class RecordActivity extends TetroidActivity implements
     void showRecordInfoDialog() {
 //        RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
         new RecordInfoDialog(
-                viewModel.getMRecord()
+                viewModel.getCurRecord()
         ).showIfPossible(getSupportFragmentManager());
     }
 
@@ -939,11 +930,9 @@ public class RecordActivity extends TetroidActivity implements
 
     public void onFindTextResult(int matches) {
         if (matches > 0) {
-            LogManager.log(this, String.format(getString(R.string.log_n_matches_found), matches),
-                    ILogger.Types.INFO, false, Toast.LENGTH_LONG);
+            viewModel.log(String.format(getString(R.string.log_n_matches_found), matches), true);
         } else {
-            LogManager.log(this, getString(R.string.log_matches_not_found),
-                    ILogger.Types.INFO, false, Toast.LENGTH_LONG);
+            viewModel.log(getString(R.string.log_matches_not_found), true);
         }
     }
 
@@ -1086,7 +1075,7 @@ public class RecordActivity extends TetroidActivity implements
         if (!isOnCreateProcessed())
             return true;
         // режимы
-        int mode = viewModel.getMCurMode();
+        int mode = viewModel.getCurMode();
         activateMenuItem(menu.findItem(R.id.action_record_view), mode == Constants.MODE_EDIT);
         activateMenuItem(menu.findItem(R.id.action_record_edit), mode == Constants.MODE_VIEW
             || mode == Constants.MODE_HTML);
@@ -1222,7 +1211,7 @@ public class RecordActivity extends TetroidActivity implements
 //                });
 
         new RecordFieldsDialog(
-                viewModel.getMRecord(),
+                viewModel.getCurRecord(),
                 true,
                 null,
                 (name, tags, author, url, node, isFavor) -> {
@@ -1332,7 +1321,7 @@ public class RecordActivity extends TetroidActivity implements
     public void setFindButtonsVisibility(boolean vis) {
         ViewUtils.setFabVisibility(mButtonFindNext, vis);
         ViewUtils.setFabVisibility(mButtonFindPrev, vis);
-        setRecordFieldsVisibility(!vis && viewModel.getMCurMode() != Constants.MODE_HTML);
+        setRecordFieldsVisibility(!vis && viewModel.getCurMode() != Constants.MODE_HTML);
         // установим позиционирование кнопки FindNext от правого края
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mButtonFindNext.getLayoutParams();
         if (vis) {
@@ -1367,10 +1356,10 @@ public class RecordActivity extends TetroidActivity implements
         switch (requestCode) {
             case Constants.REQUEST_CODE_PERMISSION_CAMERA: {
                 if (permGranted) {
-                    LogManager.log(this, R.string.log_camera_perm_granted, ILogger.Types.INFO);
+                    viewModel.log(R.string.log_camera_perm_granted);
                     startCamera();
                 } else {
-                    LogManager.log(this, R.string.log_missing_camera_perm, ILogger.Types.WARNING, Toast.LENGTH_SHORT);
+                    viewModel.logWarning(R.string.log_missing_camera_perm, true);
                 }
             }
             break;

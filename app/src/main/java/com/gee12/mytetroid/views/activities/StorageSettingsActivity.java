@@ -12,7 +12,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.model.TetroidStorage;
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel;
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory;
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment;
@@ -26,18 +26,18 @@ import org.jetbrains.annotations.NotNull;
  */
 public class StorageSettingsActivity extends TetroidSettingsActivity {
 
-    private StorageSettingsViewModel mViewModel;
+    private StorageSettingsViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.mViewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
+        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
                 .get(StorageSettingsViewModel.class);
 
         int storageId = (getIntent() != null && getIntent().hasExtra(Constants.EXTRA_STORAGE_ID))
                 ? getIntent().getIntExtra(Constants.EXTRA_STORAGE_ID, 0) : 0;
-        mViewModel.setStorageFromBase(storageId);
+        viewModel.setStorageFromBase(storageId);
     }
 
     @Override

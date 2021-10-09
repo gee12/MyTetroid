@@ -48,4 +48,8 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
         }
     }*/
 
+    fun isStorageLoaded(): Boolean
+
+    fun getStoragePath(): String
+
 }

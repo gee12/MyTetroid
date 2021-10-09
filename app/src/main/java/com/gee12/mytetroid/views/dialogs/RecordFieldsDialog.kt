@@ -17,9 +17,8 @@ import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.StorageViewModelFactory
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.Message
-import com.gee12.mytetroid.views.dialogs.NodeDialogs.NodeChooserResult
 import java.util.*
 
 /**
@@ -49,7 +48,7 @@ class RecordFieldsDialog(
     override fun isPossibleToShow() = true
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(this, StorageViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
             .get(StorageViewModel::class.java)
 
         val builder = AskDialogBuilder.create(context, R.layout.dialog_record)

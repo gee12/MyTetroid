@@ -136,6 +136,6 @@ public class Message {
 
     public static void showSnackMoreInLogs(Context context, View view) {
         showSnack(view, R.string.title_more_in_logs, Snackbar.LENGTH_LONG,
-                R.string.title_open, v -> LogsActivity.startLogsActivity(context));
+                R.string.title_open, v -> LogsActivity.Companion.start(context));
     }
 }
