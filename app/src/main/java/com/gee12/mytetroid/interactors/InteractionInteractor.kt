@@ -15,7 +15,7 @@ import org.jsoup.internal.StringUtil
 import java.io.File
 
 class InteractionInteractor(
-    val logger: ITetroidLogger
+    private val logger: ITetroidLogger
 ) {
 
     /**

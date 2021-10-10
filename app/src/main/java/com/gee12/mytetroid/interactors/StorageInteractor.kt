@@ -3,7 +3,7 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.net.Uri
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Constants.SEPAR
 import com.gee12.mytetroid.data.SettingsManager
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.ini.DatabaseConfig
@@ -26,12 +26,25 @@ import java.io.FileOutputStream
 import java.util.*
 
 class StorageInteractor(
-    val logger: ITetroidLogger,
-    val storageHelper: IStorageLoadHelper,
-    val xmlLoader: TetroidXml,
-    val dataInteractor: DataInteractor
+    private val logger: ITetroidLogger,
+    private val storageHelper: IStorageLoadHelper,
+    private val xmlLoader: TetroidXml,
+    private val dataInteractor: DataInteractor
 ) {
 
+    companion object {
+        const val BASE_FOLDER_NAME = "base"
+        const val ICONS_FOLDER_NAME = "icons"
+        const val MYTETRA_XML_FILE_NAME = "mytetra.xml"
+        const val DATABASE_INI_FILE_NAME = "database.ini"
+        const val FILE_URI_PREFIX = "file://"
+
+        fun getLastFolderPathOrDefault(context: Context, forWrite: Boolean): String? {
+            val lastFolder = SettingsManager.getLastChoosedFolderPath(context)
+            return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
+            else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
+        }
+    }
     /**
      * Создание файлов хранилища, если оно новое.
      * @param storage
@@ -73,7 +86,7 @@ class StorageInteractor(
 
         // сохраняем новый database.ini
         val databaseConfig = DatabaseConfig(logger).apply {
-            setFileName(storagePath + Constants.SEPAR + DATABASE_INI_FILE_NAME)
+            setFileName(storagePath + SEPAR + DATABASE_INI_FILE_NAME)
         }
         if (!databaseConfig.saveDefault()) {
             return false
@@ -101,9 +114,12 @@ class StorageInteractor(
         val tempPath = destPath + "_tmp"
         logger.logDebug(context.getString(R.string.log_saving_mytetra_xml))
         try {
-            val fos = FileOutputStream(tempPath, false)
-            val save = withContext(Dispatchers.IO) { xmlLoader.save(fos) }
-            if (save) {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            val saveResult = withContext(Dispatchers.IO) {
+                val fos = FileOutputStream(tempPath, false)
+                xmlLoader.save(fos)
+            }
+            if (saveResult) {
                 val to = File(destPath)
                 //                if (moveOld) {
                 // перемещаем старую версию файла mytetra.xml в корзину
@@ -171,41 +187,39 @@ class StorageInteractor(
     fun isLoadedFavoritesOnly() = xmlLoader.mIsFavoritesMode
 
     fun getPathToMyTetraXml(): String {
-        return getStoragePath()  + Constants.SEPAR + MYTETRA_XML_FILE_NAME
+        return "${getStoragePath()}$SEPAR$MYTETRA_XML_FILE_NAME"
     }
 
     fun getPathToStorageBaseFolder(): String {
-        return getStoragePath()  + Constants.SEPAR + BASE_FOLDER_NAME
+        return "${getStoragePath()}$SEPAR$BASE_FOLDER_NAME"
+    }
+
+    fun getUriToStorageBaseFolder(): Uri {
+        return Uri.parse("$FILE_URI_PREFIX${getPathToStorageBaseFolder()}")
     }
 
     fun getPathToDatabaseIniConfig(): String {
-        return getStoragePath()  + Constants.SEPAR + DATABASE_INI_FILE_NAME
+        return "${getStoragePath()}$SEPAR$DATABASE_INI_FILE_NAME"
     }
 
     fun getPathToIcons(): String {
-        return getStoragePath()  + Constants.SEPAR + ICONS_FOLDER_NAME
+        return "${getStoragePath()}$SEPAR$ICONS_FOLDER_NAME"
+    }
+
+    fun getPathToStorageTrashFolder(): String {
+        return getStorageTrashPath()
+    }
+
+    fun getUriToStorageTrashFolder(): Uri {
+        return Uri.parse("$FILE_URI_PREFIX${getStorageTrashPath()}")
     }
 
     private fun getStoragePath() = storageHelper.getStoragePath()
 
-    fun getTrashPathBaseUri(context: Context): Uri {
-        return Uri.parse("file://" + SettingsManager.getTrashPath(context))
-    }
+    private fun getStorageTrashPath() = storageHelper.getTrashPath()
 
     fun getRootNodes(): List<TetroidNode> {
         return xmlLoader.mRootNodesList
     }
 
-    companion object {
-        const val BASE_FOLDER_NAME = "base"
-        const val ICONS_FOLDER_NAME = "icons"
-        const val MYTETRA_XML_FILE_NAME = "mytetra.xml"
-        const val DATABASE_INI_FILE_NAME = "database.ini"
-
-        fun getLastFolderPathOrDefault(context: Context, forWrite: Boolean): String? {
-            val lastFolder = SettingsManager.getLastChoosedFolderPath(context)
-            return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
-                else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
-        }
-    }
 }

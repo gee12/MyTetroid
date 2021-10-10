@@ -45,10 +45,10 @@ class SearchInteractor(
         profile.node = profile.nodeId?.let { nodesInteractor.getNode(it) }
         if (profile.isSplitToWords) {
             for (word in profile.query.split(QUERY_SEPAR).toTypedArray()) {
-                foundObjects.putAll(globalSearch(context, profile.node, word)!!)
+                foundObjects.putAll(globalSearch(context, profile.node, word))
             }
         } else {
-            foundObjects.putAll(globalSearch(context, profile.node, profile.query)!!)
+            foundObjects.putAll(globalSearch(context, profile.node, profile.query))
         }
         return foundObjects
     }
@@ -59,7 +59,7 @@ class SearchInteractor(
      * @param query
      * @return
      */
-    private suspend fun globalSearch(context: Context, node: TetroidNode?, query: String): HashMap<ITetroidObject, FoundType>? {
+    private suspend fun globalSearch(context: Context, node: TetroidNode?, query: String): HashMap<ITetroidObject, FoundType> {
         val srcNodes: List<TetroidNode>
         if (profile.isSearchInNode) {
             if (node != null) {
@@ -210,10 +210,10 @@ class SearchInteractor(
      * @param foundType
      */
     private fun addFoundObject(obj: ITetroidObject, foundType: Int) {
-        if (foundObjects!!.containsKey(obj)) {
-            foundObjects!![obj]!!.addValue(foundType)
+        if (foundObjects.containsKey(obj)) {
+            foundObjects[obj]!!.addValue(foundType)
         } else {
-            foundObjects!![obj] = FoundType(foundType)
+            foundObjects[obj] = FoundType(foundType)
         }
     }
 

@@ -215,7 +215,7 @@ open class StorageSettingsViewModel(
 
     fun getStorageName() = storage?.name ?: ""
 
-    fun getTrashPath() = storage?.trashPath ?: ""
+    override fun getTrashPath() = storage?.trashPath ?: ""
 
     fun getQuicklyNodeName() = storage?.quicklyNode?.name ?: ""
 
@@ -297,7 +297,7 @@ open class StorageSettingsViewModel(
     }
 
     override fun getPathToRecordFolder(record: TetroidRecord): String {
-        return recordsInteractor.getPathToRecordFolder(getContext(), record)
+        return recordsInteractor.getPathToRecordFolder(record)
     }
 
     //endregion IStorageCallback

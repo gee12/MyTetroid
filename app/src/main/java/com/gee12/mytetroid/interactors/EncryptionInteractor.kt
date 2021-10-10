@@ -17,14 +17,14 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class EncryptionInteractor(
-    val logger: ITetroidLogger,
-    val xmlHelper: TetroidXml,
-    val loadHelper: IStorageLoadHelper,
-    val callback: IStorageCallback
+    private val logger: ITetroidLogger,
+    private val xmlHelper: TetroidXml,
+    private val loadHelper: IStorageLoadHelper,
+    private val callback: IStorageCallback
 ) : IRecordFileCrypter {
 
     var crypter = TetroidCrypter(logger, loadHelper, this)
-        protected set
+        private set
 
     /**
      * Инициализация ключа шифрования с помощью пароля или его хэша.
@@ -108,7 +108,7 @@ class EncryptionInteractor(
      * @param isEncrypt
      * @return
      */
-    suspend private fun cryptOrDecryptFile(context: Context, file: File, isCrypted: Boolean, isEncrypt: Boolean): Int {
+    private suspend fun cryptOrDecryptFile(context: Context, file: File, isCrypted: Boolean, isEncrypt: Boolean): Int {
         if (isCrypted && !isEncrypt) {
             return try {
                 // расшифровуем файл записи
@@ -158,6 +158,7 @@ class EncryptionInteractor(
     }
 
     suspend fun encryptDecryptFile(srcFile: File, destFile: File, isEncrypt: Boolean): Boolean {
+        @Suppress("BlockingMethodInNonBlockingContext")
         return withContext(Dispatchers.IO) { crypter.encryptDecryptFile(srcFile, destFile, isEncrypt) }
     }
 }

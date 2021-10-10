@@ -295,10 +295,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * Создание новой записи.
      */
     public void createRecord() {
-//        recordDialogs.createRecordFieldsDialog(context, null, true, viewModel.getCurNode(),
-//                (name, tags, author, url, node, isFavor) -> {
-//            viewModel.createRecord(name, tags, author, url, node, isFavor);
-//        });
         new RecordFieldsDialog(
                 null,
                 true,
@@ -343,33 +339,17 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param record
      */
     private void editRecordFields(TetroidRecord record) {
-//        TetroidNode oldNode = record.getNode();
-//        recordDialogs.createRecordFieldsDialog(context, record, true, viewModel.getCurNode(),
-//                (name, tags, author, url, node, isFavor) -> {
-//            viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
-
         new RecordFieldsDialog(
-                null,
+                record,
                 true,
                 viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.createRecord(name, tags, author, url, node, isFavor);
                 }
         ).showIfPossible(getParentFragmentManager());
-
-            // VM
-//            if (viewModel.editRecordFields(record, name, tags, author, url, node, isFavor)) {
-//                onRecordFieldsUpdated(record, oldNode != record.getNode());
-////                TetroidLog.logOperRes(TetroidLog.Objs.FILE_FIELDS, TetroidLog.Opers.CHANGE);
-//                LogManager.log(mContext, R.string.log_record_fields_changed, ILogger.Types.INFO, Toast.LENGTH_SHORT);
-//            } else {
-//                TetroidLog.logOperErrorMore(mContext, TetroidLog.Objs.RECORD_FIELDS, TetroidLog.Opers.CHANGE);
-//            }
-//        });
     }
 
     void showRecordInfoDialog(TetroidRecord record) {
-//        recordDialogs.createRecordInfoDialog(context, record);
         new RecordInfoDialog(
                 record
         ).showIfPossible(getParentFragmentManager());

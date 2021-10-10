@@ -16,8 +16,8 @@ import java.util.*
 import kotlin.math.abs
 
 class DataInteractor(
-    val logger: ITetroidLogger,
-    val callback: IStorageCallback
+    private val logger: ITetroidLogger,
+    private val callback: IStorageCallback
 ) {
 
     /**
@@ -122,7 +122,7 @@ class DataInteractor(
 
     fun createUniqueImageName() =  "image" + createUniqueId() + ".png"
 
-    fun createDateTimePrefix() = Utils.dateToString(Date(), PREFIX_DATE_TIME_FORMAT)
+    fun createDateTimePrefix() = Utils.dateToString(Date(), PREFIX_DATE_TIME_FORMAT) ?: ""
 
     companion object {
         const val ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz"

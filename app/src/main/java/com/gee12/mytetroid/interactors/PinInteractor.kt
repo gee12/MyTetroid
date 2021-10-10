@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
-import android.widget.Toast
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyResult
 import com.gee12.mytetroid.App
@@ -10,9 +8,9 @@ import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
 
 class PinInteractor(
-    val passwordInteractor: PasswordInteractor,
-    val encryptionInteractor: EncryptionInteractor,
-    val nodesInteractor: NodesInteractor
+    private val passwordInteractor: PasswordInteractor,
+    private val encryptionInteractor: EncryptionInteractor,
+    private val nodesInteractor: NodesInteractor
 ) {
 
     fun isCrypted() = nodesInteractor.isExistCryptedNodes(false)

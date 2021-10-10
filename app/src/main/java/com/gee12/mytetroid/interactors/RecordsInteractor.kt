@@ -5,7 +5,7 @@ import android.net.Uri
 import android.text.TextUtils
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Constants.SEPAR
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -27,54 +27,28 @@ import java.util.*
  * (вместо RecordsManager)
  */
 class RecordsInteractor(
-    val logger: ITetroidLogger,
-    val storageInteractor: StorageInteractor,
-    val cryptInteractor: EncryptionInteractor,
-    val dataInteractor: DataInteractor,
-    val interactionInteractor: InteractionInteractor,
-    val tagsParser: ITagsParser,
-    val xmlLoader: TetroidXml
+    private val logger: ITetroidLogger,
+    private val storageInteractor: StorageInteractor,
+    private val cryptInteractor: EncryptionInteractor,
+    private val dataInteractor: DataInteractor,
+    private val interactionInteractor: InteractionInteractor,
+    private val tagsParser: ITagsParser,
+    private val xmlLoader: TetroidXml
 ) {
 
-    /**
-     * Получение пути к файлу с содержимым записи.
-     * Если расшифрован, то в tempPath. Если не был зашифрован, то в mStoragePath.
-     * @return
-     */
-    /*    public static String getRecordFilePath(@NonNull TetroidRecord record) {
-        if (record == null) {
-            logger.emptyParams("DataManager.getRecordFilePath()");
-            return null;
-        }
-        String path = null;
-        if (record.isCrypted()) {
-            if (record.isDecrypted()) {
-                path = getPathToRecordFolderInTrash(record) + SEPAR + record.getFileName();
-            }
-        } else {
-            path = RecordsManager.getPathToFileInRecordFolder(record, record.getFileName());
-        }
-//        return "file:///" + file.getAbsolutePath();
-        return (path != null) ? "file:///" + path : null;
-    }*/
     /**
      * Получение содержимого записи в виде "сырого" html.
      * @param record
      * @return
      */
     suspend fun getRecordHtmlTextDecrypted(context: Context, record: TetroidRecord, showMessage: Boolean): String? {
-//        if (record == null) {
-//            logger.emptyParams(context, "DataManager.getRecordHtmlTextDecrypted()")
-//            return null
-//        }
         logger.logDebug(context.getString(R.string.log_start_record_file_reading) + record.id)
         // проверка существования каталога записи
-//        String dirPath = getPathToRecordFolderInBase(record);
-        val dirPath = getPathToRecordFolder(context, record)
+        val dirPath = getPathToRecordFolder(record)
         if (checkRecordFolder(context, dirPath, true, showMessage) <= 0) {
             return null
         }
-        val path = dirPath + Constants.SEPAR + record.fileName
+        val path = dirPath + SEPAR + record.fileName
         val uri: Uri = try {
             Uri.parse(path)
         } catch (ex: Exception) {
@@ -91,6 +65,7 @@ class RecordsInteractor(
         if (record.isCrypted) {
             if (record.isDecrypted) {
                 val bytes: ByteArray? = try {
+                    @Suppress("BlockingMethodInNonBlockingContext")
                     withContext(Dispatchers.IO) { FileUtils.readFile(uri) }
                 } catch (ex: Exception) {
                     logger.logError(context.getString(R.string.log_error_read_record_file) + path, ex)
@@ -112,6 +87,7 @@ class RecordsInteractor(
             }
         } else {
             try {
+                @Suppress("BlockingMethodInNonBlockingContext")
                 res = withContext(Dispatchers.IO) { FileUtils.readTextFile(uri) }
             } catch (ex: Exception) {
                 logger.logError(context.getString(R.string.log_error_read_record_file) + path, ex)
@@ -145,19 +121,14 @@ class RecordsInteractor(
      * @return
      */
     fun saveRecordHtmlText(context: Context, record: TetroidRecord, htmlText: String): Boolean {
-//        if (record == null) {
-//            logger.emptyParams(context, "DataManager.saveRecordHtmlText()")
-//            return false
-//        }
         logger.logDebug(context.getString(R.string.log_start_record_file_saving) + record.id)
         // проверка существования каталога записи
-//        String dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolderInBase(record);
-        val dirPath = getPathToRecordFolder(context, record)
+        val dirPath = getPathToRecordFolder(record)
         if (checkRecordFolder(context, dirPath, true, true) <= 0) {
             return false
         }
         // формирование пути к файлу записи
-        val path = dirPath + Constants.SEPAR + record.fileName
+        val path = dirPath + SEPAR + record.fileName
         val uri: Uri = try {
             Uri.parse(path)
         } catch (ex: java.lang.Exception) {
@@ -195,9 +166,8 @@ class RecordsInteractor(
         try {
             if (!folder.exists()) {
                 if (isCreate) {
-                    logger.logWarning(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath))
+                    logger.logWarning(String.format(Locale.getDefault(), context.getString(R.string.log_create_record_dir), dirPath), showMessage)
                     return if (folder.mkdirs()) {
-//                        logger.log(context.getString(R.string.log_record_dir_created), logger.Types.DEBUG, duration);
                         logger.logOperRes(LogObj.RECORD_DIR, LogOper.CREATE, "", showMessage)
                         1
                     } else {
@@ -221,8 +191,13 @@ class RecordsInteractor(
      * @param isCutted
      * @return
      */
-    suspend fun cloneRecordToNode(context: Context, srcRecord: TetroidRecord, node: TetroidNode,
-                          isCutted: Boolean, breakOnFSErrors: Boolean): TetroidRecord? {
+    suspend fun cloneRecordToNode(
+        context: Context,
+        srcRecord: TetroidRecord,
+        node: TetroidNode,
+        isCutted: Boolean,
+        breakOnFSErrors: Boolean
+    ): TetroidRecord? {
         logger.logOperStart(LogObj.RECORD, LogOper.INSERT, srcRecord)
 
         // генерируем уникальные идентификаторы, если запись копируется
@@ -264,9 +239,9 @@ class RecordsInteractor(
         val errorRes = if (breakOnFSErrors) null else record
         // проверяем существование каталога записи
         val srcDirPath = if (isCutted) {
-            getPathToRecordFolderInTrash(context, srcRecord)
+            getPathToRecordFolderInTrash(srcRecord)
         } else {
-            getPathToRecordFolder(context, srcRecord)
+            getPathToRecordFolder(srcRecord)
         }
         val dirRes = checkRecordFolder(context, srcDirPath, false)
         val srcDir = if (dirRes > 0) {
@@ -274,7 +249,7 @@ class RecordsInteractor(
         } else {
             return errorRes
         }
-        val destDirPath = getPathToRecordFolder(context, record)
+        val destDirPath = getPathToRecordFolder(record)
         val destDir = File(destDirPath)
         if (isCutted) {
             // вырезаем уникальную приставку в имени каталога
@@ -287,6 +262,7 @@ class RecordsInteractor(
         } else {
             // копируем каталог записи
             try {
+                @Suppress("BlockingMethodInNonBlockingContext")
                 val res = withContext(Dispatchers.IO) { FileUtils.copyDirRecursive(srcDir, destDir) }
                 if (res) {
                     logger.logError(String.format(context.getString(R.string.log_copy_record_dir_mask), destDirPath))
@@ -353,18 +329,14 @@ class RecordsInteractor(
             val srcFileIdName = srcAttach.id + ext
             val destFileIdName = destAttach.id + ext
             // переименовываем
-            val destPath = getPathToRecordFolder(context, destRecord)
+            val destPath = getPathToRecordFolder(destRecord)
             val srcFile = File(destPath, srcFileIdName)
             val destFile = File(destPath, destFileIdName)
             if (srcFile.renameTo(destFile)) {
                 val to = StringUtils.getStringTo(context, destFile.absolutePath)
-                //                logger.log(String.format(context.getString(R.string.log_rename_file_mask),
-//                        destFile.getAbsolutePath()), logger.Types.DEBUG);
                 logger.logOperRes(LogObj.FILE, LogOper.RENAME, to, false)
             } else {
                 val fromTo = StringUtils.getStringFromTo(context, srcFile.absolutePath, destFile.name)
-                //                logger.log(String.format(context.getString(R.string.log_rename_file_error_mask),
-//                        srcFile.getAbsolutePath(), destFile.getName()), logger.Types.ERROR);
                 logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
             }
         }
@@ -408,13 +380,13 @@ class RecordsInteractor(
         record.setIsFavorite(isFavor)
         record.setIsNew(true)
         // создаем каталог записи
-        val dirPath = getPathToRecordFolder(context, record)
+        val dirPath = getPathToRecordFolder(record)
         if (checkRecordFolder(context, dirPath, true) <= 0) {
             return null
         }
         val dir = File(dirPath)
         // создаем файл записи (пустой)
-        val filePath = dirPath + Constants.SEPAR + record.fileName
+        val filePath = dirPath + SEPAR + record.fileName
         val fileUri: Uri = try {
             Uri.parse(filePath)
         } catch (ex: java.lang.Exception) {
@@ -423,7 +395,8 @@ class RecordsInteractor(
         }
         val file = File(fileUri.path!!)
         try {
-            file.createNewFile()
+            @Suppress("BlockingMethodInNonBlockingContext")
+            withContext(Dispatchers.IO) { file.createNewFile() }
         } catch (ex: IOException) {
             logger.logError(context.getString(R.string.log_error_creating_record_file) + filePath, ex)
             return null
@@ -469,7 +442,6 @@ class RecordsInteractor(
 //            name = String.format(Locale.getDefault(), "%1$te %1$tb %1$tY %1$tR", new Date());
             name = String.format(Locale.getDefault(), "%1\$te %1\$tb %1\$tR", Date())
         }
-//        val node = if (storageInteractor.quicklyNode != null) NodesManager.getQuicklyNode() else TetroidXml.ROOT_NODE
         val record = TetroidRecord(
             false, id,
             name, null, null, url,
@@ -479,12 +451,12 @@ class RecordsInteractor(
         record.setIsTemp(true)
 
         // создаем каталог записи в корзине
-        val dirPath = getPathToRecordFolderInTrash(context, record)
+        val dirPath = getPathToRecordFolderInTrash(record)
         if (checkRecordFolder(context, dirPath, true) <= 0) {
             return null
         }
         // создаем файл записи (пустой)
-        val filePath = dirPath + Constants.SEPAR + record.fileName
+        val filePath = dirPath + SEPAR + record.fileName
         val fileUri: Uri = try {
             Uri.parse(filePath)
         } catch (ex: java.lang.Exception) {
@@ -492,13 +464,12 @@ class RecordsInteractor(
             return null
         }
         val file = File(fileUri.path!!)
-        withContext(Dispatchers.IO) {
-            try {
-                file.createNewFile()
-            } catch (ex: IOException) {
-                logger.logError(context.getString(R.string.log_error_creating_record_file) + filePath, ex)
-                return@withContext null
-            }
+        try {
+            @Suppress("BlockingMethodInNonBlockingContext")
+            withContext(Dispatchers.IO) { file.createNewFile() }
+        } catch (ex: IOException) {
+            logger.logError(context.getString(R.string.log_error_creating_record_file) + filePath, ex)
+            return null
         }
         // текст записи
         if (!TextUtils.isEmpty(text)) {
@@ -571,7 +542,7 @@ class RecordsInteractor(
             if (moveRecordFolder(
                     context,
                     record,
-                    getPathToRecordFolderInTrash(context, record),
+                    getPathToRecordFolderInTrash(record),
                     storageInteractor.getPathToStorageBaseFolder(),
                     dirNameInBase
                 ) <= 0
@@ -626,7 +597,7 @@ class RecordsInteractor(
                 moveRecordFolder(
                     context,
                     record,
-                    getPathToRecordFolder(context, record),
+                    getPathToRecordFolder(record),
                     SettingsManager.getTrashPath(context),
                     oldDirName
                 )
@@ -678,9 +649,9 @@ class RecordsInteractor(
         // проверяем существование каталога записи
         if (!withoutDir) {
             srcDirPath = if (isCutted) {
-                getPathToRecordFolderInTrash(context, srcRecord)
+                getPathToRecordFolderInTrash(srcRecord)
             } else {
-                getPathToRecordFolder(context, srcRecord)
+                getPathToRecordFolder(srcRecord)
             }
             val dirRes = checkRecordFolder(context, srcDirPath, false)
             srcDir = if (dirRes > 0) {
@@ -715,7 +686,7 @@ class RecordsInteractor(
         // прикрепленные файлы
         cloneAttachesToRecord(srcRecord, record, isCutted)
         record.setIsNew(false)
-        val destDirPath = getPathToRecordFolder(context, record)
+        val destDirPath = getPathToRecordFolder(record)
         val destDir = File(destDirPath)
         if (!withoutDir) {
             if (isCutted) {
@@ -729,8 +700,9 @@ class RecordsInteractor(
             } else {
                 // копируем каталог записи
                 try {
-                    if (FileUtils.copyDirRecursive(srcDir, destDir)) {
-//                    logger.logOperRes(LogObj.RECORD_DIR, LogOper.COPY);
+                    @Suppress("BlockingMethodInNonBlockingContext")
+                    val copyDirResult = withContext(Dispatchers.IO) { FileUtils.copyDirRecursive(srcDir, destDir) }
+                    if (copyDirResult) {
                         logger.logDebug(String.format(context.getString(R.string.log_copy_record_dir_mask), destDirPath))
                         // переименовываем прикрепленные файлы
                         renameRecordAttaches(context, srcRecord, record)
@@ -775,7 +747,6 @@ class RecordsInteractor(
                     if (FileUtils.deleteRecursive(destDir)) {
                         logger.logOperRes(LogObj.RECORD_DIR, LogOper.DELETE)
                     } else {
-//                        logger.log(context.getString(R.string.log_error_del_record_dir) + destDirPath, logger.Types.ERROR);
                         logger.logOperError(LogObj.RECORD_DIR, LogOper.DELETE,": $destDirPath", false, false)
                         return 0
                     }
@@ -797,13 +768,19 @@ class RecordsInteractor(
      * -1 - ошибка (отсутствует каталог записи)
      * -2 - ошибка (не удалось переместить каталог записи)
      */
-    private suspend fun deleteRecord(context: Context, record: TetroidRecord, withoutDir: Boolean, movePath: String, isCutting: Boolean): Int {
+    private suspend fun deleteRecord(
+        context: Context,
+        record: TetroidRecord,
+        withoutDir: Boolean,
+        movePath: String,
+        isCutting: Boolean
+    ): Int {
         logger.logOperStart(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE, record)
         var dirPath: String? = null
         // проверяем существование каталога записи
         if (!withoutDir) {
 //            dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolderInBase(record);
-            dirPath = getPathToRecordFolder(context, record)
+            dirPath = getPathToRecordFolder(record)
             val dirRes = checkRecordFolder(context, dirPath, false)
             if (dirRes <= 0) {
                 return dirRes
@@ -850,7 +827,12 @@ class RecordsInteractor(
      * @param movePath
      * @return
      */
-    suspend fun moveOrDeleteRecordFolder(context: Context, record: TetroidRecord, dirPath: String, movePath: String?): Int {
+    suspend fun moveOrDeleteRecordFolder(
+        context: Context,
+        record: TetroidRecord,
+        dirPath: String,
+        movePath: String?
+    ): Int {
         return if (movePath == null) {
             // удаляем каталог записи
             val dir = File(dirPath)
@@ -877,7 +859,13 @@ class RecordsInteractor(
      * @param newDirName Если не null - новое имя каталога записи
      * @return
      */
-    private suspend fun moveRecordFolder(context: Context, record: TetroidRecord, srcPath: String, destPath: String, newDirName: String?): Int {
+    private suspend fun moveRecordFolder(
+        context: Context,
+        record: TetroidRecord,
+        srcPath: String,
+        destPath: String,
+        newDirName: String?
+    ): Int {
         val res = dataInteractor.moveFile(context, srcPath, destPath, newDirName)
         if (res > 0 && newDirName != null) {
             // обновляем имя каталога для дальнейшей вставки
@@ -894,7 +882,7 @@ class RecordsInteractor(
     fun deleteRecordFolder(context: Context, record: TetroidRecord): Boolean {
         logger.logOperStart(LogObj.RECORD_DIR, LogOper.DELETE, record)
         // проверяем существование каталога
-        val dirPath = getPathToRecordFolder(context, record)
+        val dirPath = getPathToRecordFolder(record)
         if (checkRecordFolder(context, dirPath, false) <= 0) {
             return false
         }
@@ -919,8 +907,8 @@ class RecordsInteractor(
             return false
         }
         logger.logDebug(context.getString(R.string.log_start_record_folder_opening) + record.id)
-        //        Uri uri = Uri.parse(getUriToRecordFolder(record));
-        val fileFullName = getPathToRecordFolder(context, record)
+//        Uri uri = Uri.parse(getUriToRecordFolder(record));
+        val fileFullName = getPathToRecordFolder(record)
         if (!interactionInteractor.openFile(context, File(fileFullName))) {
             Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), fileFullName)
             return false
@@ -938,7 +926,7 @@ class RecordsInteractor(
         if (record.isNew || record.isTemp) {
             return null
         }
-        val fileName = getPathToFileInRecordFolder(context, record, record.fileName)
+        val fileName = getPathToFileInRecordFolder(record, record.fileName)
         return try {
             FileUtils.getFileModifiedDate(context, fileName)
         } catch (ex: Exception) {
@@ -950,73 +938,41 @@ class RecordsInteractor(
     // TODO: переделать на Either, чтобы вернуть строку с ошибкой
     fun getRecordFolderSize(context: Context, record: TetroidRecord): String? {
         return try {
-            FileUtils.getFileSize(context, getPathToRecordFolder(context, record))
+            FileUtils.getFileSize(context, getPathToRecordFolder(record))
         } catch (ex: Exception) {
             logger.logError(context.getString(R.string.error_get_storage_folder_size_mask).format(ex.localizedMessage))
             null
         }
     }
 
-//    /**
-//     * Получение пути к каталогу записи в виде Uri,
-//     * с учетом того, что хранилище еще может быть не загружено.
-//     * Запись находится в хранилище в каталоге base/.
-//     * @param record
-//     * @return
-//     */
-//    @Deprecated("")
-//    fun getUriToRecordFolder(record: TetroidRecord): String? {
-//        return if (DataManager.isLoaded()) DataManager.getStoragePathBaseUri().toString() + Constants.SEPAR + record.dirName + Constants.SEPAR else null
-//    }
-
     /**
      * Получение пути к каталогу записи в виде Uri, с учетом того, что это может быть временная запись.
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
-     * @param context
      * @param record
      * @return
      */
-    fun getUriToRecordFolder(context: Context, record: TetroidRecord): String {
-//        return (isLoaded()) ? getStoragePathBaseUri() + SEPAR + record.getDirName() + SEPAR
-//                : null;
-        return (if (record.isTemp) storageInteractor.getTrashPathBaseUri(context) else storageInteractor.getPathToStorageBaseFolder())
-            .toString() + Constants.SEPAR + record.dirName + Constants.SEPAR
+    fun getUriToRecordFolder(record: TetroidRecord): String {
+        val storageUri = if (record.isTemp) storageInteractor.getUriToStorageTrashFolder() else storageInteractor.getUriToStorageBaseFolder()
+        return "file://$storageUri$SEPAR${record.dirName}$SEPAR"
     }
-
-//    /**
-//     * Получение пути к каталогу записи.
-//     * Запись находится в хранилище в каталоге base/.
-//     * @param record
-//     * @return
-//     */
-//    @Deprecated("")
-//    fun getPathToRecordFolderInBase(record: TetroidRecord): String {
-//        return DataManager.getStoragePathBase() + Constants.SEPAR + record.dirName
-//    }
 
     /**
      * Получение пути к каталогу записи, с учетом того, что это может быть временная запись.
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
-     * @param context
      * @param record
      * @return
      */
-    fun getPathToRecordFolder(context: Context, record: TetroidRecord): String {
-        return (if (record.isTemp) SettingsManager.getTrashPath(context) else storageInteractor.getPathToStorageBaseFolder()) +
-                Constants.SEPAR + record.dirName
+    fun getPathToRecordFolder(record: TetroidRecord): String {
+        val storagePath = if (record.isTemp) storageInteractor.getPathToStorageTrashFolder() else storageInteractor.getPathToStorageBaseFolder()
+        return "$storagePath$SEPAR${record.dirName}"
     }
 
-    fun getPathToRecordFolderInTrash(context: Context, record: TetroidRecord): String {
-        return SettingsManager.getTrashPath(context) + Constants.SEPAR + record.dirName
+    fun getPathToRecordFolderInTrash(record: TetroidRecord): String {
+        return "${storageInteractor.getPathToStorageTrashFolder()}$SEPAR${record.dirName}"
     }
 
-//    @Deprecated("")
-//    fun getPathToFileInRecordFolderInBase(record: TetroidRecord, fileName: String): String? {
-//        return getPathToRecordFolderInBase(record) + Constants.SEPAR + fileName
-//    }
-
-    fun getPathToFileInRecordFolder(context: Context, record: TetroidRecord, fileName: String): String {
-        return getPathToRecordFolder(context, record) + Constants.SEPAR + fileName
+    fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): String {
+        return "${getPathToRecordFolder(record)}$SEPAR$fileName"
     }
 
     fun getRecord(id: String?): TetroidRecord? {
@@ -1057,8 +1013,6 @@ class RecordsInteractor(
         return null
     }
 
-    suspend fun saveStorage(context: Context) = storageInteractor.saveStorage(context)
-
     fun encryptField(isCrypted: Boolean, field: String?): String? {
         return if (isCrypted) getCrypter().encryptTextBase64(field) else field
     }
@@ -1066,6 +1020,8 @@ class RecordsInteractor(
     fun decryptField(isCrypted: Boolean, field: String?): String? {
         return if (isCrypted) getCrypter().decryptBase64(field) else field
     }
+
+    suspend fun saveStorage(context: Context) = storageInteractor.saveStorage(context)
 
     fun getCrypter() = cryptInteractor.crypter
 }

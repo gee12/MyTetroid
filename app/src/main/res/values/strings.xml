@@ -663,8 +663,8 @@
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
     <string name="log_app_exit">Exit from app</string>
-    <string name="log_obj_id_mask" translatable="false">id=%s</string>
-    <string name="log_obj_id_name_mask">id=%1$s, name=\"%2$s\"</string>
+    <string name="log_obj_id_mask" translatable="false">&#160;id=%s</string>
+    <string name="log_obj_id_name_mask">&#160;id=%1$s, name=\"%2$s\"</string>
     <string name="log_set_cur_pass">Setting current password</string>
     <string name="log_set_new_pass">Setting the new password</string>
     <string name="log_save_pass">Saving the password</string>
@@ -692,7 +692,6 @@
     <string name="log_storage_need_load">Storage must be loaded</string>
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
     <string name="log_dir_not_empty">Directory is not empty</string>
-    <string name="log_mOptionsMenu_is_null" translatable="false">TetroidActivity.updateOptionsMenu(): mOptionsMenu is null</string>
     <string name="log_mytetra_xml_observer_mask">Track changes to a file mytetra.xml was %s</string>
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>

@@ -4,6 +4,6 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 
 // TODO:
 class FavoritesInteractor(
-    val logger: ITetroidLogger
+    private val logger: ITetroidLogger
 ) {
 }

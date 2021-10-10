@@ -98,8 +98,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     private TextFindListener mFindListener;
     private SearchView mSearchView;
 
-//    private RecordViewModel viewModel;
-
 
     public RecordActivity() {
         super();
@@ -118,9 +116,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
-//                .get(RecordViewModel.class);
 
         String action;
         if (receivedIntent == null || (action = receivedIntent.getAction()) == null) {
@@ -224,8 +219,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         App.checkKeepScreenOn(this);
 
         afterOnCreate();
-
-        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
     }
 
     @Override
@@ -459,9 +452,14 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     private void loadRecordText(String textHtml) {
         mEditTextHtml.reset();
         //mEditor.getWebView().clearAndFocusEditor();
-//        mEditor.getWebView().loadDataWithBaseURL(RecordsManager.getUriToRecordFolder(record),
-        mEditor.getWebView().loadDataWithBaseURL(viewModel.getUriToRecordFolder(viewModel.getCurRecord()),
-                textHtml, "text/html", "UTF-8", null);
+        String baseUrl = viewModel.getUriToRecordFolder(viewModel.getCurRecord().getValue());
+        mEditor.getWebView().loadDataWithBaseURL(
+                baseUrl,
+                textHtml,
+                "text/html",
+                "UTF-8",
+                null
+        );
     }
 
     // endregion OpenRecord
@@ -678,52 +676,52 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
      */
     private void switchViews(int newMode) {
         viewModel.log("switchViews: mode=" + newMode);
-//        switch (newMode) {
-//            case Constants.MODE_VIEW : {
-//                mEditor.setVisibility(View.VISIBLE);
-//                mEditor.setToolBarVisibility(false);
-//                mScrollViewHtml.setVisibility(View.GONE);
-//                setRecordFieldsVisibility(true);
-//                mEditor.setEditMode(false);
-//                mEditor.setScrollButtonsVisibility(true);
-//                setSubtitle(getString(R.string.subtitle_record_view));
-//                ViewUtils.hideKeyboard(this, mEditor.getWebView());
-//            } break;
-//            case Constants.MODE_EDIT : {
-//                mEditor.setVisibility(View.VISIBLE);
-//                // загружаем Javascript (если нужно)
-////                if (!mEditor.getWebView().isEditorJSLoaded()) {
-////                    setProgressVisibility(true);
-////                }
-//                mEditor.getWebView().loadEditorJSScript(false);
-//
-//                mEditor.setToolBarVisibility(true);
-//                mScrollViewHtml.setVisibility(View.GONE);
-//                setRecordFieldsVisibility(false);
-//                mEditor.setEditMode(true);
-//                mEditor.setScrollButtonsVisibility(false);
-//                setSubtitle(getString(R.string.subtitle_record_edit));
-//                mEditor.getWebView().focusEditor();
-//                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-//            } break;
-//            case Constants.MODE_HTML : {
-//                mEditor.setVisibility(View.GONE);
-//                if (mEditor.getWebView().isHtmlRequestMade()) {
-//                    String htmlText = mEditor.getWebView().getEditableHtml();
-//                    mEditTextHtml.setText(htmlText);
-//                } else {
+        switch (newMode) {
+            case Constants.MODE_VIEW : {
+                mEditor.setVisibility(View.VISIBLE);
+                mEditor.setToolBarVisibility(false);
+                mScrollViewHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(true);
+                mEditor.setEditMode(false);
+                mEditor.setScrollButtonsVisibility(true);
+                setSubtitle(getString(R.string.subtitle_record_view));
+                ViewUtils.hideKeyboard(this, mEditor.getWebView());
+            } break;
+            case Constants.MODE_EDIT : {
+                mEditor.setVisibility(View.VISIBLE);
+                // загружаем Javascript (если нужно)
+//                if (!mEditor.getWebView().isEditorJSLoaded()) {
 //                    setProgressVisibility(true);
-//                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
-//                    mEditor.getWebView().loadEditorJSScript(true);
-//
 //                }
-////                mEditor.getWebView().makeEditableHtmlRequest();
-//                mScrollViewHtml.setVisibility(View.VISIBLE);
-//                setRecordFieldsVisibility(false);
-//                setSubtitle(getString(R.string.subtitle_record_html));
-//                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-//            } break;
-//        }
+                mEditor.getWebView().loadEditorJSScript(false);
+
+                mEditor.setToolBarVisibility(true);
+                mScrollViewHtml.setVisibility(View.GONE);
+                setRecordFieldsVisibility(false);
+                mEditor.setEditMode(true);
+                mEditor.setScrollButtonsVisibility(false);
+                setSubtitle(getString(R.string.subtitle_record_edit));
+                mEditor.getWebView().focusEditor();
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+            } break;
+            case Constants.MODE_HTML : {
+                mEditor.setVisibility(View.GONE);
+                if (mEditor.getWebView().isHtmlRequestMade()) {
+                    String htmlText = mEditor.getWebView().getEditableHtml();
+                    mEditTextHtml.setText(htmlText);
+                } else {
+                    setProgressVisibility(true);
+                    // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
+                    mEditor.getWebView().loadEditorJSScript(true);
+
+                }
+//                mEditor.getWebView().makeEditableHtmlRequest();
+                mScrollViewHtml.setVisibility(View.VISIBLE);
+                setRecordFieldsVisibility(false);
+                setSubtitle(getString(R.string.subtitle_record_html));
+                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+            } break;
+        }
     }
 
     // endregion Image

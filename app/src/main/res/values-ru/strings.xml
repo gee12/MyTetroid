@@ -613,6 +613,7 @@
     <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
     <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
     <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
+    <string name="log_failed_storage_create_mask">Ошибка создания хранилища:\n%s</string>
 
     <string name="title_insert_record_content">Вставить содержимо записи</string>
     <string name="title_insert_hyperlink">Вставить ссылку</string>

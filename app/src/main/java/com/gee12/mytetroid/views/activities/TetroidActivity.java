@@ -291,7 +291,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         if (optionsMenu != null) {
             onPrepareOptionsMenu(optionsMenu);
         } else {
-            viewModel.logWarning(getString(R.string.log_mOptionsMenu_is_null), false);
+            viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false);
         }
     }
 

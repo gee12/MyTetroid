@@ -9,9 +9,9 @@ import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
 
 class TagsInteractor(
-    val logger: ITetroidLogger,
-    val storageInteractor: StorageInteractor,
-    val xmlLoader: TetroidXml
+    private val logger: ITetroidLogger,
+    private val storageInteractor: StorageInteractor,
+    private val xmlLoader: TetroidXml
 ) {
 
     /**

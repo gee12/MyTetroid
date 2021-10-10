@@ -13,12 +13,12 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class PasswordInteractor(
-    val logger: ITetroidLogger,
-    val storage: TetroidStorage?,
-    val databaseConfig: DatabaseConfig,
-    val cryptInteractor: EncryptionInteractor,
-    val storageInteractor: StorageInteractor,
-    val nodesInteractor: NodesInteractor
+    private val logger: ITetroidLogger,
+    private val storage: TetroidStorage?,
+    private val databaseConfig: DatabaseConfig,
+    private val cryptInteractor: EncryptionInteractor,
+    private val storageInteractor: StorageInteractor,
+    private val nodesInteractor: NodesInteractor
 ) {
 
     fun isCrypted() = nodesInteractor.isExistCryptedNodes(false)

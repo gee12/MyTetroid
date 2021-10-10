@@ -14,7 +14,7 @@ import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.Message
 
 class SyncInteractor(
-    val logger: ITetroidLogger
+    private val logger: ITetroidLogger
 ) {
 
     companion object {
@@ -127,7 +127,7 @@ class SyncInteractor(
             setClassName("com.termux", "com.termux.app.RunCommandService")
             action = "com.termux.RUN_COMMAND"
             putExtra("com.termux.RUN_COMMAND_PATH", command)
-            if (args != null && args.size > 0) {
+            if (args != null && args.isNotEmpty()) {
                 putExtra("com.termux.RUN_COMMAND_ARGUMENTS", args)
             }
             if (!TextUtils.isEmpty(workDir)) {

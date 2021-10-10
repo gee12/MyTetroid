@@ -7,12 +7,11 @@ import java.io.File
 import java.util.*
 
 class IconsInteractor(
-    val storageInteractor: StorageInteractor
+    private val storageInteractor: StorageInteractor
 ) {
 
     /**
      * Получение списка каталогов с иконками в каталоге "icons/".
-     * @param context
      * @return
      */
     fun getIconsFolders(): List<String>? {
@@ -21,7 +20,7 @@ class IconsInteractor(
             return null
         }
         val res: MutableList<String> = ArrayList()
-        for (fileEntry in folder.listFiles()) {
+        folder.listFiles()?.forEach { fileEntry ->
             if (fileEntry.isDirectory) {
                 res.add(fileEntry.name)
             }
@@ -44,10 +43,10 @@ class IconsInteractor(
             return null
         }
         val res: MutableList<TetroidIcon> = ArrayList()
-        for (fileEntry in folder.listFiles()) {
+        folder.listFiles()?.forEach { fileEntry ->
             if (fileEntry.isFile) {
                 val name = fileEntry.name
-                if (!name.lowercase().endsWith(".svg")) continue
+                if (!name.lowercase().endsWith(".svg")) return@forEach
                 val icon = TetroidIcon(folderName, name)
                 res.add(icon)
             }

@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.annotation.UiThread
+import androidx.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.features.ImagePicker
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
@@ -47,9 +48,14 @@ class RecordViewModel(
 //        objectAction.postValue(ViewModelEvent(action, param))
 //    }
 
-    protected val imagesInteractor = ImagesInteractor(logger, dataInteractor, recordsInteractor)
+    private val imagesInteractor = ImagesInteractor(logger, dataInteractor, recordsInteractor)
 
-    var curRecord: TetroidRecord? = null
+    var curRecord = MutableLiveData<TetroidRecord>()
+//        set(value) {
+//            curRecord = value.value
+//            field = value
+//        }
+//    var curRecord: TetroidRecord? = null
     var curMode = 0
     var isFirstLoad = true
     var isFieldsEdited = false
@@ -89,28 +95,29 @@ class RecordViewModel(
      */
     @UiThread
     fun onPageLoaded() {
-        if (isFirstLoad) {
-            isFirstLoad = false
-            // переключаем режим отображения
-            val defMode = if (
-                curRecord!!.isNew
-                || isReceivedImages
-                || SettingsManager.isRecordEditMode(getContext())
-            ) Constants.MODE_EDIT
-            else Constants.MODE_VIEW
+        launch {
+            if (isFirstLoad) {
+                isFirstLoad = false
+                // переключаем режим отображения
+                val defMode = if (
+                    curRecord.value!!.isNew
+                    || isReceivedImages
+                    || SettingsManager.isRecordEditMode(getContext())
+                ) Constants.MODE_EDIT
+                else Constants.MODE_VIEW
 
-            // сбрасываем флаг, т.к. уже воспользовались
-            curRecord!!.setIsNew(false)
-            switchMode(defMode)
+                // сбрасываем флаг, т.к. уже воспользовались
+                curRecord.value!!.setIsNew(false)
+                switchMode(defMode)
 
-            /*if (defMode == MODE_EDIT) {
+                /*if (defMode == MODE_EDIT) {
                 ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
 //                Keyboard.showKeyboard(mEditor);
             }*/
-        } else {
-            // переключаем только views
-//            switchViews(mCurMode)
-            postEvent(Constants.RecordEvents.SwitchViews, curMode)
+            } else {
+                // переключаем только views
+                setEvent(Constants.RecordEvents.SwitchViews, curMode)
+            }
         }
     }
 
@@ -151,8 +158,7 @@ class RecordViewModel(
         if (baseUrl != null && url.startsWith(baseUrl)) {
             url = url.replace(baseUrl, "")
         }
-        var obj: TetroidObject
-        if (TetroidObject.parseUrl(url).also { obj = it } != null) {
+        TetroidObject.parseUrl(url)?.let { obj ->
             // обрабатываем внутреннюю ссылку
             when (obj.type) {
                 FoundType.TYPE_RECORD -> {
@@ -190,7 +196,7 @@ class RecordViewModel(
                 }
                 else -> logWarning(getString(R.string.log_link_to_obj_parsing_error))
             }
-        } else {
+        } ?: run {
             // обрабатываем внешнюю ссылку
             postEvent(Constants.RecordEvents.OpenWebLink, url)
         }
@@ -238,27 +244,21 @@ class RecordViewModel(
             val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
             if (recordId != null) {
                 // получаем запись
-                curRecord = withContext(Dispatchers.IO) { recordsInteractor.getRecord(recordId) }
-                if (curRecord != null) {
-                    setTitle(curRecord!!.name)
+                val record = withContext(Dispatchers.IO) { recordsInteractor.getRecord(recordId) }
+                if (record != null) {
+                    curRecord.postValue(record!!)
+                    setTitle(record.name)
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
                         // временная запись создана для прикрепления файлов
-                        val filesCount = curRecord!!.attachedFilesCount
+                        val filesCount = record.attachedFilesCount
                         if (filesCount > 0) {
                             val mes = if (filesCount == 1)
-                                getString(R.string.mes_attached_file_mask, curRecord!!.attachedFiles[0].name)
+                                getString(R.string.mes_attached_file_mask, record.attachedFiles[0].name)
                             else getString(R.string.mes_attached_files_mask, filesCount)
                             showMessage(mes)
                         }
                     }
-
-                    // открываем запись, если GUI уже создано
-                    // FIXME: как-то убрать зависимость от состояния GUI
-                    // FIXME: как isGuiCreated здесь может быть true, если onGuiCreated() еще не вызвался ?!
-//                    if (isGuiCreated) {
-                        openRecord(curRecord!!)
-//                    }
                 } else {
                     logError(getString(R.string.log_not_found_record) + recordId, true)
                     setViewEvent(Constants.ViewEvents.FinishActivity)
@@ -279,11 +279,12 @@ class RecordViewModel(
         launch {
             // создаем временную запись
             val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
-            curRecord = withContext(Dispatchers.IO) {
+            val record = withContext(Dispatchers.IO) {
                 recordsInteractor.createTempRecord(getContext(), null, null, null, node)
             }
-            if (curRecord != null) {
-                setTitle(curRecord!!.name)
+            if (record != null) {
+                curRecord.postValue(record!!)
+                setTitle(record.name)
             } else {
                 logOperError(LogObj.RECORD, LogOper.CREATE, true)
                 setViewEvent(Constants.ViewEvents.FinishActivity)
@@ -295,8 +296,7 @@ class RecordViewModel(
      * Отображение записи (свойств и текста).
      * @param record
      */
-    private fun openRecord(record: TetroidRecord) {
-        Log.i("MYTETROID", "openRecord() record=${record.id}")
+    fun openRecord(record: TetroidRecord) {
         log(getString(R.string.log_record_loading) + record.id)
         setEvent(Constants.RecordEvents.LoadFields, record)
         // текст

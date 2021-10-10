@@ -16,9 +16,9 @@ import java.io.File
 import java.lang.Exception
 
 class ImagesInteractor(
-    val logger: ITetroidLogger,
-    val dataInteractor: DataInteractor,
-    val recordsInteractor: RecordsInteractor
+    private val logger: ITetroidLogger,
+    private val dataInteractor: DataInteractor,
+    private val recordsInteractor: RecordsInteractor
 ) {
 
     /**
@@ -42,12 +42,12 @@ class ImagesInteractor(
         val image = TetroidImage(nameId, record)
 
         // проверяем существование каталога записи
-        val dirPath: String = recordsInteractor.getPathToRecordFolder(context, record)
+        val dirPath: String = recordsInteractor.getPathToRecordFolder(record)
         val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, true)
         if (dirRes <= 0) {
             return null
         }
-        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(context, record, nameId)
+        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(record, nameId)
         logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
@@ -94,12 +94,12 @@ class ImagesInteractor(
         val image = TetroidImage(nameId, record)
 
         // проверяем существование каталога записи
-        val dirPath: String = recordsInteractor.getPathToRecordFolder(context, record)
+        val dirPath: String = recordsInteractor.getPathToRecordFolder(record)
         val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, true)
         if (dirRes <= 0) {
             return null
         }
-        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(context, record, nameId)
+        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(record, nameId)
         logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи

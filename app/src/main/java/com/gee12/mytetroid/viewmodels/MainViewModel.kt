@@ -873,7 +873,7 @@ class MainViewModel(
         openPage(Constants.PAGE_MAIN)
     }
 
-    open fun attachFile(fileFullName: String?, record: TetroidRecord?, deleteSrcFile: Boolean) {
+    open fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
         postViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
         launch {
             withContext(Dispatchers.IO) {
@@ -899,11 +899,12 @@ class MainViewModel(
      * Прикрепление нового файла к текущей записи.
      */
     fun attachFileToCurRecord(uri: Uri) {
-        val uriHelper = UriHelper(getContext())
-        attachFileToCurRecord(uriHelper.getPath(uri), true)
+        UriHelper(getContext()).getPath(uri)?.let {
+            attachFileToCurRecord(it, true)
+        }
     }
 
-    fun attachFileToCurRecord(fullFileName: String?, deleteSrcFile: Boolean) {
+    fun attachFileToCurRecord(fullFileName: String, deleteSrcFile: Boolean) {
         attachFile(fullFileName, curRecord, deleteSrcFile)
     }
 

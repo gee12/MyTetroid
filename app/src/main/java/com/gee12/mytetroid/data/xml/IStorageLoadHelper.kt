@@ -52,4 +52,6 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
 
     fun getStoragePath(): String
 
+    fun getTrashPath(): String
+
 }

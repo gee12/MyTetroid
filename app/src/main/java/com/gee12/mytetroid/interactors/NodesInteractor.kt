@@ -12,13 +12,13 @@ import com.gee12.mytetroid.model.TetroidNode
 import java.util.*
 
 class NodesInteractor(
-    val logger: ITetroidLogger,
-    val storageInteractor: StorageInteractor,
-    val cryptInteractor: EncryptionInteractor,
-    val dataInteractor: DataInteractor,
-    val recordsInteractor: RecordsInteractor,
-    val storageLoadHelper: IStorageLoadHelper,
-    val xmlLoader: TetroidXml
+    private val logger: ITetroidLogger,
+    private val storageInteractor: StorageInteractor,
+    private val cryptInteractor: EncryptionInteractor,
+    private val dataInteractor: DataInteractor,
+    private val recordsInteractor: RecordsInteractor,
+    private val storageLoadHelper: IStorageLoadHelper,
+    private val xmlLoader: TetroidXml
 ) {
 
     /**
@@ -278,7 +278,7 @@ class NodesInteractor(
                 }
                 storageLoadHelper.deleteRecordTags(record)
                 // проверяем существование каталога
-                val dirPath = recordsInteractor.getPathToRecordFolder(context, record)
+                val dirPath = recordsInteractor.getPathToRecordFolder(record)
                 if (recordsInteractor.checkRecordFolder(context, dirPath, false) <= 0) {
                     return if (breakOnFSErrors) {
                         false

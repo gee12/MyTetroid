@@ -58,9 +58,9 @@ object App {
 
         SettingsManager.init(context)
         logger.init(SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context))
-        logger.log(context.getString(R.string.log_app_start_mask).format(Utils.getVersionName(context)))
+        logger.log(context.getString(R.string.log_app_start_mask).format(Utils.getVersionName(context)), false)
         if (SettingsManager.isCopiedFromFree()) {
-            logger.log(R.string.log_settings_copied_from_free)
+            logger.log(R.string.log_settings_copied_from_free, true)
         }
         TetroidXml.ROOT_NODE.name = context.getString(R.string.title_root_node)
         IsInited = true
