@@ -129,31 +129,19 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
         if (action.equals(Intent.ACTION_MAIN)) {
             // открытие или создание записи из главной активности
-//            viewModel.initRecordFromStorage(receivedIntent);
             if (!viewModel.initStorage(receivedIntent)) {
                 finish();
                 return;
             }
-
-//            if (!initRecordFromMain(receivedIntent)) {
-//                finish();
-//                return;
-//            }
         } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
             // создание записи из виджета
             // сначала инициализируем службы
 //            App.init(this);
             viewModel.initApp();
-//            viewModel.initRecordFromWidget();
             if (!viewModel.initStorage(receivedIntent)) {
                 finish();
                 return;
             }
-
-//            if (!initRecordFromWidget()) {
-//                finish();
-//                return;
-//            }
         /*} else if (action.equals(Intent.ACTION_SEND)) {
             // прием текста из другого приложения
             String type = mReceivedIntent.getType();
@@ -238,6 +226,13 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         afterOnCreate();
 
         viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
+    }
+
+    @Override
+    protected void initViewModel() {
+        super.initViewModel();
+        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
+        viewModel.getCurRecord().observe(this, it -> viewModel.openRecord(it));
     }
 
     /**
@@ -363,7 +358,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 break;
             case InsertImages:
                 List<TetroidImage> images = (List<TetroidImage>) data;
-                mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getCurRecord()));
+                mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getCurRecord().getValue()));
                 break;
             case OpenWebLink:
                 openWebLink((String) data);
@@ -379,7 +374,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     protected void onGUICreated() {
-        viewModel.onGUICreated();
     }
 
     @Override
@@ -471,7 +465,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     // endregion OpenRecord
-
 
     // region LoadPage
 
@@ -679,42 +672,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     //region Mode
 
-//    private void switchMode(int newMode, boolean isNeedSave) {
-//        this.mModeToSwitch = -1;
-//        int oldMode = mCurMode;
-//        // сохраняем
-////        onSaveRecord();
-//        boolean runBeforeSaving = false;
-//        if (isNeedSave && SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
-//            // автоматически сохраняем текст записи, если:
-//            //  * есть изменения
-//            //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
-//            //  * запись не временная
-//            if (mEditor.isEdited() && mCurMode != MODE_HTML) {
-//                runBeforeSaving = saveRecord(null);
-//            }
-//        }
-//        // если асинхронно запущена предобработка сохранения, то выходим
-//        if (runBeforeSaving) {
-//            this.mModeToSwitch = newMode;
-//            return;
-//        }
-//        // перезагружаем html-текст записи в webView, если был режим редактирования HTML
-//        if (oldMode == MODE_HTML) {
-//            loadRecordText(mRecord, true);
-//        }
-//        // переключаем элементы интерфейса, только если не редактировали только что html,
-//        // т.к. тогда вызов switchViews() должен произойти уже после перезагрузки страницы
-//        // на событии onPageLoaded())
-////        if (oldMode != MODE_HTML) {
-//        else {
-//            switchViews(newMode);
-//        }
-//        this.mCurMode = newMode;
-//
-//        updateOptionsMenu();
-//    }
-
     /**
      *
      * @param newMode
@@ -859,7 +816,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     void showRecordInfoDialog() {
 //        RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
         new RecordInfoDialog(
-                viewModel.getCurRecord()
+                viewModel.getCurRecord().getValue()
         ).showIfPossible(getSupportFragmentManager());
     }
 
@@ -1211,7 +1168,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 //                });
 
         new RecordFieldsDialog(
-                viewModel.getCurRecord(),
+                viewModel.getCurRecord().getValue(),
                 true,
                 null,
                 (name, tags, author, url, node, isFavor) -> {

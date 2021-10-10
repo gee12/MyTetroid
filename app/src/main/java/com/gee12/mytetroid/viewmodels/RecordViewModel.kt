@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.UiThread
 import com.esafirm.imagepicker.features.ImagePicker
@@ -60,7 +59,6 @@ class RecordViewModel(
     var resultObj: ResultObj? = null
     var isEdited = false
     var isFromAnotherActivity = false
-    var isGuiCreated = false
 
 
     fun onStorageInited(intent: Intent?) {
@@ -80,19 +78,8 @@ class RecordViewModel(
     }
 
     fun onCreate(receivedIntent: Intent) {
-
         // проверяем передавались ли изображения
         isReceivedImages = receivedIntent.hasExtra(Constants.EXTRA_IMAGES_URI)
-
-    }
-
-    fun onGUICreated() {
-        isGuiCreated = true
-
-        // загрузка записи выполняется в последнюю очередь (после создания пунктов меню)
-//        curRecord?.let {
-//            openRecord(it)
-//        }
     }
 
     // region LoadPage
@@ -312,8 +299,6 @@ class RecordViewModel(
         Log.i("MYTETROID", "openRecord() record=${record.id}")
         log(getString(R.string.log_record_loading) + record.id)
         setEvent(Constants.RecordEvents.LoadFields, record)
-        // FIXME: сделал вызов после обработки LoadFields. Проверить
-//        expandFieldsIfNeed()
         // текст
         loadRecordTextFromFile(record)
     }
@@ -422,7 +407,7 @@ class RecordViewModel(
      * Открытие ветки записи.
      */
     fun showRecordNode() {
-        openAnotherNode(ResultObj(curRecord!!.node), true)
+        openAnotherNode(ResultObj(curRecord.value!!.node), true)
     }
 
     //endregion OpenAnotherObjects
@@ -452,7 +437,7 @@ class RecordViewModel(
             var errorCount = 0
             val savedImages: MutableList<TetroidImage> = ArrayList()
             for (uri in imageUris) {
-                val savedImage = imagesInteractor.saveImage(getContext(), curRecord, uri, deleteSrcFile)
+                val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, uri, deleteSrcFile)
                 if (savedImage != null) {
                     savedImages.add(savedImage)
                 } else {
@@ -472,14 +457,14 @@ class RecordViewModel(
 
     fun saveImage(imageUri: Uri?, deleteSrcFile: Boolean) {
         launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord, imageUri, deleteSrcFile)
+            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, imageUri, deleteSrcFile)
             saveImage(savedImage)
         }
     }
 
     fun saveImage(bitmap: Bitmap?) {
         launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord, bitmap)
+            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, bitmap)
             saveImage(savedImage)
         }
     }
@@ -539,9 +524,10 @@ class RecordViewModel(
      * @param uri
      */
     fun attachFile(uri: Uri?, deleteSrcFile: Boolean) {
-        val uriHelper = UriHelper(getContext())
+        UriHelper(getContext()).getPath(uri)?.let {
 //        AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri))
-        attachFile(uriHelper.getPath(uri), curRecord, deleteSrcFile)
+            attachFile(it, curRecord.value, deleteSrcFile)
+        }
     }
 
 //    /**
@@ -558,7 +544,7 @@ class RecordViewModel(
 //        }
 //    }
 
-    private fun attachFile(fileFullName: String?, record: TetroidRecord?, deleteSrcFile: Boolean) {
+    private fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
         postViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
         launch {
             withContext(Dispatchers.IO) {
@@ -603,7 +589,7 @@ class RecordViewModel(
      * Открытие списка прикрепленных файлов записи.
      */
     fun openRecordAttaches() {
-        openRecordAttaches(curRecord, true)
+        openRecordAttaches(curRecord.value, true)
     }
 
     //endregion Attach
@@ -628,7 +614,7 @@ class RecordViewModel(
         var runBeforeSaving = false
         if (isNeedSave
             && SettingsManager.isRecordAutoSave(getContext())
-            && !curRecord!!.isTemp) {
+            && !curRecord.value!!.isTemp) {
             // автоматически сохраняем текст записи, если:
             //  * есть изменения
             //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
@@ -667,9 +653,8 @@ class RecordViewModel(
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
     private fun onSaveRecord(showAskDialog: Boolean, obj: ResultObj?): Boolean {
-        // TODO: слушать изменение у WysiwygEditor
         if (isEdited) {
-            if (SettingsManager.isRecordAutoSave(getContext()) && !curRecord!!.isTemp) {
+            if (SettingsManager.isRecordAutoSave(getContext()) && !curRecord.value!!.isTemp) {
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
@@ -703,7 +688,7 @@ class RecordViewModel(
             postEvent(Constants.RecordEvents.BeforeSaving)
             return true
         } else {
-            if (curRecord!!.isTemp) {
+            if (curRecord.value!!.isTemp) {
                 if (isLoaded()) {
 //                    this.runOnUiThread(Runnable { editFields(obj) })
                     postEvent(Constants.RecordEvents.EditFields, obj)
@@ -731,12 +716,11 @@ class RecordViewModel(
      * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
      */
     fun save(htmlText: String) {
-        log(getString(R.string.log_before_record_save) + curRecord!!.id)
+        log(getString(R.string.log_before_record_save) + curRecord.value!!.id)
 //        val htmlText: String = mEditor.getDocumentHtml()
         //        String htmlText = (mCurMode == MODE_HTML)
 //                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
-        if (recordsInteractor.saveRecordHtmlText(getContext(), curRecord!!, htmlText)) {
-//            TetroidLog.logOperRes(LogObj.RECORD, LogOper.SAVE);
+        if (recordsInteractor.saveRecordHtmlText(getContext(), curRecord.value!!, htmlText)) {
             log(R.string.log_record_saved, true)
             // сбрасываем пометку изменения записи
             dropIsEdited()
@@ -752,7 +736,7 @@ class RecordViewModel(
     private fun updateEditedDate() {
         if (App.isFullVersion()) {
             val dateFormat = getString(R.string.full_date_format_string)
-            val edited = recordsInteractor.getEditedDate(getContext(), curRecord!!)
+            val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
 //            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
             val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
             postEvent(Constants.RecordEvents.EditedDateChanged, editedDate)
@@ -776,12 +760,12 @@ class RecordViewModel(
                 }
             ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
             ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
-            ResultObj.OPEN_FILE -> openRecordAttaches(curRecord, false)
+            ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
             ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
             ResultObj.NONE -> if (resObj.needReloadText) {
                 // перезагружаем baseUrl в WebView
 //                loadRecordText(mRecord, false)
-                loadRecordTextFromFile(curRecord!!)
+                loadRecordTextFromFile(curRecord.value!!)
             }
         }
     }
@@ -807,7 +791,7 @@ class RecordViewModel(
             } else if (startMainActivity) {
                 // запускаем главную активность, помещая результат
                 //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                if (curRecord!!.node != null) {
+                if (curRecord.value!!.node != null) {
 
 //                    finish()
                     postViewEvent(Constants.ViewEvents.FinishActivity)
@@ -827,7 +811,7 @@ class RecordViewModel(
     fun openRecordNodeInMainView() {
         val bundle = Bundle().apply {
             putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE)
-            putString(Constants.EXTRA_OBJECT_ID, curRecord!!.node.id)
+            putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.node.id)
         }
         val intent = Intent(getContext(), MainActivity::class.java).apply {
             putExtras(bundle)
@@ -877,7 +861,7 @@ class RecordViewModel(
 //        } else {
 //            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
 //        }
-        startInitStorage(false, !curRecord!!.isTemp)
+        startInitStorage(false, !curRecord.value!!.isTemp)
     }
 
     fun afterStorageLoaded() {
@@ -897,7 +881,7 @@ class RecordViewModel(
      * Открытие каталога записи.
      */
     fun openRecordFolder() {
-        if (!recordsInteractor.openRecordFolder(getContext(), curRecord!!)) {
+        if (!recordsInteractor.openRecordFolder(getContext(), curRecord.value!!)) {
             log(R.string.log_missing_file_manager, true)
         }
     }
@@ -915,7 +899,7 @@ class RecordViewModel(
         if (text.startsWith(except)) {
             text = text.substring(except.length)
         }
-        interactionInteractor.shareText(getContext(), curRecord!!.name, text)
+        interactionInteractor.shareText(getContext(), curRecord.value!!.name, text)
     }
 
     //endregion Interaction
@@ -924,7 +908,7 @@ class RecordViewModel(
      * Сохранение записи при любом скрытии активности.
      */
     fun onPause() {
-        if (!curRecord!!.isTemp) {
+        if (!curRecord.value!!.isTemp) {
             onSaveRecord(false, null)
         }
     }
@@ -959,7 +943,7 @@ class RecordViewModel(
      */
     fun deleteRecord() {
         val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, curRecord!!.id)
+        bundle.putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.id)
         postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_DELETE_RECORD, bundle))
     }
 
@@ -970,12 +954,12 @@ class RecordViewModel(
 
     fun editFields(obj: ResultObj?, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
         launch {
-            val wasTemp = curRecord!!.isTemp
-            if (recordsInteractor.editRecordFields(getContext(), curRecord, name, tags, author, url, node, isFavor)) {
+            val wasTemp = curRecord.value!!.isTemp
+            if (recordsInteractor.editRecordFields(getContext(), curRecord.value, name, tags, author, url, node, isFavor)) {
                 isFieldsEdited = true
                 setTitle(name)
 //                loadFields(mRecord)
-                postEvent(Constants.RecordEvents.LoadFields, curRecord)
+                postEvent(Constants.RecordEvents.LoadFields, curRecord.value)
                 if (wasTemp) {
                     // сохраняем текст записи
 //                    save();
@@ -1012,12 +996,14 @@ class RecordViewModel(
         }
     }
 
+    fun getUriToRecordFolder(record: TetroidRecord) = recordsInteractor.getUriToRecordFolder(record)
+
     /**
      * Отображение или скрытие панели свойств в зависимости от настроек.
      */
     fun isNeedExpandFields(): Boolean {
         return if (
-            curRecord!!.isNew
+            curRecord.value!!.isNew
             || isReceivedImages
             || SettingsManager.isRecordEditMode(getContext())
         ) {
@@ -1028,22 +1014,20 @@ class RecordViewModel(
                 getString(R.string.pref_show_record_fields_no) -> false
                 getString(R.string.pref_show_record_fields_yes) -> true
                 else -> {
-                    curRecord != null
-                            && (!TextUtils.isEmpty(curRecord!!.tagsString)
-                                || !TextUtils.isEmpty(curRecord!!.author)
-                                || !TextUtils.isEmpty(curRecord!!.url))
+                    curRecord.value != null
+                            && (!TextUtils.isEmpty(curRecord.value!!.tagsString)
+                                || !TextUtils.isEmpty(curRecord.value!!.author)
+                                || !TextUtils.isEmpty(curRecord.value!!.url))
                 }
             }
         }
     }
 
-    fun getUriToRecordFolder(record: TetroidRecord) = recordsInteractor.getUriToRecordFolder(getContext(), record)
-
     fun getRecordEditedDate(record: TetroidRecord) = recordsInteractor.getEditedDate(getContext(), record)
 
-    fun getRecordName() = curRecord?.name
+    fun getRecordName() = curRecord.value?.name
 
-    fun isRecordTemprorary() = curRecord?.isTemp ?: true
+    fun isRecordTemprorary() = curRecord.value?.isTemp ?: true
 
     fun isViewMode() = curMode == Constants.MODE_VIEW
 
