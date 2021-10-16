@@ -1,21 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.content.Context;
-import android.widget.Toast;
-
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.crypt.Base64;
-import com.gee12.mytetroid.data.crypt.Crypter;
-import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.views.dialogs.PassDialogs;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TaskStage;
-import com.gee12.mytetroid.logs.TetroidLog;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.utils.Utils;
-
 @Deprecated
 public class PassManager extends DataManager {
 

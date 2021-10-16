@@ -42,7 +42,7 @@ import com.gee12.mytetroid.viewmodels.ActivityResult;
 import com.gee12.mytetroid.viewmodels.RecordViewModel;
 import com.gee12.mytetroid.viewmodels.ResultObj;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
-import com.gee12.mytetroid.views.dialogs.RecordDialogs;
+import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -53,8 +53,8 @@ import com.gee12.mytetroid.views.ImgPicker;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
-import com.gee12.mytetroid.views.dialogs.RecordFieldsDialog;
-import com.gee12.mytetroid.views.dialogs.RecordInfoDialog;
+import com.gee12.mytetroid.views.dialogs.record.RecordFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.record.RecordInfoDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -366,7 +366,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     @Override
-    protected void onGUICreated() {
+    protected void onUICreated() {
     }
 
     @Override

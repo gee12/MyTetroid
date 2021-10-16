@@ -152,7 +152,7 @@ object Constants {
         DropEncryptNode,
 
         // nodes
-        ShowNode,
+        SetCurrentNode,
         NodeCreated,
         NodeInserted,
         NodeRenamed,
@@ -180,7 +180,6 @@ object Constants {
         AttachDeleted,
 
         // favorites
-        ShowFavorites,
         UpdateFavorites,
 
         // global search

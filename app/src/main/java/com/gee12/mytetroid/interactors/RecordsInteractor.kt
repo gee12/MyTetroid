@@ -940,7 +940,7 @@ class RecordsInteractor(
         return try {
             FileUtils.getFileSize(context, getPathToRecordFolder(record))
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_storage_folder_size_mask).format(ex.localizedMessage))
+            logger.logError(context.getString(R.string.error_get_record_folder_size_mask).format(ex.localizedMessage))
             null
         }
     }
@@ -953,7 +953,7 @@ class RecordsInteractor(
      */
     fun getUriToRecordFolder(record: TetroidRecord): String {
         val storageUri = if (record.isTemp) storageInteractor.getUriToStorageTrashFolder() else storageInteractor.getUriToStorageBaseFolder()
-        return "file://$storageUri$SEPAR${record.dirName}$SEPAR"
+        return "$storageUri$SEPAR${record.dirName}$SEPAR"
     }
 
     /**

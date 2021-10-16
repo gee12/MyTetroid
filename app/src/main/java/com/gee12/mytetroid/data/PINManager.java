@@ -1,15 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.content.Context;
-import android.widget.Toast;
-
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.views.dialogs.PassDialogs;
-import com.gee12.mytetroid.logs.LogManager;
-
 @Deprecated
 public class PINManager {
 //

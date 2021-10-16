@@ -77,10 +77,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, R.layout.fragment_main);
-//        View view = inflater.inflate(R.layout.fragment_main, container, false);
-
-//        this.viewModel = new ViewModelProvider(getActivity(), new StorageViewModelFactory(getActivity().getApplication()))
-//                .get(MainViewModel.class);
 
         this.viewFlipperMain = view.findViewById(R.id.view_flipper_main);
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
@@ -154,7 +150,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        viewModel.onMainPageCreated();
         ((MainActivity)getActivity()).onMainPageCreated();
     }
 
@@ -174,14 +169,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
             lvAttaches.setAdapter(listAdapterAttaches);
         }
     }
-
-//    /**
-//     * Вызывается после инициализации настроек.
-//     */
-//    public void onSettingsInited() {
-//        this.curRecordViewId = getDefaultRecordViewId();
-//        updateFab(curRecordViewId);
-//    }
 
     /**
      *
@@ -210,8 +197,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 title = ((viewModel.getCurRecord() != null) ? viewModel.getCurRecord().getName() : "");
                 break;
         }
-//        mMainView.updateMenuItems(viewId);
-//        mMainView.checkKeepScreenOn(viewId);
         viewModel.updateToolbar(viewId, title);
 
         if (viewFlipperMain != null) {
@@ -223,7 +208,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * Возврат фрагмента в первоначальное состояние.
      */
     public void clearView() {
-        showView(Constants.MAIN_VIEW_NONE);
+        viewModel.showMainView(Constants.MAIN_VIEW_NONE);
         lvRecords.setAdapter(null);
         lvAttaches.setAdapter(null);
         tvRecordsEmpty.setText(R.string.title_select_the_node);
@@ -238,7 +223,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param viewId
      */
     public void showRecords(List<TetroidRecord> records, int viewId) {
-        showView(viewId);
+        viewModel.showMainView(viewId);
         tvRecordsEmpty.setText((viewId == Constants.MAIN_VIEW_FAVORITES)
                 ? R.string.title_favors_is_missing : R.string.title_records_is_missing);
         showGlobalSearchButton(false);
@@ -252,8 +237,8 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     public void updateRecordList() {
         if (listAdapterRecords != null) {
             listAdapterRecords.notifyDataSetInvalidated();
-            // ?
-//            mListAdapterRecords.notifyDataSetChanged();
+            // FIXME?
+//            listAdapterRecords.notifyDataSetChanged();
         }
     }
 
@@ -331,7 +316,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param isUp
      */
     private void reorderRecord(int pos, boolean isUp) {
-        viewModel.reorderRecord(listAdapterRecords.getDataSet(), pos, isUp);
+        viewModel.reorderRecords(listAdapterRecords.getDataSet(), pos, isUp);
     }
 
     /**
@@ -344,7 +329,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 true,
                 viewModel.getCurNode(),
                 (name, tags, author, url, node, isFavor) -> {
-                    viewModel.createRecord(name, tags, author, url, node, isFavor);
+                    viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
                 }
         ).showIfPossible(getParentFragmentManager());
     }
@@ -360,7 +345,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     // region Attaches
 
     public void showAttaches(List<TetroidFile> files) {
-        showView(Constants.MAIN_VIEW_RECORD_FILES);
+        viewModel.showMainView(Constants.MAIN_VIEW_RECORD_FILES);
         this.listAdapterAttaches.reset(files);
         lvAttaches.setAdapter(listAdapterAttaches);
     }
@@ -384,8 +369,8 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private void openAttach(int position) {
-        TetroidFile file = viewModel.getCurRecord().getAttachedFiles().get(position);
-        viewModel.checkPermissionAndOpenAttach(file);
+        TetroidFile attach = viewModel.getCurRecord().getAttachedFiles().get(position);
+        viewModel.checkPermissionAndOpenAttach(attach);
     }
 
     /**
@@ -394,7 +379,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param isUp
      */
     private void reorderAttach(int pos, boolean isUp) {
-        viewModel.reorderAttach(listAdapterAttaches.getDataSet(), pos, isUp);
+        viewModel.reorderAttaches(listAdapterAttaches.getDataSet(), pos, isUp);
     }
 
     /**
@@ -431,6 +416,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         new AttachInfoDialog(
                 attach
         ).showIfPossible(getParentFragmentManager());
+    }
+
+    public void updateAttachesList() {
+        listAdapterAttaches.notifyDataSetChanged();
     }
 
     // endregion Attach

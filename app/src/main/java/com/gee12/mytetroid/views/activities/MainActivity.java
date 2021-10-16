@@ -65,13 +65,14 @@ import com.gee12.mytetroid.data.ScanManager;
 import com.gee12.mytetroid.data.SettingsManager;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
-import com.gee12.mytetroid.views.dialogs.FileDialogs;
-import com.gee12.mytetroid.views.dialogs.NodeDialogs;
-import com.gee12.mytetroid.views.dialogs.NodeFieldsDialog;
-import com.gee12.mytetroid.views.dialogs.NodeInfoDialog;
-import com.gee12.mytetroid.views.dialogs.PassDialogs;
-import com.gee12.mytetroid.views.dialogs.RecordDialogs;
-import com.gee12.mytetroid.views.dialogs.TagDialogs;
+import com.gee12.mytetroid.views.dialogs.attach.AttachAskDialogs;
+import com.gee12.mytetroid.views.dialogs.node.NodeDialogs;
+import com.gee12.mytetroid.views.dialogs.node.NodeFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.node.NodeInfoDialog;
+import com.gee12.mytetroid.views.dialogs.pass.PassDialogs;
+import com.gee12.mytetroid.views.dialogs.pin.PINCodeDialog;
+import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
+import com.gee12.mytetroid.views.dialogs.tag.TagFieldsDialog;
 import com.gee12.mytetroid.views.fragments.FoundPageFragment;
 import com.gee12.mytetroid.views.fragments.MainPageFragment;
 import com.gee12.mytetroid.model.FoundType;
@@ -131,8 +132,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     private boolean isActivityCreated;
     private int openedDrawerState;
 
-//    private MainViewModel viewModel;
-
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager broadcastManager;
 
@@ -157,9 +156,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getApplication()))
-//                .get(MainViewModel.class);
 
         // выдвигающиеся панели
         this.drawerLayout = findViewById(R.id.drawer_layout);
@@ -364,8 +360,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 break;
             case EmptyPassCheck: {
                 AskPasswordParams params = (AskPasswordParams) data;
-                PassDialogs.showEmptyPassCheckingFieldDialog(MainActivity.this, params.getFieldName(),
-                        viewModel.getEmptyPassCheckingFieldCallback(params));
+                PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
+                        MainActivity.this,
+                        params.getFieldName(),
+                        viewModel.getEmptyPassCheckingFieldCallback(params)
+                );
             } break;
             case AskPassword: {
                 if (data instanceof AskPasswordParams) {
@@ -422,15 +421,15 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             // crypt
             case EncryptNode: {
 //                Object callbackData = ((CallbackParam) data).getData();
-                encryptNode((TetroidNode) data);
+                viewModel.encryptNode((TetroidNode) data);
             } break;
             case DropEncryptNode: {
 //                Object callbackData = ((CallbackParam) data).getData();
-                dropEncryptNode((TetroidNode) data);
+                viewModel.dropEncryptNode((TetroidNode) data);
             } break;
 
             // nodes
-            case ShowNode:
+            case SetCurrentNode:
                 setCurNode((TetroidNode) data);
                 break;
             case NodeCreated:
@@ -450,6 +449,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 break;
             case NodeDeleted:
                 onDeleteNodeResult((TetroidNode) data, false);
+                break;
+            case UpdateNodes:
+                updateNodes();
                 break;
 
             // records
@@ -485,21 +487,18 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 ObjectsInView attaches = (ObjectsInView) data;
                 getMainPage().showAttaches(attaches.getObjects());
                 break;
-//            case ShowRecordAttaches:
-//                openRecordAttaches((TetroidRecord) data);
-//                break;
             case AttachesFiltered:
                 FilteredObjectsInView param3 = (FilteredObjectsInView) data;
                 getMainPage().onAttachesFiltered(param3.getQuery(), param3.getObjects());
                 break;
             case AttachDeleted:
-                getMainPage().onDeleteFileResult((TetroidFile) data);
+                getMainPage().onDeleteAttachResult((TetroidFile) data);
+                break;
+            case UpdateAttaches:
+                getMainPage().updateAttachesList();
                 break;
 
             // favorites
-            case ShowFavorites:
-                showFavorites();
-                break;
             case UpdateFavorites:
                 updateFavorites();
                 break;
@@ -532,14 +531,14 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                         viewModel.doOperationWithoutDir(clipboardParams);
                     });
                 } else if (clipboardParams.getObj() instanceof TetroidFile) {
-                    FileDialogs.renameAttachWithoutDir(this, () -> {
+                    AttachAskDialogs.renameAttachWithoutDir(this, () -> {
                         viewModel.doOperationWithoutDir(clipboardParams);
                     });
                 }
                 break;
             case AskForOperationWithoutFile:
                 ClipboardParams clipboardParams2 = (ClipboardParams) data;
-                FileDialogs.operWithoutFile(this, clipboardParams2.getOperation(), () -> {
+                AttachAskDialogs.operWithoutFile(this, clipboardParams2.getOperation(), () -> {
                     viewModel.doOperationWithoutFile(clipboardParams2);
                 });
                 break;
@@ -561,7 +560,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
                     // обработка внешнего изменения дерева записей
-//                    mOutsideChangingHandler.run(true);
                     viewModel.onStorageOutsideChanged();
                 }
             }
@@ -690,9 +688,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      *
      */
     @Override
-    protected void onGUICreated() {
+    protected void onUICreated() {
         // инициализация
-//        App.init(this);
         viewModel.initApp();
 //        getMainPage().onSettingsInited();
 
@@ -866,20 +863,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         });
     }
 
-    // TODO: почему нигде не используется ??
-//    private void initStorage(String storagePath) {
-//        // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
-//        boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnlyDef(this)
-//                || (DataManager.isLoaded() && DataManager.isFavoritesMode());
-//
-//        if (StorageManager.initStorage(this, storagePath)) {
-//            mDrawerLayout.openDrawer(Gravity.LEFT);
-//        } else {
-//            mDrawerLayout.openDrawer(Gravity.LEFT);
-//            initGUI(false, isFavorites, false);
-//        }
-//    }
-
     @Override
     public void afterStorageDecrypted(TetroidNode node) {
         updateNodes();
@@ -907,10 +890,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     //region Encryption
 
     private void showPasswordEnterDialog(AskPasswordParams params) {
-        PassDialogs.showPassEnterDialog(
-                this,
+        PassDialogs.INSTANCE.showPassEnterDialog(
                 params.getNode(),
                 false,
+                getSupportFragmentManager(),
                 viewModel.getPassInputHandler(params)
         );
     }
@@ -921,10 +904,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     private void showPasswordEnterDialog2(CallbackParam params) {
         boolean isNewPass = !viewModel.isCrypted();
         // FIXME: по-идее node уже не нужно.
-        PassDialogs.showPassEnterDialog(
-                this,
+        PassDialogs.INSTANCE.showPassEnterDialog(
                 null,
                 isNewPass,
+                getSupportFragmentManager(),
                 new PassDialogs.IPassInputResult() {
                     @Override
                     public void applyPass(String pass, TetroidNode node) {
@@ -939,14 +922,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     private void showPinCodeDialog() {
-//        PINManager.askPINCode(MainActivity.this, params.isNodeOpening(),
-//                viewModel.getPinCodeInputHandler(params));
         boolean isSetup = !viewModel.isCrypted();
-        PassDialogs.showPINCodeDialog(
-                this,
+        PINCodeDialog.Companion.showDialog(
                 SettingsManager.getPINCodeLength(this),
                 isSetup,
-                new PassDialogs.IPinInputResult() {
+                getSupportFragmentManager(),
+                new PINCodeDialog.IPinInputResult() {
                     @Override
                     public boolean onApply(String pin) {
                         return viewModel.startCheckPinCode(pin);
@@ -985,8 +966,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         viewModel.setCurNode(node);
         listAdapterNodes.setCurNode(node);
         listAdapterNodes.notifyDataSetChanged();
-        if (node != null && App.INSTANCE.isFullVersion()) {
-            setFavorIsCurNode(false);
+        if (App.INSTANCE.isFullVersion()) {
+            setFavorIsCurNode(node == FavoritesManager.FAVORITES_NODE);
         }
     }
 
@@ -1090,21 +1071,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
      */
     private void createNode(TetroidNode parentNode, int pos, boolean isSubNode) {
-//        NodeDialogs.createNodeDialog(this, null, false, (name, parNode) -> {
-//            TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
-//            viewModel.createNode(name, trueParentNode);
-////            TetroidNode node = viewModel.createNode(name, trueParentNode);
-////            if (node != null) {
-////                if (listAdapterNodes.addItem(pos, isSubNode)) {
-////                    TetroidLog.logOperRes(this, LogObj.NODE, LogOper.CREATE, node, false);
-////                } else {
-////                    viewModel.log(getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-////                }
-////            } else {
-////                TetroidLog.logOperErrorMore(this, LogObj.NODE, LogOper.CREATE);
-////            }
-//        });
-
         new NodeFieldsDialog(
                 null,
                 false,
@@ -1119,20 +1085,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * Создание ветки.
      */
     private void createNode() {
-//        NodeDialogs.createNodeDialog(this, null, true, (name, parentNode) -> {
-//            viewModel.createNode(name, parentNode);
-////            TetroidNode node = viewModel.createNode(name, parNode);
-////            if (node != null) {
-////                if (listAdapterNodes.addItem(parNode)) {
-////                    TetroidLog.logOperRes(this, LogObj.NODE, LogOper.CREATE, node, false);
-////                } else {
-////                    viewModel.log(getString(R.string.log_create_node_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG);
-////                }
-////            } else {
-////                TetroidLog.logOperErrorMore(this, LogObj.NODE, LogOper.CREATE);
-////            }
-//        });
-
         new NodeFieldsDialog(
                 null,
                 true,
@@ -1151,7 +1103,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     void showNodeInfoDialog(TetroidNode node) {
-//        NodeDialogs.createNodeInfoDialog(this, node);
         new NodeInfoDialog(
                 node
         ).showIfPossible(getSupportFragmentManager());
@@ -1175,10 +1126,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param node
      */
     private void renameNode(TetroidNode node) {
-//        NodeDialogs.createNodeDialog(this, node, false, (name, parNode) -> {
-//            viewModel.renameNode(node, name);
-//        });
-
         new NodeFieldsDialog(
                 node,
                 false,
@@ -1202,26 +1149,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         IconsActivity.startIconsActivity(this, node, Constants.REQUEST_CODE_NODE_ICON);
     }
 
-//    // VM
-//    private void setNodeIcon(String nodeId, String iconPath, boolean isDrop) {
-//        TetroidNode node = (mCurNode != null && mCurNode.getId() == nodeId) ? mCurNode
-//                : NodesManager.getNode(nodeId);
-//        if (NodesManager.setNodeIcon(this, node, iconPath, isDrop)) {
-//            viewModel.logOperRes(this, LogObj.NODE, LogOper.CHANGE);
-//            updateNodeList();
-//        } else {
-//            viewModel.logOperErrorMore(this, LogObj.NODE, LogOper.CHANGE);
-//        }
-//    }
-
     /**
      * Удаление ветки.
      * @param node
      */
     private void showDeleteNodeDialog(TetroidNode node) {
         NodeDialogs.deleteNode(this, node.getName(), () -> {
-//            boolean res = NodesManager.deleteNode(this, node);
-//            onDeleteNodeResult(node, res, false);
             viewModel.deleteNode(node);
         });
     }
@@ -1233,20 +1166,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         } else {
             viewModel.logError(getString(R.string.log_node_delete_list_error), true);
         }
-        // VM
-//        // обновляем label с количеством избранных записей
-//        if (App.isFullVersion()) {
-//            updateFavorites();
-//        }
-//        // убираем список записей удаляемой ветки
-//        if (mCurNode == node || isNodeInNode(mCurNode, node)) {
-//            getMainPage().clearView();
-//            this.mCurNode = null;
-//        }
-//        if (node.isCrypted()) {
-//            // проверяем существование зашифрованных веток
-//            checkExistenceCryptedNodes();
-//        }
     }
 
     /**
@@ -1255,6 +1174,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param pos  Позиция элемента в списке
      * @param isUp
      */
+    // TODO: перенести во ViewModel
     private void reorderNode(TetroidNode node, int pos, boolean isUp) {
         if (node == null)
             return;
@@ -1262,13 +1182,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         List<TetroidNode> subNodes = (parentNode != null) ? parentNode.getSubNodes() : viewModel.getRootNodes();
         if (subNodes.size() > 0) {
             int posInNode = subNodes.indexOf(node);
-            int res = viewModel.swapTetroidObjects(subNodes, posInNode, isUp, true);
+            int res = viewModel.swapNodes(subNodes, posInNode, isUp);
             if (res > 0) {
                 // меняем местами элементы внутри списка
                 int newPosInNode = (isUp) ?
                         (posInNode == 0) ? subNodes.size() - 1 : posInNode - 1
                         : (posInNode == subNodes.size() - 1) ? 0 : posInNode + 1;
-//                if (mListAdapterNodes.swapItems(pos, posInNode, (isUp) ? posInNode - 1 : posInNode + 1)) {
                 if (listAdapterNodes.swapItems(pos, posInNode, newPosInNode)) {
                     viewModel.logOperRes(LogObj.NODE, LogOper.REORDER);
                 } else {
@@ -1302,80 +1221,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         viewModel.logOperRes(LogObj.NODE, LogOper.COPY);
     }
 
-//    /**
-//     * Вырезание ветки из родительской ветки.
-//     * @param node
-//     */
-//    private void cutNode(TetroidNode node, int pos) {
-//        if (viewModel.getNodesInteractor().hasNonDecryptedNodes(node)) {
-//            Message.show(this, getString(R.string.log_enter_pass_first), Toast.LENGTH_LONG);
-//            return;
-//        }
-//        // добавляем в "буфер обмена"
-//        TetroidClipboard.cut(node);
-//        // удаляем ветку из родительской ветки вместе с записями
-//        boolean res = viewModel.cutNode(this, node);
-//        onDeleteNodeResult(node, res, pos, false);
-//    }
-
-    /**
-     * Вставка ветки.
-     * @param parentNode Родительская ветка
-     * @param pos        Позиция в списке родительской ветки
-     * @param isSubNode  Если true, значит как подветка, иначе рядом с выделенной веткой
-     */
-    private void insertNode(TetroidNode parentNode, int pos, boolean isSubNode) {
-        viewModel.insertNode(parentNode, isSubNode);
-    }
-
     private void onNodeInserted(TetroidNode node) {
-//        if (listAdapterNodes.addItem(pos, isSubNode)) {
         if (listAdapterNodes.addItem(node)) {
             viewModel.logOperRes(LogObj.NODE, LogOper.INSERT);
         } else {
             viewModel.logError(getString(R.string.log_create_node_list_error), true);
         }
-    }
-
-    /**
-     * Зашифровка ветки.
-     * @param node
-     */
-    private void encryptNode(TetroidNode node) {
-        if (node == viewModel.getQuicklyNode()) {
-            Message.show(this, getString(R.string.mes_quickly_node_cannot_encrypt));
-            return;
-        }
-//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
-        viewModel.checkStoragePass(new CallbackParam(Constants.MainEvents.EncryptNode, node)
-                /*new Dialogs.IApplyCancelResult() {
-            @Override
-            public void onApply() {
-//                mCurTask = new CryptNodeTask(node, true).run();
-                viewModel.encryptNode(node);
-            }
-            @Override
-            public void onCancel() {
-            }
-        }*/);
-    }
-
-    /**
-     * Сброс шифрования ветки.
-     * @param node
-     */
-    private void dropEncryptNode(TetroidNode node) {
-//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
-        viewModel.checkStoragePass(new CallbackParam(Constants.MainEvents.DropEncryptNode, node)
-                /*new Dialogs.IApplyCancelResult() {
-            @Override
-            public void onApply() {
-                viewModel.decryptNode(node);
-            }
-            @Override
-            public void onCancel() {
-            }
-        }*/);
     }
 
     /**
@@ -1390,45 +1241,25 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param param
      */
     private void showEmptyPassCheckingFieldDialog(EmptyPassCheckingFieldCallbackParam param) {
-        PassDialogs.showEmptyPassCheckingFieldDialog(this, param.getFieldName(), new Dialogs.IApplyCancelResult() {
-            @Override
-            public void onApply() {
-                viewModel.confirmEmptyPassCheckingFieldDialog(param);
-            }
-            @Override
-            public void onCancel() {
+        PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
+                this,
+                param.getFieldName(),
+                new Dialogs.IApplyCancelResult() {
+                    @Override
+                    public void onApply() {
+                        viewModel.confirmEmptyPassCheckingFieldDialog(param);
+                    }
 
-            }
-        });
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
     }
 
     // endregion Node
 
     // region Favorites
-
-    /**
-     * Отображение списка избранных записей.
-     */
-    private void showFavorites() {
-        // проверка нужно ли расшифровать ветку перед отображением
-        /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
-            // запрос пароля в асинхронном режиме
-            askPassword(FavoritesManager.FAVORITES_NODE);
-        } else*/
-//        {
-            // выделяем ветку Избранное, только если загружено не одно Избранное
-//            if (!App.IsLoadedFavoritesOnly) {
-            if (!viewModel.isLoadedFavoritesOnly()) {
-                setCurNode(null);
-                setFavorIsCurNode(true);
-            }
-            viewModel.showRecords(FavoritesManager.getFavoritesRecords(), Constants.MAIN_VIEW_FAVORITES, true);
-
-            // VM
-            // сохраняем выбранную ветку
-//            saveLastSelectedNode();
-//        }
-    }
 
     /**
      * Обновление ветки Избранное.
@@ -1444,7 +1275,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 (size > 0) ? R.color.colorBaseText : R.color.colorLightText));
         TextView favoritesCountView = findViewById(R.id.favorites_count);
         favoritesCountView.setText(String.format(Locale.getDefault(), "[%d]", size));
-
     }
 
     // endregion Favorites
@@ -1481,9 +1311,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param tag
      */
     private void renameTag(TetroidTag tag) {
-        TagDialogs.createTagDialog(this, tag, name -> {
-            viewModel.renameTag(tag, name);
-        });
+        new TagFieldsDialog(
+                tag,
+                (name) -> viewModel.renameTag(tag, name)
+        ).showIfPossible(getSupportFragmentManager());
     }
 
     /**
@@ -1552,13 +1383,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     // endregion Record
 
     // region Attaches
-
-//    @Override
-//    public void openRecordAttaches(TetroidRecord record) {
-//        viewModel.checkCurNode(record);
-//        getMainPage().showRecordAttaches(record, false);
-//        mViewPager.setCurrent(MainViewPager.PAGE_MAIN);
-//    }
 
     /**
      * Отрытие прикрепленного файла.
@@ -1673,10 +1497,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     copyNodeLink(node);
                     return true;
                 case R.id.action_encrypt_node:
-                    encryptNode(node);
+                    viewModel.startEncryptNode(node);
                     return true;
                 case R.id.action_no_encrypt_node:
-                    dropEncryptNode(node);
+                    viewModel.startDropEncryptNode(node);
                     return true;
                 case R.id.action_expand_node:
                     expandSubNodes(pos);
@@ -1694,10 +1518,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     viewModel.cutNode(node, pos);
                     return true;
                 case R.id.action_insert:
-                    insertNode(node, pos, false);
+                    viewModel.insertNode(node, false);
                     return true;
                 case R.id.action_insert_subnode:
-                    insertNode(node, pos, true);
+                    viewModel.insertNode(node, true);
                     return true;
                 case R.id.action_info:
                     showNodeInfoDialog(node);
@@ -1882,9 +1706,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 //                });
 //            } else
             if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)) {
-//                StorageManager.setStorageCallback(this);
-//                StorageManager.startInitStorage(this, this, false);
-
                 // TODO!!
                 int storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0);
                 viewModel.startInitStorage(storageId);
@@ -2153,7 +1974,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                         viewModel.loadAllNodes(false);
                     });
         } else {
-            IntentDialog.createDialog(this, isText, (receivedData) -> {
+            new IntentDialog(isText, (receivedData) -> {
                     if (receivedData.isCreate()) {
                         viewModel.createRecordFromIntent(intent, isText, text, imagesUri, receivedData);
                     } else {
@@ -2174,7 +1995,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     private void searchInTags(String query, boolean isSearch) {
         if (!viewModel.isLoaded()) {
-            onGUICreated();
+            onUICreated();
             return;
         }
         Map<String, TetroidTag> tags;
@@ -2205,8 +2026,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
         new SearchViewXListener(searchViewRecords) {
             @Override
-            public void onSearchClick() {
-            }
+            public void onSearchClick() {}
 
             @Override
             public void onQuerySubmit(String query) {
@@ -2527,9 +2347,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     private void askForExit() {
-        AskDialogs.showExitDialog(this, () -> {
-            onBeforeExit();
-        });
+        AskDialogs.showExitDialog(this, () -> onBeforeExit());
     }
 
     private void onBeforeExit() {

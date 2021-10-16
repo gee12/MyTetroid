@@ -20,8 +20,8 @@ import com.gee12.mytetroid.viewmodels.StoragesViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
-import com.gee12.mytetroid.views.dialogs.StorageDialogs
-import com.gee12.mytetroid.views.dialogs.StorageDialogs.StorageDialog
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import lib.folderpicker.FolderPicker
 import org.jsoup.internal.StringUtil
@@ -85,7 +85,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         })
     }
 
-    override fun onGUICreated() {}
+    override fun onUICreated() {}
 
     fun checkPermission() {
         if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
@@ -153,14 +153,16 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun showStorageDialog(storage: TetroidStorage?) {
-        storageDialog = StorageDialog(this, storage, object : StorageDialogs.IStorageResult {
+        storageDialog = StorageDialog(storage, object : StorageDialog.IStorageResult {
             override fun onApply(storage: TetroidStorage) {
                 viewModel.addStorage(storage)
             }
-            override fun onSelectPath(path: String?) {
-                selectStorageFolder(storage?.path ?: "")
+            override fun onSelectPath(path: String) {
+                selectStorageFolder(path)
             }
-        })
+        }).apply {
+            showIfPossible(supportFragmentManager)
+        }
     }
 
     private fun selectStorageFolder(path: String) {

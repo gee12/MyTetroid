@@ -49,6 +49,7 @@ public abstract class TetroidFragment<VM extends BaseStorageViewModel> extends F
     protected void initViewModel() {
         this.viewModel = new ViewModelProvider(getActivity(), new TetroidViewModelFactory(getActivity().getApplication()))
                 .get(getViewModelClazz());
+        viewModel.logDebug(getString(R.string.log_fragment_opened_mask, getClass().getSimpleName()));
     }
 
     @Override

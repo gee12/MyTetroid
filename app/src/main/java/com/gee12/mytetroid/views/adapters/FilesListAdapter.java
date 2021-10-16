@@ -80,10 +80,10 @@ public class FilesListAdapter extends BaseAdapter {
         viewHolder.nameView.setText(file.getName());
         // размер
         ImageView icon = convertView.findViewById(R.id.file_view_icon);
-        String fileSize = attachesInteractor.getAttachedFileSize(mContext, file);
-        if (fileSize != null) {
+        String sizeString = attachesInteractor.getAttachedFileSize(mContext, file);
+        if (sizeString != null) {
             icon.setImageResource(R.drawable.ic_file);
-            viewHolder.sizeView.setText(fileSize);
+            viewHolder.sizeView.setText(sizeString);
         } else {
             icon.setImageResource(R.drawable.ic_file_missing);
             viewHolder.sizeView.setText(R.string.title_file_is_missing);

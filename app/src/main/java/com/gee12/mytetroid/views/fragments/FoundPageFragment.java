@@ -28,8 +28,6 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
     private TextView tvEmpty;
     private int foundCount;
 
-//    private MainViewModel viewModel;
-
     @Override
     protected Class<MainViewModel> getViewModelClazz() {
         return MainViewModel.class;
@@ -46,10 +44,6 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, R.layout.fragment_found);
-//        View view = inflater.inflate(R.layout.fragment_found, container, false);
-
-//        this.viewModel = new ViewModelProvider(this, new StorageViewModelFactory(getActivity().getApplication()))
-//                .get(MainViewModel.class);
 
         // ?
 //        view.setOnTouchListener(this);

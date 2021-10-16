@@ -36,7 +36,7 @@ class NodesInteractor(
 
         // генерируем уникальные идентификаторы
         val id: String = dataInteractor.createUniqueId()
-        val crypted = parentNode != null && parentNode.isCrypted
+        val crypted = (parentNode != null && parentNode.isCrypted)
         val level = if (parentNode != null) parentNode.level + 1 else 0
         val node = TetroidNode(
             crypted, id,
@@ -51,7 +51,7 @@ class NodesInteractor(
             node.setIsDecrypted(true)
         }
         // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
-        val list = (if (parentNode != null) parentNode.subNodes else storageInteractor.getRootNodes()).toMutableList()
+        val list = (if (parentNode != null) parentNode.subNodes else storageInteractor.getRootNodes()) as MutableList<TetroidNode>
         list.add(node)
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
@@ -247,7 +247,7 @@ class NodesInteractor(
         logger.logOperStart(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE, node)
 
         // удаляем ветку из дерева
-        val parentNodes = (if (node.parentNode != null) node.parentNode.subNodes else storageInteractor.getRootNodes()).toMutableList()
+        val parentNodes = (if (node.parentNode != null) node.parentNode.subNodes else storageInteractor.getRootNodes()) as MutableList<TetroidNode>
         if (!parentNodes.remove(node)) {
             logger.logError(context.getString(R.string.log_not_found_node_id) + node.id)
             return false

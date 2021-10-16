@@ -1,32 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.widget.Toast;
-
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.PermissionManager;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.crypt.TetroidCrypter;
-import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.views.dialogs.AskDialogs;
-import com.gee12.mytetroid.views.dialogs.PassDialogs;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TetroidLog;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.FileUtils;
-import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.dialogs.StorageDialogs;
-
-import java.io.File;
-
-import lib.folderpicker.FolderPicker;
-
 @Deprecated
 public class StorageManager extends DataManager {
 

@@ -90,6 +90,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     protected void initViewModel() {
         this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
                 .get(getViewModelClazz());
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, getClass().getSimpleName()));
 
         viewModel.getViewEvent().observe(this, it -> onViewEvent(it.getState(), it.getData()));
         viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
@@ -120,7 +121,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
-    protected abstract void onGUICreated();
+    protected void onUICreated() {}
 
     /**
      *
@@ -274,7 +275,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
                 m.setOptionalIconsVisible(true);
             }
             // устанавливаем флаг, что стандартные элементы активности созданы
-            onGUICreated();
+            onUICreated();
         }
         this.isGUICreated = true;
         return true;

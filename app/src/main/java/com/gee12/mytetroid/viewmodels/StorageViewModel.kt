@@ -6,11 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import android.view.View
-import android.widget.TextView
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.*
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.App.init
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -28,10 +25,10 @@ import com.gee12.mytetroid.utils.UriUtils
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import com.gee12.mytetroid.views.dialogs.AskDialogs
-import com.gee12.mytetroid.views.dialogs.PassDialogs.IPassInputResult
+import com.gee12.mytetroid.views.dialogs.pass.PassDialogs.IPassInputResult
+import com.gee12.mytetroid.views.dialogs.pass.PassEnterDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -305,16 +302,16 @@ open class StorageViewModel/*<E>*/(
         logOperStart(LogObj.STORAGE, LogOper.LOAD)
 
         // FIXME: нужно выполнять в IO потоке, иначе событие TaskFinished не выполняется..
-        launch(Dispatchers.IO) {
+        launch {
             // перед загрузкой
             val stringResId = if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
-            postViewEvent(Constants.ViewEvents.TaskStarted, stringResId)
+            setViewEvent(Constants.ViewEvents.TaskStarted, stringResId)
 
             // непосредственное чтение структуры хранилища
             val result = readStorage(isDecrypt, isFavoritesOnly)
 
             // после загрузки
-            postViewEvent(Constants.ViewEvents.TaskFinished)
+            setViewEvent(Constants.ViewEvents.TaskFinished)
 
             if (result) {
                 val mes = getString(
@@ -336,9 +333,9 @@ open class StorageViewModel/*<E>*/(
                 result = result
             )
             // инициализация контролов
-            postViewEvent(Constants.ViewEvents.InitGUI, params)
+            setViewEvent(Constants.ViewEvents.InitGUI, params)
             // действия после загрузки хранилища
-            postStorageEvent(Constants.StorageEvents.Loaded, result)
+            setStorageEvent(Constants.StorageEvents.Loaded, result)
         }
     }
 
@@ -519,7 +516,7 @@ open class StorageViewModel/*<E>*/(
     }
 
     fun getPassInputHandler(params: AskPasswordParams) = object : IPassInputResult {
-        override fun applyPass(pass: String, node: TetroidNode) {
+        override fun applyPass(pass: String, node: TetroidNode?) {
             // подтверждение введенного пароля
             checkPass(pass, { res: Boolean ->
                 launch {
@@ -840,9 +837,8 @@ open class StorageViewModel/*<E>*/(
 
     //region Other
 
-    fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
-        // FIXME: костыль с runBlocking(), чтобы не переделывать и вернуть результат
-        return runBlocking(Dispatchers.IO) { dataInteractor.swapTetroidObjects(getContext(), list, pos, isUp, through) }
+    suspend fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
+        return withContext(Dispatchers.IO) { dataInteractor.swapTetroidObjects(getContext(), list, pos, isUp, through) }
     }
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()

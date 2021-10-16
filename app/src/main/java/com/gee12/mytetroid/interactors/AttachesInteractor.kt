@@ -55,7 +55,7 @@ class AttachesInteractor(
             return false
         }
         //
-        logger.log(context.getString(R.string.log_open_file) + fullFileName)
+        logger.log(context.getString(R.string.log_open_file) + fullFileName, false)
         if (!srcFile.exists()) {
             logger.logError(context.getString(R.string.log_file_is_absent) + fullFileName, true)
             return false
@@ -429,9 +429,15 @@ class AttachesInteractor(
      * @param attach
      * @return
      */
-    fun getAttachedFileSize(context: Context, attach: TetroidFile): String {
-        return FileUtils.getFileSize(context, getAttachFullName(context, attach))
+    fun getAttachedFileSize(context: Context, attach: TetroidFile): String? {
+        return try {
+            FileUtils.getFileSize(context, getAttachFullName(context, attach))
+        } catch (ex: Exception) {
+            logger.logError(context.getString(R.string.error_get_attach_file_size_mask).format(ex.localizedMessage))
+            null
+        }
     }
+
 
     /**
      * Получение даты последнего изменения файла.

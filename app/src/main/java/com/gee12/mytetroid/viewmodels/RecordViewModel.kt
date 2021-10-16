@@ -35,6 +35,9 @@ import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
+import android.R.attr.name
+import androidx.annotation.MainThread
+
 
 class RecordViewModel(
     app: Application,
@@ -51,11 +54,6 @@ class RecordViewModel(
     private val imagesInteractor = ImagesInteractor(logger, dataInteractor, recordsInteractor)
 
     var curRecord = MutableLiveData<TetroidRecord>()
-//        set(value) {
-//            curRecord = value.value
-//            field = value
-//        }
-//    var curRecord: TetroidRecord? = null
     var curMode = 0
     var isFirstLoad = true
     var isFieldsEdited = false
@@ -752,20 +750,22 @@ class RecordViewModel(
         if (resObj == null) {
             resObj = ResultObj(null)
         }
-        when (resObj.type) {
-            ResultObj.EXIT,
-            ResultObj.START_MAIN_ACTIVITY ->
-                if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
-                    postViewEvent(Constants.ViewEvents.FinishActivity)
-                }
-            ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
-            ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
-            ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
-            ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
-            ResultObj.NONE -> if (resObj.needReloadText) {
-                // перезагружаем baseUrl в WebView
+        launch {
+            when (resObj.type) {
+                ResultObj.EXIT,
+                ResultObj.START_MAIN_ACTIVITY ->
+                    if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
+                        postViewEvent(Constants.ViewEvents.FinishActivity)
+                    }
+                ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
+                ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
+                ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
+                ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
+                ResultObj.NONE -> if (resObj.needReloadText) {
+                    // перезагружаем baseUrl в WebView
 //                loadRecordText(mRecord, false)
-                loadRecordTextFromFile(curRecord.value!!)
+                    loadRecordTextFromFile(curRecord.value!!)
+                }
             }
         }
     }
@@ -777,32 +777,33 @@ class RecordViewModel(
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
+    @MainThread
     private fun onRecordFieldsIsEdited(startMainActivity: Boolean): Boolean {
         if (isFieldsEdited) {
+            when {
 //                ActivityCompat.getReferrer()
-            if (isFromAnotherActivity) {
-                // закрываем активность, возвращая результат:
-                // указываем родительской активности, что нужно обновить список записей
-                val intent = Intent()
-                intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
-                //            intent.setAction(ACTION_ADD_RECORD);
-//                setResult(Activity.RESULT_OK, intent)
-                postViewEvent(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
-            } else if (startMainActivity) {
-                // запускаем главную активность, помещая результат
-                //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                if (curRecord.value!!.node != null) {
-
-//                    finish()
-                    postViewEvent(Constants.ViewEvents.FinishActivity)
-                } else {
-                    Message.show(getContext(), getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG)
+                isFromAnotherActivity -> {
+                    // закрываем активность, возвращая результат:
+                    // указываем родительской активности, что нужно обновить список записей
+                    val intent = Intent()
+                    intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
+                    setViewEvent(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
                 }
-                return true
-            } else {
-//                finish()
-                postViewEvent(Constants.ViewEvents.FinishActivity)
-                return true
+                startMainActivity -> {
+                    // запускаем главную активность, помещая результат
+//                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
+                    if (curRecord.value!!.node != null) {
+                        openRecordNodeInMainView();
+                        setViewEvent(Constants.ViewEvents.FinishActivity)
+                    } else {
+                        Message.show(getContext(), getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG)
+                    }
+                    return true
+                }
+                else -> {
+                    setViewEvent(Constants.ViewEvents.FinishActivity)
+                    return true
+                }
             }
         }
         return false
@@ -817,10 +818,7 @@ class RecordViewModel(
             putExtras(bundle)
             action = Constants.ACTION_RECORD
         }
-//        ViewUtils.startActivity(
-//            this,
-//            MainActivity::class.java, bundle, Constants.ACTION_RECORD, 0, null
-//        )
+//        ViewUtils.startActivity(this, MainActivity::class.java, bundle, Constants.ACTION_RECORD, 0, null)
         postViewEvent(Constants.ViewEvents.StartActivity, intent)
     }
 
