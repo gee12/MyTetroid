@@ -1,41 +1,47 @@
-package com.gee12.mytetroid.views.dialogs;
+package com.gee12.mytetroid.views.dialogs
 
-import android.content.Context;
-import android.widget.ListView;
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ListView
+import androidx.appcompat.app.AlertDialog
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.model.ReceivedData
+import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.views.adapters.IntentsAdapter
 
-import androidx.appcompat.app.AlertDialog;
+/**
+ * Диалог со списком вариантов обработки переданного объекта.
+ */
+class IntentDialog(
+    private val isText: Boolean,
+    private val callback: IItemClickListener
+) : TetroidDialogFragment<StorageViewModel>() {
 
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.views.adapters.IntentsAdapter;
-import com.gee12.mytetroid.model.ReceivedData;
-
-@Deprecated
-public class IntentDialog {
-
-    public interface IItemClickListener {
-        void onItemClick(ReceivedData item);
+    interface IItemClickListener {
+        fun onItemClick(item: ReceivedData)
     }
 
-    /**
-     * TODO: Перенести в DialogFragment.
-     * Диалог со списком вариантов обработки переданного объекта.
-     * @param context
-     * @param isText
-     * @param listener
-     */
-    public static void createDialog(Context context, boolean isText, IItemClickListener listener) {
-        Dialogs.AskDialogBuilder builder = Dialogs.AskDialogBuilder.create(context, R.layout.dialog_list_view);
-//        builder.setTitle("Выберите действие");
-        final AlertDialog dialog = builder.create();
+    override fun getRequiredTag() = TAG
 
-        ListView listView = builder.getView().findViewById(R.id.list_view);
-        ReceivedData[] dataSet = (isText) ? ReceivedData.textIntents() : ReceivedData.imageIntents();
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            listener.onItemClick(dataSet[position]);
-            dialog.cancel();
-        });
-        listView.setAdapter(new IntentsAdapter(context, dataSet));
-        dialog.show();
+    override fun isPossibleToShow() = true
+
+    override fun getViewModelClazz() = StorageViewModel::class.java
+
+    override fun getLayoutResourceId() = R.layout.dialog_list_view
+
+    override fun onDialogCreated(dialog: AlertDialog, view: View) {
+//        builder.setTitle("Выберите действие");
+        val listView = view.findViewById<ListView>(R.id.list_view)
+        val dataSet = if (isText) ReceivedData.textIntents() else ReceivedData.imageIntents()
+        listView.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+            callback.onItemClick(dataSet[position])
+            dialog.cancel()
+        }
+        listView.adapter = IntentsAdapter(context, dataSet)
+    }
+
+    companion object {
+        const val TAG = "IntentDialog"
     }
 }

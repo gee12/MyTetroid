@@ -14,13 +14,16 @@ import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.SettingsManager
-import com.gee12.mytetroid.views.dialogs.PassDialogs
+import com.gee12.mytetroid.views.dialogs.pass.PassDialogs
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.CallbackParam
 import com.gee12.mytetroid.viewmodels.StorageEncryptionViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.SettingsActivity
+import com.gee12.mytetroid.views.dialogs.pass.PassChangeDialog
+import com.gee12.mytetroid.views.dialogs.pin.PINCodeDialog
+import com.gee12.mytetroid.views.dialogs.pin.PinCodeLengthDialog
 
 class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
@@ -104,14 +107,17 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
     private fun showSetupPinCodeDialog() {
         // задаем длину ПИН-кода
-        PassDialogs.showPinCodeLengthDialog(context, SettingsManager.getPINCodeLength(context),
-            object : PassDialogs.IPinLengthInputResult {
+        PinCodeLengthDialog(SettingsManager.getPINCodeLength(context),
+            object : PinCodeLengthDialog.IPinLengthInputResult {
                 override fun onApply(length: Int) {
                     viewModel.setupPinCodeLength(length)
 
                     // задаем новый ПИН-код
-                    PassDialogs.showPINCodeDialog(context, length, true,
-                        object : PassDialogs.IPinInputResult {
+                    PINCodeDialog.showDialog(
+                        length = length,
+                        isSetup = true,
+                        fragmentManager = parentFragmentManager,
+                        callback = object : PINCodeDialog.IPinInputResult {
                             override fun onApply(pin: String): Boolean {
                                 viewModel.setupPinCode(pin)
                                 return true
@@ -127,8 +133,11 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
 
     private fun showDropPinCodeDialog() {
         // сбрасываем имеющийся ПИН-код, предварительнго его запросив
-        PassDialogs.showPINCodeDialog(context, SettingsManager.getPINCodeLength(context), false,
-            object : PassDialogs.IPinInputResult {
+        PINCodeDialog.showDialog(
+            length = SettingsManager.getPINCodeLength(context),
+            isSetup = false,
+            fragmentManager = parentFragmentManager,
+            callback = object : PINCodeDialog.IPinInputResult {
                 override fun onApply(pin: String): Boolean {
                     // зашифровываем введеный пароль перед сравнением
                     return viewModel.checkAndDropPinCode(pin)
@@ -207,7 +216,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     fun changePass() {
         viewModel.log(R.string.log_start_pass_change)
         // вводим пароли (с проверкой на пустоту и равенство)
-        PassDialogs.showPassChangeDialog(context, object : PassDialogs.IPassChangeResult {
+        PassChangeDialog(object : PassChangeDialog.IPassChangeResult {
             override fun applyPass(curPass: String?, newPass: String?): Boolean {
                 return viewModel.checkPass(curPass, { res: Boolean ->
                     if (res) {
@@ -216,7 +225,7 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
                     }
                 }, R.string.log_cur_pass_is_incorrect)
             }
-        })
+        }).showIfPossible(parentFragmentManager)
 
     }
 
@@ -226,13 +235,17 @@ class StorageEncryptionSettingsFragment : TetroidSettingsFragment() {
     fun setupPass() {
         viewModel.log(R.string.log_start_pass_setup)
         // вводим пароль
-        PassDialogs.showPassEnterDialog(context, null, true, object : PassDialogs.IPassInputResult {
-            override fun applyPass(pass: String, node: TetroidNode) {
-                viewModel.setupPass(pass)
-            }
+        PassDialogs.showPassEnterDialog(
+            node = null,
+            isNewPass = true,
+            fragmentManager = parentFragmentManager,
+            passResult = object : PassDialogs.IPassInputResult {
+                override fun applyPass(pass: String, node: TetroidNode?) {
+                    viewModel.setupPass(pass)
+                }
 
-            override fun cancelPass() {}
-        })
+                override fun cancelPass() {}
+            })
     }
 
     private val settingsActivity: SettingsActivity?

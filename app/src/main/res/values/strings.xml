@@ -421,6 +421,7 @@
     <string name="label_new_pass">New password:</string>
     <string name="label_confirm_pass">Confirm:</string>
     <string name="label_crypted">Crypted:</string>
+    <string name="label_attach_crypted">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
     <string name="label_path">Read only</string>
     <string name="label_read_only">Read only (not implemented yet)</string>
@@ -743,7 +744,11 @@
     <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
     <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
     <string name="error_get_record_folder_size_mask">Error getting record folder size: %s</string>
+    <string name="error_get_attach_file_size_mask">Error getting file size: %s</string>
     <string name="error_get_mytetra_xml_modified_date_mask">Error getting mytetra.xml last modified date: %s</string>
     <string name="error_get_record_modified_date_mask">Error getting record last modified date: %s</string>
     <string name="title_error">Error</string>
+    <string name="log_activity_opened_mask">Activity opened: %s</string>
+    <string name="log_fragment_opened_mask">Fragment opened: %s</string>
+    <string name="log_dialog_opened_mask">Dialog opened: %s</string>
 </resources>

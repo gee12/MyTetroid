@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views.dialogs
+package com.gee12.mytetroid.views.dialogs.node
 
 import android.os.Bundle
 import android.text.TextUtils
@@ -6,15 +6,14 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.ViewModelProvider
-import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ScanManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
 import com.gee12.mytetroid.views.adapters.NodesListAdapter.OnNodeHeaderClickListener
+import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import pl.openrnd.multilevellistview.MultiLevelListView
 
 /**
@@ -26,7 +25,7 @@ class NodeChooserDialog(
     val canDecrypted: Boolean,
     val rootOnly: Boolean,
     val callback: IResult
-) : TetroidDialogFragment() {
+) : TetroidDialogFragment<StorageViewModel>() {
 
     interface IResult {
         fun onApply(node: TetroidNode?)
@@ -42,14 +41,15 @@ class NodeChooserDialog(
         var selectedNode: TetroidNode? = null
     }
 
-    private lateinit var viewModel: StorageViewModel
     private lateinit var adapter: NodesListAdapter
     private lateinit var searchView: SearchView
 
 
     override fun getRequiredTag() = TAG
 
-    override fun isPossibleToShow(): Boolean {
+    override fun isPossibleToShow() = true
+
+    fun isStorageLoaded(): Boolean {
         // проверяем загружено ли хранилище
         if (!viewModel.isLoaded()) {
             callback.onProblem(IResult.LOAD_STORAGE)
@@ -63,32 +63,47 @@ class NodeChooserDialog(
         return true
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
-            .get(StorageViewModel::class.java)
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
-        val builder = AskDialogBuilder.create(context, R.layout.dialog_nodes)
-        builder.setTitle(R.string.title_choose_node)
+    override fun getLayoutResourceId() = R.layout.dialog_nodes
+
+    override fun onDialogCreated(dialog: AlertDialog, view: View) {
+        dialog.setTitle(R.string.title_choose_node)
 
         adapter = NodesListAdapter(context, null)
         // обработчик результата
-        builder.setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(adapter.curNode) }
-        builder.setNegativeButton(R.string.answer_cancel, null)
+        setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(adapter.curNode) }
+        setNegativeButton(R.string.answer_cancel, null)
+    }
 
-        val dialog = builder.create()
+    override fun initViewModel() {
+        super.initViewModel()
+        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
+        viewModel.initStorageFromLastStorageId()
+    }
 
-        val view = builder.view
+    private fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
+        when (event) {
+            Constants.StorageEvents.Inited -> initView()
+        }
+    }
 
+    private fun initView() {
+        // проверяем уже после загрузки хранилища
+        if (!isStorageLoaded()) {
+            dismiss()
+            return
+        }
         // уведомление
 //        TextView tvNoticeTop = view.findViewById(R.id.text_view_notice_top);
-        val tvNoticeBottom = view.findViewById<TextView>(R.id.text_view_notice_bottom)
+        val tvNoticeBottom = dialogView.findViewById<TextView>(R.id.text_view_notice_bottom)
 
         // список веток
-        val listView: MultiLevelListView = view.findViewById(R.id.list_view_nodes)
+        val listView = dialogView.findViewById<MultiLevelListView>(R.id.list_view_nodes)
         adapter.curNode = node
         adapter.setNodeHeaderClickListener(object : OnNodeHeaderClickListener {
             private fun onSelectNode(node: TetroidNode) {
-                val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                val okButton = getPositiveButton()
                 val crypted = !canCrypted && node.isCrypted && !node.isDecrypted
                 val decrypted = !canDecrypted && node.isCrypted && node.isDecrypted
                 val notRoot = rootOnly && node.level > 0
@@ -103,12 +118,12 @@ class NodeChooserDialog(
                     if (notRoot) {
                         mes = (if (mes == null) "" else mes + "\n") + getString(R.string.mes_select_first_level_node)
                     }
-                    tvNoticeBottom.text = mes
-                    tvNoticeBottom.visibility = View.VISIBLE
-                    okButton.isEnabled = false
+                    tvNoticeBottom?.text = mes
+                    tvNoticeBottom?.visibility = View.VISIBLE
+                    okButton?.isEnabled = false
                 } else {
-                    tvNoticeBottom.visibility = View.GONE
-                    okButton.isEnabled = true
+                    tvNoticeBottom?.visibility = View.GONE
+                    okButton?.isEnabled = true
                 }
                 adapter.curNode = node
                 adapter.notifyDataSetChanged()
@@ -123,25 +138,25 @@ class NodeChooserDialog(
                 return true
             }
         })
-        listView.setAdapter(adapter)
+        listView?.setAdapter(adapter)
 
         // строка поиска
-        val tvEmpty = view.findViewById<TextView>(R.id.nodes_text_view_empty)
-        searchView = view.findViewById<SearchView>(R.id.search_view_nodes)
+        val tvEmpty = dialogView.findViewById<TextView>(R.id.nodes_text_view_empty)
+        searchView = dialogView.findViewById(R.id.search_view_nodes) ?: return
         searchView.isIconified = false
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             private fun searchNodes(query: String) {
                 if (TextUtils.isEmpty(query)) {
                     adapter.setDataItems(viewModel.getRootNodes())
-                    tvEmpty.visibility = View.GONE
+                    tvEmpty?.visibility = View.GONE
                 } else {
                     val found = ScanManager.searchInNodesNames(viewModel.getRootNodes(), query)
                     adapter.setDataItems(found)
                     if (found.isEmpty()) {
-                        tvEmpty.visibility = View.VISIBLE
-                        tvEmpty.text = String.format(getString(R.string.search_nodes_not_found_mask), query)
+                        tvEmpty?.visibility = View.VISIBLE
+                        tvEmpty?.text = String.format(getString(R.string.search_nodes_not_found_mask), query)
                     } else {
-                        tvEmpty.visibility = View.GONE
+                        tvEmpty?.visibility = View.GONE
                     }
                 }
             }
@@ -167,21 +182,15 @@ class NodeChooserDialog(
         // загружаем список веток
         adapter.setDataItems(viewModel.getRootNodes())
 
-        return builder.create()
+        showKeyboard()
     }
 
-    // FIXME: возможно нужно onStart()
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // получаем okButton тут отдельно после вызова show()
-        val okButton = (dialog as? AlertDialog)?.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton?.isEnabled = adapter.curNode != null
-
-        searchView.clearFocus()
+    override fun onDialogShowed(dialog: AlertDialog, view: View) {
+        getPositiveButton()?.isEnabled = adapter.curNode != null
     }
 
     companion object {
         const val TAG = "NodeChooserDialog"
     }
+
 }

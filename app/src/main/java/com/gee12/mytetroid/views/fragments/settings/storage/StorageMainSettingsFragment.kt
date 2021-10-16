@@ -16,9 +16,9 @@ import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
 import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.AskDialogs
-import com.gee12.mytetroid.views.dialogs.NodeChooserDialog
-import com.gee12.mytetroid.views.dialogs.NodeDialogs.INodeChooserResult
-import com.gee12.mytetroid.views.dialogs.StorageDialogs
+import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
+import com.gee12.mytetroid.views.dialogs.node.NodeDialogs.INodeChooserResult
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import lib.folderpicker.FolderPicker
 import org.jsoup.internal.StringUtil

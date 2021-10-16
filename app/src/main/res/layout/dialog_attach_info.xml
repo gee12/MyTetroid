@@ -29,7 +29,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_crypted"
+            android:text="@string/label_attach_crypted"
             style="@style/grid_cell_label"/>
 
         <TextView

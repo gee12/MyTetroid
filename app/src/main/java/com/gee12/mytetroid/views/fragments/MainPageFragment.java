@@ -28,16 +28,17 @@ import com.gee12.mytetroid.views.activities.MainActivity;
 import com.gee12.mytetroid.views.adapters.FilesListAdapter;
 import com.gee12.mytetroid.views.adapters.RecordsListAdapter;
 import com.gee12.mytetroid.data.TetroidClipboard;
-import com.gee12.mytetroid.views.dialogs.AttachDialogs;
-import com.gee12.mytetroid.views.dialogs.AttachInfoDialog;
-import com.gee12.mytetroid.views.dialogs.FileDialogs;
-import com.gee12.mytetroid.views.dialogs.RecordDialogs;
+import com.gee12.mytetroid.views.dialogs.attach.AttachFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.attach.AttachFileByURLDialog;
+import com.gee12.mytetroid.views.dialogs.attach.AttachInfoDialog;
+import com.gee12.mytetroid.views.dialogs.attach.AttachAskDialogs;
+import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.gee12.mytetroid.views.dialogs.RecordFieldsDialog;
-import com.gee12.mytetroid.views.dialogs.RecordInfoDialog;
+import com.gee12.mytetroid.views.dialogs.record.RecordFieldsDialog;
+import com.gee12.mytetroid.views.dialogs.record.RecordInfoDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
@@ -134,14 +135,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         com.github.clans.fab.FloatingActionButton fabAttachFileByLink = view.findViewById(R.id.fab_attach_file_by_link);
         fabAttachFileByLink.setOnClickListener(v -> {
             fabAddAttach.close(true);
-            AttachDialogs.createAttachFileByURLDialog(getContext(), url -> viewModel.downloadAndAttachFile(url));
+            new AttachFileByURLDialog(
+                    url -> viewModel.downloadAndAttachFile(url)
+            ).showIfPossible(getParentFragmentManager());
         });
-
-        // можно загружать настройки и хранилище
-        // FIXME: observer в MainActivity еще по ходу не готов принимать события
-//        viewModel.onMainPageCreated();
-//        ((MainActivity)getActivity()).onMainPageCreated();
-
 
         return view;
     }
@@ -384,35 +381,35 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
 
     /**
      * Удаление прикрепленного файла.
-     * @param file
+     * @param attach
      */
-    private void deleteAttach(@NotNull TetroidFile file) {
-        FileDialogs.deleteFile(context, file.getName(), () -> {
-            viewModel.deleteAttach(file);
+    private void deleteAttach(@NotNull TetroidFile attach) {
+        AttachAskDialogs.deleteFile(context, attach.getName(), () -> {
+            viewModel.deleteAttach(attach);
         });
     }
 
     /**
      * Обработка результата удаления файла.
-     * @param file
+     * @param attach
      */
-    public void onDeleteFileResult(TetroidFile  file) {
-        listAdapterAttaches.getDataSet().remove(file);
-        listAdapterAttaches.notifyDataSetChanged();
+    public void onDeleteAttachResult(TetroidFile  attach) {
+        listAdapterAttaches.getDataSet().remove(attach);
+        updateAttachesList();
     }
 
     /**
      * Переименование прикрепленного файла.
-     * @param file
+     * @param attach
      */
-    private void renameAttach(TetroidFile file) {
-        FileDialogs.createFileDialog(context, file, (name) -> {
-            viewModel.renameAttach(file, name);
-        });
+    private void renameAttach(TetroidFile attach) {
+        new AttachFieldsDialog(
+                attach,
+                (name) -> viewModel.renameAttach(attach, name)
+        ).showIfPossible(getParentFragmentManager());
     }
 
     void showAttachInfoDialog(TetroidFile attach) {
-//        AttachDialogs.createAttachInfoDialog(context, attach);
         new AttachInfoDialog(
                 attach
         ).showIfPossible(getParentFragmentManager());

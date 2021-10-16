@@ -10,7 +10,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.SettingsManager
 import lib.folderpicker.FolderPicker
-import com.gee12.mytetroid.views.dialogs.StorageDialogs
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.views.Message
 import org.jsoup.internal.StringUtil
@@ -120,7 +120,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         if (resultCode != Activity.RESULT_OK) return
 
         val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
-        //        String folderPath = new UriUtils(getContext()).getPath(data.getData());
+//        String folderPath = new UriUtils(getContext()).getPath(data.getData());
         /*boolean isCreate = requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH;
         if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH || isCreate) {
             // уведомляем об изменении каталога, если он действительно изменился, либо если создаем

@@ -18,3 +18,7 @@ fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
         }
     })
 }
+
+fun EditText.setSelectionAtEnd() {
+    setSelection(text.length)
+}

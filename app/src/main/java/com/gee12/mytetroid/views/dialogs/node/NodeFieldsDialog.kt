@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.views.dialogs
+package com.gee12.mytetroid.views.dialogs.node
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -7,32 +7,31 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.ViewModelProvider
-import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
+import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
+import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.Message
+import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Диалог создания/изменения ветки.
  */
 class NodeFieldsDialog(
-    val node: TetroidNode?,
-    val chooseParent: Boolean,
-    val callback: IResult
-) : TetroidDialogFragment() {
+    private val node: TetroidNode?,
+    private val chooseParent: Boolean,
+    private val callback: IResult
+) : TetroidDialogFragment<StorageViewModel>() {
 
     interface IResult {
         fun onApply(name: String, parent: TetroidNode)
     }
-
-    private lateinit var viewModel: StorageViewModel
 
     private lateinit var etName: EditText
 
@@ -41,21 +40,19 @@ class NodeFieldsDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
-            .get(StorageViewModel::class.java)
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
-        val builder = AskDialogBuilder.create(context, R.layout.dialog_node)
+    override fun getLayoutResourceId() = R.layout.dialog_node
 
-        val view = builder.view
-        etName = view.findViewById<EditText>(R.id.edit_text_name)
+    override fun onDialogCreated(dialog: AlertDialog, view: View) {
+        etName = view.findViewById(R.id.edit_text_name)
         val nodeLayout = view.findViewById<RelativeLayout>(R.id.layout_node)
         val etNode = view.findViewById<EditText>(R.id.edit_text_node)
         val bNode = view.findViewById<ImageButton>(R.id.button_node)
 
         if (BuildConfig.DEBUG && node == null) {
             val rand = Random()
-            val num = Math.abs(rand.nextInt())
+            val num = abs(rand.nextInt())
             etName.setText("node $num")
         }
 
@@ -68,7 +65,7 @@ class NodeFieldsDialog(
         } else {
             TetroidXml.ROOT_NODE
         }
-        //: NodesManager.getQuicklyNode();
+
         //: NodesManager.getQuicklyNode();
         if (chooseParent) {
             nodeLayout.visibility = View.VISIBLE
@@ -78,15 +75,13 @@ class NodeFieldsDialog(
             nodeLayout.visibility = View.GONE
         }
 
-        val dialog = builder.create()
-
         // диалог выбора ветки
         val nodeCallback = object : NodeChooserDialog.Result() {
             override fun onApply(node: TetroidNode?) {
                 selectedNode = node
                 if (node != null) {
                     etNode.setText(node.name)
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !TextUtils.isEmpty(etName.text)
+                    getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
                 }
             }
 
@@ -103,17 +98,12 @@ class NodeFieldsDialog(
         }
         if (chooseParent) {
             val clickListener = View.OnClickListener {
-//                NodeDialogs.createNodeChooserDialog(
-//                    context,
-//                    if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else parentNode,
-//                    false, true, false, nodeCallback
-//                )
                 NodeChooserDialog(
-                    if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else parentNode,
-                    false,
-                    true,
-                    false,
-                    nodeCallback
+                    node = if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else parentNode,
+                    canCrypted = false,
+                    canDecrypted = true,
+                    rootOnly = false,
+                    callback = nodeCallback
                 ).showIfPossible(parentFragmentManager)
             }
             etNode.setOnClickListener(clickListener)
@@ -121,49 +111,29 @@ class NodeFieldsDialog(
         }
 
         // кнопки результата
-        dialog.setButton(
-            AlertDialog.BUTTON_POSITIVE, getString(R.string.answer_ok)
-        ) { _: DialogInterface?, _: Int ->
+        setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
             callback.onApply(
                 etName.text.toString(),
                 if (chooseParent && nodeCallback.selectedNode != null) nodeCallback.selectedNode!! else parentNode
             )
         }
-        dialog.setButton(
-            AlertDialog.BUTTON_NEGATIVE, getString(R.string.answer_cancel)
-        ) { dialog1: DialogInterface, _: Int -> dialog1.cancel() }
+        setNegativeButton(R.string.answer_cancel)
 
-        dialog.setOnShowListener {
-            // получаем okButton уже после вызова show()
-            if (TextUtils.isEmpty(etName.text.toString())) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
-            }
-            etName.setSelection(etName.text.length)
+        etName.addAfterTextChangedListener { s ->
+            getPositiveButton()?.isEnabled = s.isNotEmpty()
         }
 
-        return dialog
+        etName.setSelectionAtEnd()
+        showKeyboard()
     }
 
-    // FIXME: возможно нужно onStart()
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // получаем okButton тут отдельно после вызова show()
-        val okButton = (dialog as? AlertDialog)?.getButton(AlertDialog.BUTTON_POSITIVE)
-//        etName.addTextChangedListener(object : TextWatcher {
-//            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
-//            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-//            override fun afterTextChanged(s: Editable) {
-//                okButton.isEnabled = !TextUtils.isEmpty(s)
-//            }
-//        })
-        etName.addAfterTextChangedListener { s ->
-            okButton?.isEnabled = !TextUtils.isEmpty(s)
-        }
+    override fun onDialogShowed(dialog: AlertDialog, view: View) {
+        getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
     }
 
     companion object {
         const val TAG = "NodeFieldsDialog"
 
     }
+
 }

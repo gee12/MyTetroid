@@ -309,6 +309,7 @@
     <string name="label_new_pass">Новый пароль:</string>
     <string name="label_confirm_pass">Пароль повторно:</string>
     <string name="label_crypted">Зашифрована:</string>
+    <string name="label_attach_crypted">Зашифрован:</string>
     <string name="label_path">Путь к каталогу:</string>
     <string name="label_read_only">Только просмотр (еще не реализовано)</string>
     <string name="label_file_size">Размер файла:</string>
@@ -652,8 +653,12 @@
     <string name="log_with_id_from_favor_mask">\" с id=%s из избранного\"</string>
     <string name="error_log_file_path_is_null">Не задан путь к лог-файлу</string>
     <string name="error_get_storage_folder_size_mask">Ошибка получения размера хранилища: %s</string>
-    <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога хаписи: %s</string>
+    <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога записи: %s</string>
+    <string name="error_get_attach_file_size_mask">Ошибка получения размера файла: %s</string>
     <string name="error_get_mytetra_xml_modified_date_mask">Ошибка получения даты последнего изменения файла mytetra.xml: %s</string>
     <string name="error_get_record_modified_date_mask">Ошибка получения даты последнего изменения файла записи: %s</string>
     <string name="title_error">Ошибка</string>
+    <string name="log_activity_opened_mask">Открыта активность: %s</string>
+    <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
+    <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
 </resources>
