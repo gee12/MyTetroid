@@ -90,7 +90,8 @@ public class CommonSettings {
         if (Utils.checkDateFormatString(dateFormatString)) {
             return dateFormatString;
         } else {
-            App.INSTANCE.getCurrent().getLogger().logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
+            if (App.INSTANCE.getCurrent().getLogger() != null)
+                App.INSTANCE.getCurrent().getLogger().logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
             return context.getString(R.string.def_date_format_string);
         }
     }

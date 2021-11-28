@@ -8,6 +8,9 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class TagsInteractor(
     private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor,

@@ -12,11 +12,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 open class BaseStorageViewModel(
-    app: Application,
-    logger: TetroidLogger?
+    app: Application/*,
+    logger: TetroidLogger?*/
 ) : BaseViewModel(
-    app,
-    logger
+    app/*,
+    logger*/
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()

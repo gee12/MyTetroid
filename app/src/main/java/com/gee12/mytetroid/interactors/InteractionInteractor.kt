@@ -14,6 +14,9 @@ import com.gee12.mytetroid.utils.FileUtils
 import org.jsoup.internal.StringUtil
 import java.io.File
 
+/**
+ * Не зависит от конкретного хранилища, может быть Singleton.
+ */
 class InteractionInteractor(
     private val logger: ITetroidLogger
 ) {

@@ -16,13 +16,13 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
             modelClass.isAssignableFrom(BaseViewModel::class.java) -> {
                 BaseViewModel(
                     application = app,
-                    logger = env.logger
+//                    logger = env.logger
                 ) as T
             }
             modelClass.isAssignableFrom(StorageViewModel::class.java) -> {
                 StorageViewModel(
                     app = app,
-                    logger = env.logger,
+//                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
                     storagesRepo = env.storagesRepo
@@ -40,7 +40,7 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
 
                 MainViewModel(
                     app = app,
-                    logger = env.logger,
+//                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
                     storagesRepo = env.storagesRepo
@@ -49,7 +49,7 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> {
                 RecordViewModel(
                     app = app,
-                    logger = env.logger,
+//                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
                     storagesRepo = env.storagesRepo
@@ -58,7 +58,7 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
             modelClass.isAssignableFrom(StoragesViewModel::class.java) -> {
                 StoragesViewModel(
                     app = app,
-                    logger = env.logger,
+//                    logger = env.logger,
 //                    storageInteractor = env.storageInteractor!!,
                     storagesRepo = env.storagesRepo!!
                 ) as T
@@ -66,14 +66,14 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
             modelClass.isAssignableFrom(IconsViewModel::class.java) -> {
                 IconsViewModel(
                     app = app,
-                    logger = env.logger,
+//                    logger = env.logger,
                     storageInteractor = env.storageInteractor!!
                 ) as T
             }
             modelClass.isAssignableFrom(LogsViewModel::class.java) -> {
                 LogsViewModel(
                     app = app,
-                    logger = env.logger
+//                    logger = env.logger
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")

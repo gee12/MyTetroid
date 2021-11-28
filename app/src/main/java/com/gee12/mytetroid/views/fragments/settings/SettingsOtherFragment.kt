@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.Preference
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.TetroidSuggestionProvider
@@ -41,7 +42,8 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == getString(R.string.pref_key_is_write_log)) {
             // меняем флаг
-            baseViewModel.logger.init(CommonSettings.getLogPath(context), CommonSettings.isWriteLogToFile(context))
+//            baseViewModel.logger.init(CommonSettings.getLogPath(context), CommonSettings.isWriteLogToFile(context))
+            App.current.logger?.init(CommonSettings.getLogPath(context), CommonSettings.isWriteLogToFile(context))
         }
     }
 

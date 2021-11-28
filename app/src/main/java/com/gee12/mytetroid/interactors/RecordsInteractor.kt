@@ -24,7 +24,7 @@ import java.io.IOException
 import java.util.*
 
 /**
- * (вместо RecordsManager)
+ * Создается для конкретного хранилища.
  */
 class RecordsInteractor(
     private val logger: ITetroidLogger,

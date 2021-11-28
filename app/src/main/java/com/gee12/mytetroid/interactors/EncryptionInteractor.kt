@@ -3,29 +3,25 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.TetroidXml
-import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.utils.StringUtils
-import com.gee12.mytetroid.viewmodels.IStorageCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class EncryptionInteractor(
     private val logger: ITetroidLogger,
     val crypter: TetroidCrypter,
     private val xmlHelper: TetroidXml,
-    private val loadHelper: IStorageLoadHelper,
-    private val callback: IStorageCallback
-) /*: IRecordFileCrypter*/ {
-
-//    var crypter = TetroidCrypter(logger, loadHelper, this)
-//        private set
+    private val storageHelper: IStorageLoadHelper // чтобы прокинуть в decryptNode и decryptNodes
+) {
 
     /**
      * Инициализация ключа шифрования с помощью пароля или его хэша.
@@ -56,7 +52,7 @@ class EncryptionInteractor(
     suspend fun decryptStorage(context: Context, decryptFiles: Boolean): Boolean = withContext(Dispatchers.IO) {
 //        LogManager.log(R.string.log_start_storage_decrypt);
         crypter.decryptNodes(context, xmlHelper.mRootNodesList, true, true,
-            loadHelper, false, decryptFiles
+            storageHelper, false, decryptFiles
         )
     }
 
@@ -67,10 +63,7 @@ class EncryptionInteractor(
      */
     suspend fun dropCryptNode(context: Context, node: TetroidNode): Boolean {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        val res: Boolean = crypter.decryptNode(context, node, true, true, loadHelper, true, false)
-        return if (res) {
-            callback.saveStorage(context)
-        } else false
+        return crypter.decryptNode(context, node, true, true, storageHelper, true, false)
     }
 
     fun decryptField(obj: TetroidObject?, field: String?): String? {
@@ -96,10 +89,7 @@ class EncryptionInteractor(
      */
     suspend fun encryptNode(context: Context, node: TetroidNode): Boolean {
 //        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
-        val res = crypter.encryptNode(context, node, false)
-        return if (res) {
-            callback.saveStorage(context)
-        } else false
+        return crypter.encryptNode(context, node, false)
     }
 
     /**

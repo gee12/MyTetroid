@@ -15,10 +15,10 @@ import kotlinx.coroutines.launch
 
 class StoragesViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
 //    private val storageInteractor: StorageInteractor,
     private val storagesRepo: StoragesRepo
-) : BaseStorageViewModel(app, logger) {
+) : BaseStorageViewModel(app/*, logger*/) {
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages

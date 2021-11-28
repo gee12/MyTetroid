@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.CommonSettings
@@ -14,15 +15,16 @@ import com.gee12.mytetroid.utils.StringUtils
 import java.util.*
 
 open class BaseViewModel(
-    application: Application,
-    logger: TetroidLogger?
+    application: Application/*,
+    logger: TetroidLogger?*/
 ) : AndroidViewModel(application) {
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
     var isBusy = false
 
 //    var logger: TetroidLogger = logger ?: BaseLogger().apply {
-    var logger: TetroidLogger = BaseLogger().apply {
+    var logger: TetroidLogger = App.current.logger ?: BaseLogger().apply {
+//    var logger: TetroidLogger = BaseLogger().apply {
         init(CommonSettings.getLogPath(getContext()), CommonSettings.isWriteLogToFile(getContext()))
     }
 

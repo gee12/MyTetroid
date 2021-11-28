@@ -13,6 +13,9 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.TetroidMessage
 
+/**
+ * Не зависит от конкретного хранилища, может быть Singleton.
+ */
 class SyncInteractor(
     private val logger: ITetroidLogger
 ) {

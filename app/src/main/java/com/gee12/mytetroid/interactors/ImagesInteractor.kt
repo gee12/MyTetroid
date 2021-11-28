@@ -15,6 +15,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.Exception
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class ImagesInteractor(
     private val logger: ITetroidLogger,
     private val dataInteractor: DataInteractor,

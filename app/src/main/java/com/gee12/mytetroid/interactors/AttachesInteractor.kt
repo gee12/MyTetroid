@@ -23,6 +23,9 @@ import java.io.IOException
 import java.lang.Exception
 import java.util.*
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class AttachesInteractor(
     private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor,

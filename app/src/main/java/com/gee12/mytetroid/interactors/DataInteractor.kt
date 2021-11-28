@@ -8,16 +8,17 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.utils.FileUtils
 import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.viewmodels.IStorageCallback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 import kotlin.math.abs
 
+/**
+ * Не зависит от конкретного хранилища, может быть Singleton.
+ */
 class DataInteractor(
-    private val logger: ITetroidLogger,
-    private val callback: IStorageCallback
+    private val logger: ITetroidLogger
 ) {
 
     /**
@@ -55,18 +56,17 @@ class DataInteractor(
      * 0 - перемещение невозможно (пограничный элемент)
      * -1 - ошибка
      */
-    suspend fun swapTetroidObjects(context: Context, list: List<*>?, pos: Int, isUp: Boolean, through: Boolean): Int {
-        val isSwapped: Boolean = try {
+    fun swapTetroidObjects(
+        list: List<*>?,
+        pos: Int, isUp: Boolean,
+        through: Boolean
+    ): Boolean {
+        return try {
             Utils.swapListItems(list, pos, isUp, through)
         } catch (ex: Exception) {
             logger.logError(ex, false)
-            return -1
+            false
         }
-
-        // перезаписываем файл структуры хранилища
-        return if (isSwapped) {
-            if (callback.saveStorage(context)) 1 else -1
-        } else 0
     }
 
     /**

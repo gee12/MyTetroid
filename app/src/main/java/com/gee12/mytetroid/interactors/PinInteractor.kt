@@ -7,6 +7,9 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class PinInteractor(
     private val passwordInteractor: PasswordInteractor,
     private val encryptionInteractor: EncryptionInteractor,

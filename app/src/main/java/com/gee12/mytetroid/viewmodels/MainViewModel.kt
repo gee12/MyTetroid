@@ -36,13 +36,13 @@ import java.util.HashMap
 
 class MainViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
-    logger,
+    /*logger,*/
     storagesRepo,
     xmlLoader,
     crypter
@@ -762,7 +762,7 @@ class MainViewModel(
                     val result = if (isEncrypt) cryptInteractor.encryptNode(getContext(), node)
                     else cryptInteractor.dropCryptNode(getContext(), node)
 
-                    if (result) 1 else -1
+                    if (result && saveStorage()) 1 else -1
                 } else 0
             }
 

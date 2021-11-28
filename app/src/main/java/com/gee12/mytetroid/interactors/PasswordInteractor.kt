@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.crypt.Base64
 import com.gee12.mytetroid.data.crypt.Crypter
@@ -12,12 +11,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Exception
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class PasswordInteractor(
     private val logger: ITetroidLogger,
-//    private val storage: TetroidStorage?,
     private val databaseConfig: DatabaseConfig,
     private val cryptInteractor: EncryptionInteractor,
-    private val storageInteractor: StorageInteractor,
     private val nodesInteractor: NodesInteractor
 ) {
 

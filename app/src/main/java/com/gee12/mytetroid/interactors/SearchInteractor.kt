@@ -14,7 +14,7 @@ import java.util.regex.Pattern
 
 /**
  * Поиск объектов хранилища.
- * Название такое, а не SearchManager, из-за существования одноименного класса в пакете android.app.
+ * Создается для конкретного хранилища.
  */
 class SearchInteractor(
     private val profile: SearchProfile,

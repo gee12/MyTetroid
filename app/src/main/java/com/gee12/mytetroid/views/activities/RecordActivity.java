@@ -679,7 +679,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
      * @param newMode
      */
     private void switchViews(int newMode) {
-        viewModel.log("switchViews: mode=" + newMode);
+        viewModel.logDebug("switchViews: mode=" + newMode);
         switch (newMode) {
             case Constants.MODE_VIEW : {
                 mEditor.setVisibility(View.VISIBLE);

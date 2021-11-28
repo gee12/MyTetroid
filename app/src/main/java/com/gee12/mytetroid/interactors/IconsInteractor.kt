@@ -6,6 +6,9 @@ import com.gee12.mytetroid.model.TetroidIcon
 import java.io.File
 import java.util.*
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class IconsInteractor(
     private val storageInteractor: StorageInteractor
 ) {

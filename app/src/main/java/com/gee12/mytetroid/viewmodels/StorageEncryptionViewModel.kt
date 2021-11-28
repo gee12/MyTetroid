@@ -27,21 +27,21 @@ import java.io.File
 
 open class StorageEncryptionViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo,
     xmlLoader: TetroidXml,
     crypter: TetroidCrypter?
 ) : StorageSettingsViewModel(
     app,
-    logger,
+    /*logger,*/
     storagesRepo,
     xmlLoader,
     crypter
 ) {
 
-    val databaseConfig = DatabaseConfig(logger)
+    val databaseConfig = DatabaseConfig(this.logger)
 
-    val passInteractor = PasswordInteractor(this.logger, /*storage,*/ databaseConfig, cryptInteractor, storageInteractor, nodesInteractor)
+    val passInteractor = PasswordInteractor(this.logger, databaseConfig, cryptInteractor, nodesInteractor)
 //    val pinInteractor = PinInteractor(passInteractor, cryptInteractor, nodesInteractor)
 
     var isPinNeedEnter = false

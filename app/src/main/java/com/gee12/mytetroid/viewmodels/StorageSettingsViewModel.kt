@@ -9,7 +9,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
-import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.interactors.*
@@ -23,20 +22,19 @@ import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 
 abstract class StorageSettingsViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     val storagesRepo: StoragesRepo,
     val xmlLoader: TetroidXml,
     crypter: TetroidCrypter?
 ) : BaseStorageViewModel(
-    app,
-    logger
-), IStorageCallback, IStorageLoadHelper, IRecordFileCrypter {
+    app/*,
+    logger*/
+), IStorageLoadHelper, IRecordFileCrypter {
 
     var storage: TetroidStorage? = null
         protected set
@@ -53,14 +51,14 @@ abstract class StorageSettingsViewModel(
         }
     })
 
-    var crypter = crypter ?: TetroidCrypter(logger, tagsParser = this, recordFileCrypter = this)
+    var crypter = crypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
 
-    val dataInteractor = DataInteractor(this.logger, callback = this)
+    val dataInteractor = DataInteractor(this.logger)
     val storageInteractor = StorageInteractor(this.logger, storageHelper = this, xmlLoader, dataInteractor)
     val interactionInteractor =  InteractionInteractor(this.logger)
-    val cryptInteractor = EncryptionInteractor(this.logger, this.crypter, xmlLoader, loadHelper = this, callback = this)
+    val cryptInteractor = EncryptionInteractor(this.logger, this.crypter, xmlLoader, storageHelper = this)
     val recordsInteractor = RecordsInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, tagsParser = this, xmlLoader)
-    val nodesInteractor = NodesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageLoadHelper = this, xmlLoader)
+    val nodesInteractor = NodesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageHelper = this, xmlLoader)
     val tagsInteractor = TagsInteractor(this.logger, storageInteractor, xmlLoader)
     val attachesInteractor = AttachesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
     val syncInteractor =  SyncInteractor(this.logger)
@@ -373,19 +371,14 @@ abstract class StorageSettingsViewModel(
 
     //region IStorageCallback
 
-    override suspend fun saveStorage(context: Context): Boolean {
-        return storageInteractor.saveStorage(context)
+    suspend fun saveStorage(): Boolean {
+        return storageInteractor.saveStorage(getContext())
     }
 
-    override fun getPathToRecordFolder(record: TetroidRecord): String {
+    fun getPathToRecordFolder(record: TetroidRecord): String {
         return recordsInteractor.getPathToRecordFolder(record)
     }
 
     //endregion IStorageCallback
 
-}
-
-interface IStorageCallback {
-    suspend fun saveStorage(context: Context): Boolean
-    fun getPathToRecordFolder(record: TetroidRecord): String
 }

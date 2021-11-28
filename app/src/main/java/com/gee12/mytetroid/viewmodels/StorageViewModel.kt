@@ -2,7 +2,6 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
@@ -22,7 +21,6 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.utils.FileUtils
 import com.gee12.mytetroid.utils.UriUtils
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
@@ -38,13 +36,13 @@ import java.util.*
  */
 open class StorageViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ) : StorageEncryptionViewModel(
     app,
-    logger,
+    /*logger,*/
     storagesRepo ?: StoragesRepo(app),
     xmlLoader ?: TetroidXml(),
     crypter
@@ -161,7 +159,7 @@ open class StorageViewModel(
         this.storage = storage
         postStorageEvent(Constants.StorageEvents.Changed, storage)
         if (storage != null) {
-            CommonSettings.setLastStorageId(getContext(), storage.id);
+            CommonSettings.setLastStorageId(getContext(), storage.id)
 
             // сначала проверяем разрешение на запись во внешнюю память
             postStorageEvent(Constants.StorageEvents.PermissionCheck)
@@ -234,7 +232,7 @@ open class StorageViewModel(
             //  * загружаем хранилище из временной записи, созданной из виджета.
             //    В этом случае хранилище нужно загружать полностью.
             isLoadFavoritesOnly = !isLoaded() && isLoadFavoritesOnly()
-                    || (isLoaded() && isLoadedFavoritesOnly());
+                    || (isLoaded() && isLoadedFavoritesOnly())
         }
         // уже воспользовались, сбрасываем
         this.isCheckFavorMode = true
@@ -925,7 +923,9 @@ open class StorageViewModel(
     //region Other
 
     suspend fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
-        return withContext(Dispatchers.IO) { dataInteractor.swapTetroidObjects(getContext(), list, pos, isUp, through) }
+        return if (dataInteractor.swapTetroidObjects(list, pos, isUp, through)) {
+            if (saveStorage()) 1 else -1
+        } else 0
     }
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()

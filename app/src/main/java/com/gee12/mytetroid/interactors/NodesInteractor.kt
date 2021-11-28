@@ -6,7 +6,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
@@ -14,13 +13,16 @@ import com.gee12.mytetroid.utils.FileUtils
 import java.lang.Exception
 import java.util.*
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class NodesInteractor(
     private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor,
     private val cryptInteractor: EncryptionInteractor,
     private val dataInteractor: DataInteractor,
     private val recordsInteractor: RecordsInteractor,
-    private val storageLoadHelper: IStorageLoadHelper,
+    private val storageHelper: IStorageLoadHelper,
     private val xmlLoader: TetroidXml
 ) {
 
@@ -232,7 +234,7 @@ class NodesInteractor(
             node.setIsDecrypted(true)
         }
         // загружаем такую же иконку
-        storageLoadHelper.loadIcon(context, node)
+        storageHelper.loadIcon(context, node)
 
         // добавляем записи
         if (srcNode.recordsCount > 0) {
@@ -323,7 +325,7 @@ class NodesInteractor(
                 if (record.isFavorite) {
                     FavoritesManager.remove(context, record, false)
                 }
-                storageLoadHelper.deleteRecordTags(record)
+                storageHelper.deleteRecordTags(record)
                 // проверяем существование каталога
                 val dirPath = recordsInteractor.getPathToRecordFolder(record)
                 if (recordsInteractor.checkRecordFolder(context, dirPath, false) <= 0) {

@@ -41,13 +41,13 @@ import com.gee12.mytetroid.logs.TetroidLogger
 
 class RecordViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
-    logger,
+    /*logger,*/
     storagesRepo,
     xmlLoader,
     crypter

@@ -26,6 +26,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 
+/**
+ * Создается для конкретного хранилища.
+ */
 class StorageInteractor(
     private val logger: ITetroidLogger,
     private val storageHelper: IStorageLoadHelper,

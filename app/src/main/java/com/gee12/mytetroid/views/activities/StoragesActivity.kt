@@ -136,7 +136,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             AskDialogs.showCreateNewStorageDialog(this, storage.path) {
                 storageViewModel = StorageViewModel(
                     app = application,
-                    logger = viewModel.logger,
+//                    logger = viewModel.logger,
                     storagesRepo = null,
                     xmlLoader = null,
                     crypter = null

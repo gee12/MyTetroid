@@ -11,9 +11,9 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
-    app: Application,
-    logger: TetroidLogger?
-) : BaseViewModel(app, logger), CoroutineScope {
+    app: Application/*,
+    logger: TetroidLogger?*/
+) : BaseViewModel(app/*, logger*/), CoroutineScope {
 
     companion object {
         const val LINES_IN_RECYCLER_VIEW_ITEM = 10

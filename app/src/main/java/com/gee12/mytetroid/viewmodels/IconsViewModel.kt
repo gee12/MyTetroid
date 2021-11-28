@@ -7,9 +7,9 @@ import com.gee12.mytetroid.logs.TetroidLogger
 
 class IconsViewModel(
     app: Application,
-    logger: TetroidLogger?,
+    /*logger: TetroidLogger?,*/
     val storageInteractor: StorageInteractor
-) : BaseViewModel(app, logger) {
+) : BaseViewModel(app/*, logger*/) {
 
     protected val iconsInteractor = IconsInteractor(storageInteractor)
 
