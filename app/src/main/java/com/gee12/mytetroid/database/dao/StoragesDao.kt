@@ -12,7 +12,7 @@ interface StoragesDao {
     fun getDefaultStorage(): List<StorageEntity>
 
     @Query("SELECT * FROM storages WHERE id = :id")
-    fun getById(id: Int): StorageEntity
+    fun getById(id: Int): StorageEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(entity: StorageEntity): Long

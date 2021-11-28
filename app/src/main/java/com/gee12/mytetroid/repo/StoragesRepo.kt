@@ -21,15 +21,19 @@ class StoragesRepo(context: Context) {
     }
 
     suspend fun getStorage(id: Int) = withContext(Dispatchers.IO) {
-        toStorage(dataBase.storagesDao.getById(id))
+        dataBase.storagesDao.getById(id)?.let {
+            toStorage(it)
+        }
     }
 
     suspend fun addStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
-        if (storage.isDefault) {
+        val id = if (storage.isDefault) {
             dataBase.storagesDao.insertDefault(storage)
         } else {
             dataBase.storagesDao.insert(storage)
         }
+        storage.id = id.toInt()
+        id > 0
     }
 
     suspend fun updateStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {

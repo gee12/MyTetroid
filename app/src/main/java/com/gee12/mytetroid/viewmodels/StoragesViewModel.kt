@@ -3,14 +3,13 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class StoragesViewModel(
@@ -24,7 +23,7 @@ class StoragesViewModel(
     val storages: LiveData<List<TetroidStorage>> get() = _storages
 
     fun loadStorages() {
-        launch {
+        launch(Dispatchers.IO) {
             var storages = storagesRepo.getStorages()
 
             if (storages.isEmpty() && CommonSettings.getStoragePath(getContext())?.isNotEmpty() == true) {
@@ -36,40 +35,21 @@ class StoragesViewModel(
         }
     }
 
-//    fun getDefaultStorage(): TetroidStorage {
-//        launch {
-//            return@launch repo.getDefaultStorage()
-//        }
-//    }
-
     fun addStorage(storage: TetroidStorage) {
         // заполняем поля настройками по-умолчанию
         initStorage(storage)
 
-        launch {
-            if (storagesRepo.addStorage(storage) > 0) {
+        launch(Dispatchers.IO) {
+            if (storagesRepo.addStorage(storage)) {
                 loadStorages()
 
-                storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.Added, storage))
+                postStorageEvent(Constants.StorageEvents.Added, storage)
             }
         }
     }
 
-//    fun createStorage(storage: TetroidStorage) {
-//        launch {
-//            logDebug(getString(R.string.log_start_storage_creating) + storage.path)
-//
-//            if (storageInteractor.createStorage(storage)) {
-//                log((R.string.log_storage_created), true)
-//                storageEvent.setValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
-//            } else {
-//                logError(getString(R.string.log_failed_storage_create_mask, storage.path), true)
-//            }
-//        }
-//    }
-
     fun deleteStorage(storage: TetroidStorage) {
-        launch {
+        launch(Dispatchers.IO) {
             if (storagesRepo.deleteStorage(storage) > 0) {
                 loadStorages()
             }

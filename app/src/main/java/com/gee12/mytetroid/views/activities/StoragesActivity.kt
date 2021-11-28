@@ -82,10 +82,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
         viewModel.storageEvent.observe(this, {
             when (it.state) {
-//                Constants.StorageEvents.PermissionCheck -> checkPermission()
-//                Constants.StorageEvents.PermissionChecked -> {}
-                Constants.StorageEvents.Added -> (it.data as TetroidStorage?)?.let { storage -> onStorageAdded(storage) }
-//                Constants.StorageEvents.FilesCreated -> (it.data as TetroidStorage?)?.let { storage -> onStorageFilesCreated(storage) }
+                Constants.StorageEvents.Added -> (it.data as? TetroidStorage)?.let { storage -> onStorageAdded(storage) }
                 else -> {}
             }
         })
@@ -108,21 +105,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun finishWithResult(storage: TetroidStorage) {
-//        val bundle = Bundle()
-//        if (callingActivity != null) {
-//            if (bundle != null) {
-//                bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
-//                val intent = Intent(Constants.ACTION_RECORD)
-//                intent.putExtras(bundle)
-//                setResult(resCode, intent)
-//            } else {
-//                setResult(resCode)
-//            }
-//        } else {
-//            bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
-//            ViewUtils.startActivity(this, MainActivity::class.java, bundle)
-//        }
-
         val intent = Intent().apply {
             putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
             putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
@@ -144,13 +126,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 storageViewModel!!.storageEvent.observe(this, {
                     when (it.state) {
                         Constants.StorageEvents.PermissionCheck -> checkPermission()
-                        Constants.StorageEvents.PermissionChecked -> storageViewModel!!.startInitStorage(storage.id)
+                        Constants.StorageEvents.PermissionChecked -> storageViewModel!!.initStorage()
                         Constants.StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
                         else -> {}
                     }
                 })
-                // FIXME: исправить падение
-                storageViewModel!!.startInitStorage(storage.id)
+                storageViewModel!!.startInitStorage(storage)
 //                storageViewModel!!.createStorage(storage)
             }
         }

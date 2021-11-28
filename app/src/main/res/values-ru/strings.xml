@@ -669,5 +669,6 @@
     <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
     <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
     <string name="log_def_storage_not_specified">Хранилище по-умолчанию не задано</string>
+    <string name="log_storage_not_found_mask">Хранилище с id=%s не зайдено в базе данных</string>
     <string name="log_start_load_def_storage">Начало загрузки хранилища по-умолчанию</string>
 </resources>

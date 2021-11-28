@@ -104,16 +104,20 @@ open class StorageViewModel(
 
     open fun setStorageFromBase(id: Int) {
         launch {
-            // TODO: нужно обрабатывать ошибки бд
-            this@StorageViewModel.storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
-            setStorageEvent(Constants.StorageEvents.Changed, storage)
+            withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }?.let { storage ->
+                this@StorageViewModel.storage = storage
+                setStorageEvent(Constants.StorageEvents.Changed, storage)
 
-            if (xmlLoader.mIsStorageLoaded) {
-                storage?.isLoaded = true
+                if (xmlLoader.mIsStorageLoaded) {
+                    storage.isLoaded = true
+                }
+
+                // загружаем настройки, но не загружаем само хранилище
+                initStorage()
+            } ?: run {
+                log(getString(R.string.log_storage_not_found_mask).format(id))
+//                setStorageEvent(Constants.StorageEvents.NotFound)
             }
-
-            // загружаем настройки, но не загружаем само хранилище
-            initStorage()
         }
     }
 
@@ -133,8 +137,8 @@ open class StorageViewModel(
     fun startInitStorage() {
         log(R.string.log_start_load_def_storage)
         launch {
-            storagesRepo.getDefaultStorage()?.let {
-                startInitStorage(it)
+            storagesRepo.getDefaultStorage()?.let { storage ->
+                startInitStorage(storage)
             } ?: run {
                 log(R.string.log_def_storage_not_specified)
                 setStorageEvent(Constants.StorageEvents.NoDefaultStorage)
@@ -147,7 +151,12 @@ open class StorageViewModel(
      */
     fun startInitStorage(id: Int) {
         launch {
-            startInitStorage(storagesRepo.getStorage(id))
+            withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }?.let { storage ->
+                startInitStorage(storage)
+            } ?: run {
+                log(getString(R.string.log_storage_not_found_mask).format(id))
+//                setStorageEvent(Constants.StorageEvents.NotFound)
+            }
         }
     }
 
@@ -155,17 +164,14 @@ open class StorageViewModel(
      * Запуск первичной инициализации хранилища.
      * Начинается с проверки разрешения на запись во внешнюю память устройства.
      */
-    private fun startInitStorage(storage: TetroidStorage?) {
+    fun startInitStorage(storage: TetroidStorage) {
         this.storage = storage
         postStorageEvent(Constants.StorageEvents.Changed, storage)
-        if (storage != null) {
-            CommonSettings.setLastStorageId(getContext(), storage.id)
 
-            // сначала проверяем разрешение на запись во внешнюю память
-            postStorageEvent(Constants.StorageEvents.PermissionCheck)
-        } else {
-            logError(getString(R.string.log_not_transferred_storage), false)
-        }
+        CommonSettings.setLastStorageId(getContext(), storage.id)
+
+        // сначала проверяем разрешение на запись во внешнюю память
+        postStorageEvent(Constants.StorageEvents.PermissionCheck)
     }
 
     /**
@@ -251,30 +257,8 @@ open class StorageViewModel(
 
         val res: Boolean
         try {
-//            val storageDir = File(storage.path)
             if (storage.isNew) {
                 logDebug(getString(R.string.log_start_storage_creating) + storage.path)
-                /*if (storageDir.exists()) {
-                    // проверяем, пуст ли каталог
-                    if (!FileUtils.isDirEmpty(storageDir)) {
-                        logError(R.string.log_dir_not_empty)
-                        return false
-                    }
-                } else {
-                    logError(R.string.log_dir_is_missing)
-                    return false
-                }
-                // сохраняем новый database.ini
-                res = databaseConfig.saveDefault()
-                // создаем каталог base
-                if (!storageInteractor.createBaseFolder()) {
-                    return false
-                }
-                // добавляем корневую ветку
-                xmlLoader.init()
-                storage.isLoaded = true
-                // создаем Favorites
-                FavoritesManager.create()*/
                 res = storageInteractor.createStorage(storage)
                 if (res) {
                     storage.isNew = false
@@ -296,19 +280,6 @@ open class StorageViewModel(
         storage.isInited = res
         return res
     }
-
-//    fun createStorage(storage: TetroidStorage) {
-//        launch {
-//            logDebug(getString(R.string.log_start_storage_creating) + storage.path)
-//
-//            if (storageInteractor.createStorage(storage)) {
-//                log((R.string.log_storage_created), true)
-//                storageEvent.setValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
-//            } else {
-//                logError(getString(R.string.log_failed_storage_create_mask, storage.path), true)
-//            }
-//        }
-//    }
 
     //endregion Init
 

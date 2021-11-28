@@ -74,10 +74,6 @@ class StorageInteractor(
     private fun createStorageFiles(storagePath: String): Boolean {
         val storageDir = File(storagePath)
         if (storageDir.exists()) {
-            /*// очищаем каталог
-            LogManager.log(context, R.string.log_clear_storage_dir, ILogger.Types.INFO);
-            FileUtils.clearDir(storageDir);*/
-
             // проверяем, пуст ли каталог
             if (!FileUtils.isDirEmpty(storageDir)) {
                 logger.log(R.string.log_dir_not_empty)
