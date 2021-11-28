@@ -11,8 +11,8 @@ import org.jsoup.internal.StringUtil
 
 class TetroidCrypter(
     logger: ITetroidLogger?,
-    private val tagsParser: ITagsParser,
-    private val recordFileCrypter: IRecordFileCrypter
+    val tagsParser: ITagsParser,
+    val recordFileCrypter: IRecordFileCrypter
 ) : Crypter(logger) {
 
     fun initFromPass(pass: String) {
@@ -35,8 +35,7 @@ class TetroidCrypter(
     /**
      * Зашифровка веток.
      * @param nodes
-     * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта
-     * *                    (должно быть расшифрованно перед этим)
+     * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
      * @return
      */
     suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean {
@@ -59,13 +58,13 @@ class TetroidCrypter(
         if (node == null) return false
         var res = true
         if (!isReencrypt && !node.isCrypted || isReencrypt && node.isCrypted && node.isDecrypted) {
-            // засшифровываем поля
+            // зашифровываем поля
             res = encryptNodeFields(node, isReencrypt)
             if (node.recordsCount > 0) {
                 res = res and encryptRecordsAndFiles(context, node.records, isReencrypt)
             }
         }
-        // расшифровываем подветки
+        // зашифровываем подветки
         if (node.subNodesCount > 0) {
             res = res and encryptNodes(context, node.subNodes, isReencrypt)
         }
@@ -304,7 +303,9 @@ class TetroidCrypter(
         return res
     }
 
-    suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+        if (record == null) return false
+
         var res = decryptRecordFields(record, dropCrypt)
         if (record.attachedFilesCount > 0) for (file in record.attachedFiles) {
             res = res and decryptAttach(file, dropCrypt)

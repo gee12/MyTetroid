@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.interactors.StorageInteractor;
+import com.gee12.mytetroid.logs.LogType;
 import com.gee12.mytetroid.viewmodels.IconsViewModel;
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.adapters.IconsListAdapter;
@@ -77,7 +77,7 @@ public class IconsActivity extends AppCompatActivity {
         List<String> folders = viewModel.getIconsFolders();
         if (folders != null) {
             if (folders.size() == 0) {
-                TetroidLog.log(this, R.string.log_icons_dirs_absent, Toast.LENGTH_LONG);
+                viewModel.logWarning(R.string.log_icons_dirs_absent);
                 return;
             }
             this.mFoldersAdapter = new ArrayAdapter<>(this,
@@ -132,8 +132,7 @@ public class IconsActivity extends AppCompatActivity {
                 }
             });
         } else {
-            TetroidLog.log(this,
-                    getString(R.string.log_icons_dir_absent_mask, StorageInteractor.ICONS_FOLDER_NAME), Toast.LENGTH_LONG);
+            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, StorageInteractor.ICONS_FOLDER_NAME));
         }
 
         findViewById(R.id.button_clear_icon).setOnClickListener(view -> setResult(null));

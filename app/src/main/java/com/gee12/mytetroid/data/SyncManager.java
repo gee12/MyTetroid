@@ -13,7 +13,7 @@ import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.logs.ILogger;
 import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.Message;
+import com.gee12.mytetroid.views.TetroidMessage;
 
 @Deprecated
 public class SyncManager {
@@ -27,8 +27,8 @@ public class SyncManager {
      * @param storagePath
      */
     public static boolean startStorageSync(Activity activity, String storagePath, int requestCode) {
-        String command = SettingsManager.getSyncCommandDef(activity);
-        if (SettingsManager.getSyncAppNameDef(activity).equals(activity.getString(R.string.title_app_termux))) {
+        String command = CommonSettings.getSyncCommandDef(activity);
+        if (CommonSettings.getSyncAppNameDef(activity).equals(activity.getString(R.string.title_app_termux))) {
             // termux
             return startTermuxSync(activity, storagePath, command);
         } else {
@@ -46,7 +46,7 @@ public class SyncManager {
 
         LogManager.log(activity, activity.getString(R.string.log_start_storage_sync) + command);
         try {
-            if (!SettingsManager.isNotRememberSyncApp(activity)) {
+            if (!CommonSettings.isNotRememberSyncApp(activity)) {
                 // использовать стандартный механизм запоминания используемого приложения
                 activity.startActivityForResult(intent, requestCode);
             } else { // или спрашивать постоянно
@@ -141,7 +141,7 @@ public class SyncManager {
             activity.startService(intent);
         } catch (Exception ex) {
             LogManager.log(activity, R.string.log_error_when_sync, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-            Message.showSnackMoreInLogs(activity);
+            TetroidMessage.showSnackMoreInLogs(activity);
             return false;
         }
         return true;

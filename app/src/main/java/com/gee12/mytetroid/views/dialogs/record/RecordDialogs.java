@@ -1,46 +1,15 @@
 package com.gee12.mytetroid.views.dialogs.record;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.DataManager;
-import com.gee12.mytetroid.data.NodesManager;
-import com.gee12.mytetroid.data.RecordsManager;
-import com.gee12.mytetroid.data.StorageManager;
-import com.gee12.mytetroid.data.TetroidXml;
 import com.gee12.mytetroid.interactors.NodesInteractor;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.logs.LogOper;
-import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.FileUtils;
-import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
-
-import java.util.Date;
-import java.util.Random;
 
 public class RecordDialogs {
 

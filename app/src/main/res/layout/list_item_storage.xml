@@ -16,27 +16,49 @@
 
     <TextView
         android:id="@+id/text_view_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/image_view_menu"
+        app:layout_constraintEnd_toStartOf="@id/image_view_current"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         android:textColor="@color/colorBaseText"
         android:paddingBottom="3dp"
         tools:text="@tools:sample/cities"
         android:textSize="@dimen/font_default" />
 
+    <ImageView
+        android:id="@+id/image_view_current"
+        android:layout_width="36dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toEndOf="@id/text_view_name"
+        app:layout_constraintEnd_toStartOf="@id/image_view_default"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_storage_current"
+        android:scaleType="center"
+        android:contentDescription="@string/title_storage_current" />
+
+    <ImageView
+        android:id="@+id/image_view_default"
+        android:layout_width="36dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toEndOf="@id/image_view_current"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/image_view_menu"
+        android:src="@drawable/ic_storage_default"
+        android:scaleType="center"
+        android:contentDescription="@string/title_storage_default" />
+
     <TextView
         android:id="@+id/text_view_path"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view_name"
         app:layout_constraintEnd_toStartOf="@id/image_view_menu"
-        android:layout_marginEnd="30dp"
         android:textColor="@color/colorBase2Text"
         tools:text="@tools:sample/lorem"
-        android:backgroundTint="@color/yellow"
         android:textSize="@dimen/font_small" />
 
     <ImageView

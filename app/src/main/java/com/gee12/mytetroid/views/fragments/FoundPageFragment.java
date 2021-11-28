@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.gee12.mytetroid.R;
@@ -76,7 +77,7 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
             viewModel.showRecordAttaches(record, false);
         };
         this.listAdapterFound = new FoundListAdapter(
-                context,
+                getContext(),
                 viewModel.getRecordsInteractor(),
                 mOnAttachmentClickListener
         );
@@ -98,12 +99,13 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
         viewModel.openFoundObject(found);
     }
 
+    @NonNull
     @Override
     public String getTitle() {
-        if (context != null)
+        if (getContext() != null)
             return String.format(getString(R.string.search_found_mask), foundCount);
         else
-            return null;
+            return "";
     }
 
     /**

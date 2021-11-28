@@ -77,7 +77,7 @@
         android:title="@string/title_encrypt_node"
         android:icon="@drawable/ic_encrypt" />
     <item
-        android:id="@+id/action_no_encrypt_node"
+        android:id="@+id/action_drop_encrypt_node"
         android:orderInCategory="140"
         android:title="@string/title_decrypt_node"
         android:icon="@drawable/ic_no_encrypt" />

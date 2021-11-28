@@ -10,7 +10,7 @@
     <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
 
-    <string name="title_settings">Settings</string>
+    <string name="title_settings">Common settings</string>
     <string name="title_storage_settings">Storage settings</string>
     <string name="title_open">Open</string>
     <string name="title_password_enter">Enter password</string>
@@ -358,10 +358,12 @@
 <!--    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>-->
     <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps. Available if this is the default storage</string>
 
+    <string name="task_wait">Wait…</string>
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
     <string name="task_node_encrypting">Node encrypting…</string>
     <string name="task_node_drop_crypting">Node drop encrypting…</string>
+    <string name="task_pass_setting">Password setting…</string>
     <string name="task_pass_changing">Password changing…</string>
     <string name="task_attach_file">Uploading file to the storage…</string>
     <string name="task_file_saving">File saving…</string>
@@ -465,8 +467,10 @@
     <string name="ask_delete_record_without_dir">Record directory is missing. Delete record from storage ?</string>
     <string name="ask_exit_from_app">Exit from app?</string>
     <string name="ask_sync_success_dialog_request">Sync done. Reboot storage?</string>
-    <string name="ask_sync_failed_dialog_request">Sync failed. Download storage anyway?</string>
+    <string name="ask_sync_failed_dialog_request">Sync failed. Load storage anyway?</string>
+    <string name="ask_sync_failed_before_exit_dialog_request">Sync failed. Exit anyway?</string>
     <string name="ask_save_record">Save record ?</string>
+    <string name="ask_no_set_default_storage">No default storage is specified. Go to the list of storages ?</string>
     <string name="ask_node_delete_mask">Delete node \'%s\' ?</string>
     <string name="ask_record_delete_mask">Delete record \'%s\' ?</string>
     <string name="ask_file_delete_mask">Delete file \'%s\' ?</string>
@@ -477,8 +481,8 @@
     <string name="ask_clear_trash">Cleat trash folder?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
-    <string name="ask_load_all_nodes_dialog_title">To do thi, need to load all nodes. Proceed?</string>
-    <string name="ask_reload_storage">Reload storage from device memory?</string>
+    <string name="ask_load_all_nodes_dialog_title">To do this, need to load all nodes. Proceed?</string>
+    <string name="ask_reload_storage">Reload storage from device file system?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>
 <!--    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>-->
     <string name="ask_create_storage_in_folder">A new repository will be created in the selected directory. Continue?</string>
@@ -521,10 +525,10 @@
     <string name="log_storage_loaded_decrypted_mask">Storage \'%s\' was loaded and decrypted</string>
     <string name="log_storage_favor_loaded_mask">Storage \'%s\' favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-    <string name="log_storage_settings_inited">Storage settings is loaded:&#160;</string>
+    <string name="log_storage_settings_loaded">Storage settings loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_global_search_return_null">Some error in global search…</string>
-    <string name="log_cur_node_is_not_selected">Current node is not selected.\nOnly search in the entire database is possible</string>
+    <string name="log_cur_node_is_not_selected">Current node is not selected.\nOnly search in the entire database or another node is possible</string>
     <string name="log_select_node_to_search">Select the node to search</string>
     <string name="log_incorrect_dateformat_in_settings">The settings specified an incorrect date/time format for creating a record. The default format will be used.</string>
     <string name="log_cur_record_is_not_set">Current record is not set</string>
@@ -673,6 +677,7 @@
     <string name="log_to_mask">&#160; to "%s"</string>
 <!--    <string name="log_more_in_logs">&#160;(more in the logs)</string>-->
     <string name="log_storage_decrypted">Storage was decrypted</string>
+    <string name="log_node_is_null">Node is empty (null)</string>
     <string name="log_tag_is_null">Tag is empty (null)</string>
     <string name="log_record_is_null">Record is empty (null)</string>
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
@@ -732,6 +737,8 @@
     <string name="pref_is_read_only">Read only</string>
     <string name="pref_is_read_only_summ">The storage cannot be changed from within the app (not implemented yet)</string>
     <string name="title_context_menu">Context menu</string>
+    <string name="title_storage_current">Current storage</string>
+    <string name="title_storage_default">Default storage</string>
     <string name="label_default_storage">Default storage</string>
     <string name="ask_load_storage_mask">Load storage \'%s\' ?</string>
     <string name="ask_create_new_storage_mask">Will be created storage files along the path \'%s\', continue ?</string>
@@ -751,4 +758,6 @@
     <string name="log_activity_opened_mask">Activity opened: %s</string>
     <string name="log_fragment_opened_mask">Fragment opened: %s</string>
     <string name="log_dialog_opened_mask">Dialog opened: %s</string>
+    <string name="log_def_storage_not_specified">No default storage is specified</string>
+    <string name="log_start_load_def_storage">Start loading storage by default</string>
 </resources>

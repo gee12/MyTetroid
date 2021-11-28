@@ -2,14 +2,18 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
+import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
+import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.interactors.*
+import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
@@ -18,17 +22,22 @@ import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.*
 
-open class StorageSettingsViewModel(
+abstract class StorageSettingsViewModel(
     app: Application,
-    protected val storagesRepo: StoragesRepo,
-    val xmlLoader: TetroidXml
-) : BaseStorageViewModel(app, storagesRepo), IStorageCallback, IStorageLoadHelper {
+    logger: TetroidLogger?,
+    val storagesRepo: StoragesRepo,
+    val xmlLoader: TetroidXml,
+    crypter: TetroidCrypter?
+) : BaseStorageViewModel(
+    app,
+    logger
+), IStorageCallback, IStorageLoadHelper, IRecordFileCrypter {
 
-//    protected val _storage = MutableLiveData<TetroidStorage>()
-//    val storage: LiveData<TetroidStorage> get() = _storage
     var storage: TetroidStorage? = null
         protected set
 
@@ -44,16 +53,17 @@ open class StorageSettingsViewModel(
         }
     })
 
-    // TODO: расшарить между разными viewModel
-//    val xmlLoader = TetroidXml(this)
+    var crypter = crypter ?: TetroidCrypter(logger, tagsParser = this, recordFileCrypter = this)
 
-    val dataInteractor = DataInteractor(logger, this)
-    val storageInteractor = StorageInteractor(logger, this, xmlLoader, dataInteractor)
-    val interactionInteractor =  InteractionInteractor(logger)
-    val cryptInteractor = EncryptionInteractor(logger, xmlLoader, this, this)
-    val recordsInteractor = RecordsInteractor(logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, this, xmlLoader)
-    val nodesInteractor = NodesInteractor(logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, this, xmlLoader)
-    val syncInteractor =  SyncInteractor(logger)
+    val dataInteractor = DataInteractor(this.logger, callback = this)
+    val storageInteractor = StorageInteractor(this.logger, storageHelper = this, xmlLoader, dataInteractor)
+    val interactionInteractor =  InteractionInteractor(this.logger)
+    val cryptInteractor = EncryptionInteractor(this.logger, this.crypter, xmlLoader, loadHelper = this, callback = this)
+    val recordsInteractor = RecordsInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, tagsParser = this, xmlLoader)
+    val nodesInteractor = NodesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageLoadHelper = this, xmlLoader)
+    val tagsInteractor = TagsInteractor(this.logger, storageInteractor, xmlLoader)
+    val attachesInteractor = AttachesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
+    val syncInteractor =  SyncInteractor(this.logger)
 
     // FIXME: Проверить:
     var quicklyNode: TetroidNode?
@@ -70,20 +80,6 @@ open class StorageSettingsViewModel(
             onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
         }
 
-    open fun setStorageFromBase(id: Int) {
-        launch {
-            // TODO: нужно обрабатывать ошибки бд
-            this@StorageSettingsViewModel.storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
-            setStorageEvent(Constants.StorageEvents.Changed, storage)
-//            _storage.postValue(storage)
-
-            if (xmlLoader.mIsStorageLoaded) {
-                storage?.isLoaded = true
-            }
-            setStorageEvent(Constants.StorageEvents.Inited, storage)
-        }
-    }
-
     fun updateStorage(storage: TetroidStorage) {
         launch {
             if (storagesRepo.updateStorage(storage) > 0) {
@@ -91,28 +87,120 @@ open class StorageSettingsViewModel(
         }
     }
 
+    fun updateStorage() {
+        storage?.let {
+            updateStorage(it)
+        }
+    }
+
+    //region IStorageLoadHelper
+
+    override fun decryptNode(context: Context, node: TetroidNode?): Boolean {
+        //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
+        return runBlocking(Dispatchers.IO) {
+            crypter.decryptNode(
+                context = context,
+                node = node,
+                decryptSubNodes = false,
+                decryptRecords = false,
+                iconLoader = this@StorageSettingsViewModel,
+                dropCrypt = false,
+                decryptFiles = false
+            )
+        }
+    }
+
+    override fun decryptRecord(context: Context, record: TetroidRecord?): Boolean {
+        //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
+        return runBlocking(Dispatchers.IO) {
+            crypter.decryptRecordAndFiles(
+                context = context,
+                record = record,
+                dropCrypt = false,
+                decryptFiles = true
+            )
+        }
+    }
+
+    override fun isRecordFavorite(id: String?): Boolean {
+        // TODO: в Interactor
+        return FavoritesManager.isFavorite(id)
+    }
+
+    override fun addRecordFavorite(record: TetroidRecord?) {
+        // TODO: в Interactor
+        FavoritesManager.set(record)
+    }
+
+    override fun createDefaultNode(): Boolean {
+        return runBlocking {
+            nodesInteractor.createNode(getContext(), getString(R.string.title_first_node), TetroidXml.ROOT_NODE) != null
+        }
+    }
+
     /**
-     *
+     * Разбор строки с метками и добавление каждой метки в запись и в дерево.
+     * @param record
+     * @param tagsString Строка с метками (не зашифрована).
+     * Передается отдельно, т.к. поле в записи может быть зашифровано.
      */
-    override fun decryptNode(context: Context, node: TetroidNode?): Boolean = false
+    override fun parseRecordTags(record: TetroidRecord?, tagsString: String) {
+        if (record == null || TextUtils.isEmpty(tagsString)) return
 
-    override fun decryptRecord(context: Context, record: TetroidRecord?): Boolean = false
+        for (tagName in tagsString.split(TetroidXml.TAGS_SEPAR.toRegex()).toTypedArray()) {
+            val lowerCaseTagName = tagName.lowercase(Locale.getDefault())
+            var tag: TetroidTag
+            if (xmlLoader.mTagsMap.containsKey(lowerCaseTagName)) {
+                tag = xmlLoader.mTagsMap.get(lowerCaseTagName) ?: continue
+                // добавляем запись по метке, только если ее еще нет
+                // (исправление дублирования записей по метке, если одна и та же метка
+                // добавлена в запись несколько раз)
+                if (!tag.records.contains(record)) {
+                    tag.addRecord(record)
+                }
+            } else {
+                val tagRecords: MutableList<TetroidRecord> = ArrayList()
+                tagRecords.add(record)
+                tag = TetroidTag(lowerCaseTagName, tagRecords)
+                xmlLoader.mTagsMap.put(lowerCaseTagName, tag)
+            }
+            record.addTag(tag)
+        }
+    }
 
-    override fun isRecordFavorite(id: String?): Boolean = false
+    /**
+     * Удаление меток записи из списка.
+     * @param record
+     */
+    override fun deleteRecordTags(record: TetroidRecord?) {
+        if (record == null || record.tags.isEmpty()) return
 
-    override fun addRecordFavorite(record: TetroidRecord?) {}
+        for (tag in record.tags) {
+            val foundedTag = tagsInteractor.getTag(tag.name)
+            if (foundedTag != null) {
+                // удаляем запись из метки
+                foundedTag.records.remove(record)
+                if (foundedTag.records.isEmpty()) {
+                    // удаляем саму метку из списка
+                    xmlLoader.mTagsMap.remove(tag.name.lowercase(Locale.getDefault()))
+                }
+            }
+        }
+        record.tags.clear()
+    }
 
-    override fun parseRecordTags(record: TetroidRecord?, tagsString: String) {}
-
-    override fun deleteRecordTags(record: TetroidRecord?) {}
-
-    override fun loadIcon(context: Context, node: TetroidNode) {}
+    override fun loadIcon(context: Context, node: TetroidNode) {
+        if (node.isNonCryptedOrDecrypted) {
+            nodesInteractor.loadNodeIcon(node)
+        }
+    }
 
     override fun isStorageLoaded() = isLoaded()
 
+    //endregion IStorageLoadHelper
 
     /**
-     *
+     * Установка отдельного параметра хранилища и сохранение в бд.
      */
     fun updateStorageOption(key: String, value: Any) {
         storage?.apply {
@@ -181,11 +269,11 @@ open class StorageSettingsViewModel(
      * Актуализация ветки для быстрой вставки в дереве.
      */
     fun updateQuicklyNode() {
-        val nodeId = SettingsManager.getQuicklyNodeId(getContext())
+        val nodeId = CommonSettings.getQuicklyNodeId(getContext())
         if (nodeId != null && xmlLoader.mIsStorageLoaded && !xmlLoader.mIsFavoritesMode) {
             val node = nodesInteractor.getNode(nodeId)
             // обновление значений или обнуление (если не найдено)
-            SettingsManager.setQuicklyNode(getContext(), node)
+            CommonSettings.setQuicklyNode(getContext(), node)
             this.quicklyNode = node
         }
     }
@@ -200,7 +288,7 @@ open class StorageSettingsViewModel(
     }
 
     fun clearTrashFolder(): Boolean {
-        val trashDir = File(SettingsManager.getTrashPath(getContext()))
+        val trashDir = File(CommonSettings.getTrashPath(getContext()))
         // очищаем "буфер обмена", т.к. каталог(и) записи из корзины будут удалены
         // и нечего будет вставлять
         TetroidClipboard.clear()
@@ -233,6 +321,12 @@ open class StorageSettingsViewModel(
 
     fun isKeepLastNode() = storage?.isKeepLastNode ?: false
 
+    fun getLastNodeId() = storage?.lastNodeId
+
+    fun setLastNodeId(nodeId: String?) {
+        storage?.lastNodeId = nodeId
+    }
+
     fun isInited() = storage?.isInited ?: false
 
     fun isLoaded() = (storage?.isLoaded ?: false) && xmlLoader.mIsStorageLoaded
@@ -241,24 +335,11 @@ open class StorageSettingsViewModel(
     //  Добавить установку или удалить поле
 //    fun isCrypted() = storage?.isCrypted ?: false
 
-    fun isCrypted() = nodesInteractor.isExistCryptedNodes(false)
-/*    fun isCrypted(): Boolean {
-        if (DataManager.Instance == null || DataManager.Instance.mDatabaseConfig == null)
-            return false
-        var iniFlag = false
-        try {
-            iniFlag = DataManager.Instance.mDatabaseConfig.isCryptMode
-        } catch (ex: Exception) {
-            addlog(ex)
-        }
-        *//*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
-                : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
-                : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
-                : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*//*
-        return iniFlag || DataManager.Instance.mXml.mIsExistCryptedNodes
-    }*/
+    abstract fun isCrypted(): Boolean
 
     fun isDecrypted() = storage?.isDecrypted ?: false
+
+    fun isNonEncryptedOrDecrypted() = !isCrypted() || isDecrypted()
 
 //    fun isInFavoritesMode() = DataManager.isFavoritesMode()
 
@@ -270,7 +351,7 @@ open class StorageSettingsViewModel(
 
     fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
 
-    fun getCrypter() = cryptInteractor.crypter
+//    fun getCrypter() = cryptInteractor.crypter
 
     fun isNodesExist() = xmlLoader.mRootNodesList != null && xmlLoader.mRootNodesList.isNotEmpty()
 

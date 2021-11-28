@@ -2,7 +2,6 @@ package com.gee12.mytetroid.data;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.logs.ILogger;

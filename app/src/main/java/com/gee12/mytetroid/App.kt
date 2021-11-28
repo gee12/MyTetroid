@@ -3,8 +3,9 @@ package com.gee12.mytetroid
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.ColorInt
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -13,6 +14,7 @@ import com.gee12.mytetroid.utils.ViewUtils
 import java.util.*
 
 object App {
+
     var IsInited = false
     @JvmField
     var IsHighlightAttach = false
@@ -25,10 +27,15 @@ object App {
     lateinit var RecordFieldsInList: RecordFieldsSelector
 
     // FIXME: использовать di
-    lateinit var storagesRepo: StoragesRepo
-    lateinit var storageInteractor: StorageInteractor
-    lateinit var xmlLoader: TetroidXml
-    lateinit var logger: TetroidLogger
+    var CurrentStorageId: Int? = null
+    /**
+     * Это простая реализация DI.
+     * Да, это глобальный синглтон, что является плохим тоном.
+     * Но при таком подходе:
+     *  1) все зависимости расположены в 1 месте
+     *  2) не нужно подключать дополнительную библиотеку DI
+     */
+    var current = TetroidEnvironment()
 
     fun isFullVersion() = BuildConfig.FLAVOR == "pro"
 
@@ -42,27 +49,51 @@ object App {
      */
     @JvmStatic
     fun checkKeepScreenOn(activity: Activity?) {
-        ViewUtils.setKeepScreenOn(activity, SettingsManager.isKeepScreenOn(activity))
+        ViewUtils.setKeepScreenOn(activity, CommonSettings.isKeepScreenOn(activity))
     }
 
     /**
      * Первоначальная инициализация компонентов приложения.
      */
     @JvmStatic
-    fun init(context: Context, logger: TetroidLogger, xmlLoader: TetroidXml, storageInteractor: StorageInteractor) {
+    fun init(
+        context: Context,
+        logger: TetroidLogger,
+        xmlLoader: TetroidXml,
+        storagesRepo: StoragesRepo,
+        storageInteractor: StorageInteractor,
+        crypter: TetroidCrypter
+    ) {
         if (IsInited) return
 
-        App.logger = logger
-        App.xmlLoader = xmlLoader
-        App.storageInteractor = storageInteractor
+        current.apply {
+            this.logger = logger
+            this.xmlLoader = xmlLoader
+            this.crypter = crypter
+            this.storagesRepo = storagesRepo
+            this.storageInteractor = storageInteractor
+        }
 
-        SettingsManager.init(context)
-        logger.init(SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context))
+//        SettingsManager.init(context)
+//        logger.init(SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context))
+        logger.log("************************************************************", false)
         logger.log(context.getString(R.string.log_app_start_mask).format(Utils.getVersionName(context)), false)
-        if (SettingsManager.isCopiedFromFree()) {
+        if (CommonSettings.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, true)
         }
         TetroidXml.ROOT_NODE.name = context.getString(R.string.title_root_node)
         IsInited = true
+    }
+
+    @JvmStatic
+    fun destruct() {
+        current.apply {
+            logger = null
+            xmlLoader = null
+            crypter = null
+            storagesRepo = null
+            storageInteractor = null
+        }
+        IsInited = false
     }
 }

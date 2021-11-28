@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.viewmodels
 
 import android.Manifest
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -9,24 +10,24 @@ import android.os.Build
 import android.os.Bundle
 import android.os.FileObserver
 import android.view.Gravity
-import android.widget.Toast
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
+import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.helpers.UriHelper
 import com.gee12.mytetroid.interactors.SearchInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
+import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -35,14 +36,17 @@ import java.util.HashMap
 
 class MainViewModel(
     app: Application,
-    storagesRepo: StoragesRepo
-): StorageViewModel/*<Constants.MainEvents>*/(app, storagesRepo, TetroidXml()) {
-
-//    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.MainEvents, Any>> = SingleLiveEvent()
-//
-//    fun doAction(action: Constants.MainEvents, param: Any? = null) {
-//        objectAction.postValue(ViewModelEvent(action, param))
-//    }
+    logger: TetroidLogger?,
+    storagesRepo: StoragesRepo?,
+    xmlLoader: TetroidXml?,
+    crypter: TetroidCrypter?
+): StorageViewModel(
+    app,
+    logger,
+    storagesRepo,
+    xmlLoader,
+    crypter
+) {
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
@@ -54,20 +58,22 @@ class MainViewModel(
 
     var tempFileToOpen: TetroidFile? = null
     var isDropRecordsFiltering = true
-//    var lastScan: ScanManager? = null
     var lastSearchProfile: SearchProfile? = null
     var lastFilterQuery: String? = null
     var isFromRecordActivity = false
     private var isStorageChangingHandled = false
 
     init {
-        xmlLoader.setStorageLoadHelper(this)
+//        CommonSettings.init(app)
+
+        this.xmlLoader.setStorageLoadHelper(this)
     }
 
     //region Pages
 
+    @MainThread
     fun openPage(pageId: Int) {
-        postViewEvent(Constants.ViewEvents.OpenPage, pageId)
+        setViewEvent(Constants.ViewEvents.OpenPage, pageId)
     }
 
 //    fun onMainPageCreated() {
@@ -118,7 +124,7 @@ class MainViewModel(
     fun getCurNodeName() = curNode?.name ?: ""
 
     fun showRecords(records: List<TetroidRecord>, viewId: Int, dropSearch: Boolean = true) {
-        postEvent(Constants.MainEvents.ShowRecords, ObjectsInView(records, viewId, dropSearch))
+        setEvent(Constants.MainEvents.ShowRecords, ObjectsInView(records, viewId, dropSearch))
     }
 
     /**
@@ -492,17 +498,21 @@ class MainViewModel(
      * Открытие записей ветки.
      * @param node
      */
-    fun showNode(node: TetroidNode) {
-        launch {
-            // проверка нужно ли расшифровать ветку перед отображением
-            if (onNodeDecrypt(node)) return@launch
-            log(getString(R.string.log_open_node) + StringUtils.getIdString(getContext(), node))
-            curNode = node
-            setEvent(Constants.MainEvents.SetCurrentNode, node)
-            showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
+    fun showNode(node: TetroidNode?) {
+        if (node != null) {
+            launch {
+                // проверка нужно ли расшифровать ветку перед отображением
+                if (checkAndDecryptNode(node)) return@launch
+                log(getString(R.string.log_open_node) + StringUtils.getIdString(getContext(), node))
+                curNode = node
+                setEvent(Constants.MainEvents.SetCurrentNode, node)
+                showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
 
-            // сохраняем выбранную ветку
-            saveLastSelectedNode()
+                // сохраняем выбранную ветку
+                saveLastSelectedNode()
+            }
+        } else {
+            logError(R.string.log_node_is_null, true)
         }
     }
 
@@ -514,7 +524,7 @@ class MainViewModel(
         when {
             isLoadedFavoritesOnly() -> showFavorites()
             record != null -> showNode(record.node)
-            curNode != null -> showNode(curNode!!)
+            curNode != null -> showNode(curNode)
         }
     }
 
@@ -524,7 +534,8 @@ class MainViewModel(
     private fun saveLastSelectedNode() {
         if (isKeepLastNode()) {
             val curNode = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) FavoritesManager.FAVORITES_NODE else curNode
-            SettingsManager.setLastNodeId(getContext(), curNode?.id)
+            setLastNodeId(curNode?.id)
+            updateStorage()
         }
     }
 
@@ -586,7 +597,10 @@ class MainViewModel(
 
         launch {
             if (nodesInteractor.insertNode(getContext(), node, trueParentNode, isCutted)) {
-                setEvent(Constants.MainEvents.NodeInserted, node)
+                // ищем вновь созданную ветку - копию node
+                //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
+                val insertedNode = nodesInteractor.getNode(node.id)
+                setEvent(Constants.MainEvents.NodeInserted, insertedNode)
             } else {
                 logOperErrorMore(LogObj.NODE, LogOper.INSERT)
             }
@@ -673,7 +687,9 @@ class MainViewModel(
         } else {
 //        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
             checkStoragePass(
-                CallbackParam(Constants.MainEvents.EncryptNode, node) /*new Dialogs.IApplyCancelResult() {
+                EventCallbackParams(Constants.MainEvents.EncryptNode, node)
+            )
+        /*new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {
 //                mCurTask = new CryptNodeTask(node, true).run();
@@ -683,7 +699,6 @@ class MainViewModel(
             public void onCancel() {
             }
         }*/
-            )
         }
     }
 
@@ -694,7 +709,9 @@ class MainViewModel(
     fun startDropEncryptNode(node: TetroidNode) {
 //        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
         checkStoragePass(
-            CallbackParam(Constants.MainEvents.DropEncryptNode, node) /*new Dialogs.IApplyCancelResult() {
+            EventCallbackParams(Constants.MainEvents.DropEncryptNode, node)
+        )
+        /*new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {
                 viewModel.decryptNode(node);
@@ -703,7 +720,6 @@ class MainViewModel(
             public void onCancel() {
             }
         }*/
-        )
     }
 
     fun encryptNode(node: TetroidNode) {
@@ -730,7 +746,7 @@ class MainViewModel(
         launch {
             val result = withContext(Dispatchers.IO) {
                 // сначала расшифровываем хранилище
-                if (isCrypted()) {
+                if (isCrypted() && !isDecrypted()) {
                     setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.START)
                     if (cryptInteractor.decryptStorage(getContext(), false)) {
                         setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.SUCCESS)
@@ -739,16 +755,18 @@ class MainViewModel(
                         return@withContext -2
                     }
                 }
-                // только если хранилище расшифровано
-                return@withContext if (isDecrypted()) {
+                // зашифровуем, только если хранилище не зашифровано или уже расшифровано
+                return@withContext if (isNonEncryptedOrDecrypted()) {
                     setStage(LogObj.NODE, operation, Stages.START)
-                    val res = if (isEncrypt) cryptInteractor.encryptNode(getContext(), node)
+
+                    val result = if (isEncrypt) cryptInteractor.encryptNode(getContext(), node)
                     else cryptInteractor.dropCryptNode(getContext(), node)
-                    if (res) 1 else -1
+
+                    if (result) 1 else -1
                 } else 0
             }
 
-            postViewEvent(Constants.ViewEvents.TaskFinished)
+            setViewEvent(Constants.ViewEvents.TaskFinished)
 
             if (result > 0) {
                 logOperRes(LogObj.NODE, operation)
@@ -765,14 +783,16 @@ class MainViewModel(
 
     override fun afterStorageDecrypted(node: TetroidNode?) {
         super.afterStorageDecrypted(node)
-        if (node != null) {
-            if (node === FavoritesManager.FAVORITES_NODE) {
-                showFavorites()
-            } else {
-                showNode(node)
+        launch {
+            if (node != null) {
+                if (node === FavoritesManager.FAVORITES_NODE) {
+                    showFavorites()
+                } else {
+                    showNode(node)
+                }
             }
+            setViewEvent(Constants.ViewEvents.HandleReceivedIntent)
         }
-        postViewEvent(Constants.ViewEvents.HandleReceivedIntent)
     }
 
     //    private void reloadStorage() {
@@ -853,15 +873,16 @@ class MainViewModel(
      * @param tag
      */
     fun showTag(tag: TetroidTag?) {
-        if (tag != null) {
-            curTag = tag
-            // сбрасываем текущую ветку
-            postEvent(Constants.MainEvents.SetCurrentNode, null)
-            log(getString(R.string.log_open_tag_records_mask).format(tag.name))
-//            showRecords(tag.records, MainPageFragment.MAIN_VIEW_TAG_RECORDS)
-            showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
-        } else {
-            logError(R.string.log_tag_is_null, true)
+        launch {
+            if (tag != null) {
+                curTag = tag
+                // сбрасываем текущую ветку
+                setEvent(Constants.MainEvents.SetCurrentNode, null)
+                log(getString(R.string.log_open_tag_records_mask).format(tag.name))
+                showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
+            } else {
+                logError(R.string.log_tag_is_null, true)
+            }
         }
     }
 
@@ -888,7 +909,7 @@ class MainViewModel(
     // region Attaches
 
     fun checkPermissionAndOpenAttach(attach: TetroidFile?) {
-        if (isCrypted() && !SettingsManager.isDecryptFilesInTempDef(getContext())) {
+        if (isCrypted() && !CommonSettings.isDecryptFilesInTempDef(getContext())) {
             log(R.string.log_viewing_decrypted_not_possible, true)
         } else {
             postEvent(Constants.MainEvents.CheckPermissionAndOpenAttach, attach)
@@ -902,13 +923,10 @@ class MainViewModel(
         }
     }
 
+    @MainThread
     fun showAttaches(attaches: List<TetroidFile>) {
-        postEvent(Constants.MainEvents.ShowAttaches, ObjectsInView(attaches))
+        setEvent(Constants.MainEvents.ShowAttaches, ObjectsInView(attaches))
     }
-
-//    fun showRecordAttaches(record: TetroidRecord) {
-//        doAction(Constants.TetroidEvents.ShowRecordAttaches, record)
-//    }
 
     /**
      * Отображение списка прикрепленных файлов.
@@ -916,11 +934,13 @@ class MainViewModel(
      */
     fun showRecordAttaches(record: TetroidRecord?, fromRecordActivity: Boolean = false) {
         if (record == null) return
-        curNode = record.node
-        curRecord = record
-        isFromRecordActivity = fromRecordActivity
-        showAttaches(record.attachedFiles)
-        openPage(Constants.PAGE_MAIN)
+        launch {
+            curNode = record.node
+            curRecord = record
+            isFromRecordActivity = fromRecordActivity
+            showAttaches(record.attachedFiles)
+            openPage(Constants.PAGE_MAIN)
+        }
     }
 
     open fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
@@ -1133,14 +1153,15 @@ class MainViewModel(
      * Отображение списка избранных записей.
      */
     fun showFavorites() {
-        // проверка нужно ли расшифровать ветку перед отображением
-        /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
+        launch {
+            // проверка нужно ли расшифровать ветку перед отображением
+            /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
             // запрос пароля в асинхронном режиме
             askPassword(FavoritesManager.FAVORITES_NODE);
         } else*/
 //        run {
 
-        // выделяем ветку Избранное, только если загружено не одно Избранное
+            // выделяем ветку Избранное, только если загружено не одно Избранное
 //            if (!isLoadedFavoritesOnly()) {
 //                setCurNode(null)
 //                setFavorIsCurNode(true)
@@ -1148,32 +1169,33 @@ class MainViewModel(
 //            showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES)
 
 
-        // проверка нужно ли расшифровать ветку перед отображением
-        /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
+            // проверка нужно ли расшифровать ветку перед отображением
+            /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
             // запрос пароля в асинхронном режиме
             askPassword(FavoritesManager.FAVORITES_NODE);
         } else*/
 //        {
-        // выделяем ветку Избранное, только если загружено не одно Избранное
+            // выделяем ветку Избранное, только если загружено не одно Избранное
 //            if (!App.IsLoadedFavoritesOnly) {
-        if (!isLoadedFavoritesOnly()) {
+            if (!isLoadedFavoritesOnly()) {
 //            setCurNode(null)
-            setEvent(Constants.MainEvents.SetCurrentNode, FavoritesManager.FAVORITES_NODE)
+                setEvent(Constants.MainEvents.SetCurrentNode, FavoritesManager.FAVORITES_NODE)
 //            setFavorIsCurNode(true)
 //        postEvent(Constants.MainEvents.ShowFavorites)
-        }
-        showRecords(FavoritesManager.getFavoritesRecords(), Constants.MAIN_VIEW_FAVORITES, true)
+            }
+            showRecords(FavoritesManager.getFavoritesRecords(), Constants.MAIN_VIEW_FAVORITES, true)
 
-        // сохраняем выбранную ветку
-        saveLastSelectedNode()
+            // сохраняем выбранную ветку
+            saveLastSelectedNode()
 //        }
+        }
     }
 
     @MainThread
     fun addFavorite(context: Context?, record: TetroidRecord) {
         if (FavoritesManager.add(context, record)) {
             val mes = getString(R.string.log_added_to_favor)
-            Message.show(getContext(), mes, Toast.LENGTH_SHORT)
+            showMessage(mes)
             log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
             updateFavorites(record)
         } else {
@@ -1215,15 +1237,17 @@ class MainViewModel(
      * @param found
      */
     fun openFoundObject(found: ITetroidObject) {
-        val type = found.type
-        when (type) {
-            FoundType.TYPE_RECORD -> openRecord(found as TetroidRecord)
-            FoundType.TYPE_FILE -> showRecordAttaches((found as TetroidFile).record, false)
-            FoundType.TYPE_NODE -> showNode(found as TetroidNode)
-            FoundType.TYPE_TAG -> showTag(found as TetroidTag)
-        }
-        if (type != FoundType.TYPE_RECORD) {
-            openPage(Constants.PAGE_MAIN)
+        launch {
+            val type = found.type
+            when (type) {
+                FoundType.TYPE_RECORD -> openRecord(found as? TetroidRecord)
+                FoundType.TYPE_FILE -> showRecordAttaches((found as? TetroidFile)?.record, false)
+                FoundType.TYPE_NODE -> showNode(found as? TetroidNode)
+                FoundType.TYPE_TAG -> showTag(found as? TetroidTag)
+            }
+            if (type != FoundType.TYPE_RECORD) {
+                openPage(Constants.PAGE_MAIN)
+            }
         }
     }
 
@@ -1242,23 +1266,25 @@ class MainViewModel(
         val searchInteractor = SearchInteractor(profile, storageInteractor, nodesInteractor, recordsInteractor)
 
         launch {
-            postViewEvent(Constants.ViewEvents.TaskStarted, R.string.global_searching)
             log(getString(R.string.global_search_start).format(profile.query))
+            setViewEvent(Constants.ViewEvents.TaskStarted, R.string.global_searching)
             val found = searchInteractor.globalSearch(getContext())
-            postViewEvent(Constants.ViewEvents.TaskFinished, Gravity.NO_GRAVITY)
+            setViewEvent(Constants.ViewEvents.TaskFinished, Gravity.NO_GRAVITY)
+
             if (found == null) {
                 log(getString(R.string.log_global_search_return_null), true)
                 return@launch
             } else if (profile.isSearchInNode && profile.node != null) {
                 log(getString(R.string.global_search_by_node_result).format(profile.node?.name), true)
             }
+
             // уведомляем, если не смогли поискать в зашифрованных ветках
             if (searchInteractor.isExistCryptedNodes) {
                 log(R.string.log_found_crypted_nodes, true)
             }
             log(String.format(getString(R.string.global_search_end), found.size))
 
-            postEvent(Constants.MainEvents.GlobalSearchFinished, GlobalSearchParams(found, profile))
+            setEvent(Constants.MainEvents.GlobalSearchFinished, GlobalSearchParams(found, profile))
         }
     }
 
@@ -1306,16 +1332,18 @@ class MainViewModel(
     }
 
     private fun filterRecords(query: String, records: List<TetroidRecord>, viewId: Int) {
-        val message = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
-            getString(R.string.filter_records_in_node_by_query).format(getCurNodeName(), query)
-        else getString(R.string.filter_records_in_tag_by_query).format(getCurTagName(), query)
-        log(message)
-        val found = ScanManager.searchInRecordsNames(records, query)
-        showRecords(found, viewId, false)
-        if (lastFilterQuery.isNullOrEmpty()) {
-            lastFilterQuery = query
+        launch {
+            val message = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
+                getString(R.string.filter_records_in_node_by_query).format(getCurNodeName(), query)
+            else getString(R.string.filter_records_in_tag_by_query).format(getCurTagName(), query)
+            log(message)
+            val found = ScanManager.searchInRecordsNames(records, query)
+            showRecords(found, viewId, false)
+            if (lastFilterQuery.isNullOrEmpty()) {
+                lastFilterQuery = query
+            }
+            setEvent(Constants.MainEvents.RecordsFiltered, FilteredObjectsInView(query, found, viewId))
         }
-        postEvent(Constants.MainEvents.RecordsFiltered, FilteredObjectsInView(query, found, viewId))
     }
 
     private fun filterRecordAttaches(query: String) {
@@ -1327,23 +1355,27 @@ class MainViewModel(
     }
 
     private fun filterAttaches(query: String, record: TetroidRecord) {
-        log(String.format(getString(R.string.filter_files_by_query), record.name, query))
-        val found = ScanManager.searchInFiles(record.attachedFiles, query)
-        showAttaches(found)
-        postEvent(Constants.MainEvents.AttachesFiltered, FilteredObjectsInView(query, found, Constants.MAIN_VIEW_RECORD_FILES))
+        launch {
+            log(String.format(getString(R.string.filter_files_by_query), record.name, query))
+            val found = ScanManager.searchInFiles(record.attachedFiles, query)
+            showAttaches(found)
+            setEvent(Constants.MainEvents.AttachesFiltered, FilteredObjectsInView(query, found, Constants.MAIN_VIEW_RECORD_FILES))
+        }
     }
 
     fun onRecordsSearchClose() {
-        // "сбрасываем" фильтрацию, но не для только что открытых списков записей
-        // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
-        // что приводит к повторному открытию списка записей)
-        if (isDropRecordsFiltering) {
-            when (curMainViewId) {
-                Constants.MAIN_VIEW_NODE_RECORDS -> if (curNode != null) {
-                    showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, false)
-                }
-                Constants.MAIN_VIEW_TAG_RECORDS -> if (curTag != null) {
-                    showRecords(curTag!!.records, Constants.MAIN_VIEW_TAG_RECORDS, false)
+        launch {
+            // "сбрасываем" фильтрацию, но не для только что открытых списков записей
+            // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
+            // что приводит к повторному открытию списка записей)
+            if (isDropRecordsFiltering) {
+                when (curMainViewId) {
+                    Constants.MAIN_VIEW_NODE_RECORDS -> if (curNode != null) {
+                        showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, false)
+                    }
+                    Constants.MAIN_VIEW_TAG_RECORDS -> if (curTag != null) {
+                        showRecords(curTag!!.records, Constants.MAIN_VIEW_TAG_RECORDS, false)
+                    }
                 }
             }
         }
@@ -1405,6 +1437,30 @@ class MainViewModel(
         return res
     }
 
+    fun onBeforeExit(activity: Activity) {
+        // синхронизация перед выходом из приложения
+//        viewModel.syncStorageAndRunCallback(this, {
+//            onExit()
+//            finish()
+//        }))
+        syncStorageAndExit(activity) {
+            launch {
+                onExit(activity)
+                setEvent(Constants.MainEvents.Exit)
+            }
+        }
+    }
+
+    private fun onExit(activity: Activity) {
+        log(R.string.log_app_exit)
+
+        // останавливаем отслеживание изменения структуры хранилища
+        FileObserverService.sendCommand(activity, FileObserverService.ACTION_STOP)
+        FileObserverService.stop(activity)
+
+        // удаляем загруженное хранилище из памяти
+        App.destruct()
+    }
 }
 
 class ClipboardParams(

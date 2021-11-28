@@ -8,13 +8,10 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.utils.ViewUtils
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 
 class PassEnterDialog(
-    private val node: TetroidNode?,
     private val callback: PassDialogs.IPassInputResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -31,7 +28,7 @@ class PassEnterDialog(
         setTitle(R.string.title_password_enter)
 
         val tvPass = view.findViewById<EditText>(R.id.edit_text_pass)
-        setPositiveButton(R.string.answer_ok) { _, _ -> callback.applyPass(tvPass.text.toString(), node) }
+        setPositiveButton(R.string.answer_ok) { _, _ -> callback.applyPass(tvPass.text.toString()/*, node*/) }
         setNegativeButton(R.string.answer_cancel) { _, _ -> callback.cancelPass() }
 
         // проверка на пустоту пароля

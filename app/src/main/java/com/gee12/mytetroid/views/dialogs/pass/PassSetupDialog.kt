@@ -1,20 +1,15 @@
 package com.gee12.mytetroid.views.dialogs.pass
 
-import android.app.Dialog
-import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.utils.ViewUtils
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 
 class PassSetupDialog(
-    private val node: TetroidNode?,
     private val callback: PassDialogs.IPassInputResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -41,12 +36,12 @@ class PassSetupDialog(
         tvPass.addTextChangedListener(listener)
         tvConfirmPass.addTextChangedListener(listener)
 
-        setPositiveButton(R.string.answer_ok) { _ , _ ->
+        setPositiveButton(R.string.answer_ok, isCloseDialog = false) { _ , _ ->
             val pass = tvPass.text.toString()
             val confirmPass = tvConfirmPass.text.toString()
             // проверка совпадения паролей
-            if (!pass.contentEquals(confirmPass)) {
-                callback.applyPass(pass, node)
+            if (pass.contentEquals(confirmPass)) {
+                callback.applyPass(pass/*, node*/)
                 dialog.dismiss()
             } else {
                 viewModel.showMessage(getString(R.string.log_pass_confirm_not_match))

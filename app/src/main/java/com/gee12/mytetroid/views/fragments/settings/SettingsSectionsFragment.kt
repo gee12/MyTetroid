@@ -3,7 +3,10 @@ package com.gee12.mytetroid.views.fragments.settings
 import android.os.Bundle
 import com.gee12.mytetroid.R
 
-class SettingsFragment : TetroidSettingsFragment() {
+/**
+ * Фрагмент с разделами общих настроек приложения.
+ */
+class SettingsSectionsFragment : TetroidSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)

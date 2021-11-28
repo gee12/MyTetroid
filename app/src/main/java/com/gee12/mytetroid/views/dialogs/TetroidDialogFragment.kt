@@ -1,10 +1,8 @@
 package com.gee12.mytetroid.views.dialogs
 
 import android.app.Dialog
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,11 +14,17 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
-import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard
+import com.gee12.mytetroid.views.IViewEventListener
+import com.gee12.mytetroid.views.TetroidMessage
+import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
+
+    private val viewEventListener: IViewEventListener?
+        get() = requireActivity() as IViewEventListener?
 
     lateinit var dialog: AlertDialog
 
@@ -44,9 +48,9 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         fun onCancel()
     }
 
-    var oneButtonCallback: OnDialogOkCallback? = null
-    var twoButtonsCallback: OnDialogYesNoCallback? = null
-    var threeButtonsCallback: OnDialogYesNoCancelCallback? = null
+    protected var onPositiveButtonCallback: DialogInterface.OnClickListener? = null
+    protected var onNegativeButtonCallback: DialogInterface.OnClickListener? = null
+    protected var onNeutralButtonCallback: DialogInterface.OnClickListener? = null
 
     protected abstract fun getViewModelClazz(): Class<VM>
 
@@ -64,6 +68,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         onDialogCreated(dialog, dialogView)
 
         dialog.setOnShowListener {
+            initButtons()
             onDialogShowed(dialog, dialogView)
         }
 
@@ -78,6 +83,32 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         viewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application))
             .get(getViewModelClazz())
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
+
+        viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })
+        viewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
+    }
+
+    protected open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
+        when (event) {
+            Constants.ViewEvents.ShowProgress -> viewEventListener?.setProgressVisibility(data as? Boolean ?: false)
+            Constants.ViewEvents.ShowProgressText -> viewEventListener?.setProgressText(data as? String)
+            Constants.ViewEvents.TaskStarted -> viewEventListener?.setProgressVisibility(true, data as String)
+            Constants.ViewEvents.TaskFinished -> viewEventListener?.setProgressVisibility(false)
+            Constants.ViewEvents.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
+            else -> {}
+        }
+    }
+
+    protected open fun initButtons() {
+        onPositiveButtonCallback?.let { callback ->
+            getPositiveButton()?.setOnClickListener { callback.onClick(null, 0) }
+        }
+        onNegativeButtonCallback?.let { callback ->
+            getNegativeButton()?.setOnClickListener { callback.onClick(null, 0) }
+        }
+        onNeutralButtonCallback?.let { callback ->
+            getNeutralButton()?.setOnClickListener { callback.onClick(null, 0) }
+        }
     }
 
     open fun onDialogBuilderCreated(builder: Dialogs.AskDialogBuilder) {}
@@ -102,24 +133,6 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (oneButtonCallback == null && context is OnDialogOkCallback) {
-            this.oneButtonCallback = context
-        } else if (twoButtonsCallback == null && context is OnDialogYesNoCallback) {
-            this.twoButtonsCallback = context
-        } else if (threeButtonsCallback == null && context is OnDialogYesNoCancelCallback) {
-            this.threeButtonsCallback = context
-        }
-    }
-
-    override fun onDetach() {
-        oneButtonCallback = null
-        twoButtonsCallback = null
-        threeButtonsCallback = null
-        super.onDetach()
-    }
-
     fun setTitle(title: String?) {
         dialog.setTitle(title ?: "")
     }
@@ -128,16 +141,31 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         dialog.setTitle(resId)
     }
 
-    fun setPositiveButton(resId: Int, listener: DialogInterface.OnClickListener? = null) {
-        setButton(AlertDialog.BUTTON_POSITIVE, resId, listener)
+    fun setPositiveButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
+        if (!isCloseDialog) {
+            onPositiveButtonCallback = listener
+            setButton(AlertDialog.BUTTON_POSITIVE, resId, null)
+        } else {
+            setButton(AlertDialog.BUTTON_POSITIVE, resId, listener)
+        }
     }
 
-    fun setNegativeButton(resId: Int, listener: DialogInterface.OnClickListener? = null) {
-        setButton(AlertDialog.BUTTON_NEGATIVE, resId, listener)
+    fun setNegativeButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
+        if (!isCloseDialog) {
+            onNegativeButtonCallback = listener
+            setButton(AlertDialog.BUTTON_NEGATIVE, resId, null)
+        } else {
+            setButton(AlertDialog.BUTTON_NEGATIVE, resId, listener)
+        }
     }
 
-    fun setNeutralButton(resId: Int, listener: DialogInterface.OnClickListener? = null) {
-        setButton(AlertDialog.BUTTON_NEUTRAL, resId, listener)
+    fun setNeutralButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
+        if (!isCloseDialog) {
+            onNeutralButtonCallback = listener
+            setButton(AlertDialog.BUTTON_NEUTRAL, resId, null)
+        } else {
+            setButton(AlertDialog.BUTTON_NEUTRAL, resId, listener)
+        }
     }
 
     fun setButton(type: Int, resId: Int, listener: DialogInterface.OnClickListener?) {

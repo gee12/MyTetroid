@@ -1,52 +1,5 @@
 package com.gee12.mytetroid.data;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.text.TextUtils;
-import android.webkit.MimeTypeMap;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.FileProvider;
-
-import com.gee12.mytetroid.BuildConfig;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.xml.IStorageLoadHelper;
-import com.gee12.mytetroid.views.activities.MainActivity;
-import com.gee12.mytetroid.data.crypt.IRecordFileCrypter;
-import com.gee12.mytetroid.data.crypt.TetroidCrypter;
-import com.gee12.mytetroid.data.ini.DatabaseConfig;
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.logs.TetroidLog;
-import com.gee12.mytetroid.model.FoundType;
-import com.gee12.mytetroid.model.ITetroidObject;
-import com.gee12.mytetroid.model.TetroidFile;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidObject;
-import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.model.TetroidTag;
-import com.gee12.mytetroid.services.FileObserverService;
-import com.gee12.mytetroid.utils.FileUtils;
-import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.Message;
-
-import org.jetbrains.annotations.NotNull;
-import org.jsoup.internal.StringUtil;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 @Deprecated
 public class DataManager /*implements IRecordFileCrypter*/ {
 

@@ -77,7 +77,7 @@ object NetworkHelper {
     }
 
     interface IWebImageResult {
-        fun onSuccess(bitmap: Bitmap?)
+        fun onSuccess(bitmap: Bitmap)
         fun onError(ex: Exception)
     }
 

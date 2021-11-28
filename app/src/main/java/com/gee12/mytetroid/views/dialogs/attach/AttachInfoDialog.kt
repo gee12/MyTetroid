@@ -30,7 +30,7 @@ class AttachInfoDialog(
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(attach?.name)
-        setPositiveButton(R.string.answer_ok, null)
+        setPositiveButton(R.string.answer_ok)
     }
 
     override fun initViewModel() {

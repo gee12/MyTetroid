@@ -73,7 +73,7 @@ class NodeChooserDialog(
         adapter = NodesListAdapter(context, null)
         // обработчик результата
         setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(adapter.curNode) }
-        setNegativeButton(R.string.answer_cancel, null)
+        setNegativeButton(R.string.answer_cancel)
     }
 
     override fun initViewModel() {

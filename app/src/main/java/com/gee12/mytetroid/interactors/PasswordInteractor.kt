@@ -14,7 +14,7 @@ import java.lang.Exception
 
 class PasswordInteractor(
     private val logger: ITetroidLogger,
-    private val storage: TetroidStorage?,
+//    private val storage: TetroidStorage?,
     private val databaseConfig: DatabaseConfig,
     private val cryptInteractor: EncryptionInteractor,
     private val storageInteractor: StorageInteractor,
@@ -52,7 +52,7 @@ class PasswordInteractor(
      * Сохранение пароля в настройках и его установка для шифрования.
      * @param pass
      */
-    suspend fun initPass(context: Context, pass: String) {
+    suspend fun initPass(storage: TetroidStorage, pass: String) {
         val passHash = cryptInteractor.crypter.passToHash(pass)
 //        if (SettingsManager.isSaveMiddlePassHashLocal(context)) {
         if (storage?.isSavePassLocal == true) {
@@ -62,7 +62,7 @@ class PasswordInteractor(
             // записываем проверочную строку
             saveMiddlePassCheckData(passHash)
         } else {
-            // сохраняем хэш пароля в оперативную память, может еще понадобится
+            // сохраняем хэш пароля в оперативную память, на вермя "сеанса" работы приложения
             cryptInteractor.crypter.middlePassHash = passHash
         }
         // здесь, по идее, можно сохранять сразу passHash (с параметром isMiddleHash=true),
@@ -74,13 +74,15 @@ class PasswordInteractor(
      * Установка пароля хранилища впервые.
      * @param pass
      */
-    suspend fun setupPass(context: Context, pass: String) {
+    suspend fun setupPass(storage: TetroidStorage, pass: String): Boolean {
         // сохраняем в database.ini
-        if (savePassCheckData(context, pass)) {
+        return if (savePassCheckData(pass)) {
             logger.log(R.string.log_pass_setted, true)
-            initPass(context, pass)
+            initPass(storage, pass)
+            true
         } else {
             logger.log(R.string.log_pass_set_error, true)
+            false
         }
     }
 
@@ -112,11 +114,11 @@ class PasswordInteractor(
     /**
      * Сброс сохраненного хэша пароля и его проверочных данных.
      */
-    fun clearSavedPass() {
+    fun clearSavedPass(storage: TetroidStorage) {
 //        SettingsManager.setMiddlePassHash(context, null)
 //        storage.middlePassHash = null
         cryptInteractor.crypter.middlePassHash = null
-        clearPassCheckData()
+        clearPassCheckData(storage)
         clearMiddlePassCheckData()
     }
 
@@ -125,7 +127,7 @@ class PasswordInteractor(
      * @param newPass
      * @return
      */
-    fun savePassCheckData(context: Context?, newPass: String?): Boolean {
+    fun savePassCheckData(newPass: String?): Boolean {
         val salt = Utils.createRandomBytes(32)
         val passHash = try {
             Crypter.calculatePBKDF2Hash(newPass, salt)
@@ -153,9 +155,9 @@ class PasswordInteractor(
      * Очистка сохраненного проверочнго хэша пароля.
      * @return
      */
-    fun clearPassCheckData(): Boolean {
+    fun clearPassCheckData(storage: TetroidStorage): Boolean {
 //        SettingsManager.setMiddlePassHash(context, null)
-        storage?.middlePassHash = null
+        storage.middlePassHash = null
         return databaseConfig.savePass(null, null, false)
     }
 

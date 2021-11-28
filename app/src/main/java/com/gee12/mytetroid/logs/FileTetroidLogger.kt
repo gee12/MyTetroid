@@ -49,8 +49,9 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
         log(s, type)
     }
 
+    // FIXME: как отсюда вызвать отображение лога если show=true ?
     fun logWithoutFile(s: String, type: LogType, show: Boolean = true) {
-        logToFile(s, type, show)
+        logToFile(s, type, false)
     }
 
     fun logErrorWithoutFile(s: String, show: Boolean = true) {

@@ -36,7 +36,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.helpers.HtmlHelper;
-import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.CommonSettings;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.viewmodels.ActivityResult;
 import com.gee12.mytetroid.viewmodels.RecordViewModel;
@@ -132,7 +132,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             // создание записи из виджета
             // сначала инициализируем службы
 //            App.init(this);
-            viewModel.initApp();
+            viewModel.initEnvironment();
             if (!viewModel.initStorage(receivedIntent)) {
                 finish();
                 return;
@@ -265,7 +265,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
             // long-term tasks
             case TaskStarted:
-                taskPreExecute((int)data);
+                taskPreExecute((data instanceof Integer) ? (int)data : R.string.task_wait);
                 break;
             case TaskFinished:
                 taskPostExecute();
@@ -299,7 +299,11 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     protected void onEvent(Constants.RecordEvents action, Object data) {
         switch (action) {
             case Save:
-                viewModel.save(mEditor.getDocumentHtml());
+                // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
+                String htmlText = TetroidEditor.getDocumentHtml((viewModel.isHtmlMode())
+                        ? mEditTextHtml.getText().toString()
+                        : mEditor.getWebView().getEditableHtml());
+                viewModel.save(htmlText);
                 break;
             case LoadFields:
                 loadFields((TetroidRecord) data);
@@ -366,7 +370,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     @Override
-    protected void onUICreated() {
+    protected void onUICreated(boolean uiCreated) {
     }
 
     @Override
@@ -566,7 +570,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         int defColor = curColor;
         if (defColor == 0) {
             // если не передали цвет, то достаем последний из сохраненных
-            int[] savedColors = SettingsManager.getPickedColors(this);
+            int[] savedColors = CommonSettings.getPickedColors(this);
             defColor = (savedColors != null && savedColors.length > 0)
                     ? savedColors[savedColors.length - 1] : Color.BLACK;
         }
@@ -577,18 +581,18 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     public void onColorSelected(int dialogId, int color) {
-        SettingsManager.addPickedColor(this, color, WysiwygEditor.MAX_SAVED_COLORS);
+        CommonSettings.addPickedColor(this, color, WysiwygEditor.MAX_SAVED_COLORS);
         mEditor.setPickedColor(color);
     }
 
     @Override
     public int[] getSavedColors() {
-        return SettingsManager.getPickedColors(this);
+        return CommonSettings.getPickedColors(this);
     }
 
     @Override
     public void removeSavedColor(int index, int color) {
-        SettingsManager.removePickedColor(this, color);
+        CommonSettings.removePickedColor(this, color);
     }
 
     @Override
@@ -726,37 +730,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     // endregion Image
 
-    // region SaveRecord
-
-//    /**
-//     * Сохранение изменений при скрытии или выходе из активности.
-//     * @param showAskDialog
-//     * @param obj если null - закрываем активность, иначе - выполняем действия с объектом
-//     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
-//     * действие нужно прервать, чтобы дождаться результата из диалога
-//     */
-//    private boolean onSaveRecord(boolean showAskDialog, ResultObj obj) {
-//        if (mEditor.isEdited()) {
-//            if (SettingsManager.isRecordAutoSave(this) && !mRecord.isTemp()) {
-//                // сохраняем без запроса
-//                return saveRecord(obj);
-//            } else if (showAskDialog) {
-//                // спрашиваем о сохранении, если нужно
-//                RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
-//                    @Override
-//                    public void onApply() {
-//                        saveRecord(obj);
-//                    }
-//                    @Override
-//                    public void onCancel() {
-//                        onAfterSaving(obj);
-//                    }
-//                });
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    // region Save record
 
     private void askForSaving(ResultObj obj) {
         RecordDialogs.saveRecord(RecordActivity.this, new Dialogs.IApplyCancelResult() {
@@ -779,7 +753,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         mEditor.beforeSaveAsync(true);
     }
 
-    // endregion SaveRecord
+    // endregion Save record
 
     // region Storage
 
@@ -790,7 +764,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     // endregion Storage
 
-    // region OptionsRecord
+    // region Options record
 
     /**
      * Отправка записи.
@@ -812,13 +786,12 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     void showRecordInfoDialog() {
-//        RecordDialogs.createRecordInfoDialog(this, viewModel.getMRecord());
         new RecordInfoDialog(
                 viewModel.getCurRecord().getValue()
         ).showIfPossible(getSupportFragmentManager());
     }
 
-    // endregion OptionsRecord
+    // endregion Options record
 
     // region Search
 
@@ -894,43 +867,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     // endregion Search
 
 
-//    /**
-//     * Действия перед закрытием активности, если свойства записи были изменены.
-//     * @param startMainActivity
-//     * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
-//     *         действие нужно прервать, чтобы дождаться результата из диалога
-//     */
-//    private boolean onRecordFieldsIsEdited(boolean startMainActivity) {
-//        if (mIsFieldsEdited) {
-////                ActivityCompat.getReferrer()
-//            if (getCallingActivity() != null) {
-//                // закрываем активность, возвращая результат:
-//                // указываем родительской активности, что нужно обновить список записей
-//                Intent intent = new Intent();
-//                intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true);
-////            intent.setAction(ACTION_ADD_RECORD);
-//                setResult(RESULT_OK, intent);
-//            } else if (startMainActivity) {
-//                // запускаем главную активность, помещая результат
-//                Bundle bundle = new Bundle();
-////                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-//                if (mRecord.getNode() != null) {
-//                    bundle.putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE);
-//                    bundle.putString(Constants.EXTRA_OBJECT_ID, mRecord.getNode().getId());
-//                    ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, null);
-//                    finish();
-//                } else {
-//                    Message.show(this, getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG);
-//                }
-//                return true;
-//            } else {
-//                finish();
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     private boolean isFromAnotherActivity() {
 //        ActivityCompat.getReferrer()
         return getCallingActivity() != null;
@@ -955,11 +891,10 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
+        if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
             if (data != null) {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
                     // хранилище изменено
-//                    if (StorageManager.isLoaded()) {
                     if (viewModel.isLoaded()) {
                         // спрашиваем о перезагрузке хранилище, только если оно уже загружено
                         boolean isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false);
@@ -975,6 +910,8 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             }
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
+        } else if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
+            // нечего обновлять ?
         } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             viewModel.saveSelectedImages(data, true);
         } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
@@ -1006,7 +943,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
     }
 
-    // region OptionsMenu
+    // region Options menu
 
     /**
      * Обработчик создания системного меню.
@@ -1038,16 +975,16 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 || mode == Constants.MODE_EDIT);
         activateMenuItem(menu.findItem(R.id.action_record_save), mode == Constants.MODE_EDIT);
 
-//        boolean isLoadedFavoritesOnly = App.IsLoadedFavoritesOnly;
+        boolean isLoaded = viewModel.isLoaded();
         boolean isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly();
-//        boolean isTemp = (mRecord == null || mRecord.isTemp());
         boolean isTemp = viewModel.isRecordTemprorary();
-        activateMenuItem(menu.findItem(R.id.action_record_edit_fields), !isLoadedFavoritesOnly, !isTemp);
-        activateMenuItem(menu.findItem(R.id.action_record_node), !isLoadedFavoritesOnly, !isTemp);
-        activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly, !isTemp);
-        activateMenuItem(menu.findItem(R.id.action_attached_files), true, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_record_edit_fields), isLoaded && !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_record_node), isLoaded && !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_delete), isLoaded && !isLoadedFavoritesOnly, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_attached_files), isLoaded, !isTemp);
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), true, !isTemp);
-        activateMenuItem(menu.findItem(R.id.action_info), true, !isTemp);
+        activateMenuItem(menu.findItem(R.id.action_info), isLoaded, !isTemp);
+        enableMenuItem(menu.findItem(R.id.action_storage_settings), isLoaded);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -1140,6 +1077,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             case R.id.action_fullscreen:
                 toggleFullscreen(false);
                 return true;
+            case R.id.action_storage_settings:
+                showStorageSettingsActivity(viewModel.getStorage());
+                break;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
@@ -1152,9 +1092,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         return super.onOptionsItemSelected(item);
     }
 
-    // endregion OptionsMenu
+    // endregion Options menu
 
-    // region RecordFields
+    // region Record fields
 
     /**
      * Редактирование свойств записи.
@@ -1223,7 +1163,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
     }
 
-    // endregion RecordFields
+    // endregion Record fields
 
 
     @Override
@@ -1399,6 +1339,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         public void onAfterTextChanged() {
             if (viewModel.isHtmlMode()) {
                 mEditor.setIsEdited();
+                viewModel.setEdited(true);
             }
         }
     }

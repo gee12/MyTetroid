@@ -2,11 +2,9 @@ package com.gee12.mytetroid.views.fragments.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Toast
 import androidx.preference.Preference
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.SettingsManager
-import com.gee12.mytetroid.views.Message
+import com.gee12.mytetroid.data.CommonSettings
 
 class SettingsEncryptionFragment : TetroidSettingsFragment() {
 
@@ -73,15 +71,15 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         // когда запрашивать пароль
         findPreference<Preference>(getString(R.string.pref_key_when_ask_password))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (SettingsManager.isSaveMiddlePassHashLocalDef(context)) {
-                Message.show(context, getString(R.string.title_not_avail_when_save_pass), Toast.LENGTH_SHORT)
+            if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) {
+                baseViewModel.showMessage(getString(R.string.title_not_avail_when_save_pass))
             }
             true
         }
         updateSummary(
             R.string.pref_key_when_ask_password,
-            if (SettingsManager.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
-            else SettingsManager.getWhenAskPass(context)
+            if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
+            else CommonSettings.getWhenAskPass(context)
         )
     }
 
@@ -97,11 +95,11 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
 //            setPINCodePrefAvailability();
             updateSummary(
                 R.string.pref_key_when_ask_password,
-                if (SettingsManager.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
-                else SettingsManager.getWhenAskPass(context)
+                if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
+                else CommonSettings.getWhenAskPass(context)
             )
         } else if (key == getString(R.string.pref_key_when_ask_password)) {
-            updateSummary(R.string.pref_key_when_ask_password, SettingsManager.getWhenAskPass(context))
+            updateSummary(R.string.pref_key_when_ask_password, CommonSettings.getWhenAskPass(context))
         }
     }
 

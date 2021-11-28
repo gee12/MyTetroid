@@ -12,10 +12,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
@@ -28,6 +30,8 @@ import org.jsoup.internal.StringUtil
 
 
 class StoragesActivity : TetroidActivity<StoragesViewModel>() {
+
+    private var storageViewModel: StorageViewModel? = null
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StoragesAdapter
@@ -44,22 +48,24 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = StoragesAdapter(this)
-        adapter.setOnItemClickListener { v: View ->
-            val itemPosition = recyclerView.getChildLayoutPosition(v)
+        adapter = StoragesAdapter(this, App.CurrentStorageId)
+        adapter.onItemClickListener = View.OnClickListener { v ->
+            val itemPosition = recyclerView.getChildLayoutPosition(v!!)
             val item = adapter.getItem(itemPosition)
             selectStorage(item)
         }
-        adapter.setOnItemLongClickListener { v: View ->
+        adapter.onItemLongClickListener = View.OnLongClickListener { v ->
             val itemPosition = recyclerView.getChildLayoutPosition(v)
             val item = adapter.getItem(itemPosition)
             showStoragePopupMenu(v, item)
             true
         }
-        adapter.setOnItemMenuClickListener { itemView: View, anchorView: View ->
-            val itemPosition = recyclerView.getChildLayoutPosition(itemView)
-            val item = adapter.getItem(itemPosition)
-            showStoragePopupMenu(anchorView, item)
+        adapter.onItemMenuClickListener = object : StoragesAdapter.IItemMenuClickListener {
+            override fun onClick(itemView: View, anchorView: View) {
+                val itemPosition = recyclerView.getChildLayoutPosition(itemView)
+                val item = adapter.getItem(itemPosition)
+                showStoragePopupMenu(anchorView, item)
+            }
         }
         recyclerView.adapter = adapter
 
@@ -76,20 +82,20 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
         viewModel.storageEvent.observe(this, {
             when (it.state) {
-                Constants.StorageEvents.PermissionCheck -> checkPermission()
-                Constants.StorageEvents.PermissionChecked -> {}
+//                Constants.StorageEvents.PermissionCheck -> checkPermission()
+//                Constants.StorageEvents.PermissionChecked -> {}
                 Constants.StorageEvents.Added -> (it.data as TetroidStorage?)?.let { storage -> onStorageAdded(storage) }
-                Constants.StorageEvents.FilesCreated -> (it.data as TetroidStorage?)?.let { storage -> onStorageFilesCreated(storage) }
+//                Constants.StorageEvents.FilesCreated -> (it.data as TetroidStorage?)?.let { storage -> onStorageFilesCreated(storage) }
                 else -> {}
             }
         })
     }
 
-    override fun onUICreated() {}
+    override fun onUICreated(uiCreated: Boolean) {}
 
     fun checkPermission() {
         if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
-            viewModel.onPermissionChecked()
+            storageViewModel?.onPermissionChecked()
         }
     }
 
@@ -127,7 +133,26 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStorageAdded(storage: TetroidStorage) {
         if (storage.isNew) {
-            AskDialogs.showCreateNewStorageDialog(this, storage.path) { viewModel.createStorage(storage) }
+            AskDialogs.showCreateNewStorageDialog(this, storage.path) {
+                storageViewModel = StorageViewModel(
+                    app = application,
+                    logger = viewModel.logger,
+                    storagesRepo = null,
+                    xmlLoader = null,
+                    crypter = null
+                )
+                storageViewModel!!.storageEvent.observe(this, {
+                    when (it.state) {
+                        Constants.StorageEvents.PermissionCheck -> checkPermission()
+                        Constants.StorageEvents.PermissionChecked -> storageViewModel!!.startInitStorage(storage.id)
+                        Constants.StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
+                        else -> {}
+                    }
+                })
+                // FIXME: исправить падение
+                storageViewModel!!.startInitStorage(storage.id)
+//                storageViewModel!!.createStorage(storage)
+            }
         }
     }
 
@@ -167,9 +192,11 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun selectStorageFolder(path: String) {
         // спрашиваем: создать или выбрать хранилище ?
-        StorageDialogs.createStorageSelectionDialog(this) { isNew: Boolean ->
-            openFolderPicker(getString(R.string.title_storage_folder), path, isNew)
-        }
+        StorageDialogs.createStorageSelectionDialog(this, object : StorageDialogs.IItemClickListener {
+            override fun onItemClick(isNew: Boolean) {
+                openFolderPicker(getString(R.string.title_storage_folder), path, isNew)
+            }
+        })
     }
 
     private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {

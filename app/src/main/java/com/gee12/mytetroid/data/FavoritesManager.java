@@ -27,7 +27,7 @@ public class FavoritesManager {
      */
     public static void load(Context context) {
         mFavorites = new FavoriteList(
-                (App.INSTANCE.isFullVersion()) ? SettingsManager.getFavorites(context) : null);
+                (App.INSTANCE.isFullVersion()) ? CommonSettings.getFavorites(context) : null);
     }
 
     /**
@@ -130,7 +130,7 @@ public class FavoritesManager {
             }
         }
         SettingsManager.setFavorites(ids);*/
-        SettingsManager.setFavorites(context, mFavorites.getIds());
+        CommonSettings.setFavorites(context, mFavorites.getIds());
     }
 
     public static List<TetroidRecord> getFavoritesRecords() {

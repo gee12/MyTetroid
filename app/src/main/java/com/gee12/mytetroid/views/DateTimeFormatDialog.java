@@ -8,6 +8,8 @@ import android.widget.EditText;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.logs.LogType;
+import com.gee12.mytetroid.logs.Message;
 import com.gee12.mytetroid.utils.Utils;
 
 public class DateTimeFormatDialog extends PreferenceDialogFragmentCompat {
@@ -39,7 +41,7 @@ public class DateTimeFormatDialog extends PreferenceDialogFragmentCompat {
                     pref.setValue(newValue);
                 }
             } else {
-                Message.show(getContext(), getString(R.string.mes_input_wrong_date_format));
+                TetroidMessage.show(getContext(), new Message(getString(R.string.mes_input_wrong_date_format), LogType.WARNING));
             }
         }
     }

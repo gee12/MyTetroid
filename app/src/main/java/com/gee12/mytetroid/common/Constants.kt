@@ -116,34 +116,42 @@ object Constants {
     }
 
     enum class StorageEvents {
+        NoDefaultStorage,
         Changed,
         PermissionCheck,
         PermissionChecked,
+        AskAfterSyncManually,
         AskBeforeSyncOnInit,
         AskAfterSyncOnInit,
         AskBeforeSyncOnExit,
+        AskAfterSyncOnExit,
         Inited,
+        InitFailed,
         FilesCreated,
+        LoadOrDecrypt,
         Loaded,
         Decrypted,
-        LoadOrDecryptStorage,
-        AskForEmptyPassCheckingField,
-        SavePassHashLocalChanged,
-        SetupPinCode,
-        DropPinCode,
+        ChangedOutside,
 
+        // storages
         Added,
         Edited,
         Selected,
-        InitFailed,
-        EmptyPassCheck,
+
+        // password
+//        EmptyPassCheck,
         AskPassword,
-        AskPinCode,
+        AskForEmptyPassCheckingField,
         AskForClearStoragePass,
+        SavePassHashLocalChanged,
+        PassSetuped,
+        PassChanged,
 
-        PinChecked,
-
-        ChangedOutside
+        // pincode
+        SetupPinCode,
+        DropPinCode,
+        PinCodeChecked,
+        AskPinCode
     }
 
     enum class MainEvents {
@@ -152,6 +160,7 @@ object Constants {
         DropEncryptNode,
 
         // nodes
+        ShowNode,
         SetCurrentNode,
         NodeCreated,
         NodeInserted,
@@ -195,7 +204,9 @@ object Constants {
         AskForOperationWithoutDir,
         AskForOperationWithoutFile,
         OpenFilePicker,
-        OpenFolderPicker
+        OpenFolderPicker,
+
+        Exit
     }
 
     enum class RecordEvents {

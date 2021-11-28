@@ -8,10 +8,10 @@ import android.text.TextUtils
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.views.Message
+import com.gee12.mytetroid.views.TetroidMessage
 
 class SyncInteractor(
     private val logger: ITetroidLogger
@@ -28,8 +28,8 @@ class SyncInteractor(
      * @param storagePath
      */
     fun startStorageSync(activity: Activity, storagePath: String, requestCode: Int): Boolean {
-        val command = SettingsManager.getSyncCommandDef(activity)
-        return if (SettingsManager.getSyncAppNameDef(activity) == activity.getString(R.string.title_app_termux)) {
+        val command = CommonSettings.getSyncCommandDef(activity)
+        return if (CommonSettings.getSyncAppNameDef(activity) == activity.getString(R.string.title_app_termux)) {
             // termux
             startTermuxSync(activity, storagePath, command)
         } else {
@@ -46,7 +46,7 @@ class SyncInteractor(
         val intent = createIntentToMGit(activity, storagePath, command)
         logger.log(activity.getString(R.string.log_start_storage_sync) + command)
         try {
-            if (!SettingsManager.isNotRememberSyncApp(activity)) {
+            if (!CommonSettings.isNotRememberSyncApp(activity)) {
                 // использовать стандартный механизм запоминания используемого приложения
                 activity.startActivityForResult(intent, requestCode)
             } else { // или спрашивать постоянно
@@ -141,7 +141,7 @@ class SyncInteractor(
             activity.startService(intent)
         } catch (ex: Exception) {
             logger.logError(R.string.log_error_when_sync, true)
-            Message.showSnackMoreInLogs(activity)
+            TetroidMessage.showSnackMoreInLogs(activity)
             return false
         }
         return true

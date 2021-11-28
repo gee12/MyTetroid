@@ -18,7 +18,7 @@ class PassChangeDialog(
 ) : TetroidDialogFragment<StorageViewModel>() {
 
     interface IPassChangeResult {
-        fun applyPass(curPass: String?, newPass: String?): Boolean
+        fun applyPass(curPass: String, newPass: String): Boolean
     }
 
     override fun getRequiredTag() = TAG
@@ -46,7 +46,7 @@ class PassChangeDialog(
         tvNewPass.addTextChangedListener(listener)
         tvConfirmPass.addTextChangedListener(listener)
 
-        setPositiveButton(R.string.answer_ok) { _ , _ ->
+        setPositiveButton(R.string.answer_ok, isCloseDialog = false) { _, _ ->
             val curPass = tvCurPass.text.toString()
             val newPass = tvNewPass.text.toString()
             val confirmPass = tvConfirmPass.text.toString()

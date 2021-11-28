@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
+import com.gee12.mytetroid.views.fragments.settings.SettingsSectionsFragment;
 import com.gee12.mytetroid.views.fragments.settings.SettingsOtherFragment;
 import com.gee12.mytetroid.views.fragments.settings.SettingsStorageFragment;
 
@@ -32,14 +32,14 @@ public class SettingsActivity extends TetroidSettingsActivity {
     protected void startDefaultFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.container, new SettingsFragment())
+                .replace(R.id.container, new SettingsSectionsFragment())
                 .commit();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
         if (fragment instanceof SettingsStorageFragment) {
             ((SettingsStorageFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
         } else if (fragment instanceof SettingsOtherFragment) {
@@ -50,7 +50,7 @@ public class SettingsActivity extends TetroidSettingsActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
         if (fragment instanceof SettingsStorageFragment) {
             ((SettingsStorageFragment)fragment).onResult(requestCode, resultCode, data);
         } else if (fragment instanceof SettingsOtherFragment) {
@@ -62,7 +62,7 @@ public class SettingsActivity extends TetroidSettingsActivity {
     @Override
     public void onBackPressed() {
 //        boolean isBackPressed = false;
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
 //        // обрабатываем нажатие Back во фрагменте SettingsEncryptionFragment отдельно
 //        if (fragment instanceof SettingsEncryptionFragment) {
 //            if (!((SettingsEncryptionFragment)fragment).onBackPressed()) {
@@ -72,7 +72,7 @@ public class SettingsActivity extends TetroidSettingsActivity {
 //            isBackPressed = true;
 //        }
 //        if (isBackPressed) {
-            if (!(fragment instanceof SettingsFragment)) {
+            if (!(fragment instanceof SettingsSectionsFragment)) {
                 setTitle(R.string.title_settings);
             }
             super.onBackPressed();

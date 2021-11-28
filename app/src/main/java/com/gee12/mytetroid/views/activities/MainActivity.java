@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -44,25 +43,26 @@ import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.data.ICallback;
 import com.gee12.mytetroid.logs.LogObj;
 import com.gee12.mytetroid.logs.LogOper;
+import com.gee12.mytetroid.logs.LogType;
 import com.gee12.mytetroid.model.SearchProfile;
-import com.gee12.mytetroid.viewmodels.AskPasswordParams;
-import com.gee12.mytetroid.viewmodels.CallbackParam;
+import com.gee12.mytetroid.viewmodels.StorageParams;
+import com.gee12.mytetroid.viewmodels.EventCallbackParams;
 import com.gee12.mytetroid.viewmodels.ClipboardParams;
-import com.gee12.mytetroid.viewmodels.EmptyPassCheckingFieldCallbackParam;
+import com.gee12.mytetroid.viewmodels.EmptyPassCheckingFieldCallbackParams;
 import com.gee12.mytetroid.viewmodels.FilteredObjectsInView;
 import com.gee12.mytetroid.viewmodels.GlobalSearchParams;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.viewmodels.ObjectsInView;
-import com.gee12.mytetroid.viewmodels.ReadDecryptStorageState;
 import com.gee12.mytetroid.viewmodels.ToolbarParams;
 import com.gee12.mytetroid.views.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.views.adapters.NodesListAdapter;
 import com.gee12.mytetroid.views.adapters.TagsListAdapter;
 import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.ScanManager;
-import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.CommonSettings;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.attach.AttachAskDialogs;
@@ -87,7 +87,6 @@ import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.views.dialogs.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
-import com.gee12.mytetroid.views.Message;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -241,6 +240,45 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         initBroadcastReceiver();
     }
 
+    /**
+     * Обработчик события, когда создался главный фрагмент активности.
+     */
+    public void onMainPageCreated() {
+        // принудительно запускаем создание пунктов меню уже после отработки onCreate
+        super.afterOnCreate();
+        this.isActivityCreated = true;
+    }
+
+    /**
+     * Обработчик события, когда создались все элементы интерфейса.
+     * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
+     */
+    @Override
+    protected void onUICreated(boolean uiCreated) {
+//    protected void oAfterAppStarted() {
+        //TODO: перенести во ViewModel.
+
+        if (uiCreated) {
+            // инициализация
+            viewModel.initEnvironment();
+//        getMainPage().onSettingsInited();
+
+            if (viewModel.isLoaded()) {
+                // тут ничего не пишем.
+                // код отображения загруженного хранилище находится в onGUICreated(),
+                //  который вызывается после создания пунктов меню активности
+
+                // инициализация контролов
+                initUI(true, viewModel.isLoadedFavoritesOnly(), viewModel.isKeepLastNode());
+                // действия после загрузки хранилища
+                afterStorageLoaded(true);
+            } else {
+                // загружаем хранилище, если еще не загружано
+                viewModel.startInitStorage();
+            }
+        }
+    }
+
     @Override
     protected void initViewModel() {
         super.initViewModel();
@@ -248,7 +286,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     /**
-     *
+     * Обработчик
      * @param event
      * @param data
      */
@@ -258,8 +296,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         switch (event) {
             // activity
             case InitGUI: {
-                ReadDecryptStorageState storageParams = (ReadDecryptStorageState) data;
-                initGUI(storageParams.getResult(), storageParams.isFavoritesOnly(), storageParams.isOpenLastNode());
+                StorageParams storageParams = (StorageParams) data;
+                initUI(storageParams.getResult(), storageParams.isFavoritesOnly(), storageParams.isHandleReceivedIntent());
                 break;
             }
             case UpdateToolbar: {
@@ -293,7 +331,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // long-term tasks
             case TaskStarted:
-                openedDrawerState = taskMainPreExecute((int)data);
+                openedDrawerState = taskMainPreExecute((data instanceof Integer) ? (int)data : R.string.task_wait);
                 break;
             case TaskFinished:
                 if (data instanceof Integer) {
@@ -314,92 +352,76 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event="+event+", data="+data);
         switch (event) {
+            // права доступа
             case PermissionCheck:
                 if (PermissionManager.checkWriteExtStoragePermission(MainActivity.this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
                     viewModel.onPermissionChecked();
                 }
                 break;
             case PermissionChecked:
-                viewModel.initOrSyncStorage(this);
+                viewModel.syncAndInitStorage(this);
                 break;
-            case AskBeforeSyncOnInit:
-                AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        viewModel.syncStorage(MainActivity.this, true);
-                    }
 
-                    @Override
-                    public void onCancel() {
-                        viewModel.initStorageAndLoad();
-                    }
-                });
+            // синхронизация
+            case AskBeforeSyncOnInit:
+            case AskBeforeSyncOnExit:
+                showSyncRequestDialog();
                 break;
-            case AskAfterSyncOnInit:
+            case AskAfterSyncManually:
+            case AskAfterSyncOnInit: {
                 boolean isSyncSuccess = (boolean) data;
                 AskDialogs.showSyncDoneDialog(this, isSyncSuccess, () -> {
                     viewModel.initStorageAndLoad();
                 });
-                break;
-            case AskBeforeSyncOnExit:
-                AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        viewModel.syncStorage(MainActivity.this, false);
-                    }
+            } break;
+            case AskAfterSyncOnExit: {
+                boolean isSyncSuccess = (boolean) data;
+                if (!isSyncSuccess) {
+                    AskDialogs.showSyncFailerBeforeExitDialog(this, () -> {
 
-                    @Override
-                    public void onCancel() {
-                        viewModel.initStorageAndLoad();
-                    }
-                });
-                break;
+                    });
+                }
+            } break;
+
+            // загрузка хранилища
             case InitFailed:
                 boolean isFavorMode = (boolean) data;
-                initGUI(false, isFavorMode, false);
+                initUI(false, isFavorMode, false);
                 break;
-            case EmptyPassCheck: {
-                AskPasswordParams params = (AskPasswordParams) data;
-                PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
-                        MainActivity.this,
-                        params.getFieldName(),
-                        viewModel.getEmptyPassCheckingFieldCallback(params)
-                );
+            case LoadOrDecrypt: {
+                viewModel.loadOrDecryptStorage((StorageParams) data);
             } break;
+
+            // шифрование
             case AskPassword: {
-                if (data instanceof AskPasswordParams) {
-                    AskPasswordParams params = (AskPasswordParams) data;
-                    // выводим окно с запросом пароля
-                    showPasswordEnterDialog(params);
-                } else if (data instanceof CallbackParam) {
-                    // TODO: объединить с showPasswordEnterDialog()
-                    CallbackParam params = (CallbackParam) data;
-                    showPasswordEnterDialog2(params);
+                if (data instanceof EventCallbackParams) {
+                    EventCallbackParams params = (EventCallbackParams) data;
+                    showPasswordDialog(params);
                 }
             } break;
             case AskPinCode: {
-//                AskPinParams params = (AskPinParams) data;
-                // выводим окно с запросом пароля
-                showPinCodeDialog(/*params.isSetup()*/);
+                if (data instanceof EventCallbackParams) {
+                    EventCallbackParams params = (EventCallbackParams) data;
+                    showPinCodeDialog(params);
+                }
             } break;
             case AskForClearStoragePass:
                 showNoCryptedNodesLeftDialog();
                 break;
             case AskForEmptyPassCheckingField:
-                showEmptyPassCheckingFieldDialog((EmptyPassCheckingFieldCallbackParam) data);
+                showEmptyPassCheckingFieldDialog(data);
                 break;
+
             case ChangedOutside:
                 // выводим уведомление
                 AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
                     @Override
-                    public void onCancel() {
-                    }
-
-                    @Override
                     public void onApply() {
                         viewModel.startReinitStorage();
                     }
-
+                    @Override
+                    public void onCancel() {
+                    }
                     @Override
                     public void onDismiss() {
                         viewModel.dropIsStorageChangingHandled();
@@ -429,6 +451,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             } break;
 
             // nodes
+            case ShowNode:
+                viewModel.showNode((TetroidNode) data);
+                break;
             case SetCurrentNode:
                 setCurNode((TetroidNode) data);
                 break;
@@ -445,10 +470,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 showDeleteNodeDialog((TetroidNode) data);
                 break;
             case NodeCutted:
-                onDeleteNodeResult((TetroidNode) data, true);
+                onNodeDeleted((TetroidNode) data, true);
                 break;
             case NodeDeleted:
-                onDeleteNodeResult((TetroidNode) data, false);
+                onNodeDeleted((TetroidNode) data, false);
                 break;
             case UpdateNodes:
                 updateNodes();
@@ -548,6 +573,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case OpenFolderPicker:
                 openFolderPicker();
                 break;
+
+            case Exit:
+                finish();
+                break;
         }
     }
 
@@ -580,13 +609,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
      *                        или ветку с избранными записями
      */
-    public void initGUI(boolean isLoaded, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void initUI(boolean isLoaded, boolean isOnlyFavorites, boolean isOpenLastNode) {
         // избранные записи
         int loadButtonsVis = (isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE;
         btnLoadStorageNodes.setVisibility(loadButtonsVis);
         btnLoadStorageTags.setVisibility(loadButtonsVis);
         ViewUtils.setFabVisibility(fabCreateNode, isLoaded && !isOnlyFavorites);
-        lvNodes.setVisibility((!isOnlyFavorites) ? View.VISIBLE : View.GONE);
+        lvNodes.setVisibility((isOnlyFavorites) ? View.GONE : View.VISIBLE);
         favoritesNode.setVisibility((isLoaded && App.INSTANCE.isFullVersion()) ? View.VISIBLE : View.GONE);
         tvNodesEmpty.setVisibility(View.GONE);
         if (isLoaded && App.INSTANCE.isFullVersion()) {
@@ -625,8 +654,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 // выбираем ветку, выбранную в прошлый раз
                 boolean nodesAdapterInited = false;
                 TetroidNode nodeToSelect = null;
-                if (SettingsManager.isKeepLastNodeDef(this) && !isEmpty && isOpenLastNode) {
-                    String nodeId = SettingsManager.getLastNodeId(this);
+                if (viewModel.isKeepLastNode() && !isEmpty && isOpenLastNode) {
+                    String nodeId = viewModel.getLastNodeId();
                     if (nodeId != null) {
                         if (nodeId.equals(FavoritesManager.FAVORITES_NODE.getId())) {
                             nodeToSelect = FavoritesManager.FAVORITES_NODE;
@@ -668,44 +697,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             }
         }
         updateOptionsMenu();
-    }
-
-    /**
-     * Обработчик события, когда создался главный фрагмент активности.
-     */
-    public void onMainPageCreated() {
-        // принудительно запускаем создание пунтов меню уже после отработки onCreate
-        afterOnCreate();
-        //
-        this.isActivityCreated = true;
-    }
-
-    /**
-     * Обработчик события, когда создались все элементы интерфейса.
-     * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
-
-     * TODO: перенести во ViewModel.
-     *
-     */
-    @Override
-    protected void onUICreated() {
-        // инициализация
-        viewModel.initApp();
-//        getMainPage().onSettingsInited();
-
-        if (viewModel.isLoaded()) {
-            // тут ничего не пишем.
-            // код отображения загруженного хранилище находится в onGUICreated(),
-            //  который вызывается после создания пунктов меню активности
-
-            // инициализация контролов
-            initGUI(true, viewModel.isLoadedFavoritesOnly(), viewModel.isKeepLastNode());
-            // действия после загрузки хранилища
-            afterStorageLoaded(true);
-        } else {
-            // загружаем хранилище, если еще не загружано
-            viewModel.startInitStorage();
-        }
     }
 
     private void setEmptyTextViews(@StringRes int mesId) {
@@ -827,6 +818,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     @Override
     public void afterStorageLoaded(boolean res) {
         if (res) {
+            // обновляем заголовок в шторке
+            ((TextView)findViewById(R.id.text_view_app_name)).setText(viewModel.getStorageName());
             // проверяем входящий Intent после загрузки
             checkReceivedIntent(receivedIntent);
             // запускаем отслеживание изменения структуры хранилища
@@ -887,50 +880,56 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     // endregion LoadStorage
 
-    //region Encryption
+    //region Sync
 
-    private void showPasswordEnterDialog(AskPasswordParams params) {
-        PassDialogs.INSTANCE.showPassEnterDialog(
-                params.getNode(),
-                false,
-                getSupportFragmentManager(),
-                viewModel.getPassInputHandler(params)
-        );
+    private void showSyncRequestDialog() {
+        AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.startStorageSync(MainActivity.this);
+            }
+
+            @Override
+            public void onCancel() {
+                viewModel.cancelStorageSync();
+            }
+        });
     }
 
-    /**
-     * TODO: объединить с showPasswordEnterDialog()
-     */
-    private void showPasswordEnterDialog2(CallbackParam params) {
-        boolean isNewPass = !viewModel.isCrypted();
-        // FIXME: по-идее node уже не нужно.
+    //endregion Sync
+
+    //region Encryption
+
+    private void showPasswordDialog(EventCallbackParams callback) {
+        boolean isSetup = !viewModel.isCrypted();
+
         PassDialogs.INSTANCE.showPassEnterDialog(
-                null,
-                isNewPass,
+                isSetup,
                 getSupportFragmentManager(),
                 new PassDialogs.IPassInputResult() {
                     @Override
-                    public void applyPass(String pass, TetroidNode node) {
-                        viewModel.onPasswordAsked(pass, isNewPass, params);
+                    public void applyPass(String pass) {
+                        viewModel.onPasswordEntered(pass, isSetup, callback);
                     }
 
                     @Override
                     public void cancelPass() {
-
+                        viewModel.onPasswordCanceled(isSetup, callback);
                     }
                 });
     }
 
-    private void showPinCodeDialog() {
+    private void showPinCodeDialog(EventCallbackParams callback) {
         boolean isSetup = !viewModel.isCrypted();
+
         PINCodeDialog.Companion.showDialog(
-                SettingsManager.getPINCodeLength(this),
+                CommonSettings.getPINCodeLength(this),
                 isSetup,
                 getSupportFragmentManager(),
                 new PINCodeDialog.IPinInputResult() {
                     @Override
                     public boolean onApply(String pin) {
-                        return viewModel.startCheckPinCode(pin);
+                        return viewModel.startCheckPinCode(pin, callback);
                     }
 
                     @Override
@@ -995,7 +994,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     NodesListAdapter.OnNodeHeaderClickListener onNodeHeaderClickListener = new NodesListAdapter.OnNodeHeaderClickListener() {
         @Override
         public void onClick(TetroidNode node, int pos) {
-            if (node.isExpandable() && SettingsManager.isExpandEmptyNode(MainActivity.this)) {
+            if (node.isExpandable() && CommonSettings.isExpandEmptyNode(MainActivity.this)) {
                 // если у ветки есть подветки и установлена опция
                 if (node.getRecordsCount() > 0) {
                     // и в ветке есть записи - открываем список записей
@@ -1097,6 +1096,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     private void onNodeCreated(TetroidNode node) {
         if (listAdapterNodes.addItem(node.getParentNode())) {
             viewModel.logOperRes(LogObj.NODE, LogOper.CREATE, node, false);
+            viewModel.showNode(node);
         } else {
             viewModel.logError(getString(R.string.log_create_node_list_error), true);
         }
@@ -1135,10 +1135,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         ).showIfPossible(getSupportFragmentManager());
     }
 
-    /**
-     * Переименование ветки.
-     * @param node
-     */
     private void onNodeRenamed(TetroidNode node) {
         if (viewModel.getCurNode() == node) {
             setTitle(node.getName());
@@ -1159,7 +1155,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         });
     }
 
-    private void onDeleteNodeResult(TetroidNode node, boolean isCutted) {
+    private void onNodeDeleted(TetroidNode node, boolean isCutted) {
         // удаляем элемент внутри списка
         if (listAdapterNodes.deleteItem(node)) {
             viewModel.logOperRes(LogObj.NODE, (isCutted) ? LogOper.CUT : LogOper.DELETE);
@@ -1213,7 +1209,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     private void copyNode(TetroidNode node) {
         if (viewModel.getNodesInteractor().hasNonDecryptedNodes(node)) {
-            Message.show(this, getString(R.string.log_enter_pass_first), Toast.LENGTH_LONG);
+            viewModel.showMessage(getString(R.string.log_enter_pass_first), LogType.WARNING);
             return;
         }
         // добавляем в "буфер обмена"
@@ -1238,23 +1234,39 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     /**
      * Если поля в INI-файле для проверки пустые, спрашиваем "Continue anyway?"
-     * @param param
+     * @param data
      */
-    private void showEmptyPassCheckingFieldDialog(EmptyPassCheckingFieldCallbackParam param) {
-        PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
-                this,
-                param.getFieldName(),
-                new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        viewModel.confirmEmptyPassCheckingFieldDialog(param);
-                    }
+    private void showEmptyPassCheckingFieldDialog(Object data) {
+        if (data instanceof EventCallbackParams) {
+            EventCallbackParams callback = (EventCallbackParams) data;
+            StorageParams params = (StorageParams) callback.getData();
+            Constants.StorageEvents callbackEvent = (Constants.StorageEvents) callback.getEvent();
 
-                    @Override
-                    public void onCancel() {
+            PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
+                    MainActivity.this,
+                    params.getFieldName(),
+                    viewModel.getEmptyPassCheckingFieldCallback(params, callbackEvent)
+            );
+        } else if (data instanceof EmptyPassCheckingFieldCallbackParams) {
+            EmptyPassCheckingFieldCallbackParams callback = (EmptyPassCheckingFieldCallbackParams) data;
 
-                    }
-                });
+            PassDialogs.INSTANCE.showEmptyPassCheckingFieldDialog(
+                    this,
+                    callback.getFieldName(),
+                    new Dialogs.IApplyCancelResult() {
+                        @Override
+                        public void onApply() {
+                            viewModel.confirmEmptyPassCheckingFieldDialog(callback);
+                        }
+
+                        @Override
+                        public void onCancel() {
+
+                        }
+                    });
+        } else if (data instanceof ICallback) {
+            ((ICallback)data).run(true);
+        }
     }
 
     // endregion Node
@@ -1282,8 +1294,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     // region Tags
 
     private void setTagsDataItems(Map<String,TetroidTag> tags) {
-        listAdapterTags.setDataItems(tags, new SortHelper(
-                SettingsManager.getTagsSortMode(this, SortHelper.byNameAsc())));
+        if (listAdapterTags != null) {
+            listAdapterTags.setDataItems(tags, new SortHelper(
+                    CommonSettings.getTagsSortMode(this, SortHelper.byNameAsc())));
+        }
     }
 
     /**
@@ -1401,7 +1415,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         }
 //        if (Build.VERSION.SDK_INT >= 23) {
         // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
-        if (file.getRecord().isCrypted() && SettingsManager.isDecryptFilesInTempDef(this)
+        if (file.getRecord().isCrypted() && CommonSettings.isDecryptFilesInTempDef(this)
                 && !PermissionManager.writeExtStoragePermGranted(this)) {
             viewModel.setTempFileToOpen(file);
             String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -1473,7 +1487,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         visibleMenuItem(menu.findItem(R.id.action_delete), canCutDel);
         visibleMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
         boolean canNoCrypt = node.isCrypted() && (parentNode == null || !parentNode.isCrypted());
-        visibleMenuItem(menu.findItem(R.id.action_no_encrypt_node), canNoCrypt);
+        visibleMenuItem(menu.findItem(R.id.action_drop_encrypt_node), canNoCrypt);
         visibleMenuItem(menu.findItem(R.id.action_info), isNonCrypted);
 
         popupMenu.setOnMenuItemClickListener(item -> {
@@ -1499,7 +1513,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 case R.id.action_encrypt_node:
                     viewModel.startEncryptNode(node);
                     return true;
-                case R.id.action_no_encrypt_node:
+                case R.id.action_drop_encrypt_node:
                     viewModel.startDropEncryptNode(node);
                     return true;
                 case R.id.action_expand_node:
@@ -1578,19 +1592,19 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             switch (item.getItemId()) {
                 case R.id.action_sort_tags_name_asc:
                     listAdapterTags.sort(true, true);
-                    SettingsManager.setTagsSortMode(this, SortHelper.byNameAsc());
+                    CommonSettings.setTagsSortMode(this, SortHelper.byNameAsc());
                     return true;
                 case R.id.action_sort_tags_name_desc:
                     listAdapterTags.sort(true, false);
-                    SettingsManager.setTagsSortMode(this, SortHelper.byNameDesc());
+                    CommonSettings.setTagsSortMode(this, SortHelper.byNameDesc());
                     return true;
                 case R.id.action_sort_tags_count_asc:
                     listAdapterTags.sort(false, true);
-                    SettingsManager.setTagsSortMode(this, SortHelper.byCountAsc());
+                    CommonSettings.setTagsSortMode(this, SortHelper.byCountAsc());
                     return true;
                 case R.id.action_sort_tags_count_desc:
                     listAdapterTags.sort(false, false);
-                    SettingsManager.setTagsSortMode(this, SortHelper.byCountDesc());
+                    CommonSettings.setTagsSortMode(this, SortHelper.byCountDesc());
                     return true;
                 default:
                     return false;
@@ -1615,6 +1629,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case Constants.REQUEST_CODE_STORAGES_ACTIVITY: {
                 onStoragesActivityResult(data);
             } break;
+            case Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY: {
+                onStorageSettingsActivityResult(data);
+            } break;
             case Constants.REQUEST_CODE_SETTINGS_ACTIVITY: {
                 onSettingsActivityResult(data);
             } break;
@@ -1628,13 +1645,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 }
             } break;
             case Constants.REQUEST_CODE_SYNC_STORAGE: {
-                viewModel.onSyncStorageFinished(resultCode == RESULT_OK);
+                viewModel.onStorageSyncFinished(resultCode == RESULT_OK);
             } break;
             case Constants.REQUEST_CODE_FILE_PICKER: {
                 if (resultCode == RESULT_OK) {
                     String fileFullName = data.getStringExtra(FolderPicker.EXTRA_DATA);
                     // сохраняем путь
-                    SettingsManager.setLastChoosedFolder(this, FileUtils.getFileFolder(fileFullName));
+                    CommonSettings.setLastChoosedFolder(this, FileUtils.getFileFolder(fileFullName));
                     viewModel.attachFileToCurRecord(fileFullName, false);
                 }
             } break;
@@ -1642,7 +1659,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 if (resultCode == RESULT_OK) {
                     String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
                     // сохраняем путь
-                    SettingsManager.setLastChoosedFolder(this, folderPath);
+                    CommonSettings.setLastChoosedFolder(this, folderPath);
                     viewModel.saveCurAttachOnDevice(folderPath);
                 }
             } break;
@@ -1676,20 +1693,27 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     /**
-     * Обработка возвращаемого результата активности настроек приложения.
+     * Обработка возвращаемого результата активности настроек хранилища.
      * @param data
      */
-    private void onSettingsActivityResult(Intent data) {
+    private void onStorageSettingsActivityResult(Intent data) {
         // проверяем нужно ли отслеживать структуру хранилища
         viewModel.startStorageTreeObserver();
 
         // скрываем пункт меню Синхронизация, если отключили
         updateOptionsMenu();
+
+        onStorageChangedIntent(data);
+    }
+
+    /**
+     * Обработка возвращаемого результата активности общих настроек приложения.
+     * @param data
+     */
+    private void onSettingsActivityResult(Intent data) {
         // обновляем списки, могли измениться настройки отображения
         getMainPage().updateRecordList();
         updateNodes();
-
-        onStorageChangedIntent(data);
     }
 
     private void onStorageChangedIntent(Intent data) {
@@ -1812,7 +1836,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 checkPermissionAndOpenAttach(viewModel.getTempFileToOpen());
                 break;
             case Constants.REQUEST_CODE_PERMISSION_TERMUX:
-                viewModel.startStorageSyncAndInit(this);
+                viewModel.syncAndInitStorage(this);
                 break;
         }
     }
@@ -1994,8 +2018,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param isSearch Если false, то происходит сброс фильтра.
      */
     private void searchInTags(String query, boolean isSearch) {
+        // старый fix, чтобы не падало после долгого простоя
         if (!viewModel.isLoaded()) {
-            onUICreated();
+            onUICreated(true);
             return;
         }
         Map<String, TetroidTag> tags;
@@ -2209,17 +2234,18 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 && (curViewId == Constants.MAIN_VIEW_NODE_RECORDS
                 || curViewId == Constants.MAIN_VIEW_TAG_RECORDS));
         visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
-        visibleMenuItem(menu.findItem(R.id.action_storage_sync), SettingsManager.isSyncStorageDef(this));
+        visibleMenuItem(menu.findItem(R.id.action_storage_sync), CommonSettings.isSyncStorageDef(this));
 
         boolean isStorageLoaded = viewModel.isLoaded();
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
-//        enableMenuItem(menu.findItem(R.id.action_storage_reload), !TextUtils.isEmpty(SettingsManager.getStoragePath(this)));
-
+        enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageLoaded);
         // TODO: ??
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), SettingsManager.getLastStorageId(this) != 0);
+//        enableMenuItem(menu.findItem(R.id.action_storage_reload), !TextUtils.isEmpty(SettingsManager.getStoragePath(this)));
+//        enableMenuItem(menu.findItem(R.id.action_storage_reload), SettingsManager.getLastStorageId(this) != 0);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), App.INSTANCE.getCurrentStorageId() != null);
 
         getMainPage().onPrepareOptionsMenu(menu);
 
@@ -2243,7 +2269,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 showGlobalSearchActivity(null);
                 return true;
             case R.id.action_storage_sync:
-                viewModel.startStorageSync(this, null);
+                viewModel.syncStorage(this);
                 return true;
             case R.id.action_storage_info:
                 showStorageInfoActivity();
@@ -2254,6 +2280,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case R.id.action_storages:
                 showStoragesActivity();
                 return true;
+            case R.id.action_storage_settings:
+                showStorageSettingsActivity(viewModel.getStorage());
+                break;
             case R.id.action_settings:
                 showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_SETTINGS_ACTIVITY);
                 return true;
@@ -2277,14 +2306,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         if (!onBeforeBackPressed()) {
             return;
         }
-        if (SettingsManager.isShowNodesInsteadExit(this)) {
+        if (CommonSettings.isShowNodesInsteadExit(this)) {
             // показывать левую шторку вместо выхода
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                if (SettingsManager.isConfirmAppExit(this)) {
+                if (CommonSettings.isConfirmAppExit(this)) {
                     askForExit();
                 } else {
-                    onBeforeExit();
-                    onExit();
+                    viewModel.onBeforeExit(this);
                     super.onBackPressed();
                 }
             } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
@@ -2315,7 +2343,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 if (curPage == Constants.PAGE_MAIN || curPage == Constants.PAGE_FOUND) {
                     if (curPage == Constants.PAGE_MAIN && !getMainPage().onBackPressed()
                             || curPage == Constants.PAGE_FOUND && !getFoundPage().onBackPressed()) {
-                        if (SettingsManager.isConfirmAppExit(this)) {
+                        if (CommonSettings.isConfirmAppExit(this)) {
                             askForExit();
                             needToExit = false;
                         }
@@ -2325,8 +2353,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 }
                 // выходим, если все проверили
                 if (needToExit) {
-                    onBeforeExit();
-                    onExit();
+                    viewModel.onBeforeExit(this);
                     super.onBackPressed();
                 }
             }
@@ -2347,35 +2374,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     private void askForExit() {
-        AskDialogs.showExitDialog(this, () -> onBeforeExit());
-    }
-
-    private void onBeforeExit() {
-        // синхронизация перед выходом из приложения
-        viewModel.startStorageSyncAndExit(this, () -> {
-            onExit();
-            finish();
-        });
-    }
-
-    private void onExit() {
-        viewModel.log(R.string.log_app_exit);
-
-        // останавливаем отслеживание изменения структуры хранилища
-        FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
-        FileObserverService.stop(this);
-
-        // очищаем память
-//        DataManager.destruct();
+        AskDialogs.showExitDialog(this, () -> viewModel.onBeforeExit(this));
     }
 
     // endregion Exit
 
     // region StartActivity
-
-    private void showStoragesActivity() {
-        ViewUtils.startActivity(this, StoragesActivity.class, null, Constants.REQUEST_CODE_STORAGES_ACTIVITY);
-    }
 
     private void showStorageInfoActivity() {
         if (viewModel.isLoadedFavoritesOnly()) {
@@ -2395,14 +2399,15 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     private void showGlobalSearchActivity(String query) {
         if (viewModel.isLoadedFavoritesOnly()) {
-            Message.show(this, getString(R.string.title_need_load_nodes), Toast.LENGTH_LONG);
+            viewModel.showMessage(getString(R.string.title_need_load_nodes), LogType.WARNING);
         } else {
             Intent intent = new Intent(this, SearchActivity.class);
             if (query != null) {
                 intent.putExtra(Constants.EXTRA_QUERY, query);
             }
-//            intent.putExtra(EXTRA_CUR_NODE_IS_NOT_NULL, (mCurNode != null));
-            intent.putExtra(Constants.EXTRA_CUR_NODE_ID, (viewModel.getCurNode() != null) ? viewModel.getCurNode().getId() : null);
+            TetroidNode curNode = viewModel.getCurNode();
+            String curNodeId = (curNode != null && curNode != FavoritesManager.FAVORITES_NODE) ? curNode.getId() : null;
+            intent.putExtra(Constants.EXTRA_CUR_NODE_ID, curNodeId);
             startActivityForResult(intent, Constants.REQUEST_CODE_SEARCH_ACTIVITY);
         }
     }

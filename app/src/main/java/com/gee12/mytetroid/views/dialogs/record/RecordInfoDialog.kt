@@ -31,8 +31,8 @@ class RecordInfoDialog(
     override fun getLayoutResourceId() = R.layout.dialog_record_info
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
-        setPositiveButton(R.string.answer_ok, null)
         setTitle(record?.name)
+        setPositiveButton(R.string.answer_ok)
     }
 
     override fun initViewModel() {

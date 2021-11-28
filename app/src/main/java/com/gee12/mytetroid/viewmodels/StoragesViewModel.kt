@@ -5,18 +5,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.logs.ILogger
+import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.launch
 
 class StoragesViewModel(
     app: Application,
-    private val storageInteractor: StorageInteractor,
+    logger: TetroidLogger?,
+//    private val storageInteractor: StorageInteractor,
     private val storagesRepo: StoragesRepo
-) : BaseStorageViewModel(app, storagesRepo) {
+) : BaseStorageViewModel(app, logger) {
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages
@@ -25,7 +27,7 @@ class StoragesViewModel(
         launch {
             var storages = storagesRepo.getStorages()
 
-            if (storages.isEmpty() && SettingsManager.getStoragePath(getContext())?.isNotEmpty() == true) {
+            if (storages.isEmpty() && CommonSettings.getStoragePath(getContext())?.isNotEmpty() == true) {
                 addDefaultStorageFromPrefs()
                 storages = storagesRepo.getStorages()
             }
@@ -53,18 +55,18 @@ class StoragesViewModel(
         }
     }
 
-    fun createStorage(storage: TetroidStorage) {
-        launch {
-            logDebug(getString(R.string.log_start_storage_creating) + storage.path)
-
-            if (storageInteractor.createStorage(storage)) {
-                log((R.string.log_storage_created), true)
-                storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
-            } else {
-                logError(getString(R.string.log_failed_storage_create_mask, storage.path), true)
-            }
-        }
-    }
+//    fun createStorage(storage: TetroidStorage) {
+//        launch {
+//            logDebug(getString(R.string.log_start_storage_creating) + storage.path)
+//
+//            if (storageInteractor.createStorage(storage)) {
+//                log((R.string.log_storage_created), true)
+//                storageEvent.setValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
+//            } else {
+//                logError(getString(R.string.log_failed_storage_create_mask, storage.path), true)
+//            }
+//        }
+//    }
 
     fun deleteStorage(storage: TetroidStorage) {
         launch {
@@ -78,28 +80,28 @@ class StoragesViewModel(
         return storage.apply {
             val context = getContext()
             // основное
-            trashPath = SettingsManager.getTrashPath(context)
-            isLoadFavoritesOnly = SettingsManager.isLoadFavoritesOnlyDef(context)
-            isKeepLastNode = SettingsManager.isKeepLastNodeDef(context)
+            trashPath = CommonSettings.getTrashPath(context)
+            isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)
+            isKeepLastNode = CommonSettings.isKeepLastNodeDef(context)
             // шифрование
-            isSavePassLocal = SettingsManager.isSaveMiddlePassHashLocalDef(context)
-            isDecyptToTemp = SettingsManager.isDecryptFilesInTempDef(context)
+            isSavePassLocal = CommonSettings.isSaveMiddlePassHashLocalDef(context)
+            isDecyptToTemp = CommonSettings.isDecryptFilesInTempDef(context)
             // синхронизация
             syncProfile.apply {
-                isEnabled = SettingsManager.isSyncStorageDef(context)
-                appName = SettingsManager.getSyncAppNameDef(context)
-                command = SettingsManager.getSyncCommandDef(context) ?: ""
-                isSyncBeforeInit = SettingsManager.isSyncBeforeInitDef(context)
-                isAskBeforeSyncOnInit = SettingsManager.isAskBeforeSyncOnInitDef(context)
-                isSyncBeforeExit = SettingsManager.isSyncBeforeExitDef(context)
-                isAskBeforeSyncOnExit = SettingsManager.isAskBeforeSyncOnExitDef(context)
-                isCheckOutsideChanging = SettingsManager.isCheckOutsideChangingDef(context)
+                isEnabled = CommonSettings.isSyncStorageDef(context)
+                appName = CommonSettings.getSyncAppNameDef(context)
+                command = CommonSettings.getSyncCommandDef(context) ?: ""
+                isSyncBeforeInit = CommonSettings.isSyncBeforeInitDef(context)
+                isAskBeforeSyncOnInit = CommonSettings.isAskBeforeSyncOnInitDef(context)
+                isSyncBeforeExit = CommonSettings.isSyncBeforeExitDef(context)
+                isAskBeforeSyncOnExit = CommonSettings.isAskBeforeSyncOnExitDef(context)
+                isCheckOutsideChanging = CommonSettings.isCheckOutsideChangingDef(context)
             }
         }
     }
 
     private suspend fun addDefaultStorageFromPrefs() {
-        storagesRepo.addStorage(initStorage(TetroidStorage(SettingsManager.getStoragePath(getContext()))).apply {
+        storagesRepo.addStorage(initStorage(TetroidStorage(CommonSettings.getStoragePath(getContext()))).apply {
             isDefault = true
         })
     }

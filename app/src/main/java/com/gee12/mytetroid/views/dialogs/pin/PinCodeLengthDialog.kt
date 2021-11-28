@@ -1,17 +1,12 @@
 package com.gee12.mytetroid.views.dialogs.pin
 
-import android.app.Dialog
-import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.lumyjuwon.richwysiwygeditor.RichEditor.Utils
 import java.util.*

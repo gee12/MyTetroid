@@ -4,7 +4,7 @@ import android.app.Application
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.SingleLiveEvent
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.*
@@ -12,8 +12,8 @@ import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
     app: Application,
-    override var logger: TetroidLogger
-) : BaseViewModel(app), CoroutineScope {
+    logger: TetroidLogger?
+) : BaseViewModel(app, logger), CoroutineScope {
 
     companion object {
         const val LINES_IN_RECYCLER_VIEW_ITEM = 10
@@ -25,7 +25,7 @@ class LogsViewModel(
 
     fun load() {
         launch {
-            if (SettingsManager.isWriteLogToFile(getContext())) {
+            if (CommonSettings.isWriteLogToFile(getContext())) {
                 // читаем лог-файл
                 log(R.string.log_open_log_file)
                 postEvent(LogEvents.PreLoading)

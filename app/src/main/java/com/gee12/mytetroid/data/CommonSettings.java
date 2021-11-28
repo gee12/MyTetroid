@@ -3,7 +3,6 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SettingsManager {
+public class CommonSettings {
 
     public static final String PREFS_NAME = "_preferences";
     public static final int DEF_PIN_CODE_LENGTH = 5;
@@ -45,7 +44,7 @@ public class SettingsManager {
      * @param context
      */
     public static void init(Context context) {
-        SettingsManager.settings = getPrefs(context);
+        CommonSettings.settings = getPrefs(context);
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
         // стартовые значения, которые нельзя установить в xml
 //        if (getStoragePath() == null) {
@@ -91,7 +90,7 @@ public class SettingsManager {
         if (Utils.checkDateFormatString(dateFormatString)) {
             return dateFormatString;
         } else {
-            App.logger.logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
+            App.INSTANCE.getCurrent().getLogger().logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
             return context.getString(R.string.def_date_format_string);
         }
     }
@@ -322,17 +321,17 @@ public class SettingsManager {
         return getBoolean(context, R.string.pref_key_is_keep_selected_node, true);
     }
 
-    /**
-     * Id ветки, выбранной последний раз.
-     * @return
-     */
-    public static String getLastNodeId(Context context) {
-        return getString(context, R.string.pref_key_selected_node_id, null);
-    }
-
-    public static void setLastNodeId(Context context, String value) {
-        setString(context, R.string.pref_key_selected_node_id, value);
-    }
+//    /**
+//     * Id ветки, выбранной последний раз.
+//     * @return
+//     */
+//    public static String getLastNodeId(Context context) {
+//        return getString(context, R.string.pref_key_selected_node_id, null);
+//    }
+//
+//    public static void setLastNodeId(Context context, String value) {
+//        setString(context, R.string.pref_key_selected_node_id, value);
+//    }
 
 //    /**
 //     *
@@ -621,15 +620,15 @@ public class SettingsManager {
     }
 
     public static void addPickedColor(Context context, int color, int maxColors) {
-        int[] savedColors = SettingsManager.getPickedColors(context);
+        int[] savedColors = CommonSettings.getPickedColors(context);
         int[] res = Utils.addElem(savedColors, color, maxColors, false);
-        SettingsManager.setPickedColors(context, res);
+        CommonSettings.setPickedColors(context, res);
     }
 
     public static void removePickedColor(Context context, int color) {
-        int[] savedColors = SettingsManager.getPickedColors(context);
+        int[] savedColors = CommonSettings.getPickedColors(context);
         int[] res = Utils.removeElem(savedColors, color);
-        SettingsManager.setPickedColors(context, res);
+        CommonSettings.setPickedColors(context, res);
     }
 
     /**

@@ -61,7 +61,7 @@ class AttachesInteractor(
             return false
         }
         // если запись зашифрована
-        if (record.isCrypted && SettingsManager.isDecryptFilesInTempDef(context)) {
+        if (record.isCrypted && CommonSettings.isDecryptFilesInTempDef(context)) {
             // создаем временный файл
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));

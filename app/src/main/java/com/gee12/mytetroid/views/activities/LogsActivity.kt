@@ -9,7 +9,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
@@ -20,8 +19,8 @@ import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.viewmodels.LogEvents
 import com.gee12.mytetroid.viewmodels.FileReadResult
-import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.views.TetroidMessage
 import java.io.IOException
 
 /**
@@ -56,7 +55,7 @@ class LogsActivity : AppCompatActivity() {
         layoutError = findViewById(R.id.layout_read_error)
 
         viewModel.event.observe(this, { (state, data) -> onEvent(state, data) })
-        viewModel.messageObservable.observe(this, ::onMessage)
+        viewModel.messageObservable.observe(this, { TetroidMessage.show(this, it) })
 
         viewModel.load()
     }
@@ -96,10 +95,6 @@ class LogsActivity : AppCompatActivity() {
                 showBufferLogs()
             }
         }
-    }
-
-    private fun onMessage(message: Message) {
-        Toast.makeText(this, message.message, Toast.LENGTH_LONG).show()
     }
 
     private fun showBufferLogs() {

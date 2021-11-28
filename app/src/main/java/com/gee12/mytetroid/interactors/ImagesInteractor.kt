@@ -29,11 +29,7 @@ class ImagesInteractor(
      * @param deleteSrcFile Нужно ли удалить исходный файл после сохранения файла назначения
      * @return
      */
-    suspend fun saveImage(context: Context, record: TetroidRecord?, srcUri: Uri?, deleteSrcFile: Boolean): TetroidImage? {
-        if (record == null || srcUri == null) {
-            logger.logEmptyParams("ImagesInteractor.saveImage()")
-            return null
-        }
+    suspend fun saveImage(context: Context, record: TetroidRecord, srcUri: Uri, deleteSrcFile: Boolean): TetroidImage? {
         val srcPath = srcUri.path
         logger.logDebug(context.getString(R.string.log_start_image_file_saving_mask).format(srcPath, record.id))
 
@@ -82,11 +78,7 @@ class ImagesInteractor(
      * @param bitmap
      * @return
      */
-    suspend fun saveImage(context: Context, record: TetroidRecord?, bitmap: Bitmap?): TetroidImage? {
-        if (record == null || bitmap == null) {
-            logger.logEmptyParams("ImagesInteractor.saveImage()")
-            return null
-        }
+    suspend fun saveImage(context: Context, record: TetroidRecord, bitmap: Bitmap): TetroidImage? {
         logger.logOperRes(LogObj.IMAGE, LogOper.SAVE, record, false)
 
         // генерируем уникальное имя файла

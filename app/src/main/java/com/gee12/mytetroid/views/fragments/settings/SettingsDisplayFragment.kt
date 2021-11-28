@@ -8,7 +8,7 @@ import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.RecordFieldsSelector
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.views.DateTimeFormatPreference
 import com.gee12.mytetroid.views.DateTimeFormatDialog
 
@@ -28,7 +28,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             prefFields?.setEntryValues(arrayId)
             prefFields?.setEntries(arrayId)
         }
-        updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(context))
+        updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
         updateSummaryIfContains(R.string.pref_key_record_fields_in_list, recordFieldsValuesString)
     }
 
@@ -36,27 +36,27 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         when (key) {
             getString(R.string.pref_key_is_highlight_attach) -> {
                 // включаем/выключаем выделение записей с файлами
-                App.IsHighlightAttach = SettingsManager.isHighlightRecordWithAttach(context)
+                App.IsHighlightAttach = CommonSettings.isHighlightRecordWithAttach(context)
                 setHighlightPrefAvailability()
             }
             getString(R.string.pref_key_is_highlight_crypted_nodes) -> {
                 // включаем/выключаем выделение зашифрованных веток
-                App.IsHighlightCryptedNodes = SettingsManager.isHighlightEncryptedNodes(context)
+                App.IsHighlightCryptedNodes = CommonSettings.isHighlightEncryptedNodes(context)
                 setHighlightPrefAvailability()
             }
             getString(R.string.pref_key_highlight_attach_color) -> {
                 // меняем цвет выделения записей с файлами
-                App.HighlightAttachColor = SettingsManager.getHighlightColor(context)
+                App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
             }
             getString(R.string.pref_key_date_format_string) -> {
                 // меняем формат даты
-                App.DateFormatString = SettingsManager.getDateFormatString(context)
+                App.DateFormatString = CommonSettings.getDateFormatString(context)
             }
             getString(R.string.pref_key_show_record_fields) -> {
-                updateSummary(R.string.pref_key_show_record_fields, SettingsManager.getShowRecordFields(context))
+                updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
             }
             getString(R.string.pref_key_record_fields_in_list) -> {
-                App.RecordFieldsInList = RecordFieldsSelector(context, SettingsManager.getRecordFieldsInList(context))
+                App.RecordFieldsInList = RecordFieldsSelector(context, CommonSettings.getRecordFieldsInList(context))
                 updateSummary(
                     R.string.pref_key_record_fields_in_list, recordFieldsValuesString,
                     getString(R.string.pref_record_fields_in_list_summ)
@@ -73,8 +73,8 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
     private fun setHighlightPrefAvailability() {
         findPreference<Preference>(getString(R.string.pref_key_highlight_attach_color))!!.isEnabled = (
-                SettingsManager.isHighlightRecordWithAttach(context)
-                        || SettingsManager.isHighlightEncryptedNodes(context))
+                CommonSettings.isHighlightRecordWithAttach(context)
+                        || CommonSettings.isHighlightEncryptedNodes(context))
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {

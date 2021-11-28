@@ -9,7 +9,7 @@
     <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
-    <string name="title_settings">Настройки</string>
+    <string name="title_settings">Общие настройки</string>
     <string name="title_storage_settings">Настройки хранилища</string>
     <string name="title_open">Открыть</string>
     <string name="title_show_node">Открыть ветку</string>
@@ -247,7 +247,7 @@
     <string name="pref_clear_trash_summ">Удалить содержимое каталога корзины</string>
     <string name="pref_clear_search_history_summ">Удалить подсказки при вводе запроса и параметры глобального поиска</string>
     <string name="pref_change_pass">Сменить пароль</string>
-    <string name="pref_change_pass_summ">Изменить пароль и заново перешифровать зашифрованные ветки</string>
+    <string name="pref_change_pass_summ">Изменить пароль и заново зашифровать ветки</string>
     <string name="pref_setup_pass">Установить пароль</string>
     <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
@@ -284,8 +284,10 @@
     <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
     <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
 
+    <string name="task_wait">Подождите…</string>
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
+    <string name="task_pass_setting">Установка пароля…</string>
     <string name="task_pass_changing">Смена пароля…</string>
     <string name="task_node_encrypting">Зашифровка ветки…</string>
     <string name="task_node_drop_crypting">Сброс шифровки ветки…</string>
@@ -384,14 +386,16 @@
     <string name="ask_delete_record_without_dir">Каталог записи отсутствует. Удалить запись из хранилища ?</string>
     <string name="ask_sync_success_dialog_request">Синхронизация выполнена. Перезагрузить хранилище?</string>
     <string name="ask_sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
+    <string name="ask_sync_failed_before_exit_dialog_request">Синхронизация не удалась. Выйти все равно?</string>
     <string name="ask_request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
     <string name="ask_request_camera">Необходимо разрешение на использование камеры для захвата изображения. Предоставить ?</string>
     <string name="ask_show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
     <string name="ask_save_record">Сохранить запись?</string>
+    <string name="ask_no_set_default_storage">Не задано хранилище по-умолчанию. Перейти к списку хранилищ ?</string>
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="ask_clear_trash">Очистить корзину?</string>
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
-    <string name="ask_reload_storage">Перезагрузить хранилище из памяти устройства?</string>
+    <string name="ask_reload_storage">Перезагрузить хранилище из файловой системы устройства?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
 <!--    <string name="ask_storage_folder_clear">Выбранный каталог для нового хранилища будет очищен. Продолжить?</string>-->
     <string name="ask_create_storage_in_folder">В выбранном каталоге будет создано новое хранилище. Продолжить?</string>
@@ -439,10 +443,10 @@
     <string name="log_storage_loaded_decrypted_mask">Хранилище \'%s\' загружено и расшифровано</string>
     <string name="log_storage_favor_loaded_mask">Избранные записи хранилища \'%s\' загружены</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
-    <string name="log_storage_settings_inited">Настройки хранилища загружены:&#160;</string>
+    <string name="log_storage_settings_loaded">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
     <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>
-    <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана.\nВозможен поиск только по всей базе</string>
+    <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана.\nВозможен поиск только по всей базе или в другой ветке</string>
     <string name="log_select_node_to_search">Выберите ветку для поиска</string>
     <string name="log_incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
     <string name="log_cur_record_is_not_set">Не указана текущая запись</string>
@@ -588,6 +592,7 @@
     <string name="log_to_mask">&#160;в "%s"</string>
 <!--    <string name="log_more_in_logs">&#160;(подробнее в логах)</string>-->
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
+    <string name="log_node_is_null">Переданная ветка пуста (null)</string>
     <string name="log_tag_is_null">Переданная метка пуста (null)</string>
     <string name="log_record_is_null">Переданная запись пуста (null)</string>
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
@@ -643,6 +648,8 @@
     <string name="pref_is_read_only">Только просмотр</string>
     <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
     <string name="title_context_menu">Контекстное меню</string>
+    <string name="title_storage_current">Загруженное хранилище</string>
+    <string name="title_storage_default">Хранилище по-умолчанию</string>
     <string name="label_default_storage">Хранилище по-умолчанию</string>
     <string name="ask_load_storage_mask">Загрузить хранилище \'%s\' ?</string>
     <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \'%s\', продолжить ?</string>
@@ -661,4 +668,6 @@
     <string name="log_activity_opened_mask">Открыта активность: %s</string>
     <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
     <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
+    <string name="log_def_storage_not_specified">Хранилище по-умолчанию не задано</string>
+    <string name="log_start_load_def_storage">Начало загрузки хранилища по-умолчанию</string>
 </resources>

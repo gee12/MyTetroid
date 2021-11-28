@@ -46,22 +46,20 @@ public class TetroidNode extends TetroidObject {
         return icon;
     }
 
-    public void loadIcon(Context context, String iconsFolderPath) {
-        if (TextUtils.isEmpty(getIconName())) {
-            this.icon = null;
-            return;
-        }
-        if (iconsFolderPath == null) {
-            return;
-        }
-        try {
-            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
-        } catch (Exception e) {
-            LogManager.log(context, e);
-        }
-    }
-
-
+//    public void loadIcon(Context context, String iconsFolderPath) {
+//        if (TextUtils.isEmpty(getIconName())) {
+//            this.icon = null;
+//            return;
+//        }
+//        if (iconsFolderPath == null) {
+//            return;
+//        }
+//        try {
+//            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
+//        } catch (Exception e) {
+//            LogManager.log(context, e);
+//        }
+//    }
 
     public String getIconName() {
         return (isCrypted && isDecrypted) ? decryptedIconName : iconName;
@@ -69,6 +67,10 @@ public class TetroidNode extends TetroidObject {
 
     public String getIconName(boolean cryptedValue) {
         return (cryptedValue) ? iconName : decryptedIconName;
+    }
+
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
 
     public int getLevel() {

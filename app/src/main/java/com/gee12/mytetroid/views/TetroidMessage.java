@@ -14,7 +14,7 @@ import com.gee12.mytetroid.views.activities.LogsActivity;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.google.android.material.snackbar.Snackbar;
 
-public class Message {
+public class TetroidMessage {
 
 //    static BaseTransientBottomBar.Behavior behavior = new BaseTransientBottomBar.Behavior();
 //
@@ -138,4 +138,28 @@ public class Message {
         showSnack(view, R.string.title_more_in_logs, Snackbar.LENGTH_LONG,
                 R.string.title_open, v -> LogsActivity.Companion.start(context));
     }
+
+    /**
+     * Публикация сообщений.
+     * @param message
+     */
+    public static void show(Context context, com.gee12.mytetroid.logs.Message message) {
+        switch (message.getType()) {
+            case INFO:
+                Toast.makeText(context, message.getMessage(), Toast.LENGTH_SHORT).show();
+                break;
+            case WARNING:
+                Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
+                break;
+            case ERROR:
+                Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
+//                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+                break;
+            default:
+                // TODO: ?
+                Toast.makeText(context, message.getMessage(), Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
 }

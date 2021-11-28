@@ -8,7 +8,7 @@ import android.widget.Toast;
 
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.views.Message;
+import com.gee12.mytetroid.views.TetroidMessage;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -126,7 +126,7 @@ public class LogManager {
     }
 
     public static void showMessage(Context context, String s, int duration) {
-        Message.show(context, s, duration);
+//        TetroidMessage.show(context, s, duration);
     }
 
     /*public static void showMessage(Context context, String s, int duration) {

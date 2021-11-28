@@ -53,7 +53,7 @@ public class INIConfig {
     public boolean save() {
         try {
             config.store(new FileWriter(fileName));
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (logger != null) {
                 logger.logError("Configuration error: ", e, false);
             }

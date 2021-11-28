@@ -7,19 +7,23 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.utils.StringUtils
 import java.util.*
 
-open class BaseViewModel(application: Application) : AndroidViewModel(application) {
+open class BaseViewModel(
+    application: Application,
+    logger: TetroidLogger?
+) : AndroidViewModel(application) {
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
     var isBusy = false
 
-    // FIXME: почему open ?
-    open var logger: TetroidLogger = BaseLogger().apply {
-//        init(SettingsManager.getLogPath(getContext()), SettingsManager.isWriteLogToFile(getContext()))
+//    var logger: TetroidLogger = logger ?: BaseLogger().apply {
+    var logger: TetroidLogger = BaseLogger().apply {
+        init(CommonSettings.getLogPath(getContext()), CommonSettings.isWriteLogToFile(getContext()))
     }
 
     val messageObservable = MutableLiveData<Message>()

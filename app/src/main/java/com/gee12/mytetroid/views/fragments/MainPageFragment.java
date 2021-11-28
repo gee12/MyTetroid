@@ -292,7 +292,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param record
      */
     private void deleteRecord(@NotNull TetroidRecord record) {
-        RecordDialogs.deleteRecord(context, record.getName(), () -> {
+        RecordDialogs.deleteRecord(getContext(), record.getName(), () -> {
             viewModel.deleteRecord(record);
         });
     }
@@ -384,7 +384,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param attach
      */
     private void deleteAttach(@NotNull TetroidFile attach) {
-        AttachAskDialogs.deleteFile(context, attach.getName(), () -> {
+        AttachAskDialogs.deleteFile(getContext(), attach.getName(), () -> {
             viewModel.deleteAttach(attach);
         });
     }
@@ -614,10 +614,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 reorderRecord(pos, false);
                 return true;
             case R.id.action_add_favorite:
-                viewModel.addFavorite(context, record);
+                viewModel.addFavorite(getContext(), record);
                 return true;
             case R.id.action_remove_favorite:
-                viewModel.removeFavorite(context, record);
+                viewModel.removeFavorite(getContext(), record);
                 return true;
             case R.id.action_info:
                 showRecordInfoDialog(record);
@@ -696,6 +696,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         }
     }
 
+    @NonNull
     @Override
     public String getTitle() {
         return "Главная";

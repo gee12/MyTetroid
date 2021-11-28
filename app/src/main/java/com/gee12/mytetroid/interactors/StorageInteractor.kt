@@ -4,7 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants.SEPAR
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.FavoritesManager
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
@@ -40,7 +41,7 @@ class StorageInteractor(
         const val FILE_URI_PREFIX = "file://"
 
         fun getLastFolderPathOrDefault(context: Context, forWrite: Boolean): String? {
-            val lastFolder = SettingsManager.getLastChoosedFolderPath(context)
+            val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
             return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
             else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
         }
@@ -93,10 +94,19 @@ class StorageInteractor(
         }
 
         // создаем каталог base
-        val baseDir = File(storagePath, BASE_FOLDER_NAME)
-        if (!baseDir.mkdir()) {
+        if (!createBaseFolder(storagePath)) {
             return false
         }
+
+        // добавляем корневую ветку
+        xmlLoader.init()
+        if (!storageHelper.createDefaultNode()) {
+            return false
+        }
+
+        // создаем Favorites
+        FavoritesManager.create()
+
         return true
     }
 
@@ -124,7 +134,7 @@ class StorageInteractor(
                 //                if (moveOld) {
                 // перемещаем старую версию файла mytetra.xml в корзину
                 val nameInTrash = dataInteractor.createDateTimePrefix() + "_" + MYTETRA_XML_FILE_NAME
-                if (dataInteractor.moveFile(context, destPath, SettingsManager.getTrashPath(context), nameInTrash) <= 0) {
+                if (dataInteractor.moveFile(context, destPath, CommonSettings.getTrashPath(context), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
 //                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
@@ -177,9 +187,9 @@ class StorageInteractor(
         }
     }
 
-    fun createBaseFolder(): Boolean {
-        val baseDir = File(getStoragePath(), BASE_FOLDER_NAME)
-        return (!baseDir.mkdir())
+    private fun createBaseFolder(storagePath: String): Boolean {
+        val baseDir = File(storagePath, BASE_FOLDER_NAME)
+        return baseDir.mkdir()
     }
 
     fun isLoaded() = storageHelper.isStorageLoaded()
@@ -204,6 +214,10 @@ class StorageInteractor(
 
     fun getPathToIcons(): String {
         return "${getStoragePath()}$SEPAR$ICONS_FOLDER_NAME"
+    }
+
+    fun getPathToFileInIconsFolder(fileName: String): String {
+        return "${getPathToIcons()}$SEPAR$fileName"
     }
 
     fun getPathToStorageTrashFolder(): String {

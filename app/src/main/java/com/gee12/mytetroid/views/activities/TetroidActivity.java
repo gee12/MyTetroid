@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -25,20 +24,23 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.CommonSettings;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.TetroidStorage;
 import com.gee12.mytetroid.utils.ViewUtils;
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
-import com.gee12.mytetroid.views.Message;
+import com.gee12.mytetroid.views.IViewEventListener;
+import com.gee12.mytetroid.views.TetroidMessage;
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs;
 
 import org.jetbrains.annotations.NotNull;
 
 import lib.folderpicker.FolderPicker;
 
 public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends AppCompatActivity
-        implements View.OnTouchListener {
+        implements View.OnTouchListener, IViewEventListener {
 
     public interface IDownloadFileResult {
         void onSuccess(Uri uri);
@@ -121,7 +123,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
-    protected void onUICreated() {}
+    protected void onUICreated(boolean uiCreated) {}
 
     /**
      *
@@ -138,7 +140,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 //                taskPostExecute();
 //                break;
             case ShowProgress:
-                setProgressVisibility((boolean) data);
+                setProgressVisibility((boolean) data, null);
                 break;
             case ShowProgressText:
                 setProgressText((String) data);
@@ -153,6 +155,9 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      */
     protected void onStorageEvent(Constants.StorageEvents state, Object data) {
         switch (state) {
+            case NoDefaultStorage:
+                StorageDialogs.INSTANCE.askForDefaultStorageNotSpecified(this, () -> showStoragesActivity());
+                break;
             case Loaded:
                 afterStorageLoaded((boolean) data);
                 break;
@@ -232,7 +237,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      */
     public int toggleFullscreen(boolean fromDoubleTap) {
         if (this instanceof RecordActivity) {
-            if (!fromDoubleTap || SettingsManager.isDoubleTapFullscreen(this)) {
+            if (!fromDoubleTap || CommonSettings.isDoubleTapFullscreen(this)) {
                 boolean newValue = !isFullScreen;
                 ViewUtils.setFullscreen(this, newValue);
                 this.isFullScreen = newValue;
@@ -274,9 +279,9 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
                 MenuBuilder m = (MenuBuilder) menu;
                 m.setOptionalIconsVisible(true);
             }
-            // устанавливаем флаг, что стандартные элементы активности созданы
-            onUICreated();
         }
+        // устанавливаем флаг, что стандартные элементы активности созданы
+        onUICreated(!isGUICreated);
         this.isGUICreated = true;
         return true;
     }
@@ -428,7 +433,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 
     public void taskPostExecute() {
         unblockInterface();
-        setProgressVisibility(false);
+        setProgressVisibility(false, null);
     }
 
     public void blockInterface() {
@@ -445,11 +450,8 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @return true - можно продолжить работу обработчика onBackPressed(), иначе - прервать
      */
     public boolean onBeforeBackPressed() {
-        if (viewModel.isBusy()) {
-            // если выполняется задание, то не реагируем на нажатие кнопки Back
-            return false;
-        }
-        return true;
+        // если выполняется задание, то не реагируем на нажатие кнопки Back
+        return !viewModel.isBusy();
     }
 
     protected void setVisibilityActionHome(boolean isVisible) {
@@ -459,15 +461,24 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         }
     }
 
-    protected void setProgressVisibility(boolean isVisible) {
+    @Override
+    public void setProgressVisibility(boolean isVisible, String text) {
+        if (isVisible) {
+            tvProgress.setText(text);
+            layoutProgress.setVisibility(View.VISIBLE);
+        } else {
+            layoutProgress.setVisibility(View.GONE);
+        }
         layoutProgress.setVisibility(ViewUtils.toVisibility(isVisible));
     }
 
-    protected void setProgressText(int progressTextResId) {
+    @Override
+    public void setProgressText(int progressTextResId) {
         setProgressText(getString(progressTextResId));
     }
 
-    protected void setProgressText(String progressText) {
+    @Override
+    public void setProgressText(String progressText) {
         layoutProgress.setVisibility(View.VISIBLE);
         tvProgress.setText(progressText);
     }
@@ -517,6 +528,14 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         startActivityForResult(intent, requestCode);
     }
 
+    protected void showStoragesActivity() {
+        ViewUtils.startActivity(this, StoragesActivity.class, null, Constants.REQUEST_CODE_STORAGES_ACTIVITY);
+    }
+
+    protected void showStorageSettingsActivity(TetroidStorage storage) {
+        startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY);
+    }
+
     public boolean isOnCreateProcessed() {
         return isOnCreateProcessed;
     }
@@ -526,29 +545,15 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param message
      */
     protected void onMessage(com.gee12.mytetroid.logs.Message message) {
-        switch (message.getType()) {
-            case INFO:
-                Toast.makeText(this, message.getMessage(), Toast.LENGTH_SHORT).show();
-                break;
-            case WARNING:
-                Toast.makeText(this, message.getMessage(), Toast.LENGTH_LONG).show();
-                break;
-            case ERROR:
-                Toast.makeText(this, message.getMessage(), Toast.LENGTH_LONG).show();
-//                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
-                break;
-            default:
-                // TODO: ?
-                Toast.makeText(this, message.getMessage(), Toast.LENGTH_SHORT).show();
-                break;
-        }
+        TetroidMessage.show(this, message);
     }
 
     /**
      * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
      */
-    protected void showSnackMoreInLogs() {
-        Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
+    @Override
+    public void showSnackMoreInLogs() {
+        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator);
     }
 
 }

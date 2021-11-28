@@ -6,17 +6,14 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.model.TetroidStorage;
-import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel;
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
-import com.gee12.mytetroid.views.fragments.settings.SettingsFragment;
+import com.gee12.mytetroid.views.fragments.settings.SettingsSectionsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment;
-import com.gee12.mytetroid.views.fragments.settings.storage.StorageSettingsFragment;
+import com.gee12.mytetroid.views.fragments.settings.storage.StorageSectionsSettingsFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,18 +23,21 @@ import org.jetbrains.annotations.NotNull;
  */
 public class StorageSettingsActivity extends TetroidSettingsActivity {
 
-    private StorageSettingsViewModel viewModel;
+//    private StorageSettingsViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
-                .get(StorageSettingsViewModel.class);
+//        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
+//                .get(StorageSettingsViewModel.class);
+//
+//        viewModel.setStorageFromBase(getStorageId());
+    }
 
-        int storageId = (getIntent() != null && getIntent().hasExtra(Constants.EXTRA_STORAGE_ID))
+    public int getStorageId() {
+        return (getIntent() != null && getIntent().hasExtra(Constants.EXTRA_STORAGE_ID))
                 ? getIntent().getIntExtra(Constants.EXTRA_STORAGE_ID, 0) : 0;
-        viewModel.setStorageFromBase(storageId);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
         getSupportFragmentManager()
                 .beginTransaction()
 //                .replace(R.id.container, StorageSettingsFragment.Companion.newInstance(storageId))
-                .replace(R.id.container, new StorageSettingsFragment())
+                .replace(R.id.container, new StorageSectionsSettingsFragment())
                 .commit();
     }
 
@@ -63,7 +63,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
         if (fragment instanceof StorageMainSettingsFragment) {
             ((StorageMainSettingsFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
         } /*else if (fragment instanceof SettingsOtherFragment) {
@@ -77,7 +77,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
         /*if (fragment instanceof StorageMainSettingsFragment) {
             ((StorageMainSettingsFragment)fragment).onResult(requestCode, resultCode, data);
         }*/ /*else if (fragment instanceof SettingsOtherFragment) {
@@ -92,7 +92,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
     @Override
     public void onBackPressed() {
         boolean isBackPressed = false;
-        Fragment fragment = getCurFragment();
+        Fragment fragment = getCurrentFragment();
         // обрабатываем нажатие Back во фрагменте StorageEncryptionSettingsFragment отдельно
         if (fragment instanceof StorageEncryptionSettingsFragment) {
             if (!((StorageEncryptionSettingsFragment)fragment).onBackPressed()) {
@@ -102,7 +102,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
             isBackPressed = true;
         }
         if (isBackPressed) {
-            if (!(fragment instanceof SettingsFragment)) {
+            if (!(fragment instanceof SettingsSectionsFragment)) {
                 setTitle(R.string.title_storage_settings);
             }
             super.onBackPressed();

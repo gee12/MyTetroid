@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import android.widget.Toast
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.esafirm.imagepicker.features.ImagePicker
@@ -25,7 +24,6 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.activities.MainActivity
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
@@ -35,23 +33,27 @@ import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
-import android.R.attr.name
 import androidx.annotation.MainThread
+import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.TetroidLogger
 
 
 class RecordViewModel(
     app: Application,
-    storagesRepo: StoragesRepo,
-    xmlLoader: TetroidXml
-): StorageViewModel/*<Constants.RecordEvents>*/(app, storagesRepo, xmlLoader) {
+    logger: TetroidLogger?,
+    storagesRepo: StoragesRepo?,
+    xmlLoader: TetroidXml?,
+    crypter: TetroidCrypter?
+): StorageViewModel(
+    app,
+    logger,
+    storagesRepo,
+    xmlLoader,
+    crypter
+) {
 
-//    val objectAction: SingleLiveEvent<ViewModelEvent<Constants.RecordEvents, Any>> = SingleLiveEvent()
-//
-//    fun doAction(action: Constants.RecordEvents, param: Any? = null) {
-//        objectAction.postValue(ViewModelEvent(action, param))
-//    }
-
-    private val imagesInteractor = ImagesInteractor(logger, dataInteractor, recordsInteractor)
+    private val imagesInteractor = ImagesInteractor(this.logger, dataInteractor, recordsInteractor)
 
     var curRecord = MutableLiveData<TetroidRecord>()
     var curMode = 0
@@ -64,6 +66,8 @@ class RecordViewModel(
     var isEdited = false
     var isFromAnotherActivity = false
 
+
+    //region Storage
 
     fun onStorageInited(intent: Intent?) {
         when (intent?.action) {
@@ -81,12 +85,14 @@ class RecordViewModel(
         }
     }
 
+    //endregion Storage
+
+    // region Load page
+
     fun onCreate(receivedIntent: Intent) {
         // проверяем передавались ли изображения
         isReceivedImages = receivedIntent.hasExtra(Constants.EXTRA_IMAGES_URI)
     }
-
-    // region LoadPage
 
     /**
      * Событие окончания загрузки страницы.
@@ -100,7 +106,7 @@ class RecordViewModel(
                 val defMode = if (
                     curRecord.value!!.isNew
                     || isReceivedImages
-                    || SettingsManager.isRecordEditMode(getContext())
+                    || CommonSettings.isRecordEditMode(getContext())
                 ) Constants.MODE_EDIT
                 else Constants.MODE_VIEW
 
@@ -122,8 +128,9 @@ class RecordViewModel(
     fun onEditorJSLoaded(receivedIntent: Intent) {
         // вставляем переданные изображения
         if (isReceivedImages) {
-            val uris = receivedIntent.getParcelableArrayListExtra<Uri>(Constants.EXTRA_IMAGES_URI)
-            saveImages(uris, false)
+            receivedIntent.getParcelableArrayListExtra<Uri>(Constants.EXTRA_IMAGES_URI)?.let { uris ->
+                saveImages(uris, false)
+            }
         }
     }
 
@@ -137,9 +144,9 @@ class RecordViewModel(
         }
     }
 
-    // endregion LoadPage
+    // endregion Load page
 
-    // region LoadLinks
+    // region Load links
 
     /**
      * Открытие ссылки в тексте.
@@ -224,9 +231,9 @@ class RecordViewModel(
         }
     }
 
-    //endregion LoadLinks
+    //endregion Load links
 
-    //region OpenRecord
+    //region Open record
 
     /**
      * Получение записи из хранилища.
@@ -309,7 +316,7 @@ class RecordViewModel(
                     recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, true)
                 }
                 if (text == null) {
-                    if (record.isCrypted && cryptInteractor.crypter.errorCode > 0) {
+                    if (record.isCrypted && crypter.errorCode > 0) {
                         logError(R.string.log_error_record_file_decrypting)
                         setViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                     }
@@ -319,9 +326,9 @@ class RecordViewModel(
         }
     }
 
-    //endregion OpenRecord
+    //endregion Open record
 
-    //region OpenAnotherObjects
+    //region Open another objects
 
     /**
      * Открытие другой записи по внутренней ссылке.
@@ -408,7 +415,7 @@ class RecordViewModel(
         openAnotherNode(ResultObj(curRecord.value!!.node), true)
     }
 
-    //endregion OpenAnotherObjects
+    //endregion Open another objects
 
     //region Image
 
@@ -429,13 +436,12 @@ class RecordViewModel(
         saveImages(uris, isCamera)
     }
 
-    private fun saveImages(imageUris: List<Uri>?, deleteSrcFile: Boolean) {
-        if (imageUris == null) return
+    private fun saveImages(imageUris: List<Uri>, deleteSrcFile: Boolean) {
         launch {
             var errorCount = 0
             val savedImages: MutableList<TetroidImage> = ArrayList()
             for (uri in imageUris) {
-                val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, uri, deleteSrcFile)
+                val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, uri, deleteSrcFile)
                 if (savedImage != null) {
                     savedImages.add(savedImage)
                 } else {
@@ -453,16 +459,16 @@ class RecordViewModel(
         }
     }
 
-    fun saveImage(imageUri: Uri?, deleteSrcFile: Boolean) {
+    fun saveImage(imageUri: Uri, deleteSrcFile: Boolean) {
         launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, imageUri, deleteSrcFile)
+            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, imageUri, deleteSrcFile)
             saveImage(savedImage)
         }
     }
 
-    fun saveImage(bitmap: Bitmap?) {
+    fun saveImage(bitmap: Bitmap) {
         launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value, bitmap)
+            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, bitmap)
             saveImage(savedImage)
         }
     }
@@ -500,7 +506,7 @@ class RecordViewModel(
         launch {
             postViewEvent(Constants.ViewEvents.ShowProgress, getString(R.string.title_image_downloading))
             NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
-                override fun onSuccess(bitmap: Bitmap?) {
+                override fun onSuccess(bitmap: Bitmap) {
                     saveImage(bitmap)
                     postViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
@@ -611,7 +617,7 @@ class RecordViewModel(
 //        onSaveRecord();
         var runBeforeSaving = false
         if (isNeedSave
-            && SettingsManager.isRecordAutoSave(getContext())
+            && CommonSettings.isRecordAutoSave(getContext())
             && !curRecord.value!!.isTemp) {
             // автоматически сохраняем текст записи, если:
             //  * есть изменения
@@ -628,14 +634,11 @@ class RecordViewModel(
         }
         // перезагружаем html-текст записи в webView, если был режим редактирования HTML
         if (oldMode == Constants.MODE_HTML) {
-//            loadRecordText(mRecord, true)
             setEvent(Constants.RecordEvents.LoadRecordTextFromHtml)
         } else {
-//            switchViews(newMode)
             setEvent(Constants.RecordEvents.SwitchViews, newMode)
         }
         curMode = newMode
-//        updateOptionsMenu()
         setViewEvent(Constants.ViewEvents.UpdateOptionsMenu)
     }
 
@@ -652,7 +655,7 @@ class RecordViewModel(
      */
     private fun onSaveRecord(showAskDialog: Boolean, obj: ResultObj?): Boolean {
         if (isEdited) {
-            if (SettingsManager.isRecordAutoSave(getContext()) && !curRecord.value!!.isTemp) {
+            if (CommonSettings.isRecordAutoSave(getContext()) && !curRecord.value!!.isTemp) {
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
@@ -668,7 +671,7 @@ class RecordViewModel(
      * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
      */
     fun saveRecord(obj: ResultObj?): Boolean {
-        val runBeforeSaving = SettingsManager.isFixEmptyParagraphs(getContext())
+        val runBeforeSaving = CommonSettings.isFixEmptyParagraphs(getContext())
         if (runBeforeSaving) {
             resultObj = obj
         }
@@ -682,23 +685,19 @@ class RecordViewModel(
      */
     private fun saveRecord(callBefore: Boolean, obj: ResultObj?): Boolean {
         if (callBefore) {
-//            onBeforeSavingAsync()
             postEvent(Constants.RecordEvents.BeforeSaving)
             return true
         } else {
             if (curRecord.value!!.isTemp) {
                 if (isLoaded()) {
-//                    this.runOnUiThread(Runnable { editFields(obj) })
                     postEvent(Constants.RecordEvents.EditFields, obj)
                 } else {
                     isSaveTempAfterStorageLoaded = true
-//                    this.runOnUiThread(Runnable { loadStorage() })
                     loadStorage()
                 }
                 return true
             } else {
                 save()
-//                this.runOnUiThread(Runnable { onAfterSaving(obj) })
                 onAfterSaving(obj)
             }
         }
@@ -796,7 +795,7 @@ class RecordViewModel(
                         openRecordNodeInMainView();
                         setViewEvent(Constants.ViewEvents.FinishActivity)
                     } else {
-                        Message.show(getContext(), getString(R.string.log_record_node_is_empty), Toast.LENGTH_LONG)
+                        showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
                     }
                     return true
                 }
@@ -906,7 +905,7 @@ class RecordViewModel(
      * Сохранение записи при любом скрытии активности.
      */
     fun onPause() {
-        if (!curRecord.value!!.isTemp) {
+        if (curRecord.value?.isTemp == false) {
             onSaveRecord(false, null)
         }
     }
@@ -1003,11 +1002,11 @@ class RecordViewModel(
         return if (
             curRecord.value!!.isNew
             || isReceivedImages
-            || SettingsManager.isRecordEditMode(getContext())
+            || CommonSettings.isRecordEditMode(getContext())
         ) {
             false
         } else {
-            val option = SettingsManager.getShowRecordFields(getContext())
+            val option = CommonSettings.getShowRecordFields(getContext())
             when (option) {
                 getString(R.string.pref_show_record_fields_no) -> false
                 getString(R.string.pref_show_record_fields_yes) -> true

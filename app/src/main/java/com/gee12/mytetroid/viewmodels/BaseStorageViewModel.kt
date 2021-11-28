@@ -5,7 +5,7 @@ import android.util.Log
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.logs.TetroidLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -13,8 +13,11 @@ import kotlin.coroutines.CoroutineContext
 
 open class BaseStorageViewModel(
     app: Application,
-    private val repo: StoragesRepo
-) : BaseViewModel(app), CoroutineScope {
+    logger: TetroidLogger?
+) : BaseViewModel(
+    app,
+    logger
+), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
@@ -47,8 +50,14 @@ open class BaseStorageViewModel(
         objectAction.value = ViewModelEvent(event, param)
     }
 
-    fun postEvent(callback: CallbackParam) {
-        postEvent(callback.event, callback.data)
+    fun postEventFromCallbackParam(callback: EventCallbackParams) {
+        when (callback.event) {
+            is Constants.ViewEvents -> postViewEvent(callback.event, callback.data)
+            is Constants.StorageEvents -> postStorageEvent(callback.event, callback.data)
+            is Constants.MainEvents -> postEvent(callback.event, callback.data)
+            is Constants.RecordEvents -> postEvent(callback.event, callback.data)
+            else -> {}
+        }
     }
 
     //endregion Event

@@ -1,38 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:android_ex="http://schemas.android.com/apk/res-auto"
     android:id="@+id/custom_dialog_layout_design_user_input"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <com.gee12.mytetroid.views.TextViewHtml
-        android:id="@+id/text_view_header"
-        android:text="@string/text_pass_input_html"
-        android_ex:isHtml="true"
-        android:layout_marginBottom="8pt"
-        android:textSize="@dimen/font_small"
-        style="@style/dialog_labels"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:text="@string/label_pass"
-        style="@style/dialog_labels"/>
+        <com.gee12.mytetroid.views.TextViewHtml
+            android:id="@+id/text_view_header"
+            android:text="@string/text_pass_input_html"
+            android_ex:isHtml="true"
+            android:layout_marginBottom="8pt"
+            android:textSize="@dimen/font_small"
+            style="@style/dialog_labels"/>
 
-    <EditText
-        android:id="@+id/edit_text_pass"
-        android:inputType="text|textPassword"
-        style="@style/dialog_text_edit">
-        <requestFocus/>
-    </EditText>
+        <TextView
+            android:text="@string/label_pass"
+            style="@style/dialog_labels"/>
 
-    <TextView
-        android:text="@string/label_confirm_pass"
-        style="@style/dialog_labels"/>
+        <EditText
+            android:id="@+id/edit_text_pass"
+            android:inputType="text|textPassword"
+            style="@style/dialog_text_edit">
+            <requestFocus/>
+        </EditText>
 
-    <EditText
-        android:id="@+id/edit_text_confirm_pass"
-        android:inputType="text|textPassword"
-        style="@style/dialog_text_edit"/>
+        <TextView
+            android:text="@string/label_confirm_pass"
+            style="@style/dialog_labels"/>
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/edit_text_confirm_pass"
+            android:inputType="text|textPassword"
+            style="@style/dialog_text_edit"/>
+
+    </LinearLayout>
+
+</ScrollView>

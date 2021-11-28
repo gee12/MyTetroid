@@ -80,6 +80,12 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_storage_settings"
+        android:orderInCategory="270"
+        android:title="@string/title_storage_settings"
+        android:icon="@drawable/ic_storage_settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"
         android:title="@string/title_settings"

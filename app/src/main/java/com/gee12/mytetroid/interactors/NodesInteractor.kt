@@ -6,9 +6,12 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogManager
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.utils.FileUtils
+import java.lang.Exception
 import java.util.*
 
 class NodesInteractor(
@@ -135,7 +138,7 @@ class NodesInteractor(
         }
         // перезаписываем структуру хранилища в файл
         if (storageInteractor.saveStorage(context)) {
-            node.loadIcon(context, storageInteractor.getPathToIcons())
+            loadNodeIcon(node)
         } else {
             logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
@@ -149,15 +152,41 @@ class NodesInteractor(
     }
 
     /**
+     * Загрузка иконки ветки.
+     */
+    fun loadNodeIcon(node: TetroidNode) {
+        if (TextUtils.isEmpty(node.iconName)) {
+            node.icon = null
+            return
+        } else {
+            try {
+                node.icon = FileUtils.loadSVGFromFile(storageInteractor.getPathToFileInIconsFolder(node.iconName))
+            } catch (ex: Exception) {
+                logger.logError(ex)
+            }
+        }
+    }
+
+    /**
      * Вставка ветки в указанную ветку.
      * @param srcNode
      * @param destParentNode
      * @param isCutted Если true, то запись была вырезана. Иначе - скопирована
      * @return
      */
-    suspend fun insertNode(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode, isCutted: Boolean): Boolean {
+    suspend fun insertNode(
+        context: Context,
+        srcNode: TetroidNode,
+        destParentNode: TetroidNode,
+        isCutted: Boolean
+    ): Boolean {
         logger.logOperStart(LogObj.NODE, LogOper.INSERT, srcNode)
-        val newNode = insertNodeRecursively(context, srcNode, destParentNode, isCutted, false)
+        val newNode = insertNodeRecursively(context,
+            srcNode = srcNode,
+            destParentNode = destParentNode,
+            isCutted = isCutted,
+            breakOnFSErrors = false
+        )
 
         // перезаписываем структуру хранилища в файл
         if (!storageInteractor.saveStorage(context)) {
@@ -173,8 +202,13 @@ class NodesInteractor(
      * Вставка ветки в указанную ветку.
      * @param srcNode
      */
-    suspend fun insertNodeRecursively(context: Context, srcNode: TetroidNode, destParentNode: TetroidNode,
-                              isCutted: Boolean, breakOnFSErrors: Boolean): TetroidNode? {
+    suspend fun insertNodeRecursively(
+        context: Context,
+        srcNode: TetroidNode,
+        destParentNode: TetroidNode,
+        isCutted: Boolean,
+        breakOnFSErrors: Boolean
+    ): TetroidNode? {
         // генерируем уникальный идентификатор, если ветка копируется
         val id = if (isCutted) srcNode.id else dataInteractor.createUniqueId()
         val name = srcNode.name
@@ -183,7 +217,8 @@ class NodesInteractor(
         // создаем копию ветки
         val crypted = destParentNode.isCrypted
         val node = TetroidNode(
-            crypted, id,
+            crypted,
+            id,
             cryptInteractor.encryptField(crypted, name),
             cryptInteractor.encryptField(crypted, iconName),
             destParentNode.level + 1
@@ -198,7 +233,6 @@ class NodesInteractor(
         }
         // загружаем такую же иконку
         storageLoadHelper.loadIcon(context, node)
-        destParentNode.addSubNode(node)
 
         // добавляем записи
         if (srcNode.recordsCount > 0) {
@@ -210,13 +244,21 @@ class NodesInteractor(
         }
         // добавляем подветки
         for (srcSubNode in srcNode.subNodes) {
-            // если srcNode=destParentNode (копируем ветку как подветку той же ветки),
-            // то не нужно копировать самого себя рекурсивно еще раз (бесконечно)
-            if (srcSubNode === node) continue
-            if (insertNodeRecursively(context, srcSubNode, node, isCutted, breakOnFSErrors) == null && breakOnFSErrors) {
+            if (insertNodeRecursively(
+                    context,
+                    srcSubNode,
+                    node,
+                    isCutted,
+                    breakOnFSErrors
+                ) == null && breakOnFSErrors) {
                 return null
             }
         }
+
+        // добавляем новую ветку в иерархию уже ПОСЛЕ копирования дерева существующих веток,
+        //  чтобы не получилась вечная рекурсия в случае, если родительскую ветку копируем в дочернюю
+        destParentNode.addSubNode(node)
+
         return node
     }
 
@@ -226,7 +268,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun deleteNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, SettingsManager.getTrashPath(context), false)
+        return deleteNode(context, node, CommonSettings.getTrashPath(context), false)
     }
 
     /**
@@ -235,7 +277,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun cutNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, SettingsManager.getTrashPath(context), true)
+        return deleteNode(context, node, CommonSettings.getTrashPath(context), true)
     }
 
     /**
@@ -268,7 +310,12 @@ class NodesInteractor(
      * Удаление объектов ветки.
      * @param node
      */
-    private suspend fun deleteNodeRecursively(context: Context, node: TetroidNode, movePath: String, breakOnFSErrors: Boolean): Boolean {
+    private suspend fun deleteNodeRecursively(
+        context: Context,
+        node: TetroidNode,
+        movePath: String,
+        breakOnFSErrors: Boolean
+    ): Boolean {
         val recordsCount = node.recordsCount
         if (recordsCount > 0) {
             for (record in node.records) {

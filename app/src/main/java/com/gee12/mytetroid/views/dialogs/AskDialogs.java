@@ -34,6 +34,10 @@ public class AskDialogs {
         AskDialogs.showYesDialog(context, callback, mesRes);
     }
 
+    public static void showSyncFailerBeforeExitDialog(Context context, final Dialogs.IApplyResult callback) {
+        AskDialogs.showYesDialog(context, callback, R.string.ask_sync_failed_dialog_request);
+    }
+
     public static void showSyncRequestDialog(Context context, final Dialogs.IApplyCancelResult callback) {
         AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_start_sync_dialog_title);
     }

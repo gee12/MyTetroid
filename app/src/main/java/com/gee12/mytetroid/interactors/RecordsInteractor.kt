@@ -265,15 +265,15 @@ class RecordsInteractor(
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val res = withContext(Dispatchers.IO) { FileUtils.copyDirRecursive(srcDir, destDir) }
                 if (res) {
-                    logger.logError(String.format(context.getString(R.string.log_copy_record_dir_mask), destDirPath))
+                    logger.logDebug(context.getString(R.string.log_copy_record_dir_mask).format(destDirPath))
                     // переименовываем прикрепленные файлы
                     renameRecordAttaches(context, srcRecord, record)
                 } else {
-                    logger.logError(String.format(context.getString(R.string.log_error_copy_record_dir_mask), srcDirPath, destDirPath))
+                    logger.logError(context.getString(R.string.log_error_copy_record_dir_mask).format(srcDirPath, destDirPath))
                     return errorRes
                 }
             } catch (ex: IOException) {
-                logger.logError(String.format(context.getString(R.string.log_error_copy_record_dir_mask), srcDirPath, destDirPath), ex)
+                logger.logError(context.getString(R.string.log_error_copy_record_dir_mask).format(srcDirPath, destDirPath), ex)
                 return errorRes
             }
         }
@@ -598,7 +598,7 @@ class RecordsInteractor(
                     context,
                     record,
                     getPathToRecordFolder(record),
-                    SettingsManager.getTrashPath(context),
+                    CommonSettings.getTrashPath(context),
                     oldDirName
                 )
                 record.setIsTemp(true)
@@ -617,7 +617,7 @@ class RecordsInteractor(
      * -1 - ошибка (отсутствует каталог записи)
      */
     suspend fun deleteRecord(context: Context, record: TetroidRecord, withoutDir: Boolean): Int {
-        return deleteRecord(context, record, withoutDir, SettingsManager.getTrashPath(context), false)
+        return deleteRecord(context, record, withoutDir, CommonSettings.getTrashPath(context), false)
     }
 
     /**
@@ -628,7 +628,7 @@ class RecordsInteractor(
      * -1 - ошибка (отсутствует каталог записи)
      */
     suspend fun cutRecord(context: Context, record: TetroidRecord, withoutDir: Boolean): Int {
-        return deleteRecord(context, record, withoutDir, SettingsManager.getTrashPath(context), true)
+        return deleteRecord(context, record, withoutDir, CommonSettings.getTrashPath(context), true)
     }
 
     /**
@@ -741,7 +741,7 @@ class RecordsInteractor(
             if (!withoutDir) {
                 if (isCutted) {
                     // перемещаем каталог записи обратно в корзину
-                    return moveRecordFolder(context, record, destDirPath, SettingsManager.getTrashPath(context), srcRecord.dirName)
+                    return moveRecordFolder(context, record, destDirPath, CommonSettings.getTrashPath(context), srcRecord.dirName)
                 } else {
                     // удаляем только что скопированный каталог записи
                     if (FileUtils.deleteRecursive(destDir)) {

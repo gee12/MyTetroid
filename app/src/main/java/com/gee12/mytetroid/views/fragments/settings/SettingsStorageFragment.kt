@@ -3,17 +3,12 @@ package com.gee12.mytetroid.views.fragments.settings
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import lib.folderpicker.FolderPicker
-import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
-import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.views.Message
-import org.jsoup.internal.StringUtil
 
 class SettingsStorageFragment : TetroidSettingsFragment() {
 
@@ -90,8 +85,8 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
 
         val keepNodePref = findPreference<Preference>(getString(R.string.pref_key_is_keep_selected_node))
         keepNodePref!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (SettingsManager.isLoadFavoritesOnlyDef(context)) {
-                Message.show(context, getString(R.string.title_not_avail_when_favor), Toast.LENGTH_SHORT)
+            if (CommonSettings.isLoadFavoritesOnlyDef(context)) {
+                baseViewModel.showMessage(getString(R.string.title_not_avail_when_favor))
             }
             true
         }
@@ -100,15 +95,15 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         }
 
 //        updateSummary(R.string.pref_key_storage_path, SettingsManager.getStoragePath(mContext));
-        updateSummary(R.string.pref_key_temp_path, SettingsManager.getTrashPath(context))
-        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(context))
+        updateSummary(R.string.pref_key_temp_path, CommonSettings.getTrashPath(context))
+//        updateSummary(R.string.pref_key_quickly_node_id, SettingsManager.getQuicklyNodeName(context))
     }
 
     fun onRequestPermissionsResult(permGranted: Boolean, requestCode: Int) {
         if (permGranted) {
             baseViewModel.log(R.string.log_write_ext_storage_perm_granted)
             when (requestCode) {
-                Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
+//                Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> selectStorageFolder()
                 Constants.REQUEST_CODE_OPEN_TEMP_PATH -> selectTrashFolder()
             }
         } else {
@@ -143,48 +138,50 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         }
         else*/
         if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
-            SettingsManager.setTrashPath(context, folderPath)
-            SettingsManager.setLastChoosedFolder(context, folderPath)
+            CommonSettings.setTrashPath(context, folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
             updateSummary(R.string.pref_key_temp_path, folderPath)
         } else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
-            SettingsManager.setLogPath(context, folderPath)
-            SettingsManager.setLastChoosedFolder(context, folderPath)
+            CommonSettings.setLogPath(context, folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
             baseViewModel.logger.setLogPath(folderPath)
             updateSummary(R.string.pref_key_log_path, folderPath)
         }
     }
 
-    private fun selectStorageFolder() {
-        // спрашиваем: создать или выбрать хранилище ?
-        StorageDialogs.createStorageSelectionDialog(context) { isNew: Boolean ->
-            openFolderPicker(
-                getString(R.string.title_storage_folder),
-                SettingsManager.getStoragePath(context), isNew
-            )
-        }
-    }
+//    private fun selectStorageFolder() {
+//        // спрашиваем: создать или выбрать хранилище ?
+//        StorageDialogs.createStorageSelectionDialog(context, object : StorageDialogs.IItemClickListener {
+//            override fun onItemClick(isNew: Boolean) {
+//                openFolderPicker(
+//                    getString(R.string.title_storage_folder),
+//                    SettingsManager.getStoragePath(context), isNew
+//                )
+//            }
+//        })
+//    }
 
-    protected fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
-        val path = if (!StringUtil.isBlank(location)) location
-            else StorageInteractor.getLastFolderPathOrDefault(requireContext(), true)
-        val intent = Intent(context, FolderPicker::class.java)
-        intent.putExtra(FolderPicker.EXTRA_TITLE, title)
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
-        if (isNew) {
-            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true)
-        } else {
-            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc))
-        }
-        requireActivity().startActivityForResult(
-            intent,
-            if (isNew) Constants.REQUEST_CODE_CREATE_STORAGE_PATH else Constants.REQUEST_CODE_OPEN_STORAGE_PATH
-        )
-    }
+//    protected fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
+//        val path = if (!StringUtil.isBlank(location)) location
+//            else StorageInteractor.getLastFolderPathOrDefault(requireContext(), true)
+//        val intent = Intent(context, FolderPicker::class.java)
+//        intent.putExtra(FolderPicker.EXTRA_TITLE, title)
+//        intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
+//        if (isNew) {
+//            intent.putExtra(FolderPicker.EXTRA_EMPTY_FOLDER, true)
+//        } else {
+//            intent.putExtra(FolderPicker.EXTRA_DESCRIPTION, getString(R.string.title_storage_path_desc))
+//        }
+//        requireActivity().startActivityForResult(
+//            intent,
+//            if (isNew) Constants.REQUEST_CODE_CREATE_STORAGE_PATH else Constants.REQUEST_CODE_OPEN_STORAGE_PATH
+//        )
+//    }
 
     private fun selectTrashFolder() {
         openFolderPicker(
             getString(R.string.pref_trash_path),
-            SettingsManager.getTrashPath(context),
+            CommonSettings.getTrashPath(context),
             Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
     }

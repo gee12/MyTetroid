@@ -9,7 +9,7 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.TetroidSuggestionProvider
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.SettingsManager
+import com.gee12.mytetroid.data.CommonSettings
 import lib.folderpicker.FolderPicker
 
 class SettingsOtherFragment : TetroidSettingsFragment() {
@@ -30,18 +30,18 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             AskDialogs.showYesDialog(context, {
                 TetroidSuggestionProvider.clearHistory(context)
-                SettingsManager.clearSearchOptions(context)
+                CommonSettings.clearSearchOptions(context)
                 baseViewModel.log(R.string.title_search_history_cleared, true)
             }, R.string.ask_clear_search_history)
             true
         }
-        updateSummary(R.string.pref_key_log_path, SettingsManager.getLogPath(context))
+        updateSummary(R.string.pref_key_log_path, CommonSettings.getLogPath(context))
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == getString(R.string.pref_key_is_write_log)) {
             // меняем флаг
-            baseViewModel.logger.init(SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context))
+            baseViewModel.logger.init(CommonSettings.getLogPath(context), CommonSettings.isWriteLogToFile(context))
         }
     }
 
@@ -61,8 +61,8 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
 
         val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
         if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
-            SettingsManager.setLogPath(context, folderPath)
-            SettingsManager.setLastChoosedFolder(context, folderPath)
+            CommonSettings.setLogPath(context, folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
             baseViewModel.logger.setLogPath(folderPath)
             updateSummary(R.string.pref_key_log_path, folderPath)
         }
@@ -71,7 +71,7 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
     private fun selectLogsFolder() {
         openFolderPicker(
             getString(R.string.pref_log_path),
-            SettingsManager.getLogPath(context),
+            CommonSettings.getLogPath(context),
             Constants.REQUEST_CODE_OPEN_LOG_PATH
         )
     }

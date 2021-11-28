@@ -15,8 +15,7 @@ import androidx.core.content.ContextCompat;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
-import com.gee12.mytetroid.data.RecordsManager;
-import com.gee12.mytetroid.data.SettingsManager;
+import com.gee12.mytetroid.data.CommonSettings;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
@@ -67,7 +66,7 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
         this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.recordsInteractor = recordsInteractor;
         this.onAttachmentClickListener = onAttachmentClickListener;
-        this.dateTimeFormat = SettingsManager.checkDateFormatString(context);
+        this.dateTimeFormat = CommonSettings.checkDateFormatString(context);
     }
 
     /**

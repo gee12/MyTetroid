@@ -7,13 +7,9 @@ import androidx.annotation.StringRes;
 
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.utils.StringUtils;
-import com.gee12.mytetroid.views.activities.MainActivity;
 import com.gee12.mytetroid.model.TetroidObject;
-import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.views.Message;
-import com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment;
+import com.gee12.mytetroid.views.TetroidMessage;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -139,7 +135,7 @@ public class TetroidLog extends LogManager {
     public static String logOperRes(Context context, Objs obj, Opers oper, String add, int duration, boolean showAdd) {
         String mes = (obj.getString(context, PAST_PERFECT)) + (oper.getString(context, PAST_PERFECT));
         if (!showAdd) {
-            Message.show(context, mes, duration);
+//            TetroidMessage.show(context, mes, duration);
             duration = -1;
         }
         mes += add;
@@ -270,6 +266,6 @@ public class TetroidLog extends LogManager {
      * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
      */
     protected static void showSnackMoreInLogs(Context context) {
-        Message.showSnackMoreInLogs(context, R.id.layout_coordinator);
+        TetroidMessage.showSnackMoreInLogs(context, R.id.layout_coordinator);
     }
 }

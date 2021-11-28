@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.views.dialogs.record
 
 import android.content.DialogInterface
-import android.os.Bundle
 import android.text.InputType
 import android.text.TextUtils
 import android.view.View
@@ -13,10 +12,10 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.views.Message
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
 import java.util.*
@@ -103,10 +102,10 @@ class RecordFieldsDialog(
             override fun onProblem(code: Int) {
                 when (code) {
                     NodeChooserDialog.IResult.LOAD_STORAGE -> {
-                        Message.show(context, getString(R.string.log_storage_need_load), Toast.LENGTH_LONG)
+                        viewModel.showMessage(getString(R.string.log_storage_need_load), LogType.WARNING)
                     }
                     NodeChooserDialog.IResult.LOAD_ALL_NODES -> {
-                        Message.show(context, getString(R.string.log_all_nodes_need_load), Toast.LENGTH_LONG)
+                        viewModel.showMessage(getString(R.string.log_all_nodes_need_load), LogType.WARNING)
                     }
                 }
             }
