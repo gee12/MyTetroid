@@ -56,14 +56,20 @@ public class AskDialogs {
      * @param callback
      * @param messageRes
      */
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback,
-                                       @StringRes int messageRes) {
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, @StringRes int messageRes) {
         showYesNoDialog(context, callback, true, messageRes);
     }
 
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback,
-                                       boolean isCancelable, @StringRes int messageRes) {
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, String message) {
+        showYesNoDialog(context, callback, true, message);
+    }
+
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, boolean isCancelable, @StringRes int messageRes) {
         Dialogs.showAlertDialog(context, messageRes, true, isCancelable, callback);
+    }
+
+    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, boolean isCancelable, String message) {
+        Dialogs.showAlertDialog(context, message, true, isCancelable, callback);
     }
 
     /**

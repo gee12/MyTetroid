@@ -16,6 +16,7 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
@@ -150,12 +151,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun deleteStorage(storage: TetroidStorage) {
-        AskDialogs.showYesNoDialog(this, object : Dialogs.IApplyCancelResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            this, Dialogs.IApplyResult {
                 viewModel.deleteStorage(storage)
-            }
-            override fun onCancel() {}
-        }, R.string.ask_delete_storage_from_list)
+            }.toApplyCancelResult(),
+            getString(R.string.ask_delete_storage_mask, storage.name)
+        )
     }
 
     private fun showStorageDialog(storage: TetroidStorage?) {

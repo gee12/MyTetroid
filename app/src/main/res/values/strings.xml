@@ -471,9 +471,9 @@
     <string name="ask_sync_failed_before_exit_dialog_request">Sync failed. Exit anyway?</string>
     <string name="ask_save_record">Save record ?</string>
     <string name="ask_no_set_default_storage">No default storage is specified. Go to the list of storages ?</string>
-    <string name="ask_node_delete_mask">Delete node \'%s\' ?</string>
-    <string name="ask_record_delete_mask">Delete record \'%s\' ?</string>
-    <string name="ask_file_delete_mask">Delete file \'%s\' ?</string>
+    <string name="ask_node_delete_mask">Delete node «%s» ?</string>
+    <string name="ask_record_delete_mask">Delete record «%s» ?</string>
+    <string name="ask_file_delete_mask">Delete file «%s» ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
@@ -521,9 +521,9 @@
     <string name="title_storage_not_loaded">Storage not loaded</string>
 <!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
-    <string name="log_storage_loaded_mask">Storage \'%s\' was loaded</string>
-    <string name="log_storage_loaded_decrypted_mask">Storage \'%s\' was loaded and decrypted</string>
-    <string name="log_storage_favor_loaded_mask">Storage \'%s\' favorites records was loaded</string>
+    <string name="log_storage_loaded_mask">Storage «%s» was loaded</string>
+    <string name="log_storage_loaded_decrypted_mask">Storage «%s» was loaded and decrypted</string>
+    <string name="log_storage_favor_loaded_mask">Storage «%s» favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_settings_loaded">Storage settings loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
@@ -727,7 +727,7 @@
     <string name="title_download_by_link">DOWNLOAD BY LINK</string>
     <string name="title_select_on_device">SELECT ON DEVICE</string>
     <string name="log_link_is_empty">Link is empty</string>
-    <string name="ask_delete_storage_from_list">Remove storage from the list? (files will be saved)</string>
+    <string name="ask_delete_storage_mask">Remove storage «%s» from the list? (files will be saved)</string>
     <string name="pref_is_def_storage">Default storage</string>
     <string name="pref_is_def_storage_summ">Storage loaded on application startup</string>
     <string name="pref_storage_name">Storage name</string>
@@ -740,7 +740,7 @@
     <string name="title_storage_current">Current storage</string>
     <string name="title_storage_default">Default storage</string>
     <string name="label_default_storage">Default storage</string>
-    <string name="ask_load_storage_mask">Load storage \'%s\' ?</string>
+    <string name="ask_load_storage_mask">Load storage «%s» ?</string>
     <string name="ask_create_new_storage_mask">Will be created storage files along the path \'%s\', continue ?</string>
     <string name="ask_open_storage_settings">Open storage settings?</string>
     <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
