@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
@@ -16,11 +15,11 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Constants.StorageEvents
 import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
@@ -77,31 +76,30 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     override fun initViewModel() {
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application))
-            .get(StoragesViewModel::class.java)
-
+        super.initViewModel()
         viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
-        viewModel.storageEvent.observe(this, {
-            when (it.state) {
-                Constants.StorageEvents.Added -> (it.data as? TetroidStorage)?.let { storage -> onStorageAdded(storage) }
-                else -> {}
-            }
-        })
     }
 
     override fun onUICreated(uiCreated: Boolean) {}
 
-    fun checkPermission() {
+    override fun onStorageEvent(state: StorageEvents, data: Any) {
+        when (state) {
+            StorageEvents.Added -> (data as? TetroidStorage)?.let { onStorageAdded(it) }
+            else -> {}
+        }
+    }
+
+    private fun checkPermission() {
         if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
             storageViewModel?.onPermissionChecked()
         }
     }
 
-    fun loadList() {
+    private fun loadList() {
         viewModel.loadStorages()
     }
 
-    fun selectStorage(storage: TetroidStorage) {
+    private fun selectStorage(storage: TetroidStorage) {
         AskDialogs.showLoadStorageDialog(this, storage.name) { finishWithResult(storage) }
     }
 

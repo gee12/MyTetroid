@@ -24,10 +24,10 @@ class TetroidStorage(
     /**
      * Состояние
      */
-    var isInited = false
-    var isLoaded = false
-    var isDecrypted = false
-    var isCrypted = false
+    var isInited = false // загружены ли служебные файлы хранилища
+    var isLoaded = false // загружено ли дерево веток хранилища
+    var isCrypted = false // зашифровано ли хранилище
+    var isDecrypted = false // расшифровано ли хранилище (на время сеанса)
 
 
     constructor(name: String, path: String, isDefault: Boolean, isReadOnly: Boolean, isNew: Boolean)

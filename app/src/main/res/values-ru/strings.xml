@@ -16,7 +16,7 @@
     <string name="title_rename">Переименовать</string>
     <string name="title_set_node_icon">Задать иконку</string>
     <string name="title_encrypt_node">Зашифровать</string>
-    <string name="title_decrypt_node">Расшифровать</string>
+    <string name="title_decrypt_node">Сбросить шифрование</string>
     <string name="title_log_file_content">Логи</string>
     <string name="title_show">Показать</string>
     <string name="title_gallery">Галерея</string>
@@ -584,7 +584,7 @@
     <string name="log_dir_is_missing">Каталог не существует</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="log_app_exit">Выход из приложения</string>
-    <string name="log_obj_id_name_mask">id=%1$s, имя=\"%2$s\"</string>
+    <string name="log_obj_id_name_mask">&#160;id=%1$s, имя=\"%2$s\"</string>
     <string name="log_set_cur_pass">Установка текущего пароля</string>
     <string name="log_set_new_pass">Установка нового пароля</string>
     <string name="log_save_pass">Сохранение пароля</string>
@@ -615,7 +615,7 @@
     <string name="log_sync_command_empty">Не указана команда синхронизации</string>
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
     <string name="log_icons_dirs_absent">Отсутствуют каталоги с иконками</string>
-    <string name="log_icons_dir_absent_mask">Отсутствует каталог %s с иконками</string>
+    <string name="log_icons_dir_absent_mask">Отсутствует каталог \"%s\" с иконками</string>
     <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
     <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
     <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
@@ -652,7 +652,7 @@
     <string name="title_storage_default">Хранилище по-умолчанию</string>
     <string name="label_default_storage">Хранилище по-умолчанию</string>
     <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
-    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \'%s\', продолжить ?</string>
+    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \"%s\", продолжить ?</string>
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
     <string name="log_added_to_favor">Добавлено в избранное</string>
     <string name="log_deleted_from_favor">Удалено из избранного</string>
@@ -671,4 +671,6 @@
     <string name="log_def_storage_not_specified">Хранилище по-умолчанию не задано</string>
     <string name="log_storage_not_found_mask">Хранилище с id=%s не зайдено в базе данных</string>
     <string name="log_start_load_def_storage">Начало загрузки хранилища по-умолчанию</string>
+    <string name="log_storage_added_mask">Хранилище «%s» добавлено</string>
+    <string name="log_storage_deleted_mask">Хранилище «%s» удалено</string>
 </resources>

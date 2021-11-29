@@ -90,7 +90,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     }
 
     protected void initViewModel() {
-        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
+        viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
                 .get(getViewModelClazz());
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, getClass().getSimpleName()));
 

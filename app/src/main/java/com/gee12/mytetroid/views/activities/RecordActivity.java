@@ -130,9 +130,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             }
         } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
             // создание записи из виджета
-            // сначала инициализируем службы
-//            App.init(this);
-            viewModel.initEnvironment();
             if (!viewModel.initStorage(receivedIntent)) {
                 finish();
                 return;

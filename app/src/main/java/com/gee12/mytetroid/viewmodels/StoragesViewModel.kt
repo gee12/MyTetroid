@@ -3,9 +3,12 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.interactors.StorageInteractor
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -41,9 +44,11 @@ class StoragesViewModel(
 
         launch(Dispatchers.IO) {
             if (storagesRepo.addStorage(storage)) {
+                log(getString(R.string.log_storage_added_mask).format(storage.name), true)
                 loadStorages()
-
                 postStorageEvent(Constants.StorageEvents.Added, storage)
+            } else {
+                logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
             }
         }
     }
@@ -51,7 +56,10 @@ class StoragesViewModel(
     fun deleteStorage(storage: TetroidStorage) {
         launch(Dispatchers.IO) {
             if (storagesRepo.deleteStorage(storage) > 0) {
+                log(getString(R.string.log_storage_deleted_mask).format(storage.name), true)
                 loadStorages()
+            } else {
+                logDuringOperErrors(LogObj.STORAGE, LogOper.DELETE, true)
             }
         }
     }

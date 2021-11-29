@@ -18,7 +18,6 @@ import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.UriUtils
@@ -56,18 +55,15 @@ open class StorageViewModel(
 
     //region Init
 
-    /**
-     * Первоначальная инициализация компонентов приложения.
-     */
-    // TODO: использовать DI
-    fun initEnvironment() {
+    init {
+        // первоначальная инициализация компонентов приложения.
         App.init(
             context = getContext(),
-            logger = logger,
-            xmlLoader = xmlLoader,
-            crypter = crypter,
-            storagesRepo = storagesRepo,
-            storageInteractor = storageInteractor
+            logger = this.logger,
+            xmlLoader = this.xmlLoader,
+            crypter = this.crypter,
+            storagesRepo = this.storagesRepo,
+            storageInteractor = this.storageInteractor
         )
     }
 
@@ -424,7 +420,7 @@ open class StorageViewModel(
 
             // непосредственная расшифровка
             val result = cryptInteractor.decryptStorage(getContext(), false)
-            storage?.isDecrypted = result
+            setIsDecrypted(result)
 
             // после расшифровки
             setViewEvent(Constants.ViewEvents.TaskFinished)
@@ -765,8 +761,10 @@ open class StorageViewModel(
      * Проверка существования зашифрованных веток.
      */
     protected fun checkExistenceCryptedNodes() {
-        if (!nodesInteractor.isExistCryptedNodes(true)) {
-            postStorageEvent(Constants.StorageEvents.AskForClearStoragePass)
+        launch {
+            if (!nodesInteractor.isExistCryptedNodes(true)) {
+                setStorageEvent(Constants.StorageEvents.AskForClearStoragePass)
+            }
         }
     }
 

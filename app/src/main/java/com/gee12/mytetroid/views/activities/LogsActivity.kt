@@ -98,15 +98,15 @@ class LogsActivity : AppCompatActivity() {
     }
 
     private fun showBufferLogs() {
-        val curLogs = viewModel.logger.bufferString
+        val curLogs = viewModel.getLogsBufferString()
         if (!TextUtils.isEmpty(curLogs)) {
             layoutError.visibility = View.GONE
             recycleView.visibility = View.VISIBLE
 
-//            mTextAdapter.setItem(curLogs);
+//            textAdapter.setItem(curLogs)
             try {
                 // разбиваем весь поток строк логов на блоки
-                // TODO: в UI поток ?
+                // TODO: в IO поток ?
                 val logsBlocks: List<String> = FileUtils.splitToBlocks(curLogs, LogsViewModel.LINES_IN_RECYCLER_VIEW_ITEM)
                 textAdapter.setItems(logsBlocks)
             } catch (e: IOException) {

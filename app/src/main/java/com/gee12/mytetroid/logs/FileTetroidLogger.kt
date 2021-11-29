@@ -2,7 +2,6 @@ package com.gee12.mytetroid.logs
 
 import android.text.format.DateFormat
 import android.util.Log
-import com.gee12.mytetroid.BuildConfig
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -72,14 +71,22 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
             else -> Log.d(LOG_TAG, s)
         }
 
-        val fullMessage = addTime("${type.tag}: $s")
-        writeToBuffer(fullMessage)
+        val fullMessage = addTimestamp("${type.tag}: $s")
+        writeRawString(fullMessage, isWriteToFile)
+    }
+
+    private fun writeRawString(s: String, isWriteToFile: Boolean) {
+        writeToBuffer(s)
         if (isWriteToFile) {
-            writeToFile(fullMessage)
+            writeToFile(s)
         }
     }
 
-    private fun addTime(s: String): String {
+    fun writeRawString(s: String) {
+        writeRawString(s, isWriteToFile)
+    }
+
+    private fun addTimestamp(s: String): String {
         return "%s - %s".format(
             DateFormat.format("yyyy.MM.dd HH:mm:ss", Calendar.getInstance().time),
             s

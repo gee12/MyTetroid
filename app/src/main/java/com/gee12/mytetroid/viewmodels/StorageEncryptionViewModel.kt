@@ -246,6 +246,7 @@ open class StorageEncryptionViewModel(
         // и расшифровываем хранилище
         if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
                 cryptInteractor.decryptStorage(context, true)
+                    .also { setIsDecrypted(it) }
             }) return false
 
         // теперь устанавливаем новый пароль

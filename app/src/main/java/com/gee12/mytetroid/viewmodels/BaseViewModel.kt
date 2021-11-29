@@ -22,11 +22,16 @@ open class BaseViewModel(
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
     var isBusy = false
 
-//    var logger: TetroidLogger = logger ?: BaseLogger().apply {
-    var logger: TetroidLogger = App.current.logger ?: BaseLogger().apply {
-//    var logger: TetroidLogger = BaseLogger().apply {
+    var logger: TetroidLogger = BaseLogger().apply {
         init(CommonSettings.getLogPath(getContext()), CommonSettings.isWriteLogToFile(getContext()))
     }
+
+    // Общий внутренний логгер: записывает логи в буфер и в файл
+    // При первом запуске, когда окружение приложения (App.current) еще не инициализировано,
+    //  общий логгер для приложения инициализируется из только что созданного logger данного ViewModel.
+    //  И далее в приложении уже используется только он.
+    protected val innerSharedLogger: FileTetroidLogger
+        get() = App.current.logger ?: logger
 
     val messageObservable = MutableLiveData<Message>()
 
@@ -104,10 +109,7 @@ open class BaseViewModel(
     // common
     @JvmOverloads
     fun log(mes: String, type: LogType, show: Boolean = false) {
-        logger.log(mes, type)
-        if (show) {
-            showMessage(mes, type)
-        }
+        logger.log(mes, type, show)
     }
 
     @JvmOverloads
@@ -116,42 +118,33 @@ open class BaseViewModel(
     }
 
     private fun addIdName(obj: TetroidObject?): String {
-        return logger.addIdName(obj)
+        return logger.addIdName(obj) ?: ""
     }
-
-//    open fun getIdString(obj: TetroidObject): String? {
-////        return getStringFormat(R.string.log_obj_id_mask, obj.id)
-//        return getString(R.string.log_obj_id_mask).format(obj.id)
-//    }
-
-//    open fun getStringFormat(@StringRes formatRes: Int, vararg args: String?): String? {
-//        return StringUtils.getStringFormat(getContext(), formatRes, if (args != null && args.size > 1) args as Array<Any?> else args)
-//    }
 
     // operation result
     open fun logOperRes(obj: LogObj, oper: LogOper): String {
-        return logger.logOperRes(obj, oper, "", true)
+        return logger.logOperRes(obj, oper, "", true) ?: ""
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject?, show: Boolean): String {
-        return logger.logOperRes(obj, oper, StringUtils.getIdNameString(getContext(), tetroidObj), show)
+        return logger.logOperRes(obj, oper, StringUtils.getIdNameString(getContext(), tetroidObj), show) ?: ""
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean): String {
-        return logger.logOperRes(obj, oper, add, show)
+        return logger.logOperRes(obj, oper, add, show) ?: ""
     }
 
     // operation start
     open fun logOperStart(obj: LogObj, oper: LogOper): String {
-        return logger.logOperStart(obj, oper, "")
+        return logger.logOperStart(obj, oper, "") ?: ""
     }
 
     open fun logOperStart(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject?): String {
-        return logger.logOperStart(obj, oper, addIdName(tetroidObj))
+        return logger.logOperStart(obj, oper, addIdName(tetroidObj)) ?: ""
     }
 
     open fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
-        return logger.logOperStart(obj, oper, add)
+        return logger.logOperStart(obj, oper, add) ?: ""
     }
 
     open fun logOperError(obj: LogObj, oper: LogOper, add: String?, more: Boolean, show: Boolean): String? {
@@ -199,9 +192,10 @@ open class BaseViewModel(
 
     //region Context
 
-//    fun getString(resId: Int) = (getApplication() as Context).getString(resId)
     fun getString(resId: Int) = getApplication<Application>().resources.getString(resId)
+
     fun getString(resId: Int, vararg params: Any) = getApplication<Application>().resources.getString(resId, params)
+
     fun getStringArray(resId: Int) = getApplication<Application>().resources.getStringArray(resId)
 
     fun getContext(): Context = getApplication()
@@ -210,6 +204,17 @@ open class BaseViewModel(
 
 
     inner class BaseLogger : TetroidLogger() {
+
+        override fun log(s: String, type: LogType, show: Boolean) {
+            innerSharedLogger.log(s, type)
+            if (show) {
+                showMessage(s, type)
+            }
+        }
+
+        override fun log(resId: Int, type: LogType, show: Boolean) {
+            log(getString(resId), type, show)
+        }
 
         override fun showMessage(s: String, type: LogType) = this@BaseViewModel.showMessage(s, type)
 

@@ -749,6 +749,7 @@ class MainViewModel(
                 if (isCrypted() && !isDecrypted()) {
                     setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.START)
                     if (cryptInteractor.decryptStorage(getContext(), false)) {
+                        setIsDecrypted(true)
                         setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.SUCCESS)
                     } else {
                         setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.FAILED)

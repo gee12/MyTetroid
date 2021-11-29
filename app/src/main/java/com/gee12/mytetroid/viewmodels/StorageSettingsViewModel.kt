@@ -361,6 +361,14 @@ abstract class StorageSettingsViewModel(
 
     //endregion Getters
 
+    // region Setters
+
+    fun setIsDecrypted(value: Boolean) {
+        storage?.isDecrypted = value
+    }
+
+    //endregion Setters
+
     //region Helpers
 
     private fun onStorageUpdated(key: String, value: Any) {

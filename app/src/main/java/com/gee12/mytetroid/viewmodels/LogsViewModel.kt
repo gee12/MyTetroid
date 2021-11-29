@@ -5,7 +5,6 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -53,6 +52,8 @@ class LogsViewModel(
             }
         }
     }
+
+    fun getLogsBufferString() = innerSharedLogger?.bufferString ?: ""
 
     fun postEvent(e: LogEvents, param: Any? = null) {
         event.postValue(ViewModelEvent(e, param))

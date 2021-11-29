@@ -255,14 +255,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     @Override
     protected void onUICreated(boolean uiCreated) {
-//    protected void oAfterAppStarted() {
         //TODO: перенести во ViewModel.
 
         if (uiCreated) {
-            // инициализация
-            viewModel.initEnvironment();
-//        getMainPage().onSettingsInited();
-
             if (viewModel.isLoaded()) {
                 // тут ничего не пишем.
                 // код отображения загруженного хранилище находится в onGUICreated(),

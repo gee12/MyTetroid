@@ -7,6 +7,7 @@ import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.interactors.StorageInteractor
+import com.gee12.mytetroid.logs.FileTetroidLogger
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.Utils
@@ -74,9 +75,7 @@ object App {
             this.storageInteractor = storageInteractor
         }
 
-//        SettingsManager.init(context)
-//        logger.init(SettingsManager.getLogPath(context), SettingsManager.isWriteLogToFile(context))
-        logger.log("************************************************************", false)
+        logger.writeRawString("************************************************************")
         logger.log(context.getString(R.string.log_app_start_mask).format(Utils.getVersionName(context)), false)
         if (CommonSettings.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, true)

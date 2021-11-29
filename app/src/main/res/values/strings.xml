@@ -702,7 +702,7 @@
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
     <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
-    <string name="log_icons_dir_absent_mask">Directory with icons %s is missing</string>
+    <string name="log_icons_dir_absent_mask">Directory with icons \"%s\" is missing</string>
     <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
     <string name="log_error_download_file_mask">Error loading file:\n%s</string>
     <string name="log_error_download_image_mask">Error loading image:\n%s</string>
@@ -741,7 +741,7 @@
     <string name="title_storage_default">Default storage</string>
     <string name="label_default_storage">Default storage</string>
     <string name="ask_load_storage_mask">Load storage «%s» ?</string>
-    <string name="ask_create_new_storage_mask">Will be created storage files along the path \'%s\', continue ?</string>
+    <string name="ask_create_new_storage_mask">Will be created storage files along the path \"%s\", continue ?</string>
     <string name="ask_open_storage_settings">Open storage settings?</string>
     <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
     <string name="log_added_to_favor">Added to favorites</string>
@@ -761,4 +761,6 @@
     <string name="log_def_storage_not_specified">No default storage is specified</string>
     <string name="log_storage_not_found_mask">Storage with id=%s not found in database</string>
     <string name="log_start_load_def_storage">Start loading storage by default</string>
+    <string name="log_storage_added_mask">Storage «%s» was added</string>
+    <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
 </resources>

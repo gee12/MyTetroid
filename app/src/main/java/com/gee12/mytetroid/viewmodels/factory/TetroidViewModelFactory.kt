@@ -59,7 +59,6 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
                 StoragesViewModel(
                     app = app,
 //                    logger = env.logger,
-//                    storageInteractor = env.storageInteractor!!,
                     storagesRepo = env.storagesRepo!!
                 ) as T
             }
