@@ -124,9 +124,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 )
                 storageViewModel!!.storageEvent.observe(this, {
                     when (it.state) {
-                        Constants.StorageEvents.PermissionCheck -> checkPermission()
-                        Constants.StorageEvents.PermissionChecked -> storageViewModel!!.initStorage()
-                        Constants.StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
+                        StorageEvents.PermissionCheck -> checkPermission()
+                        StorageEvents.PermissionChecked -> storageViewModel!!.initStorage()
+                        StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
                         else -> {}
                     }
                 })
@@ -146,6 +146,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun editStorage(storage: TetroidStorage) {
         startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
+    }
+
+    private fun setDefault(storage: TetroidStorage) {
+        viewModel.setDefault(storage)
     }
 
     private fun deleteStorage(storage: TetroidStorage) {
@@ -225,13 +229,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         return super.onOptionsItemSelected(item)
     }
 
-//    fun a(menuItem: MenuItem) {
-//        when (menuItem.itemId) {
-//            R.id.action_select -> selectStorage(TetroidStorage("test\\test"))
-//            R.id.action_edit -> selectStorage(TetroidStorage("test\\test"))
-//        }
-//    }
-
     /**
      * Отображение контексного меню хранилища.
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
@@ -251,6 +248,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 }
                 R.id.action_edit -> {
                     editStorage(storage)
+                    true
+                }
+                R.id.action_set_default -> {
+                    setDefault(storage)
                     true
                 }
                 R.id.action_delete -> {

@@ -32,6 +32,15 @@ interface StoragesDao {
         return update(entity)
     }
 
+    @Transaction
+    fun setIsDefault(id: Int): Int {
+        dropIsDefault()
+        return setIsDefault(id, 1)
+    }
+
+    @Query("UPDATE storages SET isDefault = :isDefault WHERE id = :id")
+    fun setIsDefault(id: Int, isDefault: Int): Int
+
     @Query("UPDATE storages SET isDefault = 0")
     fun dropIsDefault(): Int
 

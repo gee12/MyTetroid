@@ -80,7 +80,7 @@ abstract class StorageSettingsViewModel(
 
     fun updateStorage(storage: TetroidStorage) {
         launch {
-            if (storagesRepo.updateStorage(storage) > 0) {
+            if (storagesRepo.updateStorage(storage)) {
             }
         }
     }

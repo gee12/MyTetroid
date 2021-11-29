@@ -762,5 +762,8 @@
     <string name="log_storage_not_found_mask">Storage with id=%s not found in database</string>
     <string name="log_start_load_def_storage">Start loading storage by default</string>
     <string name="log_storage_added_mask">Storage «%s» was added</string>
+    <string name="log_storage_set_is_default_mask">Storage «%s» is default</string>
+    <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
     <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
+    <string name="title_set_default">Make default</string>
 </resources>

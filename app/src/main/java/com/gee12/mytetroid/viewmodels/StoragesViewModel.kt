@@ -38,6 +38,18 @@ class StoragesViewModel(
         }
     }
 
+    fun setDefault(storage: TetroidStorage) {
+        launch(Dispatchers.IO) {
+            if (storagesRepo.setIsDefault(storage)) {
+                log(getString(R.string.log_storage_set_is_default_mask).format(storage.name), true)
+                loadStorages()
+            } else {
+                logError(getString(R.string.error_storage_set_is_default_mask).format(storage.name), true)
+                showSnackMoreInLogs()
+            }
+        }
+    }
+
     fun addStorage(storage: TetroidStorage) {
         // заполняем поля настройками по-умолчанию
         initStorage(storage)
@@ -55,7 +67,7 @@ class StoragesViewModel(
 
     fun deleteStorage(storage: TetroidStorage) {
         launch(Dispatchers.IO) {
-            if (storagesRepo.deleteStorage(storage) > 0) {
+            if (storagesRepo.deleteStorage(storage)) {
                 log(getString(R.string.log_storage_deleted_mask).format(storage.name), true)
                 loadStorages()
             } else {

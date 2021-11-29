@@ -672,5 +672,8 @@
     <string name="log_storage_not_found_mask">Хранилище с id=%s не зайдено в базе данных</string>
     <string name="log_start_load_def_storage">Начало загрузки хранилища по-умолчанию</string>
     <string name="log_storage_added_mask">Хранилище «%s» добавлено</string>
+    <string name="log_storage_set_is_default_mask">Хранилище «%s» установлено по-умолчанию</string>
+    <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» по-умолчанию</string>
     <string name="log_storage_deleted_mask">Хранилище «%s» удалено</string>
+    <string name="title_set_default">Установить по-умолчанию</string>
 </resources>

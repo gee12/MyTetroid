@@ -37,15 +37,20 @@ class StoragesRepo(context: Context) {
     }
 
     suspend fun updateStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
-        if (storage.isDefault) {
+        val id = if (storage.isDefault) {
             dataBase.storagesDao.updateDefault(storage)
         } else {
             dataBase.storagesDao.update(storage)
         }
+        id > 0
+    }
+
+    suspend fun setIsDefault(storage: TetroidStorage) = withContext(Dispatchers.IO) {
+        dataBase.storagesDao.setIsDefault(storage.id) > 0
     }
 
     suspend fun deleteStorage(storage: TetroidStorage) = withContext(Dispatchers.IO) {
-        dataBase.storagesDao.deleteById(storage.id)
+        dataBase.storagesDao.deleteById(storage.id) > 0
     }
 
     /**

@@ -12,12 +12,12 @@
         android:orderInCategory="20"
         android:icon="@drawable/ic_edit"
         />
-<!--    <item-->
-<!--        android:id="@+id/action_settings"-->
-<!--        android:title="Настройки"-->
-<!--        android:orderInCategory="30"-->
-<!--        android:icon="@drawable/ic_settings"-->
-<!--        />-->
+    <item
+        android:id="@+id/action_set_default"
+        android:title="@string/title_set_default"
+        android:orderInCategory="30"
+        android:icon="@drawable/ic_storage_default"
+        />
     <item
         android:id="@+id/action_delete"
         android:title="@string/title_delete"
