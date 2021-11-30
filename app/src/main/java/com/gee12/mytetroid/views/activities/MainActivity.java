@@ -621,6 +621,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         ViewUtils.setVisibleIfNotNull(searchViewTags, isLoaded && !isOnlyFavorites);
         ViewUtils.setVisibleIfNotNull((View)findViewById(R.id.button_tags_sort), isLoaded && !isOnlyFavorites);
 
+        // обновляем заголовок в шторке
+        ((TextView)findViewById(R.id.text_view_app_name)).setText(isLoaded ? viewModel.getStorageName() : getString(R.string.main_header_title));
+
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
             if (isLoaded) {
@@ -680,6 +683,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                         } else {
                             viewModel.showNode(nodeToSelect);
                         }
+                    } else {
+                        getMainPage().clearView();
                     }
 
                     // список меток
@@ -688,6 +693,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 }
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
             } else {
+                getMainPage().clearView();
                 setEmptyTextViews(R.string.title_storage_not_loaded);
             }
         }
@@ -813,8 +819,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     @Override
     public void afterStorageLoaded(boolean res) {
         if (res) {
-            // обновляем заголовок в шторке
-            ((TextView)findViewById(R.id.text_view_app_name)).setText(viewModel.getStorageName());
             // проверяем входящий Intent после загрузки
             checkReceivedIntent(receivedIntent);
             // запускаем отслеживание изменения структуры хранилища
@@ -1469,16 +1473,14 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         visibleMenuItem(menu.findItem(R.id.action_rename), isNonCrypted);
 //        visibleMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
         int nodesCount = ((parentNode != null) ? parentNode.getSubNodes() : viewModel.getRootNodes()).size();
-//        visibleMenuItem(menu.findItem(R.id.action_move_up), pos > 0);
-//        visibleMenuItem(menu.findItem(R.id.action_move_down), pos < nodesCount - 1);
         visibleMenuItem(menu.findItem(R.id.action_move_up), nodesCount > 0);
         visibleMenuItem(menu.findItem(R.id.action_move_down), nodesCount > 0);
         boolean canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE);
         visibleMenuItem(menu.findItem(R.id.action_insert), canInsert);
         visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted);
         visibleMenuItem(menu.findItem(R.id.action_copy), isNonCrypted);
-        boolean canCutDel = node.getLevel() > 0 || viewModel.getRootNodes().size() > 1;
-        visibleMenuItem(menu.findItem(R.id.action_cut), canCutDel && isNonCrypted);
+        boolean canCutDel = (node.getLevel() > 0 || viewModel.getRootNodes().size() > 1) && isNonCrypted;
+        visibleMenuItem(menu.findItem(R.id.action_cut), canCutDel);
         visibleMenuItem(menu.findItem(R.id.action_delete), canCutDel);
         visibleMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted());
         boolean canNoCrypt = node.isCrypted() && (parentNode == null || !parentNode.isCrypted());

@@ -766,4 +766,5 @@
     <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
     <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
     <string name="title_set_default">Make default</string>
+    <string name="log_cannot_delete_undecrypted_node">Undecrypted node cannot be deleted</string>
 </resources>

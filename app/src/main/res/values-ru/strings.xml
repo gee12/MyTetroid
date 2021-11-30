@@ -676,4 +676,5 @@
     <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» по-умолчанию</string>
     <string name="log_storage_deleted_mask">Хранилище «%s» удалено</string>
     <string name="title_set_default">Установить по-умолчанию</string>
+    <string name="log_cannot_delete_undecrypted_node">Нельзя удалить нерасшифрованную ветку</string>
 </resources>

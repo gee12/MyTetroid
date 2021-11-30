@@ -22,7 +22,6 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.services.FileObserverService
@@ -612,8 +611,14 @@ class MainViewModel(
      * @param node
      */
     fun cutNode(node: TetroidNode, pos: Int) {
+        // нельзя вырезать нерасшифрованную ветку
+        if (!node.isNonCryptedOrDecrypted()) {
+            log(R.string.log_cannot_delete_undecrypted_node, true)
+            return
+        }
+        // нельзя вырезать ветку, у которой есть дочерние нерасшифрованные ветки
         if (nodesInteractor.hasNonDecryptedNodes(node)) {
-            showMessage(getString(R.string.log_enter_pass_first))
+            log(getString(R.string.log_enter_pass_first), true)
             return
         }
         // добавляем в "буфер обмена"
@@ -632,7 +637,12 @@ class MainViewModel(
     @MainThread
     fun startDeleteNode(node: TetroidNode?) {
         if (node == null) return
-        // запрет на удаление последней ветки в корне
+        // нельзя удалить нерасшифрованную ветку
+        if (!node.isNonCryptedOrDecrypted()) {
+            log(R.string.log_cannot_delete_undecrypted_node, true)
+            return
+        }
+        // нельзя удалить последнюю ветку в корне
         if (node.level == 0 && getRootNodes().size == 1) {
             log(R.string.log_cannot_delete_root_node, true)
             return

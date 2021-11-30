@@ -115,7 +115,7 @@ abstract class StorageSettingsViewModel(
                 context = context,
                 record = record,
                 dropCrypt = false,
-                decryptFiles = true
+                decryptFiles = false
             )
         }
     }

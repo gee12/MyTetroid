@@ -55,7 +55,7 @@ class PasswordInteractor(
     suspend fun initPass(storage: TetroidStorage, pass: String) {
         val passHash = cryptInteractor.crypter.passToHash(pass)
 //        if (SettingsManager.isSaveMiddlePassHashLocal(context)) {
-        if (storage?.isSavePassLocal == true) {
+        if (storage.isSavePassLocal) {
             // сохраняем хэш пароля
 //            SettingsManager.setMiddlePassHash(context, passHash)
             storage.middlePassHash = passHash
