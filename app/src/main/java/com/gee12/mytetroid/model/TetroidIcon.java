@@ -1,11 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.utils.FileUtils;
 
 import java.io.File;
 
@@ -38,14 +33,8 @@ public class TetroidIcon {
         return icon;
     }
 
-    public void loadIcon(Context context, String iconsFolderPath) {
-        if (iconsFolderPath == null || icon != null) {
-            return;
-        }
-        try {
-            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + File.separator + getPath());
-        } catch (Exception e) {
-            LogManager.log(context, e);
-        }
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
+
 }

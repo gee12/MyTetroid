@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
@@ -12,7 +13,6 @@ import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.interactors.*
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
@@ -54,6 +54,7 @@ abstract class StorageSettingsViewModel(
     var crypter = crypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
 
     val dataInteractor = DataInteractor(this.logger)
+    val permissionInteractor = PermissionInteractor(logger)
     val storageInteractor = StorageInteractor(this.logger, storageHelper = this, xmlLoader, dataInteractor)
     val interactionInteractor =  InteractionInteractor(this.logger)
     val cryptInteractor = EncryptionInteractor(this.logger, this.crypter, xmlLoader, storageHelper = this)
@@ -61,7 +62,7 @@ abstract class StorageSettingsViewModel(
     val nodesInteractor = NodesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageHelper = this, xmlLoader)
     val tagsInteractor = TagsInteractor(this.logger, storageInteractor, xmlLoader)
     val attachesInteractor = AttachesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
-    val syncInteractor =  SyncInteractor(this.logger)
+    val syncInteractor =  SyncInteractor(this.logger, permissionInteractor)
 
     // FIXME: Проверить:
     var quicklyNode: TetroidNode?

@@ -12,13 +12,6 @@ class SettingsSyncFragment : TetroidSettingsFragment() {
         setPreferencesFromResource(R.xml.prefs_sync, rootKey)
         requireActivity().setTitle(R.string.pref_category_sync)
 
-        /*Preference syncPref = findPreference(getString(R.string.pref_key_is_sync_storage));
-        syncPref.setOnPreferenceClickListener(pref -> {
-            Message.show(getContext(), getString(R.string.log_func_disabled), Toast.LENGTH_SHORT);
-            return true;
-        });
-        syncPref.setEnabled(false);*/
-
         updateSummary(R.string.pref_key_app_for_sync, CommonSettings.getSyncAppNameDef(context))
         updateSummary(
             R.string.pref_key_sync_command, CommonSettings.getSyncCommandDef(context),

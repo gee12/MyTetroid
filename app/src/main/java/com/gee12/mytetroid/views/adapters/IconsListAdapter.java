@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
+import com.gee12.mytetroid.interactors.IconsInteractor;
 import com.gee12.mytetroid.model.TetroidIcon;
 
 import java.util.ArrayList;
@@ -30,13 +31,13 @@ public class IconsListAdapter extends BaseAdapter {
     private Context mContext;
     private TetroidIcon mSelectedIcon;
     private View mSelectedView;
-    private String mIconsFolderPath;
+    private IconsInteractor mIconsInteractor;
 
-    public IconsListAdapter(Context context, String folderPath) {
+    public IconsListAdapter(Context context, IconsInteractor interactor) {
         this.mContext = context;
         this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.mDataSet = new ArrayList<>();
-        this.mIconsFolderPath = folderPath;
+        this.mIconsInteractor = interactor;
     }
 
     public void setData(List<TetroidIcon> data) {
@@ -91,7 +92,7 @@ public class IconsListAdapter extends BaseAdapter {
 
         final TetroidIcon icon = mDataSet.get(position);
         // иконка
-        icon.loadIcon(mContext, mIconsFolderPath);
+        mIconsInteractor.loadIconIfNull(icon);
         viewHolder.iconView.setImageDrawable(icon.getIcon());
         // имя
         viewHolder.nameView.setText(icon.getName());

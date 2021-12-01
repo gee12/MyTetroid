@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.DataManager;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;

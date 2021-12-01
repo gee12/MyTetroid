@@ -36,7 +36,7 @@ public class AboutActivity extends AppCompatActivity {
                 .get(MainViewModel.class);
 
         TextView tvVersion = findViewById(R.id.text_view_version);
-        tvVersion.setText(Utils.getVersionName(this));
+        tvVersion.setText(Utils.getVersionName(viewModel.getLogger(), this));
 
         Button bRateApp = findViewById(R.id.button_rate_app);
         bRateApp.setOnClickListener(v -> rateApp());

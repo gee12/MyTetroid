@@ -39,7 +39,6 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
@@ -349,7 +348,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         switch (event) {
             // права доступа
             case PermissionCheck:
-                if (PermissionManager.checkWriteExtStoragePermission(MainActivity.this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
+                if (viewModel.getPermissionInteractor().checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
                     viewModel.onPermissionChecked();
                 }
                 break;
@@ -1414,13 +1413,16 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         }
 //        if (Build.VERSION.SDK_INT >= 23) {
         // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
-        if (file.getRecord().isCrypted() && CommonSettings.isDecryptFilesInTempDef(this)
-                && !PermissionManager.writeExtStoragePermGranted(this)) {
+        if (file.getRecord().isCrypted()
+                && CommonSettings.isDecryptFilesInTempDef(this)
+                && !viewModel.getPermissionInteractor().writeExtStoragePermGranted(this)) {
             viewModel.setTempFileToOpen(file);
             String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
             viewModel.log(getString(R.string.log_request_perm) + permission);
-            ActivityCompat.requestPermissions(this,
-                    new String[]{permission}, Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{ permission },
+                    Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
         } else {
 //        }
             // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения

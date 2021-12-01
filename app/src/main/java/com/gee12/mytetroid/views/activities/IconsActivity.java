@@ -20,11 +20,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.interactors.StorageInteractor;
-import com.gee12.mytetroid.logs.LogType;
 import com.gee12.mytetroid.viewmodels.IconsViewModel;
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.adapters.IconsListAdapter;
-import com.gee12.mytetroid.logs.TetroidLog;
 import com.gee12.mytetroid.model.TetroidIcon;
 import com.gee12.mytetroid.model.TetroidNode;
 
@@ -60,7 +58,7 @@ public class IconsActivity extends AppCompatActivity {
 
         // список иконок
         ListView mListView = findViewById(R.id.list_view_icons);
-        this.mIconsAdapter = new IconsListAdapter(this, viewModel.getPathToIcons());
+        this.mIconsAdapter = new IconsListAdapter(this, viewModel.getIconsInteractor());
         mListView.setAdapter(mIconsAdapter);
         mListView.setOnItemClickListener((adapterView, view, i, l) -> {
             TetroidIcon icon = (TetroidIcon) mIconsAdapter.getItem(i);
@@ -96,7 +94,7 @@ public class IconsActivity extends AppCompatActivity {
                             // пришлось заново пересоздавать адаптер, т.к. при простой установке dataSet
                             // с помощью reset(icons)
                             // не сбрасывалось выделение от предыдущего списка icons (из другого раздела)
-                            mIconsAdapter = new IconsListAdapter(IconsActivity.this, viewModel.getPathToIcons());
+                            mIconsAdapter = new IconsListAdapter(IconsActivity.this, viewModel.getIconsInteractor());
                             mListView.setAdapter(mIconsAdapter);
                             if (mSelectedIcon != null && folder.equals(mSelectedIcon.getFolder())) {
                                 String selectedIconName = mSelectedIcon.getName();

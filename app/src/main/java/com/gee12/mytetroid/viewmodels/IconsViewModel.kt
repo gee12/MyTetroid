@@ -3,7 +3,6 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import com.gee12.mytetroid.interactors.IconsInteractor
 import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.logs.TetroidLogger
 
 class IconsViewModel(
     app: Application,
@@ -11,7 +10,7 @@ class IconsViewModel(
     val storageInteractor: StorageInteractor
 ) : BaseViewModel(app/*, logger*/) {
 
-    protected val iconsInteractor = IconsInteractor(storageInteractor)
+    val iconsInteractor = IconsInteractor(logger, storageInteractor)
 
     fun getPathToIcons() = storageInteractor.getPathToIcons()
 

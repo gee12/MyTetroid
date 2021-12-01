@@ -12,7 +12,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.helpers.HtmlHelper;
-import com.gee12.mytetroid.data.RecordsManager;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.utils.ImageUtils;

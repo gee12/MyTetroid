@@ -7,12 +7,10 @@ import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
-import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.views.dialogs.pass.PassDialogs
-import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.dialogs.pass.PassChangeDialog
 import com.gee12.mytetroid.views.dialogs.pin.PINCodeDialog
@@ -172,7 +170,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         when {
             !viewModel.isInited() -> {
                 val mes = getString(
-                    if (PermissionManager.writeExtStoragePermGranted(context)) R.string.title_need_init_storage
+                    if (permissionInteractor.writeExtStoragePermGranted(requireContext())) R.string.title_need_init_storage
                     else R.string.title_need_perm_init_storage
                 )
                 viewModel.showMessage(mes)

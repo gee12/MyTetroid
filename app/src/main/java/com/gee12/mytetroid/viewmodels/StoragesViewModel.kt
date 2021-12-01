@@ -1,8 +1,10 @@
 package com.gee12.mytetroid.viewmodels
 
+import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
@@ -105,4 +107,5 @@ class StoragesViewModel(
             isDefault = true
         })
     }
+
 }

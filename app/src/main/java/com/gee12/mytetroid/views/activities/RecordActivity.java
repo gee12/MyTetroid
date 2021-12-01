@@ -31,7 +31,6 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.htmlwysiwygeditor.INetworkWorker;
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.PermissionManager;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.common.Constants;
@@ -608,7 +607,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     public void startCamera() {
         // проверка разрешения
-        if (!PermissionManager.checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
+        if (!viewModel.getPermissionInteractor().checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
         // не удалось сохранять сделанную фотографию сразу в каталог записи

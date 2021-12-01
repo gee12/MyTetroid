@@ -3,7 +3,6 @@ package com.gee12.mytetroid.data;
 import android.content.Context;
 
 import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.logs.LogManager;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 
@@ -107,7 +106,6 @@ public class FavoritesManager {
         try {
             isSwapped = mFavorites.swap(pos, isUp, through);
         } catch (Exception ex) {
-            LogManager.log(context, ex, -1);
             return -1;
         }
 

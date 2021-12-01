@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.StorageEvents
@@ -89,12 +88,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         }
     }
 
-    private fun checkPermission() {
-        if (PermissionManager.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
-            storageViewModel?.onPermissionChecked()
-        }
-    }
-
     private fun loadList() {
         viewModel.loadStorages()
     }
@@ -124,7 +117,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 )
                 storageViewModel!!.storageEvent.observe(this, {
                     when (it.state) {
-                        StorageEvents.PermissionCheck -> checkPermission()
+                        StorageEvents.PermissionCheck -> storageViewModel!!.checkPermission(this)
                         StorageEvents.PermissionChecked -> storageViewModel!!.initStorage()
                         StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
                         else -> {}

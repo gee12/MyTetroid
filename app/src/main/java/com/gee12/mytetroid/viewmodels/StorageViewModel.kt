@@ -912,6 +912,12 @@ open class StorageViewModel(
         Utils.dateToString(it, getString(R.string.full_date_format_string))
     } ?: getString(R.string.title_error)
 
+    fun checkPermission(activity: Activity) {
+        if (permissionInteractor.checkWriteExtStoragePermission(activity, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
+            onPermissionChecked()
+        }
+    }
+
     //endregion Other
 
 //    override fun isRecordFavorite(id: String?): Boolean {

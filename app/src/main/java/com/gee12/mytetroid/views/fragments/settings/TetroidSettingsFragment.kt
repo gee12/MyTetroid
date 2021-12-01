@@ -10,8 +10,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.interactors.StorageInteractor
 import lib.folderpicker.FolderPicker
-import com.gee12.mytetroid.PermissionManager
 import com.gee12.mytetroid.App
+import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
@@ -24,6 +24,7 @@ import org.jsoup.internal.StringUtil
 open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     protected open lateinit var baseViewModel: BaseViewModel
+    protected open lateinit var permissionInteractor: PermissionInteractor
 
     private val settingsActivity: TetroidSettingsActivity?
         get() = activity as TetroidSettingsActivity?
@@ -36,6 +37,8 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
             .get(BaseViewModel::class.java)
         baseViewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
         baseViewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
+
+        permissionInteractor = PermissionInteractor(baseViewModel.logger)
     }
 
     protected open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
@@ -85,7 +88,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun checkPermission(requestCode: Int): Boolean {
-        return PermissionManager.checkWriteExtStoragePermission(activity, requestCode)
+        return permissionInteractor.checkWriteExtStoragePermission(requireActivity(), requestCode)
     }
 
     /**

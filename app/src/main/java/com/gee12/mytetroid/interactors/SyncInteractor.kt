@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import com.gee12.mytetroid.PermissionManager
+import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
@@ -17,7 +17,8 @@ import com.gee12.mytetroid.views.TetroidMessage
  * Не зависит от конкретного хранилища, может быть Singleton.
  */
 class SyncInteractor(
-    private val logger: ITetroidLogger
+    private val logger: ITetroidLogger,
+    private val permissionInteractor: PermissionInteractor
 ) {
 
     companion object {
@@ -97,7 +98,7 @@ class SyncInteractor(
             return false
         }
         // проверяем разрешение на запуск сервиса
-        if (!PermissionManager.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
+        if (!permissionInteractor.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
             return false
         }
         // подставляем путь

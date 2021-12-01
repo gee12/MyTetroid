@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.data.AttachesManager;
 import com.gee12.mytetroid.interactors.AttachesInteractor;
 import com.gee12.mytetroid.model.TetroidFile;
 

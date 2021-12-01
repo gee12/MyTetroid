@@ -10,10 +10,8 @@ import android.text.TextUtils;
 
 import androidx.core.text.HtmlCompat;
 
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.logs.LogManager;
+import com.gee12.mytetroid.logs.ITetroidLogger;
 
-import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -301,12 +299,12 @@ public class Utils {
      * @param context
      * @return
      */
-    public static String getVersionName(Context context) {
+    public static String getVersionName(ITetroidLogger logger, Context context) {
         try {
             PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            LogManager.log(context, e);
+        } catch (PackageManager.NameNotFoundException ex) {
+            logger.logError(ex, false);
         }
         return null;
     }

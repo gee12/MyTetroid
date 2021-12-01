@@ -2,7 +2,9 @@ package com.gee12.mytetroid.interactors
 
 import android.text.TextUtils
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
+import com.gee12.mytetroid.utils.FileUtils
 import java.io.File
 import java.util.*
 
@@ -10,6 +12,7 @@ import java.util.*
  * Создается для конкретного хранилища.
  */
 class IconsInteractor(
+    private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor
 ) {
 
@@ -57,4 +60,12 @@ class IconsInteractor(
         return res
     }
 
+    fun loadIconIfNull(icon: TetroidIcon) {
+        if (icon.icon != null) return
+        try {
+            icon.icon  = FileUtils.loadSVGFromFile("${storageInteractor.getPathToIcons()}/${icon.folder}/${icon.name}")
+        } catch (ex: Exception) {
+            logger.logError(ex)
+        }
+    }
 }
