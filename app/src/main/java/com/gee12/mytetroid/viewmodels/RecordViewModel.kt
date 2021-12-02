@@ -37,18 +37,21 @@ import androidx.annotation.MainThread
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.TetroidLogger
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 
 
 class RecordViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
+    settingsRepo: CommonSettingsRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
     /*logger,*/
     storagesRepo,
+    settingsRepo,
     xmlLoader,
     crypter
 ) {

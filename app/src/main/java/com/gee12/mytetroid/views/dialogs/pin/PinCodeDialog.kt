@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.views.dialogs.pin
 
-import android.app.Dialog
-import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
@@ -12,7 +10,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 
-class PINCodeDialog(
+class PinCodeDialog(
     private val length: Int,
     private val isSetup: Boolean,
     private val isConfirm: Boolean,
@@ -83,7 +81,7 @@ class PINCodeDialog(
         pinLockView.setPinLockListener(pinLockListener)
 
         if (isSetup) {
-            setPositiveButton(R.string.answer_ok) { _, _ ->
+            setPositiveButton(R.string.answer_ok, false) { _, _ ->
                 val pin = pinLockView.tag as String
                 if (isConfirm) {
                     // если это запрос подтверждения ввода, то сравниванием коды
@@ -99,7 +97,7 @@ class PINCodeDialog(
                     }
                 } else {
                     // запрашиваем подтверждение ввода
-                    PINCodeDialog(
+                    PinCodeDialog(
                         length = length,
                         isSetup = true,
                         isConfirm = true,
@@ -116,7 +114,7 @@ class PINCodeDialog(
                                 dialog.dismiss()
                             }
                         }
-                    )
+                    ).showIfPossible(parentFragmentManager)
                 }
             }
         }
@@ -143,7 +141,7 @@ class PINCodeDialog(
             fragmentManager: FragmentManager,
             callback: IPinInputResult
         ) {
-            PINCodeDialog(length, isSetup, false, null, callback)
+            PinCodeDialog(length, isSetup, false, null, callback)
                 .showIfPossible(fragmentManager)
         }
 

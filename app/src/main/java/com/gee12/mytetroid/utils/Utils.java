@@ -12,6 +12,9 @@ import androidx.core.text.HtmlCompat;
 
 import com.gee12.mytetroid.logs.ITetroidLogger;
 
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
@@ -106,6 +109,22 @@ public class Utils {
     public static byte[] toMD5(byte[] data) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         return md.digest(data);
+    }
+
+    public static String toMD5Hex(String s) {
+        byte[] md5Bytes = null;
+        try {
+            md5Bytes = toMD5(s.getBytes(Charset.forName("UTF-8")));
+        } catch (NoSuchAlgorithmException ex) {
+            // если алгоритм в getInstance() не существует
+            ex.printStackTrace();
+        }
+        BigInteger bigInt = new BigInteger(1, md5Bytes);
+        StringBuilder md5Hex = new StringBuilder(bigInt.toString(16));
+        while (md5Hex.length() < 32) {
+            md5Hex.insert(0, "0");
+        }
+        return md5Hex.toString();
     }
 
     /**

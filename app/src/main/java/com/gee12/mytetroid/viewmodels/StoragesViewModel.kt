@@ -13,6 +13,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,8 +22,9 @@ class StoragesViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
 //    private val storageInteractor: StorageInteractor,
-    private val storagesRepo: StoragesRepo
-) : BaseStorageViewModel(app/*, logger*/) {
+    private val storagesRepo: StoragesRepo,
+    settingsRepo: CommonSettingsRepo
+) : BaseStorageViewModel(app/*, logger*/, settingsRepo) {
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages

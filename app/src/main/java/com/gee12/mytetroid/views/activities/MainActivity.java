@@ -69,7 +69,7 @@ import com.gee12.mytetroid.views.dialogs.node.NodeDialogs;
 import com.gee12.mytetroid.views.dialogs.node.NodeFieldsDialog;
 import com.gee12.mytetroid.views.dialogs.node.NodeInfoDialog;
 import com.gee12.mytetroid.views.dialogs.pass.PassDialogs;
-import com.gee12.mytetroid.views.dialogs.pin.PINCodeDialog;
+import com.gee12.mytetroid.views.dialogs.pin.PinCodeDialog;
 import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.views.dialogs.tag.TagFieldsDialog;
 import com.gee12.mytetroid.views.fragments.FoundPageFragment;
@@ -920,11 +920,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     private void showPinCodeDialog(EventCallbackParams callback) {
         boolean isSetup = !viewModel.isCrypted();
 
-        PINCodeDialog.Companion.showDialog(
-                CommonSettings.getPINCodeLength(this),
+        PinCodeDialog.Companion.showDialog(
+                CommonSettings.getPinCodeLength(this),
                 isSetup,
                 getSupportFragmentManager(),
-                new PINCodeDialog.IPinInputResult() {
+                new PinCodeDialog.IPinInputResult() {
                     @Override
                     public boolean onApply(String pin) {
                         return viewModel.startCheckPinCode(pin, callback);

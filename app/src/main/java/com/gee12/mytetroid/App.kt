@@ -8,6 +8,7 @@ import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.utils.ViewUtils
@@ -62,6 +63,7 @@ object App {
         xmlLoader: TetroidXml,
         storagesRepo: StoragesRepo,
         storageInteractor: StorageInteractor,
+        settingsRepo: CommonSettingsRepo,
         crypter: TetroidCrypter
     ) {
         if (IsInited) return
@@ -71,6 +73,7 @@ object App {
             this.xmlLoader = xmlLoader
             this.crypter = crypter
             this.storagesRepo = storagesRepo
+            this.settingsRepo = settingsRepo
             this.storageInteractor = storageInteractor
         }
 
@@ -90,6 +93,7 @@ object App {
             xmlLoader = null
             crypter = null
             storagesRepo = null
+            settingsRepo = null
             storageInteractor = null
         }
         IsInited = false

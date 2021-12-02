@@ -9,12 +9,9 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.views.dialogs.pass.PassDialogs
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.dialogs.pass.PassChangeDialog
-import com.gee12.mytetroid.views.dialogs.pin.PINCodeDialog
-import com.gee12.mytetroid.views.dialogs.pin.PinCodeLengthDialog
 
 class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
@@ -27,8 +24,8 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
             Constants.StorageEvents.PassChanged,
             Constants.StorageEvents.PassSetuped -> onPasswordChanged()
             Constants.StorageEvents.SavePassHashLocalChanged -> changeSavePassHashLocal(data as Boolean)
-            Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
-            Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
+//            Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
+//            Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
             else -> super.onStorageEvent(event, data)
         }
     }
@@ -75,7 +72,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
             setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
             isEnabled = isStorageReady
             onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (checkStorageIsReady(true)) {
+                if (viewModel.checkStorageIsReady(true)) {
                     if (isCrypted) {
                         changePass()
                     } else {
@@ -85,49 +82,6 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
                 true
             }
         }
-    }
-
-    private fun showSetupPinCodeDialog() {
-        // задаем длину ПИН-кода
-        PinCodeLengthDialog(
-            CommonSettings.getPINCodeLength(context),
-            object : PinCodeLengthDialog.IPinLengthInputResult {
-                override fun onApply(length: Int) {
-                    viewModel.setupPinCodeLength(length)
-
-                    // задаем новый ПИН-код
-                    PINCodeDialog.showDialog(
-                        length = length,
-                        isSetup = true,
-                        fragmentManager = parentFragmentManager,
-                        callback = object : PINCodeDialog.IPinInputResult {
-                            override fun onApply(pin: String): Boolean {
-                                viewModel.setupPinCode(pin)
-                                return true
-                            }
-
-                            override fun onCancel() {}
-                        })
-                }
-
-                override fun onCancel() {}
-            })
-    }
-
-    private fun showDropPinCodeDialog() {
-        // сбрасываем имеющийся ПИН-код, предварительнго его запросив
-        PINCodeDialog.showDialog(
-            length = CommonSettings.getPINCodeLength(context),
-            isSetup = false,
-            fragmentManager = parentFragmentManager,
-            callback = object : PINCodeDialog.IPinInputResult {
-                override fun onApply(pin: String): Boolean {
-                    // зашифровываем введеный пароль перед сравнением
-                    return viewModel.checkAndDropPinCode(pin)
-                }
-
-                override fun onCancel() {}
-            })
     }
 
     /**
@@ -165,28 +119,6 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
                 mViewModel.isSaveMiddlePassLocal()
         }
     }*/
-
-    private fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
-        when {
-            !viewModel.isInited() -> {
-                val mes = getString(
-                    if (permissionInteractor.writeExtStoragePermGranted(requireContext())) R.string.title_need_init_storage
-                    else R.string.title_need_perm_init_storage
-                )
-                viewModel.showMessage(mes)
-                return false
-            }
-            !viewModel.isLoaded() -> {
-                viewModel.showMessage(getString(R.string.title_need_load_storage))
-                return false
-            }
-            checkIsFavorMode && viewModel.isLoadedFavoritesOnly() -> {
-                viewModel.showMessage(getString(R.string.title_need_load_nodes))
-                return false
-            }
-            else -> return true
-        }
-    }
 
     fun onBackPressed(): Boolean {
         return viewModel.isBusy

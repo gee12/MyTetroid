@@ -113,7 +113,8 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 //                    logger = viewModel.logger,
                     storagesRepo = null,
                     xmlLoader = null,
-                    crypter = null
+                    crypter = null,
+                    settingsRepo = null
                 )
                 storageViewModel!!.storageEvent.observe(this, {
                     when (it.state) {

@@ -23,6 +23,7 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.utils.StringUtils
@@ -37,12 +38,14 @@ class MainViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
+    settingsRepo: CommonSettingsRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
     /*logger,*/
     storagesRepo,
+    settingsRepo,
     xmlLoader,
     crypter
 ) {

@@ -16,10 +16,11 @@ import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.StringUtils
+import com.gee12.mytetroid.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,12 +30,14 @@ open class StorageEncryptionViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo,
+    settingsRepo: CommonSettingsRepo,
     xmlLoader: TetroidXml,
     crypter: TetroidCrypter?
 ) : StorageSettingsViewModel(
     app,
     /*logger,*/
     storagesRepo,
+    settingsRepo,
     xmlLoader,
     crypter
 ) {
@@ -307,57 +310,60 @@ open class StorageEncryptionViewModel(
             postEventFromCallbackParam(callback)
             // сбрасываем признак
             isPinNeedEnter = false
-            logger.log(R.string.log_pin_code_enter)
+            logger.log(R.string.log_pin_code_entered)
         }
         return res
     }
 
-    /**
-     * Установка/очистка ПИН-кода.
-     * Вызывается при установке/снятии опции.
-     * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
-     */
-    fun startSetupOrDropPinCode(callback: EventCallbackParams) {
-        if (!isRequestPINCode()) {
-            checkStoragePass(EventCallbackParams(Constants.StorageEvents.SetupPinCode, callback))
-        } else {
-            checkStoragePass(EventCallbackParams(Constants.StorageEvents.DropPinCode, callback))
-        }
-    }
-
-    fun setupPinCodeLength(length: Int) {
-        CommonSettings.setPINCodeLength(getContext(), length)
-        logger.log(getString(R.string.log_pin_code_length_setup) + length)
-    }
-
-    fun setupPinCode(pin: String) {
-        // зашифровываем пароль перед установкой
-        val pinHash: String = crypter.passToHash(pin)
-        CommonSettings.setPINCodeHash(getContext(), pinHash)
-        // устанавливаем признак
-        isPinNeedEnter = true
-        logger.log(R.string.log_pin_code_setup, true)
-    }
-
-    fun checkAndDropPinCode(pin: String): Boolean {
-        // зашифровываем введеный пароль перед сравнением
-        val res = checkPinCode(pin)
-        if (res) {
-            // очищаем
-            dropPinCode()
-        }
-        return res
-    }
+//    /**
+//     * Установка/очистка ПИН-кода.
+//     * Вызывается при установке/снятии опции.
+//     * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
+//     */
+//    fun startSetupOrDropPinCode(callback: EventCallbackParams) {
+//        if (!isRequestPINCode()) {
+//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.SetupPinCode, callback))
+//        } else {
+//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.DropPinCode, callback))
+//        }
+//    }
+//
+//    fun setupPinCodeLength(length: Int) {
+//        CommonSettings.setPINCodeLength(getContext(), length)
+//        logger.log(getString(R.string.log_pin_code_length_setup) + length)
+//    }
+//
+//    fun setupPinCode(pin: String) {
+//        // сохраняем хеш
+////        val pinHash: String = crypter.passToHash(pin)
+//        val pinHash: String = cryptInteractor.md5(pin)
+//        CommonSettings.setPINCodeHash(getContext(), pinHash)
+//        // устанавливаем признак
+//        isPinNeedEnter = true
+//        logger.log(R.string.log_pin_code_setup, true)
+//    }
+//
+//    fun checkAndDropPinCode(pin: String): Boolean {
+//        // зашифровываем введеный пароль перед сравнением
+//        val res = checkPinCode(pin)
+//        if (res) {
+//            // очищаем
+//            dropPinCode()
+//        }
+//        return res
+//    }
 
     fun checkPinCode(pin: String): Boolean {
-        val pinHash = crypter.passToHash(pin)
+        // сравниваем хеши
+//        val pinHash = crypter.passToHash(pin)
+        val pinHash = Utils.toMD5Hex(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
 
-    protected fun dropPinCode() {
-        CommonSettings.setPINCodeHash(getContext(), null)
-        logger.log(R.string.log_pin_code_clean, true)
-    }
+//    protected fun dropPinCode() {
+//        CommonSettings.setPINCodeHash(getContext(), null)
+//        logger.log(R.string.log_pin_code_clean, true)
+//    }
 
     //endregion Pin
 

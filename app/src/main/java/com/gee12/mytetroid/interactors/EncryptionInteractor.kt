@@ -12,6 +12,9 @@ import com.gee12.mytetroid.model.TetroidRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.math.BigInteger
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 
 /**
  * Создается для конкретного хранилища.

@@ -4,6 +4,7 @@ import com.gee12.mytetroid.data.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.FileTetroidLogger
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 
 /**
@@ -15,6 +16,7 @@ class TetroidEnvironment(
     var crypter: TetroidCrypter? = null,
 
     var storagesRepo: StoragesRepo? = null,
+    var settingsRepo: CommonSettingsRepo? = null,
 
     var storageInteractor: StorageInteractor? = null,
 )

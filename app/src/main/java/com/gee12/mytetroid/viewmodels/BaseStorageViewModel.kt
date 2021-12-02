@@ -6,17 +6,20 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 open class BaseStorageViewModel(
-    app: Application/*,
-    logger: TetroidLogger?*/
+    app: Application,
+    /*logger: TetroidLogger?*/
+    settingsRepo: CommonSettingsRepo
 ) : BaseViewModel(
-    app/*,
-    logger*/
+    app,
+    /*,logger*/
+    settingsRepo
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()

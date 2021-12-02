@@ -17,6 +17,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
@@ -29,11 +30,13 @@ abstract class StorageSettingsViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
     val storagesRepo: StoragesRepo,
+    settingsRepo: CommonSettingsRepo,
     val xmlLoader: TetroidXml,
     crypter: TetroidCrypter?
 ) : BaseStorageViewModel(
-    app/*,
-    logger*/
+    app,
+    /*logger*/
+    settingsRepo
 ), IStorageLoadHelper, IRecordFileCrypter {
 
     var storage: TetroidStorage? = null

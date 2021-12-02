@@ -653,8 +653,8 @@
     <string name="log_start_pass_change">Start storage password changing</string>
     <string name="log_pin_code_length_setup">PIN-code length was setup:&#160;</string>
     <string name="log_pin_code_setup">PIN-code was setup</string>
-    <string name="log_pin_code_enter">PIN-code was enter</string>
-    <string name="log_pin_code_clean">PIN-code was clean</string>
+    <string name="log_pin_code_entered">PIN-code was entered</string>
+    <string name="log_pin_code_dropped">PIN-code was dropped</string>
     <string name="log_pass_confirm_not_match">Password confirmation does not match</string>
     <string name="log_pin_confirm_not_match">PIN-code confirmation does not match</string>
     <string name="log_error_logs_reading_from_memory">Failed to read logs from memory</string>

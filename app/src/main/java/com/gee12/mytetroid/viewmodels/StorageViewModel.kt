@@ -19,6 +19,7 @@ import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.UriUtils
 import com.gee12.mytetroid.utils.Utils
@@ -37,12 +38,14 @@ open class StorageViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
     storagesRepo: StoragesRepo?,
+    settingsRepo: CommonSettingsRepo?,
     xmlLoader: TetroidXml?,
     crypter: TetroidCrypter?
 ) : StorageEncryptionViewModel(
     app,
     /*logger,*/
     storagesRepo ?: StoragesRepo(app),
+    settingsRepo ?: CommonSettingsRepo(app),
     xmlLoader ?: TetroidXml(),
     crypter
 ) {
@@ -63,8 +66,30 @@ open class StorageViewModel(
             xmlLoader = this.xmlLoader,
             crypter = this.crypter,
             storagesRepo = this.storagesRepo,
+            settingsRepo = this.settingsRepo,
             storageInteractor = this.storageInteractor
         )
+    }
+
+    fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
+        return when {
+            !isInited() -> {
+                showMessage(getString(
+                    if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.title_need_init_storage
+                    else R.string.title_need_perm_init_storage
+                ))
+                false
+            }
+            !isLoaded() -> {
+                showMessage(getString(R.string.title_need_load_storage))
+                false
+            }
+            checkIsFavorMode && isLoadedFavoritesOnly() -> {
+                showMessage(getString(R.string.title_need_load_nodes))
+                false
+            }
+            else -> true
+        }
     }
 
     /**

@@ -399,7 +399,7 @@ public class CommonSettings {
      * Длина ПИН-кода.
      * @return
      */
-    public static int getPINCodeLength(Context context) {
+    public static int getPinCodeLength(Context context) {
         return getInt(context, R.string.pref_key_pin_code_length, DEF_PIN_CODE_LENGTH);
     }
 

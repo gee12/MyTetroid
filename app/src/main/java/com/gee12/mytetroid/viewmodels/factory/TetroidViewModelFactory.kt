@@ -13,10 +13,10 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
         val env = App.current
 
         return when {
-            modelClass.isAssignableFrom(BaseViewModel::class.java) -> {
-                BaseViewModel(
+            modelClass.isAssignableFrom(CommonSettingsViewModel::class.java) -> {
+                CommonSettingsViewModel(
                     application = app,
-//                    logger = env.logger
+                    settingsRepo = env.settingsRepo!!
                 ) as T
             }
             modelClass.isAssignableFrom(StorageViewModel::class.java) -> {
@@ -25,7 +25,8 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
 //                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
-                    storagesRepo = env.storagesRepo
+                    storagesRepo = env.storagesRepo,
+                    settingsRepo = env.settingsRepo
                 ) as T
             }
 //            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
@@ -43,7 +44,8 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
 //                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
-                    storagesRepo = env.storagesRepo
+                    storagesRepo = env.storagesRepo,
+                    settingsRepo = env.settingsRepo
                 ) as T
             }
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> {
@@ -52,27 +54,31 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
 //                    logger = env.logger,
                     xmlLoader = env.xmlLoader,
                     crypter = env.crypter,
-                    storagesRepo = env.storagesRepo
+                    storagesRepo = env.storagesRepo,
+                    settingsRepo = env.settingsRepo
                 ) as T
             }
             modelClass.isAssignableFrom(StoragesViewModel::class.java) -> {
                 StoragesViewModel(
                     app = app,
 //                    logger = env.logger,
-                    storagesRepo = env.storagesRepo!!
+                    storagesRepo = env.storagesRepo!!,
+                    settingsRepo = env.settingsRepo!!
                 ) as T
             }
             modelClass.isAssignableFrom(IconsViewModel::class.java) -> {
                 IconsViewModel(
                     app = app,
 //                    logger = env.logger,
-                    storageInteractor = env.storageInteractor!!
+                    storageInteractor = env.storageInteractor!!,
+                    settingsRepo = env.settingsRepo!!
                 ) as T
             }
             modelClass.isAssignableFrom(LogsViewModel::class.java) -> {
                 LogsViewModel(
                     app = app,
-//                    logger = env.logger
+//                    logger = env.logger,
+                    settingsRepo = env.settingsRepo!!
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")

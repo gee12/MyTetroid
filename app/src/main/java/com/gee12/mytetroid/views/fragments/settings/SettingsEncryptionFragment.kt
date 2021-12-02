@@ -2,9 +2,13 @@ package com.gee12.mytetroid.views.fragments.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.views.dialogs.pin.PinCodeDialog
+import com.gee12.mytetroid.views.dialogs.pin.PinCodeLengthDialog
+
 
 class SettingsEncryptionFragment : TetroidSettingsFragment() {
 
@@ -12,6 +16,25 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.prefs_encryption, rootKey)
         requireActivity().setTitle(R.string.pref_category_crypt)
+
+        // установка ПИН-кода
+        findPreference<CheckBoxPreference>(getString(R.string.pref_key_request_pin_code))?.let {
+            disableIfFree(it)
+
+//            it.isEnabled = baseViewModel.isRequestPINCode()
+            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _: Preference?, _: Any? ->
+                    if (baseViewModel.isRequestPINCode()) {
+                        showDropPinCodeDialog()
+//                        baseViewModel.setupPinCode(context) { res ->
+//                            baseViewModel.setIsRequestPINCode(mContext, res)
+//                            it.isChecked = res
+//                        }
+                    } else {
+                        showSetupPinCodeDialog()
+                    }
+                    false
+                }
+        }
 
         // когда запрашивать пароль
         findPreference<Preference>(getString(R.string.pref_key_when_ask_password))
@@ -27,6 +50,14 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
             else CommonSettings.getWhenAskPass(context)
         )
     }
+
+//    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
+//        when (event) {
+//            Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
+//            Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
+//            else -> super.onStorageEvent(event, data)
+//        }
+//    }
 
     /**
      * Обработчик изменения настроек.
@@ -46,6 +77,59 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         } else if (key == getString(R.string.pref_key_when_ask_password)) {
             updateSummary(R.string.pref_key_when_ask_password, CommonSettings.getWhenAskPass(context))
         }
+    }
+
+    private fun setPinCodePrefIsChecked(isChecked: Boolean) {
+        findPreference<CheckBoxPreference>(getString(R.string.pref_key_request_pin_code))?.let {
+            it.isChecked = isChecked
+        }
+    }
+
+    private fun showSetupPinCodeDialog() {
+        // задаем длину ПИН-кода
+        PinCodeLengthDialog(
+            CommonSettings.getPinCodeLength(context),
+            object : PinCodeLengthDialog.IPinLengthInputResult {
+                override fun onApply(length: Int) {
+                    baseViewModel.setupPinCodeLength(length)
+
+                    // задаем новый ПИН-код
+                    PinCodeDialog.showDialog(
+                        length = length,
+                        isSetup = true,
+                        fragmentManager = parentFragmentManager,
+                        callback = object : PinCodeDialog.IPinInputResult {
+                            override fun onApply(pin: String): Boolean {
+                                baseViewModel.setupPinCode(pin)
+                                setPinCodePrefIsChecked(true)
+                                return true
+                            }
+
+                            override fun onCancel() {}
+                        })
+                }
+
+                override fun onCancel() {}
+            }
+        ).showIfPossible(parentFragmentManager)
+    }
+
+    private fun showDropPinCodeDialog() {
+        // сбрасываем имеющийся ПИН-код, предварительнго его запросив
+        PinCodeDialog.showDialog(
+            length = CommonSettings.getPinCodeLength(context),
+            isSetup = false,
+            fragmentManager = parentFragmentManager,
+            callback = object : PinCodeDialog.IPinInputResult {
+                override fun onApply(pin: String): Boolean {
+                    return baseViewModel.checkAndDropPinCode(pin).also {
+                        if (it) setPinCodePrefIsChecked(false)
+                    }
+                }
+
+                override fun onCancel() {}
+            }
+        )
     }
 
 }

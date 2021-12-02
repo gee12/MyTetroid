@@ -16,6 +16,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.viewmodels.BaseViewModel
+import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.TetroidMessage
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
@@ -23,18 +24,19 @@ import org.jsoup.internal.StringUtil
 
 open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    protected open lateinit var baseViewModel: BaseViewModel
+    protected open lateinit var baseViewModel: CommonSettingsViewModel
     protected open lateinit var permissionInteractor: PermissionInteractor
 
     private val settingsActivity: TetroidSettingsActivity?
         get() = activity as TetroidSettingsActivity?
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        initViewModel()
     }
 
     protected open fun initViewModel() {
         baseViewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application))
-            .get(BaseViewModel::class.java)
+            .get(CommonSettingsViewModel::class.java)
         baseViewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
         baseViewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
 

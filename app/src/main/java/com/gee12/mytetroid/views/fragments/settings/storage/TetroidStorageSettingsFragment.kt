@@ -19,7 +19,7 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         get() = activity as StorageSettingsActivity?
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        initViewModel()
+        super.onCreatePreferences(savedInstanceState, rootKey)
 
         settingsActivity?.storageId?.let { storageId ->
             viewModel.setStorageFromBase(storageId)
