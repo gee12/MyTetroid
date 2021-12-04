@@ -6,6 +6,9 @@ object Constants {
 
     val SEPAR = File.separator
 
+    const val MIN_PINCODE_LENGTH = 4
+    const val MAX_PINCODE_LENGTH = 8
+
     const val ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY"
     const val ACTION_RECORD = "ACTION_RECORD"
     const val ACTION_ADD_RECORD = "ACTION_ADD_RECORD"
@@ -23,10 +26,7 @@ object Constants {
     const val REQUEST_CODE_CREATE_STORAGE_PATH = 111
     const val REQUEST_CODE_OPEN_TEMP_PATH = 112
     const val REQUEST_CODE_OPEN_LOG_PATH = 113
-
-    const val REQUEST_CODE_OPEN_STORAGE = 111
-    const val REQUEST_CODE_CREATE_STORAGE = 112
-    const val REQUEST_CODE_SYNC_STORAGE = 113
+    const val REQUEST_CODE_SYNC_STORAGE = 1134
 
     const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
     const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
@@ -80,7 +80,6 @@ object Constants {
     const val EXTRA_IS_LOAD_ALL_NODES = "EXTRA_IS_LOAD_ALL_NODES"
     const val EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED"
 
-
     enum class TetroidView {
         Main,
         Settings
@@ -118,6 +117,7 @@ object Constants {
     enum class StorageEvents {
         NoDefaultStorage,
         Changed,
+        Added,
         PermissionCheck,
         PermissionChecked,
         AskAfterSyncManually,
@@ -133,13 +133,7 @@ object Constants {
         Decrypted,
         ChangedOutside,
 
-        // storages
-        Added,
-        Edited,
-        Selected,
-
         // password
-//        EmptyPassCheck,
         AskPassword,
         AskForEmptyPassCheckingField,
         AskForClearStoragePass,
@@ -148,9 +142,6 @@ object Constants {
         PassChanged,
 
         // pincode
-        SetupPinCode,
-        DropPinCode,
-        PinCodeChecked,
         AskPinCode
     }
 
@@ -222,9 +213,9 @@ object Constants {
         IsEditedChanged,
         EditedDateChanged,
         InsertImages,
-        OpenWebLink,
-        Save,
         InsertWebPageContent,
         InsertWebPageText,
+        OpenWebLink,
+        Save,
     }
 }

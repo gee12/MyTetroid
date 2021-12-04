@@ -42,6 +42,7 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
     protected open fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
         when (event) {
             Constants.StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
+            else -> {}
         }
     }
 

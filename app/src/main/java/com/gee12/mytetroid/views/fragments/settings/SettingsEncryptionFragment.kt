@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.views.dialogs.pin.PinCodeDialog
 import com.gee12.mytetroid.views.dialogs.pin.PinCodeLengthDialog
@@ -20,15 +21,9 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         // установка ПИН-кода
         findPreference<CheckBoxPreference>(getString(R.string.pref_key_request_pin_code))?.let {
             disableIfFree(it)
-
-//            it.isEnabled = baseViewModel.isRequestPINCode()
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _: Preference?, _: Any? ->
                     if (baseViewModel.isRequestPINCode()) {
                         showDropPinCodeDialog()
-//                        baseViewModel.setupPinCode(context) { res ->
-//                            baseViewModel.setIsRequestPINCode(mContext, res)
-//                            it.isChecked = res
-//                        }
                     } else {
                         showSetupPinCodeDialog()
                     }
@@ -51,14 +46,6 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         )
     }
 
-//    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
-//        when (event) {
-//            Constants.StorageEvents.SetupPinCode -> showSetupPinCodeDialog()
-//            Constants.StorageEvents.DropPinCode -> showDropPinCodeDialog()
-//            else -> super.onStorageEvent(event, data)
-//        }
-//    }
-
     /**
      * Обработчик изменения настроек.
      * Чтобы работало нужно переопределить onResume() и onPause()
@@ -68,7 +55,6 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
      */
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == getString(R.string.pref_key_is_save_pass_hash_local)) {
-//            setPINCodePrefAvailability();
             updateSummary(
                 R.string.pref_key_when_ask_password,
                 if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
@@ -89,6 +75,8 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         // задаем длину ПИН-кода
         PinCodeLengthDialog(
             CommonSettings.getPinCodeLength(context),
+            Constants.MIN_PINCODE_LENGTH,
+            Constants.MAX_PINCODE_LENGTH,
             object : PinCodeLengthDialog.IPinLengthInputResult {
                 override fun onApply(length: Int) {
                     baseViewModel.setupPinCodeLength(length)

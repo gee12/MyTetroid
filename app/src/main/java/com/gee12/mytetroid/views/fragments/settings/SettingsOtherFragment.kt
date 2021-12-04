@@ -62,7 +62,7 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
         if (resultCode != Activity.RESULT_OK) return
 
         val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
-        if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
+        if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH && folderPath != null) {
             CommonSettings.setLogPath(context, folderPath)
             CommonSettings.setLastChoosedFolder(context, folderPath)
             baseViewModel.logger.setLogPath(folderPath)

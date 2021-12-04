@@ -14,6 +14,10 @@ import com.gee12.mytetroid.views.DateTimeFormatDialog
 
 class SettingsDisplayFragment : TetroidSettingsFragment() {
 
+    companion object {
+        private const val DIALOG_FRAGMENT_TAG = "DateTimeFormatPreference"
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.prefs_display, rootKey)
@@ -29,7 +33,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             prefFields?.setEntries(arrayId)
         }
         updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
-        updateSummaryIfContains(R.string.pref_key_record_fields_in_list, recordFieldsValuesString)
+        updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString())
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -58,18 +62,17 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             getString(R.string.pref_key_record_fields_in_list) -> {
                 App.RecordFieldsInList = RecordFieldsSelector(context, CommonSettings.getRecordFieldsInList(context))
                 updateSummary(
-                    R.string.pref_key_record_fields_in_list, recordFieldsValuesString,
+                    R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString(),
                     getString(R.string.pref_record_fields_in_list_summ)
                 )
             }
         }
     }
 
-    private val recordFieldsValuesString: String
-        get() {
-            val arrayId = if (App.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
-            return App.RecordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
-        }
+    private fun getRecordFieldsValuesString(): String {
+        val arrayId = if (App.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+        return App.RecordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
+    }
 
     private fun setHighlightPrefAvailability() {
         findPreference<Preference>(getString(R.string.pref_key_highlight_attach_color))!!.isEnabled = (
@@ -87,9 +90,5 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         } else {
             super.onDisplayPreferenceDialog(preference)
         }
-    }
-
-    companion object {
-        private const val DIALOG_FRAGMENT_TAG = "DateTimeFormatPreference"
     }
 }

@@ -294,7 +294,7 @@ open class StorageEncryptionViewModel(
      * конкретно в данный момент.
      * @param callback Обработчик обратного вызова.
      */
-    fun askPinCode(specialFlag: Boolean, callback: EventCallbackParams /*callback: Dialogs.IApplyResult*/) {
+    fun askPinCode(specialFlag: Boolean, callback: EventCallbackParams) {
         if (isRequestPINCode() && specialFlag) {
             // выводим запрос ввода ПИН-кода
             postStorageEvent(Constants.StorageEvents.AskPinCode, callback)
@@ -310,48 +310,10 @@ open class StorageEncryptionViewModel(
             postEventFromCallbackParam(callback)
             // сбрасываем признак
             isPinNeedEnter = false
-            logger.log(R.string.log_pin_code_entered)
+            logger.log(R.string.log_pin_code_entered, false)
         }
         return res
     }
-
-//    /**
-//     * Установка/очистка ПИН-кода.
-//     * Вызывается при установке/снятии опции.
-//     * При установке сначала проверяется факт того, что хэш пароля сохранен локально.
-//     */
-//    fun startSetupOrDropPinCode(callback: EventCallbackParams) {
-//        if (!isRequestPINCode()) {
-//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.SetupPinCode, callback))
-//        } else {
-//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.DropPinCode, callback))
-//        }
-//    }
-//
-//    fun setupPinCodeLength(length: Int) {
-//        CommonSettings.setPINCodeLength(getContext(), length)
-//        logger.log(getString(R.string.log_pin_code_length_setup) + length)
-//    }
-//
-//    fun setupPinCode(pin: String) {
-//        // сохраняем хеш
-////        val pinHash: String = crypter.passToHash(pin)
-//        val pinHash: String = cryptInteractor.md5(pin)
-//        CommonSettings.setPINCodeHash(getContext(), pinHash)
-//        // устанавливаем признак
-//        isPinNeedEnter = true
-//        logger.log(R.string.log_pin_code_setup, true)
-//    }
-//
-//    fun checkAndDropPinCode(pin: String): Boolean {
-//        // зашифровываем введеный пароль перед сравнением
-//        val res = checkPinCode(pin)
-//        if (res) {
-//            // очищаем
-//            dropPinCode()
-//        }
-//        return res
-//    }
 
     fun checkPinCode(pin: String): Boolean {
         // сравниваем хеши
@@ -359,11 +321,6 @@ open class StorageEncryptionViewModel(
         val pinHash = Utils.toMD5Hex(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
-
-//    protected fun dropPinCode() {
-//        CommonSettings.setPINCodeHash(getContext(), null)
-//        logger.log(R.string.log_pin_code_clean, true)
-//    }
 
     //endregion Pin
 

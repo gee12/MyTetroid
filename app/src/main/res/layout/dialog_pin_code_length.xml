@@ -7,7 +7,8 @@
     android:padding="16dp">
 
     <TextView
-        android:text="@string/label_pin_code_size"
+        android:id="@+id/text_view_label"
+        android:text="@string/label_pin_code_size_mask"
         style="@style/dialog_labels"/>
 
     <EditText

@@ -23,53 +23,7 @@ class CommonSettingsViewModel(
         return App.isFullVersion()
                 && CommonSettings.isRequestPINCode(getContext())
                 && CommonSettings.getPINCodeHash(getContext()) != null
-                /*&& isPinNeedEnter*/
     }
-
-//    fun isPinCodeSetup(): Boolean {
-//        return CommonSettings.getPINCodeHash(getContext()) != null
-//    }
-
-//    /**
-//     * Запрос ПИН-кода, если установлена опция.
-//     * К этому моменту факт того, что хэш пароля сохранен локально, должен быть уже проверен.
-//     * @param specialFlag Дополнительный признак, указывающий на то, нужно ли спрашивать ПИН-код
-//     * конкретно в данный момент.
-//     * @param callback Обработчик обратного вызова.
-//     */
-//    fun askPinCode(specialFlag: Boolean, callback: EventCallbackParams /*callback: Dialogs.IApplyResult*/) {
-//        if (isRequestPINCode() && specialFlag) {
-//            // выводим запрос ввода ПИН-кода
-//            postStorageEvent(Constants.StorageEvents.AskPinCode, callback)
-//        } else {
-//            postEventFromCallbackParam(callback)
-//        }
-//    }
-
-//    fun startCheckPinCode(pin: String, callback: EventCallbackParams): Boolean {
-//        // зашифровываем введеный пароль перед сравнением
-//        val res = checkPinCode(pin)
-//        if (res) {
-//            postEventFromCallbackParam(callback)
-//            // сбрасываем признак
-////            isPinNeedEnter = false
-//            logger.log(R.string.log_pin_code_enter)
-//        }
-//        return res
-//    }
-
-//    /**
-//     * Установка/очистка ПИН-кода.
-//     * Вызывается при установке/снятии опции.
-//     * ---При установке сначала проверяется факт того, что хэш пароля сохранен локально.
-//     */
-//    fun startSetupOrDropPinCode(callback: EventCallbackParams) {
-//        if (!isRequestPINCode()) {
-//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.SetupPinCode, callback))
-//        } else {
-//            checkStoragePass(EventCallbackParams(Constants.StorageEvents.DropPinCode, callback))
-//        }
-//    }
 
     fun setupPinCodeLength(length: Int) {
         CommonSettings.setPINCodeLength(getContext(), length)
@@ -81,8 +35,6 @@ class CommonSettingsViewModel(
 //        val pinHash: String = crypter.passToHash(pin)
         val pinHash: String = Utils.toMD5Hex(pin)
         CommonSettings.setPINCodeHash(getContext(), pinHash)
-        // устанавливаем признак
-//        isPinNeedEnter = true
         logger.log(R.string.log_pin_code_setup, true)
     }
 
@@ -105,6 +57,5 @@ class CommonSettingsViewModel(
     }
 
     //endregion Pin
-
 
 }

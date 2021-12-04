@@ -437,7 +437,7 @@
     <string name="label_record">Record:</string>
     <string name="label_parent_node">Parent node:</string>
     <string name="label_favorite">Favorite</string>
-    <string name="label_pin_code_size">Value 4–8:</string>
+    <string name="label_pin_code_size_mask">Value %d–%d:</string>
 
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>

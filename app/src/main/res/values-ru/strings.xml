@@ -317,7 +317,7 @@
     <string name="label_file_size">Размер файла:</string>
     <string name="label_folder_size">Размер каталога:</string>
     <string name="label_icons_section">Раздел:</string>
-    <string name="label_pin_code_size">Значение 4–8:</string>
+    <string name="label_pin_code_size_mask">Значение %d–%d:</string>
     <string name="label_node">Ветка:</string>
     <string name="label_record">Запись:</string>
     <string name="label_parent_node">Родительская ветка:</string>
