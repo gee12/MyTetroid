@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import androidx.annotation.MainThread
+import com.gee12.mytetroid.common.Constants.RecordEvents
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.TetroidLogger
@@ -123,7 +124,7 @@ class RecordViewModel(
             }*/
             } else {
                 // переключаем только views
-                setEvent(Constants.RecordEvents.SwitchViews, curMode)
+                setEvent(RecordEvents.SwitchViews, curMode)
             }
         }
     }
@@ -206,7 +207,7 @@ class RecordViewModel(
             }
         } ?: run {
             // обрабатываем внешнюю ссылку
-            postEvent(Constants.RecordEvents.OpenWebLink, url)
+            postEvent(RecordEvents.OpenWebLink, url)
         }
     }
 
@@ -306,7 +307,7 @@ class RecordViewModel(
      */
     fun openRecord(record: TetroidRecord) {
         log(getString(R.string.log_record_loading) + record.id)
-        setEvent(Constants.RecordEvents.LoadFields, record)
+        setEvent(RecordEvents.LoadFields, record)
         // текст
         loadRecordTextFromFile(record)
     }
@@ -325,7 +326,7 @@ class RecordViewModel(
                     }
                 }
             }
-            setEvent(Constants.RecordEvents.LoadRecordTextFromFile, text)
+            setEvent(RecordEvents.LoadRecordTextFromFile, text)
         }
     }
 
@@ -344,7 +345,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherRecord(resObj.id) })
-            postEvent(Constants.RecordEvents.AskForLoadAllNodes, resObj)
+            postEvent(RecordEvents.AskForLoadAllNodes, resObj)
         } else {
             showAnotherRecord(resObj.id)
         }
@@ -371,7 +372,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherNodeDirectly(resObj.id) })
-            postEvent(Constants.RecordEvents.AskForLoadAllNodes, resObj)
+            postEvent(RecordEvents.AskForLoadAllNodes, resObj)
         } else {
             showAnotherNodeDirectly(resObj.id)
         }
@@ -395,7 +396,7 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { openTagDirectly(tagName) })
-            postEvent(Constants.RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
+            postEvent(RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
         } else {
             openTagDirectly(tagName)
         }
@@ -427,6 +428,9 @@ class RecordViewModel(
      * @param data
      */
     fun saveSelectedImages(data: Intent, isCamera: Boolean) {
+        postEvent(if (isCamera) RecordEvents.StartCaptureCamera else RecordEvents.StartLoadImages)
+
+        // FIXME: Устарело, переделать на callback
         val images = ImagePicker.getImages(data)
         if (images == null) {
             logError(getString(R.string.log_selected_files_is_missing))
@@ -457,7 +461,7 @@ class RecordViewModel(
             }
             if (!savedImages.isEmpty()) {
 //            mEditor.insertImages(savedImages)
-                postEvent(Constants.RecordEvents.InsertImages, savedImages)
+                postEvent(RecordEvents.InsertImages, savedImages)
             }
         }
     }
@@ -479,7 +483,7 @@ class RecordViewModel(
     private fun saveImage(image: TetroidImage?) {
         if (image != null) {
 //            mEditor.insertImage(image)
-            postEvent(Constants.RecordEvents.InsertImages, listOf(image))
+            postEvent(RecordEvents.InsertImages, listOf(image))
         } else {
             logOperError(LogObj.IMAGE, LogOper.SAVE, true)
             postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
@@ -492,8 +496,8 @@ class RecordViewModel(
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String?, isTextOnly: Boolean) {
 //                    mEditor.insertWebPageContent(content, isTextOnly)
-                    if (isTextOnly) postEvent(Constants.RecordEvents.InsertWebPageText)
-                    else postEvent(Constants.RecordEvents.InsertWebPageContent)
+                    if (isTextOnly) postEvent(RecordEvents.InsertWebPageText)
+                    else postEvent(RecordEvents.InsertWebPageContent)
                     postViewEvent(Constants.ViewEvents.ShowProgress, false)
                 }
 
@@ -559,7 +563,7 @@ class RecordViewModel(
                 postViewEvent(Constants.ViewEvents.TaskFinished)
                 if (attach != null) {
                     log(getString(R.string.log_file_was_attached), true)
-                    postEvent(Constants.RecordEvents.FileAttached, attach)
+                    postEvent(RecordEvents.FileAttached, attach)
                 } else {
                     logError(getString(R.string.log_files_attach_error), true)
                     postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
@@ -637,9 +641,9 @@ class RecordViewModel(
         }
         // перезагружаем html-текст записи в webView, если был режим редактирования HTML
         if (oldMode == Constants.MODE_HTML) {
-            setEvent(Constants.RecordEvents.LoadRecordTextFromHtml)
+            setEvent(RecordEvents.LoadRecordTextFromHtml)
         } else {
-            setEvent(Constants.RecordEvents.SwitchViews, newMode)
+            setEvent(RecordEvents.SwitchViews, newMode)
         }
         curMode = newMode
         setViewEvent(Constants.ViewEvents.UpdateOptionsMenu)
@@ -662,7 +666,7 @@ class RecordViewModel(
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
-                postEvent(Constants.RecordEvents.AskForSaving, obj)
+                postEvent(RecordEvents.AskForSaving, obj)
                 return true
             }
         }
@@ -688,12 +692,12 @@ class RecordViewModel(
      */
     private fun saveRecord(callBefore: Boolean, obj: ResultObj?): Boolean {
         if (callBefore) {
-            postEvent(Constants.RecordEvents.BeforeSaving)
+            postEvent(RecordEvents.BeforeSaving)
             return true
         } else {
             if (curRecord.value!!.isTemp) {
                 if (isLoaded()) {
-                    postEvent(Constants.RecordEvents.EditFields, obj)
+                    postEvent(RecordEvents.EditFields, obj)
                 } else {
                     isSaveTempAfterStorageLoaded = true
                     loadStorage()
@@ -709,7 +713,7 @@ class RecordViewModel(
 
     private fun save() {
         // запрашиваем у View html-текст записи и сохраняем
-        postEvent(Constants.RecordEvents.Save)
+        postEvent(RecordEvents.Save)
     }
 
     /**
@@ -739,7 +743,7 @@ class RecordViewModel(
             val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
 //            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
             val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
-            postEvent(Constants.RecordEvents.EditedDateChanged, editedDate)
+            postEvent(RecordEvents.EditedDateChanged, editedDate)
         }
     }
 
@@ -869,7 +873,7 @@ class RecordViewModel(
             isSaveTempAfterStorageLoaded = false
             // сохраняем временную запись
 //            editFields(mResultObj)
-            postEvent(Constants.RecordEvents.EditFields, resultObj)
+            postEvent(RecordEvents.EditFields, resultObj)
         }
     }
 
@@ -949,7 +953,7 @@ class RecordViewModel(
 
     private fun dropIsEdited() {
         isEdited = false
-        postEvent(Constants.RecordEvents.IsEditedChanged, false)
+        postEvent(RecordEvents.IsEditedChanged, false)
     }
 
     fun editFields(obj: ResultObj?, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
@@ -959,7 +963,7 @@ class RecordViewModel(
                 isFieldsEdited = true
                 setTitle(name)
 //                loadFields(mRecord)
-                postEvent(Constants.RecordEvents.LoadFields, curRecord.value)
+                postEvent(RecordEvents.LoadFields, curRecord.value)
                 if (wasTemp) {
                     // сохраняем текст записи
 //                    save();

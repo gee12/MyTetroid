@@ -767,4 +767,6 @@
     <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
     <string name="title_set_default">Make default</string>
     <string name="log_cannot_delete_undecrypted_node">Undecrypted node cannot be deleted</string>
+    <string name="progress_images_loading">Images loading…</string>
+    <string name="progress_camera_capture">Image loading from camera…</string>
 </resources>

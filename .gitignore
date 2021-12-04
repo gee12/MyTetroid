@@ -10,3 +10,7 @@
 /build
 /captures
 .externalNativeBuild
+
+/.idea/
+/app/free/
+/app/pro

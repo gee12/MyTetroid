@@ -26,7 +26,6 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
 
-import com.esafirm.imagepicker.features.ImagePicker;
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.htmlwysiwygeditor.IImagePicker;
 import com.gee12.htmlwysiwygeditor.INetworkWorker;
@@ -48,7 +47,7 @@ import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.utils.Utils;
 import com.gee12.mytetroid.utils.ViewUtils;
-import com.gee12.mytetroid.views.ImgPicker;
+import com.gee12.mytetroid.views.TetroidImagePicker;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
 import com.gee12.mytetroid.views.TetroidEditor;
@@ -349,9 +348,16 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             case EditedDateChanged:
                 ((TextView)findViewById(R.id.text_view_record_edited)).setText((String) data);
                 break;
+            case StartCaptureCamera:
+                setProgressVisibility(true, getString(R.string.progress_camera_capture));
+                break;
+            case StartLoadImages:
+                setProgressVisibility(true, getString(R.string.progress_images_loading));
+                break;
             case InsertImages:
                 List<TetroidImage> images = (List<TetroidImage>) data;
                 mEditor.insertImages(images, viewModel.getPathToRecordFolder(viewModel.getCurRecord().getValue()));
+                setProgressVisibility(false, null);
                 break;
             case OpenWebLink:
                 openWebLink((String) data);
@@ -601,7 +607,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     public void startPicker() {
-        ImgPicker.startPicker(this);
+        TetroidImagePicker.startPicker(this, Constants.REQUEST_CODE_IMAGES);
     }
 
     @Override
@@ -610,12 +616,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         if (!viewModel.getPermissionInteractor().checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
-        // не удалось сохранять сделанную фотографию сразу в каталог записи
-        // (возникает ошибка на Android 9)
-//        Intent intent = ImgPicker.createCamera(DataManager.getStoragePathBase(), mRecord.getDirName())
-        Intent intent = ImagePicker.cameraOnly()
-                .getIntent(this);
-        startActivityForResult(intent, Constants.REQUEST_CODE_CAMERA);
+        TetroidImagePicker.startCamera(this, Constants.REQUEST_CODE_CAMERA);
     }
 
     public void saveImage(Uri uri, boolean deleteSrcFile) {
@@ -710,7 +711,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                     String htmlText = mEditor.getWebView().getEditableHtml();
                     mEditTextHtml.setText(htmlText);
                 } else {
-                    setProgressVisibility(true);
+                    setEditorProgressVisibility(true);
                     // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
                     mEditor.getWebView().loadEditorJSScript(true);
 
@@ -904,13 +905,12 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                     finishWithResult(Constants.RESULT_PASS_CHANGED, data.getExtras());
                 }
             }
+        } else if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
-        } else if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
-            // нечего обновлять ?
         } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
             viewModel.saveSelectedImages(data, true);
-        } else if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+        } else if (requestCode == Constants.REQUEST_CODE_IMAGES && resultCode == RESULT_OK) {
             viewModel.saveSelectedImages(data, false);
         }
     }
@@ -1312,7 +1312,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         super.onStop();
     }
 
-    public void setProgressVisibility(boolean vis) {
+    public void setEditorProgressVisibility(boolean vis) {
         mHtmlProgressBar.setVisibility(ViewUtils.toVisibility(vis));
     }
 
@@ -1328,7 +1328,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         @Override
         public void onAfterTextInited() {
             if (viewModel.isHtmlMode()) {
-                setProgressVisibility(false);
+                setEditorProgressVisibility(false);
             }
         }
         @Override

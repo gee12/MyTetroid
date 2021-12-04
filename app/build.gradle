@@ -4,16 +4,17 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-parcelize'
 
 android {
+    final sdk = rootProject.ext.sdk
     signingConfigs {
         debug {
             storeFile file("external/debug.keystore")
         }
     }
-    compileSdkVersion 29
+    compileSdkVersion sdk.compileSdk
     defaultConfig {
         applicationId "com.gee12.mytetroid"
-        minSdkVersion 15
-        targetSdkVersion 29
+        minSdkVersion sdk.minSdk
+        targetSdkVersion sdk.targetSdk
         versionCode 49
         versionName "4.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -81,14 +82,14 @@ dependencies {
 //    implementation project(path: ':file-folder-picker')
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
-    implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
+    implementation project(path: ':image-picker')
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'com.google.android.play:core:1.9.0'
 //    implementation 'com.adityak:browsemyfiles:1.9'
     implementation 'com.github.clans:fab:1.6.4'
-    implementation "androidx.core:core-ktx:1.6.0"
+    implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     def room_version = "2.2.6"

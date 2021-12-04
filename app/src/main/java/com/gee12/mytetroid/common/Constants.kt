@@ -13,20 +13,21 @@ object Constants {
     const val ACTION_RECORD = "ACTION_RECORD"
     const val ACTION_ADD_RECORD = "ACTION_ADD_RECORD"
 
-    const val REQUEST_CODE_SETTINGS_ACTIVITY = 101
-    const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 102
-    const val REQUEST_CODE_RECORD_ACTIVITY = 103
-    const val REQUEST_CODE_SEARCH_ACTIVITY = 104
-    const val REQUEST_CODE_STORAGES_ACTIVITY = 105
-    const val REQUEST_CODE_FILE_PICKER = 106
-    const val REQUEST_CODE_FOLDER_PICKER = 107
-    const val REQUEST_CODE_NODE_ICON = 108
-    const val REQUEST_CODE_CAMERA = 109
-    const val REQUEST_CODE_OPEN_STORAGE_PATH = 110
-    const val REQUEST_CODE_CREATE_STORAGE_PATH = 111
-    const val REQUEST_CODE_OPEN_TEMP_PATH = 112
-    const val REQUEST_CODE_OPEN_LOG_PATH = 113
-    const val REQUEST_CODE_SYNC_STORAGE = 1134
+    const val REQUEST_CODE_SETTINGS_ACTIVITY = 101          // общие настройки
+    const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 102  // настройки хранилища
+    const val REQUEST_CODE_RECORD_ACTIVITY = 103            // текст записи
+    const val REQUEST_CODE_SEARCH_ACTIVITY = 104            // глобальный поиск
+    const val REQUEST_CODE_STORAGES_ACTIVITY = 105          // список хранилищ
+    const val REQUEST_CODE_FILE_PICKER = 106                // выбор файла
+    const val REQUEST_CODE_FOLDER_PICKER = 107              // выбор каталога
+    const val REQUEST_CODE_NODE_ICON = 108                  // иконка ветки
+    const val REQUEST_CODE_IMAGES = 109                     // выбор изображений
+    const val REQUEST_CODE_CAMERA = 110                     // захват изображения с камеры
+    const val REQUEST_CODE_OPEN_STORAGE_PATH = 111          // путь к существующему хранилищу
+    const val REQUEST_CODE_CREATE_STORAGE_PATH = 112        // путь к новому хранилищу
+    const val REQUEST_CODE_OPEN_TEMP_PATH = 113             // путь к корзине
+    const val REQUEST_CODE_OPEN_LOG_PATH = 114              // путь к каталогу лог-файла
+    const val REQUEST_CODE_SYNC_STORAGE = 115              // синхронизация хранилища
 
     const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
     const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
@@ -212,6 +213,8 @@ object Constants {
         BeforeSaving,
         IsEditedChanged,
         EditedDateChanged,
+        StartLoadImages,
+        StartCaptureCamera,
         InsertImages,
         InsertWebPageContent,
         InsertWebPageText,

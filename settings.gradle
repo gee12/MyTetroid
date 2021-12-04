@@ -9,3 +9,5 @@ include ':multi-listview'
 project(':multi-listview').projectDir = new File(settingsDir, '../../android-multi-level-listview/multi-level-listview/')
 include ':pinlock-view'
 project(':pinlock-view').projectDir = new File(settingsDir, '../../Android-PinLockView/pinlockview/')
+include ':image-picker'
+project(':image-picker').projectDir = new File(settingsDir, '../../android-image-picker/imagepicker/')
