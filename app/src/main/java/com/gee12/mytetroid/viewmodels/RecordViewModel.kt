@@ -492,7 +492,7 @@ class RecordViewModel(
 
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
         launch {
-            postViewEvent(Constants.ViewEvents.ShowProgress, getString(R.string.title_page_downloading))
+            postViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_page_downloading))
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String?, isTextOnly: Boolean) {
 //                    mEditor.insertWebPageContent(content, isTextOnly)
@@ -511,7 +511,7 @@ class RecordViewModel(
 
     fun downloadImage(url: String?) {
         launch {
-            postViewEvent(Constants.ViewEvents.ShowProgress, getString(R.string.title_image_downloading))
+            postViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_image_downloading))
             NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
                 override fun onSuccess(bitmap: Bitmap) {
                     saveImage(bitmap)

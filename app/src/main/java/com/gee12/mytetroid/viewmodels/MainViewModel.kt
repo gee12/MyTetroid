@@ -153,9 +153,14 @@ class MainViewModel(
         }
     }
 
+    @MainThread
     private suspend fun insertRecord(record: TetroidRecord, isCutted: Boolean, withoutDir: Boolean): Int {
         if (curNode == null) return -2
-        return recordsInteractor.insertRecord(getContext(), record, isCutted, curNode!!, withoutDir)
+        val message = getString(if (isCutted) R.string.progress_insert_record else R.string.progress_copy_record)
+        setViewEvent(Constants.ViewEvents.ShowProgressText, message)
+        val result = recordsInteractor.insertRecord(getContext(), record, isCutted, curNode!!, withoutDir)
+        setViewEvent(Constants.ViewEvents.ShowProgress, false)
+        return result
     }
 
     @MainThread

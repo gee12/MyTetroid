@@ -67,6 +67,8 @@
     <string name="title_fullscreen">Fullscreen</string>
     <string name="title_record_folder_path">Record folder path</string>
     <string name="title_insert_record">Insert record</string>
+    <string name="progress_copy_record">Record copying…</string>
+    <string name="progress_insert_record">Record inserting…</string>
     <string name="title_share">Share</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>

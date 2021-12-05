@@ -64,6 +64,8 @@
     <string name="title_open_record_folder">Открыть каталог</string>
     <string name="title_record_folder_path">Путь к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
+    <string name="progress_copy_record">Копирование записи…</string>
+    <string name="progress_insert_record">Вставка записи…</string>
     <string name="title_share">Отправить</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
@@ -74,7 +76,7 @@
     <string name="title_insert_subnode">Вставить как подветку</string>
     <string name="title_delete_record">Удалить запись</string>
     <string name="title_select_file_to_upload">Выберите файл</string>
-    <string name="title_confirm_selected_images">Выбрать</string>
+    <string name="title_confirm_selected_images">Готово</string>
     <string name="title_open_storage">Выбрать хранилище</string>
     <string name="title_create_storage">Создать хранилище</string>
     <string name="title_open_storage_summ">Выбрать каталог существуюшего хранилища в памяти телефона</string>

@@ -140,7 +140,8 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 //                taskPostExecute();
 //                break;
             case ShowProgress:
-                setProgressVisibility((boolean) data, null);
+                boolean isVisible = !(data instanceof Boolean) || (boolean) data;
+                setProgressVisibility(isVisible, null);
                 break;
             case ShowProgressText:
                 setProgressText((String) data);
@@ -189,9 +190,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     public void openFileFolderPicker(boolean isPickFile) {
         Intent intent = new Intent(this, FolderPicker.class);
         intent.putExtra(FolderPicker.EXTRA_TITLE, (isPickFile) ? getString(R.string.title_select_file_to_upload) : getString(R.string.title_save_file_to));
-//        if (getViewModel() != null) {
-//            intent.putExtra(FolderPicker.EXTRA_LOCATION, getViewModel().getLastFolderPathOrDefault(false));
-//        }
         intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false));
         intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile);
         startActivityForResult(intent, (isPickFile) ? Constants.REQUEST_CODE_FILE_PICKER : Constants.REQUEST_CODE_FOLDER_PICKER);
@@ -320,28 +318,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         return super.onOptionsItemSelected(item);
     }
 
-//    /**
-//     * Обработка возвращаемого результата других активностей.
-//     *
-//     * @param requestCode
-//     * @param resultCode
-//     * @param data
-//     */
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if ((requestCode == Constants.REQUEST_CODE_OPEN_STORAGE
-//                /*|| requestCode == Constants.REQUEST_CODE_CREATE_STORAGE*/)
-//                && resultCode == RESULT_OK) {
-//            String folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA);
-//            if (!TextUtils.isEmpty(folderPath)) {
-////                boolean isCreate = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE);
-////                openOrCreateStorage(folderPath, isCreate);
-//                loadStorage(folderPath);
-//            }
-//        }
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -351,7 +327,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
             case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
                 if (permGranted) {
                     viewModel.log(R.string.log_write_ext_storage_perm_granted);
-//                    loadStorage(null);
                     onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE);
                 } else {
                     viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true);
@@ -378,52 +353,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
             } break;
         }
     }
-
-    //TODO: убрано, т.к. createStorage() будет вызываться только в StoragesActivity и StorageSettingsActivity
-//    /**
-//     * Открытие существующего или создание нового хранилище в указанном каталоге.
-//     * @param folderPath
-//     * @param isCreate
-//     */
-//    private void openOrCreateStorage(String folderPath, boolean isCreate) {
-//        if (isCreate) {
-//            if (FileUtils.isDirEmpty(new File(folderPath))) {
-//                createStorage(folderPath/*, true*/);
-//            } else {
-//                LogManager.log(R.string.log_dir_not_empty, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-//            }
-//        } else {
-//            StorageManager.initOrSyncStorage(this, folderPath, true);
-//            loadStorage(folderPath);
-//        }
-//        // сохраняем путь
-//        SettingsManager.setLastChoosedFolder(this, folderPath);
-//    }
-
-    /**
-     * Запуск загрузки хранилища.
-     *
-     * Будет вызываться при:
-     *  - получении Intent из другой активности с командой загрузки хранилища (по Id)
-     *      Например, 1) при выборе хранилища в StoragesActivity и переходе в MainActivity
-     *  - получении Intent из активности выбора каталога хранилища с получением выбранного пути
-     *      Например, ---1) при вызове FolderChooser в StoragesActivity при добавлении хранилища
-     *      Например, ---2) при вызове FolderChooser в StorageSettingsActivity при изменении пути хранилища
-     *  - загрузки хранилища в RecordActivity для сохранения временной записи, если оно еще не загружено
-     *
-     */
-//    protected void loadStorage(String storagePath) {
-////        boolean isLoadLastForced = false;
-////        boolean isCheckFavorMode = true;
-////        if (storagePath == null) {
-////            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
-////        } else {
-////            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
-////        }
-//        if (getViewModel() != null) {
-//            getViewModel().startloadStorage(storagePath, false, true);
-//        }
-//    }
 
     public void taskPreExecute(int progressTextResId) {
         blockInterface();
