@@ -12,9 +12,6 @@ object TetroidImagePicker {
     private fun createConfig(context: Context): ImagePickerConfig {
         val returnAfterCapture = false
         val isSingleMode = false
-        val folderMode = true
-        val includeVideo = false
-        val onlyVideo = false
 
 //        ImagePickerComponentsHolder.setInternalComponent(
 //            CustomImagePickerComponents(this, useCustomImageLoader)
@@ -29,14 +26,14 @@ object TetroidImagePicker {
             // set whether pick action or camera action should return immediate result or not. Only works in single mode for image picker
             returnMode = if (returnAfterCapture) ReturnMode.ALL else ReturnMode.NONE
 
-            isFolderMode = folderMode // set folder mode (false by default)
-            isIncludeVideo = includeVideo // include video (false by default)
-            isOnlyVideo = onlyVideo // include video (false by default)
+            isFolderMode = true // set folder mode (false by default)
+            isIncludeVideo = false // include video (false by default)
+            isOnlyVideo = false // include video (false by default)
 //            arrowColor = Color.RED // set toolbar arrow up color
             folderTitle = context.getString(R.string.title_gallery) // folder selection title
             imageTitle = context.getString(R.string.title_gallery) // image selection title
             doneButtonText = context.getString(R.string.title_confirm_selected_images) // done button text
-            showDoneButtonAlways = true // Show done button always or not
+            showDoneButtonAlways = false // Show done button always or not
             limit = 10 // max images can be selected (99 by default)
             isShowCamera = false // show camera or not (true by default)
 //            savePath = ImagePickerSavePath("Camera") // captured image directory name ("Camera" folder by default)
@@ -47,6 +44,8 @@ object TetroidImagePicker {
 //            } else {
 //                selectedImages = images  // original selected images, used in multi mode
 //            }
+            isShowSearch = true
+            isShowImageNames = true
         }
     }
 
