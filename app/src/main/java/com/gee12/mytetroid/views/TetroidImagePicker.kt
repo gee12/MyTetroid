@@ -28,10 +28,11 @@ object TetroidImagePicker {
 
             isFolderMode = true // set folder mode (false by default)
             isIncludeVideo = false // include video (false by default)
+            isIncludeAnimation = true // include gif (false by default)
             isOnlyVideo = false // include video (false by default)
 //            arrowColor = Color.RED // set toolbar arrow up color
             folderTitle = context.getString(R.string.title_gallery) // folder selection title
-            imageTitle = context.getString(R.string.title_gallery) // image selection title
+            imageTitle = null // image selection title
             doneButtonText = context.getString(R.string.title_confirm_selected_images) // done button text
             showDoneButtonAlways = false // Show done button always or not
             limit = 10 // max images can be selected (99 by default)
@@ -46,6 +47,8 @@ object TetroidImagePicker {
 //            }
             isShowSearch = true
             isShowImageNames = true
+            foldersSortMode = FolderSortMode.NUMBER_DESC
+            imagesSortMode = ImageSortMode.DATE_MODIFIED_DESC
         }
     }
 
