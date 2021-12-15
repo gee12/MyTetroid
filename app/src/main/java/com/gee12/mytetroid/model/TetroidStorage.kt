@@ -44,13 +44,20 @@ class TetroidStorage(
         init(curDate, curDate)
     }
 
-//    constructor(name: String, path: String, created: Date, edited: Date) {
-//        init(0, name, path, created, edited)
-//    }
-
     private fun init(created: Date, edited: Date) {
         createdDate = created
         editedDate = edited
+    }
+
+    fun getCopy(src: TetroidStorage): TetroidStorage {
+        return src.also {
+            it.isInited = isInited
+            it.isLoaded = isLoaded
+            it.isCrypted = isCrypted
+            it.isDecrypted = isDecrypted
+            it.isNew = isNew
+            it.quicklyNode = quicklyNode
+        }
     }
 
     companion object {

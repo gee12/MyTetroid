@@ -53,6 +53,7 @@ open class StorageViewModel(
     var isCheckFavorMode = true
     var isAlreadyTryDecrypt = false
     var syncType = SyncStorageType.Manually
+    // FIXME: можно избавиться, как callback в clearTrashFolder
     var syncCallback: ICallback? = null
 
 
@@ -123,14 +124,29 @@ open class StorageViewModel(
         }
     }
 
+    fun updateStorageFromBase() {
+        launch {
+            val currentStorage = this@StorageViewModel.storage ?: return@launch
+            val currentStorageId = currentStorage.id
+            val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(currentStorageId) }
+            storage?.let {
+                this@StorageViewModel.storage = currentStorage.getCopy(it)
+                setStorageEvent(Constants.StorageEvents.Updated, it)
+            } ?: run {
+                log(getString(R.string.log_storage_not_found_mask).format(currentStorageId))
+            }
+        }
+    }
+
     open fun setStorageFromBase(id: Int) {
         launch {
-            withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }?.let { storage ->
-                this@StorageViewModel.storage = storage
-                setStorageEvent(Constants.StorageEvents.Changed, storage)
+            val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
+            storage?.let {
+                this@StorageViewModel.storage = it
+                setStorageEvent(Constants.StorageEvents.Changed, it)
 
                 if (xmlLoader.mIsStorageLoaded) {
-                    storage.isLoaded = true
+                    it.isLoaded = true
                 }
 
                 // загружаем настройки, но не загружаем само хранилище
@@ -175,7 +191,7 @@ open class StorageViewModel(
             withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }?.let { storage ->
                 startInitStorage(storage)
             } ?: run {
-                log(getString(R.string.log_storage_not_found_mask).format(id))
+                log(getString(R.string.log_storage_not_found_mask).format(id), true)
 //                setStorageEvent(Constants.StorageEvents.NotFound)
             }
         }
@@ -699,9 +715,9 @@ open class StorageViewModel(
                 }
 
             } else {
-                callback?.run(false)
+                callback?.run(true)
             }
-        } ?: callback?.run(false)
+        } ?: callback?.run(true)
     }
 
     fun startStorageSync(activity: Activity) {

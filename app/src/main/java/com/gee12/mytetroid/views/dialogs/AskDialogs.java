@@ -29,6 +29,10 @@ public class AskDialogs {
                         (pathChanged) ? R.string.ask_storage_path_was_changed : R.string.ask_reload_storage);
     }
 
+    public static void showClearTrashDialog(Context context, final Dialogs.IApplyCancelResult callback) {
+        AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_clear_trash);
+    }
+
     public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final Dialogs.IApplyResult callback) {
         int mesRes = (isSyncSuccess) ? R.string.ask_sync_success_dialog_request : R.string.ask_sync_failed_dialog_request;
         AskDialogs.showYesDialog(context, callback, mesRes);

@@ -13,8 +13,4 @@
         android:title="@string/pref_category_sync"
         android:icon="@drawable/ic_sync"/>
 
-<!--    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.storage.SettingsStorageOtherFragment"-->
-<!--        android:title="@string/pref_category_other"-->
-<!--        android:icon="@drawable/ic_dots"/>-->
-
 </PreferenceScreen>

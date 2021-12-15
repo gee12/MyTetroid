@@ -346,6 +346,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event="+event+", data="+data);
         switch (event) {
+            case Updated:
+                onStorageUpdated();
+                break;
+
             // права доступа
             case PermissionCheck:
                 if (viewModel.getPermissionInteractor().checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
@@ -354,6 +358,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 break;
             case PermissionChecked:
                 viewModel.syncAndInitStorage(this);
+                break;
+
+            case AskBeforeClearTrashOnExit:
+                ICallback callback = (ICallback) data;
+                showClearTrashDialog(callback);
                 break;
 
             // синхронизация
@@ -621,7 +630,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         ViewUtils.setVisibleIfNotNull((View)findViewById(R.id.button_tags_sort), isLoaded && !isOnlyFavorites);
 
         // обновляем заголовок в шторке
-        ((TextView)findViewById(R.id.text_view_app_name)).setText(isLoaded ? viewModel.getStorageName() : getString(R.string.main_header_title));
+        updateStorageNameLabel(isLoaded);
 
         if (isOnlyFavorites) {
             // обработка только "ветки" избранных записей
@@ -697,6 +706,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             }
         }
         updateOptionsMenu();
+    }
+
+    private void updateStorageNameLabel(boolean isLoaded) {
+        String title = isLoaded ? viewModel.getStorageName() : getString(R.string.main_header_title);
+        ((TextView)findViewById(R.id.text_view_app_name)).setText(title);
     }
 
     private void setEmptyTextViews(@StringRes int mesId) {
@@ -874,6 +888,14 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Если какие-либо свойства хранилища были изменены.
+     */
+    private void onStorageUpdated() {
+        updateStorageNameLabel(viewModel.isStorageLoaded());
+
     }
 
     // endregion LoadStorage
@@ -1631,7 +1653,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY: {
                 onStorageSettingsActivityResult(data);
             } break;
-            case Constants.REQUEST_CODE_SETTINGS_ACTIVITY: {
+            case Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY: {
                 onSettingsActivityResult(data);
             } break;
             case Constants.REQUEST_CODE_RECORD_ACTIVITY: {
@@ -1733,12 +1755,20 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 int storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0);
                 viewModel.startInitStorage(storageId);
 
-            } else if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)) {
-                viewModel.loadAllNodes(false);
-            } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
-                // обновляем списки, т.к. хранилище должно было расшифроваться
-                updateNodes();
-                updateTags();
+            } else {
+                if (data.getBooleanExtra(Constants.EXTRA_IS_STORAGE_UPDATED, false)) {
+                    // перезагрузить свойства хранилища из базы
+                    viewModel.updateStorageFromBase();
+                }
+
+                // TODO: ?
+                if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)) {
+                    viewModel.loadAllNodes(false);
+                } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
+                    // обновляем списки, т.к. хранилище должно было расшифроваться
+                    updateNodes();
+                    updateTags();
+                }
             }
         }
     }
@@ -2283,7 +2313,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 showStorageSettingsActivity(viewModel.getStorage());
                 break;
             case R.id.action_settings:
-                showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_SETTINGS_ACTIVITY);
+                showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY);
                 return true;
             default:
                 if (getMainPage().onOptionsItemSelected(id)) {
@@ -2374,6 +2404,22 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     private void askForExit() {
         AskDialogs.showExitDialog(this, () -> viewModel.onBeforeExit(this));
+    }
+
+    private void showClearTrashDialog(ICallback callback) {
+        AskDialogs.showClearTrashDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.clearTrashFolderAndExit(false, callback);
+            }
+
+            @Override
+            public void onCancel() {
+                if (callback != null) {
+                    callback.run(true);
+                }
+            }
+        });
     }
 
     // endregion Exit

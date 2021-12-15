@@ -42,18 +42,6 @@
         android:summary="@string/pref_date_format_string_summ"
         android:title="@string/pref_date_format_string" />
 
-<!--    <CheckBoxPreference-->
-<!--        android:defaultValue="true"-->
-<!--        android:key="@string/pref_key_is_show_author_in_records"-->
-<!--        android:summary="@string/pref_is_show_author_in_records_summ"-->
-<!--        android:title="@string/pref_is_show_author_in_records" />-->
-
-<!--    <CheckBoxPreference-->
-<!--        android:defaultValue="true"-->
-<!--        android:key="@string/pref_key_is_show_tags_in_records"-->
-<!--        android:summary="@string/pref_is_show_tags_in_records_summ"-->
-<!--        android:title="@string/pref_is_show_tags_in_records" />-->
-
     <MultiSelectListPreference
         android:defaultValue="@array/record_fields_in_list_def_entries"
         android:entries="@array/record_fields_in_list_entries"

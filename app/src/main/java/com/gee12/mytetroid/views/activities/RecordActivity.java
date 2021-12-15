@@ -905,7 +905,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                     finishWithResult(Constants.RESULT_PASS_CHANGED, data.getExtras());
                 }
             }
-        } else if (requestCode == Constants.REQUEST_CODE_SETTINGS_ACTIVITY) {
+        } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
         } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
@@ -1077,7 +1077,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 showStorageSettingsActivity(viewModel.getStorage());
                 break;
             case R.id.action_settings:
-                showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_SETTINGS_ACTIVITY);
+                showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_storage_info:
                 ViewUtils.startActivity(this, InfoActivity.class, null);

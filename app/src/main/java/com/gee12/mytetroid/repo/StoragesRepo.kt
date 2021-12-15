@@ -68,6 +68,8 @@ class StoragesRepo(context: Context) {
         editedDate = entity.editedDate
         order = entity.order
         trashPath = entity.trashPath
+        isClearTrashBeforeExit = entity.isClearTrashBeforeExit
+        isAskBeforeClearTrashBeforeExit = entity.isAskBeforeClearTrashBeforeExit
         quickNodeId = entity.quickNodeId
         isLoadFavoritesOnly = entity.isLoadFavoritesOnly
         isKeepLastNode = entity.isKeepLastNode

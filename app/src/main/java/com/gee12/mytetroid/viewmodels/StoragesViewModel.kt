@@ -1,17 +1,13 @@
 package com.gee12.mytetroid.viewmodels
 
-import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -21,7 +17,6 @@ import kotlinx.coroutines.launch
 class StoragesViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-//    private val storageInteractor: StorageInteractor,
     private val storagesRepo: StoragesRepo,
     settingsRepo: CommonSettingsRepo
 ) : BaseStorageViewModel(app/*, logger*/, settingsRepo) {
@@ -84,7 +79,7 @@ class StoragesViewModel(
         return storage.apply {
             val context = getContext()
             // основное
-            trashPath = CommonSettings.getTrashPath(context)
+            trashPath = CommonSettings.getTrashPathDef(context)
             isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)
             isKeepLastNode = CommonSettings.isKeepLastNodeDef(context)
             // шифрование
@@ -104,9 +99,23 @@ class StoragesViewModel(
         }
     }
 
+    /**
+     * Миграция с версии < 5.0, когда не было многобазовости.
+     */
     private suspend fun addDefaultStorageFromPrefs() {
-        storagesRepo.addStorage(initStorage(TetroidStorage(CommonSettings.getStoragePath(getContext()))).apply {
-            isDefault = true
+        val context = getContext()
+        storagesRepo.addStorage(
+            initStorage(
+                TetroidStorage(
+                    path = CommonSettings.getStoragePath(context)
+                )
+            ).apply {
+                isDefault = true
+                middlePassHash = CommonSettings.getMiddlePassHash(context)
+                quickNodeId = CommonSettings.getQuicklyNodeId(context)
+                lastNodeId = CommonSettings.getLastNodeId(context)
+                // TODO: создать миграцию Избранного
+//                favorites = CommonSettings.getFavorites(context)
         })
     }
 

@@ -13,7 +13,7 @@ object Constants {
     const val ACTION_RECORD = "ACTION_RECORD"
     const val ACTION_ADD_RECORD = "ACTION_ADD_RECORD"
 
-    const val REQUEST_CODE_SETTINGS_ACTIVITY = 101          // общие настройки
+    const val REQUEST_CODE_COMMON_SETTINGS_ACTIVITY = 101   // общие настройки
     const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 102  // настройки хранилища
     const val REQUEST_CODE_RECORD_ACTIVITY = 103            // текст записи
     const val REQUEST_CODE_SEARCH_ACTIVITY = 104            // глобальный поиск
@@ -27,7 +27,7 @@ object Constants {
     const val REQUEST_CODE_CREATE_STORAGE_PATH = 112        // путь к новому хранилищу
     const val REQUEST_CODE_OPEN_TEMP_PATH = 113             // путь к корзине
     const val REQUEST_CODE_OPEN_LOG_PATH = 114              // путь к каталогу лог-файла
-    const val REQUEST_CODE_SYNC_STORAGE = 115              // синхронизация хранилища
+    const val REQUEST_CODE_SYNC_STORAGE = 115               // синхронизация хранилища
 
     const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
     const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
@@ -80,6 +80,7 @@ object Constants {
     const val EXTRA_IS_LOAD_STORAGE = "EXTRA_IS_LOAD_STORAGE"
     const val EXTRA_IS_LOAD_ALL_NODES = "EXTRA_IS_LOAD_ALL_NODES"
     const val EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED"
+    const val EXTRA_IS_STORAGE_UPDATED = "EXTRA_IS_STORAGE_UPDATED"
 
     enum class TetroidView {
         Main,
@@ -117,10 +118,12 @@ object Constants {
 
     enum class StorageEvents {
         NoDefaultStorage,
+        Updated,
         Changed,
         Added,
         PermissionCheck,
         PermissionChecked,
+        AskBeforeClearTrashOnExit,
         AskAfterSyncManually,
         AskBeforeSyncOnInit,
         AskAfterSyncOnInit,

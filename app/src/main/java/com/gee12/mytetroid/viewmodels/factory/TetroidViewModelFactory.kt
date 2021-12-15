@@ -16,7 +16,8 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
             modelClass.isAssignableFrom(CommonSettingsViewModel::class.java) -> {
                 CommonSettingsViewModel(
                     application = app,
-                    settingsRepo = env.settingsRepo!!
+                    settingsRepo = env.settingsRepo!!,
+                    storagesRepo = env.storagesRepo!!
                 ) as T
             }
             modelClass.isAssignableFrom(StorageViewModel::class.java) -> {

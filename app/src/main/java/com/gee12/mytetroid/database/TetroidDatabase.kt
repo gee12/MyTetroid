@@ -8,7 +8,7 @@ import androidx.room.TypeConverters
 import com.gee12.mytetroid.database.dao.StoragesDao
 import com.gee12.mytetroid.database.entity.StorageEntity
 
-@Database(entities = [StorageEntity::class], version = 17)
+@Database(entities = [StorageEntity::class], version = 18)
 @TypeConverters(DataConverter::class)
 abstract class TetroidDatabase : RoomDatabase() {
     abstract val storagesDao: StoragesDao

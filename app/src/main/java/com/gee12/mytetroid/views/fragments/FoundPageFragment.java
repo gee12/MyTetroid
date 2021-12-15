@@ -79,6 +79,7 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
         this.listAdapterFound = new FoundListAdapter(
                 getContext(),
                 viewModel.getRecordsInteractor(),
+                viewModel.getCommonSettingsInteractor(),
                 mOnAttachmentClickListener
         );
         lvFound.setAdapter(listAdapterFound);

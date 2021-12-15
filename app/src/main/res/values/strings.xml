@@ -73,7 +73,8 @@
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>
     <string name="title_trash_cleared">Trash folder was cleared</string>
-    <string name="title_trash_clear_error">Failed to empty trash folder</string>
+    <string name="title_trash_cleared_all_storages">Cleared</string>
+    <string name="title_trash_clear_error">An error occurred while cleaning</string>
     <string name="title_search_history_cleared">Search history was cleared</string>
     <string name="title_insert_beside">Insert beside</string>
     <string name="title_insert_subnode">Insert like subnode</string>
@@ -300,8 +301,10 @@
     <string name="pref_key_clear_search_history" translatable="false">pref_key_clear_search_history</string>
     <string name="pref_clear_search_history">Clear search history</string>
     <string name="pref_clear_trash">Clear trash</string>
+    <string name="pref_common_clear_trash">Clear trash from all storages</string>
     <string name="pref_key_clear_trash" translatable="false">pref_key_clear_trash</string>
     <string name="pref_clear_trash_summ">Delete contents of trash folder</string>
+    <string name="pref_common_clear_trash_summ">Delete contents of trash folder from all storages</string>
     <string name="pref_clear_search_history_summ">Delete query input hints and global search options</string>
     <string name="pref_record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="pref_decrypt_files_to_trash_dir">Decrypt files to directory</string>
@@ -318,7 +321,6 @@
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
     <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries (used as default value for storages)</string>
     <string name="pref_load_only_favorites_summ_storage">To speed up the startup, first load only favorite entries</string>
-    <string name="pref_key_category_other" translatable="false">pref_key_category_other</string>
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
     <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs (used as default value for storages)</string>
@@ -359,6 +361,18 @@
     <string name="pref_quickly_node">Node for quick insertion</string>
 <!--    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>-->
     <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps. Available if this is the default storage</string>
+    <string name="pref_key_is_clear_trash_before_exit" translatable="false">pref_key_is_clear_trash_before_exit</string>
+    <string name="pref_is_clear_trash_before_exit">Clear trash before exit</string>
+    <string name="pref_is_clear_trash_before_exit_summ">(used as default value for storages)</string>
+    <string name="pref_key_is_ask_before_clear_trash_before_exit" translatable="false">pref_key_is_ask_before_clear_trash_before_exit</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit">Ask before cleaning?</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(used as default value for storages)</string>
+    <string name="pref_key_sub_category_storage" translatable="false">pref_key_category_storage</string>
+    <string name="pref_sub_category_storage">Storage</string>
+    <string name="pref_key_sub_category_other" translatable="false">pref_key_category_other</string>
+    <string name="pref_sub_category_other">Other</string>
+    <string name="pref_key_sub_category_trash" translatable="false">pref_key_category_trash</string>
+    <string name="pref_sub_category_trash">Trash</string>
 
     <string name="task_wait">Wait…</string>
     <string name="task_storage_loading">Storage loading…</string>
@@ -480,7 +494,8 @@
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
     <string name="ask_change_image_dimens">Resize images before inserting?</string>
-    <string name="ask_clear_trash">Cleat trash folder?</string>
+    <string name="ask_clear_trash">Clear trash folder?</string>
+    <string name="ask_clear_trash_all_storages">Clear trash folder from all storages?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
     <string name="ask_load_all_nodes_dialog_title">To do this, need to load all nodes. Proceed?</string>
@@ -771,4 +786,6 @@
     <string name="log_cannot_delete_undecrypted_node">Undecrypted node cannot be deleted</string>
     <string name="progress_images_loading">Images loading…</string>
     <string name="progress_camera_capture">Image loading from camera…</string>
+    <string name="log_storage_path_changed_mask">Storage path was changed: %s</string>
+    <string name="log_storage_name_changed_mask">Storage name was changed: %s</string>
 </resources>

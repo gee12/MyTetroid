@@ -8,6 +8,7 @@ import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
@@ -49,7 +50,8 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         }
 
         // выбор каталога корзины
-        findPreference<Preference>(getString(R.string.pref_key_temp_path))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+        findPreference<Preference>(getString(R.string.pref_key_temp_path))
+            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             if (checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) {
                 selectTrashFolder()
             }
@@ -57,19 +59,17 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         }
 
         // диалог очистки каталога корзины
-        findPreference<Preference>(getString(R.string.pref_key_clear_trash))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+        findPreference<Preference>(getString(R.string.pref_key_clear_trash))
+            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             AskDialogs.showYesDialog(context, {
-                if (viewModel.clearTrashFolder()) {
-                    baseViewModel.log(R.string.title_trash_cleared, true)
-                } else {
-                    baseViewModel.logError(R.string.title_trash_clear_error, true)
-                }
+                viewModel.clearTrashFolder()
             }, R.string.ask_clear_trash)
             true
         }
 
         // ветка для быстрых записей
-        findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+        findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))
+            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             // диалог выбора ветки
 //            NodeDialogs.createNodeChooserDialog(
 //                context, viewModel.quicklyNode,
@@ -91,17 +91,17 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
                             INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
                             INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
                         }
-                        activity!!.setResult(Activity.RESULT_OK, intent)
-                        activity!!.finish()
+                        requireActivity().setResult(Activity.RESULT_OK, intent)
+                        requireActivity().finish()
                     }, mesId)
                 }
             }
             NodeChooserDialog(
-                viewModel.quicklyNode,
-                false,
-                false,
-                true,
-                nodeCallback
+                node = viewModel.quicklyNode,
+                canCrypted = false,
+                canDecrypted = false,
+                rootOnly = true,
+                callback = nodeCallback
             ).showIfPossible(parentFragmentManager)
 
             true
@@ -160,6 +160,26 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         }
     }
 
+    fun onResult(requestCode: Int, resultCode: Int, data: Intent) {
+        if (resultCode != Activity.RESULT_OK) return
+
+        val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
+        if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH) {
+            viewModel.updateStorageOption(getString(R.string.pref_key_storage_path), folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
+            updateSummary(R.string.pref_key_storage_path, folderPath)
+        } else if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
+            viewModel.updateStorageOption(getString(R.string.pref_key_temp_path), folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
+            updateSummary(R.string.pref_key_temp_path, folderPath)
+        } /*else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
+            CommonSettings.setLogPath(context, folderPath)
+            CommonSettings.setLastChoosedFolder(context, folderPath)
+            baseViewModel.logger.setLogPath(folderPath)
+            updateSummary(R.string.pref_key_log_path, folderPath)
+        }*/
+    }
+
     private fun selectStorageFolder() {
         // спрашиваем: создать или выбрать хранилище ?
         StorageDialogs.createStorageSelectionDialog(context, object : StorageDialogs.IItemClickListener {
@@ -196,4 +216,5 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
             Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
     }
+
 }

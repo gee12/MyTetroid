@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.CommonSettings;
+import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.TetroidRecord;
 
@@ -20,9 +20,10 @@ public class RecordsListAdapter extends RecordsBaseListAdapter {
     public RecordsListAdapter(
             Context context,
             RecordsInteractor recordsInteractor,
+            CommonSettingsInteractor commonSettingsInteractor,
             OnRecordAttachmentClickListener onAttachmentClickListener
     ) {
-        super(context, recordsInteractor, onAttachmentClickListener);
+        super(context, recordsInteractor, commonSettingsInteractor, onAttachmentClickListener);
         this.dataSet = new ArrayList<>();
     }
 
@@ -30,7 +31,7 @@ public class RecordsListAdapter extends RecordsBaseListAdapter {
         this.dataSet = dataSet;
         this.isShowNodeName = (viewId == Constants.MAIN_VIEW_TAG_RECORDS
                 || viewId == Constants.MAIN_VIEW_FAVORITES);
-        this.dateTimeFormat = CommonSettings.checkDateFormatString(context);
+        this.dateTimeFormat = commonSettingsInteractor.checkDateFormatString(context);
         notifyDataSetChanged();
     }
 

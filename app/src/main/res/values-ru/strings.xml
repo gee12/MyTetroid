@@ -70,7 +70,8 @@
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
     <string name="title_trash_cleared">Корзина очищена</string>
-    <string name="title_trash_clear_error">Не удалось очистить корзину</string>
+    <string name="title_trash_cleared_all_storages">Очищено</string>
+    <string name="title_trash_clear_error">При очистке произошла ошибка</string>
     <string name="title_search_history_cleared">История поиска очищена</string>
     <string name="title_insert_beside">Вставить рядом</string>
     <string name="title_insert_subnode">Вставить как подветку</string>
@@ -246,7 +247,9 @@
     <string name="pref_log_path_summ">Путь к каталогу для записи лог-файла</string>
     <string name="pref_clear_search_history">Очистить историю поиска</string>
     <string name="pref_clear_trash">Очистить корзину</string>
+    <string name="pref_common_clear_trash">Очистить корзину у всех хранилищ</string>
     <string name="pref_clear_trash_summ">Удалить содержимое каталога корзины</string>
+    <string name="pref_common_clear_trash_summ">Удалить содержимое каталога корзины у всех хранилищ</string>
     <string name="pref_clear_search_history_summ">Удалить подсказки при вводе запроса и параметры глобального поиска</string>
     <string name="pref_change_pass">Сменить пароль</string>
     <string name="pref_change_pass_summ">Изменить пароль и заново зашифровать ветки</string>
@@ -285,6 +288,13 @@
     <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
     <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
     <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
+    <string name="pref_is_clear_trash_before_exit">Очищать корзину перед выходом</string>
+    <string name="pref_is_clear_trash_before_exit_summ">(используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit">Спрашивать перед очисткой ?</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_sub_category_storage">Хранилище</string>
+    <string name="pref_sub_category_other">Другое</string>
+    <string name="pref_sub_category_trash">Корзина</string>
 
     <string name="task_wait">Подождите…</string>
     <string name="task_storage_loading">Загрузка хранилища…</string>
@@ -396,6 +406,7 @@
     <string name="ask_no_set_default_storage">Не задано хранилище по-умолчанию. Перейти к списку хранилищ ?</string>
     <string name="ask_change_image_dimens">Изменить размер изображений перед вставкой?</string>
     <string name="ask_clear_trash">Очистить корзину?</string>
+    <string name="ask_clear_trash_all_storages">Очистить корзину у всех хранилищ?</string>
     <string name="ask_clear_search_history">Очистить историю поиска?</string>
     <string name="ask_reload_storage">Перезагрузить хранилище из файловой системы устройства?</string>
     <string name="ask_storage_path_was_changed">Путь к хранилищу был изменен. Перезагрузить базу данных?</string>
@@ -681,4 +692,6 @@
     <string name="log_cannot_delete_undecrypted_node">Нельзя удалить нерасшифрованную ветку</string>
     <string name="progress_images_loading">Загрузка изображения(-й)…</string>
     <string name="progress_camera_capture">Загрузка изображения с камеры…</string>
+    <string name="log_storage_path_changed_mask">Изменен путь к хранилищу: %s</string>
+    <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
 </resources>

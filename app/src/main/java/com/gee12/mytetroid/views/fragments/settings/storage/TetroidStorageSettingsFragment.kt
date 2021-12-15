@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.fragments.settings.storage
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
@@ -48,6 +50,22 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
 
     protected open fun onStorageInited(storage: TetroidStorage) {}
 
-    protected open fun onUpdateStorageFieldEvent(key: String, value: String) {}
+    protected open fun onUpdateStorageFieldEvent(key: String, value: String) {
 
+    }
+
+    open fun onBackPressed(): Boolean {
+        // если настройки хранилища были изменены, добавляем пометку в результат активити
+        if (viewModel.isFieldsChanged) {
+            val intent = Intent().apply {
+                putExtra(Constants.EXTRA_IS_STORAGE_UPDATED, true)
+                if (viewModel.isStoragePathChanged) {
+                    putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                    putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
+                }
+            }
+            requireActivity().setResult(Activity.RESULT_OK, intent)
+        }
+        return false
+    }
 }

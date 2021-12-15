@@ -8,6 +8,7 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.views.dialogs.AskDialogs
 import lib.folderpicker.FolderPicker
 
 class SettingsStorageFragment : TetroidSettingsFragment() {
@@ -21,6 +22,15 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) return@OnPreferenceClickListener true
             selectTrashFolder()
+            true
+        }
+
+        // диалог очистки каталога корзины у всех хранилищ
+        findPreference<Preference>(getString(R.string.pref_key_clear_trash))
+            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            AskDialogs.showYesDialog(context, {
+                baseViewModel.clearTrashFolders()
+            }, R.string.ask_clear_trash_all_storages)
             true
         }
 
@@ -38,7 +48,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
             keepNodePref.dependency = getString(R.string.pref_key_is_load_favorites)
         }
 
-        updateSummary(R.string.pref_key_temp_path, CommonSettings.getTrashPath(context))
+        updateSummary(R.string.pref_key_temp_path, CommonSettings.getTrashPathDef(context))
     }
 
     fun onRequestPermissionsResult(permGranted: Boolean, requestCode: Int) {
@@ -59,7 +69,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
 
         if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
-            CommonSettings.setTrashPath(context, folderPath)
+            CommonSettings.setTrashPathDef(context, folderPath)
             CommonSettings.setLastChoosedFolder(context, folderPath)
             updateSummary(R.string.pref_key_temp_path, folderPath)
         } else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
@@ -73,7 +83,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
     private fun selectTrashFolder() {
         openFolderPicker(
             getString(R.string.pref_trash_path),
-            CommonSettings.getTrashPath(context),
+            CommonSettings.getTrashPathDef(context),
             Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
     }

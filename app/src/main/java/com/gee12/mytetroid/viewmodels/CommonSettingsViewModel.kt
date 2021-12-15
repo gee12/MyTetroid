@@ -4,14 +4,23 @@ import android.app.Application
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.repo.CommonSettingsRepo
+import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.Utils
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
     application: Application,
+    private val storagesRepo: StoragesRepo,
     settingsRepo: CommonSettingsRepo
-) : BaseViewModel(application, settingsRepo) {
+) : BaseViewModel(application, settingsRepo), CoroutineScope {
 
+    override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
+
+    // FIXME: использовать DI
+    val trashInteractor = TrashInteractor(this.logger, storagesRepo)
 
     //region Pin
 
@@ -54,6 +63,20 @@ class CommonSettingsViewModel(
     protected fun dropPinCode() {
         CommonSettings.setPINCodeHash(getContext(), null)
         logger.log(R.string.log_pin_code_dropped, true)
+    }
+
+    fun clearTrashFolders() {
+        launch {
+            when (trashInteractor.clearTrashFoldersIfNeeded(/*false*/)) {
+                TrashInteractor.TrashClearResult.SUCCESS -> {
+                    log(R.string.title_trash_cleared, true)
+                }
+                TrashInteractor.TrashClearResult.FAILURE -> {
+                    logError(R.string.title_trash_clear_error, true)
+                }
+                else -> {}
+            }
+        }
     }
 
     //endregion Pin

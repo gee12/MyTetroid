@@ -5,6 +5,7 @@ import android.content.Context
 import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.*
@@ -19,11 +20,9 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.File
 import java.util.*
 
 abstract class StorageSettingsViewModel(
@@ -56,6 +55,7 @@ abstract class StorageSettingsViewModel(
 
     var crypter = crypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
 
+    val commonSettingsInteractor = CommonSettingsInteractor(this.logger)
     val dataInteractor = DataInteractor(this.logger)
     val permissionInteractor = PermissionInteractor(logger)
     val storageInteractor = StorageInteractor(this.logger, storageHelper = this, xmlLoader, dataInteractor)
@@ -66,6 +66,8 @@ abstract class StorageSettingsViewModel(
     val tagsInteractor = TagsInteractor(this.logger, storageInteractor, xmlLoader)
     val attachesInteractor = AttachesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
     val syncInteractor =  SyncInteractor(this.logger, permissionInteractor)
+    // FIXME: использовать DI
+    val trashInteractor = TrashInteractor(this.logger, App.current.storagesRepo ?: StoragesRepo(getContext()))
 
     // FIXME: Проверить:
     var quicklyNode: TetroidNode?
@@ -81,6 +83,10 @@ abstract class StorageSettingsViewModel(
             storage?.quicklyNode = value
             onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
         }
+
+    var isFieldsChanged = false
+    var isStoragePathChanged = false
+
 
     fun updateStorage(storage: TetroidStorage) {
         launch {
@@ -209,11 +215,20 @@ abstract class StorageSettingsViewModel(
             var isFieldChanged = true
             when (key) {
                 // основное
-                getString(R.string.pref_key_storage_path) -> path = value.toString()
-                getString(R.string.pref_key_storage_name) -> name = value.toString()
+                getString(R.string.pref_key_storage_path) -> {
+                    path = value.toString()
+                    isStoragePathChanged = true
+                    log(getString(R.string.log_storage_path_changed_mask).format(path), false)
+                }
+                getString(R.string.pref_key_storage_name) -> {
+                    name = value.toString()
+                    log(getString(R.string.log_storage_name_changed_mask).format(name), false)
+                }
                 getString(R.string.pref_key_is_def_storage) -> isDefault = value.toString().toBoolean()
                 getString(R.string.pref_key_is_read_only) -> isReadOnly = value.toString().toBoolean()
                 getString(R.string.pref_key_temp_path) -> trashPath = value.toString()
+                getString(R.string.pref_key_is_clear_trash_before_exit) -> isClearTrashBeforeExit = value.toString().toBoolean()
+                getString(R.string.pref_key_is_ask_before_clear_trash_before_exit) -> isAskBeforeClearTrashBeforeExit = value.toString().toBoolean()
                 getString(R.string.pref_key_is_load_favorites) -> isLoadFavoritesOnly = value.toString().toBoolean()
                 getString(R.string.pref_key_is_keep_selected_node) -> isKeepLastNode = value.toString().toBoolean()
 
@@ -233,6 +248,7 @@ abstract class StorageSettingsViewModel(
                 else -> isFieldChanged = false
             }
             if (isFieldChanged) {
+                isFieldsChanged = true
                 updateStorage(this)
                 onStorageUpdated(key, value)
             }
@@ -248,6 +264,8 @@ abstract class StorageSettingsViewModel(
                 getString(R.string.pref_key_is_def_storage) -> it.isDefault
                 getString(R.string.pref_key_is_read_only) -> it.isReadOnly
                 getString(R.string.pref_key_temp_path) -> it.trashPath
+                getString(R.string.pref_key_is_clear_trash_before_exit) -> it.isClearTrashBeforeExit
+                getString(R.string.pref_key_is_ask_before_clear_trash_before_exit) -> it.isAskBeforeClearTrashBeforeExit
                 getString(R.string.pref_key_is_load_favorites) -> it.isLoadFavoritesOnly
                 getString(R.string.pref_key_is_keep_selected_node) -> it.isKeepLastNode
                 // шифрование
@@ -289,12 +307,14 @@ abstract class StorageSettingsViewModel(
         }
     }
 
-    fun clearTrashFolder(): Boolean {
-        val trashDir = File(CommonSettings.getTrashPath(getContext()))
-        // очищаем "буфер обмена", т.к. каталог(и) записи из корзины будут удалены
-        // и нечего будет вставлять
-        TetroidClipboard.clear()
-        return FileUtils.clearDir(trashDir)
+    fun clearTrashFolder() {
+        launch {
+            if (trashInteractor.clearTrashFolder(storage ?: return@launch)) {
+                log(R.string.title_trash_cleared, true)
+            } else {
+                logError(R.string.title_trash_clear_error, true)
+            }
+        }
     }
 
     //region Getters

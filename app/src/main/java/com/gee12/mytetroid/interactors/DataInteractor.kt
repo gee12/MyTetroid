@@ -21,6 +21,14 @@ class DataInteractor(
     private val logger: ITetroidLogger
 ) {
 
+    companion object {
+        const val ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz"
+        const val QUOTES_PARAM_STRING = "\"\""
+
+        const val UNIQUE_ID_HALF_LENGTH = 10
+        const val PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS"
+    }
+
     /**
      * Генерация уникального идентификатора для объектов хранилища.
      * @return
@@ -124,11 +132,4 @@ class DataInteractor(
 
     fun createDateTimePrefix() = Utils.dateToString(Date(), PREFIX_DATE_TIME_FORMAT) ?: ""
 
-    companion object {
-        const val ID_SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyz"
-        const val QUOTES_PARAM_STRING = "\"\""
-
-        const val UNIQUE_ID_HALF_LENGTH = 10
-        const val PREFIX_DATE_TIME_FORMAT = "yyyyMMddHHmmssSSS"
-    }
 }

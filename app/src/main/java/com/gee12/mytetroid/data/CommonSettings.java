@@ -39,9 +39,10 @@ public class CommonSettings {
     private static SharedPreferences settings;
     private static boolean isCopiedFromFree;
 
+    //region Загрузка настроек
+
     /**
      * Инициализация настроек.
-     * @param context
      */
     public static void init(Context context) {
         CommonSettings.settings = getPrefs(context);
@@ -50,8 +51,8 @@ public class CommonSettings {
 //        if (getStoragePath() == null) {
 //            setStoragePath(Utils.getExternalPublicDocsDir());
 //        }
-        if (getTrashPath(context) == null) {
-            setTrashPath(context, FileUtils.getAppExternalFilesDir(context));
+        if (getTrashPathDef(context) == null) {
+            setTrashPathDef(context, FileUtils.getAppExternalFilesDir(context));
         }
         if (getLogPath(context) == null) {
             setLogPath(context, FileUtils.getAppExternalFilesDir(context));
@@ -77,23 +78,6 @@ public class CommonSettings {
         App.HighlightAttachColor = getHighlightColor(context);
         App.DateFormatString = getDateFormatString(context);
         App.RecordFieldsInList = new RecordFieldsSelector(context, getRecordFieldsInList(context));
-    }
-
-    /**
-     * Проверяем строку формата даты/времени, т.к. в версии приложения <= 11
-     * введенная строка в настройках не проверялась, что могло привести к падению приложения
-     * при отображении списка.
-     * @return
-     */
-    public static String checkDateFormatString(Context context) {
-        String dateFormatString = getDateFormatString(context);
-        if (Utils.checkDateFormatString(dateFormatString)) {
-            return dateFormatString;
-        } else {
-            if (App.INSTANCE.getCurrent().getLogger() != null)
-                App.INSTANCE.getCurrent().getLogger().logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), true);
-            return context.getString(R.string.def_date_format_string);
-        }
     }
 
     /**
@@ -170,30 +154,13 @@ public class CommonSettings {
         destEditor.apply();
     }
 
-    /**
-     * Очистка параметров глобального поиска.
-     */
-    public static void clearSearchOptions(Context context) {
-        setSearchQuery(context, null);
-        setSearchInText(context, DEF_SEARCH_IN_RECORD_TEXT);
-        setSearchInRecordsNames(context, DEF_SEARCH_IN_RECORDS_NAMES);
-        setSearchInAuthor(context, DEF_SEARCH_IN_AUTHOR);
-        setSearchInUrl(context, DEF_SEARCH_IN_URL);
-        setSearchInTags(context, DEF_SEARCH_IN_TAGS);
-        setSearchInNodes(context, DEF_SEARCH_IN_NODES);
-        setSearchInFiles(context, DEF_SEARCH_IN_FILES);
-        setSearchSplitToWords(context, DEF_SEARCH_SPLIT_TO_WORDS);
-        setSearchInWholeWords(context, DEF_SEARCH_IN_WHOLE_WORDS);
-        setSearchInCurNode(context, DEF_SEARCH_IN_CUR_NODE);
-    }
-
     public static boolean isCopiedFromFree() {
         return isCopiedFromFree;
     }
 
-    /*
-    * Хранилище.
-     */
+    //endregion Загрузка настроек
+
+    //region Хранилище
 
     public static int getLastStorageId(Context context) {
         return getInt(context, R.string.pref_key_last_storage_id, 0);
@@ -213,41 +180,41 @@ public class CommonSettings {
         return getString(context, R.string.pref_key_storage_path, null);
     }
 
-//    public static void setStoragePath(Context context, String value) {
-//        String oldPath = getStoragePath(context);
-//        if (TextUtils.isEmpty(oldPath) || !oldPath.equals(value)) {
-//            SettingsManager.setMiddlePassHash(context, null);
-//        }
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putString(context.getString(R.string.pref_key_storage_path), value);
-//        editor.apply();
-//    }
-
     /**
      * Загружать хранилище, используемое при прошлом запуске.
      * По-умолчанию - да.
-     * @return
      */
+    @Deprecated
     public static boolean isLoadLastStoragePath(Context context) {
         return getBoolean(context, R.string.pref_key_is_load_last_storage_path, true);
     }
 
-//    public static void setIsLoadLastStoragePath(boolean value) {
-//        SharedPreferences.Editor editor = settings.edit();
-//        editor.putBoolean(context.sizeToString(R.string.pref_key_is_load_last_storage_path), value);
-//        editor.apply();
-//    }
-
     /**
      * Путь к каталогу корзины.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
-    public static String getTrashPath(Context context) {
+    public static String getTrashPathDef(Context context) {
         return getString(context, R.string.pref_key_temp_path, null);
     }
 
-    public static void setTrashPath(Context context, String value) {
+    public static void setTrashPathDef(Context context, String value) {
         setString(context, R.string.pref_key_temp_path, value);
+    }
+
+    /**
+     * Очищать корзину перед выходом ?
+     * Используется по-умолчанию у хранилищ.
+     */
+    public static boolean isClearTrashBeforeExitDef(Context context) {
+        return getBoolean(context, R.string.pref_key_is_clear_trash_before_exit, false);
+    }
+
+    /**
+     * Спрашивать перед очисткой корзины ?
+     * Используется по-умолчанию у хранилищ.
+     */
+    public static boolean isAskBeforeClearTrashBeforeExitDef(Context context) {
+        return getBoolean(context, R.string.pref_key_is_clear_trash_before_exit, false);
     }
 
     /**
@@ -255,8 +222,9 @@ public class CommonSettings {
      *  1) из внешнего Intent
      *  2) из виджета
      *  3) из Избранного
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
+    @Deprecated
     public static String getQuicklyNodeId(Context context) {
         return getString(context, R.string.pref_key_quickly_node_id, null);
     }
@@ -272,7 +240,7 @@ public class CommonSettings {
     /**
      * Загружать при старте только избранные записи ?
      * По-умолчанию - нет.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isLoadFavoritesOnlyDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_load_favorites, false);
@@ -284,8 +252,8 @@ public class CommonSettings {
 
     /**
      * Получить список Id избранных записей.
-     * @return
      */
+    @Deprecated
     public static StringList getFavorites(Context context) {
 //        String value = getString(R.string.pref_key_favorites, "");
 //        return (!StringUtil.isBlank(value)) ? value.split(";") : new String[0];
@@ -306,6 +274,7 @@ public class CommonSettings {
         return res;
     }
 
+    @Deprecated
     public static void setFavorites(Context context, StringList ids) {
 //        setStringSet(new HashSet<>(Arrays.asList(ids)));
 //        String value = TextUtils.join(";", ids);
@@ -316,52 +285,29 @@ public class CommonSettings {
     /**
      * Устанавливать текущей выбранную при предыдущем запуске ветку ?
      * По-умолчанию - да.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isKeepLastNodeDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_keep_selected_node, true);
     }
 
-//    /**
-//     * Id ветки, выбранной последний раз.
-//     * @return
-//     */
-//    public static String getLastNodeId(Context context) {
-//        return getString(context, R.string.pref_key_selected_node_id, null);
-//    }
-//
-//    public static void setLastNodeId(Context context, String value) {
-//        setString(context, R.string.pref_key_selected_node_id, value);
-//    }
-
-//    /**
-//     *
-//     * @return
-//     */
-//    public static boolean isUseTrash() {
-//        return getBoolean(R.string.pref_key_is_use_trash, false);
-//    }
-//
-//    /**
-//     * Путь к каталогу корзины.
-//     * @return
-//     */
-//    public static String getTrashPath() {
-//        return getString(R.string.pref_key_trash_path, null);
-//    }
-//
-//    public static void setTrashPath(String value) {
-//        setString(R.string.pref_key_trash_path, value);
-//    }
-
-    /*
-    * Шифрование.
+    /**
+     * Устаревшее, используется для совместимости с версиями < 5.0.
+     * Id ветки, выбранной последний раз.
      */
+    @Deprecated
+    public static String getLastNodeId(Context context) {
+        return getString(context, R.string.pref_key_selected_node_id, null);
+    }
+
+    //endregion Хранилище
+
+    //region Шифрование
 
     /**
      * Сохранять хэш пароля локально ?
      * По-умолчанию - да.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isSaveMiddlePassHashLocalDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_save_pass_hash_local, true);
@@ -372,20 +318,16 @@ public class CommonSettings {
     }
 
     /**
+     * Устаревшее, оставлено для миграции с версии до 5.0.
      * Хэш пароля.
-     * @return
      */
+    @Deprecated
     public static String getMiddlePassHash(Context context) {
         return getString(context, R.string.pref_key_pass_hash, null);
     }
 
-    public static void setMiddlePassHash(Context context, String pass) {
-        setString(context, R.string.pref_key_pass_hash, pass);
-    }
-
     /**
      * Запрашивать ли ПИН-крод ?
-     * @return
      */
     public static boolean isRequestPINCode(Context context) {
         return getBoolean(context, R.string.pref_key_request_pin_code, false);
@@ -397,7 +339,6 @@ public class CommonSettings {
 
     /**
      * Длина ПИН-кода.
-     * @return
      */
     public static int getPinCodeLength(Context context) {
         return getInt(context, R.string.pref_key_pin_code_length, DEF_PIN_CODE_LENGTH);
@@ -409,7 +350,6 @@ public class CommonSettings {
 
     /**
      * Хэш ПИН-кода.
-     * @return
      */
     public static String getPINCodeHash(Context context) {
         return getString(context, R.string.pref_key_pin_code_hash, null);
@@ -422,7 +362,6 @@ public class CommonSettings {
     /**
      * Когда спрашивать пароль ?
      * По-умолчанию - при выборе зашифрованной ветки.
-     * @return
      */
     public static String getWhenAskPass(Context context) {
         return getString(context, R.string.pref_key_when_ask_password,
@@ -437,20 +376,20 @@ public class CommonSettings {
     /**
      * Расшифровывать прикрепленные файлы во временный каталог при предпросмотре?
      * По-умолчанию - нет.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isDecryptFilesInTempDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_decrypt_in_temp, false);
     }
 
-    /*
-    * Синхронизация.
-     */
+    //endregion Шифрование
+
+    //region Синхронизация
 
     /**
      * Использовать синхронизацию хранилища.
      * По-умолчанию - нет.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isSyncStorageDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_storage, false);
@@ -460,6 +399,10 @@ public class CommonSettings {
         setBoolean(context, R.string.pref_key_is_sync_storage, value);
     }
 
+    /**
+     * Имя приложения для синхронизации.
+     * Используется по-умолчанию у хранилищ.
+     */
     public static String getSyncAppNameDef(Context context) {
         return getString(context, R.string.pref_key_app_for_sync, context.getString(R.string.title_app_mgit));
     }
@@ -467,7 +410,7 @@ public class CommonSettings {
     /**
      * Команда/скрипт синхронизации для стороннего приложения.
      * Например: "git pull".
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static String getSyncCommandDef(Context context) {
         return getString(context, R.string.pref_key_sync_command, null);
@@ -476,7 +419,7 @@ public class CommonSettings {
     /**
      * Запускать синхронизацию хранилища перед его загрузкой.
      * По-умолчанию - да.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isSyncBeforeInitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_before_init, true);
@@ -485,7 +428,7 @@ public class CommonSettings {
     /**
      * Запускать синхронизацию хранилища перед выходом из приложения.
      * По-умолчанию - да.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isSyncBeforeExitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_sync_before_exit, true);
@@ -494,7 +437,7 @@ public class CommonSettings {
     /**
      * Выводить подтверждение запуска синхронизации перед загрузкой хранилища.
      * По-умолчанию - да.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isAskBeforeSyncOnInitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_sync, true);
@@ -503,18 +446,18 @@ public class CommonSettings {
     /**
      * Выводить подтверждение запуска синхронизации при выходе из приложения.
      * По-умолчанию - нет.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isAskBeforeSyncOnExitDef(Context context) {
         return getBoolean(context, R.string.pref_key_is_ask_before_exit_sync, false);
     }
 
     /**
-     * (Устаревшее)
+     * Устаревшее, уже не используется.
      * Не запоминать используемое приложения для синхронизации в последний раз.
      * По-умолчанию - нет.
-     * @return
      */
+    @Deprecated
     public static boolean isNotRememberSyncApp(Context context) {
 //        return getBoolean(context, R.string.pref_key_is_not_remember_sync_app, false);
         return false;
@@ -522,20 +465,19 @@ public class CommonSettings {
 
     /**
      * Отслеживать изменения структуры хранилища внешними программами.
-     * @return
+     * Используется по-умолчанию у хранилищ.
      */
     public static boolean isCheckOutsideChangingDef(Context context) {
         return getBoolean(context, R.string.pref_key_check_outside_changing, true);
     }
 
-    /*
-    * Редактирование.
-     */
+    //endregion Синхронизация
+
+    //region Редактирование
 
     /**
      * Открывать записи сразу в режиме редактирования ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isRecordEditMode(Context context) {
         return getBoolean(context, R.string.pref_key_is_record_edit_mode, false);
@@ -544,7 +486,6 @@ public class CommonSettings {
     /**
      * Сохранять изменения записи автоматически ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isRecordAutoSave(Context context) {
         return getBoolean(context, R.string.pref_key_is_record_auto_save, false);
@@ -553,20 +494,18 @@ public class CommonSettings {
     /**
      * Исправлять в html-тексте записи абзацы со стилем "-qt-paragraph-type:empty;" для MyTetra ?
      * По-умолчанию - да.
-     * @return
      */
     public static boolean isFixEmptyParagraphs(Context context) {
         return getBoolean(context, R.string.pref_key_fix_empty_paragraphs, true);
     }
 
-    /*
-    * Отображение.
-     */
+    //endregion Редактирование
+
+    //region Отображение
 
     /**
      * Сохранять ли экран активным при просмотре записи ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isKeepScreenOn(Context context) {
         return getBoolean(context, R.string.pref_key_is_keep_screen_on, false);
@@ -575,8 +514,6 @@ public class CommonSettings {
     /**
      * Отображать ли панель свойств записи при открытии ?
      * По-умолчанию - не отображать.
-     * @param context
-     * @return
      */
     public static String getShowRecordFields(Context context) {
         return getString(context, R.string.pref_key_show_record_fields,
@@ -586,7 +523,6 @@ public class CommonSettings {
     /**
      * Выделять записи в списке, у которых есть прикрепленные файлы ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isHighlightRecordWithAttach(Context context) {
         return getBoolean(context, R.string.pref_key_is_highlight_attach, false);
@@ -595,7 +531,6 @@ public class CommonSettings {
     /**
      * Выделять зашифрованные ветки в списке ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isHighlightEncryptedNodes(Context context) {
         return getBoolean(context, R.string.pref_key_is_highlight_crypted_nodes, false);
@@ -604,7 +539,6 @@ public class CommonSettings {
     /**
      * Цвет подсветки.
      * По-умолчанию - светло зеленый.
-     * @return
      */
     public static int getHighlightColor(Context context) {
         return getInt(context, R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
@@ -634,7 +568,6 @@ public class CommonSettings {
 
     /**
      * Формат даты создания записи.
-     * @return
      */
     public static String getDateFormatString(Context context) {
         return getString(context, R.string.pref_key_date_format_string,
@@ -642,21 +575,17 @@ public class CommonSettings {
     }
 
     /**
+     * Устарело, оставлено для совместимости с версиями <= 4.1
      * Отображать ли метки в списке записей ?
-     * @return
      */
+    @Deprecated
     public static boolean isShowTagsInRecordsList(Context context) {
         return getBoolean(context, R.string.pref_key_is_show_tags_in_records, false);
     }
 
-    public static void setIsShowTagsInRecordsList(Context context, boolean value) {
-        setBoolean(context, R.string.pref_key_is_show_tags_in_records, value);
-    }
-
     /**
      * Какие свойства отображать в списке записей ?
-     * @param context
-     * @return
+     * По-умолчанию: метки и дата создания.
      */
     public static Set<String> getRecordFieldsInList(Context context) {
         HashSet<String> defValues = new HashSet<>(
@@ -670,8 +599,6 @@ public class CommonSettings {
 
     /**
      * Параметры сортировки списка меток (поле, направление).
-     * @param context
-     * @param mode
      */
     public static void setTagsSortMode(Context context, String mode) {
         setString(context, R.string.pref_key_tags_sort_mode, mode);
@@ -681,14 +608,13 @@ public class CommonSettings {
         return getString(context, R.string.pref_key_tags_sort_mode, def);
     }
 
-    /*
-    * Управление.
-     */
+    //endregion Отображение
+
+    //region Управление
 
     /**
      * Включать/отключать полноэкранный режим при двойном тапе ?
      * По-умолчанию - да.
-     * @return
      */
     public static boolean isDoubleTapFullscreen(Context context) {
         return getBoolean(context, R.string.pref_key_double_tap_fullscreen, true);
@@ -696,8 +622,6 @@ public class CommonSettings {
 
     /**
      * Разворот пустых веток вместо отображения их записей.
-     * @param context
-     * @return
      */
     public static boolean isExpandEmptyNode(Context context) {
         return getBoolean(context, R.string.pref_key_is_expand_empty_nodes, false);
@@ -706,7 +630,6 @@ public class CommonSettings {
     /**
      * Отображать ли список веток вместо выхода из приложения ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isShowNodesInsteadExit(Context context) {
         return getBoolean(context, R.string.pref_key_show_nodes_instead_exit, true);
@@ -715,20 +638,18 @@ public class CommonSettings {
     /**
      * Подтверждать выход из приложения ?
      * По-умолчанию - да.
-     * @return
      */
     public static boolean isConfirmAppExit(Context context) {
         return getBoolean(context, R.string.pref_key_is_confirm_app_exit, true);
     }
 
-    /*
-    * Остальное.
-     */
+    //endregion Управление
+
+    //region Остальное
 
     /**
-     * Писать логи в файл.
+     * Писать логи в файл ?
      * По-умолчанию - нет.
-     * @return
      */
     public static boolean isWriteLogToFile(Context context) {
         return getBoolean(context, R.string.pref_key_is_write_log, false);
@@ -736,7 +657,6 @@ public class CommonSettings {
 
     /**
      * Путь к каталогу с лог-файлом.
-     * @return
      */
     public static String getLogPath(Context context) {
         return getString(context, R.string.pref_key_log_path, null);
@@ -748,7 +668,6 @@ public class CommonSettings {
 
     /**
      * Путь к каталогу, выбранному в последний раз.
-     * @return
      */
     public static String getLastChoosedFolderPath(Context context) {
         return getString(context, R.string.pref_key_last_folder, null);
@@ -758,13 +677,12 @@ public class CommonSettings {
         setString(context, R.string.pref_key_last_folder, path);
     }
 
-    /*
-     * Глобальный поиск.
-     */
+    //endregion Остальное
+
+    //region Глобальный поиск
 
     /**
      * Поисковой запрос.
-     * @return
      */
     public static String getSearchQuery(Context context) {
         return getString(context, R.string.pref_key_search_query, null);
@@ -776,7 +694,6 @@ public class CommonSettings {
 
     /**
      * Поиск по содержимому записей.
-     * @return
      */
     public static boolean isSearchInText(Context context) {
         return getBoolean(context, R.string.pref_key_search_text, DEF_SEARCH_IN_RECORD_TEXT);
@@ -788,7 +705,6 @@ public class CommonSettings {
 
     /**
      * Поиск по именам записей.
-     * @return
      */
     public static boolean isSearchInRecordsNames(Context context) {
         return getBoolean(context, R.string.pref_key_search_records_names, DEF_SEARCH_IN_RECORDS_NAMES);
@@ -800,7 +716,6 @@ public class CommonSettings {
 
     /**
      * Поиск по авторам записей.
-     * @return
      */
     public static boolean isSearchInAuthor(Context context) {
         return getBoolean(context, R.string.pref_key_search_author, DEF_SEARCH_IN_AUTHOR);
@@ -812,7 +727,6 @@ public class CommonSettings {
 
     /**
      * Поиск по url записей.
-     * @return
      */
     public static boolean isSearchInUrl(Context context) {
         return getBoolean(context, R.string.pref_key_search_url, DEF_SEARCH_IN_URL);
@@ -824,7 +738,6 @@ public class CommonSettings {
 
     /**
      * Поиск по меткам.
-     * @return
      */
     public static boolean isSearchInTags(Context context) {
         return getBoolean(context, R.string.pref_key_search_tags, DEF_SEARCH_IN_TAGS);
@@ -836,7 +749,6 @@ public class CommonSettings {
 
     /**
      * Поиск по веткам.
-     * @return
      */
     public static boolean isSearchInNodes(Context context) {
         return getBoolean(context, R.string.pref_key_search_nodes, DEF_SEARCH_IN_NODES);
@@ -848,7 +760,6 @@ public class CommonSettings {
 
     /**
      * Поиск по прикрепленным файлам.
-     * @return
      */
     public static boolean isSearchInFiles(Context context) {
         return getBoolean(context, R.string.pref_key_search_files, DEF_SEARCH_IN_FILES);
@@ -860,7 +771,6 @@ public class CommonSettings {
 
     /**
      * Поиск по Id.
-     * @return
      */
     public static boolean isSearchInIds(Context context) {
         return getBoolean(context, R.string.pref_key_search_ids, DEF_SEARCH_IN_IDS);
@@ -872,7 +782,6 @@ public class CommonSettings {
 
     /**
      * Поиск по каждому из слов в запросе ?
-     * @return
      */
     public static boolean isSearchSplitToWords(Context context) {
         return getBoolean(context, R.string.pref_key_search_split_to_words, DEF_SEARCH_SPLIT_TO_WORDS);
@@ -884,7 +793,6 @@ public class CommonSettings {
 
     /**
      * Поиск по совпадению только целых слов ?
-     * @return
      */
     public static boolean isSearchInWholeWords(Context context) {
         return getBoolean(context, R.string.pref_key_search_in_whole_words, DEF_SEARCH_IN_WHOLE_WORDS);
@@ -895,8 +803,8 @@ public class CommonSettings {
     }
 
     /**
-     * Поиск только в текущей ветке ? (устарело)
-     * @return
+     * Устарело, используется для совместимости.
+     * Поиск только в текущей ветке ?
      */
     @Deprecated
     public static boolean isSearchInCurNode(Context context) {
@@ -910,8 +818,6 @@ public class CommonSettings {
 
     /**
      * Варианты поиска: по всей базе, в текущей ветке или в указанной ветке.
-     * @param context
-     * @return
      */
     public static int getSearchInNodeMode(Context context) {
         return getInt(context, R.string.pref_key_search_in_node_mode, isSearchInCurNode(context) ? 1 : 0);
@@ -923,7 +829,6 @@ public class CommonSettings {
 
     /**
      * Id указанной ветки для поиска.
-     * @param context
      */
     public static String getSearchNodeId(Context context) {
         return getString(context, R.string.pref_key_search_node_id, null);
@@ -933,9 +838,26 @@ public class CommonSettings {
         setString(context, R.string.pref_key_search_node_id, nodeId);
     }
 
-    /*
-     * Вспомогательные value функции.
+    /**
+     * Очистка параметров глобального поиска.
      */
+    public static void clearSearchOptions(Context context) {
+        setSearchQuery(context, null);
+        setSearchInText(context, DEF_SEARCH_IN_RECORD_TEXT);
+        setSearchInRecordsNames(context, DEF_SEARCH_IN_RECORDS_NAMES);
+        setSearchInAuthor(context, DEF_SEARCH_IN_AUTHOR);
+        setSearchInUrl(context, DEF_SEARCH_IN_URL);
+        setSearchInTags(context, DEF_SEARCH_IN_TAGS);
+        setSearchInNodes(context, DEF_SEARCH_IN_NODES);
+        setSearchInFiles(context, DEF_SEARCH_IN_FILES);
+        setSearchSplitToWords(context, DEF_SEARCH_SPLIT_TO_WORDS);
+        setSearchInWholeWords(context, DEF_SEARCH_IN_WHOLE_WORDS);
+        setSearchInCurNode(context, DEF_SEARCH_IN_CUR_NODE);
+    }
+
+    //endregion Глобальный поиск
+
+    //region Вспомогательные функции
 
     /**
      * Установить boolean опцию.
@@ -1105,4 +1027,7 @@ public class CommonSettings {
         }
         return settings;
     }
+
+    //endregion Вспомогательные функции
+
 }

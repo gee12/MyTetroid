@@ -30,6 +30,12 @@ open class StorageEntity(
     @ColumnInfo(name = "trashPath")
     var trashPath: String? = null
 
+    @ColumnInfo(name = "isClearTrashBeforeExit")
+    var isClearTrashBeforeExit: Boolean = false
+
+    @ColumnInfo(name = "isAskBeforeClearTrashBeforeExit")
+    var isAskBeforeClearTrashBeforeExit: Boolean = false
+
     @ColumnInfo(name = "quickNodeId")
     var quickNodeId: String? = null
 
@@ -48,7 +54,7 @@ open class StorageEntity(
     @ColumnInfo(name = "middlePassHash")
     var middlePassHash: String? = null
 
-    @ColumnInfo(name = "isDecyptToTemp")
+    @ColumnInfo(name = "isDecryptToTemp")
     var isDecyptToTemp: Boolean = false
 
     @Embedded(prefix="syncProfile")

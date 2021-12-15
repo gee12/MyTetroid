@@ -18,6 +18,7 @@ import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.helpers.UriHelper
 import com.gee12.mytetroid.interactors.SearchInteractor
+import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
@@ -1457,15 +1458,43 @@ class MainViewModel(
     }
 
     fun onBeforeExit(activity: Activity) {
-        // синхронизация перед выходом из приложения
-//        viewModel.syncStorageAndRunCallback(this, {
-//            onExit()
-//            finish()
-//        }))
-        syncStorageAndExit(activity) {
-            launch {
-                onExit(activity)
-                setEvent(Constants.MainEvents.Exit)
+        // очистка корзины перед выходом из приложения
+        clearTrashFolderAndExit(true) { result ->
+            if (result) {
+                // синхронизация перед выходом из приложения
+                syncStorageAndExit(activity) { result ->
+                    if (result) {
+                        // выход из приложения
+                        launch {
+                            onExit(activity)
+                            setEvent(Constants.MainEvents.Exit)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Запуск очистки корзины (если опция включена) и выход из приложения.
+     */
+    fun clearTrashFolderAndExit(isNeedAsk: Boolean, callback: ICallback?) {
+        launch {
+            when (trashInteractor.clearTrashFolderBeforeExit(storage!!, isNeedAsk)) {
+                TrashInteractor.TrashClearResult.SUCCESS -> {
+                    log(R.string.title_trash_cleared, false)
+                    callback?.run(true)
+                }
+                TrashInteractor.TrashClearResult.FAILURE -> {
+                    logError(R.string.title_trash_clear_error, true)
+                    callback?.run(false)
+                }
+                TrashInteractor.TrashClearResult.NEED_ASK -> {
+                    postStorageEvent(Constants.StorageEvents.AskBeforeClearTrashOnExit, callback)
+                }
+                TrashInteractor.TrashClearResult.NONE -> {
+                    callback?.run(true)
+                }
             }
         }
     }

@@ -156,6 +156,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
             this.listAdapterRecords = new RecordsListAdapter(
                     context,
                     viewModel.getRecordsInteractor(),
+                    viewModel.getCommonSettingsInteractor(),
                     onRecordAttachmentClickListener
             );
             lvRecords.setAdapter(listAdapterRecords);
