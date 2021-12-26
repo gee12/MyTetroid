@@ -71,6 +71,17 @@ class RecordViewModel(
     var isFromAnotherActivity = false
 
 
+    //region Migration
+
+    @MainThread
+    fun checkMigration() {
+        if (isNeedMigration()) {
+            setEvent(RecordEvents.NeedMigration)
+        }
+    }
+
+    //endregion Migration
+
     //region Storage
 
     fun onStorageInited(intent: Intent?) {
@@ -815,7 +826,8 @@ class RecordViewModel(
         return false
     }
 
-    fun openRecordNodeInMainView() {
+    @MainThread
+    private fun openRecordNodeInMainView() {
         val bundle = Bundle().apply {
             putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE)
             putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.node.id)
@@ -825,38 +837,16 @@ class RecordViewModel(
             action = Constants.ACTION_RECORD
         }
 //        ViewUtils.startActivity(this, MainActivity::class.java, bundle, Constants.ACTION_RECORD, 0, null)
-        postViewEvent(Constants.ViewEvents.StartActivity, intent)
+        setViewEvent(Constants.ViewEvents.StartActivity, intent)
     }
 
     //endregion SaveRecord
 
     //region Storage
 
-//    /**
-//     *
-//     */
-//    @Override
-//    protected void createStorage(String storagePath) {
-//        boolean res = StorageManager.createStorage(this, storagePath);
-//        initGUI(res && DataManager.createDefault(this), false, false);
-//    }
-
-    // endregion SaveRecord
-    // region Storage
-    //    /**
-    //     *
-    //     */
-    //    @Override
-    //    protected void createStorage(String storagePath) {
-    //        boolean res = StorageManager.createStorage(this, storagePath);
-    //        initGUI(res && DataManager.createDefault(this), false, false);
-    //    }
-
     /**
      * Старт загрузки хранилища.
      */
-    //    @Override
-    //    protected void loadStorage(String storagePath) {
     private fun loadStorage() {
 //        boolean isLoadLastForced = false;
 //        boolean isCheckFavorMode = !mRecord.isTemp();

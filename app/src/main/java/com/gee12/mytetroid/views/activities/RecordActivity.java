@@ -286,6 +286,12 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         super.onStorageEvent(event, data);
     }
 
+    private void showNeedMigrationDialog() {
+        AskDialogs.showOkDialog(this, R.string.dialog_need_migration, R.string.answer_ok, false, () -> {
+            finish();
+        });
+    }
+
     /**
      * Обработчик действий в окне записи.
      * @param action
@@ -293,6 +299,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
      */
     protected void onEvent(Constants.RecordEvents action, Object data) {
         switch (action) {
+            case NeedMigration:
+                showNeedMigrationDialog();
+                break;
             case Save:
                 // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
                 String htmlText = TetroidEditor.getDocumentHtml((viewModel.isHtmlMode())
@@ -373,6 +382,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     protected void onUICreated(boolean uiCreated) {
+        viewModel.checkMigration();
     }
 
     @Override

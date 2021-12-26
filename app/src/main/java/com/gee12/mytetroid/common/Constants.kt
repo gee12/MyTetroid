@@ -6,6 +6,9 @@ object Constants {
 
     val SEPAR = File.separator
 
+    const val VERSION_FIRST_MIGRATION = 49
+    const val VERSION_50 = 50
+
     const val MIN_PINCODE_LENGTH = 4
     const val MAX_PINCODE_LENGTH = 8
 
@@ -150,6 +153,9 @@ object Constants {
     }
 
     enum class MainEvents {
+        // migration
+        Migrated,
+
         // crypt
         EncryptNode,
         DropEncryptNode,
@@ -205,6 +211,7 @@ object Constants {
     }
 
     enum class RecordEvents {
+        NeedMigration,
         LoadFields,
         EditFields,
         LoadRecordTextFromFile,

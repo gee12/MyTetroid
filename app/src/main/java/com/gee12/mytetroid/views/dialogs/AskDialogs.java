@@ -6,7 +6,6 @@ import androidx.annotation.StringRes;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.TetroidStorage;
 
 public class AskDialogs {
 
@@ -102,7 +101,16 @@ public class AskDialogs {
      * @param callback
      * @param messageRes
      */
-    public static void showOkDialog(Context context, final Dialogs.IApplyResult callback, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, messageRes, false, true, callback);
+    public static void showOkDialog(Context context, @StringRes int messageRes, @StringRes int applyRes, boolean isCancelable,
+                                    final Dialogs.IApplyResult callback) {
+        Dialogs.showAlertDialog(
+                context,
+                context.getString(messageRes),
+                false,
+                isCancelable,
+                applyRes,
+                R.string.cancel,
+                Dialogs.getCancelCallback(callback)
+        );
     }
 }

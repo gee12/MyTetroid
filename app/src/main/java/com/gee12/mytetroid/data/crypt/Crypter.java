@@ -236,7 +236,7 @@ public class Crypter {
         return res;
     }
 
-    protected int[] middlePassHashToKey(String passHash) {
+    public int[] middlePassHashToKey(String passHash) {
         int[] res = null;
         try {
             byte[] passHashSigned = decodeBase64(passHash);

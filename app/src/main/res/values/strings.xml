@@ -10,6 +10,11 @@
     <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
 
+    <string name="mes_migration_50">The application has been updated to version 5.0\n
+This version adds support for multiple storages
+(so far only one can be loaded at a time)\n
+Your storage settings have been automatically moved to the \"Default storage\"</string>
+
     <string name="title_settings">Common settings</string>
     <string name="title_storage_settings">Storage settings</string>
     <string name="title_open">Open</string>
@@ -373,6 +378,8 @@
     <string name="pref_sub_category_other">Other</string>
     <string name="pref_key_sub_category_trash" translatable="false">pref_key_category_trash</string>
     <string name="pref_sub_category_trash">Trash</string>
+    <string name="pref_key_settings_version" translatable="false">pref_key_settings_version</string>
+    <string name="pref_key_is_pin_migrated_to_md5" translatable="false">pref_key_is_pin_migrated_to_md5</string>
 
     <string name="task_wait">Wait…</string>
     <string name="task_storage_loading">Storage loading…</string>
@@ -788,4 +795,10 @@
     <string name="progress_camera_capture">Image loading from camera…</string>
     <string name="log_storage_path_changed_mask">Storage path was changed: %s</string>
     <string name="log_storage_name_changed_mask">Storage name was changed: %s</string>
+    <string name="start_migrate_to_version_mask">Start migration to version %s</string>
+    <string name="dialog_need_migration">To complete the update, you need to launch from the main application window</string>
+    <string name="log_start_pin_crypt_migration">Launching PIN re-encryption from RC5 to MD5</string>
+    <string name="log_pin_crypt_was_migrated">PIN has been re-encrypted from RC5 to MD5</string>
+    <string name="log_error_pin_crypt_migrate">Error re-encrypting PIN from RC5 to MD5</string>
+    <string name="log_error_migration">Settings migration failed</string>
 </resources>

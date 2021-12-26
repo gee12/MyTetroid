@@ -9,6 +9,7 @@ import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
+import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
@@ -159,6 +160,33 @@ public class CommonSettings {
     }
 
     //endregion Загрузка настроек
+
+    //region Миграция
+
+    /**
+     * Текущая версия настроек.
+     * Значение по-умолчанию = VERSION_FIRST_MIGRATION, т.к. это первая версия, с которой нужно выполнять миграцию настроек.
+     */
+    public static int getSettingsVersion(Context context) {
+        return getInt(context, R.string.pref_key_settings_version, Constants.VERSION_FIRST_MIGRATION);
+    }
+
+    public static void setSettingsCurrentVersion(Context context) {
+        setInt(context, R.string.pref_key_settings_version, BuildConfig.VERSION_CODE);
+    }
+
+    /**
+     * Для миграции на версию >= 5.0.
+     */
+    public static boolean isPinCodeMigratedFromRC5ToMD5(Context context) {
+        return getBoolean(context, R.string.pref_key_is_pin_migrated_to_md5, false);
+    }
+
+    public static void setPinCodeMigratedFromRC5ToMD5(Context context) {
+        setBoolean(context, R.string.pref_key_is_pin_migrated_to_md5, true);
+    }
+
+    //endregion Миграция
 
     //region Хранилище
 
@@ -318,7 +346,7 @@ public class CommonSettings {
     }
 
     /**
-     * Устаревшее, оставлено для миграции с версии до 5.0.
+     * Устаревшее, оставлено для миграции с версии < 5.0.
      * Хэш пароля.
      */
     @Deprecated
@@ -327,7 +355,7 @@ public class CommonSettings {
     }
 
     /**
-     * Запрашивать ли ПИН-крод ?
+     * Запрашивать ли ПИН-код ?
      */
     public static boolean isRequestPINCode(Context context) {
         return getBoolean(context, R.string.pref_key_request_pin_code, false);

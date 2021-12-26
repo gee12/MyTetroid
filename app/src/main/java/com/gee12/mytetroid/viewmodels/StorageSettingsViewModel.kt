@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
@@ -316,6 +317,15 @@ abstract class StorageSettingsViewModel(
             }
         }
     }
+
+    //region Migration
+
+    fun isNeedMigration(): Boolean {
+        val fromVersion = CommonSettings.getSettingsVersion(getContext())
+        return (fromVersion < Constants.VERSION_50)
+    }
+
+    //endregion Migration
 
     //region Getters
 

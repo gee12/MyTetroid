@@ -63,8 +63,8 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
                 StoragesViewModel(
                     app = app,
 //                    logger = env.logger,
-                    storagesRepo = env.storagesRepo!!,
-                    settingsRepo = env.settingsRepo!!
+                    settingsRepo = env.settingsRepo!!,
+                    storagesRepo = env.storagesRepo!!
                 ) as T
             }
             modelClass.isAssignableFrom(IconsViewModel::class.java) -> {

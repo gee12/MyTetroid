@@ -2,6 +2,7 @@ package com.gee12.mytetroid.views.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,6 +40,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
+import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
@@ -257,19 +259,20 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         //TODO: перенести во ViewModel.
 
         if (uiCreated) {
-            if (viewModel.isLoaded()) {
-                // тут ничего не пишем.
-                // код отображения загруженного хранилище находится в onGUICreated(),
-                //  который вызывается после создания пунктов меню активности
-
-                // инициализация контролов
-                initUI(true, viewModel.isLoadedFavoritesOnly(), viewModel.isKeepLastNode());
-                // действия после загрузки хранилища
-                afterStorageLoaded(true);
-            } else {
-                // загружаем хранилище, если еще не загружано
-                viewModel.startInitStorage();
-            }
+//            if (viewModel.isLoaded()) {
+//                // тут ничего не пишем.
+//                // код отображения загруженного хранилище находится в onGUICreated(),
+//                //  который вызывается после создания пунктов меню активности
+//
+//                // инициализация контролов
+//                initUI(true, viewModel.isLoadedFavoritesOnly(), viewModel.isKeepLastNode());
+//                // действия после загрузки хранилища
+//                afterStorageLoaded(true);
+//            } else {
+//                // загружаем хранилище, если еще не загружано
+//                viewModel.startInitStorage();
+//            }
+            viewModel.onUICreated();
         }
     }
 
@@ -443,15 +446,18 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onEvent(Constants.MainEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onEvent(): event="+event+", data="+data);
         switch (event) {
+            // migration
+            case Migrated:
+                showMigrationDialog();
+                break;
+
             // crypt
-            case EncryptNode: {
-//                Object callbackData = ((CallbackParam) data).getData();
+            case EncryptNode:
                 viewModel.encryptNode((TetroidNode) data);
-            } break;
-            case DropEncryptNode: {
-//                Object callbackData = ((CallbackParam) data).getData();
+                break;
+            case DropEncryptNode:
                 viewModel.dropEncryptNode((TetroidNode) data);
-            } break;
+                break;
 
             // nodes
             case ShowNode:
@@ -706,6 +712,17 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             }
         }
         updateOptionsMenu();
+    }
+
+    /**
+     * Диалог с информацией об обновлении.
+     */
+    private void showMigrationDialog() {
+        if (BuildConfig.VERSION_CODE == Constants.VERSION_50) {
+            AskDialogs.showOkDialog(this, R.string.mes_migration_50, R.string.answer_ok, false, () -> {
+                viewModel.startInitStorage();
+            });
+        }
     }
 
     private void updateStorageNameLabel(boolean isLoaded) {

@@ -9,6 +9,11 @@
     <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
+    <string name="mes_migration_50">Приложение обновилось на версию 5.0\n
+В этой версии добавилась поддержка нескольких хранилищ
+(пока одновременно загружать можно только одно)\n
+Параметры Вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
+
     <string name="title_settings">Общие настройки</string>
     <string name="title_storage_settings">Настройки хранилища</string>
     <string name="title_open">Открыть</string>
@@ -182,7 +187,7 @@
     <string name="pref_storage_path">Каталог хранилища</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
     <string name="pref_is_load_last_storage_path">Загружать предыдущее</string>
-    <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз (если не задано хранилище по-умолчанию)</string>
+    <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз (если не задано основное хранилище)</string>
     <string name="pref_category_crypt">Шифрование</string>
     <string name="pref_is_save_pass_hash_local">Сохранять пароль</string>
     <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально (используется как значение по-умолчанию для хранилищ)</string>
@@ -654,7 +659,7 @@
     <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
     <string name="log_link_is_empty">Пустая ссылка</string>
     <string name="ask_delete_storage_mask">Удалить хранилище «%s» из списка? (файлы будут сохранены)</string>
-    <string name="pref_is_def_storage">Хранилище по-умолчанию</string>
+    <string name="pref_is_def_storage">Основное хранилище</string>
     <string name="pref_is_def_storage_summ">Хранилище, загружаемое при запуске приложения</string>
     <string name="pref_storage_name">Имя хранилища</string>
     <string name="title_edit">Изменить</string>
@@ -662,8 +667,8 @@
     <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
     <string name="title_context_menu">Контекстное меню</string>
     <string name="title_storage_current">Загруженное хранилище</string>
-    <string name="title_storage_default">Хранилище по-умолчанию</string>
-    <string name="label_default_storage">Хранилище по-умолчанию</string>
+    <string name="title_storage_default">Основное хранилище</string>
+    <string name="label_default_storage">Основное хранилище</string>
     <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
     <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \"%s\", продолжить ?</string>
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
@@ -681,17 +686,23 @@
     <string name="log_activity_opened_mask">Открыта активность: %s</string>
     <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
     <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
-    <string name="log_def_storage_not_specified">Хранилище по-умолчанию не задано</string>
+    <string name="log_def_storage_not_specified">Основное хранилище не задано</string>
     <string name="log_storage_not_found_mask">Хранилище с id=%s не зайдено в базе данных</string>
-    <string name="log_start_load_def_storage">Начало загрузки хранилища по-умолчанию</string>
+    <string name="log_start_load_def_storage">Начало загрузки основного хранилища</string>
     <string name="log_storage_added_mask">Хранилище «%s» добавлено</string>
-    <string name="log_storage_set_is_default_mask">Хранилище «%s» установлено по-умолчанию</string>
-    <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» по-умолчанию</string>
+    <string name="log_storage_set_is_default_mask">Хранилище «%s» установлено основным</string>
+    <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» основным</string>
     <string name="log_storage_deleted_mask">Хранилище «%s» удалено</string>
-    <string name="title_set_default">Использовать по-умолчанию</string>
+    <string name="title_set_default">Сделать основным</string>
     <string name="log_cannot_delete_undecrypted_node">Нельзя удалить нерасшифрованную ветку</string>
     <string name="progress_images_loading">Загрузка изображения(-й)…</string>
     <string name="progress_camera_capture">Загрузка изображения с камеры…</string>
     <string name="log_storage_path_changed_mask">Изменен путь к хранилищу: %s</string>
     <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
+    <string name="start_migrate_to_version_mask">Запуск миграции на версию %s</string>
+    <string name="dialog_need_migration">Для завершения обновления необходим запуск из основного окна приложения</string>
+    <string name="log_start_pin_crypt_migration">Запуск перешифровки ПИН-кода из RC5 в MD5</string>
+    <string name="log_pin_crypt_was_migrated">ПИН-код был перешифрован из RC5 в MD5</string>
+    <string name="log_error_pin_crypt_migrate">Ошибка перешифровки ПИН-кода из RC5 в MD5</string>
+    <string name="log_error_migration">Ошибка выполнения миграции настроек</string>
 </resources>

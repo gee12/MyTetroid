@@ -8,6 +8,9 @@ interface StoragesDao {
     @Query("SELECT * FROM storages")
     fun getAll(): List<StorageEntity>
 
+    @Query("SELECT COUNT(1) FROM storages")
+    fun getCount(): Int
+
     @Query("SELECT * FROM storages WHERE isDefault = 1 LIMIT 1")
     fun getDefaultStorage(): List<StorageEntity>
 

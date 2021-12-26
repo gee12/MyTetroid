@@ -17,7 +17,9 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.helpers.UriHelper
+import com.gee12.mytetroid.interactors.MigrationInteractor
 import com.gee12.mytetroid.interactors.SearchInteractor
+import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -51,6 +53,9 @@ class MainViewModel(
     crypter
 ) {
 
+    val storagesInteractor = StoragesInteractor(this.storagesRepo)
+    val migrationInteractor = MigrationInteractor(this.logger, this.settingsRepo, storagesInteractor)
+
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
 
@@ -72,20 +77,59 @@ class MainViewModel(
         this.xmlLoader.setStorageLoadHelper(this)
     }
 
+    //region Migration
+
+    /**
+     * Проверка необходимости миграции и ее запуск.
+     * Возвращает true, если миграция была запущена.
+     */
+    private fun checkAndStartMigration(): Boolean {
+        val fromVersion = CommonSettings.getSettingsVersion(getContext())
+        var result: Boolean? = null
+
+        // 50
+        if (fromVersion < Constants.VERSION_50) {
+            result = runBlocking { migrateTo50() }
+        }
+        // ..
+
+        if (result == true) {
+            CommonSettings.setSettingsCurrentVersion(getContext())
+
+            postEvent(Constants.MainEvents.Migrated)
+        } else if (result == false) {
+            logger.logError(R.string.log_error_migration, true)
+            showSnackMoreInLogs()
+        }
+        return result != null
+    }
+
+    private suspend fun migrateTo50(): Boolean {
+        logger.log(getString(R.string.start_migrate_to_version_mask).format("5.0"), false)
+        // ПИН-код из RC5 в MD5
+        if (migrationInteractor.isNeedMigratePinCode(getContext())) {
+            if (!migrationInteractor.migratePinCodeFromRC5ToMD5(getContext())) {
+                return false
+            }
+        }
+        // параметры хранилища из SharedPreferences в бд
+        if (migrationInteractor.isNeedMigrateStorageFromPrefs(getContext())) {
+            if (!migrationInteractor.addDefaultStorageFromPrefs(getContext())) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    //endregion Migration
+
     //region Pages
 
     @MainThread
     fun openPage(pageId: Int) {
         setViewEvent(Constants.ViewEvents.OpenPage, pageId)
     }
-
-//    fun onMainPageCreated() {
-//        launch {
-//            withContext(Dispatchers.IO) {
-//                makeViewEvent(Constants.ViewEvents.MainPageCreated)
-//            }
-//        }
-//    }
 
     @MainThread
     fun showMainView(viewId: Int) {
@@ -704,20 +748,9 @@ class MainViewModel(
         if (node == quicklyNode) {
             showMessage(getString(R.string.mes_quickly_node_cannot_encrypt))
         } else {
-//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
             checkStoragePass(
                 EventCallbackParams(Constants.MainEvents.EncryptNode, node)
             )
-        /*new Dialogs.IApplyCancelResult() {
-            @Override
-            public void onApply() {
-//                mCurTask = new CryptNodeTask(node, true).run();
-                viewModel.encryptNode(node);
-            }
-            @Override
-            public void onCancel() {
-            }
-        }*/
         }
     }
 
@@ -726,19 +759,9 @@ class MainViewModel(
      * @param node
      */
     fun startDropEncryptNode(node: TetroidNode) {
-//        PassManager.checkStoragePass(this, node, new Dialogs.IApplyCancelResult() {
         checkStoragePass(
             EventCallbackParams(Constants.MainEvents.DropEncryptNode, node)
         )
-        /*new Dialogs.IApplyCancelResult() {
-            @Override
-            public void onApply() {
-                viewModel.decryptNode(node);
-            }
-            @Override
-            public void onCancel() {
-            }
-        }*/
     }
 
     fun encryptNode(node: TetroidNode) {
@@ -814,47 +837,6 @@ class MainViewModel(
             setViewEvent(Constants.ViewEvents.HandleReceivedIntent)
         }
     }
-
-    //    private void reloadStorage() {
-    //        reinitStorage();
-    //    }
-    //    /**
-    //     * Создание нового хранилища в указанном расположении.
-    //     *
-    //     * @param storagePath
-    ////     * @param checkDirIsEmpty
-    //     */
-    //    @Override
-    //    protected void createStorage(String storagePath/*, boolean checkDirIsEmpty*/) {
-    //        if (StorageManager.createStorage(this, storagePath)) {
-    //            closeFoundFragment();
-    //            getMainPage().clearView();
-    //            mDrawerLayout.openDrawer(Gravity.LEFT);
-    //            // сохраняем путь к хранилищу
-    ////            if (SettingsManager.isLoadLastStoragePath()) {
-    //            /*SettingsManager.setStoragePath(storagePath);*/
-    ////            }
-    //            initGUI(DataManager.createDefault(this), false, false);
-    ////            LogManager.log(getString(R.string.log_storage_created) + mStoragePath, LogManager.Types.INFO, Toast.LENGTH_SHORT);
-    //        } else {
-    //            mDrawerLayout.openDrawer(Gravity.LEFT);
-    //            initGUI(false, false, false);
-    ////            LogManager.log(getString(R.string.log_failed_storage_create) + mStoragePath, LogManager.Types.ERROR, Toast.LENGTH_LONG);
-    //        }
-    //    }
-    // TODO: почему нигде не используется ??
-    //    private void initStorage(String storagePath) {
-    //        // читаем установленную опцию isLoadFavoritesOnly только при первой загрузке
-    //        boolean isFavorites = !DataManager.isLoaded() && SettingsManager.isLoadFavoritesOnlyDef(this)
-    //                || (DataManager.isLoaded() && DataManager.isFavoritesMode());
-    //
-    //        if (StorageManager.initStorage(this, storagePath)) {
-    //            mDrawerLayout.openDrawer(Gravity.LEFT);
-    //        } else {
-    //            mDrawerLayout.openDrawer(Gravity.LEFT);
-    //            initGUI(false, isFavorites, false);
-    //        }
-    //    }
 
     private fun setStage(obj: LogObj, oper: LogOper, stage: Stages) {
         val taskStage = TaskStage(Constants.TetroidView.Main, obj, oper, stage)
@@ -1174,40 +1156,14 @@ class MainViewModel(
      */
     fun showFavorites() {
         launch {
-            // проверка нужно ли расшифровать ветку перед отображением
-            /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
-            // запрос пароля в асинхронном режиме
-            askPassword(FavoritesManager.FAVORITES_NODE);
-        } else*/
-//        run {
-
             // выделяем ветку Избранное, только если загружено не одно Избранное
-//            if (!isLoadedFavoritesOnly()) {
-//                setCurNode(null)
-//                setFavorIsCurNode(true)
-//            }
-//            showRecords(FavoritesManager.getFavoritesRecords(), MainPageFragment.MAIN_VIEW_FAVORITES)
-
-
-            // проверка нужно ли расшифровать ветку перед отображением
-            /*if (FavoritesManager.isCryptedAndNonDecrypted()) {
-            // запрос пароля в асинхронном режиме
-            askPassword(FavoritesManager.FAVORITES_NODE);
-        } else*/
-//        {
-            // выделяем ветку Избранное, только если загружено не одно Избранное
-//            if (!App.IsLoadedFavoritesOnly) {
             if (!isLoadedFavoritesOnly()) {
-//            setCurNode(null)
                 setEvent(Constants.MainEvents.SetCurrentNode, FavoritesManager.FAVORITES_NODE)
-//            setFavorIsCurNode(true)
-//        postEvent(Constants.MainEvents.ShowFavorites)
             }
             showRecords(FavoritesManager.getFavoritesRecords(), Constants.MAIN_VIEW_FAVORITES, true)
 
             // сохраняем выбранную ветку
             saveLastSelectedNode()
-//        }
         }
     }
 
@@ -1441,6 +1397,34 @@ class MainViewModel(
 
     //endregion FileObserver
 
+    //region Main view
+
+    fun onUICreated() {
+        launch {
+            if (isLoaded()) {
+                val params = StorageParams(
+                    isFavoritesOnly = isLoadedFavoritesOnly(),
+                    isHandleReceivedIntent = true,
+                    result = true
+                )
+                // инициализация контролов
+                setViewEvent(Constants.ViewEvents.InitGUI, params)
+                // действия после загрузки хранилища
+                setStorageEvent(Constants.StorageEvents.Loaded, true)
+            } else {
+                // проверяем необходимость миграции
+                val mirgationStarted = withContext(Dispatchers.IO) {
+                    checkAndStartMigration()
+                }
+
+                if (!mirgationStarted) {
+                    // загружаем хранилище, если еще не загружано
+                    startInitStorage()
+                }
+            }
+        }
+    }
+
     fun onMainViewBackPressed(curView: Int): Boolean {
         var res = false
         if (curView == Constants.MAIN_VIEW_RECORD_FILES) {
@@ -1479,6 +1463,10 @@ class MainViewModel(
      * Запуск очистки корзины (если опция включена) и выход из приложения.
      */
     fun clearTrashFolderAndExit(isNeedAsk: Boolean, callback: ICallback?) {
+        if (storage == null) {
+            callback?.run(true)
+            return
+        }
         launch {
             when (trashInteractor.clearTrashFolderBeforeExit(storage!!, isNeedAsk)) {
                 TrashInteractor.TrashClearResult.SUCCESS -> {
@@ -1509,6 +1497,9 @@ class MainViewModel(
         // удаляем загруженное хранилище из памяти
         App.destruct()
     }
+
+    //endregion Main view
+
 }
 
 class ClipboardParams(

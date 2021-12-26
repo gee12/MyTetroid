@@ -14,6 +14,10 @@ class StoragesRepo(context: Context) {
         dataBase.storagesDao.getAll().map(::toStorage)
     }
 
+    suspend fun getStoragesCount() = withContext(Dispatchers.IO) {
+        dataBase.storagesDao.getCount()
+    }
+
     suspend fun getDefaultStorage() = withContext(Dispatchers.IO) {
         dataBase.storagesDao.getDefaultStorage().firstOrNull()?.let {
             toStorage(it)
