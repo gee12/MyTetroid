@@ -106,12 +106,7 @@ class MainViewModel(
 
     private suspend fun migrateTo50(): Boolean {
         logger.log(getString(R.string.start_migrate_to_version_mask).format("5.0"), false)
-        // ПИН-код из RC5 в MD5
-        if (migrationInteractor.isNeedMigratePinCode(getContext())) {
-            if (!migrationInteractor.migratePinCodeFromRC5ToMD5(getContext())) {
-                return false
-            }
-        }
+
         // параметры хранилища из SharedPreferences в бд
         if (migrationInteractor.isNeedMigrateStorageFromPrefs(getContext())) {
             if (!migrationInteractor.addDefaultStorageFromPrefs(getContext())) {

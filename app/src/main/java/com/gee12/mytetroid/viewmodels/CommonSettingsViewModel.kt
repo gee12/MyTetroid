@@ -4,6 +4,7 @@ import android.app.Application
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -41,8 +42,8 @@ class CommonSettingsViewModel(
 
     fun setupPinCode(pin: String) {
         // сохраняем хеш
-//        val pinHash: String = crypter.passToHash(pin)
-        val pinHash: String = Utils.toMD5Hex(pin)
+        val crypter = Crypter(this.logger)
+        val pinHash: String = crypter.passToHash(pin)
         CommonSettings.setPINCodeHash(getContext(), pinHash)
         logger.log(R.string.log_pin_code_setup, true)
     }

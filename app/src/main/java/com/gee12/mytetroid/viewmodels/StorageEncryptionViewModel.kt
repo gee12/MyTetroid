@@ -317,8 +317,7 @@ open class StorageEncryptionViewModel(
 
     fun checkPinCode(pin: String): Boolean {
         // сравниваем хеши
-//        val pinHash = crypter.passToHash(pin)
-        val pinHash = Utils.toMD5Hex(pin)
+        val pinHash = crypter.passToHash(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
 

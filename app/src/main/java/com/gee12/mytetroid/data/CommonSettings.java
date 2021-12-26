@@ -175,17 +175,6 @@ public class CommonSettings {
         setInt(context, R.string.pref_key_settings_version, BuildConfig.VERSION_CODE);
     }
 
-    /**
-     * Для миграции на версию >= 5.0.
-     */
-    public static boolean isPinCodeMigratedFromRC5ToMD5(Context context) {
-        return getBoolean(context, R.string.pref_key_is_pin_migrated_to_md5, false);
-    }
-
-    public static void setPinCodeMigratedFromRC5ToMD5(Context context) {
-        setBoolean(context, R.string.pref_key_is_pin_migrated_to_md5, true);
-    }
-
     //endregion Миграция
 
     //region Хранилище
