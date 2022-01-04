@@ -8,7 +8,7 @@ import android.text.TextUtils
 import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.TetroidMessage

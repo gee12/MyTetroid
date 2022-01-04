@@ -13,6 +13,8 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
@@ -301,6 +303,7 @@ open class StorageViewModel(
                     storage.isNew = false
                     storage.isLoaded = true
                     log((R.string.log_storage_created), true)
+                    favoritesInteractor.reset()
                     storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
                     return true
                 } else {
@@ -341,7 +344,7 @@ open class StorageViewModel(
         isDecrypt = (isDecrypt
                 && (!isRequestPINCode()
                     || isRequestPINCode() && node != null
-                        && (node.isCrypted || node == FavoritesManager.FAVORITES_NODE)))
+                        && (node.isCrypted || node == FavoritesInteractor.FAVORITES_NODE)))
         if (isLoaded() && isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(node)
@@ -422,7 +425,7 @@ open class StorageViewModel(
             return false
         }
         // получаем id избранных записей из настроек
-        FavoritesManager.load(getContext())
+        favoritesInteractor.init()
 
         try {
             @Suppress("BlockingMethodInNonBlockingContext")
@@ -434,7 +437,7 @@ open class StorageViewModel(
             storage?.isLoaded = result
 
             // удаление не найденных записей из избранного
-            FavoritesManager.check()
+//            favoritesInteractor.check()
             // загрузка ветки для быстрой вставки
             updateQuicklyNode()
             return result
@@ -603,18 +606,7 @@ open class StorageViewModel(
                 isFavoritesOnly = false,
                 isHandleReceivedIntent = false
             )
-//            if (isRequestPINCode()) {
-//                // сначала просто проверяем пароль
-//                //  затем спрашиваем ПИН,
-//                //  а потом уже расшифровываем (!)
-//
-//                // FIXME:
-//                //  раньше вместо node стояло FavoritesManager.FAVORITES_NODE
-//
-//                decryptStorage(params)
-//            } else {
-//                askPassword(params)
-//            }
+
             checkPassAndDecryptStorage(params)
             // выходим,запрос пароля будет в асинхронном режиме
             return true
@@ -628,9 +620,9 @@ open class StorageViewModel(
             // запрос пароля в асинхронном режиме
 
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
-            //  поэтому отправляем FavoritesManager.FAVORITES_NODE
+            //  поэтому отправляем FAVORITES_NODE
             val params = StorageParams(
-                node = FavoritesManager.FAVORITES_NODE,
+                node = FavoritesInteractor.FAVORITES_NODE,
                 isNodeOpening = true,
                 isFavoritesOnly = isLoadFavoritesOnly(),
                 isHandleReceivedIntent = false
@@ -953,29 +945,7 @@ open class StorageViewModel(
         Utils.dateToString(it, getString(R.string.full_date_format_string))
     } ?: getString(R.string.title_error)
 
-    fun checkPermission(activity: Activity) {
-        if (permissionInteractor.checkWriteExtStoragePermission(activity, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
-            onPermissionChecked()
-        }
-    }
-
     //endregion Other
-
-//    override fun isRecordFavorite(id: String?): Boolean {
-//        // TODO: to Interactor
-//        return FavoritesManager.isFavorite(id)
-//    }
-
-//    override fun addRecordFavorite(record: TetroidRecord?) {
-//        // TODO: to Interactor
-//        FavoritesManager.set(record)
-//    }
-
-//    override fun loadIcon(context: Context, node: TetroidNode) {
-//        if (node.isNonCryptedOrDecrypted) {
-//            node.loadIcon(context, storageInteractor.getPathToIcons())
-//        }
-//    }
 
 }
 

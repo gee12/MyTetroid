@@ -4,9 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants.SEPAR
-import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.data.FavoritesManager
-import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -102,9 +101,6 @@ class StorageInteractor(
         if (!storageHelper.createDefaultNode()) {
             return false
         }
-
-        // создаем Favorites
-        FavoritesManager.create()
 
         return true
     }

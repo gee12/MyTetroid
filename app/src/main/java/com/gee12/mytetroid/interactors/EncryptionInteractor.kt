@@ -2,7 +2,7 @@ package com.gee12.mytetroid.interactors
 
 import android.content.Context
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -12,9 +12,6 @@ import com.gee12.mytetroid.model.TetroidRecord
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.math.BigInteger
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 
 /**
  * Создается для конкретного хранилища.

@@ -1,11 +1,12 @@
 package com.gee12.mytetroid.viewmodels
 
+import android.app.Activity
 import android.app.Application
 import android.util.Log
+import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +27,9 @@ open class BaseStorageViewModel(
 
     val storageEvent = SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>>()
     val objectAction = SingleLiveEvent<ViewModelEvent<Any, Any>>()
+
+    val permissionInteractor = PermissionInteractor(this.logger)
+
 
     //region Storage event
 
@@ -69,8 +73,32 @@ open class BaseStorageViewModel(
 
     fun getLastFolderPathOrDefault(forWrite: Boolean) = StorageInteractor.getLastFolderPathOrDefault(getContext(), forWrite)
 
-    fun onPermissionChecked() {
-        postStorageEvent(Constants.StorageEvents.PermissionChecked)
+    @JvmOverloads
+    fun checkReadExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE, callback: (() -> Unit)? = null): Boolean {
+        if (permissionInteractor.checkReadExtStoragePermission(activity, requestCode)) {
+            if (callback != null) callback.invoke()
+            else onPermissionChecked(requestCode)
+            return true
+        }
+        return false
+    }
+
+    @JvmOverloads
+    fun checkWriteExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, callback: (() -> Unit)? = null): Boolean {
+        if (permissionInteractor.checkWriteExtStoragePermission(activity, requestCode)) {
+            if (callback != null) callback.invoke()
+            else onPermissionChecked(requestCode)
+            return true
+        }
+        return false
+    }
+
+    open fun onPermissionChecked(requestCode: Int) {
+        postStorageEvent(Constants.StorageEvents.PermissionGranted, requestCode)
+    }
+
+    open fun onPermissionCanceled(requestCode: Int) {
+        postStorageEvent(Constants.StorageEvents.PermissionCanceled, requestCode)
     }
 
     //endregion Other

@@ -3,7 +3,6 @@ package com.gee12.mytetroid.viewmodels
 import android.Manifest
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -16,11 +15,10 @@ import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.helpers.UriHelper
-import com.gee12.mytetroid.interactors.MigrationInteractor
-import com.gee12.mytetroid.interactors.SearchInteractor
-import com.gee12.mytetroid.interactors.StoragesInteractor
-import com.gee12.mytetroid.interactors.TrashInteractor
+import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
@@ -54,7 +52,7 @@ class MainViewModel(
 ) {
 
     val storagesInteractor = StoragesInteractor(this.storagesRepo)
-    val migrationInteractor = MigrationInteractor(this.logger, this.settingsRepo, storagesInteractor)
+    val migrationInteractor = MigrationInteractor(this.logger, this.settingsRepo, storagesInteractor, favoritesInteractor)
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
@@ -88,7 +86,8 @@ class MainViewModel(
         var result: Boolean? = null
 
         // 50
-        if (fromVersion < Constants.VERSION_50) {
+        if (fromVersion < Constants.VERSION_50
+            && CommonSettings.getStoragePath(getContext()) != null) { // не мигрируем на новых установках
             result = runBlocking { migrateTo50() }
         }
         // ..
@@ -214,7 +213,7 @@ class MainViewModel(
                 // очищаем "буфер обмена"
                 TetroidClipboard.clear()
                 // обновляем избранное
-                updateFavorites(record)
+                updateFavoritesTitle(record)
             }
         } else {
             logOperErrorMore(LogObj.RECORD, LogOper.INSERT)
@@ -232,7 +231,7 @@ class MainViewModel(
                 logOperRes(LogObj.RECORD, LogOper.CREATE, record, false)
                 updateTags()
                 updateNodes()
-                if (!updateFavorites(record)) {
+                if (!updateFavoritesTitle(record)) {
                     updateRecords()
                 }
                 openRecord(record)
@@ -319,7 +318,7 @@ class MainViewModel(
             updateTags()
             updateNodes()
             // обновляем избранное
-            if (!updateFavorites(record)) {
+            if (!updateFavoritesTitle(record)) {
                 updateRecords()
             }
             curRecord = null
@@ -362,7 +361,7 @@ class MainViewModel(
                 updateRecords()
             }
             updateTags()
-            updateFavorites()
+            updateFavoritesTitle()
         }
     }
 
@@ -385,7 +384,7 @@ class MainViewModel(
     fun reorderRecords(records: List<TetroidRecord>, pos: Int, isUp: Boolean) {
         launch {
             val res = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES)
-                FavoritesManager.swapRecords(getContext(), pos, isUp, true)
+                favoritesInteractor.swap(pos, isUp, true)
             else swapTetroidObjects(records, pos, isUp, true)
             if (res > 0) {
                 updateRecords()
@@ -580,7 +579,7 @@ class MainViewModel(
      */
     private fun saveLastSelectedNode() {
         if (isKeepLastNode()) {
-            val curNode = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) FavoritesManager.FAVORITES_NODE else curNode
+            val curNode = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) FavoritesInteractor.FAVORITES_NODE else curNode
             setLastNodeId(curNode?.id)
             updateStorage()
         }
@@ -717,7 +716,7 @@ class MainViewModel(
 //            }
             // обновляем label с количеством избранных записей
             if (App.isFullVersion()) {
-                updateFavorites()
+                updateFavoritesTitle()
             }
             // убираем список записей удаляемой ветки
             if (curNode == node || nodesInteractor.isNodeInNode(curNode, node)) {
@@ -823,7 +822,7 @@ class MainViewModel(
         super.afterStorageDecrypted(node)
         launch {
             if (node != null) {
-                if (node === FavoritesManager.FAVORITES_NODE) {
+                if (node === FavoritesInteractor.FAVORITES_NODE) {
                     showFavorites()
                 } else {
                     showNode(node)
@@ -1153,9 +1152,9 @@ class MainViewModel(
         launch {
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!isLoadedFavoritesOnly()) {
-                setEvent(Constants.MainEvents.SetCurrentNode, FavoritesManager.FAVORITES_NODE)
+                setEvent(Constants.MainEvents.SetCurrentNode, FavoritesInteractor.FAVORITES_NODE)
             }
-            showRecords(FavoritesManager.getFavoritesRecords(), Constants.MAIN_VIEW_FAVORITES, true)
+            showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, true)
 
             // сохраняем выбранную ветку
             saveLastSelectedNode()
@@ -1163,40 +1162,44 @@ class MainViewModel(
     }
 
     @MainThread
-    fun addFavorite(context: Context?, record: TetroidRecord) {
-        if (FavoritesManager.add(context, record)) {
-            val mes = getString(R.string.log_added_to_favor)
-            showMessage(mes)
-            log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
-            updateFavorites(record)
-        } else {
-            logOperError(LogObj.RECORD, LogOper.ADD, getString(R.string.log_with_id_to_favor_mask).format(record.id), true, true)
+    fun addToFavorite(record: TetroidRecord) {
+        launch {
+            if (favoritesInteractor.add(record)) {
+                val mes = getString(R.string.log_added_to_favor)
+                showMessage(mes)
+                log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
+                updateFavoritesTitle(record)
+            } else {
+                logOperError(LogObj.RECORD, LogOper.ADD, getString(R.string.log_with_id_to_favor_mask).format(record.id), true, true)
+            }
         }
     }
 
     @MainThread
-    fun removeFavorite(context: Context?, record: TetroidRecord) {
-        if (FavoritesManager.remove(context, record, true)) {
-            val mes = getString(R.string.log_deleted_from_favor)
-            showMessage(mes)
-            log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
-            updateFavorites()
-            updateRecords()
-        } else {
-            logOperError(LogObj.RECORD, LogOper.DELETE, getString(R.string.log_with_id_from_favor_mask).format(record.id), true, true)
+    fun removeFromFavorite(record: TetroidRecord) {
+        launch {
+            if (favoritesInteractor.remove(record, true)) {
+                val mes = getString(R.string.log_deleted_from_favor)
+                showMessage(mes)
+                log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
+                updateFavoritesTitle()
+                updateRecords()
+            } else {
+                logOperError(LogObj.RECORD, LogOper.DELETE, getString(R.string.log_with_id_from_favor_mask).format(record.id), true, true)
+            }
         }
     }
 
     @MainThread
-    fun updateFavorites(record: TetroidRecord?): Boolean {
+    fun updateFavoritesTitle(record: TetroidRecord?): Boolean {
         if (record == null || !record.isFavorite) return false
-        updateFavorites()
+        updateFavoritesTitle()
         updateRecords()
         return true
     }
 
-    private fun updateFavorites() {
-        setEvent(Constants.MainEvents.UpdateFavorites)
+    private fun updateFavoritesTitle() {
+        setEvent(Constants.MainEvents.UpdateFavoritesTitle)
     }
 
     //endregion Favorites

@@ -114,7 +114,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_load_nodes">Load all nodes</string>
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>
-    <string name="title_add_favor">Add to davorites</string>
+    <string name="title_add_favor">Add to favorites</string>
     <string name="title_need_load_nodes">First load all storage nodes</string>
     <string name="title_available_in_pro">Available in version Pro</string>
     <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
@@ -448,7 +448,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="label_crypted">Crypted:</string>
     <string name="label_attach_crypted">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
-    <string name="label_path">Read only</string>
+    <string name="label_path">Path:</string>
     <string name="label_read_only">Read only (not implemented yet)</string>
     <string name="label_file_size">File size:</string>
     <string name="label_folder_size">Folder size:</string>
@@ -497,6 +497,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_node_delete_mask">Delete node «%s» ?</string>
     <string name="ask_record_delete_mask">Delete record «%s» ?</string>
     <string name="ask_file_delete_mask">Delete file «%s» ?</string>
+    <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
@@ -770,8 +771,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
     <string name="log_added_to_favor">Added to favorites</string>
     <string name="log_deleted_from_favor">Deleted from favorites</string>
-    <string name="log_with_id_to_favor_mask"> with id=%s to favorites</string>
-    <string name="log_with_id_from_favor_mask"> with id=%s from favorites</string>
+    <string name="log_with_id_to_favor_mask">&#160;with id=%s to favorites</string>
+    <string name="log_with_id_from_favor_mask">&#160;with id=%s from favorites</string>
     <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
     <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
     <string name="error_get_record_folder_size_mask">Error getting record folder size: %s</string>

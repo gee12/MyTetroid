@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;

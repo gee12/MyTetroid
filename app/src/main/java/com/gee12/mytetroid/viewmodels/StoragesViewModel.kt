@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.CommonSettings
 import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -77,25 +76,5 @@ class StoragesViewModel(
             }
         }
     }
-
-//    /**
-//     * Миграция с версии < 5.0, когда не было многобазовости.
-//     */
-//    private suspend fun addDefaultStorageFromPrefs() {
-//        val context = getContext()
-//        storagesRepo.addStorage(
-//            storagesRepo.initStorage(
-//                TetroidStorage(
-//                    path = CommonSettings.getStoragePath(context)
-//                )
-//            ).apply {
-//                isDefault = true
-//                middlePassHash = CommonSettings.getMiddlePassHash(context)
-//                quickNodeId = CommonSettings.getQuicklyNodeId(context)
-//                lastNodeId = CommonSettings.getLastNodeId(context)
-//                // TODO: создать миграцию Избранного
-////                favorites = CommonSettings.getFavorites(context)
-//        })
-//    }
 
 }

@@ -3,7 +3,7 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*

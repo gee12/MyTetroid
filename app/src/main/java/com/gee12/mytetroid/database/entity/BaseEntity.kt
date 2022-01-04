@@ -9,4 +9,19 @@ open class BaseEntity {
 
     @ColumnInfo(name = "editedDate")
     var editedDate: Date? = null
+
+    init {
+        setCurrentDates()
+    }
+
+    protected fun setDates(created: Date, edited: Date) {
+        createdDate = created
+        editedDate = edited
+    }
+
+    protected fun setCurrentDates() {
+        val curDate = Date()
+        setDates(curDate, curDate)
+    }
+
 }

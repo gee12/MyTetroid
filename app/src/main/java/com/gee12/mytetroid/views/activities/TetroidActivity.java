@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.CommonSettings;
+import com.gee12.mytetroid.data.settings.CommonSettings;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidStorage;
 import com.gee12.mytetroid.utils.ViewUtils;
@@ -172,7 +172,15 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 
     public void afterStorageDecrypted(TetroidNode node) {}
 
-    protected void onPermissionGranted(int permission) {}
+    protected void onPermissionGranted(int requestCode) {
+        // по-умолчанию обрабатываем результат разрешения во ViewModel,
+        //  но можем переопределить onPermissionGranted и в активити
+        viewModel.onPermissionChecked(requestCode);
+    }
+
+    protected void onPermissionCanceled(int requestCode) {
+        viewModel.onPermissionCanceled(requestCode);
+    }
 
     // region FileFolderPicker
 
@@ -321,36 +329,41 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean permGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        boolean isGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
         switch (requestCode) {
 
             case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
-                if (permGranted) {
+                if (isGranted) {
                     viewModel.log(R.string.log_write_ext_storage_perm_granted);
-                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE);
                 } else {
                     viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true);
                 }
             } break;
 
             case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
-                if (permGranted) {
+                if (isGranted) {
                     viewModel.log(R.string.log_write_ext_storage_perm_granted);
-                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
                 } else {
                     viewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true);
                 }
             } break;
 
             case Constants.REQUEST_CODE_PERMISSION_TERMUX: {
-                if (permGranted) {
+                if (isGranted) {
                     viewModel.log(R.string.log_run_termux_commands_perm_granted);
-//                    StorageManager.startStorageSyncAndInit(this);
-                    onPermissionGranted(Constants.REQUEST_CODE_PERMISSION_TERMUX);
                 } else {
                     viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true);
                 }
             } break;
+
+            default:
+                return;
+        }
+
+        if (isGranted) {
+            onPermissionGranted(requestCode);
+        } else {
+            onPermissionCanceled(requestCode);
         }
     }
 

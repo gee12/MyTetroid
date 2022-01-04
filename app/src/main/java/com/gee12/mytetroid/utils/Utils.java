@@ -365,15 +365,16 @@ public class Utils {
             throws IndexOutOfBoundsException {
         if (list == null)
             return false;
+        int size = list.size();
         if (isUp) {
             if (pos > 0 || through && pos == 0) {
-                int newPos = (through && pos == 0) ? list.size() - 1 : pos - 1;
-                Collections.swap(list, newPos, pos);
+                int newPos = (through && pos == 0) ? size - 1 : pos - 1;
+                Collections.swap(list, pos, newPos);
                 return true;
             }
         } else {
-            if (pos < list.size() - 1 || through && pos == list.size() - 1) {
-                int newPos = (through && pos == list.size() - 1) ? 0 : pos + 1;
+            if (pos < size - 1 || through && pos == size - 1) {
+                int newPos = (through && pos == size - 1) ? 0 : pos + 1;
                 Collections.swap(list, pos, newPos);
                 return true;
             }

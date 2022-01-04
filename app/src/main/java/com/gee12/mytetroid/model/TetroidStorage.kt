@@ -22,7 +22,7 @@ class TetroidStorage(
     var quicklyNode: TetroidNode? = null
 
     /**
-     * Состояние
+     * Состояние.
      */
     var isInited = false // загружены ли служебные файлы хранилища
     var isLoaded = false // загружено ли дерево веток хранилища
@@ -32,21 +32,12 @@ class TetroidStorage(
 
     constructor(name: String, path: String, isDefault: Boolean, isReadOnly: Boolean, isNew: Boolean)
             : this(name, path) {
-        val curDate = Date()
-        init(curDate, curDate)
         this.isReadOnly = isReadOnly
         this.isDefault = isDefault
         this.isNew = isNew
     }
 
     constructor(path: String) : this(getFolderNameFromPath(path), path) {
-        val curDate = Date()
-        init(curDate, curDate)
-    }
-
-    private fun init(created: Date, edited: Date) {
-        createdDate = created
-        editedDate = edited
     }
 
     fun getCopy(src: TetroidStorage): TetroidStorage {

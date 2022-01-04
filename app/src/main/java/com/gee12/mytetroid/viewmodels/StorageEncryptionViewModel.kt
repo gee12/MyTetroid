@@ -8,8 +8,8 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ICallback
 import com.gee12.mytetroid.data.ITaskProgress
-import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.interactors.PasswordInteractor
@@ -20,7 +20,6 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.StringUtils
-import com.gee12.mytetroid.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

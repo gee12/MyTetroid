@@ -34,7 +34,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.TetroidSuggestionProvider;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.helpers.HtmlHelper;
-import com.gee12.mytetroid.data.CommonSettings;
+import com.gee12.mytetroid.data.settings.CommonSettings;
 import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.viewmodels.ActivityResult;
 import com.gee12.mytetroid.viewmodels.RecordViewModel;
@@ -66,6 +66,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 /**
  * Активность просмотра и редактирования содержимого записи.
@@ -115,43 +118,12 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String action;
-        if (receivedIntent == null || (action = receivedIntent.getAction()) == null) {
+        if (receivedIntent == null || receivedIntent.getAction() == null) {
             finish();
             return;
         }
-        if (action.equals(Intent.ACTION_MAIN)) {
-            // открытие или создание записи из главной активности
-            if (!viewModel.initStorage(receivedIntent)) {
-                finish();
-                return;
-            }
-        } else if (action.equals(Constants.ACTION_ADD_RECORD)) {
-            // создание записи из виджета
-            if (!viewModel.initStorage(receivedIntent)) {
-                finish();
-                return;
-            }
-        /*} else if (action.equals(Intent.ACTION_SEND)) {
-            // прием текста из другого приложения
-            String type = mReceivedIntent.getType();
-            if (type != null && type.startsWith("text/")) {
-                String text = mReceivedIntent.getStringExtra(Intent.EXTRA_TEXT);
-                if (text == null) {
-                    LogManager.log(this, R.string.log_not_passed_text, ILogger.Types.WARNING, Toast.LENGTH_LONG);
-                    finish();
-                    return;
-                }
-                LogManager.log(this, getString(R.string.log_receiving_intent_text), ILogger.Types.INFO);
-                showIntentDialog(mReceivedIntent, text);
-            } else {
-                finish();
-                return;
-            }*/
-        } else {
-            finish();
-            return;
-        }
+
+        startInitStorage();
 
         viewModel.onCreate(receivedIntent);
 
@@ -277,13 +249,41 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         switch (event) {
+            case PermissionCheck:
+                break;
+            case PermissionGranted:
+                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
+                startInitStorage();
+                break;
+            case PermissionCanceled:
+                // закрываем активити, если нет разрешения на запись во внешнюю память
+                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
+                finish();
+                break;
             case Inited:
                 viewModel.onStorageInited(receivedIntent);
                 break;
-            case PermissionCheck:
-                break;
         }
         super.onStorageEvent(event, data);
+    }
+
+    private void startInitStorage() {
+        viewModel.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, () -> {
+            switch (receivedIntent.getAction()) {
+                // открытие или создание записи из главной активности
+                case Intent.ACTION_MAIN:
+                    // создание записи из виджета
+                case Constants.ACTION_ADD_RECORD:
+                    if (!viewModel.initStorage(receivedIntent)) {
+                        finish();
+                    }
+                    break;
+                default:
+                    finish();
+                    break;
+            }
+            return null;
+        });
     }
 
     private void showNeedMigrationDialog() {

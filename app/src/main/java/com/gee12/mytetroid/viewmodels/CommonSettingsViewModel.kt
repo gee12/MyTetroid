@@ -3,7 +3,7 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.repo.CommonSettingsRepo

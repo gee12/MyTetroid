@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.interactors
 
 import android.content.Context
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
 

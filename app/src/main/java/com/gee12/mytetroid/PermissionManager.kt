@@ -53,6 +53,14 @@ class PermissionInteractor(
     }
 
     /**
+     * Проверка разрешения на чтение из внешней памяти.
+     * @return
+     */
+    fun checkReadExtStoragePermission(activity: Activity, code: Int): Boolean {
+        return checkPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE, code, R.string.ask_request_read_ext_storage)
+    }
+
+    /**
      * Проверка разрешения на запись во внешнюю память.
      * @return
      */

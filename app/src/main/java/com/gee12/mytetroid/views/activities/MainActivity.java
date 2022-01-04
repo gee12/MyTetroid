@@ -2,7 +2,6 @@ package com.gee12.mytetroid.views.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -45,6 +44,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.ICallback;
+import com.gee12.mytetroid.interactors.FavoritesInteractor;
 import com.gee12.mytetroid.logs.LogObj;
 import com.gee12.mytetroid.logs.LogOper;
 import com.gee12.mytetroid.logs.LogType;
@@ -61,9 +61,8 @@ import com.gee12.mytetroid.viewmodels.ToolbarParams;
 import com.gee12.mytetroid.views.adapters.MainPagerAdapter;
 import com.gee12.mytetroid.views.adapters.NodesListAdapter;
 import com.gee12.mytetroid.views.adapters.TagsListAdapter;
-import com.gee12.mytetroid.data.FavoritesManager;
 import com.gee12.mytetroid.data.ScanManager;
-import com.gee12.mytetroid.data.CommonSettings;
+import com.gee12.mytetroid.data.settings.CommonSettings;
 import com.gee12.mytetroid.data.TetroidClipboard;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.attach.AttachAskDialogs;
@@ -355,12 +354,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // права доступа
             case PermissionCheck:
-                if (viewModel.getPermissionInteractor().checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE)) {
-                    viewModel.onPermissionChecked();
-                }
+                viewModel.checkWriteExtStoragePermission(this);
                 break;
-            case PermissionChecked:
+            case PermissionGranted:
                 viewModel.syncAndInitStorage(this);
+                break;
+            case PermissionCanceled:
+                // ничего не делаем
                 break;
 
             case AskBeforeClearTrashOnExit:
@@ -533,8 +533,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 break;
 
             // favorites
-            case UpdateFavorites:
-                updateFavorites();
+            case UpdateFavoritesTitle:
+                updateFavoritesTitle();
                 break;
 
             // storage tree observer
@@ -628,7 +628,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         favoritesNode.setVisibility((isLoaded && App.INSTANCE.isFullVersion()) ? View.VISIBLE : View.GONE);
         tvNodesEmpty.setVisibility(View.GONE);
         if (isLoaded && App.INSTANCE.isFullVersion()) {
-            updateFavorites();
+            updateFavoritesTitle();
         }
         // элементы фильтра веток и меток
         ViewUtils.setVisibleIfNotNull(searchViewNodes, isLoaded && !isOnlyFavorites);
@@ -669,8 +669,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 if (viewModel.isKeepLastNode() && !isEmpty && isOpenLastNode) {
                     String nodeId = viewModel.getLastNodeId();
                     if (nodeId != null) {
-                        if (nodeId.equals(FavoritesManager.FAVORITES_NODE.getId())) {
-                            nodeToSelect = FavoritesManager.FAVORITES_NODE;
+                        if (nodeId.equals(FavoritesInteractor.Companion.getFAVORITES_NODE().getId())) {
+                            nodeToSelect = FavoritesInteractor.Companion.getFAVORITES_NODE();
                         } else {
                             nodeToSelect = viewModel.getNode(nodeId);
                             if (nodeToSelect != null) {
@@ -692,7 +692,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     // списки записей, файлов
                     getMainPage().initListAdapters(this);
                     if (nodeToSelect != null) {
-                        if (nodeToSelect == FavoritesManager.FAVORITES_NODE) {
+                        if (nodeToSelect == FavoritesInteractor.Companion.getFAVORITES_NODE()) {
                             viewModel.showFavorites();
                         } else {
                             viewModel.showNode(nodeToSelect);
@@ -1003,7 +1003,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         listAdapterNodes.setCurNode(node);
         listAdapterNodes.notifyDataSetChanged();
         if (App.INSTANCE.isFullVersion()) {
-            setFavorIsCurNode(node == FavoritesManager.FAVORITES_NODE);
+            setFavorIsCurNode(node == FavoritesInteractor.Companion.getFAVORITES_NODE());
         }
     }
 
@@ -1313,10 +1313,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     /**
      * Обновление ветки Избранное.
      */
-    public void updateFavorites() {
-        List<TetroidRecord> favorites = FavoritesManager.getFavoritesRecords();
-        if (favorites == null)
-            return;
+    public void updateFavoritesTitle() {
+        List<TetroidRecord> favorites = viewModel.getFavoriteRecords();
         int size = favorites.size();
 
         TextView tvName = findViewById(R.id.favorites_name);
@@ -1873,16 +1871,16 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     @Override
-    protected void onPermissionGranted(int permission) {
-        switch (permission) {
-            case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE:
-                viewModel.onPermissionChecked();
-                break;
+    protected void onPermissionGranted(int requestCode) {
+        switch (requestCode) {
             case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP:
                 checkPermissionAndOpenAttach(viewModel.getTempFileToOpen());
                 break;
             case Constants.REQUEST_CODE_PERMISSION_TERMUX:
                 viewModel.syncAndInitStorage(this);
+                break;
+            default:
+                super.onPermissionGranted(requestCode);
                 break;
         }
     }
@@ -2468,7 +2466,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 intent.putExtra(Constants.EXTRA_QUERY, query);
             }
             TetroidNode curNode = viewModel.getCurNode();
-            String curNodeId = (curNode != null && curNode != FavoritesManager.FAVORITES_NODE) ? curNode.getId() : null;
+            String curNodeId = (curNode != null && curNode != FavoritesInteractor.Companion.getFAVORITES_NODE()) ? curNode.getId() : null;
             intent.putExtra(Constants.EXTRA_CUR_NODE_ID, curNodeId);
             startActivityForResult(intent, Constants.REQUEST_CODE_SEARCH_ACTIVITY);
         }

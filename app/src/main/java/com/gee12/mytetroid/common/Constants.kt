@@ -32,6 +32,7 @@ object Constants {
     const val REQUEST_CODE_OPEN_LOG_PATH = 114              // путь к каталогу лог-файла
     const val REQUEST_CODE_SYNC_STORAGE = 115               // синхронизация хранилища
 
+    const val REQUEST_CODE_PERMISSION_READ_STORAGE = 100
     const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
     const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
     const val REQUEST_CODE_PERMISSION_CAMERA = 103
@@ -125,7 +126,8 @@ object Constants {
         Changed,
         Added,
         PermissionCheck,
-        PermissionChecked,
+        PermissionGranted,
+        PermissionCanceled,
         AskBeforeClearTrashOnExit,
         AskAfterSyncManually,
         AskBeforeSyncOnInit,
@@ -190,7 +192,7 @@ object Constants {
         AttachDeleted,
 
         // favorites
-        UpdateFavorites,
+        UpdateFavoritesTitle,
 
         // global search
         GlobalSearchStart,

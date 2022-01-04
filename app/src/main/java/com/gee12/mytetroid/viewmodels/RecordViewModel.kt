@@ -36,8 +36,9 @@ import java.util.*
 import androidx.annotation.MainThread
 import com.gee12.mytetroid.common.Constants.RecordEvents
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 
 

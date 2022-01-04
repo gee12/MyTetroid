@@ -3,7 +3,7 @@ package com.gee12.mytetroid.views.fragments.settings
 import android.content.SharedPreferences
 import android.os.Bundle
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 
 class SettingsSyncFragment : TetroidSettingsFragment() {
 

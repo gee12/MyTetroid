@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.viewmodels.*
 
 class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInstanceFactory() {

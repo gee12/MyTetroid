@@ -3,8 +3,9 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.*
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -22,6 +23,7 @@ class NodesInteractor(
     private val cryptInteractor: EncryptionInteractor,
     private val dataInteractor: DataInteractor,
     private val recordsInteractor: RecordsInteractor,
+    private val favoritesInteractor: FavoritesInteractor,
     private val storageHelper: IStorageLoadHelper,
     private val xmlLoader: TetroidXml
 ) {
@@ -323,7 +325,7 @@ class NodesInteractor(
             for (record in node.records) {
                 // удаляем из избранного
                 if (record.isFavorite) {
-                    FavoritesManager.remove(context, record, false)
+                    favoritesInteractor.remove(record, false)
                 }
                 storageHelper.deleteRecordTags(record)
                 // проверяем существование каталога

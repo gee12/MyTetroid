@@ -1,9 +1,10 @@
 package com.gee12.mytetroid.interactors
 
 import android.content.Context
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.CommonSettingsRepo
@@ -11,7 +12,8 @@ import com.gee12.mytetroid.repo.CommonSettingsRepo
 class MigrationInteractor(
     private val logger: ITetroidLogger,
     private val commonSettingsRepo: CommonSettingsRepo,
-    private val storagesInteractor: StoragesInteractor
+    private val storagesInteractor: StoragesInteractor,
+    private val favoritesInteractor: FavoritesInteractor
 ) {
 
     suspend fun isNeedMigrateStorageFromPrefs(context: Context): Boolean {
@@ -24,20 +26,28 @@ class MigrationInteractor(
      * Миграция с версии < 5.0, когда не было многобазовости.
      */
     suspend fun addDefaultStorageFromPrefs(context: Context): Boolean {
-        return storagesInteractor.addStorage(
-            storagesInteractor.initStorage(
-                context,
-                TetroidStorage(
-                    path = CommonSettings.getStoragePath(context)
-                )
-            ).apply {
-                isDefault = true
-                middlePassHash = CommonSettings.getMiddlePassHash(context)
-                quickNodeId = CommonSettings.getQuicklyNodeId(context)
-                lastNodeId = CommonSettings.getLastNodeId(context)
-                // TODO: создать миграцию Избранного
-//                favorites = CommonSettings.getFavorites(context)
-            })
+        val storage = storagesInteractor.initStorage(
+            context,
+            TetroidStorage(
+                path = CommonSettings.getStoragePath(context)
+            )
+        ).apply {
+            isDefault = true
+            middlePassHash = CommonSettings.getMiddlePassHash(context)
+            quickNodeId = CommonSettings.getQuicklyNodeId(context)
+            lastNodeId = CommonSettings.getLastNodeId(context)
+        }
+
+        val result = storagesInteractor.addStorage(storage)
+
+        if (result && App.isFullVersion()) {
+            val favorites = CommonSettings.getFavorites(context)
+            favorites.forEach { recordId ->
+                favoritesInteractor.addFavorite(storage.id, recordId)
+            }
+        }
+
+        return result
     }
 
 }

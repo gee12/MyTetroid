@@ -8,7 +8,7 @@ import androidx.preference.Preference
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.RecordFieldsSelector
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.views.DateTimeFormatPreference
 import com.gee12.mytetroid.views.DateTimeFormatDialog
 

@@ -14,7 +14,7 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
      * @param node
      * @return
      */
-    fun decryptNode(context: Context, node: TetroidNode?): Boolean
+    fun decryptNode(context: Context, node: TetroidNode): Boolean
 
     /**
      * Обработчик события о необходимости расшифровки записи (вместе с прикрепленными файлами)
@@ -22,21 +22,26 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
      * @param record
      * @return
      */
-    fun decryptRecord(context: Context, record: TetroidRecord?): Boolean
+    fun decryptRecord(context: Context, record: TetroidRecord): Boolean
 
     /**
      * Проверка является ли запись избранной.
      * @param id
      * @return
      */
-    fun isRecordFavorite(id: String?): Boolean
+    fun checkRecordIsFavorite(id: String): Boolean
 
     /**
      * Добавление записи в избранное.
      * @param record
      * @return
      */
-    fun addRecordFavorite(record: TetroidRecord?)
+    fun loadRecordToFavorites(record: TetroidRecord)
+
+    /**
+     * Получение списка избранных записей.
+     */
+    fun getFavoriteRecords(): List<TetroidRecord>
 
     /**
      * Разбираем метки у незашифрованных записей ветки.
@@ -55,5 +60,7 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
     fun getStoragePath(): String
 
     fun getTrashPath(): String
+
+    fun getStorageId(): Int
 
 }

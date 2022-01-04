@@ -225,7 +225,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         tvRecordsEmpty.setText((viewId == Constants.MAIN_VIEW_FAVORITES)
                 ? R.string.title_favors_is_missing : R.string.title_records_is_missing);
         showGlobalSearchButton(false);
-        this.listAdapterRecords.setDataItems(records, viewId);
+        listAdapterRecords.setDataItems(records, viewId);
         lvRecords.setAdapter(listAdapterRecords);
     }
 
@@ -233,7 +233,11 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * Обновление списка записей.
      */
     public void updateRecordList() {
-        if (listAdapterRecords != null) {
+        if (listAdapterRecords == null) return;
+
+        if ((viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES)) {
+            listAdapterRecords.setDataItems(viewModel.getFavoriteRecords(), viewModel.getCurMainViewId());
+        } else {
             listAdapterRecords.notifyDataSetInvalidated();
             // FIXME?
 //            listAdapterRecords.notifyDataSetChanged();
@@ -615,10 +619,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 reorderRecord(pos, false);
                 return true;
             case R.id.action_add_favorite:
-                viewModel.addFavorite(getContext(), record);
+                viewModel.addToFavorite(record);
                 return true;
             case R.id.action_remove_favorite:
-                viewModel.removeFavorite(getContext(), record);
+                viewModel.removeFromFavorite(record);
                 return true;
             case R.id.action_info:
                 showRecordInfoDialog(record);

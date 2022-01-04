@@ -3,8 +3,8 @@ package com.gee12.mytetroid
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.ColorInt
-import com.gee12.mytetroid.data.CommonSettings
-import com.gee12.mytetroid.data.TetroidXml
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger

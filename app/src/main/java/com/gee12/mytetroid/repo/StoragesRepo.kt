@@ -11,7 +11,7 @@ class StoragesRepo(context: Context) {
     val dataBase = TetroidDatabase.create(context)
 
     suspend fun getStorages() = withContext(Dispatchers.IO) {
-        dataBase.storagesDao.getAll().map(::toStorage)
+        dataBase.storagesDao.getAll().map(::toTetroidStorage)
     }
 
     suspend fun getStoragesCount() = withContext(Dispatchers.IO) {
@@ -20,13 +20,13 @@ class StoragesRepo(context: Context) {
 
     suspend fun getDefaultStorage() = withContext(Dispatchers.IO) {
         dataBase.storagesDao.getDefaultStorage().firstOrNull()?.let {
-            toStorage(it)
+            toTetroidStorage(it)
         }
     }
 
     suspend fun getStorage(id: Int) = withContext(Dispatchers.IO) {
         dataBase.storagesDao.getById(id)?.let {
-            toStorage(it)
+            toTetroidStorage(it)
         }
     }
 
@@ -57,10 +57,7 @@ class StoragesRepo(context: Context) {
         dataBase.storagesDao.deleteById(storage.id) > 0
     }
 
-    /**
-     * TODO: добавить остальные поля
-     */
-    private fun toStorage(entity: StorageEntity) = TetroidStorage(
+    private fun toTetroidStorage(entity: StorageEntity) = TetroidStorage(
         entity.name,
         entity.path,
         entity.isDefault,
@@ -68,8 +65,6 @@ class StoragesRepo(context: Context) {
         false
     ).apply {
         id = entity.id
-        createdDate = entity.createdDate
-        editedDate = entity.editedDate
         order = entity.order
         trashPath = entity.trashPath
         isClearTrashBeforeExit = entity.isClearTrashBeforeExit
@@ -82,5 +77,7 @@ class StoragesRepo(context: Context) {
         middlePassHash = entity.middlePassHash
         isDecyptToTemp = entity.isDecyptToTemp
         syncProfile = entity.syncProfile
+        createdDate = entity.createdDate
+        editedDate = entity.editedDate
     }
 }

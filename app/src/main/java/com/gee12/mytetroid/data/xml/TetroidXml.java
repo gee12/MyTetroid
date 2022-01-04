@@ -1,11 +1,9 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data.xml;
 
 import android.content.Context;
 import android.util.Xml;
 
 import com.gee12.mytetroid.AppDebug;
-import com.gee12.mytetroid.data.xml.IStorageLoadHelper;
-import com.gee12.mytetroid.data.xml.TetroidXMLProcessor;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
@@ -33,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * TODO: сделать класс не абстрактным, создать ITetroidXml
+ * Загрузчик структуры хранилища из файла mytetra.xml.
  */
 public class TetroidXml {
 
@@ -418,7 +416,7 @@ public class TetroidXml {
             id = parser.getAttributeValue(ns, "id");
 
             // проверяем id на избранность
-            isFavorite = mLoadHelper.isRecordFavorite(id);
+            isFavorite = mLoadHelper.checkRecordIsFavorite(id);
             if (mIsFavoritesMode && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
                 skip(parser); // пропускаем <files>, если есть
@@ -459,7 +457,7 @@ public class TetroidXml {
         }
         if (isFavorite) {
             // добавляем избранную запись
-            mLoadHelper.addRecordFavorite(record);
+            mLoadHelper.loadRecordToFavorites(record);
         }
 
         // расшифровка

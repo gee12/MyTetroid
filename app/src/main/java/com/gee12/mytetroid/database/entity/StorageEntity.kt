@@ -24,7 +24,7 @@ open class StorageEntity(
     @ColumnInfo(name = "isReadOnly")
     var isReadOnly: Boolean = false
 
-    @ColumnInfo(name = "order")
+    @ColumnInfo(name = "orderNum")
     var order: Int = 0
 
     @ColumnInfo(name = "trashPath")

@@ -404,6 +404,7 @@
     <string name="ask_sync_success_dialog_request">Синхронизация выполнена. Перезагрузить хранилище?</string>
     <string name="ask_sync_failed_dialog_request">Синхронизация не удалась. Все равно загрузить хранилище?</string>
     <string name="ask_sync_failed_before_exit_dialog_request">Синхронизация не удалась. Выйти все равно?</string>
+    <string name="ask_request_read_ext_storage">Необходимо разрешение на чтение из внешней памяти для выбора каталога хранилища. Предоставить ?</string>
     <string name="ask_request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
     <string name="ask_request_camera">Необходимо разрешение на использование камеры для захвата изображения. Предоставить ?</string>
     <string name="ask_show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
@@ -674,8 +675,8 @@
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
     <string name="log_added_to_favor">Добавлено в избранное</string>
     <string name="log_deleted_from_favor">Удалено из избранного</string>
-    <string name="log_with_id_to_favor_mask">\" с id=%s в избранное\"</string>
-    <string name="log_with_id_from_favor_mask">\" с id=%s из избранного\"</string>
+    <string name="log_with_id_to_favor_mask">&#160;с id=%s в избранное</string>
+    <string name="log_with_id_from_favor_mask">&#160;с id=%s из избранного</string>
     <string name="error_log_file_path_is_null">Не задан путь к лог-файлу</string>
     <string name="error_get_storage_folder_size_mask">Ошибка получения размера хранилища: %s</string>
     <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога записи: %s</string>

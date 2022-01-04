@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
-import com.gee12.mytetroid.data.CommonSettings
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.repo.CommonSettingsRepo

@@ -7,6 +7,8 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants.SEPAR
 import com.gee12.mytetroid.data.*
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -33,6 +35,7 @@ class RecordsInteractor(
     private val dataInteractor: DataInteractor,
     private val interactionInteractor: InteractionInteractor,
     private val tagsParser: ITagsParser,
+    private val favoritesInteractor: FavoritesInteractor,
     private val xmlLoader: TetroidXml
 ) {
 
@@ -232,7 +235,7 @@ class RecordsInteractor(
         node.addRecord(record)
         // добавляем в избранное обратно
         if (isCutted && record.isFavorite) {
-            FavoritesManager.add(context, record)
+            favoritesInteractor.add(record)
         }
         // добавляем метки в запись и в коллекцию меток
         tagsParser.parseRecordTags(record, tagsString)
@@ -410,7 +413,7 @@ class RecordsInteractor(
             tagsParser.parseRecordTags(record, tagsString)
             // добавляем в избранное
             if (isFavor) {
-                FavoritesManager.add(context, record)
+                favoritesInteractor.add(record)
             }
         } else {
             logger.logOperCancel(LogObj.RECORD, LogOper.CREATE)
@@ -564,7 +567,7 @@ class RecordsInteractor(
             }
             if (App.isFullVersion()) {
                 // добавляем/удаляем из избранного
-                FavoritesManager.addOrRemove(context, record, isFavor)
+                favoritesInteractor.addOrRemoveIfNeed(record, isFavor)
             }
             // зашифровываем или расшифровываем файл записи и прикрепленные файлы
             // FIXME: обрабатывать результат ?
@@ -591,7 +594,7 @@ class RecordsInteractor(
             node.deleteRecord(record)
             oldNode?.addRecord(record)
             if (App.isFullVersion()) {
-                FavoritesManager.addOrRemove(context, record, oldIsFavor)
+                favoritesInteractor.addOrRemoveIfNeed(record, oldIsFavor)
             }
             if (isTemp) {
                 moveRecordFolder(
@@ -723,7 +726,7 @@ class RecordsInteractor(
         if (saveStorage(context)) {
             // добавляем в избранное обратно
             if (isCutted && srcRecord.isFavorite) {
-                FavoritesManager.add(context, record)
+                favoritesInteractor.add(record)
             }
             // добавляем метки в запись и в коллекцию меток
             tagsParser.parseRecordTags(record, tagsString)
@@ -803,7 +806,7 @@ class RecordsInteractor(
         if (saveStorage(context)) {
             // удаляем из избранного
             if (record.isFavorite) {
-                FavoritesManager.remove(context, record, false)
+                favoritesInteractor.remove(record, false)
             }
             // перезагружаем список меток
             tagsParser.deleteRecordTags(record)
@@ -978,16 +981,13 @@ class RecordsInteractor(
     fun getRecord(id: String?): TetroidRecord? {
         val comparator = TetroidRecordComparator(TetroidRecord.FIELD_ID)
         return findRecordInHierarchy(id, comparator)
-//        return (App.IsLoadedFavoritesOnly)
-//                ? findRecord(FavoritesManager.getFavoritesRecords(), id, comparator)
-//                : findRecordInHierarchy(Instance.getRootNodes(), id, comparator);
     }
 
     fun findRecordInHierarchy(fieldValue: String?, comparator: TetroidRecordComparator): TetroidRecord? {
         var found: TetroidRecord?
         if (findRecord(TetroidXml.ROOT_NODE.records, fieldValue, comparator).also { found = it } != null)
             return found
-        return if (xmlLoader.mIsFavoritesMode) findRecord(FavoritesManager.getFavoritesRecords(), fieldValue, comparator)
+        return if (xmlLoader.mIsFavoritesMode) findRecord(favoritesInteractor.getFavoriteRecords(), fieldValue, comparator)
         else findRecordInHierarchy(storageInteractor.getRootNodes(), fieldValue, comparator)
     }
 

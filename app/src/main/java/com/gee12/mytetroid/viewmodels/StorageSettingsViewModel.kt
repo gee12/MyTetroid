@@ -6,20 +6,22 @@ import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.repo.CommonSettingsRepo
+import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -58,17 +60,66 @@ abstract class StorageSettingsViewModel(
 
     val commonSettingsInteractor = CommonSettingsInteractor(this.logger)
     val dataInteractor = DataInteractor(this.logger)
-    val permissionInteractor = PermissionInteractor(logger)
-    val storageInteractor = StorageInteractor(this.logger, storageHelper = this, xmlLoader, dataInteractor)
+    val storageInteractor = StorageInteractor(
+        logger = this.logger,
+        storageHelper = this,
+        xmlLoader = xmlLoader,
+        dataInteractor = dataInteractor
+    )
     val interactionInteractor =  InteractionInteractor(this.logger)
-    val cryptInteractor = EncryptionInteractor(this.logger, this.crypter, xmlLoader, storageHelper = this)
-    val recordsInteractor = RecordsInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, tagsParser = this, xmlLoader)
-    val nodesInteractor = NodesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, recordsInteractor, storageHelper = this, xmlLoader)
-    val tagsInteractor = TagsInteractor(this.logger, storageInteractor, xmlLoader)
-    val attachesInteractor = AttachesInteractor(this.logger, storageInteractor, cryptInteractor, dataInteractor, interactionInteractor, recordsInteractor)
-    val syncInteractor =  SyncInteractor(this.logger, permissionInteractor)
+    val cryptInteractor = EncryptionInteractor(
+        logger = this.logger,
+        crypter = this.crypter,
+        xmlHelper = xmlLoader,
+        storageHelper = this
+    )
+    val favoritesInteractor = FavoritesInteractor(
+        logger = this.logger,
+        favoritesRepo = FavoritesRepo(getContext()),
+        storageHelper = this
+    )
+    val recordsInteractor = RecordsInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        interactionInteractor = interactionInteractor,
+        tagsParser = this,
+        favoritesInteractor = favoritesInteractor,
+        xmlLoader = xmlLoader
+    )
+    val nodesInteractor = NodesInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        recordsInteractor = recordsInteractor,
+        favoritesInteractor = favoritesInteractor,
+        storageHelper = this,
+        xmlLoader = xmlLoader
+    )
+    val tagsInteractor = TagsInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        xmlLoader = xmlLoader
+    )
+    val attachesInteractor = AttachesInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        interactionInteractor = interactionInteractor,
+        recordsInteractor = recordsInteractor
+    )
+    val syncInteractor =  SyncInteractor(
+        logger = this.logger,
+        permissionInteractor = permissionInteractor
+    )
     // FIXME: использовать DI
-    val trashInteractor = TrashInteractor(this.logger, App.current.storagesRepo ?: StoragesRepo(getContext()))
+    val trashInteractor = TrashInteractor(
+        logger = this.logger,
+        storagesRepo = App.current.storagesRepo ?: StoragesRepo(getContext())
+    )
 
     // FIXME: Проверить:
     var quicklyNode: TetroidNode?
@@ -104,7 +155,7 @@ abstract class StorageSettingsViewModel(
 
     //region IStorageLoadHelper
 
-    override fun decryptNode(context: Context, node: TetroidNode?): Boolean {
+    override fun decryptNode(context: Context, node: TetroidNode): Boolean {
         //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
         return runBlocking(Dispatchers.IO) {
             crypter.decryptNode(
@@ -119,7 +170,7 @@ abstract class StorageSettingsViewModel(
         }
     }
 
-    override fun decryptRecord(context: Context, record: TetroidRecord?): Boolean {
+    override fun decryptRecord(context: Context, record: TetroidRecord): Boolean {
         //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
         return runBlocking(Dispatchers.IO) {
             crypter.decryptRecordAndFiles(
@@ -131,14 +182,16 @@ abstract class StorageSettingsViewModel(
         }
     }
 
-    override fun isRecordFavorite(id: String?): Boolean {
-        // TODO: в Interactor
-        return FavoritesManager.isFavorite(id)
+    override fun checkRecordIsFavorite(id: String): Boolean {
+        return runBlocking { favoritesInteractor.isFavorite(id) }
     }
 
-    override fun addRecordFavorite(record: TetroidRecord?) {
-        // TODO: в Interactor
-        FavoritesManager.set(record)
+    override fun loadRecordToFavorites(record: TetroidRecord) {
+        return runBlocking { favoritesInteractor.setObject(record) }
+    }
+
+    override fun getFavoriteRecords(): List<TetroidRecord> {
+        return favoritesInteractor.getFavoriteRecords()
     }
 
     override fun createDefaultNode(): Boolean {
@@ -329,7 +382,7 @@ abstract class StorageSettingsViewModel(
 
     //region Getters
 
-    fun getStorageId() = storage?.id ?: 0
+    override fun getStorageId() = storage?.id ?: 0
 
     override fun getStoragePath() = storage?.path ?: ""
 
