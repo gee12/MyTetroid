@@ -128,7 +128,7 @@ class StorageInteractor(
                 val to = File(destPath)
                 // перемещаем старую версию файла mytetra.xml в корзину
                 val nameInTrash = dataInteractor.createDateTimePrefix() + "_" + MYTETRA_XML_FILE_NAME
-                if (dataInteractor.moveFile(context, destPath, CommonSettings.getTrashPathDef(context), nameInTrash) <= 0) {
+                if (dataInteractor.moveFile(context, destPath, getPathToStorageTrashFolder(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
 //                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);

@@ -5,6 +5,8 @@ import java.io.File
 object Constants {
 
     val SEPAR = File.separator
+    const val TRASH_DIR_NAME = "trash"
+    const val LOG_DIR_NAME = "log"
 
     const val VERSION_FIRST_MIGRATION = 49
     const val VERSION_50 = 50

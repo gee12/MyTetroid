@@ -601,7 +601,7 @@ class RecordsInteractor(
                     context,
                     record,
                     getPathToRecordFolder(record),
-                    CommonSettings.getTrashPathDef(context),
+                    storageInteractor.getPathToStorageTrashFolder(),
                     oldDirName
                 )
                 record.setIsTemp(true)
@@ -620,7 +620,7 @@ class RecordsInteractor(
      * -1 - ошибка (отсутствует каталог записи)
      */
     suspend fun deleteRecord(context: Context, record: TetroidRecord, withoutDir: Boolean): Int {
-        return deleteRecord(context, record, withoutDir, CommonSettings.getTrashPathDef(context), false)
+        return deleteRecord(context, record, withoutDir, storageInteractor.getPathToStorageTrashFolder(), false)
     }
 
     /**
@@ -631,7 +631,7 @@ class RecordsInteractor(
      * -1 - ошибка (отсутствует каталог записи)
      */
     suspend fun cutRecord(context: Context, record: TetroidRecord, withoutDir: Boolean): Int {
-        return deleteRecord(context, record, withoutDir, CommonSettings.getTrashPathDef(context), true)
+        return deleteRecord(context, record, withoutDir, storageInteractor.getPathToStorageTrashFolder(), true)
     }
 
     /**
@@ -744,7 +744,7 @@ class RecordsInteractor(
             if (!withoutDir) {
                 if (isCutted) {
                     // перемещаем каталог записи обратно в корзину
-                    return moveRecordFolder(context, record, destDirPath, CommonSettings.getTrashPathDef(context), srcRecord.dirName)
+                    return moveRecordFolder(context, record, destDirPath, storageInteractor.getPathToStorageTrashFolder(), srcRecord.dirName)
                 } else {
                     // удаляем только что скопированный каталог записи
                     if (FileUtils.deleteRecursive(destDir)) {

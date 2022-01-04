@@ -33,19 +33,18 @@ class InteractionInteractor(
         intent.type = "text/plain"
         intent.putExtra(Intent.EXTRA_SUBJECT, subject)
         intent.putExtra(Intent.EXTRA_TEXT, text)
-//        context.startActivity(Intent.createChooser(intent, context.getString(R.string.share_using)));
         // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
         val chooser = Intent.createChooser(intent, context.getString(R.string.title_send_to))
+        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
             // проверить, есть ли подходящее приложение для открытия файла
             if (intent.resolveActivity(context.packageManager) != null) {
-//                context.startActivity(intent);
                 context.startActivity(chooser)
             } else {
                 logger.logWarning(context.getString(R.string.log_no_app_found_for_share_text), true)
                 return false
             }
-        } catch (ex: ActivityNotFoundException) {
+        } catch (ex: Exception) {
             logger.logWarning(context.getString(R.string.log_no_app_found_for_share_text), true)
             return false
         }

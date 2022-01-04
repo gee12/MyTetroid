@@ -44,6 +44,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.SortHelper;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.ICallback;
+import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.interactors.FavoritesInteractor;
 import com.gee12.mytetroid.logs.LogObj;
 import com.gee12.mytetroid.logs.LogOper;
@@ -277,6 +278,19 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     @Override
     protected void initViewModel() {
+
+        // FIXME 1: как-то может можно это отсюда убрать ?
+        //  проблема в том, что CommonSettings.init() должен вызваться до создания logger,
+        //  в котором при его создании читаются опции из CommonSettings
+        //  Но в MainViewModel.init() это не засунешь, т.к. инициализация MainViewModel запускается позже
+        //  инициализации BaseViewModel ..!
+
+        // FIXME 2: здесь logger нельзя прокинуть в interactor, т.к. logger еще не создан.
+        CommonSettingsInteractor interactor = new CommonSettingsInteractor();
+        interactor.createDefaultFolders(this);
+
+        CommonSettings.init(this, interactor);
+
         super.initViewModel();
         viewModel.getObjectAction().observe(this, it -> onEvent((Constants.MainEvents) it.getState(), it.getData()));
     }

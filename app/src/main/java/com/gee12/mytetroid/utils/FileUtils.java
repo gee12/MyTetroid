@@ -315,15 +315,17 @@ public class FileUtils {
      * @param dir
      * @return
      */
-    public static boolean createDirIfNeed(File dir) {
+    public static int createDirsIfNeed(File dir) {
         if (dir == null)
-            return false;
+            return -1;
         if (!dir.exists()) {
-            if (!dir.mkdirs()) {
-                return false;
+            if (dir.mkdirs()) {
+                return 1;
+            } else {
+                return -1;
             }
         }
-        return true;
+        return 0;
     }
 
     /**

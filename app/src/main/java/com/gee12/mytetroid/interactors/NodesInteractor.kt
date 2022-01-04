@@ -272,7 +272,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun deleteNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, CommonSettings.getTrashPathDef(context), false)
+        return deleteNode(context, node, storageHelper.getTrashPath(), false)
     }
 
     /**
@@ -281,7 +281,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun cutNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, CommonSettings.getTrashPathDef(context), true)
+        return deleteNode(context, node, storageHelper.getTrashPath(), true)
     }
 
     /**

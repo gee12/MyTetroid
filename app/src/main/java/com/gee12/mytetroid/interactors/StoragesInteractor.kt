@@ -22,9 +22,12 @@ class StoragesInteractor(
     fun initStorage(context: Context, storage: TetroidStorage): TetroidStorage {
         return storage.apply {
             // основное
-            trashPath = CommonSettings.getTrashPathDef(context)
             isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)
             isKeepLastNode = CommonSettings.isKeepLastNodeDef(context)
+            // корзина
+            trashPath = CommonSettings.getTrashPathDef(context)
+            isClearTrashBeforeExit = CommonSettings.isClearTrashBeforeExitDef(context)
+            isAskBeforeClearTrashBeforeExit = CommonSettings.isAskBeforeClearTrashBeforeExitDef(context)
             // шифрование
             isSavePassLocal = CommonSettings.isSaveMiddlePassHashLocalDef(context)
             isDecyptToTemp = CommonSettings.isDecryptFilesInTempDef(context)

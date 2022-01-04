@@ -2,6 +2,7 @@ package com.gee12.mytetroid
 
 import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.interactors.CommonSettingsInteractor
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.FileTetroidLogger
 import com.gee12.mytetroid.repo.CommonSettingsRepo
@@ -19,4 +20,5 @@ class TetroidEnvironment(
     var settingsRepo: CommonSettingsRepo? = null,
 
     var storageInteractor: StorageInteractor? = null,
+    var settingsInteractor: CommonSettingsInteractor? = null
 )

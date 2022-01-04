@@ -6,6 +6,7 @@ import androidx.annotation.ColorInt
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.interactors.CommonSettingsInteractor
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.repo.CommonSettingsRepo
@@ -64,6 +65,7 @@ object App {
         storagesRepo: StoragesRepo,
         storageInteractor: StorageInteractor,
         settingsRepo: CommonSettingsRepo,
+        settingsInteractor: CommonSettingsInteractor,
         crypter: TetroidCrypter
     ) {
         if (IsInited) return
@@ -75,6 +77,7 @@ object App {
             this.storagesRepo = storagesRepo
             this.settingsRepo = settingsRepo
             this.storageInteractor = storageInteractor
+            this.settingsInteractor = settingsInteractor
         }
 
         logger.writeRawString("************************************************************")

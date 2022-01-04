@@ -802,4 +802,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_pin_crypt_was_migrated">PIN has been re-encrypted from RC5 to MD5</string>
     <string name="log_error_pin_crypt_migrate">Error re-encrypting PIN from RC5 to MD5</string>
     <string name="log_error_migration">Settings migration failed</string>
+    <string name="log_created_folder_mask">Created folder: %s [%s]</string>
+    <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
 </resources>

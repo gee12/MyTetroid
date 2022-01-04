@@ -10,8 +10,8 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.utils.FileUtils;
 import com.gee12.mytetroid.utils.Utils;
 
 import java.util.ArrayList;
@@ -45,18 +45,16 @@ public class CommonSettings {
     /**
      * Инициализация настроек.
      */
-    public static void init(Context context) {
+    public static void init(Context context, CommonSettingsInteractor interactor) {
         CommonSettings.settings = getPrefs(context);
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
+
         // стартовые значения, которые нельзя установить в xml
-//        if (getStoragePath() == null) {
-//            setStoragePath(Utils.getExternalPublicDocsDir());
-//        }
         if (getTrashPathDef(context) == null) {
-            setTrashPathDef(context, FileUtils.getAppExternalFilesDir(context));
+            setTrashPathDef(context, interactor.getDefaultTrashPath(context));
         }
         if (getLogPath(context) == null) {
-            setLogPath(context, FileUtils.getAppExternalFilesDir(context));
+            setLogPath(context, interactor.getDefaultLogPath(context));
         }
         if (App.INSTANCE.isFreeVersion()) {
             // принудительно отключаем

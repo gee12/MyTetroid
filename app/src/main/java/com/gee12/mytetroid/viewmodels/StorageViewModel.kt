@@ -70,7 +70,8 @@ open class StorageViewModel(
             crypter = this.crypter,
             storagesRepo = this.storagesRepo,
             settingsRepo = this.settingsRepo,
-            storageInteractor = this.storageInteractor
+            storageInteractor = this.storageInteractor,
+            settingsInteractor = this.settingsInteractor
         )
     }
 
@@ -614,14 +615,12 @@ open class StorageViewModel(
         return false
     }
 
-    // FIXME: почему-то нигде не вызывается
     fun onRecordDecrypt(record: TetroidRecord): Boolean {
         if (record.isFavorite && !record.isNonCryptedOrDecrypted) {
-            // запрос пароля в асинхронном режиме
-
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
             //  поэтому отправляем FAVORITES_NODE
             val params = StorageParams(
+                isDecrypt = true,
                 node = FavoritesInteractor.FAVORITES_NODE,
                 isNodeOpening = true,
                 isFavoritesOnly = isLoadFavoritesOnly(),

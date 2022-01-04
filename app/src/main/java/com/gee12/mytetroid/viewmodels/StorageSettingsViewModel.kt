@@ -60,13 +60,14 @@ abstract class StorageSettingsViewModel(
 
     val commonSettingsInteractor = CommonSettingsInteractor(this.logger)
     val dataInteractor = DataInteractor(this.logger)
+    val settingsInteractor = CommonSettingsInteractor(this.logger)
     val storageInteractor = StorageInteractor(
         logger = this.logger,
         storageHelper = this,
         xmlLoader = xmlLoader,
         dataInteractor = dataInteractor
     )
-    val interactionInteractor =  InteractionInteractor(this.logger)
+    val interactionInteractor = InteractionInteractor(this.logger)
     val cryptInteractor = EncryptionInteractor(
         logger = this.logger,
         crypter = this.crypter,

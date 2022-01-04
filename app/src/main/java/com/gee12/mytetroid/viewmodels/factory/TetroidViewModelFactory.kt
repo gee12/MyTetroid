@@ -33,12 +33,12 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
 //            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
             modelClass == MainViewModel::class.java -> {
 
-                // FIXME: как-то может можно это отсюда убрать ?
-                //  проблема в том, что init() должен вызваться до создания logger,
-                //  в котором при его создании читаются опции из CommonSettings
-                //  Но в MainViewModel.init() это не засунешь, т.к. инициализация MainViewModel запускается позже
-                //  инициализации BaseViewModel ..!
-                CommonSettings.init(app)
+//                // FIXME: как-то может можно это отсюда убрать ?
+//                //  проблема в том, что init() должен вызваться до создания logger,
+//                //  в котором при его создании читаются опции из CommonSettings
+//                //  Но в MainViewModel.init() это не засунешь, т.к. инициализация MainViewModel запускается позже
+//                //  инициализации BaseViewModel ..!
+//                CommonSettings.init(app, env.settingsInteractor)
 
                 MainViewModel(
                     app = app,
