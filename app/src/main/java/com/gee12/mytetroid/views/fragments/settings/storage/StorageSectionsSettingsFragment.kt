@@ -21,6 +21,12 @@ class StorageSectionsSettingsFragment : TetroidStorageSettingsFragment() {
         setTitle(R.string.title_storage_settings, storage.name)
     }
 
+    override fun onResume() {
+        // меняем заголовок обратно при выходе из дочернего фрагмента
+        setTitle(R.string.title_storage_settings, viewModel.storage?.name)
+        super.onResume()
+    }
+
 //        companion object {
 //        fun newInstance(storageId: Int): StorageSettingsFragment {
 //            val args = Bundle()

@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * TODO: "Перенести в HistoryInteractor.kt"
  * Класс для работы с историей открытия объектов приложения.
  */
+@Deprecated
 public class HistoryManager {
 
     private static List<Object> chain = new ArrayList<>();

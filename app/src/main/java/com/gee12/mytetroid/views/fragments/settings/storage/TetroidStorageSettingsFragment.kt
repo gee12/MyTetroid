@@ -48,10 +48,10 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         }
     }
 
-    protected open fun onStorageInited(storage: TetroidStorage) {}
+    protected open fun onStorageInited(storage: TetroidStorage) {
+    }
 
     protected open fun onUpdateStorageFieldEvent(key: String, value: String) {
-
     }
 
     open fun onBackPressed(): Boolean {

@@ -6,6 +6,10 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.model.TetroidRecord;
 
+/**
+ * TODO: Переименовать в ClipboardManager.
+ * Менеджер для работы с буфером обмена.
+ */
 public class TetroidClipboard {
 
     static TetroidClipboard mInstance;
