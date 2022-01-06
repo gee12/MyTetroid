@@ -36,6 +36,8 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
         tvProgress = findViewById(R.id.progress_text)
 
         startDefaultFragment()
+
+        App.current.logger?.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
     protected abstract fun getLayoutResourceId(): Int

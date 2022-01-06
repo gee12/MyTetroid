@@ -144,6 +144,8 @@ public class IconsActivity extends AppCompatActivity {
             String iconPath = extras.getString(Constants.EXTRA_NODE_ICON_PATH);
             selectCurrentIcon(iconPath);
         }
+
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, this.getClass().getSimpleName()));
     }
 
     private void selectCurrentIcon(String iconPath) {

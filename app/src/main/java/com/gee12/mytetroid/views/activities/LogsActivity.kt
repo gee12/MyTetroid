@@ -58,6 +58,8 @@ class LogsActivity : AppCompatActivity() {
         viewModel.messageObservable.observe(this, { TetroidMessage.show(this, it) })
 
         viewModel.load()
+
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
     private fun onEvent(event: LogEvents, data: Any?) {

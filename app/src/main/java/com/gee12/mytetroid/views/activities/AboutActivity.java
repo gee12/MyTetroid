@@ -40,6 +40,8 @@ public class AboutActivity extends AppCompatActivity {
 
         Button bRateApp = findViewById(R.id.button_rate_app);
         bRateApp.setOnClickListener(v -> rateApp());
+
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, this.getClass().getSimpleName()));
     }
 
     void rateApp() {
