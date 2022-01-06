@@ -255,23 +255,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
      */
     @Override
-    protected void onUICreated(boolean uiCreated) {
-        //TODO: перенести во ViewModel.
-
-        if (uiCreated) {
-//            if (viewModel.isLoaded()) {
-//                // тут ничего не пишем.
-//                // код отображения загруженного хранилище находится в onGUICreated(),
-//                //  который вызывается после создания пунктов меню активности
-//
-//                // инициализация контролов
-//                initUI(true, viewModel.isLoadedFavoritesOnly(), viewModel.isKeepLastNode());
-//                // действия после загрузки хранилища
-//                afterStorageLoaded(true);
-//            } else {
-//                // загружаем хранилище, если еще не загружано
-//                viewModel.startInitStorage();
-//            }
+    protected void onUICreated(boolean isUICreated) {
+        if (isUICreated) {
             viewModel.onUICreated();
         }
     }
@@ -732,7 +717,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * Диалог с информацией об обновлении.
      */
     private void showMigrationDialog() {
-        if (BuildConfig.VERSION_CODE == Constants.VERSION_50) {
+        if (BuildConfig.VERSION_CODE == Constants.SETTINGS_VERSION_CURRENT) {
             AskDialogs.showOkDialog(this, R.string.mes_migration_50, R.string.answer_ok, false, () -> {
                 viewModel.startInitStorage();
             });

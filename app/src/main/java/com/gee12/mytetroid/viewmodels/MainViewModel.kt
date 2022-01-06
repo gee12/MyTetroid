@@ -85,9 +85,13 @@ class MainViewModel(
         val fromVersion = CommonSettings.getSettingsVersion(getContext())
         var result: Boolean? = null
 
+        if (fromVersion == 0) { // новая установка, миграция не нужна
+            CommonSettings.setSettingsCurrentVersion(getContext())
+            return false
+        }
+
         // 50
-        if (fromVersion < Constants.VERSION_50
-            && CommonSettings.getStoragePath(getContext()) != null) { // не мигрируем на новых установках
+        if (fromVersion < Constants.SETTINGS_VERSION_CURRENT) {
             result = runBlocking { migrateTo50() }
         }
         // ..

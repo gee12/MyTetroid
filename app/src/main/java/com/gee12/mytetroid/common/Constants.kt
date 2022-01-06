@@ -8,8 +8,14 @@ object Constants {
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"
 
-    const val VERSION_FIRST_MIGRATION = 49
-    const val VERSION_50 = 50
+    /**
+     * Версии настроек в SharedPreferences:
+     *  1. Начальные, до версии приложения 50
+     *  2. Многобазовость, начиная с версии приложения 50; выполняется миграция на настройки в бд
+     */
+    const val SETTINGS_VERSION_1_START = 1
+    const val SETTINGS_VERSION_2_MULTIBASE = 2
+    const val SETTINGS_VERSION_CURRENT = SETTINGS_VERSION_2_MULTIBASE
 
     const val MIN_PINCODE_LENGTH = 4
     const val MAX_PINCODE_LENGTH = 8

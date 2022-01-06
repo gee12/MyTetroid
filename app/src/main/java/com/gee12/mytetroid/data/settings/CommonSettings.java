@@ -166,11 +166,11 @@ public class CommonSettings {
      * Значение по-умолчанию = VERSION_FIRST_MIGRATION, т.к. это первая версия, с которой нужно выполнять миграцию настроек.
      */
     public static int getSettingsVersion(Context context) {
-        return getInt(context, R.string.pref_key_settings_version, Constants.VERSION_FIRST_MIGRATION);
+        return getInt(context, R.string.pref_key_settings_version, 0);
     }
 
     public static void setSettingsCurrentVersion(Context context) {
-        setInt(context, R.string.pref_key_settings_version, BuildConfig.VERSION_CODE);
+        setInt(context, R.string.pref_key_settings_version, Constants.SETTINGS_VERSION_CURRENT);
     }
 
     //endregion Миграция

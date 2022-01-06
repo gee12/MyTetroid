@@ -2,7 +2,6 @@ package com.gee12.mytetroid.interactors
 
 import android.content.Context
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -17,9 +16,9 @@ class MigrationInteractor(
 ) {
 
     suspend fun isNeedMigrateStorageFromPrefs(context: Context): Boolean {
-        return BuildConfig.VERSION_CODE >= Constants.VERSION_50
+        return CommonSettings.getSettingsVersion(context) < Constants.SETTINGS_VERSION_CURRENT
             && storagesInteractor.getStoragesCount() == 0
-            && CommonSettings.getStoragePath(context)?.isNotEmpty() == true
+            && CommonSettings.getStoragePath(context) != null
     }
 
     /**

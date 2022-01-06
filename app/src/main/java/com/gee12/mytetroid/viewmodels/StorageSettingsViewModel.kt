@@ -376,7 +376,7 @@ abstract class StorageSettingsViewModel(
 
     fun isNeedMigration(): Boolean {
         val fromVersion = CommonSettings.getSettingsVersion(getContext())
-        return (fromVersion < Constants.VERSION_50)
+        return (fromVersion != 0 && fromVersion < Constants.SETTINGS_VERSION_CURRENT)
     }
 
     //endregion Migration
