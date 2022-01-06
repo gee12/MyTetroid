@@ -99,7 +99,7 @@ class MainViewModel(
         if (result == true) {
             CommonSettings.setSettingsCurrentVersion(getContext())
 
-            postEvent(Constants.MainEvents.Migrated)
+            postEvent(MainEvents.Migrated)
         } else if (result == false) {
             logger.logError(R.string.log_error_migration, true)
             showSnackMoreInLogs()
@@ -169,7 +169,7 @@ class MainViewModel(
     fun getCurNodeName() = curNode?.name ?: ""
 
     fun showRecords(records: List<TetroidRecord>, viewId: Int, dropSearch: Boolean = true) {
-        setEvent(Constants.MainEvents.ShowRecords, ObjectsInView(records, viewId, dropSearch))
+        setEvent(MainEvents.ShowRecords, ObjectsInView(records, viewId, dropSearch))
     }
 
     /**
@@ -188,7 +188,7 @@ class MainViewModel(
             val res = insertRecord(record, isCutted, false)
             when (res) {
                 -1 -> {
-                    postEvent(Constants.MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.INSERT, record, isCutted))
+                    postEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.INSERT, record, isCutted))
                 }
                 -2 -> logOperErrorMore(LogObj.RECORD_DIR, LogOper.INSERT)
                 else -> onInsertRecordResult(record, res, isCutted)
@@ -303,7 +303,7 @@ class MainViewModel(
         launch {
             val res = deleteRecord(record, false)
             if (res == -1) {
-                setEvent(Constants.MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, record))
+                setEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, record))
             } else {
                 onDeleteRecordResult(record, res, false)
             }
@@ -318,7 +318,7 @@ class MainViewModel(
     @MainThread
     private suspend fun onDeleteRecordResult(record: TetroidRecord, res: Int, isCutted: Boolean) {
         if (res > 0) {
-            setEvent(Constants.MainEvents.RecordDeleted, record)
+            setEvent(MainEvents.RecordDeleted, record)
             updateTags()
             updateNodes()
             // обновляем избранное
@@ -424,7 +424,7 @@ class MainViewModel(
             // удаляем запись из текущей ветки и каталог перемещаем в корзину
             val res: Int = cutRecord(record, false)
             if (res == -1) {
-                postEvent(Constants.MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.CUT, record))
+                postEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.CUT, record))
 //                }
             } else {
                 onDeleteRecordResult(record, res, true)
@@ -521,7 +521,7 @@ class MainViewModel(
      * @param bundle
      */
     private fun openRecord(bundle: Bundle) {
-        postEvent(Constants.MainEvents.OpenRecord, bundle)
+        postEvent(MainEvents.OpenRecord, bundle)
     }
 
     /**
@@ -537,7 +537,7 @@ class MainViewModel(
 
     @MainThread
     private fun updateRecords() {
-        setEvent(Constants.MainEvents.UpdateRecords)
+        setEvent(MainEvents.UpdateRecords)
     }
 
     //endregion Records
@@ -555,7 +555,7 @@ class MainViewModel(
                 if (checkAndDecryptNode(node)) return@launch
                 log(getString(R.string.log_open_node) + StringUtils.getIdString(getContext(), node))
                 curNode = node
-                setEvent(Constants.MainEvents.SetCurrentNode, node)
+                setEvent(MainEvents.SetCurrentNode, node)
                 showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
 
                 // сохраняем выбранную ветку
@@ -593,7 +593,7 @@ class MainViewModel(
         launch {
             val node = nodesInteractor.createNode(getContext(), name, trueParentNode)
             if (node != null) {
-                setEvent(Constants.MainEvents.NodeCreated, node)
+                setEvent(MainEvents.NodeCreated, node)
             } else {
                 logOperErrorMore(LogObj.NODE, LogOper.CREATE)
             }
@@ -609,7 +609,7 @@ class MainViewModel(
             if (nodesInteractor.editNodeFields(getContext(), node, newName)) {
                 logOperRes(LogObj.NODE, LogOper.RENAME)
                 updateNodes()
-                setEvent(Constants.MainEvents.NodeRenamed, node)
+                setEvent(MainEvents.NodeRenamed, node)
             } else {
                 logOperErrorMore(LogObj.NODE, LogOper.RENAME)
             }
@@ -650,7 +650,7 @@ class MainViewModel(
                 // ищем вновь созданную ветку - копию node
                 //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
                 val insertedNode = nodesInteractor.getNode(node.id)
-                setEvent(Constants.MainEvents.NodeInserted, insertedNode)
+                setEvent(MainEvents.NodeInserted, insertedNode)
             } else {
                 logOperErrorMore(LogObj.NODE, LogOper.INSERT)
             }
@@ -698,7 +698,7 @@ class MainViewModel(
             log(R.string.log_cannot_delete_root_node, true)
             return
         }
-        postEvent(Constants.MainEvents.AskForDeleteNode, node)
+        postEvent(MainEvents.AskForDeleteNode, node)
     }
 
     fun deleteNode(node: TetroidNode) {
@@ -711,7 +711,7 @@ class MainViewModel(
     @MainThread
     private fun onDeleteNodeResult(node: TetroidNode, res: Boolean, isCutted: Boolean) {
         if (res) {
-            setEvent(if (isCutted) Constants.MainEvents.NodeCutted else Constants.MainEvents.NodeDeleted, node)
+            setEvent(if (isCutted) MainEvents.NodeCutted else MainEvents.NodeDeleted, node)
             // удаляем элемент внутри списка
 //            if (mListAdapterNodes.deleteItem(pos)) {
 //                logOperRes(this, LogObj.NODE, if (!isCutted) LogOper.DELETE else LogOper.CUT)
@@ -747,7 +747,7 @@ class MainViewModel(
             showMessage(getString(R.string.mes_quickly_node_cannot_encrypt))
         } else {
             checkStoragePass(
-                EventCallbackParams(Constants.MainEvents.EncryptNode, node)
+                EventCallbackParams(MainEvents.EncryptNode, node)
             )
         }
     }
@@ -758,7 +758,7 @@ class MainViewModel(
      */
     fun startDropEncryptNode(node: TetroidNode) {
         checkStoragePass(
-            EventCallbackParams(Constants.MainEvents.DropEncryptNode, node)
+            EventCallbackParams(MainEvents.DropEncryptNode, node)
         )
     }
 
@@ -818,7 +818,7 @@ class MainViewModel(
             } else {
                 logOperErrorMore(LogObj.NODE, operation)
             }
-            afterStorageDecrypted(node)
+            afterStorageDecrypted(null)
         }
     }
 
@@ -850,7 +850,7 @@ class MainViewModel(
 
     @MainThread
     fun updateNodes() {
-        setEvent(Constants.MainEvents.UpdateNodes)
+        setEvent(MainEvents.UpdateNodes)
     }
 
     //endregion Nodes
@@ -877,7 +877,7 @@ class MainViewModel(
             if (tag != null) {
                 curTag = tag
                 // сбрасываем текущую ветку
-                setEvent(Constants.MainEvents.SetCurrentNode, null)
+                setEvent(MainEvents.SetCurrentNode, null)
                 log(getString(R.string.log_open_tag_records_mask).format(tag.name))
                 showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
             } else {
@@ -901,7 +901,7 @@ class MainViewModel(
 
     @MainThread
     fun updateTags() {
-        setEvent(Constants.MainEvents.UpdateTags)
+        setEvent(MainEvents.UpdateTags)
     }
 
     //endregion Tags
@@ -912,7 +912,7 @@ class MainViewModel(
         if (isCrypted() && !CommonSettings.isDecryptFilesInTempDef(getContext())) {
             log(R.string.log_viewing_decrypted_not_possible, true)
         } else {
-            postEvent(Constants.MainEvents.CheckPermissionAndOpenAttach, attach)
+            postEvent(MainEvents.CheckPermissionAndOpenAttach, attach)
         }
     }
 
@@ -925,7 +925,7 @@ class MainViewModel(
 
     @MainThread
     fun showAttaches(attaches: List<TetroidFile>) {
-        setEvent(Constants.MainEvents.ShowAttaches, ObjectsInView(attaches))
+        setEvent(MainEvents.ShowAttaches, ObjectsInView(attaches))
     }
 
     /**
@@ -982,7 +982,7 @@ class MainViewModel(
      * Выбор файла в файловой системе устройства и прикрепление к текущей записи.
      */
     fun pickAndAttachFile() {
-        postEvent(Constants.MainEvents.OpenFilePicker)
+        postEvent(MainEvents.OpenFilePicker)
     }
 
     /**
@@ -1006,8 +1006,8 @@ class MainViewModel(
     fun deleteAttach(file: TetroidFile) {
         launch {
             when (val res: Int = attachesInteractor.deleteAttachedFile(getContext(), file, false)) {
-                -2 -> postEvent(Constants.MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.DELETE, file))
-                -1 -> postEvent(Constants.MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, file))
+                -2 -> postEvent(MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.DELETE, file))
+                -1 -> postEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, file))
                 else -> onDeleteAttachResult(file, res)
             }
         }
@@ -1021,7 +1021,7 @@ class MainViewModel(
     @MainThread
     private fun onDeleteAttachResult(file: TetroidFile, res: Int) {
         if (res > 0) {
-            setEvent(Constants.MainEvents.AttachDeleted, file)
+            setEvent(MainEvents.AttachDeleted, file)
             // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
             // если был удален единственный файл
             if ((curRecord?.attachedFilesCount ?: 0) <= 0) {
@@ -1040,9 +1040,9 @@ class MainViewModel(
     fun renameAttach(file: TetroidFile, name: String) {
         launch {
             when (val res = attachesInteractor.editAttachedFileFields(getContext(), file, name)) {
-                -2 -> postEvent(Constants.MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.RENAME, file))
+                -2 -> postEvent(MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.RENAME, file))
                 // TODO: добавить вариант Создать каталог записи
-                -1 -> postEvent(Constants.MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.RENAME, file))
+                -1 -> postEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.RENAME, file))
                 else -> onRenameAttachResult(res)
             }
         }
@@ -1100,7 +1100,7 @@ class MainViewModel(
 
     fun saveAttachOnDevice(file: TetroidFile) {
         curFile = file
-        postEvent(Constants.MainEvents.OpenFolderPicker)
+        postEvent(MainEvents.OpenFolderPicker)
     }
 
     /**
@@ -1142,7 +1142,7 @@ class MainViewModel(
     }
 
     private fun updateAttaches() {
-        setEvent(Constants.MainEvents.UpdateAttaches)
+        setEvent(MainEvents.UpdateAttaches)
     }
 
     //endregion Attaches
@@ -1156,7 +1156,7 @@ class MainViewModel(
         launch {
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!isLoadedFavoritesOnly()) {
-                setEvent(Constants.MainEvents.SetCurrentNode, FavoritesInteractor.FAVORITES_NODE)
+                setEvent(MainEvents.SetCurrentNode, FavoritesInteractor.FAVORITES_NODE)
             }
             showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, true)
 
@@ -1203,7 +1203,7 @@ class MainViewModel(
     }
 
     private fun updateFavoritesTitle() {
-        setEvent(Constants.MainEvents.UpdateFavoritesTitle)
+        setEvent(MainEvents.UpdateFavoritesTitle)
     }
 
     //endregion Favorites
@@ -1230,7 +1230,7 @@ class MainViewModel(
     }
 
     fun research() {
-        postEvent(Constants.MainEvents.GlobalResearch)
+        postEvent(MainEvents.GlobalResearch)
     }
 
     /**
@@ -1262,12 +1262,12 @@ class MainViewModel(
             }
             log(String.format(getString(R.string.global_search_end), found.size))
 
-            setEvent(Constants.MainEvents.GlobalSearchFinished, GlobalSearchParams(found, profile))
+            setEvent(MainEvents.GlobalSearchFinished, GlobalSearchParams(found, profile))
         }
     }
 
     fun startGlobalSearchFromFilterQuery() {
-        postEvent(Constants.MainEvents.GlobalSearchStart, lastFilterQuery)
+        postEvent(MainEvents.GlobalSearchStart, lastFilterQuery)
     }
 
     //endregion Global search
@@ -1320,7 +1320,7 @@ class MainViewModel(
             if (lastFilterQuery.isNullOrEmpty()) {
                 lastFilterQuery = query
             }
-            setEvent(Constants.MainEvents.RecordsFiltered, FilteredObjectsInView(query, found, viewId))
+            setEvent(MainEvents.RecordsFiltered, FilteredObjectsInView(query, found, viewId))
         }
     }
 
@@ -1337,7 +1337,7 @@ class MainViewModel(
             log(String.format(getString(R.string.filter_files_by_query), record.name, query))
             val found = ScanManager.searchInFiles(record.attachedFiles, query)
             showAttaches(found)
-            setEvent(Constants.MainEvents.AttachesFiltered, FilteredObjectsInView(query, found, Constants.MAIN_VIEW_RECORD_FILES))
+            setEvent(MainEvents.AttachesFiltered, FilteredObjectsInView(query, found, Constants.MAIN_VIEW_RECORD_FILES))
         }
     }
 
@@ -1377,10 +1377,10 @@ class MainViewModel(
                 bundle.putString(FileObserverService.EXTRA_FILE_PATH, storageInteractor.getPathToMyTetraXml())
                 bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY)
 
-                postEvent(Constants.MainEvents.StartFileObserver, bundle)
+                postEvent(MainEvents.StartFileObserver, bundle)
             }
         } else {
-            postEvent(Constants.MainEvents.StopFileObserver)
+            postEvent(MainEvents.StopFileObserver)
         }
     }
 
@@ -1453,7 +1453,7 @@ class MainViewModel(
                         // выход из приложения
                         launch {
                             onExit(activity)
-                            setEvent(Constants.MainEvents.Exit)
+                            setEvent(MainEvents.Exit)
                         }
                     }
                 }
@@ -1501,6 +1501,63 @@ class MainViewModel(
     }
 
     //endregion Main view
+    enum class MainEvents {
+        // migration
+        Migrated,
+
+        // crypt
+        EncryptNode,
+        DropEncryptNode,
+
+        // nodes
+        ShowNode,
+        SetCurrentNode,
+        NodeCreated,
+        NodeInserted,
+        NodeRenamed,
+        AskForDeleteNode,
+        NodeCutted,
+        NodeDeleted,
+        UpdateNodes,
+
+        // records
+        OpenRecord,
+        ShowRecords,
+        RecordsFiltered,
+        RecordDeleted,
+        RecordCutted,
+        UpdateRecords,
+
+        // tags
+        UpdateTags,
+
+        // attaches
+        CheckPermissionAndOpenAttach,
+        ShowAttaches,
+        AttachesFiltered,
+        UpdateAttaches,
+        AttachDeleted,
+
+        // favorites
+        UpdateFavoritesTitle,
+
+        // global search
+        GlobalSearchStart,
+        GlobalResearch,
+        GlobalSearchFinished,
+
+        // storage tree observer
+        StartFileObserver,
+        StopFileObserver,
+
+        // file system
+        AskForOperationWithoutDir,
+        AskForOperationWithoutFile,
+        OpenFilePicker,
+        OpenFolderPicker,
+
+        Exit
+    }
 
 }
 

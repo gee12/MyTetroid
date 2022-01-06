@@ -34,7 +34,6 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import androidx.annotation.MainThread
-import com.gee12.mytetroid.common.Constants.RecordEvents
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.TetroidXml
@@ -1033,11 +1032,31 @@ class RecordViewModel(
     fun setTitle(title: String) {
         setViewEvent(Constants.ViewEvents.UpdateTitle, title)
     }
+
+    enum class RecordEvents {
+        NeedMigration,
+        LoadFields,
+        EditFields,
+        LoadRecordTextFromFile,
+        LoadRecordTextFromHtml,
+        AskForLoadAllNodes,
+        FileAttached,
+        SwitchViews,
+        AskForSaving,
+        BeforeSaving,
+        IsEditedChanged,
+        EditedDateChanged,
+        StartLoadImages,
+        StartCaptureCamera,
+        InsertImages,
+        InsertWebPageContent,
+        InsertWebPageText,
+        OpenWebLink,
+        Save,
+    }
+
 }
 
-/**
- *
- */
 class ResultObj {
     var type = 0
     var id: String? = null

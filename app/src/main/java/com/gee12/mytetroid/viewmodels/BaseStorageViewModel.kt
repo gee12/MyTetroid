@@ -61,8 +61,8 @@ open class BaseStorageViewModel(
         when (callback.event) {
             is Constants.ViewEvents -> postViewEvent(callback.event, callback.data)
             is Constants.StorageEvents -> postStorageEvent(callback.event, callback.data)
-            is Constants.MainEvents -> postEvent(callback.event, callback.data)
-            is Constants.RecordEvents -> postEvent(callback.event, callback.data)
+            is MainViewModel.MainEvents -> postEvent(callback.event, callback.data)
+            is RecordViewModel.RecordEvents -> postEvent(callback.event, callback.data)
             else -> {}
         }
     }

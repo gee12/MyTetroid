@@ -277,7 +277,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         CommonSettings.init(this, interactor);
 
         super.initViewModel();
-        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.MainEvents) it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onEvent((MainViewModel.MainEvents) it.getState(), it.getData()));
     }
 
     /**
@@ -442,7 +442,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param event
      * @param data
      */
-    protected void onEvent(Constants.MainEvents event, Object data) {
+    protected void onEvent(MainViewModel.MainEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onEvent(): event="+event+", data="+data);
         switch (event) {
             // migration
@@ -2452,7 +2452,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                         viewModel.loadAllNodes(true);
                     });
         } else {
-            ViewUtils.startActivity(this, InfoActivity.class, null);
+            ViewUtils.startActivity(this, StorageInfoActivity.class, null);
         }
     }
 

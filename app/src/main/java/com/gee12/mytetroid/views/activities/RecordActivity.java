@@ -191,7 +191,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     protected void initViewModel() {
         super.initViewModel();
-        viewModel.getObjectAction().observe(this, it -> onEvent((Constants.RecordEvents) it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onEvent((RecordViewModel.RecordEvents) it.getState(), it.getData()));
         viewModel.getCurRecord().observe(this, it -> viewModel.openRecord(it));
     }
 
@@ -297,7 +297,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
      * @param action
      * @param data
      */
-    protected void onEvent(Constants.RecordEvents action, Object data) {
+    protected void onEvent(RecordViewModel.RecordEvents action, Object data) {
         switch (action) {
             case NeedMigration:
                 showNeedMigrationDialog();
@@ -1090,7 +1090,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_storage_info:
-                ViewUtils.startActivity(this, InfoActivity.class, null);
+                ViewUtils.startActivity(this, StorageInfoActivity.class, null);
                 return true;
             case android.R.id.home:
                 return viewModel.onHomePressed();
