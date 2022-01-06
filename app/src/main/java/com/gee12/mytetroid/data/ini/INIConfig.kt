@@ -1,83 +1,70 @@
-package com.gee12.mytetroid.data.ini;
+package com.gee12.mytetroid.data.ini
 
-import com.gee12.mytetroid.logs.ITetroidLogger;
+import com.gee12.mytetroid.logs.ITetroidLogger
+import org.ini4j.Ini
+import java.io.FileReader
+import java.io.FileWriter
+import java.io.IOException
+import java.lang.Exception
 
-import org.ini4j.Ini;
+/**
+ * Параметры хранилища.
+ */
+open class INIConfig(
+    protected var logger: ITetroidLogger?
+) {
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Map;
-
-public class INIConfig {
-
-    protected ITetroidLogger logger;
-    protected Ini config;
-    private String fileName;
-
-    /**
-     * Параметры хранилища.
-     */
-    public INIConfig(ITetroidLogger logger) {
-        this.logger = logger;
-        config = new Ini();
-    }
+    protected var config: Ini = Ini()
+    private var fileName: String? = null
 
     /**
      * Установка имени конфигурационного файла.
      */
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    fun setFileName(fileName: String?) {
+        this.fileName = fileName
     }
 
     /**
      * Загрузка параметров из файла.
      * @return
      */
-    public boolean load() {
+    fun load(): Boolean {
         try {
-            config.load(new FileReader(fileName));
-        } catch (IOException e) {
-            if (logger != null) {
-                logger.logError("Configuration error: ", e, false);
-            }
-            return false;
+            config.load(FileReader(fileName))
+        } catch (e: IOException) {
+            logger?.logError("Configuration error: ", e, false)
+            return false
         }
-        return true;
+        return true
     }
 
     /**
      * Сохранение параметров в файл.
      * @return
      */
-    public boolean save() {
+    fun save(): Boolean {
         try {
-            config.store(new FileWriter(fileName));
-        } catch (Exception e) {
-            if (logger != null) {
-                logger.logError("Configuration error: ", e, false);
-            }
-            return false;
+            config.store(FileWriter(fileName))
+        } catch (e: Exception) {
+            logger?.logError("Configuration error: ", e, false)
+            return false
         }
-        return true;
+        return true
     }
 
-    public Map<String, String> getSection(String key) {
-        return config.get(key);
+    fun getSection(key: String): MutableMap<String, String>? {
+        return config[key]
     }
 
-    public String get(String sectionKey, String key) {
-        Map<String, String> section = getSection(sectionKey);
-        return (section != null) ? section.get(key) : null;
+    operator fun get(sectionKey: String, key: String): String? {
+        return getSection(sectionKey)?.get(key)
     }
 
-    public void set(String sectionKey, String key, String value) {
-        Map<String, String> section = getSection(sectionKey);
+    operator fun set(sectionKey: String, key: String, value: String) {
+        var section = getSection(sectionKey)
         if (section == null) {
-            section = config.add(sectionKey);
+            section = config.add(sectionKey)
         }
-        if (section != null) {
-            section.put(key, value);
-        }
+        section?.set(key, value)
     }
 }

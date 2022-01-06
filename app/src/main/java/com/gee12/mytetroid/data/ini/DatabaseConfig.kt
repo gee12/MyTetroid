@@ -1,59 +1,53 @@
-package com.gee12.mytetroid.data.ini;
+package com.gee12.mytetroid.data.ini
 
-import com.gee12.mytetroid.logs.ITetroidLogger;
+import com.gee12.mytetroid.logs.ITetroidLogger
+import kotlin.Throws
+import java.lang.Exception
 
-public class DatabaseConfig extends INIConfig {
+class DatabaseConfig(
+    logger: ITetroidLogger?
+) : INIConfig(logger) {
 
-    /**
-     *
-     */
-    public class EmptyFieldException extends Exception {
+    inner class EmptyFieldException(val fieldName: String) : Exception("Field '$fieldName' is empty in database.ini")
 
-        private String fieldName;
+    companion object {
+        const val INI_SECTION_GENERAL = "General"
+        const val INI_CRYPT_CHECK_SALT = "crypt_check_salt"
+        const val INI_CRYPT_CHECK_HASH = "crypt_check_hash"
+        const val INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data"
+        const val INI_CRYPT_MODE = "crypt_mode"
+        const val INI_VERSION = "version"
+        const val DEF_VERSION = "1"
+    }
 
-        public EmptyFieldException(String fieldName) {
-            super("Field '" + fieldName + "' is empty in database.ini");
-            this.fieldName = fieldName;
+    init {
+        config.config.apply {
+            // отключаем экранирование символов, т.к. сохраняем значения в кавычках
+            isEscape = false
+            // убираем пробелы между ключем и значением
+            isStrictOperator = true
+            // убираем повторения разделов
+            isMultiSection = false
+            // убираем повторения параметров
+            isMultiOption = false
         }
-
-        public String getFieldName() {
-            return fieldName;
-        }
     }
 
-    public static final String INI_SECTION_GENERAL = "General";
-    public static final String INI_CRYPT_CHECK_SALT = "crypt_check_salt";
-    public static final String INI_CRYPT_CHECK_HASH = "crypt_check_hash";
-    public static final String INI_MIDDLE_HASH_CHECK_DATA = "middle_hash_check_data";
-    public static final String INI_CRYPT_MODE = "crypt_mode";
-    public static final String INI_VERSION = "version";
+    @get:Throws(EmptyFieldException::class)
+    val cryptCheckHash: String
+        get() = getWithoutQuotes(INI_CRYPT_CHECK_HASH)
 
-    public static final String DEF_VERSION = "1";
+    @get:Throws(EmptyFieldException::class)
+    val cryptCheckSalt: String
+        get() = getWithoutQuotes(INI_CRYPT_CHECK_SALT)
 
+    @get:Throws(EmptyFieldException::class)
+    val middleHashCheckData: String
+        get() = getWithoutQuotes(INI_MIDDLE_HASH_CHECK_DATA)
 
-    public DatabaseConfig(ITetroidLogger logger) {
-        super(logger);
-        // отключаем экранирование символов, т.к. сохраняем значения в кавычках
-        config.getConfig().setEscape(false);
-        // убираем пробелы между ключем и значением
-        config.getConfig().setStrictOperator(true);
-    }
-
-    public String getCryptCheckHash() throws EmptyFieldException {
-        return getWithoutQuotes(INI_CRYPT_CHECK_HASH);
-    }
-
-    public String getCryptCheckSalt() throws EmptyFieldException {
-        return getWithoutQuotes(INI_CRYPT_CHECK_SALT);
-    }
-
-    public String getMiddleHashCheckData() throws EmptyFieldException {
-        return getWithoutQuotes(INI_MIDDLE_HASH_CHECK_DATA);
-    }
-
-    public boolean isCryptMode() throws EmptyFieldException {
-        return getValueFromGeneral(INI_CRYPT_MODE).equals("1");
-    }
+    @get:Throws(EmptyFieldException::class)
+    val isCryptMode: Boolean
+        get() = getValueFromGeneral(INI_CRYPT_MODE) == "1"
 
     /**
      *
@@ -61,25 +55,25 @@ public class DatabaseConfig extends INIConfig {
      * @param salt
      * @return
      */
-    public boolean savePass(String passHash, String salt, boolean cryptMode) {
-        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash);
-        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt);
-        setValueToGeneral(INI_CRYPT_MODE, (cryptMode) ? "1" : "0");
-        return save();
+    fun savePass(passHash: String?, salt: String?, cryptMode: Boolean): Boolean {
+        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash)
+        setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt)
+        setValueToGeneral(INI_CRYPT_MODE, if (cryptMode) "1" else "0")
+        return save()
     }
 
-    public boolean saveCheckData(String checkData) {
-        setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData);
-        return save();
+    fun saveCheckData(checkData: String?): Boolean {
+        setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData)
+        return save()
     }
 
-    public boolean saveDefault() {
-        setValueToGeneral(INI_CRYPT_CHECK_HASH, null);
-        setValueToGeneral(INI_CRYPT_CHECK_SALT, null);
-        setValueToGeneral(INI_CRYPT_MODE, "0");
-        setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null);
-        setValueToGeneral(INI_VERSION, DEF_VERSION);
-        return save();
+    fun saveDefault(): Boolean {
+        setValueToGeneral(INI_CRYPT_CHECK_HASH, null)
+        setValueToGeneral(INI_CRYPT_CHECK_SALT, null)
+        setValueToGeneral(INI_CRYPT_MODE, "0")
+        setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null)
+        setValueToGeneral(INI_VERSION, DEF_VERSION)
+        return save()
     }
 
     /**
@@ -87,12 +81,13 @@ public class DatabaseConfig extends INIConfig {
      * @param key
      * @return
      */
-    public String getValueFromGeneral(String key) throws EmptyFieldException {
-        String res = get(INI_SECTION_GENERAL, key);
+    @Throws(EmptyFieldException::class)
+    fun getValueFromGeneral(key: String): String {
+        val res = get(INI_SECTION_GENERAL, key)
         if (res == null || res.isEmpty()) {
-            throw new EmptyFieldException(key);
+            throw EmptyFieldException(key)
         }
-        return res;
+        return res
     }
 
     /**
@@ -100,15 +95,16 @@ public class DatabaseConfig extends INIConfig {
      * @param key
      * @return
      */
-    public String getWithoutQuotes(String key) throws EmptyFieldException {
-        return getValueFromGeneral(key).replaceAll("^\"|\"$", "");
+    @Throws(EmptyFieldException::class)
+    fun getWithoutQuotes(key: String): String {
+        return getValueFromGeneral(key).replace("^\"|\"$".toRegex(), "")
     }
 
-    public void setValueToGeneral(String key, String value) {
-        set(INI_SECTION_GENERAL, key, (value != null) ? value : "");
+    fun setValueToGeneral(key: String, value: String?) {
+        set(INI_SECTION_GENERAL, key, value ?: "")
     }
 
-    public void setValueToGeneralWithQuotes(String key, String value) {
-        setValueToGeneral(key, (value != null) ? "\"" + value + "\"" : "");
+    fun setValueToGeneralWithQuotes(key: String, value: String?) {
+        setValueToGeneral(key, if (value != null) "\"" + value + "\"" else "")
     }
 }
