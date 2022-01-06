@@ -68,7 +68,6 @@ import java.util.Date;
 import java.util.List;
 
 import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 
 /**
  * Активность просмотра и редактирования содержимого записи.
@@ -98,7 +97,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     private TextFindListener mFindListener;
     private SearchView mSearchView;
-
+    private TetroidImagePicker imagePicker = new TetroidImagePicker(this, this::saveSelectedImages);
 
     public RecordActivity() {
         super();
@@ -617,17 +616,23 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     public void startPicker() {
-        TetroidImagePicker.startPicker(this, Constants.REQUEST_CODE_IMAGES);
+        imagePicker.startPicker();
     }
 
     @Override
     public void startCamera() {
-        // проверка разрешения
+        // проверка разрешения на камеру
         if (!viewModel.getPermissionInteractor().checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
             return;
         }
-        TetroidImagePicker.startCamera(this, Constants.REQUEST_CODE_CAMERA);
+        imagePicker.startCamera();
     }
+
+    private Unit saveSelectedImages(List<? extends Uri> uris, Boolean isCameraMode) {
+        viewModel.saveImages(uris, isCameraMode);
+        return null;
+    }
+
 
     public void saveImage(Uri uri, boolean deleteSrcFile) {
         viewModel.saveImage(uri, deleteSrcFile);
@@ -918,10 +923,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
             // не гасим экран, если установили опцию
             App.checkKeepScreenOn(this);
-        } else if (requestCode == Constants.REQUEST_CODE_CAMERA && resultCode == RESULT_OK) {
-            viewModel.saveSelectedImages(data, true);
-        } else if (requestCode == Constants.REQUEST_CODE_IMAGES && resultCode == RESULT_OK) {
-            viewModel.saveSelectedImages(data, false);
         }
     }
 

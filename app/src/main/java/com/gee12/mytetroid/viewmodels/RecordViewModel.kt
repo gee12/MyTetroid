@@ -34,6 +34,7 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import androidx.annotation.MainThread
+import com.esafirm.imagepicker.model.Image
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.TetroidXml
@@ -434,30 +435,15 @@ class RecordViewModel(
 
     //region Image
 
-    /**
-     * Обработка выбранных изображений.
-     * @param data
-     */
-    fun saveSelectedImages(data: Intent, isCamera: Boolean) {
-        postEvent(if (isCamera) RecordEvents.StartCaptureCamera else RecordEvents.StartLoadImages)
+    fun saveImages(imageUris: List<Uri>, isCamera: Boolean) {
+        if (imageUris.isEmpty()) return
 
-        // FIXME: Устарело, переделать на callback
-        val images = ImagePicker.getImages(data)
-        if (images == null) {
-            logError(getString(R.string.log_selected_files_is_missing))
-            return
-        }
-        val uris: MutableList<Uri> = ArrayList()
-        for (image in images) {
-            uris.add(Uri.fromFile(File(image.path)))
-        }
-        saveImages(uris, isCamera)
-    }
-
-    private fun saveImages(imageUris: List<Uri>, deleteSrcFile: Boolean) {
         launch {
+            postEvent(if (isCamera) RecordEvents.StartCaptureCamera else RecordEvents.StartLoadImages)
+
             var errorCount = 0
             val savedImages: MutableList<TetroidImage> = ArrayList()
+            val deleteSrcFile = isCamera
             for (uri in imageUris) {
                 val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, uri, deleteSrcFile)
                 if (savedImage != null) {
@@ -470,10 +456,8 @@ class RecordViewModel(
                 logWarning(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount))
                 postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
             }
-            if (!savedImages.isEmpty()) {
-//            mEditor.insertImages(savedImages)
-                postEvent(RecordEvents.InsertImages, savedImages)
-            }
+
+            postEvent(RecordEvents.InsertImages, savedImages)
         }
     }
 

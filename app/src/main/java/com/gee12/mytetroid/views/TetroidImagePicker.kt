@@ -1,15 +1,27 @@
 package com.gee12.mytetroid.views
 
-import android.app.Activity
-import android.content.Context
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import com.esafirm.imagepicker.features.*
 import com.esafirm.imagepicker.features.cameraonly.CameraOnlyConfig
+import com.esafirm.imagepicker.features.registerImagePicker
+import com.esafirm.imagepicker.model.Image
 import com.gee12.mytetroid.R
+import java.io.File
 
-object TetroidImagePicker {
+/**
+ * Выбор изображений из памяти / захват с камеры с помощью библиотеки [com.esafirm.imagepicker].
+ */
+class TetroidImagePicker(
+    private val activity: AppCompatActivity,
+    /*newImagesFullDir: String, newImagesDir: String*/
+    private val callback: (List<Uri>, Boolean) -> Unit
+) {
 
-    private fun createConfig(context: Context): ImagePickerConfig {
+    private var isCameraMode = false
+    private var launcher = activity.registerImagePicker { callback.invoke(mapToUris(it), isCameraMode) }
+
+    private fun createConfig(): ImagePickerConfig {
         val returnAfterCapture = false
         val isSingleMode = false
 
@@ -31,9 +43,9 @@ object TetroidImagePicker {
             isIncludeAnimation = true // include gif (false by default)
             isOnlyVideo = false // include video (false by default)
 //            arrowColor = Color.RED // set toolbar arrow up color
-            folderTitle = context.getString(R.string.title_gallery) // folder selection title
+            folderTitle = activity.getString(R.string.title_gallery) // folder selection title
             imageTitle = null // image selection title
-            doneButtonText = context.getString(R.string.title_confirm_selected_images) // done button text
+            doneButtonText = activity.getString(R.string.title_confirm_selected_images) // done button text
             showDoneButtonAlways = false // Show done button always or not
             limit = 10 // max images can be selected (99 by default)
             isShowCamera = false // show camera or not (true by default)
@@ -56,17 +68,12 @@ object TetroidImagePicker {
      * StartPicker image picker activity with request code.
      * @param activity
      */
-    @JvmStatic
-    fun startPicker(activity: AppCompatActivity, requestCode: Int/*, callback: ImagePickerCallback*/) {
-        // FIXME: Устарело, переделать на callback
-        val intent = createImagePickerIntent(activity, createConfig(activity))
-        activity.startActivityForResult(intent, requestCode)
-
-//        activity.registerImagePicker { callback.invoke(it) }
-//            .launch(createConfig(activity))
+    fun startPicker() {
+        isCameraMode = false
+        launcher.launch(createConfig())
     }
 
-    private fun createCameraConfig(/*newImagesFullDir: String, newImagesDir: String*/): CameraOnlyConfig {
+    private fun createCameraConfig(): CameraOnlyConfig {
         return CameraOnlyConfig(
             // не удалось сохранять сделанную фотографию сразу в каталог записи
             // (возникает ошибка на Android 9)
@@ -80,13 +87,11 @@ object TetroidImagePicker {
      * Start capture photo from camera with request code.
      * @param activity
      */
-    @JvmStatic
-    fun startCamera(activity: Activity, requestCode: Int/*, newImagesFullDir: String, newImagesDir: String*/) {
-        // FIXME: Устарело, переделать на callback
-        val intent = createImagePickerIntent(activity, createCameraConfig(/*newImagesFullDir, newImagesDir*/))
-        activity.startActivityForResult(intent, requestCode)
-
-//        activity.registerImagePicker { callback.invoke(it) }
-//            .launch(CameraOnlyConfig())
+    fun startCamera() {
+        isCameraMode = true
+        launcher.launch(createCameraConfig())
     }
+
+    private fun mapToUris(images: List<Image>) = images.map { Uri.fromFile(File(it.path)) }
+
 }

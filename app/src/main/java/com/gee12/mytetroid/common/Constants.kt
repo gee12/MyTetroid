@@ -32,8 +32,6 @@ object Constants {
     const val REQUEST_CODE_FILE_PICKER = 106                // выбор файла
     const val REQUEST_CODE_FOLDER_PICKER = 107              // выбор каталога
     const val REQUEST_CODE_NODE_ICON = 108                  // иконка ветки
-    const val REQUEST_CODE_IMAGES = 109                     // выбор изображений
-    const val REQUEST_CODE_CAMERA = 110                     // захват изображения с камеры
     const val REQUEST_CODE_OPEN_STORAGE_PATH = 111          // путь к существующему хранилищу
     const val REQUEST_CODE_CREATE_STORAGE_PATH = 112        // путь к новому хранилищу
     const val REQUEST_CODE_OPEN_TEMP_PATH = 113             // путь к корзине

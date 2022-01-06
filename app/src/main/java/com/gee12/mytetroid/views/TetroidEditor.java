@@ -150,29 +150,26 @@ public class TetroidEditor extends WysiwygEditor {
      * @param images
      */
     public void insertImages(List<TetroidImage> images, String pathToImageFolder) {
-        if (images == null)
+        if (images == null || images.size() == 0)
             return;
-        int size = images.size();
-        if (size > 0) {
-            if (size == 1) {
-                // выводим диалог установки размера
-                insertImage(images.get(0), pathToImageFolder);
-            } else {
-                // спрашиваем о необходимости изменения размера
-                AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
-                    @Override
-                    public void onApply() {
-                        createImageDimensDialog(images, 0, pathToImageFolder);
+        if (images.size() == 1) {
+            // выводим диалог установки размера
+            insertImage(images.get(0), pathToImageFolder);
+        } else {
+            // спрашиваем о необходимости изменения размера
+            AskDialogs.showYesNoDialog(getContext(), new Dialogs.IApplyCancelResult() {
+                @Override
+                public void onApply() {
+                    createImageDimensDialog(images, 0, pathToImageFolder);
+                }
+                @Override
+                public void onCancel() {
+                    for (TetroidImage fileName : images) {
+                        mWebView.insertImage(fileName.getName(), null);
                     }
-                    @Override
-                    public void onCancel() {
-                        for (TetroidImage fileName : images) {
-                            mWebView.insertImage(fileName.getName(), null);
-                        }
-                    }
-                }, R.string.ask_change_image_dimens);
-                setIsEdited();
-            }
+                }
+            }, R.string.ask_change_image_dimens);
+            setIsEdited();
         }
     }
 
