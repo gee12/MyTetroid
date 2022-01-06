@@ -11,10 +11,9 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
-    app: Application,/*,
-    logger: TetroidLogger?*/
+    app: Application,
     settingsRepo: CommonSettingsRepo
-) : BaseViewModel(app/*, logger*/, settingsRepo), CoroutineScope {
+) : BaseViewModel(app, settingsRepo), CoroutineScope {
 
     companion object {
         const val LINES_IN_RECYCLER_VIEW_ITEM = 10
@@ -22,17 +21,17 @@ class LogsViewModel(
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    val event = SingleLiveEvent<ViewModelEvent<LogEvents, Any>>()
+    val event = SingleLiveEvent<ViewModelEvent<Event, Any>>()
 
     fun load() {
         launch {
             if (CommonSettings.isWriteLogToFile(getContext())) {
                 // читаем лог-файл
                 log(R.string.log_open_log_file)
-                postEvent(LogEvents.PreLoading)
+                postEvent(Event.PreLoading)
 
                 if (logger.fullFileName == null) {
-                    postEvent(LogEvents.PostLoading, FileReadResult.Failure(getString(R.string.error_log_file_path_is_null)))
+                    postEvent(Event.PostLoading, FileReadResult.Failure(getString(R.string.error_log_file_path_is_null)))
                     return@launch
                 }
 
@@ -40,35 +39,36 @@ class LogsViewModel(
                     val data = withContext(Dispatchers.IO) {
                         FileUtils.readTextFile(Uri.parse(logger.fullFileName), LINES_IN_RECYCLER_VIEW_ITEM)
                     }
-                    postEvent(LogEvents.PostLoading, FileReadResult.Success(data))
+                    postEvent(Event.PostLoading, FileReadResult.Success(data))
                 } catch (ex: Exception) {
                     // ошибка чтения
                     val text = ex.localizedMessage ?: ""
                     logError(text, true)
 
-                    postEvent(LogEvents.PostLoading, FileReadResult.Failure(text))
+                    postEvent(Event.PostLoading, FileReadResult.Failure(text))
                 }
             } else {
                 // выводим логи текущего сеанса запуска приложения
-                postEvent(LogEvents.ShowBufferLogs)
+                postEvent(Event.ShowBufferLogs)
             }
         }
     }
 
-    fun getLogsBufferString() = innerSharedLogger?.bufferString ?: ""
+    fun getLogsBufferString() = innerSharedLogger.bufferString
 
-    fun postEvent(e: LogEvents, param: Any? = null) {
+    fun postEvent(e: Event, param: Any? = null) {
         event.postValue(ViewModelEvent(e, param))
     }
-}
 
-enum class LogEvents {
-    ShowBufferLogs,
-    PreLoading,
-    PostLoading
-}
+    enum class Event {
+        ShowBufferLogs,
+        PreLoading,
+        PostLoading
+    }
 
-sealed class FileReadResult {
-    class Success(var data: List<String>)
-    class Failure(var text: String)
+    sealed class FileReadResult {
+        class Success(var data: List<String>)
+        class Failure(var text: String)
+    }
+
 }

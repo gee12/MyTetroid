@@ -17,9 +17,8 @@ import com.gee12.mytetroid.views.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.viewmodels.LogEvents
-import com.gee12.mytetroid.viewmodels.FileReadResult
 import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.viewmodels.LogsViewModel.*
 import com.gee12.mytetroid.views.TetroidMessage
 import java.io.IOException
 
@@ -62,14 +61,14 @@ class LogsActivity : AppCompatActivity() {
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
-    private fun onEvent(event: LogEvents, data: Any?) {
+    private fun onEvent(event: Event, data: Any?) {
         when (event) {
-            LogEvents.PreLoading -> {
+            Event.PreLoading -> {
                 window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 setProgresVisible(true)
             }
 
-            LogEvents.PostLoading -> {
+            Event.PostLoading -> {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 setProgresVisible(false)
 
@@ -93,7 +92,7 @@ class LogsActivity : AppCompatActivity() {
                 scrollToBottom()
             }
 
-            LogEvents.ShowBufferLogs -> {
+            Event.ShowBufferLogs -> {
                 showBufferLogs()
             }
         }
@@ -128,78 +127,9 @@ class LogsActivity : AppCompatActivity() {
         recycleView.postDelayed({ recycleView.scrollToPosition(textAdapter.itemCount - 1) }, 100)
     }
 
-    private fun setProgresVisible(isVis: Boolean) {
-        findViewById<View>(R.id.progress_bar).visibility = if (isVis) View.VISIBLE else View.GONE
+    private fun setProgresVisible(isVisible: Boolean) {
+        findViewById<View>(R.id.progress_bar).visibility = if (isVisible) View.VISIBLE else View.GONE
     }
-
-    //    /**
-    //     * Задание, в котором выполняется чтение лог-файла.
-    //     */
-    //    private class FileReadTask extends AsyncTask<String, Void, FileReadTask.FileReadResult> {
-    //
-    //        class FileReadResult {
-    ////            PrecomputedTextCompat text;
-    //            List<String> data;
-    //            String text;
-    //            boolean res;
-    ////            FileReadResult(PrecomputedTextCompat text, boolean res) {
-    //            FileReadResult(List<String> data, String text, boolean res) {
-    //                this.data = data;
-    //                this.text = text;
-    //                this.res = res;
-    //            }
-    //        }
-    //
-    //        @Override
-    //        protected void onPreExecute() {
-    //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-    //                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    //            setProgresVisible(true);
-    //
-    //        }
-    //
-    //        @Override
-    //        protected FileReadResult doInBackground(String... strings) {
-    //            String fullFileName = strings[0];
-    //            List<String> data = null;
-    //            String text = null;
-    //            boolean res = false;
-    //            try {
-    ////                text = FileUtils.readTextFile(Uri.parse(fullFileName));
-    //                data = FileUtils.readTextFile(Uri.parse(fullFileName), LINES_IN_RECYCLER_VIEW_ITEM);
-    //                res = true;
-    //            } catch (IOException ex) {
-    //                // ошибка чтения
-    //                text = ex.getLocalizedMessage();
-    //            }
-    ////            PrecomputedTextCompat.Params params = mTextViewLogs.getTextMetricsParamsCompat();
-    ////            PrecomputedTextCompat precomputedText = PrecomputedTextCompat.create(text, params);
-    ////            return new FileReadResult(precomputedText, res);
-    //            return new FileReadResult(data, text, res);
-    //        }
-    //
-    //        @Override
-    //        protected void onPostExecute(FileReadResult res) {
-    //            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-    //            setProgresVisible(false);
-    //            if (res.res) {
-    ////                mTextViewLogs.setText(res.text);
-    //                mTextAdapter.setItems(res.data);
-    //            } else {
-    //                String mes = String.format(Locale.getDefault(), "%s%s\n\n%s",
-    //                        getString(R.string.log_file_read_error), LogManager.getFullFileName(), res.text);
-    //                LogManager.log(LogsActivity.this, mes, ILogger.Types.ERROR, Toast.LENGTH_LONG);
-    //                ((TextView) findViewById(R.id.text_view_error)).setText(mes);
-    //                mLayoutError.setVisibility(View.VISIBLE);
-    //                mRecycleView.setVisibility(View.GONE);
-    //                // выводим логи текущего сеанса запуска приложения
-    //                (findViewById(R.id.button_show_cur_logs)).setOnClickListener(v -> {
-    //                    showBufferLogs();
-    //                });
-    //            }
-    //            scrollToBottom();
-    //        }
-    //    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
