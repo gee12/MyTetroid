@@ -3,61 +3,43 @@ package com.gee12.mytetroid.views.activities
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Constants.MainEvents
-import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.ViewModelEvent
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
+import com.gee12.mytetroid.common.Constants.ViewEvents
+import com.gee12.mytetroid.viewmodels.StorageInfoViewModel
 
 /**
  * Активность для просмотра информации о хранилище.
  */
-class InfoActivity : AppCompatActivity() {
-    
-    private lateinit var viewModel: StorageViewModel
-    
+class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
+
+    override fun getViewModelClazz() = StorageInfoViewModel::class.java
+
+    override fun getLayoutResourceId() = R.layout.activity_storage_info
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_info)
-        
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        
-        initViewModel()
-        
+
         // загружаем параметры хранилища из бд
-        if (!viewModel.initStorage(intent)) {
-            finish()
-            return
+        viewModel.startInitStorage(intent)
+    }
+
+    override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
+        when (event) {
+            Constants.StorageEvents.Inited -> onStorageInited()
+            Constants.StorageEvents.InitFailed -> finish()
+            else -> super.onStorageEvent(event, data)
         }
     }
 
-    private fun initViewModel() {
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application))
-            .get(StorageViewModel::class.java)
-
-        viewModel.storageEvent.observe(this, Observer { it ->
-            when (it.state) {
-                Constants.StorageEvents.Inited -> onStorageInited()
-                else -> {}
-            }
-        })
-    }
-
     private fun onStorageInited() {
+        viewModel.computeStorageFolderSize()
+        viewModel.computeMyTetraXmlLastModifiedDate()
+
         (findViewById<View>(R.id.text_view_path) as TextView).text = viewModel.getStoragePath()
-        (findViewById<View>(R.id.text_view_last_edit) as TextView).text =
-            viewModel.getMyTetraXmlLastModifiedDate()
-        (findViewById<View>(R.id.text_view_size) as TextView).text = viewModel.getStorageFolderSize()
 
         // статистика
-        val info = viewModel.xmlLoader
+        val info = viewModel.getStorageInfo()
         info.calcCounters()
         (findViewById<View>(R.id.text_view_stats_nodes_count) as TextView).text = info.nodesCount.toString()
         (findViewById<View>(R.id.text_view_stats_crypt_nodes_count) as TextView).text =
@@ -79,4 +61,25 @@ class InfoActivity : AppCompatActivity() {
         (findViewById<View>(R.id.text_view_stats_unique_tags_count) as TextView).text = info.uniqueTagsCount.toString()
         (findViewById<View>(R.id.text_view_stats_authors_count) as TextView).text = info.authorsCount.toString()
     }
+
+    override fun onViewEvent(event: ViewEvents, data: Any?) {
+        when (event) {
+            ViewEvents.TaskStarted -> taskPreExecute(R.string.task_storage_initializing)
+            ViewEvents.TaskFinished -> taskPostExecute()
+            else -> {}
+        }
+    }
+    override fun onObjectEvent(event: Any?, data: Any?) {
+        when (event) {
+            StorageInfoViewModel.Event.StorageFolderSize -> {
+                findViewById<TextView>(R.id.text_view_size).text = data as String
+                findViewById<View>(R.id.progress_size).visibility = View.GONE
+            }
+            StorageInfoViewModel.Event.MyTetraXmlLastModifiedDate -> {
+                findViewById<TextView>(R.id.text_view_last_edit).text = data as String
+                findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
+            }
+        }
+    }
+
 }

@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.viewmodels.*
 
 class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInstanceFactory() {
@@ -80,6 +79,11 @@ class TetroidViewModelFactory(val app: Application) : ViewModelProvider.NewInsta
                     app = app,
 //                    logger = env.logger,
                     settingsRepo = env.settingsRepo!!
+                ) as T
+            }
+            modelClass.isAssignableFrom(StorageInfoViewModel::class.java) -> {
+                StorageInfoViewModel(
+                    app = app
                 ) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel class")

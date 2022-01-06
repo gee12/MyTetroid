@@ -302,6 +302,7 @@
     <string name="pref_sub_category_trash">Корзина</string>
 
     <string name="task_wait">Подождите…</string>
+    <string name="task_storage_initializing">Инициализация хранилища…</string>
     <string name="task_storage_loading">Загрузка хранилища…</string>
     <string name="task_storage_decrypting">Расшифровка хранилища…</string>
     <string name="task_pass_setting">Установка пароля…</string>

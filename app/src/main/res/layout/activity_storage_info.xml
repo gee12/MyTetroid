@@ -6,7 +6,7 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".views.activities.InfoActivity">
+    tools:context=".views.activities.StorageInfoActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -42,18 +42,13 @@
                     android:id="@+id/label_path"
                     style="@style/grid_cell_label"
                     android:text="@string/label_storage_path"/>
-<!--                android:layout_alignParentLeft="true"-->
-<!--                android:layout_alignParentStart="true"-->
 
                 <TextView
                     android:id="@+id/text_view_path"
                     android:layout_weight="1"
                     android:gravity="end"
-                    style="@style/grid_cell_value"/>
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:layout_alignParentEnd="true"-->
-<!--                android:layout_toRightOf="@id/label_path"-->
-<!--                android:layout_toEndOf="@id/label_path"-->
+                    style="@style/grid_cell_value"
+                    tools:text="@tools:sample/full_names"/>
 
             </LinearLayout>
 
@@ -70,10 +65,20 @@
 
             <TextView
                 android:id="@+id/text_view_size"
+                style="@style/grid_cell_value"
                 android:layout_below="@id/layout_path"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                style="@style/grid_cell_value"/>
+                android:layout_alignParentRight="true"
+                tools:text="@tools:sample/us_zipcodes" />
+
+            <ProgressBar
+                android:id="@+id/progress_size"
+                android:layout_below="@id/layout_path"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminate="true" />
 
             <!-- Дата изменения -->
             <TextView
@@ -88,10 +93,20 @@
 
             <TextView
                 android:id="@+id/text_view_last_edit"
+                style="@style/grid_cell_value"
                 android:layout_below="@id/text_view_size"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"
-                style="@style/grid_cell_value"/>
+                android:layout_alignParentRight="true"
+                tools:text="@tools:sample/date/ddmmyy" />
+
+            <ProgressBar
+                android:id="@+id/progress_last_edit"
+                android:layout_below="@id/text_view_size"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminate="true" />
 
             <View
                 android:id="@+id/separ"
@@ -114,7 +129,8 @@
                         android:text="@string/stats_nodes_count" />
                     <TextView
                         android:id="@+id/text_view_stats_nodes_count"
-                        style="@style/grid_cell_value" />
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -125,7 +141,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_crypt_nodes_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <!--<TableRow>
@@ -149,7 +166,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_max_subnodes"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -158,7 +176,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_max_depth"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -171,7 +190,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_records_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -182,7 +202,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_crypt_records_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -195,7 +216,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_files_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -208,7 +230,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_tags_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -219,7 +242,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_unique_tags_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
                 <TableRow>
@@ -232,7 +256,8 @@
                         style="@style/grid_cell_label"/>
                     <TextView
                         android:id="@+id/text_view_stats_authors_count"
-                        style="@style/grid_cell_value"/>
+                        style="@style/grid_cell_value"
+                        tools:text="@tools:sample/us_zipcodes"/>
                 </TableRow>
 
             </TableLayout>
@@ -240,5 +265,13 @@
         </RelativeLayout>
 
     </ScrollView>
+
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -382,6 +382,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_is_pin_migrated_to_md5" translatable="false">pref_key_is_pin_migrated_to_md5</string>
 
     <string name="task_wait">Wait…</string>
+    <string name="task_storage_initializing">Storage initializing…</string>
     <string name="task_storage_loading">Storage loading…</string>
     <string name="task_storage_decrypting">Storage decrypting…</string>
     <string name="task_node_encrypting">Node encrypting…</string>

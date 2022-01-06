@@ -145,7 +145,7 @@
             android:parentActivityName=".views.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".views.activities.InfoActivity"
+            android:name=".views.activities.StorageInfoActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_info"
             android:parentActivityName=".views.activities.MainActivity"
