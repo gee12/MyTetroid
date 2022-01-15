@@ -10,8 +10,8 @@ import com.gee12.mytetroid.viewmodels.*
 
 class TetroidViewModelFactory(
     val app: Application,
-    val isUseCurrentStorageData: Boolean = true,
-    val storageId: Int? = null
+    private val isUseCurrentStorageData: Boolean = true,
+    private val storageId: Int? = null
 ) : ViewModelProvider.NewInstanceFactory() {
 
     @JvmOverloads
@@ -26,10 +26,10 @@ class TetroidViewModelFactory(
         storageId: Int? = null
     ) : this(app, false, storageId)
 
-    val environment: TetroidEnvironment?
+    private val environment: TetroidEnvironment?
         get() = App.current
 
-    val currentStorageData: TetroidStorageData?
+    private val currentStorageData: TetroidStorageData?
         get() = if (isUseCurrentStorageData || storageId != null && storageId == environment?.storageData?.storageId)
             environment?.storageData else null
 
@@ -57,7 +57,7 @@ class TetroidViewModelFactory(
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> {
                 RecordViewModel(
                     app = app,
-                    storageData = environment?.storageData!!
+                    storageData = environment?.storageData
 //                    logger = env.logger,
                 ) as T
             }
@@ -68,11 +68,13 @@ class TetroidViewModelFactory(
                 ) as T
             }
             modelClass.isAssignableFrom(IconsViewModel::class.java) -> {
-                IconsViewModel(
-                    app = app,
-                    storageData = environment?.storageData!!
+                environment?.storageData?.let { storageData ->
+                    IconsViewModel(
+                        app = app,
+                        storageData = storageData
 //                    logger = env.logger,
-                ) as T
+                    ) as T
+                } ?: throw IllegalArgumentException("Current StorageData in null")
             }
             modelClass.isAssignableFrom(LogsViewModel::class.java) -> {
                 LogsViewModel(

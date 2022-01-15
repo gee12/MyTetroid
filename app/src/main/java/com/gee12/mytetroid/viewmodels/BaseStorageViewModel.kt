@@ -7,7 +7,6 @@ import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -75,7 +74,7 @@ open class BaseStorageViewModel(
     fun checkReadExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE, callback: (() -> Unit)? = null): Boolean {
         if (permissionInteractor.checkReadExtStoragePermission(activity, requestCode)) {
             if (callback != null) callback.invoke()
-            else onPermissionChecked(requestCode)
+            else onPermissionGranted(requestCode)
             return true
         }
         return false
@@ -85,13 +84,13 @@ open class BaseStorageViewModel(
     fun checkWriteExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, callback: (() -> Unit)? = null): Boolean {
         if (permissionInteractor.checkWriteExtStoragePermission(activity, requestCode)) {
             if (callback != null) callback.invoke()
-            else onPermissionChecked(requestCode)
+            else onPermissionGranted(requestCode)
             return true
         }
         return false
     }
 
-    open fun onPermissionChecked(requestCode: Int) {
+    open fun onPermissionGranted(requestCode: Int) {
         postStorageEvent(Constants.StorageEvents.PermissionGranted, requestCode)
     }
 

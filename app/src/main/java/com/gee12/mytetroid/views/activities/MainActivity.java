@@ -381,8 +381,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // загрузка хранилища
             case InitFailed:
-                boolean isFavorMode = (boolean) data;
-                initUI(false, isFavorMode, false, false);
+                boolean isFavoritesOnlyMode = (boolean) data;
+                initUI(false, isFavoritesOnlyMode, false, false);
                 break;
             case LoadOrDecrypt: {
                 viewModel.loadOrDecryptStorage((StorageParams) data);
@@ -1133,6 +1133,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         new NodeFieldsDialog(
                 null,
                 false,
+                viewModel.getStorageId(),
                 (name, parNode) -> {
                     TetroidNode trueParentNode = (isSubNode) ? parentNode : parentNode.getParentNode();
                     viewModel.createNode(name, trueParentNode);
@@ -1147,6 +1148,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         new NodeFieldsDialog(
                 null,
                 true,
+                viewModel.getStorageId(),
                 (name, parentNode) -> {
                     viewModel.createNode(name, parentNode);
                 }
@@ -1189,6 +1191,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         new NodeFieldsDialog(
                 node,
                 false,
+                viewModel.getStorageId(),
                 (name, parentNode) -> {
                     viewModel.renameNode(node, name);
                 }
@@ -1692,7 +1695,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 onStorageSettingsActivityResult(data);
             } break;
             case Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY: {
-                onSettingsActivityResult(data);
+                onCommonSettingsActivityResult(data);
             } break;
             case Constants.REQUEST_CODE_RECORD_ACTIVITY: {
                 onRecordActivityResult(resultCode, data);
@@ -1769,7 +1772,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * Обработка возвращаемого результата активности общих настроек приложения.
      * @param data
      */
-    private void onSettingsActivityResult(Intent data) {
+    private void onCommonSettingsActivityResult(Intent data) {
         // обновляем списки, могли измениться настройки отображения
         getMainPage().updateRecordList();
         updateNodes();
@@ -1789,9 +1792,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 //                });
 //            } else
             if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)) {
-                // TODO!!
                 int storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0);
-                viewModel.startInitStorage(storageId);
+                boolean isLoadAllNodes = data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false);
+                viewModel.startInitStorage(storageId, isLoadAllNodes);
 
             } else {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_STORAGE_UPDATED, false)) {
@@ -1799,7 +1802,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     viewModel.updateStorageFromBase();
                 }
 
-                // TODO: ?
                 if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)) {
                     viewModel.loadAllNodes(false);
                 } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
@@ -1995,7 +1997,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     boolean isLoadStorage = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false);
                     boolean isLoadAllNodes = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false);
                     if (isLoadStorage) {
-                        viewModel.startInitStorage(storageId);
+                        viewModel.startInitStorage(storageId, isLoadAllNodes);
                     } else if (isLoadAllNodes) {
                         viewModel.loadAllNodes(true);
                     }
@@ -2491,14 +2493,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         if (viewModel.isLoadedFavoritesOnly()) {
             viewModel.showMessage(getString(R.string.title_need_load_nodes), LogType.WARNING);
         } else {
-            Intent intent = new Intent(this, SearchActivity.class);
-            if (query != null) {
-                intent.putExtra(Constants.EXTRA_QUERY, query);
-            }
             TetroidNode curNode = viewModel.getCurNode();
             String curNodeId = (curNode != null && curNode != FavoritesInteractor.Companion.getFAVORITES_NODE()) ? curNode.getId() : null;
-            intent.putExtra(Constants.EXTRA_CUR_NODE_ID, curNodeId);
-            startActivityForResult(intent, Constants.REQUEST_CODE_SEARCH_ACTIVITY);
+            SearchActivity.start(this, query, curNodeId, viewModel.getStorageId());
         }
     }
 

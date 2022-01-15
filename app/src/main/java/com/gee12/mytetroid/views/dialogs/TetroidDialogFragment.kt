@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.viewmodels.BaseViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
@@ -88,6 +90,13 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
         viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })
         viewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
+
+        // для диалогов, которым необходимо хранилище
+        if (viewModel is StorageViewModel) {
+            val storageViewModel = viewModel as StorageViewModel
+            storageViewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
+            storageViewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
+        }
     }
 
     protected open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
@@ -100,6 +109,14 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
             else -> {}
         }
     }
+
+    open fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
+        when (event) {
+            Constants.StorageEvents.Inited -> onStorageInited()
+        }
+    }
+
+    open fun onStorageInited() {}
 
     protected open fun initButtons() {
         onPositiveButtonCallback?.let { callback ->

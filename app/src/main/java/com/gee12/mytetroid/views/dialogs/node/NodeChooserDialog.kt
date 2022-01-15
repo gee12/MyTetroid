@@ -77,19 +77,7 @@ class NodeChooserDialog(
         setNegativeButton(R.string.answer_cancel)
     }
 
-    override fun initViewModel() {
-        super.initViewModel()
-        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-        viewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
-    }
-
-    private fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
-        when (event) {
-            Constants.StorageEvents.Inited -> initView()
-        }
-    }
-
-    private fun initView() {
+    override fun onStorageInited() {
         // проверяем уже после загрузки хранилища
         if (!isStorageLoaded()) {
             dismiss()
@@ -104,7 +92,7 @@ class NodeChooserDialog(
         adapter.setNodeHeaderClickListener(object : OnNodeHeaderClickListener {
             private fun onSelectNode(node: TetroidNode) {
                 val okButton = getPositiveButton()
-                val isCryptedWarning = !canCrypted && node.isCrypted
+                val isCryptedWarning = !canCrypted && node.isCrypted && !node.isDecrypted
                 val isDecryptedWarning = !canDecrypted && node.isCrypted && node.isDecrypted
                 val isNotRootWarning = rootOnly && node.level > 0
 

@@ -286,6 +286,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 null,
                 true,
                 viewModel.getCurNode(),
+                viewModel.getStorageId(),
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.createRecord(name, tags, author, url, node, isFavor);
                 }
@@ -330,6 +331,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                 record,
                 true,
                 viewModel.getCurNode(),
+                viewModel.getStorageId(),
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.editRecordFields(record, name, tags, author, url, node, isFavor);
                 }
@@ -417,7 +419,8 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
 
     void showAttachInfoDialog(TetroidFile attach) {
         new AttachInfoDialog(
-                attach
+                attach,
+                viewModel.getStorageId()
         ).showIfPossible(getParentFragmentManager());
     }
 

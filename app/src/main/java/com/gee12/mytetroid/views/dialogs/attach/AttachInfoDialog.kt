@@ -16,7 +16,8 @@ import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
  * Диалог информации о прикрепленном файле.
  */
 class AttachInfoDialog(
-    val attach: TetroidFile?
+    val attach: TetroidFile?,
+    override var storageId: Int?
 ) : TetroidDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
@@ -32,19 +33,7 @@ class AttachInfoDialog(
         setPositiveButton(R.string.answer_ok)
     }
 
-    override fun initViewModel() {
-        super.initViewModel()
-        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-        viewModel.initStorageFromLastStorageId()
-    }
-
-    private fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
-        when (event) {
-            Constants.StorageEvents.Inited -> initView()
-        }
-    }
-
-    private fun initView() {
+    override fun onStorageInited() {
         // проверяем уже после загрузки хранилища
         if (attach?.record == null) {
             viewModel.logError(getString(R.string.log_file_record_is_null), true)

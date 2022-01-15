@@ -7,7 +7,8 @@
     <string name="project_url_html"><![CDATA[Project page: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Privacy Policy</a>]]></string>
 
-    <string name="hint_load_all_nodes"><![CDATA[<load all nodes>]]></string>
+    <string name="hint_need_load_storage"><![CDATA[<need to load storage>]]></string>
+    <string name="hint_need_load_all_nodes"><![CDATA[<need to load nodes>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
 
     <string name="mes_migration_50">The application has been updated to version 5.0\n

@@ -28,6 +28,7 @@ class RecordFieldsDialog(
     private val record: TetroidRecord?,
     private val chooseNode: Boolean,
     private val node: TetroidNode?,
+    override var storageId: Int?,
     private val callback: IResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -117,7 +118,7 @@ class RecordFieldsDialog(
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
-                    storageId = viewModel.getStorageId(),
+                    storageId = storageId,
                     callback = nodeCallback
                 ).showIfPossible(parentFragmentManager)
             }

@@ -291,6 +291,13 @@ abstract class StorageSettingsViewModel(
     }
 
     /**
+     * Задана ли ветка для быстрой вставки в дереве.
+     */
+    fun isQuicklyNodeSet(): Boolean {
+        return storage?.quickNodeId != null
+    }
+
+    /**
      * Актуализация ветки для быстрой вставки в дереве.
      */
     fun updateQuicklyNode() {
@@ -340,6 +347,15 @@ abstract class StorageSettingsViewModel(
 
     fun getQuicklyNodeName() = quicklyNode?.name ?: ""
 
+    fun getQuicklyNodeNameOrMessage(): String? {
+        return if (storage?.quickNodeId != null) {
+            if (!isLoaded()) {
+                getString(R.string.hint_need_load_storage)
+            } else if (isLoadedFavoritesOnly()) {
+                getString(R.string.hint_need_load_all_nodes)
+            } else quicklyNode?.name
+        } else null
+    }
     fun getQuicklyNodeId() = quicklyNode?.id ?: ""
 
     fun getSyncProfile() = storage?.syncProfile

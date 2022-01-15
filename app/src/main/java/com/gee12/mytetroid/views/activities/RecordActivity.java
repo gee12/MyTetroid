@@ -1123,6 +1123,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 viewModel.getCurRecord().getValue(),
                 true,
                 viewModel.getQuicklyNode(),
+                viewModel.getStorageId(),
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.editFields(obj, name, tags, author, url, node, isFavor);
                 }

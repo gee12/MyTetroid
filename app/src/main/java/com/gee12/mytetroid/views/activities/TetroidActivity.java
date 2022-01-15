@@ -190,7 +190,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     protected void onPermissionGranted(int requestCode) {
         // по-умолчанию обрабатываем результат разрешения во ViewModel,
         //  но можем переопределить onPermissionGranted и в активити
-        viewModel.onPermissionChecked(requestCode);
+        viewModel.onPermissionGranted(requestCode);
     }
 
     protected void onPermissionCanceled(int requestCode) {

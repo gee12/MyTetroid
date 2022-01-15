@@ -24,6 +24,7 @@ import kotlin.math.abs
 class NodeFieldsDialog(
     private val node: TetroidNode?,
     private val chooseParent: Boolean,
+    override var storageId: Int?,
     private val callback: IResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -101,7 +102,7 @@ class NodeFieldsDialog(
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
-                    storageId = viewModel.getStorageId(),
+                    storageId = storageId,
                     callback = nodeCallback
                 ).showIfPossible(parentFragmentManager)
             }

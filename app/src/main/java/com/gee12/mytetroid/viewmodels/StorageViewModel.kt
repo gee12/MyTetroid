@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import android.util.Log
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
@@ -106,7 +105,7 @@ open class StorageViewModel(
         recordsInteractor = recordsInteractor
     )
 
-    var isCheckFavorMode = true
+    var isLoadAllNodesForced = false
     var isAlreadyTryDecrypt = false
     var syncType = SyncStorageType.Manually
     // FIXME: можно избавиться, как callback в clearTrashFolder
@@ -212,12 +211,12 @@ open class StorageViewModel(
 
     /**
      * Запуск первичной инициализации хранилища по-умолчанию с указанием флага isCheckFavorMode
-     * @param isCheckFavorMode Стоит ли проверять необходимость загрузки только избранных записей.
+     * @param isCheckFavoritesOnlyMode Стоит ли проверять необходимость загрузки только избранных записей.
      *                          Если отключено, то всегда загружать хранилище полностью.
      */
-    fun startInitStorage(isLoadLastForced: Boolean, isCheckFavorMode: Boolean) {
-        this.isCheckFavorMode = isCheckFavorMode
-        startInitStorage()
+    fun startInitStorage(id: Int, isLoadAllNodesForced: Boolean) {
+        this.isLoadAllNodesForced = isLoadAllNodesForced
+        startInitStorage(id)
     }
 
     /**
@@ -326,19 +325,22 @@ open class StorageViewModel(
         }
     }
 
+    /**
+     * Читаем установленную опцию isLoadAllNodesForced только 1 раз.
+     * isLoadAllNodesForced может быть = true, когда, например:
+     *  1) загружаем хранилище из временной записи, созданной из виджета.
+     *  2) загружаем хранилище из настроек при выборе quicklyNode.
+     *  В этих случаях хранилище нужно загружать полностью.
+     */
     private fun checkIsNeedLoadFavoritesOnly(): Boolean {
-        var isLoadFavoritesOnly = false
-        if (isCheckFavorMode) {
-            // читаем установленную опцию isLoadFavoritesOnly только 1 раз.
-            // isCheckFavorMode может быть = false, когда, например:
-            //  * загружаем хранилище из временной записи, созданной из виджета.
-            //    В этом случае хранилище нужно загружать полностью.
-            isLoadFavoritesOnly = !isLoaded() && isLoadFavoritesOnly()
+        return if (isLoadAllNodesForced) {
+            // уже воспользовались, сбрасываем
+            this.isLoadAllNodesForced = false
+            false
+        } else {
+            !isLoaded() && isLoadFavoritesOnly()
                     || (isLoaded() && isLoadedFavoritesOnly())
         }
-        // уже воспользовались, сбрасываем
-        this.isCheckFavorMode = true
-        return isLoadFavoritesOnly
     }
 
     /**

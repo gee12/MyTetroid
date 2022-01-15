@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.views.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
@@ -12,6 +13,8 @@ import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesInteractor.Companion.FAVORITES_NODE
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
@@ -45,6 +48,8 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
     override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun getLayoutResourceId() = R.layout.activity_search
+
+    override fun getStorageId() = intent?.extras?.getInt(Constants.EXTRA_STORAGE_ID)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +88,12 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
 
         etQuery.setSelection(etQuery.text?.length ?: 0)
 
+        var storageId: Int? = null
+
         intent.extras?.let { extras ->
+            extras.getInt(Constants.EXTRA_STORAGE_ID).takeIf { it > 0 } ?.let {
+                storageId = it
+            }
             if (CommonSettings.getSearchInNodeMode(this) == 1) {
                 nodeId = extras.getString(Constants.EXTRA_CUR_NODE_ID)
             }
@@ -92,13 +102,12 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
             }
         }
 
-        viewModel.initStorageFromLastStorageId()
+        viewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
     }
 
     override fun initViewModel() {
         super.initViewModel()
         viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-
     }
 
     override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
@@ -283,6 +292,24 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun start(activity: Activity, query: String?, currentNodeId: String?, storageId: Int?) {
+            val intent = Intent(activity, SearchActivity::class.java).apply {
+                if (storageId != null) {
+                    putExtra(Constants.EXTRA_STORAGE_ID, storageId)
+                }
+                if (query != null) {
+                    putExtra(Constants.EXTRA_QUERY, query)
+                }
+                putExtra(Constants.EXTRA_CUR_NODE_ID, currentNodeId)
+            }
+            activity.startActivityForResult(intent, Constants.REQUEST_CODE_SEARCH_ACTIVITY)
+        }
+
     }
 
 }

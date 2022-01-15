@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.views.dialogs.record
 
 import android.graphics.Color
-import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
@@ -36,24 +35,12 @@ class RecordInfoDialog(
         setPositiveButton(R.string.answer_ok)
     }
 
-    override fun initViewModel() {
-        super.initViewModel()
-        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-        viewModel.initStorageFromLastStorageId()
-    }
-
-    private fun onStorageEvent(event: StorageEvents?, data: Any?) {
-        when (event) {
-            StorageEvents.Inited -> initView()
-        }
-    }
-
-    private fun initView() {
+    override fun onStorageInited() {
         (dialogView.findViewById<View>(R.id.text_view_id) as TextView).text = record?.id
         val tvNode = dialogView.findViewById<View>(R.id.text_view_node) as TextView
         when {
             viewModel.isLoadedFavoritesOnly() -> {
-                tvNode.setText(R.string.hint_load_all_nodes)
+                tvNode.setText(R.string.hint_need_load_all_nodes)
                 tvNode.setTextColor(Color.LTGRAY)
             }
             record?.node != null -> {

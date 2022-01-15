@@ -6,7 +6,8 @@
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
-    <string name="hint_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
+    <string name="hint_need_load_storage"><![CDATA[<загрузите хранилище>]]></string>
+    <string name="hint_need_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
     <string name="mes_migration_50">Приложение обновилось на версию 5.0\n
@@ -285,7 +286,7 @@
     <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>
     <string name="pref_double_tap_fullscreen_summ">Включать/отключать полноэкранный режим при двойном касании по тексту записи</string>
     <string name="pref_quickly_node">Ветка для быстрой вставки</string>
-    <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями. Доступно, если это хранилище, используемое по-умолчанию</string>
+    <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями. Доступно, если это основное хранилище</string>
     <string name="pref_quickly_node_not_available">Доступно, если это хранилище, используемое по-умолчанию</string>
     <string name="pref_app_for_sync">Приложение</string>
     <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации (используется как значение по-умолчанию для хранилищ)</string>

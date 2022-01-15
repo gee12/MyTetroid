@@ -39,7 +39,7 @@ import com.gee12.mytetroid.logs.LogType
 
 class RecordViewModel(
     app: Application,
-    storageData: TetroidStorageData
+    storageData: TetroidStorageData? = null
     /*logger: TetroidLogger?,*/
 ): StorageViewModel(
     app,

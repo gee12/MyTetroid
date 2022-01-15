@@ -90,7 +90,10 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
                             val intent = Intent(requireContext(), MainActivity::class.java)
                             intent.setAction(Constants.ACTION_STORAGE_SETTINGS)
                             when (code) {
-                                INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                                INodeChooserResult.LOAD_STORAGE -> {
+                                    intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                                    intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                                }
                                 INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
                             }
                             intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
@@ -134,7 +137,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         updateSummary(R.string.pref_key_storage_path, viewModel.getStoragePath())
         updateSummary(R.string.pref_key_storage_name, viewModel.getStorageName())
         updateSummary(R.string.pref_key_temp_path, viewModel.getTrashPath())
-        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
+        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeNameOrMessage(), getString(R.string.pref_quickly_node_summ))
     }
 
     override fun onUpdateStorageFieldEvent(key: String, value: String) {
