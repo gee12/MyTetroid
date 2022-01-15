@@ -100,17 +100,14 @@ class FavoritesInteractor(
             }
         }
 
-    suspend fun addOrRemoveIfNeed(record: TetroidRecord, isFavorite: Boolean): Boolean {
-        return when {
-            !isFavorite(record.id) -> {
-                true
-            }
-            isFavorite -> {
-                add(record)
-            }
-            else -> {
-                remove(record, true)
-            }
+    suspend fun addOrRemoveIfNeed(record: TetroidRecord, isNeedFavorite: Boolean): Boolean {
+        val isAlreadyFavorite = isFavorite(record.id)
+        return if (isNeedFavorite) {
+            if (isAlreadyFavorite) true
+            else add(record)
+        } else {
+            if (!isAlreadyFavorite) true
+            else remove(record, true)
         }
     }
 

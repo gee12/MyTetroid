@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.activities
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -16,6 +18,10 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     override fun getViewModelClazz() = StorageInfoViewModel::class.java
 
     override fun getLayoutResourceId() = R.layout.activity_storage_info
+
+    override fun getStorageId(): Int {
+        return intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +85,17 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
                 findViewById<TextView>(R.id.text_view_last_edit).text = data as String
                 findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
             }
+        }
+    }
+
+    companion object {
+
+        @JvmStatic
+        fun start(context: Context, storageId: Int) {
+            val intent = Intent(context, StorageInfoActivity::class.java).apply {
+                putExtra(Constants.EXTRA_STORAGE_ID, storageId)
+            }
+            context.startActivity(intent)
         }
     }
 

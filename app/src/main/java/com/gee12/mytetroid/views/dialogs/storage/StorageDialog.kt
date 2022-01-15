@@ -79,15 +79,17 @@ class StorageDialog(
         }
         setNegativeButton(R.string.answer_cancel)
 
-        etName.addAfterTextChangedListener { s ->
-            getPositiveButton()?.isEnabled = s.isNotEmpty() && isPathSelected
-        }
+        etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
         showKeyboard()
         etName.setSelectionAtEnd()
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
+        checkPositiveButtonIsEnabled()
+    }
+
+    private fun checkPositiveButtonIsEnabled() {
         getPositiveButton()?.isEnabled = etName.text.isNotEmpty() && isPathSelected
     }
 

@@ -105,6 +105,9 @@ public class TetroidXml {
 
 
     public TetroidXml() {
+        this.mRootNodesList = new ArrayList<>();
+        ROOT_NODE.setSubNodes(mRootNodesList);
+        this.mTagsMap = new HashMap<>();
     }
 
     public void setStorageLoadHelper(IStorageLoadHelper helper) {
@@ -115,9 +118,8 @@ public class TetroidXml {
      * Первоначальная инициализация переменных.
      */
     public void init() {
-        this.mRootNodesList = new ArrayList<>();
-        ROOT_NODE.setSubNodes(mRootNodesList);
-        this.mTagsMap = new HashMap<>();
+        this.mRootNodesList.clear();
+        this.mTagsMap.clear();
         this.mFormatVersion = DEF_VERSION;
         this.mIsStorageLoaded = false;
         // счетчики
@@ -234,7 +236,7 @@ public class TetroidXml {
             }
         }
         ROOT_NODE.setSubNodes(nodes);
-        this.mRootNodesList = nodes;
+        this.mRootNodesList = (nodes != null) ? nodes : new ArrayList<>();
         return true;
     }
 

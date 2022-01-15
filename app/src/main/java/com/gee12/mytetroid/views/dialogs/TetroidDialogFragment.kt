@@ -52,6 +52,8 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     protected var onNegativeButtonCallback: DialogInterface.OnClickListener? = null
     protected var onNeutralButtonCallback: DialogInterface.OnClickListener? = null
 
+    protected open var storageId: Int? = null
+
     protected abstract fun getViewModelClazz(): Class<VM>
 
     protected abstract fun getLayoutResourceId(): Int
@@ -80,7 +82,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     }
 
     protected open fun initViewModel() {
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application, storageId))
             .get(getViewModelClazz())
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 

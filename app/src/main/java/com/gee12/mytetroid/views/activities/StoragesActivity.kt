@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.views.activities
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -8,6 +9,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
@@ -19,6 +21,7 @@ import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
@@ -47,7 +50,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        adapter = StoragesAdapter(this, App.CurrentStorageId)
+        adapter = StoragesAdapter(this, currentStorageId = App.current?.storageData?.storageId)
         adapter.onItemClickListener = View.OnClickListener { v ->
             val itemPosition = recyclerView.getChildLayoutPosition(v!!)
             val item = adapter.getItem(itemPosition)
@@ -114,14 +117,8 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     private fun onStorageAdded(storage: TetroidStorage) {
         if (storage.isNew) {
             AskDialogs.showCreateNewStorageDialog(this, storage.path) {
-                storageViewModel = StorageViewModel(
-                    app = application,
-//                    logger = viewModel.logger,
-                    storagesRepo = null,
-                    xmlLoader = null,
-                    crypter = null,
-                    settingsRepo = null
-                )
+                storageViewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
+                    .get(StorageViewModel::class.java)
                 storageViewModel!!.storageEvent.observe(this, {
                     when (it.state) {
                         // проверка разрешения перед созданием файлов хранилища
@@ -284,4 +281,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         }
     }
 
+    companion object {
+
+        @JvmStatic
+        fun start(activity: Activity, requestCode: Int) {
+            val intent = Intent(activity, StoragesActivity::class.java)
+            activity.startActivityForResult(intent, requestCode)
+        }
+    }
 }

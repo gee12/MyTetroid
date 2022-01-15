@@ -2,12 +2,14 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
 import android.content.Intent
+import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.common.Constants
 import kotlinx.coroutines.*
 
 class StorageInfoViewModel(
-    app: Application
-) : StorageViewModel(app), CoroutineScope {
+    app: Application,
+    val storageData: TetroidStorageData?
+) : StorageViewModel(app, storageData), CoroutineScope {
 
     fun startInitStorage(intent: Intent) {
         launch {
@@ -22,16 +24,16 @@ class StorageInfoViewModel(
     }
 
     fun computeStorageFolderSize() {
-        launch(Dispatchers.IO) {
-            val size = super.getStorageFolderSize()
-            postEvent(Event.StorageFolderSize, size)
+        launch {
+            val size = withContext(Dispatchers.IO) { super.getStorageFolderSize() }
+            setEvent(Event.StorageFolderSize, size)
         }
     }
 
     fun computeMyTetraXmlLastModifiedDate() {
-        launch(Dispatchers.IO) {
-            val date = super.getMyTetraXmlLastModifiedDate()
-            postEvent(Event.MyTetraXmlLastModifiedDate, date)
+        launch {
+            val date = withContext(Dispatchers.IO) { super.getMyTetraXmlLastModifiedDate() }
+            setEvent(Event.MyTetraXmlLastModifiedDate, date)
         }
     }
 

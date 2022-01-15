@@ -6,22 +6,19 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.interactors.TrashInteractor
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.utils.Utils
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
-    application: Application,
-    private val storagesRepo: StoragesRepo,
-    settingsRepo: CommonSettingsRepo
-) : BaseViewModel(application, settingsRepo), CoroutineScope {
+    app: Application,
+) : BaseViewModel(app), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    // FIXME: использовать DI
-    val trashInteractor = TrashInteractor(this.logger, storagesRepo)
+    val trashInteractor = TrashInteractor(this.logger, StoragesRepo(app))
+    val crypter = Crypter(this.logger)
+
 
     //region Pin
 
@@ -56,8 +53,7 @@ class CommonSettingsViewModel(
 
     fun checkPinCode(pin: String): Boolean {
         // сравниваем хеши
-//        val pinHash = crypter.passToHash(pin)
-        val pinHash = Utils.toMD5Hex(pin)
+        val pinHash = crypter.passToHash(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
 

@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.text.TextUtils
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
-import com.esafirm.imagepicker.features.ImagePicker
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -22,43 +21,37 @@ import com.gee12.mytetroid.interactors.ImagesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.activities.MainActivity
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import androidx.annotation.MainThread
-import com.esafirm.imagepicker.model.Image
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 
 
 class RecordViewModel(
     app: Application,
+    storageData: TetroidStorageData
     /*logger: TetroidLogger?,*/
-    storagesRepo: StoragesRepo?,
-    settingsRepo: CommonSettingsRepo?,
-    xmlLoader: TetroidXml?,
-    crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
+    storageData
     /*logger,*/
-    storagesRepo,
-    settingsRepo,
-    xmlLoader,
-    crypter
 ) {
 
-    private val imagesInteractor = ImagesInteractor(this.logger, dataInteractor, recordsInteractor)
+    private val imagesInteractor = ImagesInteractor(
+        logger = this.logger,
+        dataInteractor = dataInteractor,
+        recordsInteractor = recordsInteractor
+    )
 
     var curRecord = MutableLiveData<TetroidRecord>()
     var curMode = 0
@@ -71,6 +64,11 @@ class RecordViewModel(
     var isEdited = false
     var isFromAnotherActivity = false
 
+
+    init {
+//        CommonSettings.init(app)
+        this.xmlLoader.setStorageLoadHelper(this)
+    }
 
     //region Migration
 
@@ -97,6 +95,23 @@ class RecordViewModel(
             }
             else -> {
                 postViewEvent(Constants.ViewEvents.FinishActivity)
+            }
+        }
+    }
+
+    /**
+     * Старт загрузки хранилища.
+     */
+    private fun loadStorage() {
+        startLoadStorage(isLoadFavoritesOnly = false)
+    }
+
+    fun onStorageLoaded(isLoaded: Boolean) {
+        if (isLoaded) {
+            if (isSaveTempAfterStorageLoaded) {
+                isSaveTempAfterStorageLoaded = false
+                // сохраняем временную запись
+                postEvent(RecordEvents.EditFields, resultObj)
             }
         }
     }
@@ -258,9 +273,6 @@ class RecordViewModel(
      */
     private fun initRecordFromStorage(intent: Intent) {
         launch {
-            // загружаем параметры хранилища из бд
-            if (!initStorage(intent)) return@launch
-
             // получаем переданную запись
             val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
             if (recordId != null) {
@@ -296,8 +308,9 @@ class RecordViewModel(
      * @return
      */
     private fun initRecordFromWidget() {
-        postViewEvent(Constants.ViewEvents.ShowHomeButton)
         launch {
+            setViewEvent(Constants.ViewEvents.ShowHomeButton, false)
+
             // создаем временную запись
             val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
             val record = withContext(Dispatchers.IO) {
@@ -332,7 +345,7 @@ class RecordViewModel(
                     recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, true)
                 }
                 if (text == null) {
-                    if (record.isCrypted && crypter.errorCode > 0) {
+                    if (record.isCrypted && storageCrypter.errorCode > 0) {
                         logError(R.string.log_error_record_file_decrypting)
                         setViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                     }
@@ -699,14 +712,14 @@ class RecordViewModel(
                 }
                 return true
             } else {
-                save()
+                saveRecord()
                 onAfterSaving(obj)
             }
         }
         return false
     }
 
-    private fun save() {
+    private fun saveRecord() {
         // запрашиваем у View html-текст записи и сохраняем
         postEvent(RecordEvents.Save)
     }
@@ -714,11 +727,8 @@ class RecordViewModel(
     /**
      * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
      */
-    fun save(htmlText: String) {
+    fun saveRecordText(htmlText: String) {
         log(getString(R.string.log_before_record_save) + curRecord.value!!.id)
-//        val htmlText: String = mEditor.getDocumentHtml()
-        //        String htmlText = (mCurMode == MODE_HTML)
-//                ? TetroidEditor.getDocumentHtml(mEditTextHtml.getText().toString()) : mEditor.getDocumentHtml();
         if (recordsInteractor.saveRecordHtmlText(getContext(), curRecord.value!!, htmlText)) {
             log(R.string.log_record_saved, true)
             // сбрасываем пометку изменения записи
@@ -820,38 +830,10 @@ class RecordViewModel(
             putExtras(bundle)
             action = Constants.ACTION_RECORD
         }
-//        ViewUtils.startActivity(this, MainActivity::class.java, bundle, Constants.ACTION_RECORD, 0, null)
         setViewEvent(Constants.ViewEvents.StartActivity, intent)
     }
 
     //endregion SaveRecord
-
-    //region Storage
-
-    /**
-     * Старт загрузки хранилища.
-     */
-    private fun loadStorage() {
-//        boolean isLoadLastForced = false;
-//        boolean isCheckFavorMode = !mRecord.isTemp();
-//        if (storagePath == null) {
-//            StorageManager.startInitStorage(this, this, isLoadLastForced, isCheckFavorMode);
-//        } else {
-//            StorageManager.initOrSyncStorage(this, storagePath, isCheckFavorMode);
-//        }
-        startInitStorage(false, !curRecord.value!!.isTemp)
-    }
-
-    fun afterStorageLoaded() {
-        if (isSaveTempAfterStorageLoaded) {
-            isSaveTempAfterStorageLoaded = false
-            // сохраняем временную запись
-//            editFields(mResultObj)
-            postEvent(RecordEvents.EditFields, resultObj)
-        }
-    }
-
-    //endregion Storage
 
     //region Interaction
 
@@ -930,42 +912,40 @@ class RecordViewModel(
         postEvent(RecordEvents.IsEditedChanged, false)
     }
 
-    fun editFields(obj: ResultObj?, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
+    fun editFields(
+        obj: ResultObj?,
+        name: String,
+        tags: String,
+        author: String,
+        url: String,
+        node: TetroidNode,
+        isFavor: Boolean
+    ) {
         launch {
             val wasTemp = curRecord.value!!.isTemp
             if (recordsInteractor.editRecordFields(getContext(), curRecord.value, name, tags, author, url, node, isFavor)) {
                 isFieldsEdited = true
                 setTitle(name)
-//                loadFields(mRecord)
                 postEvent(RecordEvents.LoadFields, curRecord.value)
                 if (wasTemp) {
                     // сохраняем текст записи
-//                    save();
-                    val resObj: ResultObj?
-                    if (obj == null) {
-                        resObj = ResultObj(null)
-                        // baseUrl изменился, нужно перезагрузить в WebView
-                        resObj.needReloadText = true
+                    val resObj = if (obj == null) {
+                        ResultObj(null).apply {
+                            // baseUrl изменился, нужно перезагрузить в WebView
+                            needReloadText = true
+                        }
                     } else {
-                        resObj = null
+                        null
                     }
                     saveRecord(resObj)
-                    //                    TetroidLog.logOperRes(LogObj.TEMP_RECORD, LogOper.SAVE);
                     // показываем кнопку Home для возврата в ветку записи
-                    postViewEvent(Constants.ViewEvents.ShowHomeButton)
+                    postViewEvent(Constants.ViewEvents.ShowHomeButton, true)
                 } else {
-//                    TetroidLog.logOperRes(LogObj.RECORD_FIELDS, LogOper.CHANGE);
                     log(R.string.log_record_fields_changed, true)
                 }
             } else {
                 if (wasTemp) {
-                    /*// все равно сохраняем текст записи
-//                    save();
-                    if (obj == null) {
-                        // baseUrl изменился, нужно перезагрузить в WebView
-                        obj.needReloadText = true;
-                    }
-                    saveRecord(obj);*/
+                    // все равно сохраняем текст записи
                     logOperErrorMore(LogObj.TEMP_RECORD, LogOper.SAVE)
                 } else {
                     logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)

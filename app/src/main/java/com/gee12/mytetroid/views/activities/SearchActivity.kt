@@ -196,6 +196,7 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
                 canCrypted = false,
                 canDecrypted = true,
                 rootOnly = false,
+                storageId = viewModel.getStorageId(),
                 callback = nodeCallback
             ).showIfPossible(supportFragmentManager)
         }

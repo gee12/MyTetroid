@@ -34,7 +34,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected open fun initViewModel() {
-        baseViewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application))
+        baseViewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application, false))
             .get(CommonSettingsViewModel::class.java)
         baseViewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
         baseViewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })

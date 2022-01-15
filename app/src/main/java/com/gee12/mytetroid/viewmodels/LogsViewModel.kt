@@ -5,15 +5,13 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.utils.FileUtils
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
-    app: Application,
-    settingsRepo: CommonSettingsRepo
-) : BaseViewModel(app, settingsRepo), CoroutineScope {
+    app: Application
+) : BaseViewModel(app), CoroutineScope {
 
     companion object {
         const val LINES_IN_RECYCLER_VIEW_ITEM = 10

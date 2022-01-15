@@ -8,13 +8,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.FileObserver
-import android.view.Gravity
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.helpers.UriHelper
@@ -25,7 +23,6 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.utils.StringUtils
 import com.gee12.mytetroid.utils.Utils
@@ -38,21 +35,13 @@ import java.util.HashMap
 class MainViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-    storagesRepo: StoragesRepo?,
-    settingsRepo: CommonSettingsRepo?,
-    xmlLoader: TetroidXml?,
-    crypter: TetroidCrypter?
 ): StorageViewModel(
     app,
     /*logger,*/
-    storagesRepo,
-    settingsRepo,
-    xmlLoader,
-    crypter
 ) {
 
     val storagesInteractor = StoragesInteractor(this.storagesRepo)
-    val migrationInteractor = MigrationInteractor(this.logger, this.settingsRepo, storagesInteractor, favoritesInteractor)
+    val migrationInteractor = MigrationInteractor(this.logger, CommonSettingsRepo(app), storagesInteractor, favoritesInteractor)
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
@@ -69,9 +58,12 @@ class MainViewModel(
     var isFromRecordActivity = false
     private var isStorageChangingHandled = false
 
+
     init {
 //        CommonSettings.init(app)
 
+//        this.storageCrypter = environment.storageCrypter
+//        this.xmlLoader = environment.xmlLoader
         this.xmlLoader.setStorageLoadHelper(this)
     }
 
@@ -476,7 +468,7 @@ class MainViewModel(
         }
         // проверка нужно ли расшифровать избранную запись перед отображением
         // (т.к. в избранной ветке записи могут быть нерасшифрованные)
-        if (!onRecordDecrypt(record)) {
+        if (!checkAndDecryptRecord(record)) {
             openRecord(record.id)
         }
     }
@@ -550,9 +542,10 @@ class MainViewModel(
      */
     fun showNode(node: TetroidNode?) {
         if (node != null) {
+            // проверка нужно ли расшифровать ветку перед отображением
+            if (checkAndDecryptNode(node)) return
+
             launch {
-                // проверка нужно ли расшифровать ветку перед отображением
-                if (checkAndDecryptNode(node)) return@launch
                 log(getString(R.string.log_open_node) + StringUtils.getIdString(getContext(), node))
                 curNode = node
                 setEvent(MainEvents.SetCurrentNode, node)
@@ -689,7 +682,7 @@ class MainViewModel(
     fun startDeleteNode(node: TetroidNode?) {
         if (node == null) return
         // нельзя удалить нерасшифрованную ветку
-        if (!node.isNonCryptedOrDecrypted()) {
+        if (!node.isNonCryptedOrDecrypted) {
             log(R.string.log_cannot_delete_undecrypted_node, true)
             return
         }
@@ -949,7 +942,7 @@ class MainViewModel(
             val attach = withContext(Dispatchers.IO) {
                 attachesInteractor.attachFile(getContext(), fileFullName, record, deleteSrcFile)
             }
-            setViewEvent(Constants.ViewEvents.TaskFinished, Gravity.NO_GRAVITY)
+            setViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
             if (attach != null) {
                 log(R.string.log_file_was_attached, true)
                 updateAttaches()
@@ -1110,7 +1103,7 @@ class MainViewModel(
         launch {
             postViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_file_saving)
             val res = attachesInteractor.saveFile(getContext(), curFile, folderPath)
-            postViewEvent(Constants.ViewEvents.TaskFinished, Gravity.NO_GRAVITY)
+            postViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
             onSaveFileResult(res)
         }
     }
@@ -1247,7 +1240,7 @@ class MainViewModel(
             log(getString(R.string.global_search_start).format(profile.query))
             setViewEvent(Constants.ViewEvents.TaskStarted, R.string.global_searching)
             val found = searchInteractor.globalSearch(getContext())
-            setViewEvent(Constants.ViewEvents.TaskFinished, Gravity.NO_GRAVITY)
+            setViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
 
             if (found == null) {
                 log(getString(R.string.log_global_search_return_null), true)
@@ -1405,7 +1398,7 @@ class MainViewModel(
         launch {
             if (isLoaded()) {
                 val params = StorageParams(
-                    isFavoritesOnly = isLoadedFavoritesOnly(),
+                    isLoadFavoritesOnly = isLoadedFavoritesOnly(),
                     isHandleReceivedIntent = true,
                     result = true
                 )

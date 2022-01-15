@@ -2,23 +2,34 @@ package com.gee12.mytetroid
 
 import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
-import com.gee12.mytetroid.interactors.CommonSettingsInteractor
+import com.gee12.mytetroid.interactors.FavoritesInteractor
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.FileTetroidLogger
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 
 /**
  * Среда, окружающая приложение во время его работы.
  */
-class TetroidEnvironment(
-    var logger: FileTetroidLogger? = null,
-    var xmlLoader: TetroidXml? = null,
-    var crypter: TetroidCrypter? = null,
-
-    var storagesRepo: StoragesRepo? = null,
-    var settingsRepo: CommonSettingsRepo? = null,
-
-    var storageInteractor: StorageInteractor? = null,
-    var settingsInteractor: CommonSettingsInteractor? = null
+data class TetroidEnvironment(
+    var logger: FileTetroidLogger,
+    var storageData: TetroidStorageData? = null
 )
+
+class TetroidStorageData(
+    var storageId: Int,
+    var xmlLoader: TetroidXml,
+    var storageCrypter: TetroidCrypter,
+
+    var storageInteractor: StorageInteractor,
+    var favoritesInteractor: FavoritesInteractor
+) {
+
+    constructor(storageId: Int, viewModel: StorageViewModel): this(
+        storageId = storageId,
+        xmlLoader = viewModel.xmlLoader,
+        storageCrypter = viewModel.storageCrypter,
+        storageInteractor = viewModel.storageInteractor,
+        favoritesInteractor = viewModel.favoritesInteractor
+    )
+
+}

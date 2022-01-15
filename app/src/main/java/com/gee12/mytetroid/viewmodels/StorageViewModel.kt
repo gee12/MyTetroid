@@ -5,10 +5,11 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import com.gee12.htmlwysiwygeditor.Dialogs
+import android.util.Log
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
@@ -21,36 +22,89 @@ import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.utils.UriUtils
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.util.*
 
-/**
- * (замена StorageManager)
- */
 open class StorageViewModel(
     app: Application,
+    storageData: TetroidStorageData? = null
     /*logger: TetroidLogger?,*/
-    storagesRepo: StoragesRepo?,
-    settingsRepo: CommonSettingsRepo?,
-    xmlLoader: TetroidXml?,
-    crypter: TetroidCrypter?
 ) : StorageEncryptionViewModel(
     app,
     /*logger,*/
-    storagesRepo ?: StoragesRepo(app),
-    settingsRepo ?: CommonSettingsRepo(app),
-    xmlLoader ?: TetroidXml(),
-    crypter
 ) {
+
+    override var xmlLoader = storageData?.xmlLoader ?: TetroidXml()
+
+    override var storageCrypter = storageData?.storageCrypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
+
+    override val storageInteractor = storageData?.storageInteractor ?: StorageInteractor(
+        logger = this.logger,
+        storageHelper = this,
+        xmlLoader = xmlLoader,
+        dataInteractor = dataInteractor
+    )
+    override val cryptInteractor = EncryptionInteractor(
+        logger = this.logger,
+        crypter = this.storageCrypter,
+        xmlHelper = xmlLoader,
+        storageHelper = this
+    )
+    override val favoritesInteractor = storageData?.favoritesInteractor ?: FavoritesInteractor(
+        logger = this.logger,
+        favoritesRepo = FavoritesRepo(getContext()),
+        storageHelper = this
+    )
+    override val recordsInteractor = RecordsInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        interactionInteractor = interactionInteractor,
+        tagsParser = this,
+        favoritesInteractor = favoritesInteractor,
+        xmlLoader = xmlLoader
+    )
+    override val nodesInteractor = NodesInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        recordsInteractor = recordsInteractor,
+        favoritesInteractor = favoritesInteractor,
+        storageHelper = this,
+        xmlLoader = xmlLoader
+    )
+
+    override val passInteractor = PasswordInteractor(
+        logger = this.logger,
+        databaseConfig = databaseConfig,
+        cryptInteractor = cryptInteractor,
+        nodesInteractor = nodesInteractor
+    )
+
+    override val tagsInteractor = TagsInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        xmlLoader = xmlLoader
+    )
+    override val attachesInteractor = AttachesInteractor(
+        logger = this.logger,
+        storageInteractor = storageInteractor,
+        cryptInteractor = cryptInteractor,
+        dataInteractor = dataInteractor,
+        interactionInteractor = interactionInteractor,
+        recordsInteractor = recordsInteractor
+    )
 
     var isCheckFavorMode = true
     var isAlreadyTryDecrypt = false
@@ -65,13 +119,7 @@ open class StorageViewModel(
         // первоначальная инициализация компонентов приложения.
         App.init(
             context = getContext(),
-            logger = this.logger,
-            xmlLoader = this.xmlLoader,
-            crypter = this.crypter,
-            storagesRepo = this.storagesRepo,
-            settingsRepo = this.settingsRepo,
-            storageInteractor = this.storageInteractor,
-            settingsInteractor = this.settingsInteractor
+            logger = this.logger
         )
     }
 
@@ -101,11 +149,12 @@ open class StorageViewModel(
      */
     fun initStorage(intent: Intent): Boolean {
         if (storage != null) {
+            setStorageEvent(Constants.StorageEvents.Inited, storage)
             return true
         }
         val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
         return if (storageId > 0) {
-            setStorageFromBase(storageId)
+            initStorageFromBase(storageId)
             true
         } else {
             initStorageFromLastStorageId()
@@ -118,7 +167,7 @@ open class StorageViewModel(
     fun initStorageFromLastStorageId(): Boolean {
         val storageId = CommonSettings.getLastStorageId(getContext())
         return if (storageId > 0) {
-            setStorageFromBase(storageId)
+            initStorageFromBase(storageId)
             true
         } else {
             logError(getString(R.string.log_not_transferred_storage_id), true)
@@ -141,22 +190,22 @@ open class StorageViewModel(
         }
     }
 
-    open fun setStorageFromBase(id: Int) {
+    open fun initStorageFromBase(id: Int) {
         launch {
             val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
-            storage?.let {
-                this@StorageViewModel.storage = it
-                setStorageEvent(Constants.StorageEvents.Changed, it)
+            if (storage != null) {
+                this@StorageViewModel.storage = storage
+                setStorageEvent(Constants.StorageEvents.Changed, storage)
 
                 if (xmlLoader.mIsStorageLoaded) {
-                    it.isLoaded = true
+                    storage.isLoaded = true
                 }
 
                 // загружаем настройки, но не загружаем само хранилище
                 initStorage()
-            } ?: run {
+            } else {
                 log(getString(R.string.log_storage_not_found_mask).format(id))
-//                setStorageEvent(Constants.StorageEvents.NotFound)
+                setStorageEvent(Constants.StorageEvents.InitFailed)
             }
         }
     }
@@ -220,9 +269,7 @@ open class StorageViewModel(
      * TODO: может здесь нужно сразу loadStorage() ?
      */
     fun startReinitStorage() {
-        // TODO: ?
-//        val storageId = SettingsManager.getLastStorageId(getContext())
-        App.CurrentStorageId?.let {
+        storage?.id?.let {
             startInitStorage(it)
         }
     }
@@ -235,7 +282,7 @@ open class StorageViewModel(
 
         val result = initOrCreateStorage(storage!!)
         if (result) {
-            log(getString(R.string.log_storage_settings_loaded) + getStoragePath())
+            log(getString(R.string.log_storage_inited) + getStoragePath())
             setStorageEvent(Constants.StorageEvents.Inited, storage)
         } else {
             logError(getString(R.string.log_failed_storage_init) + getStoragePath(), true)
@@ -253,20 +300,29 @@ open class StorageViewModel(
         val isLoadFavoritesOnly = checkIsNeedLoadFavoritesOnly()
 
         if (initStorage(isLoadFavoritesOnly)) {
-            val params = StorageParams(
-                node = null,
-                isNodeOpening = false,
-                isFavoritesOnly = isLoadFavoritesOnly,
-                isHandleReceivedIntent = true
-            )
-            if (isCrypted()) {
-                // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
-                params.isDecrypt = true
-                checkPassAndDecryptStorage(params)
-            } else {
-                // загружаем
-                loadOrDecryptStorage(params)
-            }
+            startLoadStorage(isLoadFavoritesOnly)
+        }
+    }
+
+    fun startLoadStorage(
+        isLoadFavoritesOnly: Boolean,
+        isHandleReceivedIntent: Boolean = true,
+        isAllNodesLoading: Boolean = false
+    ) {
+        val params = StorageParams(
+            node = null,
+            isNodeOpening = false,
+            isLoadFavoritesOnly = isLoadFavoritesOnly,
+            isHandleReceivedIntent = isHandleReceivedIntent,
+            isAllNodesLoading = isAllNodesLoading
+        )
+        if (isCrypted()) {
+            // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
+            params.isDecrypt = true
+            checkPassAndDecryptStorage(params)
+        } else {
+            // загружаем
+            loadOrDecryptStorage(params)
         }
     }
 
@@ -304,6 +360,7 @@ open class StorageViewModel(
                     storage.isNew = false
                     storage.isLoaded = true
                     log((R.string.log_storage_created), true)
+                    // обнуляем список избранных записей для нового хранилища
                     favoritesInteractor.reset()
                     storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
                     return true
@@ -313,6 +370,10 @@ open class StorageViewModel(
             } else {
                 // загружаем database.ini
                 res = databaseConfig.load()
+                if (res) {
+                    // получаем id избранных записей из настроек
+                    runBlocking(Dispatchers.IO) { favoritesInteractor.init() }
+                }
             }
         } catch (ex: Exception) {
             logError(ex)
@@ -350,8 +411,8 @@ open class StorageViewModel(
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(node)
         } else {
-            // загружаем хранилище впервые, с расшифровкой
-            startReadStorage(isDecrypt, params.isFavoritesOnly, params.isHandleReceivedIntent)
+            // загружаем хранилище впервые, с расшифровкой (если нужно)
+            startReadStorage(isDecrypt, params.isLoadFavoritesOnly, params.isHandleReceivedIntent)
         }
     }
 
@@ -372,7 +433,7 @@ open class StorageViewModel(
 
         launch {
             // FIXME: где правильнее сохранить ?
-            App.CurrentStorageId = null
+            App.resetStorageData()
 
             // перед загрузкой
             val stringResId = if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
@@ -386,7 +447,12 @@ open class StorageViewModel(
 
             if (result) {
                 // FIXME: где правильнее сохранить ?
-                App.CurrentStorageId = storage?.id
+                App.initStorageData(
+                    TetroidStorageData(
+                        storageId = storage?.id!!,
+                        viewModel = this@StorageViewModel
+                    )
+                )
 
                 val mes = getString(
                     when {
@@ -402,7 +468,7 @@ open class StorageViewModel(
 
             val params = StorageParams(
                 isDecrypt = isDecrypt,
-                isFavoritesOnly = isFavoritesOnly,
+                isLoadFavoritesOnly = isFavoritesOnly,
                 isHandleReceivedIntent = isOpenLastNode,
                 result = result
             )
@@ -425,8 +491,6 @@ open class StorageViewModel(
             logError(getString(R.string.log_file_is_absent) + StorageInteractor.MYTETRA_XML_FILE_NAME, true)
             return false
         }
-        // получаем id избранных записей из настроек
-        favoritesInteractor.init()
 
         try {
             @Suppress("BlockingMethodInNonBlockingContext")
@@ -437,8 +501,6 @@ open class StorageViewModel(
             }
             storage?.isLoaded = result
 
-            // удаление не найденных записей из избранного
-//            favoritesInteractor.check()
             // загрузка ветки для быстрой вставки
             updateQuicklyNode()
             return result
@@ -507,7 +569,7 @@ open class StorageViewModel(
 
         var middlePassHash: String?
         when {
-            crypter.middlePassHash.also { middlePassHash = it } != null -> {
+            storageCrypter.middlePassHash.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // спрашиваем ПИН-код
@@ -590,21 +652,13 @@ open class StorageViewModel(
         }
     }
 
-    fun getPinCodeInputHandler(params: StorageParams) = Dialogs.IApplyResult {
-        params.isDecrypt = true
-        loadOrDecryptStorage(params)
-    }
-
-    /**
-     *
-     */
     fun checkAndDecryptNode(node: TetroidNode): Boolean {
         if (!node.isNonCryptedOrDecrypted) {
             val params = StorageParams(
                 node = node,
                 isDecrypt = true,
                 isNodeOpening = true,
-                isFavoritesOnly = false,
+                isLoadFavoritesOnly = false,
                 isHandleReceivedIntent = false
             )
 
@@ -615,7 +669,7 @@ open class StorageViewModel(
         return false
     }
 
-    fun onRecordDecrypt(record: TetroidRecord): Boolean {
+    fun checkAndDecryptRecord(record: TetroidRecord): Boolean {
         if (record.isFavorite && !record.isNonCryptedOrDecrypted) {
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
             //  поэтому отправляем FAVORITES_NODE
@@ -623,11 +677,12 @@ open class StorageViewModel(
                 isDecrypt = true,
                 node = FavoritesInteractor.FAVORITES_NODE,
                 isNodeOpening = true,
-                isFavoritesOnly = isLoadFavoritesOnly(),
+                isLoadFavoritesOnly = isLoadFavoritesOnly(),
                 isHandleReceivedIntent = false
             )
 
             checkPassAndDecryptStorage(params)
+            // выходим,запрос пароля будет в асинхронном режиме
             return true
         }
         return false
@@ -802,24 +857,14 @@ open class StorageViewModel(
 
     /**
      * Загрузка всех веток, когда загружено только избранное.
-     * @param isHandleReceivedIntent Нужно ли обработать mReceivedIntent после загрузки веток.
+     * @param isHandleReceivedIntent Нужно ли обработать [receivedIntent] после загрузки веток.
      */
     fun loadAllNodes(isHandleReceivedIntent: Boolean) {
-        val params = StorageParams(
-            node = null,
-            isNodeOpening = false,
-            isFavoritesOnly = false,
-            isHandleReceivedIntent = isHandleReceivedIntent
+        startLoadStorage(
+            isLoadFavoritesOnly = false,
+            isHandleReceivedIntent = isHandleReceivedIntent,
+            isAllNodesLoading = true
         )
-        if (isCrypted()) {
-            // FIXME: не передаем node=FAVORITES_NODE, т.к. тогда хранилище сразу расшифровуется без запроса ПИН-кода
-            //  По-идее, нужно остановить null, но сразу расшифровывать хранилище, если до этого уже
-            //    вводили ПИН-код (для расшифровки избранной записи)
-            //  Т.Е. сохранять признак того, что ПИН-крд уже вводили в этой "сессии"
-            checkPassAndDecryptStorage(params)
-        } else {
-            loadOrDecryptStorage(params)
-        }
     }
 
     //endregion Nodes
@@ -949,17 +994,17 @@ open class StorageViewModel(
 }
 
 data class StorageParams(
-    var result: Boolean? = null, // результат открытия/расшифровки
+    var result: Boolean = false, // результат открытия/расшифровки
     var isDecrypt: Boolean? = null, // расшифровка хранилища, а не просто открытие
     val node: TetroidNode? = null, // ветка, которую нужно открыть после расшифровки хранилища
     val isNodeOpening: Boolean = false, // если true, значит хранилище уже было загружено, и нажали на еще не расшифрованную ветку
-    var isFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
+    var isLoadFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
                                   //  или загружены только избранные записи, т.е. в избранном нажали на не расшифрованную запись
     val isHandleReceivedIntent: Boolean, // ужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId() 
                                  //  или ветку с избранным (если именно она передана в node)
     var passHash: String? = null, // хеш пароля
     var fieldName: String? = null, // поле в database.ini
-    var openedDrawer: Int? = null, //TODO: почему не используется ?
+    var isAllNodesLoading: Boolean = false, // загрузка всех веток после режима isLoadedFavoritesOnly
 )
 
 open class ObjectsInView<T : TetroidObject>(

@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.views.dialogs.node
 
-import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
@@ -9,6 +8,7 @@ import androidx.appcompat.widget.SearchView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ScanManager
+import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
@@ -21,9 +21,10 @@ import pl.openrnd.multilevellistview.MultiLevelListView
  */
 class NodeChooserDialog(
     val node: TetroidNode?,
-    val canCrypted: Boolean,
-    val canDecrypted: Boolean,
-    val rootOnly: Boolean,
+    val canCrypted: Boolean, // разрешены ли зашифрованные ветки
+    val canDecrypted: Boolean, // разрешены ли уже расшифрованные ветки
+    val rootOnly: Boolean, // разрешены ли только ветки в корне дерева
+    override var storageId: Int? = null,
     val callback: IResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -79,7 +80,7 @@ class NodeChooserDialog(
     override fun initViewModel() {
         super.initViewModel()
         viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-        viewModel.initStorageFromLastStorageId()
+        viewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
     }
 
     private fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
@@ -95,7 +96,6 @@ class NodeChooserDialog(
             return
         }
         // уведомление
-//        TextView tvNoticeTop = view.findViewById(R.id.text_view_notice_top);
         val tvNoticeBottom = dialogView.findViewById<TextView>(R.id.text_view_notice_bottom)
 
         // список веток
@@ -104,19 +104,18 @@ class NodeChooserDialog(
         adapter.setNodeHeaderClickListener(object : OnNodeHeaderClickListener {
             private fun onSelectNode(node: TetroidNode) {
                 val okButton = getPositiveButton()
-                val crypted = !canCrypted && node.isCrypted && !node.isDecrypted
-                val decrypted = !canDecrypted && node.isCrypted && node.isDecrypted
-                val notRoot = rootOnly && node.level > 0
+                val isCryptedWarning = !canCrypted && node.isCrypted
+                val isDecryptedWarning = !canDecrypted && node.isCrypted && node.isDecrypted
+                val isNotRootWarning = rootOnly && node.level > 0
 
-                if (crypted || decrypted || notRoot) {
-                    var mes: String? = null
-                    if (crypted) {
-                        mes = getString(R.string.mes_select_non_encrypted_node)
-                    } else if (decrypted) {
-                        mes = getString(R.string.mes_select_decrypted_node)
+                if (isCryptedWarning || isDecryptedWarning || isNotRootWarning) {
+                    var mes = when {
+                        isCryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
+                        isDecryptedWarning -> getString(R.string.mes_select_decrypted_node)
+                        else -> null
                     }
-                    if (notRoot) {
-                        mes = (if (mes == null) "" else mes + "\n") + getString(R.string.mes_select_first_level_node)
+                    if (isNotRootWarning) {
+                        mes = (mes?.plus("\n") ?: "") + getString(R.string.mes_select_first_level_node)
                     }
                     tvNoticeBottom?.text = mes
                     tvNoticeBottom?.visibility = View.VISIBLE

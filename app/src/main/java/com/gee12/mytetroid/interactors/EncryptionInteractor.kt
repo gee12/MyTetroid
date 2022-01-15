@@ -126,26 +126,6 @@ class EncryptionInteractor(
      * @param isEncrypt
      */
     suspend fun cryptRecordFiles(context: Context, record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
-//        // файл записи
-//        val recordFolderPath = callback.getPathToRecordFolder(record)
-//        var file = File(recordFolderPath, record.fileName)
-//        if (encryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {
-//            return false
-//        }
-//        // прикрепленные файлы
-//        if (record.attachedFilesCount > 0) {
-//            for (attach in record.attachedFiles) {
-//                file = File(recordFolderPath, attach.idName)
-//                if (!file.exists()) {
-//                    logger.logWarning(context.getString(R.string.log_file_is_missing) + StringUtils.getIdString(context, attach))
-//                    continue
-//                }
-//                if (encryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {
-//                    return false
-//                }
-//            }
-//        }
-//        return true
         return crypter.recordFileCrypter.cryptRecordFiles(context, record, isCrypted, isEncrypt)
     }
 

@@ -101,6 +101,7 @@ class NodeFieldsDialog(
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
+                    storageId = viewModel.getStorageId(),
                     callback = nodeCallback
                 ).showIfPossible(parentFragmentManager)
             }
@@ -117,15 +118,17 @@ class NodeFieldsDialog(
         }
         setNegativeButton(R.string.answer_cancel)
 
-        etName.addAfterTextChangedListener { s ->
-            getPositiveButton()?.isEnabled = s.isNotEmpty()
-        }
+        etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
         etName.setSelectionAtEnd()
         showKeyboard()
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
+        checkPositiveButtonIsEnabled()
+    }
+
+    private fun checkPositiveButtonIsEnabled() {
         getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
     }
 

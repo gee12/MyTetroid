@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.views.activities;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import com.gee12.mytetroid.model.TetroidImage;
 import com.gee12.mytetroid.viewmodels.ActivityResult;
 import com.gee12.mytetroid.viewmodels.RecordViewModel;
 import com.gee12.mytetroid.viewmodels.ResultObj;
+import com.gee12.mytetroid.viewmodels.StorageParams;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
@@ -190,7 +192,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     protected void initViewModel() {
         super.initViewModel();
-        viewModel.getObjectAction().observe(this, it -> onEvent((RecordViewModel.RecordEvents) it.getState(), it.getData()));
         viewModel.getCurRecord().observe(this, it -> viewModel.openRecord(it));
     }
 
@@ -226,7 +227,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 updateOptionsMenu();
                 break;
             case ShowHomeButton:
-                setVisibilityActionHome(false);
+                setVisibilityActionHome((boolean) data);
                 break;
 
             // long-term tasks
@@ -249,7 +250,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         switch (event) {
             case PermissionCheck:
-                break;
             case PermissionGranted:
                 // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
                 startInitStorage();
@@ -259,54 +259,27 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
                 finish();
                 break;
-            case Inited:
-                viewModel.onStorageInited(receivedIntent);
+            case LoadOrDecrypt:
+                viewModel.loadOrDecryptStorage((StorageParams) data);
                 break;
         }
         super.onStorageEvent(event, data);
     }
 
-    private void startInitStorage() {
-        viewModel.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, () -> {
-            switch (receivedIntent.getAction()) {
-                // открытие или создание записи из главной активности
-                case Intent.ACTION_MAIN:
-                    // создание записи из виджета
-                case Constants.ACTION_ADD_RECORD:
-                    if (!viewModel.initStorage(receivedIntent)) {
-                        finish();
-                    }
-                    break;
-                default:
-                    finish();
-                    break;
-            }
-            return null;
-        });
-    }
-
-    private void showNeedMigrationDialog() {
-        AskDialogs.showOkDialog(this, R.string.dialog_need_migration, R.string.answer_ok, false, () -> {
-            finish();
-        });
-    }
-
     /**
      * Обработчик действий в окне записи.
-     * @param action
+     * @param objectEvent
      * @param data
      */
-    protected void onEvent(RecordViewModel.RecordEvents action, Object data) {
-        switch (action) {
+    @Override
+    protected void onObjectEvent(Object objectEvent, Object data) {
+        RecordViewModel.RecordEvents event = (RecordViewModel.RecordEvents) objectEvent;
+        switch (event) {
             case NeedMigration:
                 showNeedMigrationDialog();
                 break;
             case Save:
-                // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
-                String htmlText = TetroidEditor.getDocumentHtml((viewModel.isHtmlMode())
-                        ? mEditTextHtml.getText().toString()
-                        : mEditor.getWebView().getEditableHtml());
-                viewModel.save(htmlText);
+                saveRecord();
                 break;
             case LoadFields:
                 loadFields((TetroidRecord) data);
@@ -379,6 +352,45 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
     }
 
+    // region Storage
+
+    private void startInitStorage() {
+        viewModel.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, () -> {
+            switch (receivedIntent.getAction()) {
+                // открытие или создание записи из главной активности
+                case Intent.ACTION_MAIN:
+                    // создание записи из виджета
+                case Constants.ACTION_ADD_RECORD:
+                    if (!viewModel.initStorage(receivedIntent)) {
+                        finish();
+                    }
+                    break;
+                default:
+                    finish();
+                    break;
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public void afterStorageInited() {
+        viewModel.onStorageInited(receivedIntent);
+    }
+
+    @Override
+    public void afterStorageLoaded(boolean res) {
+        viewModel.onStorageLoaded(res);
+    }
+
+    // endregion Storage
+
+    private void showNeedMigrationDialog() {
+        AskDialogs.showOkDialog(this, R.string.dialog_need_migration, R.string.answer_ok, false, () -> {
+            finish();
+        });
+    }
+
     @Override
     protected void onUICreated(boolean uiCreated) {
         viewModel.checkMigration();
@@ -390,7 +402,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         viewModel.setFromAnotherActivity(isFromAnotherActivity());
     }
 
-    // region OpenRecord
+    // region Open record
 
     /**
      * Отображние свойств записи.
@@ -477,9 +489,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         );
     }
 
-    // endregion OpenRecord
+    // endregion Open record
 
-    // region LoadPage
+    // region Load page
 
     /**
      * Событие запуска загрузки страницы.
@@ -542,9 +554,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
     }
 
-    // endregion LoadPage
+    // endregion Load page
 
-    // region LoadLinks
+    // region Load links
 
     /**
      * Открытие ссылки в тексте.
@@ -572,7 +584,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         }
     }
 
-    // endregion LoadLinks
+    // endregion Load links
 
     // region ColorPicker
 
@@ -765,16 +777,15 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         mEditor.beforeSaveAsync(true);
     }
 
-    // endregion Save record
-
-    // region Storage
-
-    @Override
-    public void afterStorageLoaded(boolean res) {
-        viewModel.afterStorageLoaded();
+    private void saveRecord() {
+        // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
+        String htmlText = TetroidEditor.getDocumentHtml((viewModel.isHtmlMode())
+                ? mEditTextHtml.getText().toString()
+                : mEditor.getWebView().getEditableHtml());
+        viewModel.saveRecordText(htmlText);
     }
 
-    // endregion Storage
+    // endregion Save record
 
     // region Options record
 
@@ -799,7 +810,8 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     void showRecordInfoDialog() {
         new RecordInfoDialog(
-                viewModel.getCurRecord().getValue()
+                viewModel.getCurRecord().getValue(),
+                viewModel.getStorageId()
         ).showIfPossible(getSupportFragmentManager());
     }
 
@@ -1091,7 +1103,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 showActivityForResult(SettingsActivity.class, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY);
                 return true;
             case R.id.action_storage_info:
-                ViewUtils.startActivity(this, StorageInfoActivity.class, null);
+                StorageInfoActivity.start(this, viewModel.getStorageId());
                 return true;
             case android.R.id.home:
                 return viewModel.onHomePressed();
@@ -1107,19 +1119,14 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
      * Редактирование свойств записи.
      */
     private void editFields(ResultObj obj) {
-//        RecordDialogs.createRecordFieldsDialog(this, viewModel.getMRecord(), true, null,
-//                (name, tags, author, url, node, isFavor) -> {
-//                    viewModel.editFields(obj, name, tags, author, url, node, isFavor);
-//                });
-
         new RecordFieldsDialog(
                 viewModel.getCurRecord().getValue(),
                 true,
-                null,
+                viewModel.getQuicklyNode(),
                 (name, tags, author, url, node, isFavor) -> {
                     viewModel.editFields(obj, name, tags, author, url, node, isFavor);
                 }
-        ).show(getSupportFragmentManager(), RecordFieldsDialog.TAG);
+        ).showIfPossible(getSupportFragmentManager());
     }
 
     /**
@@ -1294,7 +1301,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 bundle = new Bundle();
             }
             bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode);
-            ViewUtils.startActivity(this, MainActivity.class, bundle, Constants.ACTION_RECORD, 0, 0);
+            MainActivity.start(this, Constants.ACTION_RECORD, bundle);
         }
         finish();
     }
@@ -1349,5 +1356,14 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 viewModel.setEdited(true);
             }
         }
+    }
+
+    public static void start(Activity activity, String action, int requestCode, Bundle bundle) {
+        Intent intent = new Intent(activity, RecordActivity.class);
+        intent.setAction(action);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        activity.startActivityForResult(intent, requestCode);
     }
 }

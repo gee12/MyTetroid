@@ -2,7 +2,6 @@ package com.gee12.mytetroid.model
 
 import com.gee12.mytetroid.database.entity.StorageEntity
 import java.io.File
-import java.util.*
 
 class TetroidStorage(
     name: String,
@@ -17,12 +16,7 @@ class TetroidStorage(
 //    val logPath: String? = null
 
     /**
-     * Ветка для быстрой вставки.
-     */
-    var quicklyNode: TetroidNode? = null
-
-    /**
-     * Состояние.
+     * Состояние
      */
     var isInited = false // загружены ли служебные файлы хранилища
     var isLoaded = false // загружено ли дерево веток хранилища
@@ -47,7 +41,6 @@ class TetroidStorage(
             it.isCrypted = isCrypted
             it.isDecrypted = isDecrypted
             it.isNew = isNew
-            it.quicklyNode = quicklyNode
         }
     }
 

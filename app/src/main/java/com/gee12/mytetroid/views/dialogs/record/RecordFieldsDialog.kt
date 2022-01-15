@@ -70,7 +70,7 @@ class RecordFieldsDialog(
 
         val curRecordNode = record?.node
         recordNode = if (curRecordNode != null && curRecordNode !== TetroidXml.ROOT_NODE) curRecordNode
-        else node ?: viewModel.quicklyNode
+            else node
         if (record != null) {
             etName.setText(record.name)
             etAuthor.setText(record.author)
@@ -117,6 +117,7 @@ class RecordFieldsDialog(
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
+                    storageId = viewModel.getStorageId(),
                     callback = nodeCallback
                 ).showIfPossible(parentFragmentManager)
             }
@@ -139,17 +140,19 @@ class RecordFieldsDialog(
         }
         setNegativeButton(R.string.answer_cancel)
 
-        etName.addAfterTextChangedListener { s ->
-            val curNode = if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else recordNode
-            getPositiveButton()?.isEnabled = s.isNotEmpty() && curNode != null
-        }
+        etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
         showKeyboard()
         etName.setSelectionAtEnd()
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
-        getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
+        checkPositiveButtonIsEnabled()
+    }
+
+    private fun checkPositiveButtonIsEnabled() {
+        val node = nodeCallback.selectedNode ?: recordNode
+        getPositiveButton()?.isEnabled = etName.text.isNotEmpty() && node != null
     }
 
     companion object {

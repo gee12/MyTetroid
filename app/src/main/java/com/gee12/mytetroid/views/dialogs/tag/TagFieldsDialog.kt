@@ -52,15 +52,17 @@ class TagFieldsDialog(
         setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(etName.text.toString()) }
         setNegativeButton(R.string.answer_cancel)
 
-        etName.addAfterTextChangedListener { s ->
-            getPositiveButton()?.isEnabled = s.isNotEmpty()
-        }
+        etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
         showKeyboard()
         etName.setSelectionAtEnd()
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
+        checkPositiveButtonIsEnabled()
+    }
+
+    private fun checkPositiveButtonIsEnabled() {
         getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
     }
 

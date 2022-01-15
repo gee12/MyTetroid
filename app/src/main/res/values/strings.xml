@@ -366,6 +366,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_quickly_node">Node for quick insertion</string>
 <!--    <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps</string>-->
     <string name="pref_quickly_node_summ">The default node for records created using the widget or when sending data from third-party apps. Available if this is the default storage</string>
+    <string name="pref_quickly_node_not_available">Available if this is the default storage</string>
     <string name="pref_key_is_clear_trash_before_exit" translatable="false">pref_key_is_clear_trash_before_exit</string>
     <string name="pref_is_clear_trash_before_exit">Clear trash before exit</string>
     <string name="pref_is_clear_trash_before_exit_summ">(used as default value for storages)</string>
@@ -496,6 +497,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_save_record">Save record ?</string>
     <string name="ask_no_set_default_storage">No default storage is specified. Go to the list of storages ?</string>
     <string name="ask_node_delete_mask">Delete node «%s» ?</string>
+    <string name="ask_quickly_node_delete_mask">Node «%s» is used for quick insertion. Delete anyway?</string>
     <string name="ask_record_delete_mask">Delete record «%s» ?</string>
     <string name="ask_file_delete_mask">Delete file «%s» ?</string>
     <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
@@ -551,7 +553,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_storage_loaded_decrypted_mask">Storage «%s» was loaded and decrypted</string>
     <string name="log_storage_favor_loaded_mask">Storage «%s» favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
-    <string name="log_storage_settings_loaded">Storage settings loaded:&#160;</string>
+    <string name="log_storage_inited">Storage settings loaded:&#160;</string>
     <string name="log_tags_is_missing">Tags is missing</string>
     <string name="log_global_search_return_null">Some error in global search…</string>
     <string name="log_cur_node_is_not_selected">Current node is not selected.\nOnly search in the entire database or another node is possible</string>

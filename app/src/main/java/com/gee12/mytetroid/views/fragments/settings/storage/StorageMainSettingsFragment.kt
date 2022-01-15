@@ -12,6 +12,7 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.DisabledCheckBoxPreference
+import com.gee12.mytetroid.views.activities.MainActivity
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.views.dialogs.node.NodeDialogs.INodeChooserResult
@@ -70,40 +71,44 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         // ветка для быстрых записей
         findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            // диалог выбора ветки
-//            NodeDialogs.createNodeChooserDialog(
-//                context, viewModel.quicklyNode,
-//                false, false, true, )
-            val nodeCallback = object : NodeChooserDialog.Result() {
-                override fun onApply(node: TetroidNode?) {
-                    // устанавливаем ветку, если все хорошо
-                    viewModel.quicklyNode = node
-                }
+            if (!viewModel.isDefault()) {
+                viewModel.showMessage(getString(R.string.pref_quickly_node_not_available))
+            } else {
+                // диалог выбора ветки
+                val nodeCallback = object : NodeChooserDialog.Result() {
+                    override fun onApply(node: TetroidNode?) {
+                        // устанавливаем ветку, если все хорошо
+                        viewModel.quicklyNode = node
+                    }
 
-                override fun onProblem(code: Int) {
-                    // если хранилище недозагружено, спрашиваем о действиях
-                    val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
-                    AskDialogs.showYesDialog(context, {
+                    override fun onProblem(code: Int) {
+                        // если хранилище недозагружено, спрашиваем о действиях
+                        val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
+                        AskDialogs.showYesDialog(context, {
 
-                        // возвращаемся в MainActivity
-                        val intent = Intent()
-                        when (code) {
-                            INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                            INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                        }
-                        requireActivity().setResult(Activity.RESULT_OK, intent)
-                        requireActivity().finish()
-                    }, mesId)
+                            // возвращаемся в MainActivity
+                            val intent = Intent(requireContext(), MainActivity::class.java)
+                            intent.setAction(Constants.ACTION_STORAGE_SETTINGS)
+                            when (code) {
+                                INodeChooserResult.LOAD_STORAGE -> intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                                INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                            }
+                            intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
+                            requireActivity().setResult(Activity.RESULT_OK, intent)
+                            requireActivity().startActivity(intent)
+                            requireActivity().finish()
+                        }, mesId)
+                    }
                 }
+                NodeChooserDialog(
+                    node = viewModel.quicklyNode,
+                    canCrypted = false,
+                    canDecrypted = false,
+                    rootOnly = true,
+                    storageId = viewModel.getStorageId(),
+                    callback = nodeCallback
+                ).showIfPossible(parentFragmentManager)
             }
-            NodeChooserDialog(
-                node = viewModel.quicklyNode,
-                canCrypted = false,
-                canDecrypted = false,
-                rootOnly = true,
-                callback = nodeCallback
-            ).showIfPossible(parentFragmentManager)
-
             true
         }
         viewModel.updateQuicklyNode()
@@ -129,7 +134,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         updateSummary(R.string.pref_key_storage_path, viewModel.getStoragePath())
         updateSummary(R.string.pref_key_storage_name, viewModel.getStorageName())
         updateSummary(R.string.pref_key_temp_path, viewModel.getTrashPath())
-        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeName())
+        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
     }
 
     override fun onUpdateStorageFieldEvent(key: String, value: String) {
@@ -141,7 +146,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
                 setTitle(R.string.pref_category_main, value)
             }
             getString(R.string.pref_key_temp_path) -> updateSummary(key, value)
-            getString(R.string.pref_key_quickly_node_id) -> updateSummary(key, value, getString(R.string.pref_quickly_node_summ))
+            getString(R.string.pref_key_quickly_node_id) -> updateSummary(key, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
             // синхронизация
             getString(R.string.pref_key_app_for_sync) -> updateSummary(key, value)
             getString(R.string.pref_key_sync_command) -> updateSummary(key, value, getString(R.string.pref_sync_command_summ))

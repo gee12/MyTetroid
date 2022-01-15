@@ -24,7 +24,7 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
 
         settingsActivity?.storageId?.let { storageId ->
-            viewModel.setStorageFromBase(storageId)
+            viewModel.initStorageFromBase(storageId)
         } ?: run {
             viewModel.logError(R.string.log_not_transferred_storage_id)
         }
@@ -32,7 +32,12 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
 
     override fun initViewModel() {
         super.initViewModel()
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application))
+        viewModel = ViewModelProvider(
+            this, TetroidViewModelFactory(
+                app = requireActivity().application,
+                storageId = settingsActivity?.storageId
+            )
+        )
             .get(StorageViewModel::class.java)
 
         viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })

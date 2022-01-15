@@ -54,8 +54,9 @@
 
     <PreferenceCategory android:key="@string/pref_key_sub_category_other" android:title="@string/pref_sub_category_other">
 
-        <Preference
+        <com.gee12.mytetroid.views.DisabledPreference
             android:key="@string/pref_key_quickly_node_id"
+            android:dependency="@string/pref_key_is_def_storage"
             android:summary="@string/pref_quickly_node_summ"
             android:title="@string/pref_quickly_node" />
 

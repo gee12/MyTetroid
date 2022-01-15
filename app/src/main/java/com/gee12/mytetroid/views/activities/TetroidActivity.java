@@ -90,12 +90,13 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     }
 
     protected void initViewModel() {
-        viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
+        viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication(), getStorageId()))
                 .get(getViewModelClazz());
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, getClass().getSimpleName()));
 
         viewModel.getViewEvent().observe(this, it -> onViewEvent(it.getState(), it.getData()));
         viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
+        viewModel.getObjectAction().observe(this, it -> onObjectEvent(it.getState(), it.getData()));
         viewModel.getMessageObservable().observe(this, this::onMessage);
     }
 
@@ -113,11 +114,11 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         }
     }
 
-    /**
-     *
-     * @return
-     */
     protected abstract int getLayoutResourceId();
+
+    protected Integer getStorageId() {
+        return null;
+    }
 
     /**
      * Обработчик события, когда создались все элементы интерфейса.
@@ -126,7 +127,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     protected void onUICreated(boolean uiCreated) {}
 
     /**
-     *
+     * Обработчик изменения состояния View.
      * @param event
      * @param data
      */
@@ -159,6 +160,9 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
             case NoDefaultStorage:
                 StorageDialogs.INSTANCE.askForDefaultStorageNotSpecified(this, () -> showStoragesActivity());
                 break;
+            case Inited:
+                afterStorageInited();
+                break;
             case Loaded:
                 afterStorageLoaded((boolean) data);
                 break;
@@ -167,6 +171,17 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
                 break;
         }
     }
+
+    /**
+     * Обработчик изменения состояния объекта.
+     * @param event
+     * @param data
+     */
+    protected void onObjectEvent(Object event, Object data) {
+
+    }
+
+    public void afterStorageInited() {}
 
     public void afterStorageLoaded(boolean res) {}
 
@@ -320,7 +335,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
                 toggleFullscreen(false);
                 return true;
             case R.id.action_about_app:
-                ViewUtils.startActivity(this, AboutActivity.class, null);
+                AboutActivity.start(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -471,7 +486,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     }
 
     protected void showStoragesActivity() {
-        ViewUtils.startActivity(this, StoragesActivity.class, null, Constants.REQUEST_CODE_STORAGES_ACTIVITY);
+        StoragesActivity.start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY);
     }
 
     protected void showStorageSettingsActivity(TetroidStorage storage) {

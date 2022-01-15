@@ -11,14 +11,12 @@ import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.utils.StringUtils
 import java.util.*
 
 open class BaseViewModel(
     application: Application,
     /*logger: TetroidLogger?*/
-    val settingsRepo: CommonSettingsRepo
 ) : AndroidViewModel(application) {
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
@@ -33,7 +31,7 @@ open class BaseViewModel(
     //  общий логгер для приложения инициализируется из только что созданного logger данного ViewModel.
     //  И далее в приложении уже используется только он.
     protected val innerSharedLogger: FileTetroidLogger
-        get() = App.current.logger ?: logger
+        get() = App.current?.logger ?: logger
 
     val messageObservable = MutableLiveData<Message>()
 

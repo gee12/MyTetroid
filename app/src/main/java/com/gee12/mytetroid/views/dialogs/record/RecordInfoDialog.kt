@@ -19,7 +19,8 @@ import java.util.*
  * Диалог информации о записи.
  */
 class RecordInfoDialog(
-    val record: TetroidRecord?
+    val record: TetroidRecord?,
+    override var storageId: Int?
 ) : TetroidDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG

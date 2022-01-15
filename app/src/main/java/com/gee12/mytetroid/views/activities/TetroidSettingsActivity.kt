@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
@@ -37,7 +38,7 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
 
         startDefaultFragment()
 
-        App.current.logger?.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        App.current?.logger?.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
     protected abstract fun getLayoutResourceId(): Int

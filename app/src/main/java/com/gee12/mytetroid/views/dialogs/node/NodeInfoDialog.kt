@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.views.dialogs.node
 
-import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog

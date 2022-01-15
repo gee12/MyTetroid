@@ -40,7 +40,7 @@ class LogsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application))
+        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
             .get(LogsViewModel::class.java)
 
         /*// убираем перенос слов, замедляющий работу

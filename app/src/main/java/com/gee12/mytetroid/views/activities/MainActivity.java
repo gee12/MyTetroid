@@ -130,7 +130,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     private FloatingActionButton fabCreateNode;
 
     private boolean isActivityCreated;
-    private int openedDrawerState;
+    private int openedDrawerBeforeLock;
 
     private BroadcastReceiver broadcastReceiver;
     private LocalBroadcastManager broadcastManager;
@@ -169,7 +169,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         };
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
-        drawerLayout.openDrawer(Gravity.LEFT);
 
         // обработчик нажатия на экране, когда ветка не выбрана
         drawerLayout.setOnTouchListener(this);
@@ -277,11 +276,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         CommonSettings.init(this, interactor);
 
         super.initViewModel();
-        viewModel.getObjectAction().observe(this, it -> onEvent((MainViewModel.MainEvents) it.getState(), it.getData()));
     }
 
     /**
-     * Обработчик
+     * Обработчик изменения состояния View.
      * @param event
      * @param data
      */
@@ -291,8 +289,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         switch (event) {
             // activity
             case InitGUI: {
-                StorageParams storageParams = (StorageParams) data;
-                initUI(storageParams.getResult(), storageParams.isFavoritesOnly(), storageParams.isHandleReceivedIntent());
+                initUI((StorageParams) data);
                 break;
             }
             case UpdateToolbar: {
@@ -311,9 +308,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case OpenPage:
                 viewPager.setCurrent((int) data);
                 break;
-//            case MainPageCreated:
-//                onMainPageCreated();
-//                break;
             case ShowMainView:
                 getMainPage().showView((int) data);
                 break;
@@ -326,13 +320,10 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // long-term tasks
             case TaskStarted:
-                openedDrawerState = taskMainPreExecute((data instanceof Integer) ? (int)data : R.string.task_wait);
+                openedDrawerBeforeLock = taskMainPreExecute((data instanceof Integer) ? (int)data : R.string.task_wait);
                 break;
             case TaskFinished:
-                if (data instanceof Integer) {
-                    openedDrawerState = (int)data;
-                }
-                taskMainPostExecute(openedDrawerState);
+                taskMainPostExecute();
                 break;
         }
         super.onViewEvent(event, data);
@@ -391,7 +382,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             // загрузка хранилища
             case InitFailed:
                 boolean isFavorMode = (boolean) data;
-                initUI(false, isFavorMode, false);
+                initUI(false, isFavorMode, false, false);
                 break;
             case LoadOrDecrypt: {
                 viewModel.loadOrDecryptStorage((StorageParams) data);
@@ -439,10 +430,12 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     /**
      * Обработчик действий в главном окне приложения.
-     * @param event
+     * @param objectEvent
      * @param data
      */
-    protected void onEvent(MainViewModel.MainEvents event, Object data) {
+    @Override
+    protected void onObjectEvent(Object objectEvent, Object data) {
+        MainViewModel.MainEvents event = (MainViewModel.MainEvents) objectEvent;
         Log.i("MYTETROID", "MainActivity.onEvent(): event="+event+", data="+data);
         switch (event) {
             // migration
@@ -610,14 +603,26 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     // region UI
 
     /**
-     * Первоначальная инициализация списков веток, записей, файлов, меток
-     *
-     * @param isLoaded   Результат загрузки хранилища.
-     * @param isOnlyFavorites
-     * @param isOpenLastNode  Нужно ли загружать ветку, сохраненную в опции getLastNodeId(),
-     *                        или ветку с избранными записями
+     * Первоначальная инициализация списков веток, записей, файлов, меток.
      */
-    public void initUI(boolean isLoaded, boolean isOnlyFavorites, boolean isOpenLastNode) {
+    public void initUI(StorageParams params) {
+        initUI(
+            params.getResult(),
+            params.isLoadFavoritesOnly(),
+            params.isHandleReceivedIntent(),
+            params.isAllNodesLoading()
+        );
+    }
+
+    public void initUI(
+            boolean isLoaded,
+            boolean isOnlyFavorites,
+            boolean isOpenLastNode,
+            boolean isAllNodesOpening
+    ) {
+        List<TetroidNode> rootNodes = viewModel.getRootNodes();
+        boolean isEmpty = rootNodes.isEmpty();
+
         // избранные записи
         int loadButtonsVis = (isLoaded && isOnlyFavorites) ? View.VISIBLE : View.GONE;
         btnLoadStorageNodes.setVisibility(loadButtonsVis);
@@ -629,6 +634,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         if (isLoaded && App.INSTANCE.isFullVersion()) {
             updateFavoritesTitle();
         }
+
         // элементы фильтра веток и меток
         ViewUtils.setVisibleIfNotNull(searchViewNodes, isLoaded && !isOnlyFavorites);
         ViewUtils.setVisibleIfNotNull(searchViewTags, isLoaded && !isOnlyFavorites);
@@ -649,19 +655,25 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             } else {
                 setEmptyTextViews(R.string.title_storage_not_loaded);
             }
-        } else {
-            // список веток
-            this.listAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
-            lvNodes.setAdapter(listAdapterNodes);
-            // список меток
-            this.listAdapterTags = new TagsListAdapter(this);
-            lvTags.setAdapter(listAdapterTags);
-
-            // добавляем к результату загрузки проверку на пустоту списка веток
-            List<TetroidNode> rootNodes = viewModel.getRootNodes();
-            isLoaded = (isLoaded && rootNodes != null);
+        } else if (isAllNodesOpening) {
+            // загрузка всех записей, после того, как уже были загружены избранные записи
+            initNodesTagsListAdapters();
             if (isLoaded) {
-                boolean isEmpty = rootNodes.isEmpty();
+                // список веток
+                listAdapterNodes.setDataItems(rootNodes);
+                setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
+                // списки записей, файлов
+                getMainPage().initListAdapters(this);
+                // список меток
+                setTagsDataItems(viewModel.getTags());
+                tvTagsEmpty.setText(R.string.log_tags_is_missing);
+            } else {
+                setEmptyTextViews(R.string.title_storage_not_loaded);
+            }
+        } else {
+            initNodesTagsListAdapters();
+
+            if (isLoaded) {
                 // выбираем ветку, выбранную в прошлый раз
                 boolean nodesAdapterInited = false;
                 TetroidNode nodeToSelect = null;
@@ -682,6 +694,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 } else {
                     // очищаем заголовок, список
                     getMainPage().clearView();
+                    drawerLayout.openDrawer(GravityCompat.START);
                 }
                 if (!nodesAdapterInited) {
                     listAdapterNodes.setDataItems(rootNodes);
@@ -711,6 +724,15 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             }
         }
         updateOptionsMenu();
+    }
+
+    private void initNodesTagsListAdapters() {
+        // список веток
+        this.listAdapterNodes = new NodesListAdapter(this, onNodeHeaderClickListener);
+        lvNodes.setAdapter(listAdapterNodes);
+        // список меток
+        this.listAdapterTags = new TagsListAdapter(this);
+        lvTags.setAdapter(listAdapterTags);
     }
 
     /**
@@ -888,6 +910,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     public void afterStorageDecrypted(TetroidNode node) {
         updateNodes();
         updateTags();
+        // обновляем и записи, т.к. расшифровка могла быть вызвана из Favorites
+        getMainPage().updateRecordList();
 
         checkReceivedIntent(receivedIntent);
     }
@@ -1186,7 +1210,8 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param node
      */
     private void showDeleteNodeDialog(TetroidNode node) {
-        NodeDialogs.deleteNode(this, node.getName(), () -> {
+        boolean isQuicklyNode = (node.getId() == viewModel.getQuicklyNodeId());
+        NodeDialogs.deleteNode(this, node.getName(), isQuicklyNode, () -> {
             viewModel.deleteNode(node);
         });
     }
@@ -1424,8 +1449,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param bundle
      */
     public void openRecord(Bundle bundle) {
-        ViewUtils.startActivity(this, RecordActivity.class, bundle, Intent.ACTION_MAIN, 0,
-                Constants.REQUEST_CODE_RECORD_ACTIVITY);
+        RecordActivity.start(this, Intent.ACTION_MAIN, Constants.REQUEST_CODE_RECORD_ACTIVITY, bundle);
     }
 
     // endregion Record
@@ -1943,7 +1967,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 // обработка результата голосового поиска
                 String query = intent.getStringExtra(SearchManager.QUERY);
                 searchViewRecords.setQuery(query, true);
-
                 break;
             case Constants.ACTION_RECORD:
                 int resCode = intent.getIntExtra(Constants.EXTRA_RESULT_CODE, 0);
@@ -1965,7 +1988,18 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {
                     showStorageInfoActivity();
                 }
-
+                break;
+            case Constants.ACTION_STORAGE_SETTINGS:
+                int storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0);
+                if (storageId > 0) {
+                    boolean isLoadStorage = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false);
+                    boolean isLoadAllNodes = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false);
+                    if (isLoadStorage) {
+                        viewModel.startInitStorage(storageId);
+                    } else if (isLoadAllNodes) {
+                        viewModel.loadAllNodes(true);
+                    }
+                }
                 break;
             case Intent.ACTION_SEND: {
                 // прием текста/изображения из другого приложения
@@ -2285,10 +2319,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageLoaded);
-        // TODO: ??
-//        enableMenuItem(menu.findItem(R.id.action_storage_reload), !TextUtils.isEmpty(SettingsManager.getStoragePath(this)));
-//        enableMenuItem(menu.findItem(R.id.action_storage_reload), SettingsManager.getLastStorageId(this) != 0);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), App.INSTANCE.getCurrentStorageId() != null);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), viewModel.isInited());
 
         getMainPage().onPrepareOptionsMenu(menu);
 
@@ -2452,7 +2483,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                         viewModel.loadAllNodes(true);
                     });
         } else {
-            ViewUtils.startActivity(this, StorageInfoActivity.class, null);
+            StorageInfoActivity.start(this, viewModel.getStorageId());
         }
     }
 
@@ -2477,20 +2508,25 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     public int taskMainPreExecute(int progressTextResId) {
         super.taskPreExecute(progressTextResId);
-        int openedDrawer = (drawerLayout.isDrawerOpen(Gravity.LEFT)) ? Gravity.LEFT
-                : (drawerLayout.isDrawerOpen(Gravity.RIGHT)) ? Gravity.RIGHT : Gravity.NO_GRAVITY;
+        int openedDrawer = (drawerLayout.isDrawerOpen(GravityCompat.START)) ? GravityCompat.START
+                : (drawerLayout.isDrawerOpen(GravityCompat.END)) ? GravityCompat.END : Gravity.NO_GRAVITY;
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         return openedDrawer;
     }
 
-    public void taskMainPostExecute(int openedDrawer) {
+    public void taskMainPostExecute() {
         super.taskPostExecute();
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        if (openedDrawer != Gravity.NO_GRAVITY) {
-            drawerLayout.openDrawer(openedDrawer);
-        }
     }
 
     //endregion Tasks
 
+    public static void start(Context context, String action, Bundle bundle) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setAction(action);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        context.startActivity(intent);
+    }
 }

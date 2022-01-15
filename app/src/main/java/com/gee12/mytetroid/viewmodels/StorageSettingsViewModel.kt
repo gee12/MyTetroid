@@ -5,7 +5,6 @@ import android.content.Context
 import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
@@ -20,8 +19,6 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,15 +28,13 @@ import java.util.*
 abstract class StorageSettingsViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-    val storagesRepo: StoragesRepo,
-    settingsRepo: CommonSettingsRepo,
-    val xmlLoader: TetroidXml,
-    crypter: TetroidCrypter?
 ) : BaseStorageViewModel(
     app,
     /*logger*/
-    settingsRepo
 ), IStorageLoadHelper, IRecordFileCrypter {
+
+    var storagesRepo = StoragesRepo(app)
+    abstract var xmlLoader: TetroidXml
 
     var storage: TetroidStorage? = null
         protected set
@@ -56,85 +51,39 @@ abstract class StorageSettingsViewModel(
         }
     })
 
-    var crypter = crypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
+    abstract var storageCrypter: TetroidCrypter
+    abstract val storageInteractor: StorageInteractor
+    abstract val cryptInteractor: EncryptionInteractor
+    abstract val favoritesInteractor: FavoritesInteractor
+    abstract val recordsInteractor: RecordsInteractor
+    abstract val nodesInteractor: NodesInteractor
+    abstract val tagsInteractor: TagsInteractor
+    abstract val attachesInteractor: AttachesInteractor
 
     val commonSettingsInteractor = CommonSettingsInteractor(this.logger)
     val dataInteractor = DataInteractor(this.logger)
     val settingsInteractor = CommonSettingsInteractor(this.logger)
-    val storageInteractor = StorageInteractor(
-        logger = this.logger,
-        storageHelper = this,
-        xmlLoader = xmlLoader,
-        dataInteractor = dataInteractor
-    )
     val interactionInteractor = InteractionInteractor(this.logger)
-    val cryptInteractor = EncryptionInteractor(
-        logger = this.logger,
-        crypter = this.crypter,
-        xmlHelper = xmlLoader,
-        storageHelper = this
-    )
-    val favoritesInteractor = FavoritesInteractor(
-        logger = this.logger,
-        favoritesRepo = FavoritesRepo(getContext()),
-        storageHelper = this
-    )
-    val recordsInteractor = RecordsInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        interactionInteractor = interactionInteractor,
-        tagsParser = this,
-        favoritesInteractor = favoritesInteractor,
-        xmlLoader = xmlLoader
-    )
-    val nodesInteractor = NodesInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        recordsInteractor = recordsInteractor,
-        favoritesInteractor = favoritesInteractor,
-        storageHelper = this,
-        xmlLoader = xmlLoader
-    )
-    val tagsInteractor = TagsInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        xmlLoader = xmlLoader
-    )
-    val attachesInteractor = AttachesInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        interactionInteractor = interactionInteractor,
-        recordsInteractor = recordsInteractor
-    )
+
     val syncInteractor =  SyncInteractor(
         logger = this.logger,
         permissionInteractor = permissionInteractor
     )
-    // FIXME: использовать DI
     val trashInteractor = TrashInteractor(
         logger = this.logger,
-        storagesRepo = App.current.storagesRepo ?: StoragesRepo(getContext())
+        storagesRepo = storagesRepo
     )
 
-    // FIXME: Проверить:
     var quicklyNode: TetroidNode?
         get() {
             val nodeId = storage?.quickNodeId
             if (nodeId != null && isLoaded() && !isLoadedFavoritesOnly()) {
-                storage?.quicklyNode = nodesInteractor.getNode(nodeId)
-                onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
+                return nodesInteractor.getNode(nodeId)
             }
-            return storage?.quicklyNode
+            return null
         }
         set(value) {
-            storage?.quicklyNode = value
-            onStorageUpdated(getString(R.string.pref_key_quickly_node_id), getQuicklyNodeName())
+            updateStorageOption(getString(R.string.pref_key_quickly_node_id), value?.id ?: "")
         }
 
     var isFieldsChanged = false
@@ -157,9 +106,9 @@ abstract class StorageSettingsViewModel(
     //region IStorageLoadHelper
 
     override fun decryptNode(context: Context, node: TetroidNode): Boolean {
-        //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
+        //TODO: переписать TetroidXml на kotlin и убрать runBlocking()
         return runBlocking(Dispatchers.IO) {
-            crypter.decryptNode(
+            storageCrypter.decryptNode(
                 context = context,
                 node = node,
                 decryptSubNodes = false,
@@ -172,9 +121,9 @@ abstract class StorageSettingsViewModel(
     }
 
     override fun decryptRecord(context: Context, record: TetroidRecord): Boolean {
-        //FIXME: переписать TetroidXml на kotlin и убрать runBlocking()
+        //TODO: переписать TetroidXml на kotlin и убрать runBlocking()
         return runBlocking(Dispatchers.IO) {
-            crypter.decryptRecordAndFiles(
+            storageCrypter.decryptRecordAndFiles(
                 context = context,
                 record = record,
                 dropCrypt = false,
@@ -286,6 +235,7 @@ abstract class StorageSettingsViewModel(
                 getString(R.string.pref_key_is_ask_before_clear_trash_before_exit) -> isAskBeforeClearTrashBeforeExit = value.toString().toBoolean()
                 getString(R.string.pref_key_is_load_favorites) -> isLoadFavoritesOnly = value.toString().toBoolean()
                 getString(R.string.pref_key_is_keep_selected_node) -> isKeepLastNode = value.toString().toBoolean()
+                getString(R.string.pref_key_quickly_node_id) -> quickNodeId = value.toString()
 
                 // шифрование
                 getString(R.string.pref_key_is_save_pass_hash_local) -> isSavePassLocal = value.toString().toBoolean()
@@ -305,7 +255,7 @@ abstract class StorageSettingsViewModel(
             if (isFieldChanged) {
                 isFieldsChanged = true
                 updateStorage(this)
-                onStorageUpdated(key, value)
+                onStorageOptionChanged(key, value)
             }
         }
     }
@@ -344,12 +294,9 @@ abstract class StorageSettingsViewModel(
      * Актуализация ветки для быстрой вставки в дереве.
      */
     fun updateQuicklyNode() {
-        val nodeId = CommonSettings.getQuicklyNodeId(getContext())
-        if (nodeId != null && xmlLoader.mIsStorageLoaded && !xmlLoader.mIsFavoritesMode) {
-            val node = nodesInteractor.getNode(nodeId)
-            // обновление значений или обнуление (если не найдено)
-            CommonSettings.setQuicklyNode(getContext(), node)
-            this.quicklyNode = node
+        val nodeId = storage?.quickNodeId
+        if (nodeId != null && isLoaded() && !isLoadedFavoritesOnly()) {
+            this.quicklyNode = nodesInteractor.getNode(nodeId)
         }
     }
 
@@ -391,7 +338,9 @@ abstract class StorageSettingsViewModel(
 
     override fun getTrashPath() = storage?.trashPath ?: ""
 
-    fun getQuicklyNodeName() = storage?.quicklyNode?.name ?: ""
+    fun getQuicklyNodeName() = quicklyNode?.name ?: ""
+
+    fun getQuicklyNodeId() = quicklyNode?.id ?: ""
 
     fun getSyncProfile() = storage?.syncProfile
 
@@ -417,17 +366,11 @@ abstract class StorageSettingsViewModel(
 
     fun isLoaded() = (storage?.isLoaded ?: false) && xmlLoader.mIsStorageLoaded
 
-    // TODO: пока нигде не устанавливается
-    //  Добавить установку или удалить поле
-//    fun isCrypted() = storage?.isCrypted ?: false
-
     abstract fun isCrypted(): Boolean
 
     fun isDecrypted() = storage?.isDecrypted ?: false
 
     fun isNonEncryptedOrDecrypted() = !isCrypted() || isDecrypted()
-
-//    fun isInFavoritesMode() = DataManager.isFavoritesMode()
 
     fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
 
@@ -436,8 +379,6 @@ abstract class StorageSettingsViewModel(
     fun getMiddlePassHash() = storage?.middlePassHash
 
     fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
-
-//    fun getCrypter() = cryptInteractor.crypter
 
     fun isNodesExist() = xmlLoader.mRootNodesList != null && xmlLoader.mRootNodesList.isNotEmpty()
 
@@ -459,7 +400,7 @@ abstract class StorageSettingsViewModel(
 
     //region Helpers
 
-    private fun onStorageUpdated(key: String, value: Any) {
+    private fun onStorageOptionChanged(key: String, value: Any) {
         _updateStorageField.postValue(Pair(key, value))
     }
 

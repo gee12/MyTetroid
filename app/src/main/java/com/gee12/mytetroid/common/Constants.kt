@@ -23,6 +23,7 @@ object Constants {
     const val ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY"
     const val ACTION_RECORD = "ACTION_RECORD"
     const val ACTION_ADD_RECORD = "ACTION_ADD_RECORD"
+    const val ACTION_STORAGE_SETTINGS = "ACTION_STORAGE_SETTINGS"
 
     const val REQUEST_CODE_COMMON_SETTINGS_ACTIVITY = 101   // общие настройки
     const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 102  // настройки хранилища

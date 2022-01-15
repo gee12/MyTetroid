@@ -9,7 +9,6 @@ import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,11 +16,9 @@ import kotlinx.coroutines.launch
 class StoragesViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-    storagesRepo: StoragesRepo,
-    settingsRepo: CommonSettingsRepo
-) : BaseStorageViewModel(app/*, logger*/, settingsRepo) {
+) : BaseStorageViewModel(app/*, logger*/) {
 
-    private val storagesInteractor = StoragesInteractor(storagesRepo)
+    private val storagesInteractor = StoragesInteractor(StoragesRepo(app))
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages
@@ -29,12 +26,6 @@ class StoragesViewModel(
     fun loadStorages() {
         launch(Dispatchers.IO) {
             val storages = storagesInteractor.getStorages()
-
-//            if (storages.isEmpty() && CommonSettings.getStoragePath(getContext())?.isNotEmpty() == true) {
-//                addDefaultStorageFromPrefs()
-//                storages = storagesRepo.getStorages()
-//            }
-
             _storages.postValue(storages)
         }
     }

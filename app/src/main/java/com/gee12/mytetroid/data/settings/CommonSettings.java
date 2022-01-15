@@ -243,10 +243,12 @@ public class CommonSettings {
     public static String getQuicklyNodeId(Context context) {
         return getString(context, R.string.pref_key_quickly_node_id, null);
     }
+    @Deprecated
     public static String getQuicklyNodeName(Context context) {
         return getString(context, R.string.pref_key_quickly_node_name, null);
     }
 
+    @Deprecated
     public static void setQuicklyNode(Context context, TetroidNode node) {
         setString(context, R.string.pref_key_quickly_node_id, (node != null) ? node.getId() : null);
         setString(context, R.string.pref_key_quickly_node_name, (node != null) ? node.getName() : null);

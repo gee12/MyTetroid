@@ -1,16 +1,16 @@
 package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
+import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.interactors.IconsInteractor
-import com.gee12.mytetroid.interactors.StorageInteractor
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 
 class IconsViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-    settingsRepo: CommonSettingsRepo,
-    val storageInteractor: StorageInteractor
-) : BaseViewModel(app/*, logger*/, settingsRepo) {
+    storageData: TetroidStorageData
+) : BaseViewModel(app/*, logger*/) {
+
+    val storageInteractor = storageData.storageInteractor
 
     val iconsInteractor = IconsInteractor(logger, storageInteractor)
 

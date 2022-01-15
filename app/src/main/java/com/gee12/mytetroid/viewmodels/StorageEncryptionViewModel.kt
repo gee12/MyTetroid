@@ -9,42 +9,29 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ICallback
 import com.gee12.mytetroid.data.ITaskProgress
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.utils.StringUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-open class StorageEncryptionViewModel(
+abstract class StorageEncryptionViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-    storagesRepo: StoragesRepo,
-    settingsRepo: CommonSettingsRepo,
-    xmlLoader: TetroidXml,
-    crypter: TetroidCrypter?
 ) : StorageSettingsViewModel(
     app,
     /*logger,*/
-    storagesRepo,
-    settingsRepo,
-    xmlLoader,
-    crypter
 ) {
 
     val databaseConfig = DatabaseConfig(this.logger)
 
-    val passInteractor = PasswordInteractor(this.logger, databaseConfig, cryptInteractor, nodesInteractor)
-//    val pinInteractor = PinInteractor(passInteractor, cryptInteractor, nodesInteractor)
+    abstract val passInteractor: PasswordInteractor
 
     var isPinNeedEnter = false
 
@@ -76,7 +63,7 @@ open class StorageEncryptionViewModel(
 
         var middlePassHash: String?
         when {
-            crypter.middlePassHash.also { middlePassHash = it } != null -> {
+            storageCrypter.middlePassHash.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // запрос ПИН-кода
@@ -316,7 +303,7 @@ open class StorageEncryptionViewModel(
 
     fun checkPinCode(pin: String): Boolean {
         // сравниваем хеши
-        val pinHash = crypter.passToHash(pin)
+        val pinHash = storageCrypter.passToHash(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
 
@@ -353,7 +340,7 @@ open class StorageEncryptionViewModel(
             for (attach in record.attachedFiles) {
                 file = File(recordFolderPath, attach.idName)
                 if (!file.exists()) {
-                    logger.logWarning(context.getString(R.string.log_file_is_missing) + StringUtils.getIdString(context, attach))
+                    logger.logWarning(context.getString(R.string.log_file_is_missing) + StringUtils.getIdString(context, attach), false)
                     continue
                 }
                 if (cryptInteractor.encryptOrDecryptFile(context, file, isCrypted, isEncrypt) < 0) {

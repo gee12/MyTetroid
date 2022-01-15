@@ -338,7 +338,8 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
 
     void showRecordInfoDialog(TetroidRecord record) {
         new RecordInfoDialog(
-                record
+                record,
+                viewModel.getStorageId()
         ).showIfPossible(getParentFragmentManager());
     }
 
