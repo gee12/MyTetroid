@@ -207,8 +207,8 @@
 <!--    <string name="pref_is_show_tags_in_records_summ">Отображать метки в списке записей</string>-->
     <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Запрос пароля</string>
-<!--    <string name="pref_when_ask_password_summ">Когда спрашивать пароль? (используется как значение по-умолчанию для хранилищ)</string>-->
-    <string name="pref_when_ask_password_summ">Когда спрашивать пароль?</string>
+    <string name="pref_when_ask_password_summ_mask">%s (используется, если для хранилища не сохранен хэш пароля)</string>
+    <string name="pref_when_ask_password_summ">Когда спрашивать пароль? (используется, если для хранилища не сохранен хэш пароля)</string>
 <!--    <string name="pref_when_ask_password_summ_storage">Когда спрашивать пароль?</string>-->
     <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
     <string name="pref_when_ask_password_on_start">При загрузке хранилища</string>

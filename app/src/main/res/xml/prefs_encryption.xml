@@ -15,7 +15,6 @@
 
     <com.gee12.mytetroid.views.DisabledListPreference
         android:defaultValue="@string/pref_when_ask_password_on_select"
-        android:dependency="@string/pref_key_is_save_pass_hash_local"
         android:entries="@array/when_ask_password_entries"
         android:entryValues="@array/when_ask_password_entries"
         android:key="@string/pref_key_when_ask_password"

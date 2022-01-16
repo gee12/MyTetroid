@@ -150,6 +150,17 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         ((MainActivity)getActivity()).onMainPageCreated();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // FIXME: после долгого простоя viewModel удаляется из памяти
+        //  Скорее всего, это из-за самописного TetroidViewModelFactory
+        if (viewModel == null) {
+            initViewModel();
+        }
+    }
+
     public void initListAdapters(Context context) {
         // список записей
         if (lvRecords != null) {
@@ -428,7 +439,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         listAdapterAttaches.notifyDataSetChanged();
     }
 
-    // endregion Attach
+// endregion Attach
 
     // region OptionsMenu
 
@@ -451,12 +462,12 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         boolean isRecordFilesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_RECORD_FILES);
-        boolean mIsFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
+        boolean isFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
         activateMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView);
         activateMenuItem(menu.findItem(R.id.action_insert),
-                !mIsFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
+                !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD));
     }
 
     /**

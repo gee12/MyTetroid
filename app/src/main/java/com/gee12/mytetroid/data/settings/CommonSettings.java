@@ -381,8 +381,7 @@ public class CommonSettings {
      * По-умолчанию - при выборе зашифрованной ветки.
      */
     public static String getWhenAskPass(Context context) {
-        return getString(context, R.string.pref_key_when_ask_password,
-                context.getString(R.string.pref_when_ask_password_on_select));
+        return getString(context, R.string.pref_key_when_ask_password, context.getString(R.string.pref_when_ask_password_on_select));
     }
 
     public static boolean isAskPassOnStart(Context context) {

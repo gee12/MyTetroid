@@ -216,8 +216,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_picked_colors" translatable="false">pref_key_picked_colors</string>
     <string name="pref_highlight_attach_color">Highlight color</string>
     <string name="pref_when_ask_password">Ask for a password</string>
-<!--    <string name="pref_when_ask_password_summ">When to ask for a password? (used as default value for storages)</string>-->
-    <string name="pref_when_ask_password_summ">When to ask for a password?</string>
+    <string name="pref_when_ask_password_summ_mask">%s (used if no password hash is stored for the storage)</string>
+    <string name="pref_when_ask_password_summ">When to ask for a password? (used if no password hash is stored for the storage)</string>
 <!--    <string name="pref_when_ask_password_summ_storage">When to ask for a password?</string>-->
     <string name="pref_key_when_ask_password" translatable="false">pref_key_when_aks_password</string>
     <string name="pref_when_ask_password_on_select">When choosing an encrypted node</string>

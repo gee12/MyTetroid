@@ -1,11 +1,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="pref_key_screen">
 
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="@string/pref_key_is_load_last_storage_path"
-        android:summary="@string/pref_is_load_last_storage_path_summ"
-        android:title="@string/pref_is_load_last_storage_path" />
+<!--    <CheckBoxPreference-->
+<!--        android:defaultValue="true"-->
+<!--        android:key="@string/pref_key_is_load_last_storage_path"-->
+<!--        android:summary="@string/pref_is_load_last_storage_path_summ"-->
+<!--        android:title="@string/pref_is_load_last_storage_path" />-->
 
     <Preference
         android:key="@string/pref_key_temp_path"
