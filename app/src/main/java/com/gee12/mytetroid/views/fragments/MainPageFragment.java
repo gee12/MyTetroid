@@ -439,7 +439,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         listAdapterAttaches.notifyDataSetChanged();
     }
 
-    // endregion Attach
+// endregion Attach
 
     // region OptionsMenu
 
