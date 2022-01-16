@@ -41,8 +41,7 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         }
         updateSummary(
             R.string.pref_key_when_ask_password,
-            if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
-            else CommonSettings.getWhenAskPass(context)
+            getString(R.string.pref_when_ask_password_summ_mask, CommonSettings.getWhenAskPass(context))
         )
     }
 
@@ -54,14 +53,11 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
      * @param key
      */
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key == getString(R.string.pref_key_is_save_pass_hash_local)) {
+        if (key == getString(R.string.pref_key_when_ask_password)) {
             updateSummary(
                 R.string.pref_key_when_ask_password,
-                if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) getString(R.string.pref_when_ask_password_summ)
-                else CommonSettings.getWhenAskPass(context)
+                getString(R.string.pref_when_ask_password_summ_mask, CommonSettings.getWhenAskPass(context))
             )
-        } else if (key == getString(R.string.pref_key_when_ask_password)) {
-            updateSummary(R.string.pref_key_when_ask_password, CommonSettings.getWhenAskPass(context))
         }
     }
 
