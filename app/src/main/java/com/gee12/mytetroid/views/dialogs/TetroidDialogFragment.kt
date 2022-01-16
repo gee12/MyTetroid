@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -15,13 +14,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
+import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
-import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
@@ -197,8 +197,12 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     fun getNeutralButton() = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
 
-    protected fun showKeyboard() {
-        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    protected fun showKeyboard(view: View) {
+        dialog.window?.decorView?.post { view.focusAndShowKeyboard() }
+    }
+
+    protected fun hideKeyboard(view: View) {
+        view.hideKeyboard()
     }
 
 }

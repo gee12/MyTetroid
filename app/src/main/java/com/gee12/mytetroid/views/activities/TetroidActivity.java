@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.activities;
 
+import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.hideKeyboard;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -385,7 +387,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     public void taskPreExecute(int progressTextResId) {
         blockInterface();
         setProgressText(progressTextResId);
-        ViewUtils.hideKeyboard(this, getWindow().getDecorView());
+        hideKeyboard(getWindow().getDecorView());
     }
 
     public void taskPostExecute() {

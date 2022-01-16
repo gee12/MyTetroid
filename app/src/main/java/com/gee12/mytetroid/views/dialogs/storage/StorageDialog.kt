@@ -81,8 +81,10 @@ class StorageDialog(
 
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
-        showKeyboard()
-        etName.setSelectionAtEnd()
+        if (storage != null) {
+            etName.setSelectionAtEnd()
+            showKeyboard(etName)
+        }
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

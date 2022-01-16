@@ -122,7 +122,7 @@ class NodeFieldsDialog(
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
         etName.setSelectionAtEnd()
-        showKeyboard()
+        showKeyboard(etName)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

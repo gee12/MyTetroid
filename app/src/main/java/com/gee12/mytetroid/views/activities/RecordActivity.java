@@ -1,5 +1,8 @@
 package com.gee12.mytetroid.views.activities;
 
+import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.focusAndShowKeyboard;
+import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.hideKeyboard;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -713,7 +716,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 mEditor.setEditMode(false);
                 mEditor.setScrollButtonsVisibility(true);
                 setSubtitle(getString(R.string.subtitle_record_view));
-                ViewUtils.hideKeyboard(this, mEditor.getWebView());
+                hideKeyboard(mEditor.getWebView());
             } break;
             case Constants.MODE_EDIT : {
                 mEditor.setVisibility(View.VISIBLE);
@@ -730,7 +733,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 mEditor.setScrollButtonsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_edit));
                 mEditor.getWebView().focusEditor();
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+                focusAndShowKeyboard(mEditor.getWebView());
             } break;
             case Constants.MODE_HTML : {
                 mEditor.setVisibility(View.GONE);
@@ -747,7 +750,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 mScrollViewHtml.setVisibility(View.VISIBLE);
                 setRecordFieldsVisibility(false);
                 setSubtitle(getString(R.string.subtitle_record_html));
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+                focusAndShowKeyboard(mEditTextHtml);
             } break;
         }
     }

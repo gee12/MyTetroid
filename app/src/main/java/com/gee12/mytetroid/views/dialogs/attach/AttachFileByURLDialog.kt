@@ -34,8 +34,7 @@ class AttachFileByURLDialog(
         setPositiveButton(com.gee12.mytetroid.R.string.answer_ok) { _, _ -> callback.onApply(etLink.text.toString()) }
         setNegativeButton(com.gee12.mytetroid.R.string.answer_cancel)
 
-        showKeyboard()
-        etLink.requestFocus()
+        showKeyboard(etLink)
     }
 
     companion object {

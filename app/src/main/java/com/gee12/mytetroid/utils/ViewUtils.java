@@ -83,40 +83,6 @@ public class ViewUtils {
     }
 
     /**
-     * Отображение клавиатуры.
-     * @param context
-     * @param view
-     */
-    public static void showKeyboard(Context context, View view, boolean isForced) {
-        if (context == null)
-            return;
-        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        int flags = (isForced) ? InputMethodManager.SHOW_FORCED : InputMethodManager.SHOW_IMPLICIT;
-        if (view != null) {
-            view.post(() -> imm.showSoftInput(view, flags));
-        } else {
-            imm.toggleSoftInput(flags, 0);
-        }
-    }
-
-    /**
-     * Скрытие клавиатуры.
-     * @param context
-     * @param view
-     */
-    public static void hideKeyboard(Context context, View view) {
-        if (context == null)
-            return;
-        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (view != null)
-            view.post(() -> imm.hideSoftInputFromWindow(view.getWindowToken(), 0));
-        else
-            imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
-    }
-
-    /**
      * Установка полноэкранного режима.
      * @param isFullscreen Если true, то mToolbar исчезает и в опциях DecorView устанавливаются нужные флаги
      *                     для полноэкранного режима, иначе все флаги сбрасываются.

@@ -49,7 +49,7 @@ class PassSetupDialog(
         }
         setNegativeButton(R.string.answer_cancel)
 
-        showKeyboard()
+        showKeyboard(tvPass)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

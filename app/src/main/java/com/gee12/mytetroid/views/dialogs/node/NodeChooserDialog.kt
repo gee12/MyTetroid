@@ -6,9 +6,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ScanManager
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
@@ -114,6 +112,7 @@ class NodeChooserDialog(
                 }
                 adapter.curNode = node
                 adapter.notifyDataSetChanged()
+                hideKeyboard(dialogView)
             }
 
             override fun onClick(node: TetroidNode, pos: Int) {
@@ -169,7 +168,7 @@ class NodeChooserDialog(
         // загружаем список веток
         adapter.setDataItems(viewModel.getRootNodes())
 
-        showKeyboard()
+        showKeyboard(searchView)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

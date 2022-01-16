@@ -54,8 +54,8 @@ class TagFieldsDialog(
 
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
 
-        showKeyboard()
         etName.setSelectionAtEnd()
+        showKeyboard(etName)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

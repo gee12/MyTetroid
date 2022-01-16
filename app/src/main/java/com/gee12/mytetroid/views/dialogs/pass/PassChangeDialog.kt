@@ -62,7 +62,7 @@ class PassChangeDialog(
         }
         setNegativeButton(R.string.answer_cancel)
 
-        showKeyboard()
+        showKeyboard(tvCurPass)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

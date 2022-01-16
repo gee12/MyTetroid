@@ -55,8 +55,8 @@ class PinCodeLengthDialog(
         }
         setNegativeButton(R.string.answer_cancel) { _, _ -> callback.onCancel() }
 
-        showKeyboard()
         etSize.setSelectionAtEnd()
+        showKeyboard(etSize)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

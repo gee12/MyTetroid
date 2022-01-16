@@ -36,7 +36,7 @@ class PassEnterDialog(
             getPositiveButton()?.isEnabled = !TextUtils.isEmpty(newText)
         })
 
-        showKeyboard()
+        showKeyboard(tvPass)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
