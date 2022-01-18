@@ -374,7 +374,9 @@ open class StorageViewModel(
                 res = databaseConfig.load()
                 if (res) {
                     // получаем id избранных записей из настроек
-                    runBlocking(Dispatchers.IO) { favoritesInteractor.init() }
+                    if (storage.id != App.current?.storageData?.storageId) {
+                        runBlocking(Dispatchers.IO) { favoritesInteractor.init() }
+                    }
                 }
             }
         } catch (ex: Exception) {

@@ -26,9 +26,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="text|textCapSentences"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/label_name"
-            app:layout_constraintTop_toBottomOf="@+id/label_name">
+            app:layout_constraintStart_toStartOf="@id/label_name"
+            app:layout_constraintTop_toBottomOf="@id/label_name">
 
             <requestFocus
                 android:layout_width="wrap_content"
@@ -42,8 +41,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_author"
-            app:layout_constraintStart_toStartOf="@+id/edit_text_name"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_name" />
+            app:layout_constraintStart_toStartOf="@id/edit_text_name"
+            app:layout_constraintTop_toBottomOf="@id/edit_text_name" />
 
         <EditText
             android:id="@+id/edit_text_author"
@@ -52,8 +51,8 @@
             android:layout_height="wrap_content"
             android:inputType="text|textCapWords"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/label_author"
-            app:layout_constraintTop_toBottomOf="@+id/label_author" />
+            app:layout_constraintStart_toStartOf="@id/label_author"
+            app:layout_constraintTop_toBottomOf="@id/label_author" />
 
         <TextView
             android:id="@+id/label_url"
@@ -61,8 +60,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_url"
-            app:layout_constraintStart_toStartOf="@+id/edit_text_author"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_author" />
+            app:layout_constraintStart_toStartOf="@id/edit_text_author"
+            app:layout_constraintTop_toBottomOf="@id/edit_text_author" />
 
         <EditText
             android:id="@+id/edit_text_url"
@@ -71,8 +70,8 @@
             android:layout_height="wrap_content"
             android:inputType="textUri"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/label_url"
-            app:layout_constraintTop_toBottomOf="@+id/label_url" />
+            app:layout_constraintStart_toStartOf="@id/label_url"
+            app:layout_constraintTop_toBottomOf="@id/label_url" />
 
         <TextView
             android:id="@+id/label_tags"
@@ -80,8 +79,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_tags"
-            app:layout_constraintStart_toStartOf="@+id/edit_text_url"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_url" />
+            app:layout_constraintStart_toStartOf="@id/edit_text_url"
+            app:layout_constraintTop_toBottomOf="@id/edit_text_url" />
 
         <EditText
             android:id="@+id/edit_text_tags"
@@ -89,9 +88,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/label_tags"
-            app:layout_constraintTop_toBottomOf="@+id/label_tags" />
+            app:layout_constraintStart_toStartOf="@id/label_tags"
+            app:layout_constraintTop_toBottomOf="@id/label_tags" />
 
         <RelativeLayout
             android:id="@+id/layout_node"
@@ -99,9 +97,9 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
             tools:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/check_box_favor"
-            app:layout_constraintStart_toStartOf="@+id/check_box_favor"
-            app:layout_constraintTop_toBottomOf="@+id/edit_text_tags">
+            app:layout_constraintBottom_toTopOf="@id/check_box_favor"
+            app:layout_constraintStart_toStartOf="@id/edit_text_tags"
+            app:layout_constraintTop_toBottomOf="@id/edit_text_tags">
 
             <TextView
                 android:id="@+id/label_node"
