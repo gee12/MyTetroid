@@ -108,7 +108,6 @@ open class StorageViewModel(
     var isLoadAllNodesForced = false
     var isAlreadyTryDecrypt = false
     var syncType = SyncStorageType.Manually
-    // FIXME: можно избавиться, как callback в clearTrashFolder
     var syncCallback: ICallback? = null
 
 
@@ -748,7 +747,7 @@ open class StorageViewModel(
                     // перед загрузкой хранилища
                     syncType == SyncStorageType.BeforeInit && it.isSyncBeforeInit -> {
                         if (it.isAskBeforeSyncOnInit) {
-                            postStorageEvent(Constants.StorageEvents.AskBeforeSyncOnInit)
+                            postStorageEvent(Constants.StorageEvents.AskBeforeSyncOnInit, callback)
                         } else {
                             startStorageSync(activity, callback)
                         }
@@ -756,12 +755,14 @@ open class StorageViewModel(
                     // перед выходом из приложения
                     syncType == SyncStorageType.BeforeExit && it.isSyncBeforeExit -> {
                         if (it.isAskBeforeSyncOnExit) {
-                            postStorageEvent(Constants.StorageEvents.AskBeforeSyncOnExit)
+                            postStorageEvent(Constants.StorageEvents.AskBeforeSyncOnExit, callback)
                         } else {
                             startStorageSync(activity, callback)
                         }
                     }
-                    else -> {}
+                    else -> {
+                        callback?.run(true)
+                    }
                 }
 
             } else {
@@ -770,12 +771,8 @@ open class StorageViewModel(
         } ?: callback?.run(true)
     }
 
-    fun startStorageSync(activity: Activity) {
-        startStorageSync(activity, syncCallback)
-    }
-
-    fun cancelStorageSync() {
-        syncCallback?.run(false)
+    fun cancelStorageSync(callback: ICallback?) {
+        callback?.run(true)
     }
 
     /**
@@ -783,15 +780,21 @@ open class StorageViewModel(
      * @param activity
      * @param callback
      */
-    private fun startStorageSync(activity: Activity, callback: ICallback?) {
-        val res = syncInteractor.startStorageSync(activity, getStoragePath(), Constants.REQUEST_CODE_SYNC_STORAGE)
+    fun startStorageSync(activity: Activity, callback: ICallback?) {
+        val result = syncInteractor.startStorageSync(
+            activity = activity,
+            storagePath = getStoragePath(),
+            command = storage?.syncProfile?.command ?: "",
+            appName = storage?.syncProfile?.appName ?: "",
+            requestCode = Constants.REQUEST_CODE_SYNC_STORAGE
+        )
         if (callback != null) {
             // запускаем обработчик сразу после синхронизации, не дожидаясь ответа, если:
             //  1) синхронизацию не удалось запустить
             //  2) выбрана синхронизация с помощью Termux,
             //  т.к. в этом случае нет простого механизма получить ответ
-            if (!res || getSyncAppName() == activity.getString(R.string.title_app_termux)) {
-                callback.run(res)
+            if (!result || getSyncAppName() == activity.getString(R.string.title_app_termux)) {
+                callback.run(result)
             }
         }
     }

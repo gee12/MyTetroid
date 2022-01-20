@@ -429,7 +429,7 @@ public class CommonSettings {
      * Используется по-умолчанию у хранилищ.
      */
     public static String getSyncCommandDef(Context context) {
-        return getString(context, R.string.pref_key_sync_command, null);
+        return getString(context, R.string.pref_key_sync_command, "");
     }
 
     /**

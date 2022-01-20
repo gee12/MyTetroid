@@ -353,16 +353,17 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 // ничего не делаем
                 break;
 
-            case AskBeforeClearTrashOnExit:
+            case AskBeforeClearTrashOnExit: {
                 ICallback callback = (ICallback) data;
                 showClearTrashDialog(callback);
-                break;
+            } break;
 
             // синхронизация
             case AskBeforeSyncOnInit:
-            case AskBeforeSyncOnExit:
-                showSyncRequestDialog();
-                break;
+            case AskBeforeSyncOnExit: {
+                ICallback callback = (ICallback) data;
+                showSyncRequestDialog(callback);
+            } break;
             case AskAfterSyncManually:
             case AskAfterSyncOnInit: {
                 boolean isSyncSuccess = (boolean) data;
@@ -942,16 +943,16 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     //region Sync
 
-    private void showSyncRequestDialog() {
+    private void showSyncRequestDialog(ICallback callback) {
         AskDialogs.showSyncRequestDialog(MainActivity.this, new Dialogs.IApplyCancelResult() {
             @Override
             public void onApply() {
-                viewModel.startStorageSync(MainActivity.this);
+                viewModel.startStorageSync(MainActivity.this, callback);
             }
 
             @Override
             public void onCancel() {
-                viewModel.cancelStorageSync();
+                viewModel.cancelStorageSync(callback);
             }
         });
     }
@@ -2389,7 +2390,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     askForExit();
                 } else {
                     viewModel.onBeforeExit(this);
-                    super.onBackPressed();
                 }
             } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                 drawerLayout.closeDrawer(GravityCompat.END);
@@ -2430,7 +2430,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 // выходим, если все проверили
                 if (needToExit) {
                     viewModel.onBeforeExit(this);
-                    super.onBackPressed();
                 }
             }
         }

@@ -586,7 +586,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_sync_failed">Failed to sync</string>
     <string name="log_open_file">Open file:&#160;</string>
     <string name="log_open_tag_records_mask">Open tag records: %s</string>
-    <string name="log_start_storage_sync">Start storage sync. Command:&#160;</string>
+    <string name="log_start_storage_sync_mask">Start storage sync. App: \"%s\", command: \"%s\"</string>
+    <string name="log_storage_sync_unknown_app_mask">Unknown app for sync: \"%s\"</string>
     <string name="log_get_file_size_error">Error getting file size:&#160;</string>
     <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
     <string name="log_file_sharing_error">File sharing error:&#160;</string>

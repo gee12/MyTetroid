@@ -13,9 +13,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.utils.Utils
 import com.gee12.mytetroid.views.TetroidMessage
 
-/**
- * Не зависит от конкретного хранилища, может быть Singleton.
- */
+
 class SyncInteractor(
     private val logger: ITetroidLogger,
     private val permissionInteractor: PermissionInteractor
@@ -31,14 +29,30 @@ class SyncInteractor(
      * Отправка запроса на синхронизацию стороннему приложению.
      * @param storagePath
      */
-    fun startStorageSync(activity: Activity, storagePath: String, requestCode: Int): Boolean {
-        val command = CommonSettings.getSyncCommandDef(activity)
-        return if (CommonSettings.getSyncAppNameDef(activity) == activity.getString(R.string.title_app_termux)) {
-            // termux
-            startTermuxSync(activity, storagePath, command)
-        } else {
-            // mgit
-            startMGitSync(activity, storagePath, command, requestCode)
+    fun startStorageSync(
+        activity: Activity,
+        storagePath: String,
+        command: String,
+        appName: String,
+        requestCode: Int
+    ): Boolean {
+        if (command.isEmpty()) {
+            logger.logError(R.string.log_sync_command_empty, true)
+            return false
+        }
+        return when (appName) {
+            activity.getString(R.string.title_app_termux) -> {
+                // termux
+                startTermuxSync(activity, storagePath, command)
+            }
+            activity.getString(R.string.title_app_mgit) -> {
+                // mgit
+                startMGitSync(activity, storagePath, command, requestCode)
+            }
+            else -> {
+                logger.logError(activity.getString(R.string.log_storage_sync_unknown_app_mask, appName))
+                false
+            }
         }
     }
 
@@ -48,7 +62,7 @@ class SyncInteractor(
      */
     private fun startMGitSync(activity: Activity, storagePath: String, command: String, requestCode: Int): Boolean {
         val intent = createIntentToMGit(activity, storagePath, command)
-        logger.log(activity.getString(R.string.log_start_storage_sync) + command)
+        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_mgit), command), false)
         try {
             if (!CommonSettings.isNotRememberSyncApp(activity)) {
                 // использовать стандартный механизм запоминания используемого приложения
@@ -93,10 +107,7 @@ class SyncInteractor(
      * @param command
      */
     private fun startTermuxSync(activity: Activity, storagePath: String, command: String): Boolean {
-        if (TextUtils.isEmpty(command)) {
-            logger.logError(R.string.log_sync_command_empty, true)
-            return false
-        }
+        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_termux), command), false)
         // проверяем разрешение на запуск сервиса
         if (!permissionInteractor.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
             return false
@@ -140,7 +151,7 @@ class SyncInteractor(
             putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg)
         }
         val fullCommand = (command + " " + args?.let { TextUtils.join(" ", args) })
-        logger.log(activity.getString(R.string.log_start_storage_sync) + fullCommand)
+        logger.log(activity.getString(R.string.log_start_storage_sync_mask) + fullCommand)
         try {
             activity.startService(intent)
         } catch (ex: Exception) {

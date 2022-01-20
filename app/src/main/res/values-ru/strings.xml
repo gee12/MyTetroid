@@ -498,7 +498,8 @@
     <string name="log_sync_failed">Не удалось выполнить синхронизацию</string>
     <string name="log_open_file">Открытие файла:&#160;</string>
     <string name="log_open_tag_records_mask">Открытие записей метки: %s</string>
-    <string name="log_start_storage_sync">Запуск синхронизации хранилища. Команда:&#160;</string>
+    <string name="log_start_storage_sync_mask">Запуск синхронизации хранилища. Приложение: \"%s\", команда: \"%s\"</string>
+    <string name="log_storage_sync_unknown_app_mask">Неизвестное приложение для синхронизации: \"%s\"</string>
     <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
     <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
     <string name="log_file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>

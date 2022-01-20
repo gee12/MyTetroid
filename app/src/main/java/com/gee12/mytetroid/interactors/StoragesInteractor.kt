@@ -35,7 +35,7 @@ class StoragesInteractor(
             syncProfile.apply {
                 isEnabled = CommonSettings.isSyncStorageDef(context)
                 appName = CommonSettings.getSyncAppNameDef(context)
-                command = CommonSettings.getSyncCommandDef(context) ?: ""
+                command = CommonSettings.getSyncCommandDef(context)
                 isSyncBeforeInit = CommonSettings.isSyncBeforeInitDef(context)
                 isAskBeforeSyncOnInit = CommonSettings.isAskBeforeSyncOnInitDef(context)
                 isSyncBeforeExit = CommonSettings.isSyncBeforeExitDef(context)
