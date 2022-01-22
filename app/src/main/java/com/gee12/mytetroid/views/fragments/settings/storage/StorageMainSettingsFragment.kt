@@ -171,7 +171,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
     fun onResult(requestCode: Int, resultCode: Int, data: Intent) {
         if (resultCode != Activity.RESULT_OK) return
 
-        val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA)
+        val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA).orEmpty()
         if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH) {
             viewModel.updateStorageOption(getString(R.string.pref_key_storage_path), folderPath)
             CommonSettings.setLastChoosedFolder(context, folderPath)
