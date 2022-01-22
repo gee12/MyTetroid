@@ -94,6 +94,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_records_is_missing">Records is missing</string>
     <string name="title_favors_is_missing">Favorite records is missing</string>
     <string name="title_select_the_node">Select the node…</string>
+    <string name="title_storages_empty_label">Add storage…</string>
     <string name="title_files_is_missing">Attach is missing</string>
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
     <string name="title_rate_app">Rate app</string>
@@ -487,6 +488,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="subtitle_record_edit">EDITOR</string>
     <string name="subtitle_record_html">HTML</string>
 
+    <string name="action_sync">Sync</string>
+    <string name="action_exit">Exit</string>
+
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
     <string name="ask_delete_attach_without_file">File is missing on the disk. Delete file from storage ?</string>
@@ -510,6 +514,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_clear_trash_all_storages">Clear trash folder from all storages?</string>
     <string name="ask_clear_search_history">Clear search history?</string>
     <string name="ask_start_sync_dialog_title">Start storage sync?</string>
+    <string name="ask_start_sync_or_exit_dialog_title">Start storage sync again or exit?</string>
     <string name="ask_load_all_nodes_dialog_title">To do this, need to load all nodes. Proceed?</string>
     <string name="ask_reload_storage">Reload storage from device file system?</string>
     <string name="ask_storage_path_was_changed">Storage path was changed. Reload database?</string>

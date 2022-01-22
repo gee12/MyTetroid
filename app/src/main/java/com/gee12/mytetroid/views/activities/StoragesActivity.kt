@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
@@ -39,9 +40,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     private lateinit var adapter: StoragesAdapter
     private var storageDialog: StorageDialog? = null
 
-    override fun getLayoutResourceId(): Int {
-        return R.layout.activity_storages
-    }
+    override fun getLayoutResourceId() = R.layout.activity_storages
 
     override fun getViewModelClazz() = StoragesViewModel::class.java
 
@@ -74,12 +73,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add_storage)
         fabAdd.setOnClickListener { addStorage() }
 
-        loadList()
+        loadStorages()
     }
 
     override fun initViewModel() {
         super.initViewModel()
-        viewModel.storages.observe(this, { list: List<TetroidStorage?> -> adapter.submitList(list) })
+        viewModel.storages.observe(this, { list -> showStoragesList(list) })
     }
 
     override fun onUICreated(uiCreated: Boolean) {}
@@ -97,8 +96,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         }
     }
 
-    private fun loadList() {
+    private fun loadStorages() {
         viewModel.loadStorages()
+    }
+
+    private fun showStoragesList(list: List<TetroidStorage>) {
+        adapter.submitList(list)
+        findViewById<TextView>(R.id.text_view_empty_storages)?.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun selectStorage(storage: TetroidStorage) {
@@ -277,7 +281,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             val path = data?.getStringExtra(FolderPicker.EXTRA_DATA) ?: ""
             storageDialog?.setPath(path, isNew)
         } else if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
-            loadList()
+            loadStorages()
         }
     }
 

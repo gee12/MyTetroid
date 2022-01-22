@@ -141,6 +141,7 @@ object Constants {
         AskAfterSyncOnInit,
         AskBeforeSyncOnExit,
         AskAfterSyncOnExit,
+        AskForSyncAfterFailureSyncOnExit,
         Inited,
         InitFailed,
         FilesCreated,

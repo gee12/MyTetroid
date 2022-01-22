@@ -1441,16 +1441,29 @@ class MainViewModel(
         clearTrashFolderAndExit(true) { result ->
             if (result) {
                 // синхронизация перед выходом из приложения
-                syncStorageAndExit(activity) { result ->
-                    if (result) {
-                        // выход из приложения
-                        launch {
-                            onExit(activity)
-                            setEvent(MainEvents.Exit)
-                        }
-                    }
+                syncStorageAndExit(activity)
+            }
+        }
+    }
+
+    fun syncStorageAndExit(activity: Activity) {
+        syncStorageAndExit(activity) { result ->
+            if (result) {
+                // выход из приложения
+                exitAfterAsks(activity)
+            } else {
+                // спрашиваем что делать
+                launch {
+                    setStorageEvent(Constants.StorageEvents.AskForSyncAfterFailureSyncOnExit)
                 }
             }
+        }
+    }
+
+    fun exitAfterAsks(activity: Activity) {
+        launch {
+            onExit(activity)
+            setEvent(MainEvents.Exit)
         }
     }
 

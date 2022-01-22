@@ -42,11 +42,9 @@ class SyncInteractor(
         }
         return when (appName) {
             activity.getString(R.string.title_app_termux) -> {
-                // termux
                 startTermuxSync(activity, storagePath, command)
             }
             activity.getString(R.string.title_app_mgit) -> {
-                // mgit
                 startMGitSync(activity, storagePath, command, requestCode)
             }
             else -> {

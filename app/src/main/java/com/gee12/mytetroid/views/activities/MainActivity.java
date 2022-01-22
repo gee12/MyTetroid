@@ -379,6 +379,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     });
                 }
             } break;
+            case AskForSyncAfterFailureSyncOnExit: {
+                showSyncRequestDialogAfterFailureSync();
+            } break;
 
             // загрузка хранилища
             case InitFailed:
@@ -953,6 +956,20 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             @Override
             public void onCancel() {
                 viewModel.cancelStorageSync(callback);
+            }
+        });
+    }
+
+    private void showSyncRequestDialogAfterFailureSync(/*ICallback callback*/) {
+        AskDialogs.showSyncRequestDialogAfterFailureSync(MainActivity.this, new Dialogs.IApplyCancelResult() {
+            @Override
+            public void onApply() {
+                viewModel.syncStorageAndExit(MainActivity.this);
+            }
+
+            @Override
+            public void onCancel() {
+                viewModel.exitAfterAsks(MainActivity.this);
             }
         });
     }

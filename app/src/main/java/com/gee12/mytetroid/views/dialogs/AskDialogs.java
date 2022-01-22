@@ -45,6 +45,11 @@ public class AskDialogs {
         AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_start_sync_dialog_title);
     }
 
+    public static void showSyncRequestDialogAfterFailureSync(Context context, final Dialogs.IApplyCancelResult callback) {
+        Dialogs.showAlertDialog(context, context.getString(R.string.ask_start_sync_or_exit_dialog_title),
+                true, false, R.string.action_sync, R.string.action_exit, callback);
+    }
+
     public static void showLoadAllNodesDialog(Context context, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, R.string.ask_load_all_nodes_dialog_title);
     }

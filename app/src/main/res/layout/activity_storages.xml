@@ -34,6 +34,19 @@
         android:focusable="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
+    <TextView
+        android:id="@+id/text_view_empty_storages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="@dimen/tv_empty_padding"
+        android:textColor="@color/emptySearch"
+        android:textAlignment="center"
+        android:gravity="center_horizontal"
+        android:text="@string/title_storages_empty_label"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_storage"
         android:src="@android:drawable/ic_input_add"
@@ -41,7 +54,8 @@
         app:fab_label="@string/title_add_storage"
         style="@style/fab"
         app:layout_anchor="@id/recycle_view"
-        app:layout_anchorGravity="bottom|right|end" />
+        app:layout_anchorGravity="bottom|right|end"
+        android:contentDescription="@string/title_add_storage"/>
 
     <ProgressBar
         android:id="@+id/progress_bar"
