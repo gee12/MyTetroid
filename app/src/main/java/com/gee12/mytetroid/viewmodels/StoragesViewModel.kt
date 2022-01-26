@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.helpers.StoragePathHelper
 import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -23,11 +25,23 @@ class StoragesViewModel(
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages
 
+    var checkStoragesFilesExisting: Boolean = false
+
     fun loadStorages() {
         launch(Dispatchers.IO) {
             val storages = storagesInteractor.getStorages()
+                .onEach {
+                    if (checkStoragesFilesExisting) checkStorageFilesExisting(it)
+                }
             _storages.postValue(storages)
         }
+    }
+
+    fun checkStorageFilesExisting(storage: TetroidStorage) {
+        val pathHelper = StoragePathHelper(storageProvider = object : IStorageProvider {
+            override fun getStorageOrNull() = storage
+        })
+        storage.error = pathHelper.checkStorageFilesExistingError(getContext())
     }
 
     fun setDefault(storage: TetroidStorage) {

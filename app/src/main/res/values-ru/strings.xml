@@ -680,6 +680,7 @@
     <string name="title_storage_current">Загруженное хранилище</string>
     <string name="title_storage_default">Основное хранилище</string>
     <string name="label_default_storage">Основное хранилище</string>
+    <string name="title_storage_error">Ошибка хранилища</string>
     <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
     <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \"%s\", продолжить ?</string>
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
@@ -718,4 +719,10 @@
     <string name="log_error_migration">Ошибка выполнения миграции настроек</string>
     <string name="log_created_folder_mask">Создан каталог: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Ошибка создания каталога: %s [%s]</string>
+    <string name="error_folder_is_not_exists">Каталог отсутствует</string>
+    <string name="error_folder_is_empty">Каталог пуст</string>
+    <string name="folder_name_mask">каталог %s</string>
+    <string name="file_name_mask">файл %s</string>
+    <string name="title_is_not_exist_mask">Отсутствует: %s</string>
+    <string name="title_is_not_exist_plural_mask">Отсутствуют: %s</string>
 </resources>

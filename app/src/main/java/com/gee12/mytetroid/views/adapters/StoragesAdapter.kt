@@ -62,6 +62,8 @@ class StoragesAdapter(
 
         private val tvName: TextView = itemView.findViewById(R.id.text_view_name)
         private val tvPath: TextView = itemView.findViewById(R.id.text_view_path)
+        private val ivError: ImageView = itemView.findViewById(R.id.image_view_error)
+        private val tvError: TextView = itemView.findViewById(R.id.text_view_error)
         private val ivCurrent: ImageView = itemView.findViewById(R.id.image_view_current)
         private val ivDefault: ImageView = itemView.findViewById(R.id.image_view_default)
         val ivMenu: ImageView = itemView.findViewById(R.id.image_view_menu)
@@ -71,6 +73,15 @@ class StoragesAdapter(
             tvPath.text = storage.path
             ivCurrent.visibility = if (storage.id == currentStorageId) VISIBLE else GONE
             ivDefault.visibility = if (storage.isDefault) VISIBLE else GONE
+            if (storage.error != null) {
+                ivError.visibility = VISIBLE
+                tvError.visibility = VISIBLE
+                tvError.text = storage.error
+
+            } else {
+                ivError.visibility = GONE
+                tvError.visibility = GONE
+            }
         }
     }
 

@@ -25,6 +25,8 @@
         app:layout_constraintHorizontal_chainStyle="packed"
         android:textColor="@color/colorBaseText"
         android:paddingBottom="3dp"
+        android:paddingRight="3dp"
+        android:paddingEnd="3dp"
         tools:text="@tools:sample/cities"
         android:textSize="@dimen/font_default" />
 
@@ -50,14 +52,55 @@
         android:scaleType="center"
         android:contentDescription="@string/title_storage_default" />
 
+    <ImageView
+        android:id="@+id/image_view_folder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_name"
+        app:layout_constraintBottom_toTopOf="@id/image_view_error"
+        app:layout_constraintEnd_toStartOf="@id/text_view_path"
+        android:paddingBottom="3dp"
+        android:src="@drawable/ic_folder"
+        android:scaleType="center"
+        android:contentDescription="@string/title_storage_error" />
+
     <TextView
         android:id="@+id/text_view_path"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_view_name"
+        app:layout_constraintStart_toEndOf="@id/image_view_folder"
+        app:layout_constraintTop_toTopOf="@id/image_view_folder"
         app:layout_constraintEnd_toStartOf="@id/image_view_menu"
+        android:paddingTop="3dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:textColor="@color/colorBase2Text"
+        tools:text="@tools:sample/lorem"
+        android:textSize="@dimen/font_small" />
+
+    <ImageView
+        android:id="@+id/image_view_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/image_view_folder"
+        app:layout_constraintEnd_toStartOf="@id/text_view_error"
+        android:src="@drawable/ic_warning_red_2"
+        android:scaleType="center"
+        android:contentDescription="@string/title_storage_error" />
+
+    <TextView
+        android:id="@+id/text_view_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/image_view_error"
+        app:layout_constraintTop_toTopOf="@id/image_view_error"
+        app:layout_constraintEnd_toStartOf="@id/image_view_menu"
+        android:paddingTop="2dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:textColor="@color/colorRed"
         tools:text="@tools:sample/lorem"
         android:textSize="@dimen/font_small" />
 

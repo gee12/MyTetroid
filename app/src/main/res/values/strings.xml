@@ -775,6 +775,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_storage_current">Current storage</string>
     <string name="title_storage_default">Default storage</string>
     <string name="label_default_storage">Default storage</string>
+    <string name="title_storage_error">Storage error</string>
     <string name="ask_load_storage_mask">Load storage «%s» ?</string>
     <string name="ask_create_new_storage_mask">Will be created storage files along the path \"%s\", continue ?</string>
     <string name="ask_open_storage_settings">Open storage settings?</string>
@@ -814,4 +815,10 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_migration">Settings migration failed</string>
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
+    <string name="error_folder_is_not_exists">Folder is not found</string>
+    <string name="error_folder_is_empty">Folder is empty</string>
+    <string name="folder_name_mask">folder %s</string>
+    <string name="file_name_mask">file %s</string>
+    <string name="title_is_not_exist_mask">Not found: %s</string>
+    <string name="title_is_not_exist_plural_mask">Not found: %s</string>
 </resources>

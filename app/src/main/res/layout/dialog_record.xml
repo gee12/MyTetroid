@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:inputType="text|textCapSentences"
             app:layout_constraintStart_toStartOf="@id/label_name"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_name">
 
             <requestFocus
@@ -41,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_author"
-            app:layout_constraintStart_toStartOf="@id/edit_text_name"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_name" />
 
         <EditText
@@ -50,8 +51,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="text|textCapWords"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/label_author"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_author" />
 
         <TextView
@@ -60,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_url"
-            app:layout_constraintStart_toStartOf="@id/edit_text_author"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_author" />
 
         <EditText
@@ -69,8 +70,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:inputType="textUri"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/label_url"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_url" />
 
         <TextView
@@ -79,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_tags"
-            app:layout_constraintStart_toStartOf="@id/edit_text_url"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_url" />
 
         <EditText
@@ -89,6 +90,7 @@
             android:layout_height="wrap_content"
             android:inputType="text"
             app:layout_constraintStart_toStartOf="@id/label_tags"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/label_tags" />
 
         <RelativeLayout
@@ -98,7 +100,8 @@
             android:visibility="gone"
             tools:visibility="visible"
             app:layout_constraintBottom_toTopOf="@id/check_box_favor"
-            app:layout_constraintStart_toStartOf="@id/edit_text_tags"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/edit_text_tags">
 
             <TextView

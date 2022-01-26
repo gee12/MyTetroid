@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
@@ -34,8 +35,6 @@ import org.jsoup.internal.StringUtil
 
 class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
-    private var storageViewModel: StorageViewModel? = null
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StoragesAdapter
     private var storageDialog: StorageDialog? = null
@@ -49,6 +48,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
         adapter = StoragesAdapter(this, currentStorageId = App.current?.storageData?.storageId)
         adapter.onItemClickListener = View.OnClickListener { v ->
             val itemPosition = recyclerView.getChildLayoutPosition(v!!)
@@ -79,6 +79,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     override fun initViewModel() {
         super.initViewModel()
         viewModel.storages.observe(this, { list -> showStoragesList(list) })
+        viewModel.checkStoragesFilesExisting = true
     }
 
     override fun onUICreated(uiCreated: Boolean) {}
@@ -120,24 +121,29 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStorageAdded(storage: TetroidStorage) {
         if (storage.isNew) {
-            AskDialogs.showCreateNewStorageDialog(this, storage.path) {
-                storageViewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
-                    .get(StorageViewModel::class.java)
-                storageViewModel!!.storageEvent.observe(this, {
-                    when (it.state) {
-                        // проверка разрешения перед созданием файлов хранилища
-                        StorageEvents.PermissionCheck -> storageViewModel!!.checkWriteExtStoragePermission(this)
-                        StorageEvents.PermissionGranted -> storageViewModel!!.initStorage()
-                        StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
-                        else -> {}
-                    }
-                })
-                storageViewModel!!.startInitStorage(storage)
+            AskDialogs.showCreateStorageFilesDialog(this, storage.path) {
+                createStorageFiles(storage)
             }
         }
     }
 
+    private fun createStorageFiles(storage: TetroidStorage) {
+        val storageViewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
+            .get(StorageViewModel::class.java)
+        storageViewModel.storageEvent.observe(this, {
+            when (it.state) {
+                // проверка разрешения перед созданием файлов хранилища
+                StorageEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this)
+                StorageEvents.PermissionGranted -> storageViewModel.initStorage()
+                StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
+                else -> {}
+            }
+        })
+        storageViewModel.startInitStorage(storage)
+    }
+
     private fun onStorageFilesCreated(storage: TetroidStorage) {
+        loadStorages()
         AskDialogs.showOpenStorageSettingsDialog(this) { editStorage(storage) }
     }
 

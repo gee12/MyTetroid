@@ -13,7 +13,7 @@ public class AskDialogs {
         AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_load_storage_mask, storageName));
     }
 
-    public static void showCreateNewStorageDialog(Context context, String storagePath, final Dialogs.IApplyResult callback) {
+    public static void showCreateStorageFilesDialog(Context context, String storagePath, final Dialogs.IApplyResult callback) {
         AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_create_new_storage_mask, storagePath));
     }
 
