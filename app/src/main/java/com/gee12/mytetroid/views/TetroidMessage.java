@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.views.activities.LogsActivity;
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 public class TetroidMessage {

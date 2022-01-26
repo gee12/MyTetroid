@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.utils;
+package com.gee12.mytetroid.common.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.IdRes;
 import androidx.appcompat.app.ActionBar;

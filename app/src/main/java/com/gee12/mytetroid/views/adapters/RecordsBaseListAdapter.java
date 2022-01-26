@@ -19,7 +19,7 @@ import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.Date;
 

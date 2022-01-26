@@ -50,7 +50,7 @@ class NodeChooserDialog(
 
     fun isStorageLoaded(): Boolean {
         // проверяем загружено ли хранилище
-        if (!viewModel.isLoaded()) {
+        if (!viewModel.isStorageLoaded()) {
             callback.onProblem(IResult.LOAD_STORAGE)
             return false
         }

@@ -56,11 +56,11 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
     private fun updateChangeSetupPasswordPref() {
         // установка или смена пароля хранилища
-        val isStorageReady = viewModel.isInited()
-                && viewModel.isLoaded()
+        val isStorageReady = viewModel.isStorageInited()
+                && viewModel.isStorageLoaded()
                 && !viewModel.isLoadedFavoritesOnly()
         findPreference<Preference>(getString(R.string.pref_key_change_pass))?.apply {
-            val isCrypted = viewModel.isCrypted()
+            val isCrypted = viewModel.isStorageCrypted()
             setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
             setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
             isEnabled = isStorageReady

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

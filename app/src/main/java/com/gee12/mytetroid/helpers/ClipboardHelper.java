@@ -5,15 +5,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.webkit.URLUtil;
 
-import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidObject;
-import com.gee12.mytetroid.utils.UriUtils;
+import com.gee12.mytetroid.common.utils.UriUtils;
 import com.lumyjuwon.richwysiwygeditor.Utils.YoutubeHelper;
 
 import java.net.URLConnection;
-import java.util.Objects;
 
 public class ClipboardHelper {
 

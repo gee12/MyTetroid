@@ -10,7 +10,7 @@ import androidx.preference.PreferenceDialogFragmentCompat;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.logs.LogType;
 import com.gee12.mytetroid.logs.Message;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 public class DateTimeFormatDialog extends PreferenceDialogFragmentCompat {
 

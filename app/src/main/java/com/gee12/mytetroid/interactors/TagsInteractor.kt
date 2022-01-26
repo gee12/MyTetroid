@@ -3,7 +3,7 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.xml.TetroidXml
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
@@ -14,7 +14,7 @@ import java.util.*
 class TagsInteractor(
     private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor,
-    private val xmlLoader: TetroidXml
+    private val storageDataProcessor: IStorageDataProcessor
 ) {
 
     /**
@@ -25,7 +25,7 @@ class TagsInteractor(
     fun getTag(tagName: String?): TetroidTag? {
         if (TextUtils.isEmpty(tagName)) return null
         val lowerCaseTagName = tagName?.lowercase()
-        for ((key, value) in xmlLoader.mTagsMap.entries) {
+        for ((key, value) in storageDataProcessor.getTagsMap().entries) {
             if (key?.contentEquals(lowerCaseTagName) == true) {
                 return value
             }
@@ -47,7 +47,7 @@ class TagsInteractor(
         if (newName.contentEquals(tag.name)) {
             return true
         }
-        val tagsMap: HashMap<String, TetroidTag> = xmlLoader.mTagsMap
+        val tagsMap: HashMap<String, TetroidTag> = storageDataProcessor.getTagsMap()
         val lowerCaseNewName = newName.lowercase(Locale.getDefault())
         val lowerCaseOldName = tag.name.lowercase(Locale.getDefault())
         // смотрим, если есть метка с таким же названием в списке после переименования

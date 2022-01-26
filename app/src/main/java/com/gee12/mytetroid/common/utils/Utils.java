@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.utils;
+package com.gee12.mytetroid.common.utils;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -14,7 +14,6 @@ import com.gee12.mytetroid.logs.ITetroidLogger;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;

@@ -5,7 +5,7 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.common.utils.FileUtils
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 

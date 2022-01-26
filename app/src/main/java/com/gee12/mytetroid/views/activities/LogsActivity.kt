@@ -17,7 +17,7 @@ import com.gee12.mytetroid.views.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.viewmodels.LogsViewModel.*
 import com.gee12.mytetroid.views.TetroidMessage
 import java.io.IOException

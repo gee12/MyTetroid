@@ -2,9 +2,9 @@ package com.gee12.mytetroid.interactors
 
 import android.content.Context
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.xml.TetroidXml
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
-import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.data.crypt.ITetroidCrypter
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.INodeIconLoader
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidObject
@@ -18,9 +18,9 @@ import java.io.File
  */
 class EncryptionInteractor(
     private val logger: ITetroidLogger,
-    val crypter: TetroidCrypter,
-    private val xmlHelper: TetroidXml,
-    private val storageHelper: IStorageLoadHelper // чтобы прокинуть в decryptNode и decryptNodes
+    val crypter: ITetroidCrypter,
+    private val storageDataProcessor: IStorageDataProcessor,
+    private val nodeIconLoader: INodeIconLoader
 ) {
 
     /**
@@ -41,8 +41,11 @@ class EncryptionInteractor(
      * @return
      */
     suspend fun reencryptStorage(context: Context): Boolean {
-//        LogManager.log(R.string.log_start_storage_reencrypt);
-        return crypter.encryptNodes(context, xmlHelper.mRootNodesList, true)
+        return crypter.encryptNodes(
+            context = context,
+            nodes = storageDataProcessor.getRootNodes(),
+            isReencrypt = true
+        )
     }
 
     /**
@@ -50,9 +53,14 @@ class EncryptionInteractor(
      * @return
      */
     suspend fun decryptStorage(context: Context, decryptFiles: Boolean): Boolean = withContext(Dispatchers.IO) {
-//        LogManager.log(R.string.log_start_storage_decrypt);
-        crypter.decryptNodes(context, xmlHelper.mRootNodesList, true, true,
-            storageHelper, false, decryptFiles
+        crypter.decryptNodes(
+            context = context,
+            nodes = storageDataProcessor.getRootNodes(),
+            isDecryptSubNodes = true,
+            decryptRecords = true,
+            iconLoader = nodeIconLoader,
+            dropCrypt = false,
+            decryptFiles = decryptFiles
         )
     }
 
@@ -62,8 +70,15 @@ class EncryptionInteractor(
      * @return
      */
     suspend fun dropCryptNode(context: Context, node: TetroidNode): Boolean {
-//        TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.DROPCRYPT, node);
-        return crypter.decryptNode(context, node, true, true, storageHelper, true, false)
+        return crypter.decryptNode(
+            context = context,
+            node = node,
+            decryptSubNodes = true,
+            decryptRecords = true,
+            iconLoader = nodeIconLoader,
+            dropCrypt = true,
+            decryptFiles = false
+        )
     }
 
     fun decryptField(obj: TetroidObject?, field: String?): String? {

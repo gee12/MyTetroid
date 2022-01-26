@@ -4,7 +4,7 @@ import com.gee12.mytetroid.data.TetroidClipboard
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.common.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

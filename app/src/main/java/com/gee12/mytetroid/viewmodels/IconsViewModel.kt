@@ -10,11 +10,7 @@ class IconsViewModel(
     /*logger: TetroidLogger?,*/
 ) : BaseViewModel(app/*, logger*/) {
 
-    val storageInteractor = storageData.storageInteractor
-
-    val iconsInteractor = IconsInteractor(logger, storageInteractor)
-
-    fun getPathToIcons() = storageInteractor.getPathToIcons()
+    val iconsInteractor = IconsInteractor(logger, storageData.storageInteractor.getPathToIcons())
 
     fun getIconsFolders() = iconsInteractor.getIconsFolders()
 

@@ -83,9 +83,9 @@ import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 import com.gee12.mytetroid.services.FileObserverService;
-import com.gee12.mytetroid.utils.FileUtils;
-import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.FileUtils;
+import com.gee12.mytetroid.common.utils.Utils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.gee12.mytetroid.views.dialogs.IntentDialog;
 import com.gee12.mytetroid.views.MainViewPager;
 import com.gee12.mytetroid.views.SearchViewXListener;
@@ -979,7 +979,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     //region Encryption
 
     private void showPasswordDialog(EventCallbackParams callback) {
-        boolean isSetup = !viewModel.isCrypted();
+        boolean isSetup = !viewModel.isStorageCrypted();
 
         PassDialogs.INSTANCE.showPassEnterDialog(
                 isSetup,
@@ -998,7 +998,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     private void showPinCodeDialog(EventCallbackParams callback) {
-        boolean isSetup = !viewModel.isCrypted();
+        boolean isSetup = !viewModel.isStorageCrypted();
 
         PinCodeDialog.Companion.showDialog(
                 CommonSettings.getPinCodeLength(this),
@@ -2116,7 +2116,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     private void searchInTags(String query, boolean isSearch) {
         // старый fix, чтобы не падало после долгого простоя
-        if (!viewModel.isLoaded()) {
+        if (!viewModel.isStorageLoaded()) {
             onUICreated(true);
             return;
         }
@@ -2333,13 +2333,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
         visibleMenuItem(menu.findItem(R.id.action_storage_sync), CommonSettings.isSyncStorageDef(this));
 
-        boolean isStorageLoaded = viewModel.isLoaded();
+        boolean isStorageLoaded = viewModel.isStorageLoaded();
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), viewModel.isInited());
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), viewModel.isStorageInited());
 
         getMainPage().onPrepareOptionsMenu(menu);
 

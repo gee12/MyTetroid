@@ -11,13 +11,16 @@ import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
-import com.gee12.mytetroid.utils.StringUtils
+import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.repo.CommonSettingsRepo
 import java.util.*
 
 open class BaseViewModel(
     application: Application,
     /*logger: TetroidLogger?*/
 ) : AndroidViewModel(application) {
+
+    val commonSettingsRepo = CommonSettingsRepo(getContext())
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
     var isBusy = false
@@ -35,6 +38,8 @@ open class BaseViewModel(
 
     val messageObservable = MutableLiveData<Message>()
 
+
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsRepo.getLastFolderPathOrDefault(forWrite)
 
     //region View event
 

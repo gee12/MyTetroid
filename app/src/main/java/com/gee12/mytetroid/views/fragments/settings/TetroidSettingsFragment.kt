@@ -78,7 +78,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
 
     protected fun openFolderPicker(title: String?, location: String, requestCode: Int) {
         val path = if (!StringUtil.isBlank(location)) location
-            else StorageInteractor.getLastFolderPathOrDefault(requireContext(), true)
+            else baseViewModel.getLastFolderPathOrDefault(true)
         val intent = Intent(context, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)

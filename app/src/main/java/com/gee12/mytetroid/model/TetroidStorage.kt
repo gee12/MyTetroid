@@ -11,6 +11,7 @@ class TetroidStorage(
     path
 ) {
     var isNew = false
+    var error: String? = null
 
 //    val isWriteLogToFile = 0
 //    val logPath: String? = null

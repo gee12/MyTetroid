@@ -5,29 +5,173 @@ import com.gee12.mytetroid.data.ITagsParser
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.data.INodeIconLoader
+import com.gee12.mytetroid.helpers.INodeIconLoader
 import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jsoup.internal.StringUtil
+import java.io.File
+
+interface ITetroidCrypter {
+
+    var middlePassHashOrNull: String?
+    val tagsParser: ITagsParser
+    val recordFileCrypter: IRecordFileCrypter
+
+    fun initFromPass(pass: String)
+    fun initFromMiddleHash(passHash: String)
+    fun init(key: IntArray)
+
+    /**
+     * Зашифровка веток.
+     * @param nodes
+     * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
+     * @return
+     */
+    suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean
+
+    /**
+     * Зашифровка ветки.
+     * @param node
+     * @param isReencrypt
+     * @return
+     */
+    suspend fun encryptNode(context: Context, node: TetroidNode?, isReencrypt: Boolean): Boolean
+
+    /**
+     * Зашифровка полей ветки.
+     * @param node
+     * @param isReencrypt
+     * @return
+     */
+    fun encryptNodeFields(node: TetroidNode, isReencrypt: Boolean): Boolean
+
+    /**
+     * Зашифровка полей списка записей и полей их прикрепленных прифайлов.
+     * @param records
+     * @param isReencrypt Флаг, заставляющий шифровать файлы записи даже тогда, когда запись
+     * уже зашифрована.
+     * @return
+     */
+    suspend fun encryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, isReencrypt: Boolean): Boolean
+
+    /**
+     * Зашифровка полей записи.
+     * @param record
+     * @param isReencrypt
+     * @return
+     */
+    fun encryptRecordFields(record: TetroidRecord, isReencrypt: Boolean): Boolean
+
+    /**
+     * Зашифровка полей прикрепленного файла.
+     * @param file
+     * @param isReencrypt
+     * @return
+     */
+    fun encryptAttach(file: TetroidFile, isReencrypt: Boolean): Boolean
+
+    /**
+     * Расшифровка веток.
+     * @param nodes
+     * @param isDecryptSubNodes
+     * @param iconLoader
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    suspend fun decryptNodes(context: Context, nodes: List<TetroidNode>, isDecryptSubNodes: Boolean, decryptRecords: Boolean,
+                             iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
+    ): Boolean
+
+    /**
+     * Расшифровка ветки.
+     * @param node
+     * @param decryptSubNodes
+     * @param iconLoader
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    suspend fun decryptNode(context: Context, node: TetroidNode?, decryptSubNodes: Boolean, decryptRecords: Boolean,
+                            iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
+    ): Boolean
+
+    /**
+     * Расшифровка полей ветки.
+     * @param node
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean
+
+    /**
+     * Расшифровка полей списка записей и полей их прикрепленных прифайлов.
+     * @param records
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    suspend fun decryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean
+
+    suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean
+
+    /**
+     * Расшифровка полей записи.
+     * @param record
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean
+
+    /**
+     * Расшифровка полей прикрепленного файла.
+     * @param file
+     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @return
+     */
+    fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean
+
+    fun decryptBase64(field: String?): String?
+
+    fun encryptTextBase64(field: String?): String?
+
+    fun decryptText(bytes: ByteArray): String
+
+    fun encryptTextBytes(text: String): ByteArray
+
+    fun encryptDecryptFile(srcFile: File, destFile: File, encrypt: Boolean): Boolean
+
+    fun passToHash(pass: String): String
+
+    fun checkPass(pass: String?, salt: String, checkHash: String): Boolean
+
+    fun checkMiddlePassHash(passHash: String?, checkData: String): Boolean
+
+    fun createMiddlePassHashCheckData(passHash: String?): String?
+
+    fun getErrorCode(): Int
+}
 
 class TetroidCrypter(
     logger: ITetroidLogger?,
-    val tagsParser: ITagsParser,
-    val recordFileCrypter: IRecordFileCrypter
-) : Crypter(logger) {
+    override val tagsParser: ITagsParser,
+    override val recordFileCrypter: IRecordFileCrypter
+) : Crypter(logger), ITetroidCrypter {
 
-    fun initFromPass(pass: String) {
+    override var middlePassHashOrNull: String?
+        get() = this.middlePassHash
+        set(value) { this.middlePassHash = value }
+
+
+    override fun initFromPass(pass: String) {
         val key = passToKey(pass)
         // записываем в память
         setCryptKey(key)
         init(key)
     }
 
-    fun initFromMiddleHash(passHash: String) {
+    override fun initFromMiddleHash(passHash: String) {
         val key = middlePassHashToKey(passHash)
         init(key)
     }
 
-    fun init(key: IntArray) {
+    override fun init(key: IntArray) {
         // записываем в память
         setCryptKey(key)
     }
@@ -38,7 +182,7 @@ class TetroidCrypter(
      * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
      * @return
      */
-    suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean {
         var res = true
         for (node in nodes) {
 //            if (!isReencrypt && !node.isCrypted() || isReencrypt && node.isCrypted() && node.isDecrypted()) {
@@ -54,7 +198,7 @@ class TetroidCrypter(
      * @param isReencrypt
      * @return
      */
-    suspend fun encryptNode(context: Context, node: TetroidNode?, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptNode(context: Context, node: TetroidNode?, isReencrypt: Boolean): Boolean {
         if (node == null) return false
         var res = true
         if (!isReencrypt && !node.isCrypted || isReencrypt && node.isCrypted && node.isDecrypted) {
@@ -77,7 +221,7 @@ class TetroidCrypter(
      * @param isReencrypt
      * @return
      */
-    fun encryptNodeFields(node: TetroidNode, isReencrypt: Boolean): Boolean {
+    override fun encryptNodeFields(node: TetroidNode, isReencrypt: Boolean): Boolean {
         var res: Boolean
         // name
         var temp = encryptTextBase64(node.name)
@@ -115,7 +259,7 @@ class TetroidCrypter(
      * уже зашифрована.
      * @return
      */
-    suspend fun encryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, isReencrypt: Boolean): Boolean {
         var res = true
         for (record in records) {
             // зашифровываем файлы записи
@@ -134,7 +278,7 @@ class TetroidCrypter(
      * @param isReencrypt
      * @return
      */
-    fun encryptRecordFields(record: TetroidRecord, isReencrypt: Boolean): Boolean {
+    override fun encryptRecordFields(record: TetroidRecord, isReencrypt: Boolean): Boolean {
         var res: Boolean
         var temp = encryptTextBase64(record.name)
         res = temp != null
@@ -190,7 +334,7 @@ class TetroidCrypter(
      * @param isReencrypt
      * @return
      */
-    fun encryptAttach(file: TetroidFile, isReencrypt: Boolean): Boolean {
+    override fun encryptAttach(file: TetroidFile, isReencrypt: Boolean): Boolean {
         val temp = encryptTextBase64(file.name)
         val res = temp != null
         if (res) {
@@ -214,8 +358,8 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    suspend fun decryptNodes(context: Context, nodes: List<TetroidNode>, isDecryptSubNodes: Boolean, decryptRecords: Boolean,
-        iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
+    override suspend fun decryptNodes(context: Context, nodes: List<TetroidNode>, isDecryptSubNodes: Boolean, decryptRecords: Boolean,
+                                      iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
     ): Boolean {
         var res = true
         for (node in nodes) {
@@ -232,8 +376,8 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    suspend fun decryptNode(context: Context, node: TetroidNode?, decryptSubNodes: Boolean, decryptRecords: Boolean,
-        iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
+    override suspend fun decryptNode(context: Context, node: TetroidNode?, decryptSubNodes: Boolean, decryptRecords: Boolean,
+                                     iconLoader: INodeIconLoader?, dropCrypt: Boolean, decryptFiles: Boolean
     ): Boolean {
         if (node == null) return false
         var res = true
@@ -261,7 +405,7 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean {
+    override fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean {
         var res: Boolean
         // name
         var temp = decryptBase64(node.getName(true))
@@ -295,7 +439,7 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    suspend fun decryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         var res = true
         for (record in records) {
             res = res and decryptRecordAndFiles(context, record, dropCrypt, decryptFiles)
@@ -303,7 +447,7 @@ class TetroidCrypter(
         return res
     }
 
-    suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         if (record == null) return false
 
         var res = decryptRecordFields(record, dropCrypt)
@@ -323,7 +467,7 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean {
+    override fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean {
         var res: Boolean
         var temp = decryptBase64(record.getName(true))
         res = temp != null
@@ -371,7 +515,7 @@ class TetroidCrypter(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean {
+    override fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean {
         val temp = decryptBase64(file.getName(true))
         val res = temp != null
         if (res) {

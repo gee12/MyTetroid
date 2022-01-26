@@ -6,7 +6,7 @@ import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.common.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.Exception
@@ -61,7 +61,7 @@ class PasswordInteractor(
             saveMiddlePassCheckData(passHash)
         } else {
             // сохраняем хэш пароля в оперативную память, на вермя "сеанса" работы приложения
-            cryptInteractor.crypter.middlePassHash = passHash
+            cryptInteractor.crypter.middlePassHashOrNull = passHash
         }
         // здесь, по идее, можно сохранять сразу passHash (с параметром isMiddleHash=true),
         // но сделал так
@@ -88,7 +88,7 @@ class PasswordInteractor(
      * Сброс сохраненного хэша пароля и его проверочных данных.
      */
     fun clearSavedPass(storage: TetroidStorage) {
-        cryptInteractor.crypter.middlePassHash = null
+        cryptInteractor.crypter.middlePassHashOrNull = null
         clearPassCheckData(storage)
         clearMiddlePassCheckData()
     }

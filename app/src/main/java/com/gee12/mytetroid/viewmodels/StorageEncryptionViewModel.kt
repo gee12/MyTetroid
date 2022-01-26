@@ -15,7 +15,8 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.utils.StringUtils
+import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.data.crypt.IRecordFileCrypter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,8 +36,13 @@ abstract class StorageEncryptionViewModel(
 
     var isPinNeedEnter = false
 
+    val recordFileCrypter: IRecordFileCrypter = object : IRecordFileCrypter {
+        override suspend fun cryptRecordFiles(context: Context, record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
+            return this@StorageEncryptionViewModel.cryptRecordFiles(context, record, isCrypted, isEncrypt)
+        }
+    }
 
-    override fun isCrypted(): Boolean {
+    override fun isStorageCrypted(): Boolean {
         var iniFlag = false
         try {
             iniFlag = databaseConfig.isCryptMode
@@ -61,9 +67,9 @@ abstract class StorageEncryptionViewModel(
      */
     fun checkStoragePass(callback: EventCallbackParams) {
 
-        var middlePassHash: String?
+        var middlePassHash: String? = null
         when {
-            storageCrypter.middlePassHash.also { middlePassHash = it } != null -> {
+            storageCrypter.middlePassHashOrNull?.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // запрос ПИН-кода
@@ -85,7 +91,7 @@ abstract class StorageEncryptionViewModel(
                     // если поля в INI-файле для проверки пустые
                     logError(ex)
                     // if (DataManager.isExistsCryptedNodes()) {
-                    if (isCrypted()) {
+                    if (isStorageCrypted()) {
                         // спрашиваем "continue anyway?"
                         postStorageEvent(Constants.StorageEvents.AskForEmptyPassCheckingField,
                             EmptyPassCheckingFieldCallbackParams(ex.fieldName, middlePassHash!!, callback)
@@ -328,7 +334,7 @@ abstract class StorageEncryptionViewModel(
      * @param record
      * @param isEncrypt
      */
-    override suspend fun cryptRecordFiles(context: Context, record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
+    suspend fun cryptRecordFiles(context: Context, record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
         // файл записи
         val recordFolderPath = getPathToRecordFolder(record)
         var file = File(recordFolderPath, record.fileName)

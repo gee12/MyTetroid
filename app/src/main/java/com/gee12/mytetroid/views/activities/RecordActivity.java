@@ -50,8 +50,8 @@ import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.services.FileObserverService;
-import com.gee12.mytetroid.utils.Utils;
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.Utils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.gee12.mytetroid.views.TetroidImagePicker;
 import com.gee12.mytetroid.views.SearchViewXListener;
 import com.gee12.mytetroid.views.TetroidEditText;
@@ -922,7 +922,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             if (data != null) {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
                     // хранилище изменено
-                    if (viewModel.isLoaded()) {
+                    if (viewModel.isStorageLoaded()) {
                         // спрашиваем о перезагрузке хранилище, только если оно уже загружено
                         boolean isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false);
                         AskDialogs.showReloadStorageDialog(this, isCreate, true, () -> {
@@ -997,7 +997,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 || mode == Constants.MODE_EDIT);
         activateMenuItem(menu.findItem(R.id.action_record_save), mode == Constants.MODE_EDIT);
 
-        boolean isLoaded = viewModel.isLoaded();
+        boolean isLoaded = viewModel.isStorageLoaded();
         boolean isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly();
         boolean isTemp = viewModel.isRecordTemprorary();
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), isLoaded && !isLoadedFavoritesOnly, !isTemp);

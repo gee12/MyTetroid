@@ -4,10 +4,9 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.ColorInt
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.TetroidLogger
-import com.gee12.mytetroid.utils.Utils
-import com.gee12.mytetroid.utils.ViewUtils
+import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.utils.ViewUtils
 import java.util.*
 
 object App {
@@ -67,7 +66,6 @@ object App {
         if (CommonSettings.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, true)
         }
-        TetroidXml.ROOT_NODE.name = context.getString(R.string.title_root_node)
     }
 
     @JvmStatic

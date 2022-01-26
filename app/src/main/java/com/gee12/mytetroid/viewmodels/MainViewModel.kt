@@ -14,7 +14,6 @@ import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.helpers.UriHelper
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
@@ -24,8 +23,8 @@ import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.services.FileObserverService
-import com.gee12.mytetroid.utils.StringUtils
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -58,14 +57,6 @@ class MainViewModel(
     var isFromRecordActivity = false
     private var isStorageChangingHandled = false
 
-
-    init {
-//        CommonSettings.init(app)
-
-//        this.storageCrypter = environment.storageCrypter
-//        this.xmlLoader = environment.xmlLoader
-        this.xmlLoader.setStorageLoadHelper(this)
-    }
 
     //region Migration
 
@@ -254,7 +245,7 @@ class MainViewModel(
                 url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
             }
             // создаем запись
-            val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
+            val node = if (quicklyNode != null) quicklyNode!! else storageDataProcessor.getRootNode()
             val record: TetroidRecord = recordsInteractor.createTempRecord(getContext(), subject, url, text, node) ?: return@launch
             if (isText) {
                 // запускаем активность просмотра записи
@@ -779,7 +770,7 @@ class MainViewModel(
         launch {
             val result = withContext(Dispatchers.IO) {
                 // сначала расшифровываем хранилище
-                if (isCrypted() && !isDecrypted()) {
+                if (isStorageCrypted() && !isStorageDecrypted()) {
                     setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.START)
                     if (cryptInteractor.decryptStorage(getContext(), false)) {
                         setIsDecrypted(true)
@@ -790,7 +781,7 @@ class MainViewModel(
                     }
                 }
                 // зашифровуем, только если хранилище не зашифровано или уже расшифровано
-                return@withContext if (isNonEncryptedOrDecrypted()) {
+                return@withContext if (isStorageNonEncryptedOrDecrypted()) {
                     setStage(LogObj.NODE, operation, Stages.START)
 
                     val result = if (isEncrypt) cryptInteractor.encryptNode(getContext(), node)
@@ -902,7 +893,7 @@ class MainViewModel(
     // region Attaches
 
     fun checkPermissionAndOpenAttach(attach: TetroidFile?) {
-        if (isCrypted() && !CommonSettings.isDecryptFilesInTempDef(getContext())) {
+        if (isStorageCrypted() && !CommonSettings.isDecryptFilesInTempDef(getContext())) {
             log(R.string.log_viewing_decrypted_not_possible, true)
         } else {
             postEvent(MainEvents.CheckPermissionAndOpenAttach, attach)
@@ -1362,7 +1353,7 @@ class MainViewModel(
     fun startStorageTreeObserver() {
         if (isCheckOutsideChanging()) {
             // запускаем мониторинг, только если хранилище загружено
-            if (isLoaded()) {
+            if (isStorageLoaded()) {
                 this.isStorageChangingHandled = false
                 val bundle = Bundle()
                 bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START)
@@ -1396,7 +1387,7 @@ class MainViewModel(
 
     fun onUICreated() {
         launch {
-            if (isLoaded()) {
+            if (isStorageLoaded()) {
                 val params = StorageParams(
                     isLoadFavoritesOnly = isLoadedFavoritesOnly(),
                     isHandleReceivedIntent = true,

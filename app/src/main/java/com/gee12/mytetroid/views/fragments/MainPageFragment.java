@@ -36,7 +36,7 @@ import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.gee12.mytetroid.views.dialogs.record.RecordFieldsDialog;
 import com.gee12.mytetroid.views.dialogs.record.RecordInfoDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

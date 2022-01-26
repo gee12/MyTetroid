@@ -6,7 +6,8 @@ import android.util.Log
 import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
-import com.gee12.mytetroid.interactors.StorageInteractor
+import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.model.TetroidStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,10 +23,17 @@ open class BaseStorageViewModel(
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
+    open var storage: TetroidStorage? = null
+        protected set
+
     val storageEvent = SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>>()
     val objectAction = SingleLiveEvent<ViewModelEvent<Any, Any>>()
 
     val permissionInteractor = PermissionInteractor(this.logger)
+
+    val storageProvider: IStorageProvider = object : IStorageProvider {
+        override fun getStorageOrNull(): TetroidStorage? = storage
+    }
 
 
     //region Storage event
@@ -68,10 +76,12 @@ open class BaseStorageViewModel(
 
     //region Other
 
-    fun getLastFolderPathOrDefault(forWrite: Boolean) = StorageInteractor.getLastFolderPathOrDefault(getContext(), forWrite)
-
     @JvmOverloads
-    fun checkReadExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE, callback: (() -> Unit)? = null): Boolean {
+    fun checkReadExtStoragePermission(
+        activity: Activity,
+        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
+        callback: (() -> Unit)? = null
+    ): Boolean {
         if (permissionInteractor.checkReadExtStoragePermission(activity, requestCode)) {
             if (callback != null) callback.invoke()
             else onPermissionGranted(requestCode)
@@ -81,7 +91,11 @@ open class BaseStorageViewModel(
     }
 
     @JvmOverloads
-    fun checkWriteExtStoragePermission(activity: Activity, requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE, callback: (() -> Unit)? = null): Boolean {
+    fun checkWriteExtStoragePermission(
+        activity: Activity,
+        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
+        callback: (() -> Unit)? = null
+    ): Boolean {
         if (permissionInteractor.checkWriteExtStoragePermission(activity, requestCode)) {
             if (callback != null) callback.invoke()
             else onPermissionGranted(requestCode)

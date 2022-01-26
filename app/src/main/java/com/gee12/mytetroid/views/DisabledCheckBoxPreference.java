@@ -9,7 +9,7 @@ import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 
 /**
  * Обычный CheckBoxPreference, но при отключении (установке setEnabled(false)) реагирующий

@@ -1,10 +1,9 @@
 package com.gee12.mytetroid.interactors
 
 import android.text.TextUtils
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.common.utils.FileUtils
 import java.io.File
 import java.util.*
 
@@ -13,7 +12,7 @@ import java.util.*
  */
 class IconsInteractor(
     private val logger: ITetroidLogger,
-    private val storageInteractor: StorageInteractor
+    private val pathToIcons: String
 ) {
 
     /**
@@ -21,7 +20,7 @@ class IconsInteractor(
      * @return
      */
     fun getIconsFolders(): List<String>? {
-        val folder = File(storageInteractor.getPathToIcons())
+        val folder = File(pathToIcons)
         if (!folder.exists()) {
             return null
         }
@@ -43,27 +42,27 @@ class IconsInteractor(
         if (TextUtils.isEmpty(folderName)) {
             return null
         }
-        val iconsFolderFullName = storageInteractor.getPathToIcons() + Constants.SEPAR.toString() + folderName
+        val iconsFolderFullName = "$pathToIcons/$folderName"
         val folder = File(iconsFolderFullName)
         if (!folder.exists()) {
             return null
         }
-        val res: MutableList<TetroidIcon> = ArrayList()
+        val result = mutableListOf<TetroidIcon>()
         folder.listFiles()?.forEach { fileEntry ->
             if (fileEntry.isFile) {
                 val name = fileEntry.name
                 if (!name.lowercase().endsWith(".svg")) return@forEach
                 val icon = TetroidIcon(folderName, name)
-                res.add(icon)
+                result.add(icon)
             }
         }
-        return res
+        return result
     }
 
     fun loadIconIfNull(icon: TetroidIcon) {
         if (icon.icon != null) return
         try {
-            icon.icon  = FileUtils.loadSVGFromFile("${storageInteractor.getPathToIcons()}/${icon.folder}/${icon.name}")
+            icon.icon  = FileUtils.loadSVGFromFile("${pathToIcons}/${icon.folder}/${icon.name}")
         } catch (ex: Exception) {
             logger.logError(ex)
         }

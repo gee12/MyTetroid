@@ -8,7 +8,7 @@ import androidx.annotation.RequiresApi;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 
 /**
  * Обычный Preference, но при отключении (установке setEnabled(false)) реагирующий

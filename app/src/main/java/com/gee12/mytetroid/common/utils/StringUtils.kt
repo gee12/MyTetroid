@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.utils
+package com.gee12.mytetroid.common.utils
 
 import android.content.Context
 import com.gee12.mytetroid.R

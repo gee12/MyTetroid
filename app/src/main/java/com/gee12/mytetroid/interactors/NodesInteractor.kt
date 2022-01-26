@@ -3,14 +3,15 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.IStorageLoadHelper
-import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.utils.FileUtils
+import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.data.ITagsParser
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.INodeIconLoader
+import com.gee12.mytetroid.helpers.IStoragePathHelper
 import java.lang.Exception
 import java.util.*
 
@@ -24,8 +25,10 @@ class NodesInteractor(
     private val dataInteractor: DataInteractor,
     private val recordsInteractor: RecordsInteractor,
     private val favoritesInteractor: FavoritesInteractor,
-    private val storageHelper: IStorageLoadHelper,
-    private val xmlLoader: TetroidXml
+    private val storagePathHelper: IStoragePathHelper,
+    private val storageDataProcessor: IStorageDataProcessor,
+    private val nodeIconLoader: INodeIconLoader,
+    private val tagsParser: ITagsParser
 ) {
 
     /**
@@ -236,7 +239,7 @@ class NodesInteractor(
             node.setIsDecrypted(true)
         }
         // загружаем такую же иконку
-        storageHelper.loadIcon(context, node)
+        nodeIconLoader.loadIcon(context, node)
 
         // добавляем записи
         if (srcNode.recordsCount > 0) {
@@ -272,7 +275,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun deleteNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, storageHelper.getTrashPath(), false)
+        return deleteNode(context, node, storagePathHelper.getPathToTrash(), false)
     }
 
     /**
@@ -281,7 +284,7 @@ class NodesInteractor(
      * @return
      */
     suspend fun cutNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, storageHelper.getTrashPath(), true)
+        return deleteNode(context, node, storagePathHelper.getPathToTrash(), true)
     }
 
     /**
@@ -327,7 +330,7 @@ class NodesInteractor(
                 if (record.isFavorite) {
                     favoritesInteractor.remove(record, false)
                 }
-                storageHelper.deleteRecordTags(record)
+                tagsParser.deleteRecordTags(record)
                 // проверяем существование каталога
                 val dirPath = recordsInteractor.getPathToRecordFolder(record)
                 if (recordsInteractor.checkRecordFolder(context, dirPath, false) <= 0) {
@@ -371,7 +374,7 @@ class NodesInteractor(
     }
 
     fun getNode(id: String): TetroidNode? {
-        return getNodeInHierarchy(xmlLoader.mRootNodesList, id)
+        return getNodeInHierarchy(storageDataProcessor.getRootNodes(), id)
     }
 
     /**
@@ -434,10 +437,10 @@ class NodesInteractor(
      * @return
      */
     fun isExistCryptedNodes(recheck: Boolean): Boolean {
-        var res: Boolean = xmlLoader.mIsExistCryptedNodes
+        var res: Boolean = storageDataProcessor.isExistCryptedNodes
         if (recheck) {
-            xmlLoader.mIsExistCryptedNodes = isExistCryptedNodes(xmlLoader.mRootNodesList)
-            res = xmlLoader.mIsExistCryptedNodes
+            storageDataProcessor.isExistCryptedNodes = isExistCryptedNodes(storageDataProcessor.getRootNodes())
+            res = storageDataProcessor.isExistCryptedNodes
         }
         return res
     }

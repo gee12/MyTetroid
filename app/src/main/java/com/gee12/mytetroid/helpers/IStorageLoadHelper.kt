@@ -1,12 +1,10 @@
-package com.gee12.mytetroid.data.xml
+package com.gee12.mytetroid.helpers
 
 import android.content.Context
-import com.gee12.mytetroid.data.INodeIconLoader
-import com.gee12.mytetroid.data.ITagsParser
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 
-interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
+interface IStorageLoadHelper /*: *//*INodeIconLoader,*//* ITagsParser*/ {
 
     /**
      * Обработчик события о необходимости расшифровки ветки (без дочерних объектов)
@@ -14,7 +12,7 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
      * @param node
      * @return
      */
-    fun decryptNode(context: Context, node: TetroidNode): Boolean
+    suspend fun decryptNode(context: Context, node: TetroidNode): Boolean
 
     /**
      * Обработчик события о необходимости расшифровки записи (вместе с прикрепленными файлами)
@@ -22,7 +20,7 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
      * @param record
      * @return
      */
-    fun decryptRecord(context: Context, record: TetroidRecord): Boolean
+    suspend fun decryptRecord(context: Context, record: TetroidRecord): Boolean
 
     /**
      * Проверка является ли запись избранной.
@@ -37,30 +35,5 @@ interface IStorageLoadHelper : INodeIconLoader, ITagsParser {
      * @return
      */
     fun loadRecordToFavorites(record: TetroidRecord)
-
-    /**
-     * Получение списка избранных записей.
-     */
-    fun getFavoriteRecords(): List<TetroidRecord>
-
-    /**
-     * Разбираем метки у незашифрованных записей ветки.
-     * @param node
-     */
-    /*    protected void parseNodeTags(TetroidNode node) {
-        for (TetroidRecord record : node.getRecords()) {
-            parseRecordTags(record, record.getTagsString());
-        }
-    }*/
-
-    fun createDefaultNode(): Boolean
-
-    fun isStorageLoaded(): Boolean
-
-    fun getStoragePath(): String
-
-    fun getTrashPath(): String
-
-    fun getStorageId(): Int
 
 }

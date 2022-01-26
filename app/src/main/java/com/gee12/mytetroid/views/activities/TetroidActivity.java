@@ -29,7 +29,7 @@ import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.settings.CommonSettings;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidStorage;
-import com.gee12.mytetroid.utils.ViewUtils;
+import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 import com.gee12.mytetroid.views.ActivityDoubleTapListener;
@@ -63,7 +63,6 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 
     protected VM viewModel;
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

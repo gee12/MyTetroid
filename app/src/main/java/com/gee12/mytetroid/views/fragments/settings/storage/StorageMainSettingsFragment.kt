@@ -71,7 +71,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         // ветка для быстрых записей
         findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (!viewModel.isDefault()) {
+            if (!viewModel.isStorageDefault()) {
                 viewModel.showMessage(getString(R.string.pref_quickly_node_not_available))
             } else {
                 // диалог выбора ветки

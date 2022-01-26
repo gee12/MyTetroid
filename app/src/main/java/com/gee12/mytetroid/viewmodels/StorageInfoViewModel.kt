@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Intent
 import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.helpers.IStorageInfoProvider
 import kotlinx.coroutines.*
 
 class StorageInfoViewModel(
@@ -37,7 +38,7 @@ class StorageInfoViewModel(
         }
     }
 
-    fun getStorageInfo() = xmlLoader
+    fun getStorageInfo(): IStorageInfoProvider = storageDataProcessor
 
     enum class Event {
         MyTetraXmlLastModifiedDate,

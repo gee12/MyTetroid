@@ -14,7 +14,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.helpers.HtmlHelper;
 import com.gee12.mytetroid.views.dialogs.AskDialogs;
 import com.gee12.mytetroid.model.TetroidImage;
-import com.gee12.mytetroid.utils.ImageUtils;
+import com.gee12.mytetroid.common.utils.ImageUtils;
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
 
 import java.util.ArrayList;

@@ -7,17 +7,16 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants.SEPAR
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.utils.FileUtils
-import com.gee12.mytetroid.utils.StringUtils
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -31,12 +30,12 @@ import java.util.*
 class RecordsInteractor(
     private val logger: ITetroidLogger,
     private val storageInteractor: StorageInteractor,
+    private val storageDataProcessor: IStorageDataProcessor,
     private val cryptInteractor: EncryptionInteractor,
     private val dataInteractor: DataInteractor,
     private val interactionInteractor: InteractionInteractor,
     private val tagsParser: ITagsParser,
-    private val favoritesInteractor: FavoritesInteractor,
-    private val xmlLoader: TetroidXml
+    private val favoritesInteractor: FavoritesInteractor
 ) {
 
     /**
@@ -985,9 +984,9 @@ class RecordsInteractor(
 
     fun findRecordInHierarchy(fieldValue: String?, comparator: TetroidRecordComparator): TetroidRecord? {
         var found: TetroidRecord?
-        if (findRecord(TetroidXml.ROOT_NODE.records, fieldValue, comparator).also { found = it } != null)
+        if (findRecord(storageDataProcessor.getRootNode().records, fieldValue, comparator).also { found = it } != null)
             return found
-        return if (xmlLoader.mIsFavoritesMode) findRecord(favoritesInteractor.getFavoriteRecords(), fieldValue, comparator)
+        return if (storageInteractor.isLoadedFavoritesOnly()) findRecord(favoritesInteractor.getFavoriteRecords(), fieldValue, comparator)
         else findRecordInHierarchy(storageInteractor.getRootNodes(), fieldValue, comparator)
     }
 

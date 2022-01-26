@@ -12,7 +12,7 @@ import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

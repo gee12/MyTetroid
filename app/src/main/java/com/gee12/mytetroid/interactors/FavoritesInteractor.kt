@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.interactors
 
-import com.gee12.mytetroid.data.xml.IStorageLoadHelper
+import com.gee12.mytetroid.helpers.IStorageHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidFavorite
 import com.gee12.mytetroid.model.TetroidNode
@@ -14,7 +14,7 @@ import java.lang.Exception
 class FavoritesInteractor(
     private val logger: ITetroidLogger,
     private val favoritesRepo: FavoritesRepo,
-    private val storageHelper: IStorageLoadHelper
+    private val storageHelper: IStorageHelper
 ) {
     companion object {
         val FAVORITES_NODE = TetroidNode("FAVORITES_NODE", "", 0)

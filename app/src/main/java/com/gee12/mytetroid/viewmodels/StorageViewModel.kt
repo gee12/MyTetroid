@@ -14,7 +14,7 @@ import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
+import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
@@ -22,8 +22,9 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.FavoritesRepo
-import com.gee12.mytetroid.utils.UriUtils
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.common.utils.UriUtils
+import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,36 +43,56 @@ open class StorageViewModel(
     /*logger,*/
 ) {
 
-    override var xmlLoader = storageData?.xmlLoader ?: TetroidXml()
+    init {
+        storageData?.dataProcessor?.setHelpers(
+            loadHelper = storageLoadHelper,
+            tagsParser = tagsParser,
+            iconLoader = nodeIconLoader
+        )
+    }
 
-    override var storageCrypter = storageData?.storageCrypter ?: TetroidCrypter(this.logger, tagsParser = this, recordFileCrypter = this)
+    override var storageDataProcessor: IStorageDataProcessor = storageData?.dataProcessor
+        ?: StorageDataXmlProcessor(
+            loadHelper = storageLoadHelper,
+            tagsParser = tagsParser,
+            iconLoader = nodeIconLoader
+        )
 
-    override val storageInteractor = storageData?.storageInteractor ?: StorageInteractor(
-        logger = this.logger,
-        storageHelper = this,
-        xmlLoader = xmlLoader,
-        dataInteractor = dataInteractor
-    )
+    override var storageCrypter = storageData?.crypter
+        ?: TetroidCrypter(
+            logger = this.logger,
+            tagsParser = tagsParser,
+            recordFileCrypter = recordFileCrypter
+        )
+
+    override val storageInteractor = storageData?.storageInteractor
+        ?: StorageInteractor(
+            logger = this.logger,
+            storagePathHelper = storagePathHelper,
+            storageHelper = storageHelper,
+            storageDataProcessor = storageDataProcessor,
+            dataInteractor = dataInteractor
+        )
     override val cryptInteractor = EncryptionInteractor(
         logger = this.logger,
         crypter = this.storageCrypter,
-        xmlHelper = xmlLoader,
-        storageHelper = this
+        storageDataProcessor = storageDataProcessor,
+        nodeIconLoader = nodeIconLoader
     )
     override val favoritesInteractor = storageData?.favoritesInteractor ?: FavoritesInteractor(
         logger = this.logger,
         favoritesRepo = FavoritesRepo(getContext()),
-        storageHelper = this
+        storageHelper = storageHelper
     )
     override val recordsInteractor = RecordsInteractor(
         logger = this.logger,
         storageInteractor = storageInteractor,
+        storageDataProcessor = storageDataProcessor,
         cryptInteractor = cryptInteractor,
         dataInteractor = dataInteractor,
         interactionInteractor = interactionInteractor,
-        tagsParser = this,
-        favoritesInteractor = favoritesInteractor,
-        xmlLoader = xmlLoader
+        tagsParser = tagsParser,
+        favoritesInteractor = favoritesInteractor
     )
     override val nodesInteractor = NodesInteractor(
         logger = this.logger,
@@ -80,8 +101,10 @@ open class StorageViewModel(
         dataInteractor = dataInteractor,
         recordsInteractor = recordsInteractor,
         favoritesInteractor = favoritesInteractor,
-        storageHelper = this,
-        xmlLoader = xmlLoader
+        storageDataProcessor = storageDataProcessor,
+        storagePathHelper = storagePathHelper,
+        tagsParser = tagsParser,
+        nodeIconLoader = nodeIconLoader
     )
 
     override val passInteractor = PasswordInteractor(
@@ -94,7 +117,7 @@ open class StorageViewModel(
     override val tagsInteractor = TagsInteractor(
         logger = this.logger,
         storageInteractor = storageInteractor,
-        xmlLoader = xmlLoader
+        storageDataProcessor = storageDataProcessor
     )
     override val attachesInteractor = AttachesInteractor(
         logger = this.logger,
@@ -123,14 +146,14 @@ open class StorageViewModel(
 
     fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
         return when {
-            !isInited() -> {
+            !isStorageInited() -> {
                 showMessage(getString(
                     if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.title_need_init_storage
                     else R.string.title_need_perm_init_storage
                 ))
                 false
             }
-            !isLoaded() -> {
+            !isStorageLoaded() -> {
                 showMessage(getString(R.string.title_need_load_storage))
                 false
             }
@@ -195,7 +218,7 @@ open class StorageViewModel(
                 this@StorageViewModel.storage = storage
                 setStorageEvent(Constants.StorageEvents.Changed, storage)
 
-                if (xmlLoader.mIsStorageLoaded) {
+                if (storageDataProcessor.isLoaded()) {
                     storage.isLoaded = true
                 }
 
@@ -314,7 +337,7 @@ open class StorageViewModel(
             isHandleReceivedIntent = isHandleReceivedIntent,
             isAllNodesLoading = isAllNodesLoading
         )
-        if (isCrypted()) {
+        if (isStorageCrypted()) {
             // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
             params.isDecrypt = true
             checkPassAndDecryptStorage(params)
@@ -337,8 +360,8 @@ open class StorageViewModel(
             this.isLoadAllNodesForced = false
             false
         } else {
-            !isLoaded() && isLoadFavoritesOnly()
-                    || (isLoaded() && isLoadedFavoritesOnly())
+            !isStorageLoaded() && isLoadFavoritesOnly()
+                    || (isStorageLoaded() && isLoadedFavoritesOnly())
         }
     }
 
@@ -410,7 +433,7 @@ open class StorageViewModel(
                 && (!isRequestPINCode()
                     || isRequestPINCode() && node != null
                         && (node.isCrypted || node == FavoritesInteractor.FAVORITES_NODE)))
-        if (isLoaded() && isDecrypt && isNodesExist()) {
+        if (isStorageLoaded() && isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(node)
         } else {
@@ -449,6 +472,7 @@ open class StorageViewModel(
             setViewEvent(Constants.ViewEvents.TaskFinished)
 
             if (result) {
+                storageDataProcessor.getRootNode().name = getString(R.string.title_root_node)
                 // FIXME: где правильнее сохранить ?
                 App.initStorageData(
                     TetroidStorageData(
@@ -489,9 +513,9 @@ open class StorageViewModel(
      * @return
      */
     suspend fun readStorage(isDecrypt: Boolean, isFavorite: Boolean): Boolean {
-        val myTetraXmlFile = File(storageInteractor.getPathToMyTetraXml())
+        val myTetraXmlFile = File(storagePathHelper.getPathToMyTetraXml())
         if (!myTetraXmlFile.exists()) {
-            logError(getString(R.string.log_file_is_absent) + StorageInteractor.MYTETRA_XML_FILE_NAME, true)
+            logError(getString(R.string.log_file_is_absent) + Constants.MYTETRA_XML_FILE_NAME, true)
             return false
         }
 
@@ -500,7 +524,12 @@ open class StorageViewModel(
             val result = withContext(Dispatchers.IO) {
                 val fis = FileInputStream(myTetraXmlFile)
                 // непосредственная обработка xml файла со структурой хранилища
-                xmlLoader.parse(getContext(), fis, isDecrypt, isFavorite)
+                storageDataProcessor.parse(
+                    context = getContext(),
+                    fis = fis,
+                    isNeedDecrypt = isDecrypt,
+                    isLoadFavoritesOnly = isFavorite
+                )
             }
             storage?.isLoaded = result
 
@@ -570,9 +599,9 @@ open class StorageViewModel(
         // устанавливаем признак
         setIsPINNeedToEnter()
 
-        var middlePassHash: String?
+        var middlePassHash: String? = null
         when {
-            storageCrypter.middlePassHash.also { middlePassHash = it } != null -> {
+            storageCrypter.middlePassHashOrNull?.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // спрашиваем ПИН-код
@@ -875,63 +904,6 @@ open class StorageViewModel(
     }
 
     //endregion Nodes
-
-    //region Tags
-
-//    /**
-//     * Разбираем строку с метками записи и добавляем метки в запись и в дерево.
-//     * @param record
-//     * @param tagsString Строка с метками (не зашифрована).
-//     * Передается отдельно, т.к. поле в записи может быть зашифровано.
-//     */
-//    override fun parseRecordTags(record: TetroidRecord?, tagsString: String) {
-//        if (record == null) return
-//        if (!TextUtils.isEmpty(tagsString)) {
-//            for (tagName in tagsString.split(TetroidXml.TAGS_SEPAR.toRegex()).toTypedArray()) {
-//                val lowerCaseTagName = tagName.lowercase(Locale.getDefault())
-//                var tag: TetroidTag
-//                if (xmlLoader.mTagsMap.containsKey(lowerCaseTagName)) {
-//                    tag = xmlLoader.mTagsMap.get(lowerCaseTagName) ?: continue
-//                    // добавляем запись по метке, только если ее еще нет
-//                    // (исправление дублирования записей по метке, если одна и та же метка
-//                    // добавлена в запись несколько раз)
-//                    if (!tag.records.contains(record)) {
-//                        tag.addRecord(record)
-//                    }
-//                } else {
-//                    val tagRecords: MutableList<TetroidRecord> = ArrayList()
-//                    tagRecords.add(record)
-//                    tag = TetroidTag(lowerCaseTagName, tagRecords)
-//                    xmlLoader.mTagsMap.put(lowerCaseTagName, tag)
-//                }
-//                record.addTag(tag)
-//            }
-//        }
-//    }
-
-//    /**
-//     * Удаление меток записи из списка.
-//     * @param record
-//     */
-//    override fun deleteRecordTags(record: TetroidRecord?) {
-//        if (record == null) return
-//        if (record.tags.isNotEmpty()) {
-//            for (tag in record.tags) {
-//                val foundedTag = tagsInteractor.getTag(tag.name)
-//                if (foundedTag != null) {
-//                    // удаляем запись из метки
-//                    foundedTag.records.remove(record)
-//                    if (foundedTag.records.isEmpty()) {
-//                        // удаляем саму метку из списка
-//                        xmlLoader.mTagsMap.remove(tag.name.lowercase(Locale.getDefault()))
-//                    }
-//                }
-//            }
-//            record.tags.clear()
-//        }
-//    }
-
-    //endregion Tags
 
     //region Attaches
 

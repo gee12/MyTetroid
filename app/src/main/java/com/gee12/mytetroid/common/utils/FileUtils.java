@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.utils;
+package com.gee12.mytetroid.common.utils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -417,6 +417,12 @@ public class FileUtils {
         return (childs == null || childs.length == 0);
     }
 
+    public static boolean isDirEmpty(String dirPath) {
+        if (dirPath == null)
+            return true;
+        return isDirEmpty(new File(dirPath));
+    }
+
     /**
      * Получение размера файла/каталога.
      * @param context
@@ -502,5 +508,14 @@ public class FileUtils {
         if (file == null)
             return null;
         return new Date(file.lastModified());
+    }
+
+    public static boolean isFileExist(String path) {
+        try {
+            return new File(path).exists();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 }

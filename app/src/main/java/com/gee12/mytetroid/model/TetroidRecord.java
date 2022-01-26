@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;

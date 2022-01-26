@@ -130,7 +130,7 @@ public class IconsActivity extends AppCompatActivity {
                 }
             });
         } else {
-            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, StorageInteractor.ICONS_FOLDER_NAME));
+            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME));
         }
 
         findViewById(R.id.button_clear_icon).setOnClickListener(view -> setResult(null));

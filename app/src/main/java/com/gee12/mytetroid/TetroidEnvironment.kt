@@ -1,7 +1,7 @@
 package com.gee12.mytetroid
 
-import com.gee12.mytetroid.data.xml.TetroidXml
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.crypt.ITetroidCrypter
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.interactors.FavoritesInteractor
 import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.FileTetroidLogger
@@ -17,8 +17,8 @@ data class TetroidEnvironment(
 
 class TetroidStorageData(
     var storageId: Int,
-    var xmlLoader: TetroidXml,
-    var storageCrypter: TetroidCrypter,
+    var dataProcessor: IStorageDataProcessor,
+    var crypter: ITetroidCrypter,
 
     var storageInteractor: StorageInteractor,
     var favoritesInteractor: FavoritesInteractor
@@ -26,8 +26,8 @@ class TetroidStorageData(
 
     constructor(storageId: Int, viewModel: StorageViewModel): this(
         storageId = storageId,
-        xmlLoader = viewModel.xmlLoader,
-        storageCrypter = viewModel.storageCrypter,
+        dataProcessor = viewModel.storageDataProcessor,
+        crypter = viewModel.storageCrypter,
         storageInteractor = viewModel.storageInteractor,
         favoritesInteractor = viewModel.favoritesInteractor
     )

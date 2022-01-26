@@ -14,7 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
 

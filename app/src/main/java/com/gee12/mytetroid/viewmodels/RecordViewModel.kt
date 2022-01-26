@@ -21,7 +21,7 @@ import com.gee12.mytetroid.interactors.ImagesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.utils.Utils
+import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.views.activities.MainActivity
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +33,6 @@ import java.util.*
 import androidx.annotation.MainThread
 import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.TetroidXml
 import com.gee12.mytetroid.logs.LogType
 
 
@@ -64,11 +63,6 @@ class RecordViewModel(
     var isEdited = false
     var isFromAnotherActivity = false
 
-
-    init {
-//        CommonSettings.init(app)
-        this.xmlLoader.setStorageLoadHelper(this)
-    }
 
     //region Migration
 
@@ -312,7 +306,7 @@ class RecordViewModel(
             setViewEvent(Constants.ViewEvents.ShowHomeButton, false)
 
             // создаем временную запись
-            val node = if (quicklyNode != null) quicklyNode!! else TetroidXml.ROOT_NODE
+            val node = if (quicklyNode != null) quicklyNode!! else storageDataProcessor.getRootNode()
             val record = withContext(Dispatchers.IO) {
                 recordsInteractor.createTempRecord(getContext(), null, null, null, node)
             }
@@ -345,7 +339,7 @@ class RecordViewModel(
                     recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, true)
                 }
                 if (text == null) {
-                    if (record.isCrypted && storageCrypter.errorCode > 0) {
+                    if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
                         logError(R.string.log_error_record_file_decrypting)
                         setViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                     }
@@ -704,7 +698,7 @@ class RecordViewModel(
             return true
         } else {
             if (curRecord.value!!.isTemp) {
-                if (isLoaded()) {
+                if (isStorageLoaded()) {
                     postEvent(RecordEvents.EditFields, obj)
                 } else {
                     isSaveTempAfterStorageLoaded = true
