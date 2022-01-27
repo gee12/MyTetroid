@@ -218,6 +218,7 @@ open class StorageViewModel(
                 this@StorageViewModel.storage = storage
                 setStorageEvent(Constants.StorageEvents.Changed, storage)
 
+                // если используется уже загруженное дерево веток из кэша
                 if (storageDataProcessor.isLoaded()) {
                     storage.isLoaded = true
                 }
@@ -961,12 +962,6 @@ open class StorageViewModel(
         this.storage = storagesRepo.getDefaultStorage()
         postStorageEvent(Constants.StorageEvents.Changed, storage)
     }
-
-    fun getStorageFolderSize() = storageInteractor.getStorageFolderSize(getContext()) ?: getString(R.string.title_error)
-
-    fun getMyTetraXmlLastModifiedDate() = storageInteractor.getMyTetraXmlLastModifiedDate(getContext())?.let {
-        Utils.dateToString(it, getString(R.string.full_date_format_string))
-    } ?: getString(R.string.title_error)
 
     //endregion Other
 

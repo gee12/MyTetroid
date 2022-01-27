@@ -2337,9 +2337,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), viewModel.isStorageInited());
+        enableMenuItem(menu.findItem(R.id.action_storage_info), true);
+        enableMenuItem(menu.findItem(R.id.action_storage_settings), true);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), true);
 
         getMainPage().onPrepareOptionsMenu(menu);
 
@@ -2490,19 +2490,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     // region StartActivity
 
     private void showStorageInfoActivity() {
-        if (viewModel.isLoadedFavoritesOnly()) {
-            AskDialogs.showLoadAllNodesDialog(this,
-                    () -> {
-                        // помещаем Intent для обработки
-                        Intent intent = new Intent(Constants.ACTION_MAIN_ACTIVITY);
-                        intent.putExtra(Constants.EXTRA_SHOW_STORAGE_INFO, true);
-                        this.receivedIntent = intent;
-                        // загружаем все ветки
-                        viewModel.loadAllNodes(true);
-                    });
-        } else {
-            StorageInfoActivity.start(this, viewModel.getStorageId());
-        }
+        StorageInfoActivity.start(this, viewModel.getStorageId());
     }
 
     private void showGlobalSearchActivity(String query) {

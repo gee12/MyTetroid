@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/node_favorites"
                 android:layout_margin="12dp"
-                android:text="@string/title_load_nodes"
+                android:text="@string/action_load_all_nodes"
                 android:drawableLeft="@drawable/ic_reload"
                 android:drawableStart="@drawable/ic_reload"
                 android:visibility="gone"/>
@@ -154,7 +154,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_margin="12dp"
-                android:text="@string/title_load_nodes"
+                android:text="@string/action_load_all_nodes"
                 android:drawableLeft="@drawable/ic_reload"
                 android:drawableStart="@drawable/ic_reload"
                 android:visibility="gone"/>

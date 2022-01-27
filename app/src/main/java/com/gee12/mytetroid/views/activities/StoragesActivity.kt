@@ -158,6 +158,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
     }
 
+    private fun showStorageInfo(storage: TetroidStorage) {
+        StorageInfoActivity.start(this, storage.id)
+    }
+
     private fun setDefault(storage: TetroidStorage) {
         viewModel.setDefault(storage)
     }
@@ -261,6 +265,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 }
                 R.id.action_edit -> {
                     editStorage(storage)
+                    true
+                }
+                R.id.action_info -> {
+                    showStorageInfo(storage)
                     true
                 }
                 R.id.action_set_default -> {

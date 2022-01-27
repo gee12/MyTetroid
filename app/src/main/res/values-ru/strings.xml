@@ -95,6 +95,7 @@
     <string name="title_records_is_missing">Записей нет</string>
     <string name="title_favors_is_missing">Избранных записей нет</string>
     <string name="title_select_the_node">Выберите ветку…</string>
+    <string name="title_need_load_storage_to_view_info">Для просмотра данных нужно загрузить хранилище…</string>
     <string name="title_storages_empty_label">Добавьте хранилище…</string>
     <string name="title_files_is_missing">Прикрепленных файлов нет</string>
     <string name="title_file_is_missing">Файл отсутствует&#160;</string>
@@ -112,7 +113,6 @@
     <string name="title_crypted_node_name">Закрыто</string>
     <string name="title_file_save_as">Сохранить как</string>
     <string name="title_save_file_to">Сохранить файл в..</string>
-    <string name="title_load_nodes">Загрузить все ветки</string>
     <string name="title_favorites">Избранное</string>
     <string name="title_remove_favor">Убрать из избранного</string>
     <string name="title_add_favor">Добавить в избранное</string>
@@ -343,7 +343,8 @@
     <string name="label_record">Запись:</string>
     <string name="label_parent_node">Родительская ветка:</string>
     <string name="label_favorite">В избранное</string>
-    <string name="label_storage_path">Хранилище:</string>
+    <string name="label_storage_name">Название:</string>
+    <string name="label_storage_path">Путь:</string>
     <string name="label_storage_size">Размер на диске:</string>
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
 
@@ -399,6 +400,8 @@
 
     <string name="action_sync">Синхронизировать</string>
     <string name="action_exit">Выйти</string>
+    <string name="action_load_storage">Загрузить хранилище</string>
+    <string name="action_load_all_nodes">Загрузить все ветки</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>
@@ -464,6 +467,7 @@
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
+    <string name="log_storage_init_error">Ошибка инициализации хранилища</string>
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
 <!--    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>

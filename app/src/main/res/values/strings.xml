@@ -94,6 +94,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_records_is_missing">Records is missing</string>
     <string name="title_favors_is_missing">Favorite records is missing</string>
     <string name="title_select_the_node">Select the node…</string>
+    <string name="title_need_load_storage_to_view_info">To view data you need to load the storage…</string>
     <string name="title_storages_empty_label">Add storage…</string>
     <string name="title_files_is_missing">Attach is missing</string>
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
@@ -113,7 +114,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_first_node">First node</string>
     <string name="title_file_save_as">Save as</string>
     <string name="title_save_file_to">Save file to..</string>
-    <string name="title_load_nodes">Load all nodes</string>
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to favorites</string>
@@ -457,7 +457,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="label_file_size">File size:</string>
     <string name="label_folder_size">Folder size:</string>
     <string name="label_icons_section">Section:</string>
-    <string name="label_storage_path">Storage:</string>
+    <string name="label_storage_name">Name:</string>
+    <string name="label_storage_path">Path:</string>
     <string name="label_storage_size">Size on disk:</string>
     <string name="label_storage_last_edit">Last modified tree:</string>
     <string name="label_node">Node:</string>
@@ -490,6 +491,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 
     <string name="action_sync">Sync</string>
     <string name="action_exit">Exit</string>
+    <string name="action_load_storage">Load storage</string>
+    <string name="action_load_all_nodes">Load all nodes</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
@@ -552,6 +555,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
+    <string name="log_storage_init_error">Storage init error</string>
     <string name="title_storage_not_loaded">Storage not loaded</string>
 <!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>

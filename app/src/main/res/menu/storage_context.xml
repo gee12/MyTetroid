@@ -7,6 +7,12 @@
         android:icon="@drawable/ic_storage"
         />
     <item
+        android:id="@+id/action_info"
+        android:title="@string/title_storage_info"
+        android:orderInCategory="15"
+        android:icon="@drawable/ic_storage_info"
+        />
+    <item
         android:id="@+id/action_edit"
         android:title="@string/title_edit"
         android:orderInCategory="20"
