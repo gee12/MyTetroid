@@ -147,17 +147,26 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((MainActivity)getActivity()).onMainPageCreated();
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity != null) {
+            activity.onMainPageCreated();
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        // FIXME: после долгого простоя viewModel удаляется из памяти
-        //  Скорее всего, это из-за самописного TetroidViewModelFactory
         if (viewModel == null) {
-            initViewModel();
+            if (getActivity() != null) {
+                App.restartApp(getActivity());
+            } else {
+                try {
+                    throw new Exception("MainPageFragment: MainActivity is null !!!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -461,6 +470,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      */
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        if (viewModel == null) {
+            return;
+        }
+
         boolean isRecordFilesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_RECORD_FILES);
         boolean isFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
         activateMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView);

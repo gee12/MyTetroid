@@ -2,11 +2,14 @@ package com.gee12.mytetroid
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.os.Build
 import androidx.annotation.ColorInt
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.TetroidLogger
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
+import com.gee12.mytetroid.views.activities.MainActivity
 import java.util.*
 
 object App {
@@ -85,5 +88,17 @@ object App {
             storageData = null
         }
         current = null
+    }
+
+    @JvmStatic
+    fun restartApp(activity: Activity) {
+        val intent = Intent(activity, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+        activity.startActivity(intent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            activity.finishAffinity()
+        } else {
+            activity.finish()
+        }
     }
 }

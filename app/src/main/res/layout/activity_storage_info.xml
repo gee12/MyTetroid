@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
@@ -35,27 +35,37 @@
             <!-- Имя -->
             <TextView
                 android:id="@+id/label_name"
+                android:layout_width="0dp"
                 style="@style/grid_cell_label"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_name"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 android:text="@string/label_storage_name" />
 
             <TextView
                 android:id="@+id/text_view_name"
                 style="@style/grid_cell_value"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_toStartOf="@id/label_name"
-                android:layout_toLeftOf="@id/label_name"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/label_name"
+                app:layout_constraintTop_toTopOf="parent"
                 android:paddingBottom="4dp"
                 tools:text="@tools:sample/full_names" />
 
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier_name"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="label_name, text_view_name" />
+            
             <!-- Путь -->
             <LinearLayout
                 android:id="@+id/layout_path"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrier_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/text_view_name">
+                android:layout_height="wrap_content">
 
                 <TextView
                     android:id="@+id/label_path"
@@ -74,56 +84,65 @@
             <!-- Размер -->
             <TextView
                 android:id="@+id/label_size"
+                android:layout_width="0dp"
                 style="@style/grid_cell_label"
-                android:layout_below="@id/layout_path"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_toStartOf="@id/text_view_size"
-                android:layout_toLeftOf="@id/text_view_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_size"
+                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 android:text="@string/label_storage_size" />
 
             <TextView
                 android:id="@+id/text_view_size"
                 style="@style/grid_cell_value"
-                android:layout_below="@id/layout_path"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
+                app:layout_constraintStart_toEndOf="@id/label_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_path"
                 android:paddingBottom="4dp"
                 tools:text="@tools:sample/us_zipcodes" />
 
             <ProgressBar
                 android:id="@+id/progress_size"
-                android:layout_below="@id/layout_path"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
+                app:layout_constraintStart_toEndOf="@id/label_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                app:layout_constraintHorizontal_bias="1"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:indeterminate="true" />
 
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier_size"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="label_size, text_view_size, progress_size" />
+
             <!-- Дата изменения -->
             <TextView
                 android:id="@+id/label_last_edit"
+                android:layout_width="0dp"
                 style="@style/grid_cell_label"
-                android:layout_below="@id/text_view_size"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_toStartOf="@id/text_view_last_edit"
-                android:layout_toLeftOf="@id/text_view_last_edit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_last_edit"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
                 android:text="@string/label_storage_last_edit" />
 
             <TextView
                 android:id="@+id/text_view_last_edit"
                 style="@style/grid_cell_value"
-                android:layout_below="@id/text_view_size"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
+                app:layout_constraintStart_toEndOf="@id/label_last_edit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
                 tools:text="@tools:sample/date/ddmmyy" />
 
             <ProgressBar
                 android:id="@+id/progress_last_edit"
-                android:layout_below="@id/text_view_size"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/label_last_edit"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
+                app:layout_constraintHorizontal_bias="1"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:indeterminate="true" />
@@ -133,7 +152,8 @@
                 android:id="@+id/layout_error"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/text_view_last_edit"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/label_last_edit"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:visibility="gone"
@@ -166,7 +186,8 @@
                 android:id="@+id/layout_load_storage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/layout_error"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_error"
                 android:layout_marginTop="24dp"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
@@ -201,7 +222,8 @@
                 android:id="@+id/layout_data"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/layout_error"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_error"
                 android:visibility="gone"
                 tools:visibility="visible">
 
@@ -359,7 +381,7 @@
 
             </RelativeLayout>
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
@@ -368,7 +390,7 @@
         layout="@layout/layout_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        tools:visibility="visible" />
+        android:visibility="gone"
+        tools:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
