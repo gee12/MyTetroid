@@ -14,6 +14,20 @@
 В этой версии добавилась поддержка нескольких хранилищ
 (пока одновременно загружать можно только одно)\n
 Параметры Вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
+    <string name="mes_cant_more_one_storage_on_free">Использование нескольких хранилищ доступно в версии Pro</string>
+    <string name="mes_need_migration">Для завершения обновления необходим запуск из основного окна приложения</string>
+    <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
+    <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
+    <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
+    <string name="mes_select_first_level_node">Выберите ветку первого уровня</string>
+    <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
+    <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
+    <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
+    <string name="mes_storage_must_be_inited">Хранилище не должно иметь ошибок загрузки</string>
+    <string name="mes_must_grant_perm_and_storage_inited">Должно быть предоставлено разрешение на запись во внешнюю память и выбрано/создано хранилище</string>
+    <string name="mes_storage_must_be_loaded">Хранилище должно быть загружено</string>
+    <string name="mes_all_nodes_must_be_loaded">Должны быть загружены все ветки хранилища</string>
+    <string name="mes_storage_init_error">Ошибка инициализации хранилища</string>
 
     <string name="title_settings">Общие настройки</string>
     <string name="title_storage_settings">Настройки хранилища</string>
@@ -70,8 +84,6 @@
     <string name="title_open_record_folder">Открыть каталог</string>
     <string name="title_record_folder_path">Путь к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
-    <string name="progress_copy_record">Копирование записи…</string>
-    <string name="progress_insert_record">Вставка записи…</string>
     <string name="title_share">Отправить</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
@@ -116,13 +128,9 @@
     <string name="title_favorites">Избранное</string>
     <string name="title_remove_favor">Убрать из избранного</string>
     <string name="title_add_favor">Добавить в избранное</string>
-    <string name="title_need_load_nodes">Сначала загрузите все ветки хранилища</string>
     <string name="title_available_in_pro">Доступно в версии Pro</string>
     <string name="title_not_avail_when_favor">Недоступно при загрузке только избранного</string>
     <string name="title_not_avail_when_save_pass">Недоступно при сохранении пароля локально</string>
-    <string name="title_need_init_storage">Сначала нужно выбрать/создать хранилище</string>
-    <string name="title_need_perm_init_storage">Сначала нужно предоставить разрешение на запись во внешнюю память и выбрать/создать хранилище</string>
-    <string name="title_need_load_storage">Сначала нужно загрузить хранилище</string>
     <string name="title_record_info">Инфо о записи</string>
     <string name="title_file_info">Инфо о файле</string>
     <string name="title_node_info">Инфо о ветке</string>
@@ -154,6 +162,38 @@
     <string name="title_choose_node">Выберите ветку</string>
     <string name="title_enter_pin_code_length">Введите длину ПИН-кода</string>
     <string name="title_download_attach_file_by_link">Прикрепить файл по ссылке</string>
+    <string name="title_insert_record_content">Вставить содержимо записи</string>
+    <string name="title_insert_hyperlink">Вставить ссылку</string>
+    <string name="title_insert_url_as_text">Вставить ссылку как текст</string>
+    <string name="title_attach_file">Прикрепить файл</string>
+    <string name="title_attach_image">Прикрепить изображение</string>
+    <string name="title_insert_image">Вставить изображение</string>
+    <string name="title_insert_web_page">Вставить содержимое web-страницы</string>
+    <string name="title_insert_web_page_as_text">Вставить содержимое как текст</string>
+    <string name="title_attach_web_page_as_file">Прикрепить web-страницу как файл</string>
+    <string name="title_download_attach_file">Скачать и прикрепить файл</string>
+    <string name="title_download_attach_image">Скачать и прикрепить изображение</string>
+    <string name="title_download_insert_image">Скачать и вставить изображение</string>
+    <string name="title_insert_as">Вставить как..</string>
+    <string name="title_file_downloading">Загрузка файла</string>
+    <string name="title_image_downloading">Загрузка изображения</string>
+    <string name="title_page_downloading">Загрузка содержимого веб-страницы</string>
+    <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
+    <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
+    <string name="title_edit">Изменить</string>
+    <string name="title_context_menu">Контекстное меню</string>
+    <string name="title_storage_current">Загруженное хранилище</string>
+    <string name="title_storage_default">Основное хранилище</string>
+    <string name="title_error">Ошибка</string>
+    <string name="title_set_default">Сделать основным</string>
+    <string name="title_is_not_exist_mask">Отсутствует: %s</string>
+    <string name="title_is_not_exist_plural_mask">Отсутствуют: %s</string>
+    <string name="title_storage_error">Ошибка хранилища</string>
+
+    <string name="progress_copy_record">Копирование записи…</string>
+    <string name="progress_insert_record">Вставка записи…</string>
+    <string name="progress_images_loading">Загрузка изображения(-й)…</string>
+    <string name="progress_camera_capture">Загрузка изображения с камеры…</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -165,14 +205,6 @@
     <string name="text_pass_change_warning_html"><![CDATA[<b>Внимание!</b> При сохранении начнется перешифрация на новый пароль всех зашифрованных данных.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Выбрать пустой каталог в памяти телефона для создания нового хранилища]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[В приложении включен режим загрузки <b>только избранного</b>. Для принятия %s нужно загрузить все ветки хранилища.<br>Продолжить?]]></string>
-
-    <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
-    <string name="mes_select_non_encrypted_node">Выберите не зашифрованную ветку</string>
-    <string name="mes_select_decrypted_node">Выберите расшифрованную ветку</string>
-    <string name="mes_select_first_level_node">Выберите ветку первого уровня</string>
-    <string name="mes_quickly_node_cannot_encrypt">Данную ветку нельзя зашифровать, т.к. она выбрана для быстрой вставки в настройках</string>
-    <string name="mes_attached_file_mask">Прикреплен файл \"%s\"</string>
-    <string name="mes_attached_files_mask">Прикреплено файлов: %d</string>
 
     <string name="word_received_text">текста</string>
     <string name="word_received_image">изображения</string>
@@ -303,6 +335,11 @@
     <string name="pref_sub_category_storage">Хранилище</string>
     <string name="pref_sub_category_other">Другое</string>
     <string name="pref_sub_category_trash">Корзина</string>
+    <string name="pref_is_def_storage_summ">Хранилище, загружаемое при запуске приложения</string>
+    <string name="pref_storage_name">Имя хранилища</string>
+    <string name="pref_is_read_only">Только просмотр</string>
+    <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
+    <string name="pref_is_def_storage">Основное хранилище</string>
 
     <string name="task_wait">Подождите…</string>
     <string name="task_storage_initializing">Инициализация хранилища…</string>
@@ -347,6 +384,7 @@
     <string name="label_storage_path">Путь:</string>
     <string name="label_storage_size">Размер на диске:</string>
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
+    <string name="label_default_storage">Основное хранилище</string>
 
     <string name="filter_tags_by_query">Фильтр меток по запросу "%s"…</string>
     <string name="filter_records_hint">Фильтр записей</string>
@@ -440,6 +478,10 @@
     <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища в главном окне. Загрузить?</string>
     <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
     <string name="ask_open_attaches">Открыть список прикрепленных файлов ?</string>
+    <string name="ask_delete_storage_mask">Удалить хранилище «%s» из списка? (файлы будут сохранены)</string>
+    <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
+    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \"%s\", продолжить ?</string>
+    <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -451,8 +493,19 @@
     <string name="link_to_node">Ссылка на ветку MyTetroid</string>
     <string name="link_to_tag">Ссылка на метку MyTetroid</string>
 
+    <string name="error_log_file_path_is_null">Не задан путь к лог-файлу</string>
+    <string name="error_get_storage_folder_size_mask">Ошибка получения размера хранилища: %s</string>
+    <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога записи: %s</string>
+    <string name="error_get_attach_file_size_mask">Ошибка получения размера файла: %s</string>
+    <string name="error_get_mytetra_xml_modified_date_mask">Ошибка получения даты последнего изменения файла mytetra.xml: %s</string>
+    <string name="error_get_record_modified_date_mask">Ошибка получения даты последнего изменения файла записи: %s</string>
+    <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» основным</string>
+    <string name="error_storage_folder_is_not_exists">Каталог хранилища отсутствует</string>
+    <string name="error_storage_folder_is_empty">Каталог хранилища пуст</string>
+
     <string name="debug_not_implemented_yet">Еще не реализовано..</string>
 <!--    <string name="details_in_logs">Подробности в логах</string>-->
+
     <string name="log_storage_changed_outside">Дерево записей было изменено сторонней программой</string>
     <string name="log_missing_read_ext_storage_permissions">Не предоставлено право на доступ к внешнему файловому хранилищу</string>
     <string name="log_missing_run_termux_commands_permissions">Не предоставлено право на запуск команд Termux</string>
@@ -467,7 +520,6 @@
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
     <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
-    <string name="log_storage_init_error">Ошибка инициализации хранилища</string>
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
 <!--    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
@@ -653,52 +705,11 @@
     <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
     <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
     <string name="log_failed_storage_create_mask">Ошибка создания хранилища:\n%s</string>
-
-    <string name="title_insert_record_content">Вставить содержимо записи</string>
-    <string name="title_insert_hyperlink">Вставить ссылку</string>
-    <string name="title_insert_url_as_text">Вставить ссылку как текст</string>
-    <string name="title_attach_file">Прикрепить файл</string>
-    <string name="title_attach_image">Прикрепить изображение</string>
-    <string name="title_insert_image">Вставить изображение</string>
-    <string name="title_insert_web_page">Вставить содержимое web-страницы</string>
-    <string name="title_insert_web_page_as_text">Вставить содержимое как текст</string>
-    <string name="title_attach_web_page_as_file">Прикрепить web-страницу как файл</string>
-    <string name="title_download_attach_file">Скачать и прикрепить файл</string>
-    <string name="title_download_attach_image">Скачать и прикрепить изображение</string>
-    <string name="title_download_insert_image">Скачать и вставить изображение</string>
-    <string name="title_insert_as">Вставить как..</string>
-    <string name="title_file_downloading">Загрузка файла</string>
-    <string name="title_image_downloading">Загрузка изображения</string>
-    <string name="title_page_downloading">Загрузка содержимого веб-страницы</string>
-    <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
-    <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
     <string name="log_link_is_empty">Пустая ссылка</string>
-    <string name="ask_delete_storage_mask">Удалить хранилище «%s» из списка? (файлы будут сохранены)</string>
-    <string name="pref_is_def_storage">Основное хранилище</string>
-    <string name="pref_is_def_storage_summ">Хранилище, загружаемое при запуске приложения</string>
-    <string name="pref_storage_name">Имя хранилища</string>
-    <string name="title_edit">Изменить</string>
-    <string name="pref_is_read_only">Только просмотр</string>
-    <string name="pref_is_read_only_summ">Если установлено, хранилище не сможет быть изменено из приложения (пока не реализовано)</string>
-    <string name="title_context_menu">Контекстное меню</string>
-    <string name="title_storage_current">Загруженное хранилище</string>
-    <string name="title_storage_default">Основное хранилище</string>
-    <string name="label_default_storage">Основное хранилище</string>
-    <string name="title_storage_error">Ошибка хранилища</string>
-    <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
-    <string name="ask_create_new_storage_mask">Будут созданы файлы хранилища по пути \"%s\", продолжить ?</string>
-    <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
     <string name="log_added_to_favor">Добавлено в избранное</string>
     <string name="log_deleted_from_favor">Удалено из избранного</string>
     <string name="log_with_id_to_favor_mask">&#160;с id=%s в избранное</string>
     <string name="log_with_id_from_favor_mask">&#160;с id=%s из избранного</string>
-    <string name="error_log_file_path_is_null">Не задан путь к лог-файлу</string>
-    <string name="error_get_storage_folder_size_mask">Ошибка получения размера хранилища: %s</string>
-    <string name="error_get_record_folder_size_mask">Ошибка получения размера каталога записи: %s</string>
-    <string name="error_get_attach_file_size_mask">Ошибка получения размера файла: %s</string>
-    <string name="error_get_mytetra_xml_modified_date_mask">Ошибка получения даты последнего изменения файла mytetra.xml: %s</string>
-    <string name="error_get_record_modified_date_mask">Ошибка получения даты последнего изменения файла записи: %s</string>
-    <string name="title_error">Ошибка</string>
     <string name="log_activity_opened_mask">Открыта активность: %s</string>
     <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
     <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
@@ -707,26 +718,19 @@
     <string name="log_start_load_def_storage">Начало загрузки основного хранилища</string>
     <string name="log_storage_added_mask">Хранилище «%s» добавлено</string>
     <string name="log_storage_set_is_default_mask">Хранилище «%s» установлено основным</string>
-    <string name="error_storage_set_is_default_mask">Ошибка установки хранилища «%s» основным</string>
     <string name="log_storage_deleted_mask">Хранилище «%s» удалено</string>
-    <string name="title_set_default">Сделать основным</string>
     <string name="log_cannot_delete_undecrypted_node">Нельзя удалить нерасшифрованную ветку</string>
-    <string name="progress_images_loading">Загрузка изображения(-й)…</string>
-    <string name="progress_camera_capture">Загрузка изображения с камеры…</string>
-    <string name="log_storage_path_changed_mask">Изменен путь к хранилищу: %s</string>
-    <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
-    <string name="start_migrate_to_version_mask">Запуск миграции на версию %s</string>
-    <string name="dialog_need_migration">Для завершения обновления необходим запуск из основного окна приложения</string>
     <string name="log_start_pin_crypt_migration">Запуск перешифровки ПИН-кода из RC5 в MD5</string>
     <string name="log_pin_crypt_was_migrated">ПИН-код был перешифрован из RC5 в MD5</string>
     <string name="log_error_pin_crypt_migrate">Ошибка перешифровки ПИН-кода из RC5 в MD5</string>
     <string name="log_error_migration">Ошибка выполнения миграции настроек</string>
     <string name="log_created_folder_mask">Создан каталог: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Ошибка создания каталога: %s [%s]</string>
-    <string name="error_folder_is_not_exists">Каталог отсутствует</string>
-    <string name="error_folder_is_empty">Каталог пуст</string>
+    <string name="log_storage_path_changed_mask">Изменен путь к хранилищу: %s</string>
+    <string name="log_storage_trash_path_changed_mask">Изменен путь к корзине хранилища: %s</string>
+    <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
+    <string name="log_start_migrate_to_version_mask">Запуск миграции на версию %s</string>
+
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
-    <string name="title_is_not_exist_mask">Отсутствует: %s</string>
-    <string name="title_is_not_exist_plural_mask">Отсутствуют: %s</string>
 </resources>

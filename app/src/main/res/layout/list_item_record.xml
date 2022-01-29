@@ -15,7 +15,7 @@
         android:layout_height="24dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:src="@drawable/ic_crypted_node"
+        android:src="@drawable/ic_node_encrypted"
         android:layerType="software"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="7dp"

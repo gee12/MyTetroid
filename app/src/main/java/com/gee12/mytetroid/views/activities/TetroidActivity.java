@@ -153,11 +153,11 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
 
     /**
      * Обработчик изменения состояния хранилища.
-     * @param state
+     * @param event
      * @param data
      */
-    protected void onStorageEvent(Constants.StorageEvents state, Object data) {
-        switch (state) {
+    protected void onStorageEvent(Constants.StorageEvents event, Object data) {
+        switch (event) {
             case NoDefaultStorage:
                 StorageDialogs.INSTANCE.askForDefaultStorageNotSpecified(this, () -> showStoragesActivity());
                 break;

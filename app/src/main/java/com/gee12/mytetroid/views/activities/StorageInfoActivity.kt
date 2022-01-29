@@ -36,7 +36,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
 
     override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
         when (event) {
-            Constants.StorageEvents.Changed -> onStorageChanged()
+            Constants.StorageEvents.FoundInBase -> onStorageFoundInBase()
             Constants.StorageEvents.Inited -> onStorageInitedOrLoaded(true)
             Constants.StorageEvents.InitFailed -> onStorageInitFailed()
             Constants.StorageEvents.Loaded -> onStorageInitedOrLoaded(data as Boolean)
@@ -44,7 +44,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
         }
     }
 
-    private fun onStorageChanged() {
+    private fun onStorageFoundInBase() {
         (findViewById<View>(R.id.text_view_name) as TextView).text = viewModel.getStorageName()
         (findViewById<View>(R.id.text_view_path) as TextView).text = viewModel.getStoragePath()
         viewModel.computeStorageFolderSize()
@@ -107,7 +107,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     private fun onStorageInitFailed() {
         findViewById<RelativeLayout>(R.id.layout_error).visibility = View.VISIBLE
         findViewById<TextView>(R.id.text_view_error).text = viewModel.checkStorageFilesExistingError()
-            ?: getString(R.string.log_storage_init_error)
+            ?: getString(R.string.mes_storage_init_error)
     }
 
     override fun onViewEvent(event: ViewEvents, data: Any?) {

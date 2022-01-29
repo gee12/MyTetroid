@@ -1,8 +1,10 @@
 package com.gee12.mytetroid.viewmodels
 
+import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.helpers.IStorageProvider
@@ -19,6 +21,10 @@ class StoragesViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
 ) : BaseStorageViewModel(app/*, logger*/) {
+
+    enum class Event {
+        ShowAddNewStorageDialog
+    }
 
     private val storagesInteractor = StoragesInteractor(StoragesRepo(app))
 
@@ -52,6 +58,17 @@ class StoragesViewModel(
             } else {
                 logError(getString(R.string.error_storage_set_is_default_mask).format(storage.name), true)
                 showSnackMoreInLogs()
+            }
+        }
+    }
+
+    fun addNewStorage(activity: Activity) {
+        if (App.isFreeVersion() && storages.value?.isNotEmpty() == true) {
+            showMessage(getString(R.string.mes_cant_more_one_storage_on_free))
+        } else {
+            // проверка разрешения перед диалогом добавления хранилища
+            checkWriteExtStoragePermission(activity) {
+                postEvent(Event.ShowAddNewStorageDialog)
             }
         }
     }

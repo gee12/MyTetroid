@@ -47,7 +47,7 @@ abstract class StorageEncryptionViewModel(
         try {
             iniFlag = databaseConfig.isCryptMode
         } catch (ex: Exception) {
-            logError(ex)
+            logError(ex, true)
         }
         /*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
                 : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
@@ -172,7 +172,7 @@ abstract class StorageEncryptionViewModel(
         val result = withContext(Dispatchers.IO) {
             passInteractor.setupPass(storage!!, pass).also {
                 // сохраняем хэш пароля в бд (если установлена соответствующая опция)
-                updateStorage(storage!!)
+                updateStorageAsync(storage!!)
             }
         }
         isBusy = false
@@ -184,7 +184,7 @@ abstract class StorageEncryptionViewModel(
 
     suspend fun initPass(pass: String) {
         passInteractor.initPass(storage!!, pass)
-        updateStorage(storage!!)
+        updateStorageAsync(storage!!)
     }
 
     /**

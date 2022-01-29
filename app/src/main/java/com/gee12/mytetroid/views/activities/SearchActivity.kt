@@ -107,7 +107,7 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
 
     override fun initViewModel() {
         super.initViewModel()
-        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
+        viewModel.storageEvent.observe(this, { (event, data) -> onStorageEvent(event, data) })
     }
 
     override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {

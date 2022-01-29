@@ -4,11 +4,12 @@ import android.app.Application
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.Menu
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.gee12.mytetroid.interactors.StorageInteractor
 import lib.folderpicker.FolderPicker
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.PermissionInteractor
@@ -26,11 +27,22 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     protected open lateinit var baseViewModel: CommonSettingsViewModel
     protected open lateinit var permissionInteractor: PermissionInteractor
 
+    protected val application: Application
+        get() = requireContext().applicationContext as Application
+
     private val settingsActivity: TetroidSettingsActivity?
         get() = activity as TetroidSettingsActivity?
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+    protected val optionsMenu: Menu?
+        get() = settingsActivity?.optionsMenu
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         initViewModel()
+    }
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     }
 
     protected open fun initViewModel() {
@@ -141,6 +153,10 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
         addPreferencesFromResource(R.xml.prefs)
     }
 
+    protected fun updateOptionsMenu() {
+        settingsActivity?.updateOptionsMenu()
+    }
+
     fun setTitle(titleResId: Int, subtitle: String? = null) {
         (activity as? TetroidSettingsActivity)?.let {
             it.setTitle(titleResId)
@@ -148,6 +164,4 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
         }
     }
 
-    protected val application: Application
-        get() = requireContext().applicationContext as Application
 }

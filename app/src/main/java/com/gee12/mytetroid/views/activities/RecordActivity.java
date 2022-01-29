@@ -389,7 +389,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     // endregion Storage
 
     private void showNeedMigrationDialog() {
-        AskDialogs.showOkDialog(this, R.string.dialog_need_migration, R.string.answer_ok, false, () -> {
+        AskDialogs.showOkDialog(this, R.string.mes_need_migration, R.string.answer_ok, false, () -> {
             finish();
         });
     }

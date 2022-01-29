@@ -86,10 +86,9 @@ public abstract class RecordsBaseListAdapter extends BaseAdapter {
         }
         boolean nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted();
         // иконка
-//        viewHolder.iconView.setVisibility((!nonCryptedOrDecrypted) ? View.VISIBLE : View.GONE);
         if (!nonCryptedOrDecrypted) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
-            viewHolder.iconView.setImageResource(R.drawable.ic_crypted_node);
+            viewHolder.iconView.setImageResource(R.drawable.ic_node_encrypted);
         } else if (record.isFavorite()) {
             viewHolder.iconView.setVisibility(View.VISIBLE);
             viewHolder.iconView.setImageResource(R.drawable.ic_favorites_yellow);

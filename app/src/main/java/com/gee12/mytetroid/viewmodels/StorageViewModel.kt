@@ -23,7 +23,6 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
@@ -144,21 +143,27 @@ open class StorageViewModel(
         )
     }
 
-    fun checkStorageIsReady(checkIsFavorMode: Boolean): Boolean {
+    fun checkStorageIsReady(checkIsFavorMode: Boolean, showMessage: Boolean): Boolean {
         return when {
             !isStorageInited() -> {
-                showMessage(getString(
-                    if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.title_need_init_storage
-                    else R.string.title_need_perm_init_storage
-                ))
+                if (showMessage) {
+                    showMessage(getString(
+                            if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.mes_storage_must_be_inited
+                            else R.string.mes_must_grant_perm_and_storage_inited
+                        ))
+                }
                 false
             }
             !isStorageLoaded() -> {
-                showMessage(getString(R.string.title_need_load_storage))
+                if (showMessage) {
+                    showMessage(getString(R.string.mes_storage_must_be_loaded))
+                }
                 false
             }
             checkIsFavorMode && isLoadedFavoritesOnly() -> {
-                showMessage(getString(R.string.title_need_load_nodes))
+                if (showMessage) {
+                    showMessage(getString(R.string.mes_all_nodes_must_be_loaded))
+                }
                 false
             }
             else -> true
@@ -216,7 +221,7 @@ open class StorageViewModel(
             val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
             if (storage != null) {
                 this@StorageViewModel.storage = storage
-                setStorageEvent(Constants.StorageEvents.Changed, storage)
+                setStorageEvent(Constants.StorageEvents.FoundInBase, storage)
 
                 // если используется уже загруженное дерево веток из кэша
                 if (storageDataProcessor.isLoaded()) {
@@ -226,8 +231,8 @@ open class StorageViewModel(
                 // загружаем настройки, но не загружаем само хранилище
                 initStorage()
             } else {
+                setStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
                 log(getString(R.string.log_storage_not_found_mask).format(id))
-                setStorageEvent(Constants.StorageEvents.InitFailed)
             }
         }
     }
@@ -248,9 +253,10 @@ open class StorageViewModel(
     fun startInitStorage() {
         log(R.string.log_start_load_def_storage)
         launch {
-            storagesRepo.getDefaultStorage()?.let { storage ->
-                startInitStorage(storage)
-            } ?: run {
+            val storageId = storagesRepo.getDefaultStorageId()
+            if (storageId > 0) {
+                startInitStorage(storageId)
+            } else {
                 log(R.string.log_def_storage_not_specified)
                 setStorageEvent(Constants.StorageEvents.NoDefaultStorage)
             }
@@ -261,12 +267,14 @@ open class StorageViewModel(
      * Поиск хранилища в базе данных и запуск первичной его инициализация.
      */
     fun startInitStorage(id: Int) {
-        launch {
-            withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }?.let { storage ->
+        launch(Dispatchers.IO) {
+            val storage = storagesRepo.getStorage(id)
+            if (storage != null) {
+                postStorageEvent(Constants.StorageEvents.FoundInBase, storage)
                 startInitStorage(storage)
-            } ?: run {
+            } else {
+                postStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
                 log(getString(R.string.log_storage_not_found_mask).format(id), true)
-//                setStorageEvent(Constants.StorageEvents.NotFound)
             }
         }
     }
@@ -277,8 +285,6 @@ open class StorageViewModel(
      */
     fun startInitStorage(storage: TetroidStorage) {
         this.storage = storage
-        postStorageEvent(Constants.StorageEvents.Changed, storage)
-
         CommonSettings.setLastStorageId(getContext(), storage.id)
 
         // сначала проверяем разрешение на запись во внешнюю память
@@ -307,7 +313,7 @@ open class StorageViewModel(
             log(getString(R.string.log_storage_inited) + getStoragePath())
             setStorageEvent(Constants.StorageEvents.Inited, storage)
         } else {
-            logError(getString(R.string.log_failed_storage_init) + getStoragePath(), true)
+            logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
             postStorageEvent(Constants.StorageEvents.InitFailed, isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly())
         }
         return result
@@ -408,6 +414,10 @@ open class StorageViewModel(
         }
         storage.isInited = res
         return res
+    }
+
+    fun onStoragePathChanged() {
+        startReinitStorage()
     }
 
     //endregion Init
@@ -727,7 +737,7 @@ open class StorageViewModel(
 
     fun clearSavedPass() {
         passInteractor.clearSavedPass(storage!!)
-        updateStorage(storage!!)
+        updateStorageAsync(storage!!)
     }
 
     //endregion Decrypt
@@ -956,12 +966,7 @@ open class StorageViewModel(
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()
 
-    suspend fun setDefaultStorage() {
-//        val storage = storagesRepo.getDefaultStorage()
-//        _storage.postValue(storage)
-        this.storage = storagesRepo.getDefaultStorage()
-        postStorageEvent(Constants.StorageEvents.Changed, storage)
-    }
+    fun checkStorageFilesExistingError() = storagePathHelper.checkStorageFilesExistingError(getContext())
 
     //endregion Other
 

@@ -71,7 +71,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         recyclerView.adapter = adapter
 
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add_storage)
-        fabAdd.setOnClickListener { addStorage() }
+        fabAdd.setOnClickListener { viewModel.addNewStorage(this) }
 
         loadStorages()
     }
@@ -84,16 +84,22 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun onUICreated(uiCreated: Boolean) {}
 
-    override fun onStorageEvent(state: StorageEvents, data: Any) {
-        when (state) {
+    override fun onStorageEvent(event: StorageEvents, data: Any) {
+        when (event) {
             StorageEvents.PermissionGranted -> {
                 when (data) {
-                    Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> addStorage()
+                    Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> viewModel.addNewStorage(this)
                     Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> {} // ничего не делаем
                 }
             }
             StorageEvents.Added -> (data as? TetroidStorage)?.let { onStorageAdded(it) }
             else -> {}
+        }
+    }
+
+    override fun onObjectEvent(event: Any, data: Any) {
+        when (event) {
+            StoragesViewModel.Event.ShowAddNewStorageDialog -> showStorageDialog(null)
         }
     }
 
@@ -145,13 +151,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     private fun onStorageFilesCreated(storage: TetroidStorage) {
         loadStorages()
         AskDialogs.showOpenStorageSettingsDialog(this) { editStorage(storage) }
-    }
-
-    private fun addStorage() {
-        // проверка разрешения перед диалогом добавления хранилища
-        viewModel.checkWriteExtStoragePermission(this) {
-            showStorageDialog(null)
-        }
     }
 
     private fun editStorage(storage: TetroidStorage) {
@@ -289,13 +288,16 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         super.onActivityResult(requestCode, resultCode, data)
 
         // активити выбора каталога
-        if (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH
-            || requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH) {
-            val isNew = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH)
-            val path = data?.getStringExtra(FolderPicker.EXTRA_DATA) ?: ""
-            storageDialog?.setPath(path, isNew)
-        } else if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
-            loadStorages()
+        when (requestCode) {
+            Constants.REQUEST_CODE_CREATE_STORAGE_PATH,
+            Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> {
+                val isNew = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH)
+                val path = data?.getStringExtra(FolderPicker.EXTRA_DATA).orEmpty()
+                storageDialog?.setPath(path, isNew)
+            }
+            Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY -> {
+                loadStorages()
+            }
         }
     }
 

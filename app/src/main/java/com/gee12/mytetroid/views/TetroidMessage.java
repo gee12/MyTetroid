@@ -149,9 +149,8 @@ public class TetroidMessage {
                 Toast.makeText(context, message.getMessage(), Toast.LENGTH_SHORT).show();
                 break;
             case WARNING:
-                Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
-                break;
             case ERROR:
+                Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
                 Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
 //                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
                 break;

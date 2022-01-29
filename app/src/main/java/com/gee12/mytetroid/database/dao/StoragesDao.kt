@@ -14,6 +14,9 @@ interface StoragesDao {
     @Query("SELECT * FROM storages WHERE isDefault = 1 LIMIT 1")
     fun getDefaultStorage(): List<StorageEntity>
 
+    @Query("SELECT id FROM storages WHERE isDefault = 1 LIMIT 1")
+    fun getDefaultStorageId(): Int
+
     @Query("SELECT * FROM storages WHERE id = :id")
     fun getById(id: Int): StorageEntity?
 

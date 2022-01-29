@@ -1,11 +1,10 @@
 package com.gee12.mytetroid.views.fragments.settings.storage
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Constants.StorageEvents
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
@@ -20,8 +19,8 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
     private val settingsActivity: StorageSettingsActivity?
         get() = activity as StorageSettingsActivity?
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        super.onCreatePreferences(savedInstanceState, rootKey)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         settingsActivity?.storageId?.let { storageId ->
             viewModel.initStorageFromBase(storageId)
@@ -40,37 +39,68 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         )
             .get(StorageViewModel::class.java)
 
-        viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })
-        viewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
-        viewModel.storageEvent.observe(requireActivity(), { (event, data) -> onStorageEvent(event, data) })
-        viewModel.updateStorageField.observe(requireActivity(), { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) })
+        viewModel.messageObservable.observe(viewLifecycleOwner, {
+            TetroidMessage.show(requireContext(), it)
+        })
+        viewModel.viewEvent.observe(viewLifecycleOwner, { (event, data) -> onViewEvent(event, data) })
+        viewModel.storageEvent.observe(viewLifecycleOwner, { (event, data) -> onStorageEvent(event, data) })
+        viewModel.updateStorageField.observe(viewLifecycleOwner, { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) })
     }
 
-    protected open fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
+    protected open fun onStorageEvent(event: StorageEvents, data: Any?) {
         when (event) {
-            Constants.StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
+            StorageEvents.FoundInBase -> onStorageFoundInBase(data as TetroidStorage)
+            StorageEvents.PermissionCheck -> viewModel.checkWriteExtStoragePermission(requireActivity())
+            StorageEvents.PermissionGranted -> viewModel.initStorage()
+            StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
+            StorageEvents.InitFailed -> onStorageInitFailed()
             else -> {}
         }
     }
 
+    protected open fun onStorageFoundInBase(storage: TetroidStorage) {
+    }
+
     protected open fun onStorageInited(storage: TetroidStorage) {
+        val storageFilesError = viewModel.checkStorageFilesExistingError()
+        setWarningMenuItem(
+            isVisible = (storageFilesError != null)
+        ) {
+            viewModel.showMessage(
+                storageFilesError ?: getString(R.string.mes_storage_init_error)
+            )
+        }
+    }
+
+    protected open fun onStorageInitFailed() {
+        setWarningMenuItem(
+            isVisible = true
+        ) {
+            viewModel.showMessage(
+                viewModel.checkStorageFilesExistingError() ?: getString(R.string.mes_storage_init_error)
+            )
+        }
     }
 
     protected open fun onUpdateStorageFieldEvent(key: String, value: String) {
     }
 
-    open fun onBackPressed(): Boolean {
-        // если настройки хранилища были изменены, добавляем пометку в результат активити
-        if (viewModel.isFieldsChanged) {
-            val intent = Intent().apply {
-                putExtra(Constants.EXTRA_IS_STORAGE_UPDATED, true)
-                if (viewModel.isStoragePathChanged) {
-                    putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                    putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
-                }
+    protected fun setWarningMenuItem(isVisible: Boolean, onClick: (() -> Unit)? = null) {
+        optionsMenu?.findItem(R.id.action_error)?.let {
+            it.isVisible = isVisible
+            it.setOnMenuItemClickListener {
+                onClick?.invoke()
+                true
             }
-            requireActivity().setResult(Activity.RESULT_OK, intent)
         }
+        updateOptionsMenu()
+    }
+
+    /**
+     * Чтобы заблокировать выход, нужно вернуть true.
+     */
+    open fun onBackPressed(): Boolean {
         return false
     }
+
 }

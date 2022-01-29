@@ -15,6 +15,20 @@
 This version adds support for multiple storages
 (so far only one can be loaded at a time)\n
 Your storage settings have been automatically moved to the \"Default storage\"</string>
+    <string name="mes_cant_more_one_storage_on_free">Multiple storage is available in the Pro version</string>
+    <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
+    <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
+    <string name="mes_select_decrypted_node">Select a decrypted node</string>
+    <string name="mes_select_first_level_node">Select the first level node</string>
+    <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
+    <string name="mes_attached_file_mask">Attached file \"%s\"</string>
+    <string name="mes_attached_files_mask">Attached files: %d</string>
+    <string name="mes_need_migration">To complete the update, you need to launch from the main application window</string>
+    <string name="mes_storage_must_be_inited">Storage must not have load errors</string>
+    <string name="mes_storage_must_be_loaded">Storage must be loaded</string>
+    <string name="mes_must_grant_perm_and_storage_inited">First you need to grant write permission and select/create storage</string>
+    <string name="mes_all_nodes_must_be_loaded">All storage nodes must be loaded</string>
+    <string name="mes_storage_init_error">Storage init error</string>
 
     <string name="title_settings">Common settings</string>
     <string name="title_storage_settings">Storage settings</string>
@@ -73,8 +87,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_fullscreen">Fullscreen</string>
     <string name="title_record_folder_path">Record folder path</string>
     <string name="title_insert_record">Insert record</string>
-    <string name="progress_copy_record">Record copying…</string>
-    <string name="progress_insert_record">Record inserting…</string>
     <string name="title_share">Share</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>
@@ -117,13 +129,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_favorites">Favorites</string>
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to favorites</string>
-    <string name="title_need_load_nodes">First load all storage nodes</string>
     <string name="title_available_in_pro">Available in version Pro</string>
     <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
     <string name="title_not_avail_when_save_pass">Not available when saving password locally</string>
-    <string name="title_need_init_storage">First you need to select/create storage</string>
-    <string name="title_need_perm_init_storage">First you need to grant write permission and select/create storage</string>
-    <string name="title_need_load_storage">First need to load storage</string>
     <string name="title_record_info">Record info</string>
     <string name="title_file_info">File info</string>
     <string name="title_node_info">Node info</string>
@@ -157,6 +165,38 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_app_termux" translatable="false">Termux</string>
     <string name="title_app_mgit" translatable="false">MGit</string>
     <string name="title_download_attach_file_by_link">Attach file from link</string>
+    <string name="title_insert_record_content">Insert record content</string>
+    <string name="title_insert_hyperlink">Insert hyperlink</string>
+    <string name="title_insert_url_as_text">Insert link as text</string>
+    <string name="title_attach_file">Attach file</string>
+    <string name="title_attach_image">Attach image</string>
+    <string name="title_insert_image">Attach image</string>
+    <string name="title_insert_web_page">Insert web page content</string>
+    <string name="title_insert_web_page_as_text">Insert web page as text</string>
+    <string name="title_attach_web_page_as_file">Attach web page as file</string>
+    <string name="title_download_attach_file">Download and attach file</string>
+    <string name="title_download_attach_image">Download and attach image</string>
+    <string name="title_download_insert_image">Download and insert image</string>
+    <string name="title_insert_as">Insert as..</string>
+    <string name="title_file_downloading">File downloading</string>
+    <string name="title_image_downloading">Image downloading</string>
+    <string name="title_page_downloading">Web page content downloading</string>
+    <string name="title_download_by_link">DOWNLOAD BY LINK</string>
+    <string name="title_select_on_device">SELECT ON DEVICE</string>
+    <string name="title_edit">Edit</string>
+    <string name="title_context_menu">Context menu</string>
+    <string name="title_storage_current">Current storage</string>
+    <string name="title_storage_default">Default storage</string>
+    <string name="title_error">Error</string>
+    <string name="title_set_default">Make default</string>
+    <string name="title_is_not_exist_mask">Not found: %s</string>
+    <string name="title_is_not_exist_plural_mask">Not found: %s</string>
+    <string name="title_storage_error">Storage error</string>
+
+    <string name="progress_copy_record">Record copying…</string>
+    <string name="progress_insert_record">Record inserting…</string>
+    <string name="progress_images_loading">Images loading…</string>
+    <string name="progress_camera_capture">Image loading from camera…</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -168,14 +208,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="text_pass_change_warning_html"><![CDATA[<b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.]]></string>
     <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[In the application the boot mode is <b>load only favorites</b>. To receive %s, you need to load all nodes of the storage.<br>Proceed?]]></string>
-
-    <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
-    <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
-    <string name="mes_select_decrypted_node">Select a decrypted node</string>
-    <string name="mes_select_first_level_node">Select the first level node</string>
-    <string name="mes_quickly_node_cannot_encrypt">This node cannot be encrypted because it is selected for quick insertion in settings</string>
-    <string name="mes_attached_file_mask">Attached file \"%s\"</string>
-    <string name="mes_attached_files_mask">Attached files: %d</string>
 
     <string name="word_received_text">text</string>
     <string name="word_received_image">image</string>
@@ -383,6 +415,14 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_sub_category_trash">Trash</string>
     <string name="pref_key_settings_version" translatable="false">pref_key_settings_version</string>
     <string name="pref_key_is_pin_migrated_to_md5" translatable="false">pref_key_is_pin_migrated_to_md5</string>
+    <string name="pref_is_def_storage">Default storage</string>
+    <string name="pref_is_def_storage_summ">Storage loaded on application startup</string>
+    <string name="pref_storage_name">Storage name</string>
+    <string name="pref_key_is_def_storage" translatable="false">pref_key_is_def_storage</string>
+    <string name="pref_key_is_read_only" translatable="false">pref_key_is_read_only</string>
+    <string name="pref_is_read_only">Read only</string>
+    <string name="pref_is_read_only_summ">The storage cannot be changed from within the app (not implemented yet)</string>
+    <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
 
     <string name="task_wait">Wait…</string>
     <string name="task_storage_initializing">Storage initializing…</string>
@@ -466,6 +506,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="label_parent_node">Parent node:</string>
     <string name="label_favorite">Favorite</string>
     <string name="label_pin_code_size_mask">Value %d–%d:</string>
+    <string name="label_default_storage">Default storage</string>
 
     <string name="stats_nodes_count">Nodes:</string>
     <string name="stats_crypt_nodes_count">Of which is encrypted:</string>
@@ -531,12 +572,26 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_load_storage">The storage is not loaded. Load?</string>
     <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
     <string name="ask_open_attaches">Open list of attached files ?</string>
+    <string name="ask_delete_storage_mask">Remove storage «%s» from the list? (files will be saved)</string>
+    <string name="ask_load_storage_mask">Load storage «%s» ?</string>
+    <string name="ask_create_new_storage_mask">Will be created storage files along the path \"%s\", continue ?</string>
+    <string name="ask_open_storage_settings">Open storage settings?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm:ss</string>
     <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
     <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
+
+    <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
+    <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
+    <string name="error_get_record_folder_size_mask">Error getting record folder size: %s</string>
+    <string name="error_get_attach_file_size_mask">Error getting file size: %s</string>
+    <string name="error_get_mytetra_xml_modified_date_mask">Error getting mytetra.xml last modified date: %s</string>
+    <string name="error_get_record_modified_date_mask">Error getting record last modified date: %s</string>
+    <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
+    <string name="error_storage_folder_is_not_exists">Storage folder is not found</string>
+    <string name="error_storage_folder_is_empty">Storage folder is empty</string>
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
 <!--    <string name="details_in_logs">Details in the logs</string>-->
@@ -555,7 +610,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
     <string name="log_file_decryption_error">File decryption error:&#160;</string>
     <string name="log_storage_load_error">Storage loading error</string>
-    <string name="log_storage_init_error">Storage init error</string>
     <string name="title_storage_not_loaded">Storage not loaded</string>
 <!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
@@ -746,55 +800,11 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_download_file_mask">Error loading file:\n%s</string>
     <string name="log_error_download_image_mask">Error loading image:\n%s</string>
     <string name="log_failed_storage_create_mask">Storage creation error:\n%s</string>
-
-    <string name="title_insert_record_content">Insert record content</string>
-    <string name="title_insert_hyperlink">Insert hyperlink</string>
-    <string name="title_insert_url_as_text">Insert link as text</string>
-    <string name="title_attach_file">Attach file</string>
-    <string name="title_attach_image">Attach image</string>
-    <string name="title_insert_image">Attach image</string>
-    <string name="title_insert_web_page">Insert web page content</string>
-    <string name="title_insert_web_page_as_text">Insert web page as text</string>
-    <string name="title_attach_web_page_as_file">Attach web page as file</string>
-    <string name="title_download_attach_file">Download and attach file</string>
-    <string name="title_download_attach_image">Download and attach image</string>
-    <string name="title_download_insert_image">Download and insert image</string>
-    <string name="title_insert_as">Insert as..</string>
-    <string name="title_file_downloading">File downloading</string>
-    <string name="title_image_downloading">Image downloading</string>
-    <string name="title_page_downloading">Web page content downloading</string>
-    <string name="title_download_by_link">DOWNLOAD BY LINK</string>
-    <string name="title_select_on_device">SELECT ON DEVICE</string>
     <string name="log_link_is_empty">Link is empty</string>
-    <string name="ask_delete_storage_mask">Remove storage «%s» from the list? (files will be saved)</string>
-    <string name="pref_is_def_storage">Default storage</string>
-    <string name="pref_is_def_storage_summ">Storage loaded on application startup</string>
-    <string name="pref_storage_name">Storage name</string>
-    <string name="title_edit">Edit</string>
-    <string name="pref_key_is_def_storage" translatable="false">pref_key_is_def_storage</string>
-    <string name="pref_key_is_read_only" translatable="false">pref_key_is_read_only</string>
-    <string name="pref_is_read_only">Read only</string>
-    <string name="pref_is_read_only_summ">The storage cannot be changed from within the app (not implemented yet)</string>
-    <string name="title_context_menu">Context menu</string>
-    <string name="title_storage_current">Current storage</string>
-    <string name="title_storage_default">Default storage</string>
-    <string name="label_default_storage">Default storage</string>
-    <string name="title_storage_error">Storage error</string>
-    <string name="ask_load_storage_mask">Load storage «%s» ?</string>
-    <string name="ask_create_new_storage_mask">Will be created storage files along the path \"%s\", continue ?</string>
-    <string name="ask_open_storage_settings">Open storage settings?</string>
-    <string name="pref_key_last_storage_id" translatable="false">pref_key_last_storage_id</string>
     <string name="log_added_to_favor">Added to favorites</string>
     <string name="log_deleted_from_favor">Deleted from favorites</string>
     <string name="log_with_id_to_favor_mask">&#160;with id=%s to favorites</string>
     <string name="log_with_id_from_favor_mask">&#160;with id=%s from favorites</string>
-    <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
-    <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
-    <string name="error_get_record_folder_size_mask">Error getting record folder size: %s</string>
-    <string name="error_get_attach_file_size_mask">Error getting file size: %s</string>
-    <string name="error_get_mytetra_xml_modified_date_mask">Error getting mytetra.xml last modified date: %s</string>
-    <string name="error_get_record_modified_date_mask">Error getting record last modified date: %s</string>
-    <string name="title_error">Error</string>
     <string name="log_activity_opened_mask">Activity opened: %s</string>
     <string name="log_fragment_opened_mask">Fragment opened: %s</string>
     <string name="log_dialog_opened_mask">Dialog opened: %s</string>
@@ -803,26 +813,19 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_start_load_def_storage">Start loading storage by default</string>
     <string name="log_storage_added_mask">Storage «%s» was added</string>
     <string name="log_storage_set_is_default_mask">Storage «%s» is default</string>
-    <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
     <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
-    <string name="title_set_default">Make default</string>
     <string name="log_cannot_delete_undecrypted_node">Undecrypted node cannot be deleted</string>
-    <string name="progress_images_loading">Images loading…</string>
-    <string name="progress_camera_capture">Image loading from camera…</string>
     <string name="log_storage_path_changed_mask">Storage path was changed: %s</string>
+    <string name="log_storage_trash_path_changed_mask">Storage trash path was changed: %s</string>
     <string name="log_storage_name_changed_mask">Storage name was changed: %s</string>
-    <string name="start_migrate_to_version_mask">Start migration to version %s</string>
-    <string name="dialog_need_migration">To complete the update, you need to launch from the main application window</string>
+    <string name="log_start_migrate_to_version_mask">Start migration to version %s</string>
     <string name="log_start_pin_crypt_migration">Launching PIN re-encryption from RC5 to MD5</string>
     <string name="log_pin_crypt_was_migrated">PIN has been re-encrypted from RC5 to MD5</string>
     <string name="log_error_pin_crypt_migrate">Error re-encrypting PIN from RC5 to MD5</string>
     <string name="log_error_migration">Settings migration failed</string>
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
-    <string name="error_folder_is_not_exists">Folder is not found</string>
-    <string name="error_folder_is_empty">Folder is empty</string>
+
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>
-    <string name="title_is_not_exist_mask">Not found: %s</string>
-    <string name="title_is_not_exist_plural_mask">Not found: %s</string>
 </resources>

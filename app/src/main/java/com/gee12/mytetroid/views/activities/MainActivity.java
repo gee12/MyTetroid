@@ -385,6 +385,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // загрузка хранилища
             case InitFailed:
+                viewModel.showMessage(getString(R.string.mes_storage_init_error));
                 boolean isFavoritesOnlyMode = (boolean) data;
                 initUI(false, isFavoritesOnlyMode, false, false);
                 break;
@@ -2495,7 +2496,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     private void showGlobalSearchActivity(String query) {
         if (viewModel.isLoadedFavoritesOnly()) {
-            viewModel.showMessage(getString(R.string.title_need_load_nodes), LogType.WARNING);
+            viewModel.showMessage(getString(R.string.mes_all_nodes_must_be_loaded), LogType.WARNING);
         } else {
             TetroidNode curNode = viewModel.getCurNode();
             String curNodeId = (curNode != null && curNode != FavoritesInteractor.Companion.getFAVORITES_NODE()) ? curNode.getId() : null;

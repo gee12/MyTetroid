@@ -10,7 +10,7 @@ class StorageSyncSettingsFragment : TetroidStorageSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
     }
 
-    override fun onStorageInited(storage: TetroidStorage) {
+    override fun onStorageFoundInBase(storage: TetroidStorage) {
         setTitle(R.string.title_storage_sync, storage.name)
 
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()

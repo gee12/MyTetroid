@@ -53,6 +53,4 @@ class StorageInfoViewModel(
 
     fun getStorageInfo(): IStorageInfoProvider = storageDataProcessor
 
-    fun checkStorageFilesExistingError() = storagePathHelper.checkStorageFilesExistingError(getContext())
-
 }

@@ -67,10 +67,10 @@ class StoragePathHelper(
     override fun checkStorageFilesExistingError(context: Context): String? {
         return when {
             !FileUtils.isFileExist(getStoragePath()) -> {
-                context.getString(R.string.error_folder_is_not_exists)
+                context.getString(R.string.error_storage_folder_is_not_exists)
             }
             FileUtils.isDirEmpty(getStoragePath()) -> {
-                context.getString(R.string.error_folder_is_empty)
+                context.getString(R.string.error_storage_folder_is_empty)
             }
             else -> {
                 val errorList = mutableListOf<String>()

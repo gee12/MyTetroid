@@ -87,20 +87,24 @@ abstract class StorageSettingsViewModel(
         }
 
     var isFieldsChanged = false
-    var isStoragePathChanged = false
 
 
-    fun updateStorage(storage: TetroidStorage) {
+    fun updateStorageAsync(storage: TetroidStorage) {
         launch {
-            if (storagesRepo.updateStorage(storage)) {
+            if (!storagesRepo.updateStorage(storage)) {
+                //...
             }
         }
     }
 
-    fun updateStorage() {
+    fun updateStorageAsync() {
         storage?.let {
-            updateStorage(it)
+            updateStorageAsync(it)
         }
+    }
+
+    suspend fun updateStorage(storage: TetroidStorage): Boolean {
+        return storagesRepo.updateStorage(storage)
     }
 
     val storageHelper: IStorageHelper = object : IStorageHelper {
@@ -222,47 +226,78 @@ abstract class StorageSettingsViewModel(
      */
     fun updateStorageOption(key: String, value: Any) {
         storage?.apply {
-            var isFieldChanged = true
             when (key) {
                 // основное
                 getString(R.string.pref_key_storage_path) -> {
-                    path = value.toString()
-                    isStoragePathChanged = true
-                    log(getString(R.string.log_storage_path_changed_mask).format(path), false)
+                    isFieldChanged(path, value.toString()) {
+                        path = it
+                        log(getString(R.string.log_storage_path_changed_mask).format(path), false)
+                    }
                 }
                 getString(R.string.pref_key_storage_name) -> {
-                    name = value.toString()
-                    log(getString(R.string.log_storage_name_changed_mask).format(name), false)
+                    isFieldChanged(name, value.toString()) {
+                        name = it
+                        log(getString(R.string.log_storage_name_changed_mask).format(name), false)
+                    }
                 }
-                getString(R.string.pref_key_is_def_storage) -> isDefault = value.toString().toBoolean()
-                getString(R.string.pref_key_is_read_only) -> isReadOnly = value.toString().toBoolean()
-                getString(R.string.pref_key_temp_path) -> trashPath = value.toString()
-                getString(R.string.pref_key_is_clear_trash_before_exit) -> isClearTrashBeforeExit = value.toString().toBoolean()
-                getString(R.string.pref_key_is_ask_before_clear_trash_before_exit) -> isAskBeforeClearTrashBeforeExit = value.toString().toBoolean()
-                getString(R.string.pref_key_is_load_favorites) -> isLoadFavoritesOnly = value.toString().toBoolean()
-                getString(R.string.pref_key_is_keep_selected_node) -> isKeepLastNode = value.toString().toBoolean()
-                getString(R.string.pref_key_quickly_node_id) -> quickNodeId = value.toString()
+                getString(R.string.pref_key_temp_path) -> {
+                    isFieldChanged(trashPath, value) {
+                        trashPath = it
+                        log(getString(R.string.log_storage_trash_path_changed_mask).format(name), false)
+                    }
+                }
+                getString(R.string.pref_key_is_def_storage) -> isFieldChanged(isDefault, value) { isDefault = it }
+                getString(R.string.pref_key_is_read_only) -> isFieldChanged(isReadOnly, value) { isReadOnly = it }
+                getString(R.string.pref_key_is_clear_trash_before_exit) -> isFieldChanged(isClearTrashBeforeExit, value) { isClearTrashBeforeExit = it }
+                getString(R.string.pref_key_is_ask_before_clear_trash_before_exit) -> isFieldChanged(isAskBeforeClearTrashBeforeExit, value) { isAskBeforeClearTrashBeforeExit = it }
+                getString(R.string.pref_key_is_load_favorites) -> isFieldChanged(isLoadFavoritesOnly, value) { isLoadFavoritesOnly = it }
+                getString(R.string.pref_key_is_keep_selected_node) -> isFieldChanged(isKeepLastNode, value) { isKeepLastNode = it }
+                getString(R.string.pref_key_quickly_node_id) -> isFieldChanged(quickNodeId, value) { quickNodeId = it }
 
                 // шифрование
-                getString(R.string.pref_key_is_save_pass_hash_local) -> isSavePassLocal = value.toString().toBoolean()
-                getString(R.string.pref_key_is_decrypt_in_temp) -> isDecyptToTemp = value.toString().toBoolean()
+                getString(R.string.pref_key_is_save_pass_hash_local) -> isFieldChanged(isSavePassLocal, value) { isSavePassLocal = it }
+                getString(R.string.pref_key_is_decrypt_in_temp) -> isFieldChanged(isDecyptToTemp, value) { isDecyptToTemp = it }
 
                 // синхронизация
-                getString(R.string.pref_key_is_sync_storage) -> syncProfile.isEnabled = value.toString().toBoolean()
-                getString(R.string.pref_key_app_for_sync) -> syncProfile.appName = value.toString()
-                getString(R.string.pref_key_sync_command) -> syncProfile.command = value.toString()
-                getString(R.string.pref_key_is_sync_before_init) -> syncProfile.isSyncBeforeInit = value.toString().toBoolean()
-                getString(R.string.pref_key_is_ask_before_sync) -> syncProfile.isAskBeforeSyncOnInit = value.toString().toBoolean()
-                getString(R.string.pref_key_is_sync_before_exit) -> syncProfile.isSyncBeforeExit = value.toString().toBoolean()
-                getString(R.string.pref_key_is_ask_before_exit_sync) -> syncProfile.isAskBeforeSyncOnExit = value.toString().toBoolean()
-                getString(R.string.pref_key_check_outside_changing) -> syncProfile.isCheckOutsideChanging = value.toString().toBoolean()
-                else -> isFieldChanged = false
+                getString(R.string.pref_key_is_sync_storage) -> isFieldChanged(syncProfile.isEnabled, value) { syncProfile.isEnabled = it }
+                getString(R.string.pref_key_app_for_sync) -> isFieldChanged(syncProfile.appName, value) { syncProfile.appName = it }
+                getString(R.string.pref_key_sync_command) -> isFieldChanged(syncProfile.command, value) { syncProfile.command = it }
+                getString(R.string.pref_key_is_sync_before_init) -> isFieldChanged(syncProfile.isSyncBeforeInit, value) { syncProfile.isSyncBeforeInit = it }
+                getString(R.string.pref_key_is_ask_before_sync) -> isFieldChanged(syncProfile.isAskBeforeSyncOnInit, value) { syncProfile.isAskBeforeSyncOnInit = it }
+                getString(R.string.pref_key_is_sync_before_exit) -> isFieldChanged(syncProfile.isSyncBeforeExit, value) { syncProfile.isSyncBeforeExit = it }
+                getString(R.string.pref_key_is_ask_before_exit_sync) -> isFieldChanged(syncProfile.isAskBeforeSyncOnExit, value) { syncProfile.isAskBeforeSyncOnExit = it }
+                getString(R.string.pref_key_check_outside_changing) -> isFieldChanged(syncProfile.isCheckOutsideChanging, value) { syncProfile.isCheckOutsideChanging = it }
             }
-            if (isFieldChanged) {
-                isFieldsChanged = true
-                updateStorage(this)
-                onStorageOptionChanged(key, value)
+            if (isFieldsChanged) {
+                launch {
+                    updateStorage(this@apply)
+                    onStorageOptionChanged(key, value)
+                }
             }
+        }
+    }
+
+    private fun isFieldChanged(value: String?, newValue: Any, onChanged: ((String) -> Unit)? = null): Boolean {
+        val newStringValue = newValue.toString()
+        return (if (value != newStringValue) {
+            onChanged?.invoke(newStringValue)
+            true
+        } else {
+            false
+        }).also {
+            isFieldsChanged = it
+        }
+    }
+
+    private fun isFieldChanged(value: Boolean, newValue: Any, onChanged: ((Boolean) -> Unit)? = null): Boolean {
+        val newBoolValue = newValue.toString().toBoolean()
+        return (if (value != newBoolValue) {
+            onChanged?.invoke(newBoolValue)
+            true
+        } else {
+            false
+        }).also {
+            isFieldsChanged = it
         }
     }
 
@@ -318,7 +353,7 @@ abstract class StorageSettingsViewModel(
             // удаляем хэш пароля и сбрасываем галку
             middlePassHash = null
             isSavePassLocal = false
-            updateStorage(this)
+            updateStorageAsync(this)
         }
     }
 

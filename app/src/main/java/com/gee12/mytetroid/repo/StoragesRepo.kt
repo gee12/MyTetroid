@@ -24,6 +24,10 @@ class StoragesRepo(context: Context) {
         }
     }
 
+    suspend fun getDefaultStorageId() = withContext(Dispatchers.IO) {
+        dataBase.storagesDao.getDefaultStorageId()
+    }
+
     suspend fun getStorage(id: Int) = withContext(Dispatchers.IO) {
         dataBase.storagesDao.getById(id)?.let {
             toTetroidStorage(it)

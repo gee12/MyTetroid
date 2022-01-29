@@ -133,7 +133,8 @@ object Constants {
     enum class StorageEvents {
         NoDefaultStorage,
         Updated,
-        Changed,
+        NotFoundInBase,
+        FoundInBase,
         Added,
         PermissionCheck,
         PermissionGranted,

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Menu;
 
 import androidx.fragment.app.Fragment;
 
@@ -23,16 +24,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class StorageSettingsActivity extends TetroidSettingsActivity {
 
-//    private StorageSettingsViewModel viewModel;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        this.viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication()))
-//                .get(StorageSettingsViewModel.class);
-//
-//        viewModel.setStorageFromBase(getStorageId());
     }
 
     public int getStorageId() {
@@ -47,12 +41,8 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
 
     @Override
     protected void startDefaultFragment() {
-//        int storageId = (getIntent() != null && getIntent().hasExtra(EXTRA_STORAGE_ID))
-//                ? getIntent().getIntExtra(EXTRA_STORAGE_ID, 0) : 0;
-
         getSupportFragmentManager()
                 .beginTransaction()
-//                .replace(R.id.container, StorageSettingsFragment.Companion.newInstance(storageId))
                 .replace(R.id.container, new StorageSectionsSettingsFragment())
                 .commit();
     }
@@ -63,9 +53,7 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
         Fragment fragment = getCurrentFragment();
         if (fragment instanceof StorageMainSettingsFragment) {
             ((StorageMainSettingsFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
-        } /*else if (fragment instanceof SettingsOtherFragment) {
-            ((SettingsOtherFragment)fragment).onRequestPermissionsResult(permGranted, requestCode);
-        }*/
+        }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
@@ -79,21 +67,25 @@ public class StorageSettingsActivity extends TetroidSettingsActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.storage_settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return true;
+    }
+
+    @Override
     public void onBackPressed() {
-        boolean isBackPressed = false;
         Fragment fragment = getCurrentFragment();
-        // обрабатываем нажатие Back во фрагменте StorageEncryptionSettingsFragment отдельно
-        if (fragment instanceof StorageEncryptionSettingsFragment) {
-            if (!((StorageEncryptionSettingsFragment)fragment).onBackPressed()) {
-                isBackPressed = true;
+        if (fragment instanceof TetroidStorageSettingsFragment) {
+            if (!((TetroidStorageSettingsFragment)fragment).onBackPressed()) {
+                super.onBackPressed();
             }
-        } else {
-            isBackPressed = true;
         }
-        if (isBackPressed) {
-            if (fragment instanceof TetroidStorageSettingsFragment) {
-                ((TetroidStorageSettingsFragment)fragment).onBackPressed();
-            }
+        else {
             super.onBackPressed();
         }
     }

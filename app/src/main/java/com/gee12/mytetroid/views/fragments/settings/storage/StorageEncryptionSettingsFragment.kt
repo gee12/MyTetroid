@@ -28,7 +28,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         }
     }
 
-    override fun onStorageInited(storage: TetroidStorage) {
+    override fun onStorageFoundInBase(storage: TetroidStorage) {
         setTitle(R.string.pref_category_crypt, storage.name)
 
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
@@ -56,16 +56,19 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
     private fun updateChangeSetupPasswordPref() {
         // установка или смена пароля хранилища
-        val isStorageReady = viewModel.isStorageInited()
-                && viewModel.isStorageLoaded()
-                && !viewModel.isLoadedFavoritesOnly()
         findPreference<Preference>(getString(R.string.pref_key_change_pass))?.apply {
-            val isCrypted = viewModel.isStorageCrypted()
+            val isCrypted = if (viewModel.isStorageInited()) viewModel.isStorageCrypted() else false
             setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
             setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
-            isEnabled = isStorageReady
+            isEnabled = viewModel.checkStorageIsReady(
+                checkIsFavorMode = true,
+                showMessage = false
+            )
             onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (viewModel.checkStorageIsReady(true)) {
+                if (viewModel.checkStorageIsReady(
+                        checkIsFavorMode = true,
+                        showMessage = true
+                    )) {
                     if (isCrypted) {
                         changePass()
                     } else {

@@ -22,11 +22,13 @@ import org.jsoup.internal.StringUtil
 
 class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
 
+    var isStoragePathChanged = false
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
     }
 
-    override fun onStorageInited(storage: TetroidStorage) {
+    override fun onStorageFoundInBase(storage: TetroidStorage) {
         setTitle(R.string.pref_category_main, storage.name)
 
         // устанавливаем preferenceDataStore после onCreate(), но перед setPreferencesFromResource()
@@ -69,50 +71,26 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         }
 
         // ветка для быстрых записей
-        findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))
-            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (!viewModel.isStorageDefault()) {
-                viewModel.showMessage(getString(R.string.pref_quickly_node_not_available))
-            } else {
-                // диалог выбора ветки
-                val nodeCallback = object : NodeChooserDialog.Result() {
-                    override fun onApply(node: TetroidNode?) {
-                        // устанавливаем ветку, если все хорошо
-                        viewModel.quicklyNode = node
+        findPreference<Preference>(getString(R.string.pref_key_quickly_node_id))?.apply {
+            isEnabled = viewModel.checkStorageIsReady(
+                checkIsFavorMode = true,
+                showMessage = false
+            )
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                when {
+                    !viewModel.checkStorageIsReady(
+                        checkIsFavorMode = true,
+                        showMessage = true
+                    ) -> {}
+                    !viewModel.isStorageDefault() -> {
+                        viewModel.showMessage(getString(R.string.pref_quickly_node_not_available))
                     }
-
-                    override fun onProblem(code: Int) {
-                        // если хранилище недозагружено, спрашиваем о действиях
-                        val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
-                        AskDialogs.showYesDialog(context, {
-
-                            // возвращаемся в MainActivity
-                            val intent = Intent(requireContext(), MainActivity::class.java)
-                            intent.setAction(Constants.ACTION_STORAGE_SETTINGS)
-                            when (code) {
-                                INodeChooserResult.LOAD_STORAGE -> {
-                                    intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                                    intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                                }
-                                INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                            }
-                            intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
-                            requireActivity().setResult(Activity.RESULT_OK, intent)
-                            requireActivity().startActivity(intent)
-                            requireActivity().finish()
-                        }, mesId)
+                    else -> {
+                        showNodeChooserDialog()
                     }
                 }
-                NodeChooserDialog(
-                    node = viewModel.quicklyNode,
-                    canCrypted = false,
-                    canDecrypted = false,
-                    rootOnly = true,
-                    storageId = viewModel.getStorageId(),
-                    callback = nodeCallback
-                ).showIfPossible(parentFragmentManager)
+                true
             }
-            true
         }
         viewModel.updateQuicklyNode()
 
@@ -140,10 +118,53 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeNameOrMessage(), getString(R.string.pref_quickly_node_summ))
     }
 
+    private fun showNodeChooserDialog() {
+        val nodeCallback = object : NodeChooserDialog.Result() {
+            override fun onApply(node: TetroidNode?) {
+                // устанавливаем ветку, если все хорошо
+                viewModel.quicklyNode = node
+            }
+
+            override fun onProblem(code: Int) {
+                // если хранилище недозагружено, спрашиваем о действиях
+                val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
+                AskDialogs.showYesDialog(context, {
+
+                    // возвращаемся в MainActivity
+                    val intent = Intent(requireContext(), MainActivity::class.java)
+                    intent.setAction(Constants.ACTION_STORAGE_SETTINGS)
+                    when (code) {
+                        INodeChooserResult.LOAD_STORAGE -> {
+                            intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                            intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                        }
+                        INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                    }
+                    intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
+                    requireActivity().setResult(Activity.RESULT_OK, intent)
+                    requireActivity().startActivity(intent)
+                    requireActivity().finish()
+                }, mesId)
+            }
+        }
+        NodeChooserDialog(
+            node = viewModel.quicklyNode,
+            canCrypted = false,
+            canDecrypted = false,
+            rootOnly = true,
+            storageId = viewModel.getStorageId(),
+            callback = nodeCallback
+        ).showIfPossible(parentFragmentManager)
+    }
+
     override fun onUpdateStorageFieldEvent(key: String, value: String) {
         when (key) {
             // основное
-            getString(R.string.pref_key_storage_path) -> updateSummary(key, value)
+            getString(R.string.pref_key_storage_path) -> {
+                isStoragePathChanged = true
+                updateSummary(key, value)
+                viewModel.onStoragePathChanged()
+            }
             getString(R.string.pref_key_storage_name) -> {
                 updateSummary(key, value)
                 setTitle(R.string.pref_category_main, value)
@@ -171,21 +192,31 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
     fun onResult(requestCode: Int, resultCode: Int, data: Intent) {
         if (resultCode != Activity.RESULT_OK) return
 
-        val folderPath = data.getStringExtra(FolderPicker.EXTRA_DATA).orEmpty()
-        if (requestCode == Constants.REQUEST_CODE_OPEN_STORAGE_PATH) {
-            viewModel.updateStorageOption(getString(R.string.pref_key_storage_path), folderPath)
-            CommonSettings.setLastChoosedFolder(context, folderPath)
-            updateSummary(R.string.pref_key_storage_path, folderPath)
-        } else if (requestCode == Constants.REQUEST_CODE_OPEN_TEMP_PATH) {
-            viewModel.updateStorageOption(getString(R.string.pref_key_temp_path), folderPath)
-            CommonSettings.setLastChoosedFolder(context, folderPath)
-            updateSummary(R.string.pref_key_temp_path, folderPath)
-        } /*else if (requestCode == Constants.REQUEST_CODE_OPEN_LOG_PATH) {
-            CommonSettings.setLogPath(context, folderPath)
-            CommonSettings.setLastChoosedFolder(context, folderPath)
-            baseViewModel.logger.setLogPath(folderPath)
-            updateSummary(R.string.pref_key_log_path, folderPath)
-        }*/
+        val path = data.getStringExtra(FolderPicker.EXTRA_DATA).orEmpty()
+        when (requestCode) {
+            Constants.REQUEST_CODE_CREATE_STORAGE_PATH,
+            Constants.REQUEST_CODE_OPEN_STORAGE_PATH -> {
+                val isCreate = (requestCode == Constants.REQUEST_CODE_CREATE_STORAGE_PATH)
+                viewModel.updateStorageOption(getString(R.string.pref_key_storage_path), path)
+                CommonSettings.setLastChoosedFolder(context, path)
+                onStoragePathChanged(path, isCreate)
+            }
+            Constants.REQUEST_CODE_OPEN_TEMP_PATH -> {
+                viewModel.updateStorageOption(getString(R.string.pref_key_temp_path), path)
+                CommonSettings.setLastChoosedFolder(context, path)
+            }
+        }
+    }
+
+    private fun onStoragePathChanged(path: String, isCreateStorageFiles: Boolean) {
+        if (isCreateStorageFiles) {
+            AskDialogs.showCreateStorageFilesDialog(requireContext(), path) {
+                viewModel.storage?.let {
+                    it.isNew = true
+                    viewModel.startInitStorage(it)
+                }
+            }
+        }
     }
 
     private fun selectStorageFolder() {
@@ -223,6 +254,21 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
             viewModel.getTrashPath(),
             Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
+    }
+
+    override fun onBackPressed(): Boolean {
+        // если настройки хранилища были изменены, добавляем пометку в результат активити
+        if (viewModel.isFieldsChanged) {
+            val intent = Intent().apply {
+                putExtra(Constants.EXTRA_IS_STORAGE_UPDATED, true)
+                if (isStoragePathChanged) {
+                    putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                    putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
+                }
+            }
+            requireActivity().setResult(Activity.RESULT_OK, intent)
+        }
+        return false
     }
 
 }

@@ -75,12 +75,12 @@
         android:id="@+id/action_encrypt_node"
         android:orderInCategory="130"
         android:title="@string/title_encrypt_node"
-        android:icon="@drawable/ic_encrypt" />
+        android:icon="@drawable/ic_encrypt_add" />
     <item
         android:id="@+id/action_drop_encrypt_node"
         android:orderInCategory="140"
         android:title="@string/title_decrypt_node"
-        android:icon="@drawable/ic_no_encrypt" />
+        android:icon="@drawable/ic_encrypt_drop" />
     <item
         android:id="@+id/action_info"
         android:orderInCategory="150"

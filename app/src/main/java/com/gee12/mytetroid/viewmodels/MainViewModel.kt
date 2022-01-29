@@ -91,7 +91,7 @@ class MainViewModel(
     }
 
     private suspend fun migrateTo50(): Boolean {
-        logger.log(getString(R.string.start_migrate_to_version_mask).format("5.0"), false)
+        logger.log(getString(R.string.log_start_migrate_to_version_mask).format("5.0"), false)
 
         // параметры хранилища из SharedPreferences в бд
         if (migrationInteractor.isNeedMigrateStorageFromPrefs(getContext())) {
@@ -569,7 +569,7 @@ class MainViewModel(
         if (isKeepLastNode()) {
             val curNode = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) FavoritesInteractor.FAVORITES_NODE else curNode
             setLastNodeId(curNode?.id)
-            updateStorage()
+            updateStorageAsync()
         }
     }
 

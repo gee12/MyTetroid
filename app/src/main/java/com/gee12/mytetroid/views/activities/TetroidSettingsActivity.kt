@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.views.activities
 
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
@@ -22,6 +23,7 @@ import com.gee12.mytetroid.views.TetroidMessage
 abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener {
 
     private var newDelegate: AppCompatDelegate? = null
+    lateinit var optionsMenu: Menu
     private lateinit var lProgress: LinearLayout
     private lateinit var tvProgress: TextView
 
@@ -70,6 +72,12 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
 
     //endregion IViewEventListener
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        this.optionsMenu = menu
+        menuInflater.inflate(R.menu.storages, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == android.R.id.home) {
@@ -77,6 +85,14 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun updateOptionsMenu() {
+        if (::optionsMenu.isInitialized) {
+            onPrepareOptionsMenu(optionsMenu)
+        } else {
+            TetroidMessage.show(this, "TetroidActivity.updateOptionsMenu(): optionsMenu is null")
+        }
     }
 
     protected fun setVisibilityActionHome(isVisible: Boolean) {
