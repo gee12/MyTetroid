@@ -97,7 +97,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         }
     }
 
-    override fun onObjectEvent(event: Any, data: Any) {
+    override fun onObjectEvent(event: Any, data: Any?) {
         when (event) {
             StoragesViewModel.Event.ShowAddNewStorageDialog -> showStorageDialog(null)
         }
@@ -175,14 +175,18 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun showStorageDialog(storage: TetroidStorage?) {
-        storageDialog = StorageDialog(storage, object : StorageDialog.IStorageResult {
-            override fun onApply(storage: TetroidStorage) {
-                viewModel.addStorage(storage)
-            }
-            override fun onSelectPath(path: String) {
-                selectStorageFolder(path)
-            }
-        }).apply {
+        storageDialog = StorageDialog(
+            storage = storage,
+            isDefault = (viewModel.storages.value?.isEmpty() == true),
+            callback = object : StorageDialog.IStorageResult {
+                override fun onApply(storage: TetroidStorage) {
+                    viewModel.addStorage(storage)
+                }
+
+                override fun onSelectPath(path: String) {
+                    selectStorageFolder(path)
+                }
+            }).apply {
             showIfPossible(supportFragmentManager)
         }
     }

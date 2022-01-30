@@ -18,6 +18,7 @@ import java.io.File
 
 class StorageDialog(
     private val storage: TetroidStorage?,
+    private val isDefault: Boolean? = null,
     private val callback: IStorageResult
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -59,8 +60,8 @@ class StorageDialog(
                 isPathSelected = true
             }
             etName.setText(storage.name)
-            cbIsDefault.isChecked = storage.isDefault
         }
+        cbIsDefault.isChecked = isDefault ?: storage?.isDefault ?: false
 
         val clickListener = View.OnClickListener { callback.onSelectPath(etPath.text.toString()) }
         bPath.setOnClickListener(clickListener)
