@@ -44,14 +44,16 @@
 Для проверки работы приложения можно использовать [тестовое хранилище](https://github.com/gee12/MyTetraTestData).
 
 **Использовались сторонние библиотеки:**
-* Многоуровневый список веток - [open-rnd/android-multi-level-listview](https://github.com/open-rnd/android-multi-level-listview)
+* Многоуровневый список веток - [open-rnd/android-multi-level-listview](https://github.com/open-rnd/android-multi-level-listview) (мой [форк](https://github.com/gee12/android-multi-level-listview))
 * Разворачиваемая панель - [cachapa/ExpandableLayout](https://github.com/cachapa/ExpandableLayout)
 * Выбор каталога (FolderPicker) - [kashifo/android-folder-picker-library](https://github.com/kashifo/android-folder-picker-library) (мой [форк](https://github.com/gee12/android-folder-picker-library))
 * Выбор цвета (ColorPicker) - [yukuku/ambilwarna](https://github.com/yukuku/ambilwarna)
 * Чтение SVG-картинок - [thinkingcow/svg-android-2](https://github.com/thinkingcow/svg-android-2) (мой [форк](https://github.com/gee12/svg-android-2))
 * Парсинг html - [jsoup](https://github.com/jhy/jsoup)
-* WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
+* WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-HTML-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
 * Панель запроса ПИН-кода - [aritraroy/PinLockView](https://github.com/aritraroy/PinLockView) (мой [форк](https://github.com/gee12/PinLockView))
+* Выбор изображений - [esafirm/android-image-picker](https://github.com/esafirm/android-image-picker) (мой [форк](https://github.com/gee12/android-image-picker))
+* Загрузка xml - [hunterhacker/jdom](https://github.com/hunterhacker/jdom) (мой [форк](https://github.com/gee12/jdom))
 * TextViewUndoRedo - [from google](https://issuetracker.google.com/issues/36913735#c123)
 
 
