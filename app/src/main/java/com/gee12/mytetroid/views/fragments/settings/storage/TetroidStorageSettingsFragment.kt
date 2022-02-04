@@ -23,7 +23,7 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         settingsActivity?.storageId?.let { storageId ->
-            viewModel.initStorageFromBase(storageId)
+            viewModel.startInitStorageFromBase(storageId)
         } ?: run {
             viewModel.logError(R.string.log_not_transferred_storage_id)
         }

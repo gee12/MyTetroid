@@ -39,7 +39,7 @@
                     android:layout_gravity="center_horizontal"
                     android:textAlignment="center"
                     android:textColor="@color/emptySearch"
-                    android:text="@string/title_select_the_node" />
+                    android:text="@string/title_need_load_storage" />
 
                 <Button
                     android:id="@+id/button_global_search"

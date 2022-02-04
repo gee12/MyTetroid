@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
+import androidx.annotation.MainThread
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
@@ -173,6 +174,7 @@ open class StorageViewModel(
     /**
      * Инициализация хранилища по ID, переданному в Intent.
      */
+    @MainThread
     fun initStorage(intent: Intent): Boolean {
         if (storage != null) {
             setStorageEvent(Constants.StorageEvents.Inited, storage)
@@ -180,7 +182,7 @@ open class StorageViewModel(
         }
         val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
         return if (storageId > 0) {
-            initStorageFromBase(storageId)
+            startInitStorageFromBase(storageId)
             true
         } else {
             initStorageFromLastStorageId()
@@ -190,10 +192,11 @@ open class StorageViewModel(
     /**
      * Инициализация хранилища по ID хранилища, загруженному в последний раз.
      */
+    @MainThread
     fun initStorageFromLastStorageId(): Boolean {
         val storageId = CommonSettings.getLastStorageId(getContext())
         return if (storageId > 0) {
-            initStorageFromBase(storageId)
+            startInitStorageFromBase(storageId)
             true
         } else {
             logError(getString(R.string.log_not_transferred_storage_id), true)
@@ -202,7 +205,7 @@ open class StorageViewModel(
         }
     }
 
-    fun updateStorageFromBase() {
+    fun startUpdateStorageFromBase() {
         launch {
             val currentStorage = this@StorageViewModel.storage ?: return@launch
             val currentStorageId = currentStorage.id
@@ -216,7 +219,7 @@ open class StorageViewModel(
         }
     }
 
-    open fun initStorageFromBase(id: Int) {
+    open fun startInitStorageFromBase(id: Int) {
         launch {
             val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
             if (storage != null) {
@@ -305,6 +308,7 @@ open class StorageViewModel(
     /**
      * Инициализация хранилища (с созданием файлов, если оно новое).
      */
+    @MainThread
     fun initStorage(isLoadFavoritesOnly: Boolean? = null): Boolean {
         isAlreadyTryDecrypt = false
 

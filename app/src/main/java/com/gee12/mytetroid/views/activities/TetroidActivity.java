@@ -491,6 +491,7 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
     }
 
     protected void showStorageSettingsActivity(TetroidStorage storage) {
+        if (storage == null) return;
         startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY);
     }
 

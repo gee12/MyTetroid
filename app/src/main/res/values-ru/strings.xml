@@ -189,6 +189,7 @@
     <string name="title_is_not_exist_mask">Отсутствует: %s</string>
     <string name="title_is_not_exist_plural_mask">Отсутствуют: %s</string>
     <string name="title_storage_error">Ошибка хранилища</string>
+    <string name="title_need_load_storage">Загрузите хранилище…</string>
 
     <string name="progress_copy_record">Копирование записи…</string>
     <string name="progress_insert_record">Вставка записи…</string>

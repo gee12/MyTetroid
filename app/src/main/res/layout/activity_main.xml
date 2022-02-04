@@ -113,7 +113,7 @@
                 android:layout_marginTop="@dimen/nav_header_height"
                 android:padding="@dimen/tv_empty_padding"
                 android:textColor="@color/emptySearch"
-                android:text="@string/title_storage_not_loaded"/>
+                android:text="@string/title_need_load_storage"/>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_add_node"
@@ -169,7 +169,7 @@
                 android:layout_gravity="center"
                 android:padding="@dimen/tv_empty_padding"
                 android:textColor="@color/emptySearch"
-                android:text="@string/log_tags_is_missing" />
+                android:text="@string/title_need_load_storage" />
 
         </RelativeLayout>
 

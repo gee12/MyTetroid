@@ -13,8 +13,6 @@ import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.interactors.FavoritesInteractor
-import com.gee12.mytetroid.interactors.FavoritesInteractor.Companion.FAVORITES_NODE
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
@@ -102,7 +100,7 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
             }
         }
 
-        viewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
+        viewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
     }
 
     override fun initViewModel() {

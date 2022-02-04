@@ -1818,7 +1818,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             } else {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_STORAGE_UPDATED, false)) {
                     // перезагрузить свойства хранилища из базы
-                    viewModel.updateStorageFromBase();
+                    viewModel.startUpdateStorageFromBase();
                 }
 
                 if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)) {
@@ -2338,10 +2338,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded);
         enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded);
-        enableMenuItem(menu.findItem(R.id.action_storage_info), true);
-        enableMenuItem(menu.findItem(R.id.action_storage_settings), true);
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), true);
-
+        boolean isStorageNotNull = viewModel.getStorage() != null;
+        enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageNotNull);
+        enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageNotNull);
+        enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageNotNull);
+//        viewModel.getStorage()
         getMainPage().onPrepareOptionsMenu(menu);
 
         return super.onPrepareOptionsMenu(menu);

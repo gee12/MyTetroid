@@ -95,7 +95,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         if (viewModel is StorageViewModel) {
             val storageViewModel = viewModel as StorageViewModel
             storageViewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-            storageViewModel.initStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
+            storageViewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
         }
     }
 
