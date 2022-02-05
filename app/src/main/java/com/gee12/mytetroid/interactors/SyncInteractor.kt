@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.text.TextUtils
 import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
@@ -27,7 +28,6 @@ class SyncInteractor(
 
     /**
      * Отправка запроса на синхронизацию стороннему приложению.
-     * @param storagePath
      */
     fun startStorageSync(
         activity: Activity,
@@ -36,16 +36,15 @@ class SyncInteractor(
         appName: String,
         requestCode: Int
     ): Boolean {
-        if (command.isEmpty()) {
-            logger.logError(R.string.log_sync_command_empty, true)
-            return false
-        }
         return when (appName) {
             activity.getString(R.string.title_app_termux) -> {
                 startTermuxSync(activity, storagePath, command)
             }
             activity.getString(R.string.title_app_mgit) -> {
                 startMGitSync(activity, storagePath, command, requestCode)
+            }
+            activity.getString(R.string.title_app_autosync) -> {
+                startAutosyncSync(activity, command)
             }
             else -> {
                 logger.logError(activity.getString(R.string.log_storage_sync_unknown_app_mask, appName))
@@ -54,13 +53,20 @@ class SyncInteractor(
         }
     }
 
+    fun isWaitSyncResult(context: Context, appName: String): Boolean {
+        return appName == context.getString(R.string.title_app_mgit)
+    }
+
     /**
      * Отправка запроса на синхронизацию в MGit.
-     * @param storagePath
      */
     private fun startMGitSync(activity: Activity, storagePath: String, command: String, requestCode: Int): Boolean {
-        val intent = createIntentToMGit(activity, storagePath, command)
         logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_mgit), command), false)
+        if (command.isEmpty()) {
+            logger.logError(R.string.log_sync_command_empty, true)
+            return false
+        }
+        val intent = createIntentToMGit(activity, storagePath, command)
         try {
             if (!CommonSettings.isNotRememberSyncApp(activity)) {
                 // использовать стандартный механизм запоминания используемого приложения
@@ -74,8 +80,8 @@ class SyncInteractor(
                 )
             }
         } catch (ex: Exception) {
-            logger.logError(activity.getString(R.string.log_sync_app_not_installed), true)
             logger.logError(ex, false)
+            logger.logError(activity.getString(R.string.log_sync_app_not_installed), true)
             return false
         }
         return true
@@ -83,13 +89,9 @@ class SyncInteractor(
 
     /**
      * Создание Intent для отправки в MGit.
-     * @param context
-     * @param storagePath
-     * @param command
-     * @return
      */
-    private fun createIntentToMGit(context: Context, storagePath: String, command: String) =
-        Intent(Intent.ACTION_SYNC).apply {
+    private fun createIntentToMGit(context: Context, storagePath: String, command: String): Intent {
+        return Intent(Intent.ACTION_SYNC).apply {
             addCategory(Intent.CATEGORY_DEFAULT)
 //        Uri uri = Uri.fromFile(new File(mStoragePath));
             val uri = Uri.parse("content://$storagePath")
@@ -97,15 +99,17 @@ class SyncInteractor(
             putExtra(EXTRA_APP_NAME, context.packageName)
             putExtra(EXTRA_SYNC_COMMAND, command)
         }
+    }
 
     /**
      * Запуск команды/скрипта синхронизации с помощью Termux.
-     * @param activity
-     * @param storagePath
-     * @param command
      */
     private fun startTermuxSync(activity: Activity, storagePath: String, command: String): Boolean {
         logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_termux), command), false)
+        if (command.isEmpty()) {
+            logger.logError(R.string.log_sync_command_empty, true)
+            return false
+        }
         // проверяем разрешение на запуск сервиса
         if (!permissionInteractor.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
             return false
@@ -130,20 +134,16 @@ class SyncInteractor(
      * Отправка команды/скрипта на выполнение в Termux.
      * Дополнительная информация:
      * https://github.com/termux/termux-app/blob/master/app/src/main/java/com/termux/app/RunCommandService.java
-     *
-     * @param activity
-     * @param command
-     * @param args
      */
     private fun sendTermuxCommand(activity: Activity, command: String, args: Array<String>?, workDir: String?, bg: Boolean): Boolean {
         val intent = Intent().apply {
             setClassName("com.termux", "com.termux.app.RunCommandService")
             action = "com.termux.RUN_COMMAND"
             putExtra("com.termux.RUN_COMMAND_PATH", command)
-            if (args != null && args.isNotEmpty()) {
+            if (args?.isNotEmpty() == true) {
                 putExtra("com.termux.RUN_COMMAND_ARGUMENTS", args)
             }
-            if (!TextUtils.isEmpty(workDir)) {
+            if (!workDir.isNullOrEmpty()) {
                 putExtra("com.termux.RUN_COMMAND_WORKDIR", workDir)
             }
             putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg)
@@ -151,12 +151,80 @@ class SyncInteractor(
         val fullCommand = (command + " " + args?.let { TextUtils.join(" ", args) })
         logger.log(activity.getString(R.string.log_start_storage_sync_mask) + fullCommand)
         try {
-            activity.startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                activity.startForegroundService(intent)
+            } else {
+                activity.startService(intent)
+            }
+            logger.log(activity.getString(R.string.log_started_storage_sync_mask, activity.getString(R.string.title_app_termux)), true)
         } catch (ex: Exception) {
+            logger.logError(ex, false)
             logger.logError(R.string.log_error_when_sync, true)
             TetroidMessage.showSnackMoreInLogs(activity)
             return false
         }
         return true
+    }
+
+    /**
+     * Отправка намерения на выполнение синхронизации в Autosync.
+     * Дополнительная информация:
+     * https://metactrl.com/autosync/automation/
+     */
+    private fun startAutosyncSync(activity: Activity, command: String): Boolean {
+        val intent = createIntentToAutosync(parseExtrasToAutosync(activity, command))
+        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_autosync), command), false)
+        try {
+            activity.sendBroadcast(intent)
+            logger.log(activity.getString(R.string.log_started_storage_sync_mask, activity.getString(R.string.title_app_autosync)), true)
+        } catch (ex: Exception) {
+            logger.logError(ex, false)
+            logger.logError(R.string.log_error_when_sync, true)
+            TetroidMessage.showSnackMoreInLogs(activity)
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Получение extras из строки.
+     */
+    private fun parseExtrasToAutosync(context: Context, command: String): Array<Pair<String, String>>? {
+        return if (command.isBlank()) {
+            null
+        } else {
+            val extras = command.split(",")
+            if (extras.isNotEmpty()) {
+                extras.mapNotNull {
+                    val withoutQuotes = it.trim('{', '}')
+                    val keyValue = withoutQuotes.split(":")
+                    if (keyValue.size >= 2) {
+                        Pair(
+                            first = keyValue[0].trim(),
+                            second = keyValue[1].trim()
+                        )
+                    } else {
+                        logger.logError(context.getString(R.string.log_error_when_parse_autosync_extra_mask, it), false)
+                        null
+                    }
+                }.toTypedArray()
+            } else {
+                logger.logError(R.string.log_error_when_parse_autosync_extras, false)
+                null
+            }
+        }
+    }
+
+    /**
+     * Создание Intent для отправки в Autosync.
+     */
+    private fun createIntentToAutosync(extras: Array<Pair<String, String>>?): Intent {
+        return Intent().apply {
+            setClassName("com.ttxapps.autosync", "com.ttxapps.autosync.Automation")
+            action = "syncNow"
+            extras?.forEach {
+                putExtra(it.first, it.second)
+            }
+        }
     }
 }

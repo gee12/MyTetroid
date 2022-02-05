@@ -3,6 +3,17 @@
     <string-array name="sync_apps">
         <item>@string/title_app_mgit</item>
         <item>@string/title_app_termux</item>
+        <item>@string/title_app_autosync</item>
+    </string-array>
+    <string-array name="sync_apps_commands_common">
+        <item>@string/pref_sync_command_mgit_summ</item>
+        <item>@string/pref_sync_command_termux_summ</item>
+        <item>@string/pref_sync_command_autosync_summ</item>
+    </string-array>
+    <string-array name="sync_apps_commands_for_storage">
+        <item>@string/pref_sync_command_mgit_summ_storage</item>
+        <item>@string/pref_sync_command_termux_summ_storage</item>
+        <item>@string/pref_sync_command_autosync_summ_storage</item>
     </string-array>
     <string-array name="when_ask_password_entries">
         <item>@string/pref_when_ask_password_on_select</item>

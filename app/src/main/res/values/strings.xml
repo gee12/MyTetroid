@@ -164,6 +164,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_done">Done</string>
     <string name="title_app_termux" translatable="false">Termux</string>
     <string name="title_app_mgit" translatable="false">MGit</string>
+    <string name="title_app_autosync" translatable="false">Autosync</string>
     <string name="title_download_attach_file_by_link">Attach file from link</string>
     <string name="title_insert_record_content">Insert record content</string>
     <string name="title_insert_hyperlink">Insert hyperlink</string>
@@ -286,18 +287,24 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_is_confirm_app_exit_summ">Show confirmation dialog for application exit</string>
     <string name="pref_category_sync">Sync</string>
     <string name="pref_is_sync_storage">Sync storage</string>
-    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application (used as default value for storages)</string>
+    <string name="pref_is_sync_summ">The mechanism for transmitting a synchronization start command to the third-party application \n(used as default value for new storages)</string>
     <string name="pref_is_sync_summ_storage">The mechanism for transmitting a synchronization start command to the third-party application</string>
     <string name="pref_is_sync_before_loading">Sync before loading</string>
-    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage (used as default value for storages)</string>
+    <string name="pref_is_sync_before_loading_summ">Start synchronization before loading storage \n(used as default value for new storages)</string>
     <string name="pref_is_sync_before_loading_summ_storage">Start synchronization before loading storage</string>
     <string name="pref_is_sync_before_exit">Sync before exit</string>
-    <string name="pref_is_sync_before_exit_summ">Start synchronization before exit from app (used as default value for storages)</string>
+    <string name="pref_is_sync_before_exit_summ">Start synchronization before exit from app \n(used as default value for new storages)</string>
     <string name="pref_is_sync_before_exit_summ_storage">Start synchronization before exit from app</string>
     <string name="pref_key_sync_command" translatable="false">pref_key_sync_command</string>
     <string name="pref_sync_command">Sync command</string>
-    <string name="pref_sync_command_summ">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory (used as default value for storages)</string>
-    <string name="pref_sync_command_summ_storage">A synchronization command or script, for example: \"git pull\" or \"~/sync.sh\" (depends on a third-party application).\nMacro% a - storage directory</string>
+    <string name="pref_sync_command_summ">A synchronization command or script, depends on a third-party application\nMacro% a - storage directory \n(used as default value for new storages)</string>
+    <string name="pref_sync_command_mgit_summ">A synchronization command for MGit, for example: \"git pull\"\n(used as default value for new storages)</string>
+    <string name="pref_sync_command_termux_summ">A command or script for Termux, for example: \"git pull\" или \"~/sync.sh\". Macro% a - storage directory \n(used as default value for new storages)</string>
+    <string name="pref_sync_command_autosync_summ">Parameters Extras for Autosync, for example: \"{secret: ue43ka9x}, {folderPairs: Test folder, Screenshots, DCIM}\" \n(used as default value for new storages)</string>
+    <string name="pref_sync_command_summ_storage">A synchronization command or script, depends on a third-party application</string>
+    <string name="pref_sync_command_mgit_summ_storage">A synchronization command for MGit, for example: \"git pull\"</string>
+    <string name="pref_sync_command_termux_summ_storage">A command or script for Termux, for example: \"git pull\" или \"~/sync.sh\". Macro% a - storage directory</string>
+    <string name="pref_sync_command_autosync_summ_storage">Parameters Extras for Autosync, for example: \"{secret: ue43ka9x}, {folderPairs: Test folder, Screenshots, DCIM}\"</string>
     <string name="pref_key_is_sync_storage" translatable="false">pref_key_is_sync_storage</string>
     <string name="pref_key_is_sync_before_init" translatable="false">pref_key_is_sync_before_init</string>
     <string name="pref_key_is_not_remember_sync_app" translatable="false">pref_key_is_remember_sync_app</string>
@@ -330,9 +337,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_is_ask_before_sync" translatable="false">pref_key_is_answer_before_sync</string>
     <string name="pref_key_is_ask_before_exit_sync" translatable="false">pref_key_is_answer_before_exit_sync</string>
     <string name="pref_ask_before_sync">Ask before sync</string>
-    <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start (used as default value for storages)</string>
+    <string name="pref_ask_before_sync_summ">Show confirmation of synchronization start \n(used as default value for new storages)</string>
     <string name="pref_ask_before_sync_summ_storage">Show confirmation of synchronization start</string>
-    <string name="pref_ask_before_sync_summ_exit">Show confirmation of synchronization start before exit from app (used as default value for storages)</string>
+    <string name="pref_ask_before_sync_summ_exit">Show confirmation of synchronization start before exit from app \n(used as default value for new storages)</string>
     <string name="pref_ask_before_sync_summ_exit_storage">Show confirmation of synchronization start before exit from app</string>
     <string name="pref_key_is_record_edit_mode" translatable="false">pref_key_is_record_edit_mode</string>
     <string name="pref_key_show_logs" translatable="false">pref_key_show_logs</string>
@@ -386,7 +393,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
     <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
     <string name="pref_app_for_sync">Application</string>
-    <string name="pref_app_for_sync_summ">Application used to start sync (used as default value for storages)</string>
+    <string name="pref_app_for_sync_summ">Application used to start sync \n(used as default value for new storages)</string>
     <string name="pref_app_for_sync_summ_storage">Application used to start sync</string>
     <string name="pref_key_is_sync_before_exit" translatable="false">pref_key_is_sync_before_exit</string>
     <string name="pref_expand_empty_nodes">Expand empty nodes</string>

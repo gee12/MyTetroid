@@ -2332,7 +2332,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 && (curViewId == Constants.MAIN_VIEW_NODE_RECORDS
                 || curViewId == Constants.MAIN_VIEW_TAG_RECORDS));
         visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords);
-        visibleMenuItem(menu.findItem(R.id.action_storage_sync), CommonSettings.isSyncStorageDef(this));
+        visibleMenuItem(menu.findItem(R.id.action_storage_sync), viewModel.isStorageSyncEnabled());
 
         boolean isStorageLoaded = viewModel.isStorageLoaded();
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded);
