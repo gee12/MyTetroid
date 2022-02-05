@@ -91,10 +91,10 @@ object Constants {
 
     const val EXTRA_IS_REINIT_STORAGE = "EXTRA_IS_REINIT_STORAGE"
     const val EXTRA_IS_CREATE_STORAGE = "EXTRA_IS_CREATE_STORAGE"
+    const val EXTRA_IS_RELOAD_STORAGE_ENTITY = "EXTRA_IS_RELOAD_STORAGE_ENTITY"
     const val EXTRA_IS_LOAD_STORAGE = "EXTRA_IS_LOAD_STORAGE"
     const val EXTRA_IS_LOAD_ALL_NODES = "EXTRA_IS_LOAD_ALL_NODES"
     const val EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED"
-    const val EXTRA_IS_STORAGE_UPDATED = "EXTRA_IS_STORAGE_UPDATED"
 
     enum class TetroidView {
         Main,
@@ -132,9 +132,8 @@ object Constants {
 
     enum class StorageEvents {
         NoDefaultStorage,
-        Updated,
         NotFoundInBase,
-        FoundInBase,
+        LoadedEntity,
         Added,
         PermissionCheck,
         PermissionGranted,

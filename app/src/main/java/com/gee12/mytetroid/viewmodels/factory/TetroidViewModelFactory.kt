@@ -40,6 +40,12 @@ class TetroidViewModelFactory(
                     app = app,
                 ) as T
             }
+            modelClass.isAssignableFrom(StorageSettingsViewModel::class.java) -> {
+                StorageSettingsViewModel(
+                    app = app,
+//                    logger = env.logger,
+                ) as T
+            }
             modelClass.isAssignableFrom(StorageViewModel::class.java) -> {
                 StorageViewModel(
                     app = app,

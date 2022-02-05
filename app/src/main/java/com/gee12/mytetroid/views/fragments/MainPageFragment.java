@@ -157,6 +157,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     public void onResume() {
         super.onResume();
 
+        checkViewModel();
+    }
+
+    private boolean checkViewModel() {
         if (viewModel == null) {
             if (getActivity() != null) {
                 App.restartApp(getActivity());
@@ -167,7 +171,9 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
                     e.printStackTrace();
                 }
             }
+            return false;
         }
+        return true;
     }
 
     public void initListAdapters(Context context) {
@@ -226,6 +232,9 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * Возврат фрагмента в первоначальное состояние.
      */
     public void clearView() {
+        if (!checkViewModel()) {
+            return;
+        }
         viewModel.showMainView(Constants.MAIN_VIEW_NONE);
         lvRecords.setAdapter(null);
         lvAttaches.setAdapter(null);
@@ -448,25 +457,19 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         listAdapterAttaches.notifyDataSetChanged();
     }
 
-// endregion Attach
+    // endregion Attach
 
     // region OptionsMenu
 
     /**
      *
-     * @param menu
      */
     public void onCreateOptionsMenu(Menu menu) {
 
     }
 
-    private void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
-    }
-
     /**
      *
-     * @param menu
      */
     @Override
     public void onPrepareOptionsMenu(@NonNull Menu menu) {

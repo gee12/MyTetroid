@@ -41,7 +41,7 @@ import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SortHelper;
+import com.gee12.mytetroid.helpers.SortHelper;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.ICallback;
 import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
@@ -338,7 +338,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event="+event+", data="+data);
         switch (event) {
-            case Updated:
+            case LoadedEntity:
                 onStorageUpdated();
                 break;
 
@@ -1810,15 +1810,18 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 //                    }
 //                });
 //            } else
+            /*if (data.getBooleanExtra(Constants.EXTRA_IS_RELOAD_STORAGE_ENTITY, false)) {
+                viewModel.startReloadStorageEntity();
+            } else*/
             if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)) {
                 int storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0);
                 boolean isLoadAllNodes = data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false);
                 viewModel.startInitStorage(storageId, isLoadAllNodes);
 
             } else {
-                if (data.getBooleanExtra(Constants.EXTRA_IS_STORAGE_UPDATED, false)) {
+                if (data.getBooleanExtra(Constants.EXTRA_IS_RELOAD_STORAGE_ENTITY, false)) {
                     // перезагрузить свойства хранилища из базы
-                    viewModel.startUpdateStorageFromBase();
+                    viewModel.startReloadStorageEntity();
                 }
 
                 if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)) {

@@ -25,7 +25,7 @@ import java.io.File
 abstract class StorageEncryptionViewModel(
     app: Application,
     /*logger: TetroidLogger?,*/
-) : StorageSettingsViewModel(
+) : BaseStoragePropertiesViewModel(
     app,
     /*logger,*/
 ) {

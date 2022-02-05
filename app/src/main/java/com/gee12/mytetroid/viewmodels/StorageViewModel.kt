@@ -205,16 +205,18 @@ open class StorageViewModel(
         }
     }
 
-    fun startUpdateStorageFromBase() {
-        launch {
-            val currentStorage = this@StorageViewModel.storage ?: return@launch
-            val currentStorageId = currentStorage.id
-            val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(currentStorageId) }
-            storage?.let {
-                this@StorageViewModel.storage = currentStorage.getCopy(it)
-                setStorageEvent(Constants.StorageEvents.Updated, it)
-            } ?: run {
-                log(getString(R.string.log_storage_not_found_mask).format(currentStorageId))
+    fun startReloadStorageEntity() {
+        storage?.let { currentStorage ->
+            launch(Dispatchers.IO) {
+                val id = currentStorage.id
+                val storage = storagesRepo.getStorage(id)
+                if (storage != null) {
+                    this@StorageViewModel.storage = currentStorage.getCopy(storage)
+                    postStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
+                } else {
+                    postStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
+                    log(getString(R.string.log_storage_not_found_mask).format(id), true)
+                }
             }
         }
     }
@@ -224,7 +226,7 @@ open class StorageViewModel(
             val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
             if (storage != null) {
                 this@StorageViewModel.storage = storage
-                setStorageEvent(Constants.StorageEvents.FoundInBase, storage)
+                setStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
 
                 // если используется уже загруженное дерево веток из кэша
                 if (storageDataProcessor.isLoaded()) {
@@ -273,7 +275,7 @@ open class StorageViewModel(
         launch(Dispatchers.IO) {
             val storage = storagesRepo.getStorage(id)
             if (storage != null) {
-                postStorageEvent(Constants.StorageEvents.FoundInBase, storage)
+                postStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
                 startInitStorage(storage)
             } else {
                 postStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
@@ -778,7 +780,7 @@ open class StorageViewModel(
      * @param callback Обработчик события после выполнения синхронизации или вместо нее.
      */
     fun syncStorageAndRunCallback(activity: Activity, syncType: SyncStorageType, callback: ICallback?) {
-        getSyncProfile()?.let {
+        getStorageSyncProfile()?.let {
             if (it.isEnabled) {
                 this.syncType = syncType
                 this.syncCallback = callback
@@ -828,16 +830,19 @@ open class StorageViewModel(
         val result = syncInteractor.startStorageSync(
             activity = activity,
             storagePath = getStoragePath(),
-            command = storage?.syncProfile?.command ?: "",
-            appName = storage?.syncProfile?.appName ?: "",
+            command = storage?.syncProfile?.command.orEmpty(),
+            appName = storage?.syncProfile?.appName.orEmpty(),
             requestCode = Constants.REQUEST_CODE_SYNC_STORAGE
         )
         if (callback != null) {
             // запускаем обработчик сразу после синхронизации, не дожидаясь ответа, если:
             //  1) синхронизацию не удалось запустить
-            //  2) выбрана синхронизация с помощью Termux,
-            //  т.к. в этом случае нет простого механизма получить ответ
-            if (!result || getSyncAppName() == activity.getString(R.string.title_app_termux)) {
+            //  2) выбрана синхронизация с помощью приложения, не предусматривающего ответ
+            val waitSyncResult = syncInteractor.isWaitSyncResult(
+                context = getContext(),
+                appName = storage?.syncProfile?.appName.orEmpty()
+            )
+            if (!result || !waitSyncResult) {
                 callback.run(result)
             }
         }
@@ -846,21 +851,21 @@ open class StorageViewModel(
     /**
      * Обработка результата синхронизации хранилища.
      *
-     * @param res
+     * @param result
      */
-    fun onStorageSyncFinished(res: Boolean) {
-        log(if (res) R.string.log_sync_successful else R.string.log_sync_failed, true)
+    fun onStorageSyncFinished(result: Boolean) {
+        log(if (result) R.string.log_sync_successful else R.string.log_sync_failed, true)
         when (syncType) {
             SyncStorageType.Manually -> {
-                syncCallback?.run(res)
+                syncCallback?.run(result)
             }
             SyncStorageType.BeforeInit -> {
-                if (res) syncCallback?.run(res)
-                else postStorageEvent(Constants.StorageEvents.AskAfterSyncOnInit, res)
+                if (result) syncCallback?.run(result)
+                else postStorageEvent(Constants.StorageEvents.AskAfterSyncOnInit, result)
             }
             SyncStorageType.BeforeExit -> {
-                if (res) syncCallback?.run(res)
-                else postStorageEvent(Constants.StorageEvents.AskAfterSyncOnExit, res)
+                if (result) syncCallback?.run(result)
+                else postStorageEvent(Constants.StorageEvents.AskAfterSyncOnExit, result)
             }
         }
         syncType = SyncStorageType.Manually

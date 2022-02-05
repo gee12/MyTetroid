@@ -36,7 +36,7 @@ open class BaseViewModel(
     protected val innerSharedLogger: FileTetroidLogger
         get() = App.current?.logger ?: logger
 
-    val messageObservable = MutableLiveData<Message>()
+    val messageObservable = SingleLiveEvent<Message>()
 
 
     fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsRepo.getLastFolderPathOrDefault(forWrite)
@@ -199,7 +199,7 @@ open class BaseViewModel(
 
     fun getString(resId: Int) = getApplication<Application>().resources.getString(resId)
 
-    fun getString(resId: Int, vararg params: Any) = getApplication<Application>().resources.getString(resId, params)
+    fun getString(resId: Int, vararg params: Any) = getApplication<Application>().resources.getString(resId, *params)
 
     fun getStringArray(resId: Int) = getApplication<Application>().resources.getStringArray(resId)
 

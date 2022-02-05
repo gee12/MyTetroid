@@ -37,11 +37,12 @@ class TetroidStorage(
 
     fun getCopy(src: TetroidStorage): TetroidStorage {
         return src.also {
+            it.isNew = isNew
+            it.error = error
             it.isInited = isInited
             it.isLoaded = isLoaded
             it.isCrypted = isCrypted
             it.isDecrypted = isDecrypted
-            it.isNew = isNew
         }
     }
 

@@ -22,8 +22,6 @@ import org.jsoup.internal.StringUtil
 
 class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
 
-    var isStoragePathChanged = false
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
     }
@@ -161,7 +159,6 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         when (key) {
             // основное
             getString(R.string.pref_key_storage_path) -> {
-                isStoragePathChanged = true
                 updateSummary(key, value)
                 viewModel.onStoragePathChanged()
             }
@@ -171,9 +168,6 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
             }
             getString(R.string.pref_key_temp_path) -> updateSummary(key, value)
             getString(R.string.pref_key_quickly_node_id) -> updateSummary(key, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
-            // синхронизация
-            getString(R.string.pref_key_app_for_sync) -> updateSummary(key, value)
-            getString(R.string.pref_key_sync_command) -> updateSummary(key, value, getString(R.string.pref_sync_command_summ))
         }
     }
 
@@ -254,21 +248,6 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
             viewModel.getTrashPath(),
             Constants.REQUEST_CODE_OPEN_TEMP_PATH
         )
-    }
-
-    override fun onBackPressed(): Boolean {
-        // если настройки хранилища были изменены, добавляем пометку в результат активити
-        if (viewModel.isFieldsChanged) {
-            val intent = Intent().apply {
-                putExtra(Constants.EXTRA_IS_STORAGE_UPDATED, true)
-                if (isStoragePathChanged) {
-                    putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                    putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
-                }
-            }
-            requireActivity().setResult(Activity.RESULT_OK, intent)
-        }
-        return false
     }
 
 }

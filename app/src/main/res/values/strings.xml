@@ -223,7 +223,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_is_load_last_storage_path_summ">Load last used storage (if no default storage is specified)</string>
     <string name="pref_category_crypt">Encryption</string>
     <string name="pref_is_save_pass_hash_local">Save password</string>
-    <string name="pref_is_save_pass_hash_local_summ">Save password hash locally (used as default value for storages)</string>
+    <string name="pref_is_save_pass_hash_local_summ">Save password hash locally \n(used as default value for new storages)</string>
     <string name="pref_is_save_pass_hash_local_summ_storage">Save password hash locally</string>
     <string name="pref_key_storage_path" translatable="false">pref_key_storage_path</string>
     <string name="pref_key_storage_name" translatable="false">pref_key_storage_name</string>
@@ -232,7 +232,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_category_handling">Handling</string>
     <string name="pref_category_other">Rest</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
-    <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time (used as default value for storages)</string>
+    <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time \n(used as default value for new storages)</string>
     <string name="pref_is_keep_selected_node_summ_storage">Set the current branch selected last time</string>
     <string name="pref_key_is_keep_selected_node" translatable="false">pref_key_is_select_last_node</string>
     <string name="pref_record_fields_cols">Displayed field entries in the list</string>
@@ -268,7 +268,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_is_decrypt_in_temp" translatable="false">pref_key_is_decrypt_in_temp</string>
     <string name="pref_key_is_use_trash" translatable="false">pref_key_is_use_trash</string>
     <string name="pref_trash_path">Trash catalog</string>
-    <string name="pref_trash_path_summ">Trash catalog path (used as default value for storages)</string>
+    <string name="pref_trash_path_summ">Trash catalog path \n(used as default value for new storages)</string>
     <string name="pref_trash_path_summ_storage">Trash catalog path</string>
     <string name="pref_key_temp_path" translatable="false">pref_key_temp_path</string>
     <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
@@ -355,7 +355,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_clear_search_history_summ">Delete query input hints and global search options</string>
     <string name="pref_record_edit_mode_summ">Open recordings immediately in edit mode, not view</string>
     <string name="pref_decrypt_files_to_trash_dir">Decrypt files to directory</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when opening (used as default value for storages)</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Decrypt attachments to a trash directory when opening \n(used as default value for new storages)</string>
     <string name="pref_decrypt_files_to_trash_dir_summ_storage">Decrypt attachments to a trash directory when opening</string>
     <string name="pref_key_change_pass" translatable="false">pref_key_change_pass</string>
     <string name="pref_change_pass">Change password</string>
@@ -366,11 +366,11 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_key_favorites" translatable="false">pref_key_favorites</string>
     <string name="pref_key_favorites_json" translatable="false">pref_key_favorites_json</string>
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
-    <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries (used as default value for storages)</string>
+    <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries \n(used as default value for new storages)</string>
     <string name="pref_load_only_favorites_summ_storage">To speed up the startup, first load only favorite entries</string>
     <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
-    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs (used as default value for storages)</string>
+    <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs \n(used as default value for new storages)</string>
     <string name="pref_check_outside_changing_summ_storage">Check records tree for changes by third-party programs</string>
     <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
     <string name="pref_request_pin_code">Use PIN-code</string>
@@ -411,10 +411,10 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_quickly_node_not_available">Available if this is the default storage</string>
     <string name="pref_key_is_clear_trash_before_exit" translatable="false">pref_key_is_clear_trash_before_exit</string>
     <string name="pref_is_clear_trash_before_exit">Clear trash before exit</string>
-    <string name="pref_is_clear_trash_before_exit_summ">(used as default value for storages)</string>
+    <string name="pref_is_clear_trash_before_exit_summ">(used as default value for new storages)</string>
     <string name="pref_key_is_ask_before_clear_trash_before_exit" translatable="false">pref_key_is_ask_before_clear_trash_before_exit</string>
     <string name="pref_is_ask_before_clear_trash_before_exit">Ask before cleaning?</string>
-    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(used as default value for storages)</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(used as default value for new storages)</string>
     <string name="pref_key_sub_category_storage" translatable="false">pref_key_category_storage</string>
     <string name="pref_sub_category_storage">Storage</string>
     <string name="pref_key_sub_category_other" translatable="false">pref_key_category_other</string>
@@ -658,6 +658,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_open_file">Open file:&#160;</string>
     <string name="log_open_tag_records_mask">Open tag records: %s</string>
     <string name="log_start_storage_sync_mask">Start storage sync. App: \"%s\", command: \"%s\"</string>
+    <string name="log_started_storage_sync_mask">Started storage sync with app \"%s\"</string>
     <string name="log_storage_sync_unknown_app_mask">Unknown app for sync: \"%s\"</string>
     <string name="log_get_file_size_error">Error getting file size:&#160;</string>
     <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
@@ -802,6 +803,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_mytetra_xml_observer_mask">Track changes to a file mytetra.xml was %s</string>
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
+    <string name="log_error_when_parse_autosync_extras">Failed to parse Autosync extras</string>
+    <string name="log_error_when_parse_autosync_extra_mask">Failed to parse Autosync extra: \"%s\"</string>
     <string name="log_icons_dirs_absent">There are no catalogs with icons</string>
     <string name="log_icons_dir_absent_mask">Directory with icons \"%s\" is missing</string>
     <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
@@ -833,6 +836,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_migration">Settings migration failed</string>
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
+    <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

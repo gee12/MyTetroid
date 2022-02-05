@@ -24,4 +24,13 @@ class StorageSectionsSettingsFragment : TetroidStorageSettingsFragment() {
         super.onResume()
     }
 
+    override fun onUpdateStorageFieldEvent(key: String, value: String) {
+        when (key) {
+            // основное
+            getString(R.string.pref_key_storage_path) -> {
+                updateSummary(key, value)
+            }
+        }
+    }
+
 }

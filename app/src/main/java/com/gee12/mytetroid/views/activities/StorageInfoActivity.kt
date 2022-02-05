@@ -36,7 +36,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
 
     override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
         when (event) {
-            Constants.StorageEvents.FoundInBase -> onStorageFoundInBase()
+            Constants.StorageEvents.LoadedEntity -> onStorageFoundInBase()
             Constants.StorageEvents.Inited -> onStorageInitedOrLoaded(true)
             Constants.StorageEvents.InitFailed -> onStorageInitFailed()
             Constants.StorageEvents.Loaded -> onStorageInitedOrLoaded(data as Boolean)

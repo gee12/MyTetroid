@@ -225,10 +225,10 @@
     <string name="pref_is_load_last_storage_path_summ">Загружать хранилище, используемое в прошлый раз (если не задано основное хранилище)</string>
     <string name="pref_category_crypt">Шифрование</string>
     <string name="pref_is_save_pass_hash_local">Сохранять пароль</string>
-    <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_is_save_pass_hash_local_summ">Сохранять хэш пароля локально \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_is_save_pass_hash_local_summ_storage">Сохранять хэш пароля локально</string>
     <string name="pref_is_keep_selected_node">Выбирать прошлую ветку</string>
-    <string name="pref_is_keep_selected_node_summ">При запуске открывать ветку, активную в последний раз (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_is_keep_selected_node_summ">При запуске открывать ветку, активную в последний раз \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_is_keep_selected_node_summ_storage">При запуске открывать ветку, активную в последний раз</string>
     <string name="pref_record_fields_cols">Отображаемые поля записей в списке</string>
     <string name="pref_is_highlight_attach">Подсвечивать записи с файлами</string>
@@ -247,7 +247,7 @@
     <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
     <string name="pref_when_ask_password_on_start">При загрузке хранилища</string>
     <string name="pref_trash_path">Каталог корзины</string>
-    <string name="pref_trash_path_summ">Путь к каталогу корзины (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_trash_path_summ">Путь к каталогу корзины \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_trash_path_summ_storage">Путь к каталогу корзины</string>
     <string name="pref_category_display">Отображение</string>
     <string name="pref_category_edit">Редактирование</string>
@@ -302,14 +302,14 @@
     <string name="pref_setup_pass">Установить пароль</string>
     <string name="pref_setup_pass_summ">Задать пароль для шифрования веток</string>
     <string name="pref_decrypt_files_to_trash_dir">Расшифровывать файлы в каталог</string>
-    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при их открытии (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_decrypt_files_to_trash_dir_summ">Расшифровывать прикрепленные файлы в каталог корзины при их открытии \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_decrypt_files_to_trash_dir_summ_storage">Расшифровывать прикрепленные файлы в каталог корзины при их открытии</string>
     <string name="pref_record_edit_mode_summ">Открывать записи сразу в режиме редактирования, а не просмотра</string>
     <string name="pref_load_only_favorites">Загружать только избранное (Pro)</string>
-    <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_load_only_favorites_summ">Для ускорения запуска загружать сначала только избранные записи \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_load_only_favorites_summ_storage">Для ускорения запуска загружать сначала только избранные записи</string>
     <string name="pref_check_outside_changing">Отслеживать изменения извне</string>
-    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_check_outside_changing_summ">Проверять дерево записей на изменение сторонними программами \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_check_outside_changing_summ_storage">Проверять дерево записей на изменение сторонними программами</string>
     <string name="pref_request_pin_code">Использовать ПИН-код</string>
     <string name="pref_request_pin_code_summ">Если пароль сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
@@ -329,16 +329,16 @@
     <string name="pref_quickly_node_summ">Ветка по-умолчанию для записей, созданных с помощью виджета или при отправке данных сторонними приложениями. Доступно, если это основное хранилище</string>
     <string name="pref_quickly_node_not_available">Доступно, если это хранилище, используемое по-умолчанию</string>
     <string name="pref_app_for_sync">Приложение</string>
-    <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации (используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_app_for_sync_summ">Приложение, используемое для запуска синхронизации \n(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_app_for_sync_summ_storage">Приложение, используемое для запуска синхронизации</string>
     <string name="pref_expand_empty_nodes">Разворачивать пустые ветки</string>
     <string name="pref_expand_empty_nodes_summ">Разворот пустой ветки вместо открытия списка ее записей</string>
     <string name="pref_show_nodes_instead_exit_summ">Показывать дерево веток при нажатии на кнопку Back, вместо выхода из приложения</string>
     <string name="pref_show_nodes_instead_exit">Показывать ветки при нажатии Back</string>
     <string name="pref_is_clear_trash_before_exit">Очищать корзину перед выходом</string>
-    <string name="pref_is_clear_trash_before_exit_summ">(используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_is_clear_trash_before_exit_summ">(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_is_ask_before_clear_trash_before_exit">Спрашивать перед очисткой ?</string>
-    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(используется как значение по-умолчанию для хранилищ)</string>
+    <string name="pref_is_ask_before_clear_trash_before_exit_summ">(используется как значение по-умолчанию для новых хранилищ)</string>
     <string name="pref_sub_category_storage">Хранилище</string>
     <string name="pref_sub_category_other">Другое</string>
     <string name="pref_sub_category_trash">Корзина</string>
@@ -567,6 +567,7 @@
     <string name="log_open_file">Открытие файла:&#160;</string>
     <string name="log_open_tag_records_mask">Открытие записей метки: %s</string>
     <string name="log_start_storage_sync_mask">Запуск синхронизации хранилища. Приложение: \"%s\", команда: \"%s\"</string>
+    <string name="log_started_storage_sync_mask">Запущена синхронизация хранилища с помощью \"%s\"</string>
     <string name="log_storage_sync_unknown_app_mask">Неизвестное приложение для синхронизации: \"%s\"</string>
     <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
     <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
@@ -706,6 +707,8 @@
     <string name="log_mytetra_xml_observer_mask">Отслеживание изменений файла mytetra.xml было %s</string>
     <string name="log_sync_command_empty">Не указана команда синхронизации</string>
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
+    <string name="log_error_when_parse_autosync_extras">Не удалось распарсить Autosync extras</string>
+    <string name="log_error_when_parse_autosync_extra_mask">Не удалось распарсить Autosync extra: \"%s\"</string>
     <string name="log_icons_dirs_absent">Отсутствуют каталоги с иконками</string>
     <string name="log_icons_dir_absent_mask">Отсутствует каталог \"%s\" с иконками</string>
     <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
@@ -737,6 +740,7 @@
     <string name="log_storage_trash_path_changed_mask">Изменен путь к корзине хранилища: %s</string>
     <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
     <string name="log_start_migrate_to_version_mask">Запуск миграции на версию %s</string>
+    <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>

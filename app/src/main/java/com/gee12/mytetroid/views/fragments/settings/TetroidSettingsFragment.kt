@@ -20,7 +20,6 @@ import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.TetroidMessage
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
-import org.jsoup.internal.StringUtil
 
 open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -54,7 +53,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
         permissionInteractor = PermissionInteractor(baseViewModel.logger)
     }
 
-    protected open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
+    open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
         when (event) {
             Constants.ViewEvents.ShowProgress -> settingsActivity?.setProgressVisibility(data as? Boolean ?: false)
             Constants.ViewEvents.ShowProgressText -> settingsActivity?.setProgressText(data as? String)
@@ -89,7 +88,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun openFolderPicker(title: String?, location: String, requestCode: Int) {
-        val path = if (!StringUtil.isBlank(location)) location
+        val path = if (location.isNotBlank()) location
             else baseViewModel.getLastFolderPathOrDefault(true)
         val intent = Intent(context, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
@@ -127,19 +126,17 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun updateSummary(key: String, value: String?) {
-        if (!StringUtil.isBlank(value)) {
-            val pref = findPreference<Preference>(key)
-            if (pref != null) pref.summary = value
+        if (!value.isNullOrBlank()) {
+            findPreference<Preference>(key)?.summary = value
         }
     }
 
-    protected fun updateSummary(@StringRes keyStringRes: Int, value: String?, defValue: String?) {
+    protected fun updateSummary(@StringRes keyStringRes: Int, value: String?, defValue: String) {
         updateSummary(getString(keyStringRes), value, defValue)
     }
 
-    protected fun updateSummary(key: String, value: String?, defValue: String?) {
-        val pref = findPreference<Preference>(key) ?: return
-        pref.summary = if (!StringUtil.isBlank(value)) value else defValue
+    protected fun updateSummary(key: String, value: String?, defValue: String) {
+        findPreference<Preference>(key)?.summary = if (!value.isNullOrBlank()) value else defValue
     }
 
     protected fun updateSummaryIfContains(@StringRes keyStringRes: Int, value: String?) {

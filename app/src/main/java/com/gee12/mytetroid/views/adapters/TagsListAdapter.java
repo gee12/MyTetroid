@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.SortHelper;
+import com.gee12.mytetroid.helpers.SortHelper;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
 
