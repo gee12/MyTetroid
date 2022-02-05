@@ -53,7 +53,7 @@
 * WYSIWYG html-редактор - [lumyjuwon/Android-Rich-WYSIWYG-Editor](https://github.com/lumyjuwon/Android-Rich-WYSIWYG-Editor) (мой [форк](https://github.com/gee12/Android-HTML-WYSIWYG-Editor)), [wasabeef/richeditor-android](https://github.com/wasabeef/richeditor-android)
 * Панель запроса ПИН-кода - [aritraroy/PinLockView](https://github.com/aritraroy/PinLockView) (мой [форк](https://github.com/gee12/PinLockView))
 * Выбор изображений - [esafirm/android-image-picker](https://github.com/esafirm/android-image-picker) (мой [форк](https://github.com/gee12/android-image-picker))
-* Загрузка xml - [hunterhacker/jdom](https://github.com/hunterhacker/jdom) (мой [форк](https://github.com/gee12/jdom))
+* Загрузка xml - [hunterhacker/jdom](https://github.com/hunterhacker/jdom)
 * TextViewUndoRedo - [from google](https://issuetracker.google.com/issues/36913735#c123)
 
 
