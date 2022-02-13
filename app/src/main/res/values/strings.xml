@@ -29,6 +29,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="mes_must_grant_perm_and_storage_inited">First you need to grant write permission and select/create storage</string>
     <string name="mes_all_nodes_must_be_loaded">All storage nodes must be loaded</string>
     <string name="mes_storage_init_error">Storage init error</string>
+    <string name="mes_storage_tree_saved">Record tree saved</string>
 
     <string name="title_settings">Common settings</string>
     <string name="title_storage_settings">Storage settings</string>
@@ -193,7 +194,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_is_not_exist_mask">Not found: %s</string>
     <string name="title_is_not_exist_plural_mask">Not found: %s</string>
     <string name="title_storage_error">Storage error</string>
-    <string name="title_need_load_storage">Load storage…</string>
+    <string name="title_need_load_storage">Need to load storage…</string>
 
     <string name="progress_copy_record">Record copying…</string>
     <string name="progress_insert_record">Record inserting…</string>
@@ -573,7 +574,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 <!--    <string name="ask_storage_folder_clear">The selected directory for the new vault will be cleared. Continue?</string>-->
     <string name="ask_create_storage_in_folder">A new repository will be created in the selected directory. Continue?</string>
     <string name="ask_clear_pass_database_ini">There are no encrypted nodes left. Clear encrypted password?</string>
-    <string name="ask_storage_changed_outside">The record tree has been modified by a third party program. Reboot the storage to continue working with the new data outside?</string>
+    <string name="ask_storage_tree_changed_outside">The record tree has been modified by a third party program. Reboot the storage to continue working with the new data outside?</string>
+    <string name="ask_storage_tree_deleted_outside">The mytetra.xml file with the record tree has been removed by a third party program. Recreate a file from a tree of records loaded earlier?</string>
     <string name="ask_clear_saved_pass_hash">Clear saved password hash?</string>
     <string name="ask_dir_not_empty">The selected directory is not empty. Continue anyway?</string>
     <string name="ask_permission_termux">Permission to run Termux commands</string>
@@ -837,6 +839,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
     <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
+    <string name="log_storage_tree_changed_outside">The mytetra.xml file with the record tree has been modified by a third party program</string>
+    <string name="log_storage_tree_deleted_outside">The mytetra.xml file with the record tree has been removed by a third party program</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

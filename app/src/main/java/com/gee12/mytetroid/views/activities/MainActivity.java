@@ -385,7 +385,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             // загрузка хранилища
             case InitFailed:
-                viewModel.showMessage(getString(R.string.mes_storage_init_error));
+                viewModel.showMessage(R.string.mes_storage_init_error);
                 boolean isFavoritesOnlyMode = (boolean) data;
                 initUI(false, isFavoritesOnlyMode, false, false);
                 break;
@@ -413,21 +413,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 showEmptyPassCheckingFieldDialog(data);
                 break;
 
-            case ChangedOutside:
-                // выводим уведомление
-                AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
-                    @Override
-                    public void onApply() {
-                        viewModel.startReinitStorage();
-                    }
-                    @Override
-                    public void onCancel() {
-                    }
-                    @Override
-                    public void onDismiss() {
-                        viewModel.dropIsStorageChangingHandled();
-                    }
-                }, R.string.ask_storage_changed_outside);
+            case TreeChangedOutside:
+                showStorageTreeChangedOutsideDialog();
+                break;
+            case TreeDeletedOutside:
+                showStorageTreeDeletedOutsideDialog();
                 break;
         }
         super.onStorageEvent(event, data);
@@ -534,15 +524,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 updateFavoritesTitle();
                 break;
 
-            // storage tree observer
-            case StartFileObserver:
-                Bundle bundle = (Bundle) data;
-                startStopStorageTreeObserver(true, bundle);
-                break;
-            case StopFileObserver:
-                startStopStorageTreeObserver(false, null);
-                break;
-
             // global search
             case GlobalSearchStart:
                 showGlobalSearchActivity((String) data);
@@ -594,8 +575,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
-                    // обработка внешнего изменения дерева записей
-                    viewModel.onStorageOutsideChanged();
+                    int eventId;
+                    if ((eventId = intent.getIntExtra(FileObserverService.EXTRA_EVENT_ID, 0)) > 0) {
+                        // обработка внешнего изменения дерева записей
+                        viewModel.onStorageTreeOutsideChanged(eventId);
+                    }
                 }
             }
         };
@@ -878,18 +862,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             // проверяем входящий Intent после загрузки
             checkReceivedIntent(receivedIntent);
             // запускаем отслеживание изменения структуры хранилища
-            viewModel.startStorageTreeObserver();
-        }
-    }
-
-    private void startStopStorageTreeObserver(boolean isStart, Bundle bundle) {
-        if (isStart) {
-            FileObserverService.sendCommand(this, bundle);
-            viewModel.log(getString(R.string.log_mytetra_xml_observer_mask, getString(R.string.launched)));
-        } else {
-            FileObserverService.sendCommand(this, FileObserverService.ACTION_STOP);
-            FileObserverService.stop(this);
-            viewModel.log(getString(R.string.log_mytetra_xml_observer_mask, getString(R.string.stopped)));
+            viewModel.startStorageTreeObserverIfNeeded();
         }
     }
 
@@ -970,7 +943,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
             @Override
             public void onCancel() {
-                viewModel.exitAfterAsks(MainActivity.this);
+                viewModel.exitAfterAsks();
             }
         });
     }
@@ -1353,6 +1326,42 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     // endregion Node
+
+    //region Storage tree
+
+    private void showStorageTreeChangedOutsideDialog() {
+        AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
+            @Override
+            public void onApply() {
+                viewModel.startReinitStorage();
+            }
+            @Override
+            public void onCancel() {
+            }
+            @Override
+            public void onDismiss() {
+                viewModel.dropIsStorageChangingHandled();
+            }
+        }, R.string.ask_storage_tree_changed_outside);
+    }
+
+    private void showStorageTreeDeletedOutsideDialog() {
+        AskDialogs.showYesNoDialog(MainActivity.this, new Dialogs.IApplyCancelDismissResult() {
+            @Override
+            public void onApply() {
+                viewModel.saveMytetraXmlFromCurrentStorageTree();
+            }
+            @Override
+            public void onCancel() {
+            }
+            @Override
+            public void onDismiss() {
+                viewModel.dropIsStorageChangingHandled();
+            }
+        }, R.string.ask_storage_tree_deleted_outside);
+    }
+
+    //endregion Storage tree
 
     // region Favorites
 
@@ -1762,7 +1771,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     private void onStoragesActivityResult(Intent data) {
         // проверяем нужно ли отслеживать структуру хранилища
-        viewModel.startStorageTreeObserver();
+        viewModel.startStorageTreeObserverIfNeeded();
 
         // скрываем пункт меню Синхронизация, если отключили
         updateOptionsMenu();
@@ -1779,7 +1788,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      */
     private void onStorageSettingsActivityResult(Intent data) {
         // проверяем нужно ли отслеживать структуру хранилища
-        viewModel.startStorageTreeObserver();
+        viewModel.startStorageTreeObserverIfNeeded();
 
         // скрываем пункт меню Синхронизация, если отключили
         updateOptionsMenu();
@@ -1850,7 +1859,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             return;
         }
         // проверяем нужно ли отслеживать структуру хранилища
-        viewModel.startStorageTreeObserver();
+        viewModel.startStorageTreeObserverIfNeeded();
 
         if (data.getBooleanExtra(Constants.EXTRA_IS_FIELDS_EDITED, false)) {
             // обновляем списки, если редактировали свойства записи

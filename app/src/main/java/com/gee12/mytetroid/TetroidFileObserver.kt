@@ -1,77 +1,83 @@
-package com.gee12.mytetroid;
+package com.gee12.mytetroid
 
-import android.os.FileObserver;
+import android.os.FileObserver
+import android.util.Log
+import com.gee12.mytetroid.common.extensions.toHex
+import java.io.File
 
-import com.gee12.mytetroid.data.ICallback;
+class TetroidFileObserver(
+    private val filePath: String,
+    private val mask: Int = FileObserver.ALL_EVENTS,
+    private val callback: (Event) -> Unit
+) {
+    enum class Event(val id: Int) {
+        Modified(1),
+        Moved(2),
+        Deleted(3);
 
-import java.io.File;
-
-public class TetroidFileObserver {
-
-    private FileObserver mFileObserver;
-//    private Thread thread;
-
-    /**
-     *
-     * @param filePath
-     * @param mask
-     */
-    public TetroidFileObserver(String filePath, int mask, ICallback callback) {
-        if (filePath == null)
-            return;
-        File file = new File(filePath);
-        if (!file.exists()) {
-            return;
+        companion object {
+            fun fromId(id: Int) = values().firstOrNull { it.id == id }
         }
-//        Thread thread = new Thread(new Runnable() {
-//        this.thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-        mFileObserver = new FileObserver(filePath, mask) {
-//                mFileObserver = new FileObserver(file, mask) {
-            @Override
-            public void onEvent(int event, String path) {
-                if ((event & mask) > 0) {
-                    callback.run(true);
+    }
+
+    private lateinit var fileObserver: FileObserver
+
+
+    init {
+        create()
+    }
+
+    private fun create() {
+        val file = File(filePath)
+        if (!file.exists()) {
+            return
+        }
+
+        fileObserver = object : FileObserver(filePath, mask) {
+            override fun onEvent(event: Int, path: String?) {
+                Log.d("MyTetroid", "FileObserver event=${event.toHex()} path=$path")
+                if (mask == 0 || mask == ALL_EVENTS || event and mask > 0) {
+                    when (event) {
+                        MODIFY -> {
+                            callback(Event.Modified)
+                        }
+                        MOVE_SELF -> {
+                            callback(Event.Moved)
+                        }
+                        DELETE_SELF -> {
+                            callback(Event.Deleted)
+                        }
+                    }
                 }
             }
-        };
-        startObserver();
-//            }
-//        });
-//        thread.setPriority(Thread.MIN_PRIORITY);
-//        thread.start();
+        }
     }
 
     /**
      * Запуск отслеживания изменений файла.
      */
-    public void startObserver() {
-        mFileObserver.startWatching();
+    fun start() {
+        fileObserver.startWatching()
     }
 
     /**
      * Перезапуск отслеживания изменений файла.
      */
-    public void restartObserver() {
-        if (mFileObserver != null) {
-            // перезапускаем отслеживание, например, тогда, когда
-            // при сохранении "исходный" файл mytetra.xml перемещается в корзину,
-            // и нужно запустить отслеживание по указанному пути заново, чтобы привязаться
-            // к только что созданному актуальному файлу mytetra.xml
-            mFileObserver.stopWatching();
-            mFileObserver.startWatching();
-        }
+    fun restart() {
+        // перезапускаем отслеживание, например, тогда, когда
+        // при сохранении "исходный" файл mytetra.xml перемещается в корзину,
+        // и нужно запустить отслеживание по указанному пути заново, чтобы привязаться
+        // к только что созданному актуальному файлу mytetra.xml
+        fileObserver.stopWatching()
+        fileObserver.startWatching()
     }
 
     /**
      * Остановка отслеживания изменений файла.
-//     * @param context
+     * //     * @param context
      */
-    public void stopObserver() {
-        if (mFileObserver != null) {
-            mFileObserver.stopWatching();
-            mFileObserver = null;
-        }
+    fun stop() {
+        fileObserver.stopWatching()
     }
+
 }

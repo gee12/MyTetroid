@@ -28,6 +28,7 @@
     <string name="mes_storage_must_be_loaded">Хранилище должно быть загружено</string>
     <string name="mes_all_nodes_must_be_loaded">Должны быть загружены все ветки хранилища</string>
     <string name="mes_storage_init_error">Ошибка инициализации хранилища</string>
+    <string name="mes_storage_tree_saved">Дерево записей сохранено</string>
 
     <string name="title_settings">Общие настройки</string>
     <string name="title_storage_settings">Настройки хранилища</string>
@@ -478,7 +479,8 @@
     <string name="ask_start_sync_dialog_title">Запустить синхронизацию хранилища?</string>
     <string name="ask_start_sync_or_exit_dialog_title">Попытаться запустить синхронизацию хранилища еще раз или выйти?</string>
     <string name="ask_load_all_nodes_dialog_title">Для этого нужно загрузить все ветки. Продолжить?</string>
-    <string name="ask_storage_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>
+    <string name="ask_storage_tree_changed_outside">Дерево записей было изменено сторонней программой. Перезагрузить хранилище для продолжения работы с новыми данными?</string>
+    <string name="ask_storage_tree_deleted_outside">Файл mytetra.xml с деревом записей был удален сторонней программой. Пересоздать файл из ранее загруженного дерева записей?</string>
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
     <string name="ask_load_storage">Сначала нужно загрузить хранилище в главном окне. Загрузить?</string>
@@ -724,7 +726,7 @@
     <string name="log_fragment_opened_mask">Открыт фрагмент: %s</string>
     <string name="log_dialog_opened_mask">Открыт диалог: %s</string>
     <string name="log_def_storage_not_specified">Основное хранилище не задано</string>
-    <string name="log_storage_not_found_mask">Хранилище с id=%s не зайдено в базе данных</string>
+    <string name="log_storage_not_found_mask">Хранилище с id=%s не найдено в базе данных</string>
     <string name="log_start_load_def_storage">Начало загрузки основного хранилища</string>
     <string name="log_storage_added_mask">Хранилище «%s» добавлено</string>
     <string name="log_storage_set_is_default_mask">Хранилище «%s» установлено основным</string>

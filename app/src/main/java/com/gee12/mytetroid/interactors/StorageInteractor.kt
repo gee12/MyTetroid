@@ -11,13 +11,11 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.helpers.IStorageHelper
 import com.gee12.mytetroid.helpers.IStoragePathHelper
-import com.gee12.mytetroid.views.activities.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -107,6 +105,8 @@ class StorageInteractor(
                 storageDataProcessor.save(fos)
             }
             if (saveResult) {
+                storageHelper.onBeforeStorageTreeSave()
+
                 val to = File(destPath)
                 // перемещаем старую версию файла mytetra.xml в корзину
                 val nameInTrash = dataInteractor.createDateTimePrefix() + "_" + Constants.MYTETRA_XML_FILE_NAME
@@ -127,19 +127,11 @@ class StorageInteractor(
                     return false
                 }
 
-                // перезапускаем отслеживание, чтобы проверять новосозданный файл
-                if (context is MainActivity) {
-                    // но только для MainActivity
-                    FileObserverService.sendCommand(context, FileObserverService.ACTION_RESTART)
-                    logger.log(context.getString(
-                            R.string.log_mytetra_xml_observer_mask,
-                            context.getString(R.string.relaunched)
-                        ))
-                }
+                storageHelper.onStorageTreeSaved()
                 return true
             }
         } catch (ex: Exception) {
-            logger.logError(ex)
+            logger.logError(ex, true)
         }
         return false
     }

@@ -7,11 +7,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.FileObserver
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.helpers.UriHelper
@@ -22,7 +22,6 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.services.FileObserverService
 import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
@@ -38,9 +37,13 @@ class MainViewModel(
     app,
     /*logger,*/
 ) {
+    companion object {
+        private const val MYTETRA_XML_EXISTING_DELAY = 1000L
+    }
 
     val storagesInteractor = StoragesInteractor(this.storagesRepo)
     val migrationInteractor = MigrationInteractor(this.logger, CommonSettingsRepo(app), storagesInteractor, favoritesInteractor)
+    val storageTreeInteractor = StorageTreeInteractor(app, this.logger)
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
@@ -55,7 +58,7 @@ class MainViewModel(
     var lastSearchProfile: SearchProfile? = null
     var lastFilterQuery: String? = null
     var isFromRecordActivity = false
-    private var isStorageChangingHandled = false
+    private var isStorageTreeChangingHandled = false
 
 
     //region Migration
@@ -728,7 +731,7 @@ class MainViewModel(
      */
     fun startEncryptNode(node: TetroidNode) {
         if (node == quicklyNode) {
-            showMessage(getString(R.string.mes_quickly_node_cannot_encrypt))
+            showMessage(R.string.mes_quickly_node_cannot_encrypt)
         } else {
             checkStoragePass(
                 EventCallbackParams(MainEvents.EncryptNode, node)
@@ -1350,35 +1353,72 @@ class MainViewModel(
     /**
      * Обработчик изменения структуры хранилища извне.
      */
-    fun startStorageTreeObserver() {
+    fun startStorageTreeObserverIfNeeded() {
         if (isCheckOutsideChanging()) {
             // запускаем мониторинг, только если хранилище загружено
             if (isStorageLoaded()) {
-                this.isStorageChangingHandled = false
-                val bundle = Bundle()
-                bundle.putInt(FileObserverService.EXTRA_ACTION_ID, FileObserverService.ACTION_START)
-//                bundle.putString(FileObserverService.EXTRA_FILE_PATH, StorageManager.getStoragePath() + "/" + DataManager.MYTETRA_XML_FILE_NAME);
-                bundle.putString(FileObserverService.EXTRA_FILE_PATH, storageInteractor.getPathToMyTetraXml())
-                bundle.putInt(FileObserverService.EXTRA_EVENT_MASK, FileObserver.MODIFY)
+                this.isStorageTreeChangingHandled = false
 
-                postEvent(MainEvents.StartFileObserver, bundle)
+                storageTreeInteractor.startStorageTreeObserver(
+                    storagePath = storageInteractor.getPathToMyTetraXml()
+                )
             }
         } else {
-            postEvent(MainEvents.StopFileObserver)
+            storageTreeInteractor.stopStorageTreeObserver()
         }
     }
 
-    fun onStorageOutsideChanged() {
+    fun onStorageTreeOutsideChanged(eventId: Int) {
         // проверяем, не был ли запущен обработчик второй раз подряд
-        if (!isStorageChangingHandled) {
-            isStorageChangingHandled = true
-            log(R.string.ask_storage_changed_outside)
-            postStorageEvent(Constants.StorageEvents.ChangedOutside)
+        if (!isStorageTreeChangingHandled) {
+            isStorageTreeChangingHandled = true
+
+            when (TetroidFileObserver.Event.fromId(eventId)) {
+                TetroidFileObserver.Event.Modified -> {
+                    log(R.string.log_storage_tree_changed_outside)
+                    postStorageEvent(Constants.StorageEvents.TreeChangedOutside)
+                }
+                TetroidFileObserver.Event.Moved,
+                TetroidFileObserver.Event.Deleted -> {
+                    // проверяем существование mytetra.xml только после задержки (т.к. файл мог быть пересоздан)
+                    launch(Dispatchers.IO) {
+                        delay(MYTETRA_XML_EXISTING_DELAY)
+                        if (FileUtils.isFileExist(storagePathHelper.getPathToMyTetraXml())) {
+                            log(R.string.log_storage_tree_changed_outside)
+                            postStorageEvent(Constants.StorageEvents.TreeChangedOutside)
+                        } else {
+                            log(R.string.log_storage_tree_deleted_outside)
+                            postStorageEvent(Constants.StorageEvents.TreeDeletedOutside)
+                        }
+                    }
+                }
+            }
         }
     }
 
     fun dropIsStorageChangingHandled() {
-        isStorageChangingHandled = false
+        isStorageTreeChangingHandled = false
+    }
+
+    fun saveMytetraXmlFromCurrentStorageTree() {
+        launch {
+            if (storageInteractor.saveStorage(getContext())) {
+                showMessage(R.string.mes_storage_tree_saved)
+            }
+            isStorageTreeChangingHandled = false
+        }
+    }
+
+    override fun onBeforeStorageTreeSave() {
+        isStorageTreeChangingHandled = true
+        storageTreeInteractor.stopStorageTreeObserver()
+    }
+
+    override fun onStorageTreeSaved() {
+        isStorageTreeChangingHandled = false
+        storageTreeInteractor.startStorageTreeObserver(
+            storagePath = storageInteractor.getPathToMyTetraXml()
+        )
     }
 
     //endregion FileObserver
@@ -1441,7 +1481,7 @@ class MainViewModel(
         syncStorageAndExit(activity) { result ->
             if (result) {
                 // выход из приложения
-                exitAfterAsks(activity)
+                exitAfterAsks()
             } else {
                 // спрашиваем что делать
                 launch {
@@ -1451,9 +1491,9 @@ class MainViewModel(
         }
     }
 
-    fun exitAfterAsks(activity: Activity) {
+    fun exitAfterAsks() {
         launch {
-            onExit(activity)
+            onExit()
             setEvent(MainEvents.Exit)
         }
     }
@@ -1486,12 +1526,11 @@ class MainViewModel(
         }
     }
 
-    private fun onExit(activity: Activity) {
+    private fun onExit() {
         log(R.string.log_app_exit)
 
         // останавливаем отслеживание изменения структуры хранилища
-        FileObserverService.sendCommand(activity, FileObserverService.ACTION_STOP)
-        FileObserverService.stop(activity)
+        storageTreeInteractor.stopStorageTreeObserver()
 
         // удаляем загруженное хранилище из памяти
         App.destruct()
@@ -1542,10 +1581,6 @@ class MainViewModel(
         GlobalSearchStart,
         GlobalResearch,
         GlobalSearchFinished,
-
-        // storage tree observer
-        StartFileObserver,
-        StopFileObserver,
 
         // file system
         AskForOperationWithoutDir,

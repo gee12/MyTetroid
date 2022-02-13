@@ -1,94 +1,85 @@
-package com.gee12.mytetroid.services;
+package com.gee12.mytetroid.services
 
-import android.app.Activity;
-import android.app.Service;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.FileObserver;
-import android.os.IBinder;
+import android.app.Service
+import android.content.ContextWrapper
+import android.content.Intent
+import android.os.Bundle
+import android.os.FileObserver
+import android.os.IBinder
+import com.gee12.mytetroid.TetroidFileObserver
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
-import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+class FileObserverService : Service() {
 
-import com.gee12.mytetroid.TetroidFileObserver;
-
-public class FileObserverService extends Service {
-
-    public static final String EXTRA_ACTION_ID = "EXTRA_ACTION_ID";
-    public static final String EXTRA_FILE_PATH = "EXTRA_FILE_PATH";
-    public static final String EXTRA_EVENT_MASK = "EXTRA_EVENT_MASK";
-//    public static final String EXTRA_IS_START = "EXTRA_IS_START";
-    public static final String ACTION_OBSERVER_EVENT_COME = "com.gee12.mytetroid.ACTION_OBSERVER_EVENT_COME";
-
-    public static final int ACTION_START = 1;
-    public static final int ACTION_STOP = 2;
-    public static final int ACTION_RESTART = 3;
-//    public static final int ACTION_START_OR_STOP = 4;
-
-    private static TetroidFileObserver mFileObserver;
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (!intent.hasExtra(EXTRA_ACTION_ID)) {
-            return super.onStartCommand(intent, flags, startId);
+            return super.onStartCommand(intent, flags, startId)
+        }
+        when (intent.getIntExtra(EXTRA_ACTION_ID, 0)) {
+            ACTION_ID_START -> if (intent.hasExtra(EXTRA_FILE_PATH)) {
+                val filePath = intent.getStringExtra(EXTRA_FILE_PATH).orEmpty()
+                val mask = intent.getIntExtra(EXTRA_EVENT_MASK, FileObserver.ALL_EVENTS)
+
+                fileObserver?.stop()
+                fileObserver = null
+
+                fileObserver = TetroidFileObserver(filePath, mask) { event ->
+                    callback(event)
+                }
+                fileObserver?.start()
+            }
+            ACTION_ID_STOP -> {
+                fileObserver?.stop()
+            }
+            ACTION_ID_RESTART -> {
+                fileObserver?.restart()
+            }
+        }
+        return START_NOT_STICKY
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        return null
+    }
+
+    private fun callback(event: TetroidFileObserver.Event) {
+        val intent = Intent(ACTION_OBSERVER_EVENT_COME).apply {
+            putExtra(EXTRA_EVENT_ID, event.id)
+        }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    }
+
+    companion object {
+        const val EXTRA_ACTION_ID = "EXTRA_ACTION_ID"
+        const val EXTRA_FILE_PATH = "EXTRA_FILE_PATH"
+        const val EXTRA_EVENT_MASK = "EXTRA_EVENT_MASK"
+        const val EXTRA_EVENT_ID = "EXTRA_EVENT_ID"
+
+        const val ACTION_ID_START = 1
+        const val ACTION_ID_STOP = 2
+        const val ACTION_ID_RESTART = 3
+        const val ACTION_OBSERVER_EVENT_COME = "com.gee12.mytetroid.ACTION_OBSERVER_EVENT_COME"
+
+        private var fileObserver: TetroidFileObserver? = null
+
+
+        fun sendCommand(context: ContextWrapper, actionId: Int) {
+            val bundle = Bundle().apply {
+                putInt(EXTRA_ACTION_ID, actionId)
+            }
+            sendCommand(context, bundle)
         }
 
-        int actionId = intent.getIntExtra(EXTRA_ACTION_ID, 0);
-        switch (actionId) {
-            case ACTION_START:
-                if (intent.hasExtra(EXTRA_FILE_PATH)) {
-                    String filePath = intent.getStringExtra(EXTRA_FILE_PATH);
-                    int mask = intent.getIntExtra(EXTRA_EVENT_MASK, FileObserver.ALL_EVENTS);
-                    if (mFileObserver != null) {
-                        mFileObserver.stopObserver();
-                    }
-                    this.mFileObserver = new TetroidFileObserver(filePath, mask, res -> callback());
-//                    mFileObserver.startObserver();
-                }
-                break;
-            case ACTION_STOP:
-                if (mFileObserver != null) {
-                    mFileObserver.stopObserver();
-                }
-                break;
-            case ACTION_RESTART:
-                if (mFileObserver != null) {
-                    mFileObserver.restartObserver();
-                }
-                break;
-            /*case ACTION_START_OR_STOP:
-                boolean isStart = intent.getBooleanExtra(EXTRA_IS_START, true);
-                mFileObserver.startOrStopObserver(isStart);
-                break;*/
+        fun sendCommand(context: ContextWrapper, bundle: Bundle) {
+            val intent = Intent(context, FileObserverService::class.java).apply {
+                putExtras(bundle)
+            }
+            context.startService(intent)
         }
-        return Service.START_NOT_STICKY;
-    }
 
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
-
-    private void callback() {
-        Intent intent = new Intent(ACTION_OBSERVER_EVENT_COME);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public static void sendCommand(Activity activity, int actionId) {
-        Bundle bundle = new Bundle();
-        bundle.putInt(EXTRA_ACTION_ID, actionId);
-        sendCommand(activity, bundle);
-    }
-
-    public static void sendCommand(Activity activity, Bundle bundle) {
-        Intent intent = new Intent(activity, FileObserverService.class);
-        intent.putExtras(bundle);
-        activity.startService(intent);
-    }
-
-    public static void stop(Activity activity) {
-        Intent intent = new Intent(activity, FileObserverService.class);
-        activity.stopService(intent);
+        fun stop(context: ContextWrapper) {
+            val intent = Intent(context, FileObserverService::class.java)
+            context.stopService(intent)
+        }
     }
 }

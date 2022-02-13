@@ -250,6 +250,9 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param viewId
      */
     public void showRecords(List<TetroidRecord> records, int viewId) {
+        if (!checkViewModel()) {
+            return;
+        }
         viewModel.showMainView(viewId);
         tvRecordsEmpty.setText((viewId == Constants.MAIN_VIEW_FAVORITES)
                 ? R.string.title_favors_is_missing : R.string.title_records_is_missing);

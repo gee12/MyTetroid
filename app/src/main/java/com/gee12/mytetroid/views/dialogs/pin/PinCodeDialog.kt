@@ -93,7 +93,7 @@ class PinCodeDialog(
                         pinLockView.shake()
                         // очищаем введенные значения
                         pinLockView.resetPinLockView()
-                        viewModel.showMessage(getString(R.string.log_pin_confirm_not_match))
+                        viewModel.showMessage(R.string.log_pin_confirm_not_match)
                     }
                 } else {
                     // запрашиваем подтверждение ввода

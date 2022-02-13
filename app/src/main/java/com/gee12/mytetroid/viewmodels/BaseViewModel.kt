@@ -3,8 +3,8 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
@@ -64,7 +64,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun log(resId: Int, show: Boolean = false) {
+    fun log(@StringRes resId: Int, show: Boolean = false) {
         logger.log(resId, show)
     }
 
@@ -75,7 +75,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun logDebug(resId: Int, show: Boolean = false) {
+    fun logDebug(@StringRes resId: Int, show: Boolean = false) {
         logger.logDebug(resId, show)
     }
 
@@ -86,7 +86,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun logWarning(resId: Int, show: Boolean = true) {
+    fun logWarning(@StringRes resId: Int, show: Boolean = true) {
         logger.logWarning(resId, show)
     }
 
@@ -97,7 +97,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun logError(resId: Int, show: Boolean = true) {
+    fun logError(@StringRes resId: Int, show: Boolean = true) {
         logger.logError(resId, show)
     }
 
@@ -118,7 +118,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun log(resId: Int, type: LogType, show: Boolean = false) {
+    fun log(@StringRes resId: Int, type: LogType, show: Boolean = false) {
         logger.log(resId, type, show)
     }
 
@@ -175,6 +175,10 @@ open class BaseViewModel(
 
     fun showMessage(message: String) {
         showMessage(message, LogType.INFO)
+    }
+
+    fun showMessage(@StringRes resId: Int) {
+        showMessage(getString(resId), LogType.INFO)
     }
 
     fun showWarning(message: String) {

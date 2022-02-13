@@ -64,7 +64,7 @@ class StoragesViewModel(
 
     fun addNewStorage(activity: Activity) {
         if (App.isFreeVersion() && storages.value?.isNotEmpty() == true) {
-            showMessage(getString(R.string.mes_cant_more_one_storage_on_free))
+            showMessage(R.string.mes_cant_more_one_storage_on_free)
         } else {
             // проверка разрешения перед диалогом добавления хранилища
             checkWriteExtStoragePermission(activity) {

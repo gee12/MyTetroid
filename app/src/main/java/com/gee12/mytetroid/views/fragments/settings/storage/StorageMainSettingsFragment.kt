@@ -46,7 +46,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         // TODO: принудительно отключаем (пока)
         prefIsReadOnly?.isEnabled = false
         prefIsReadOnly?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            viewModel.showMessage(getString(R.string.title_not_implemented_yet))
+            viewModel.showMessage(R.string.title_not_implemented_yet)
             true
         }
 
@@ -81,7 +81,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
                         showMessage = true
                     ) -> {}
                     !viewModel.isStorageDefault() -> {
-                        viewModel.showMessage(getString(R.string.pref_quickly_node_not_available))
+                        viewModel.showMessage(R.string.pref_quickly_node_not_available)
                     }
                     else -> {
                         showNodeChooserDialog()
@@ -101,7 +101,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         val prefIsKeepLastNode = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_keep_selected_node))
         prefIsKeepLastNode?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             if (viewModel.isLoadFavoritesOnly()) {
-                viewModel.showMessage(getString(R.string.title_not_avail_when_favor))
+                viewModel.showMessage(R.string.title_not_avail_when_favor)
             }
             true
         }

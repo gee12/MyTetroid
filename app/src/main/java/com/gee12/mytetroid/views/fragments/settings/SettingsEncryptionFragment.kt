@@ -35,7 +35,7 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         findPreference<Preference>(getString(R.string.pref_key_when_ask_password))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) {
-                baseViewModel.showMessage(getString(R.string.title_not_avail_when_save_pass))
+                baseViewModel.showMessage(R.string.title_not_avail_when_save_pass)
             }
             true
         }

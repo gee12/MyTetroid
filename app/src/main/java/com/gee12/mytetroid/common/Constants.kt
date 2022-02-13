@@ -151,7 +151,8 @@ object Constants {
         LoadOrDecrypt,
         Loaded,
         Decrypted,
-        ChangedOutside,
+        TreeChangedOutside,
+        TreeDeletedOutside,
 
         // password
         AskPassword,

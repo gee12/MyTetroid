@@ -101,6 +101,20 @@ abstract class BaseStoragePropertiesViewModel(
             }
         }
 
+        override fun onBeforeStorageTreeSave() {
+            this@BaseStoragePropertiesViewModel.onBeforeStorageTreeSave()
+        }
+
+        override fun onStorageTreeSaved() {
+            this@BaseStoragePropertiesViewModel.onStorageTreeSaved()
+        }
+
+    }
+
+    open fun onBeforeStorageTreeSave() {
+    }
+
+    open fun onStorageTreeSaved() {
     }
 
     val nodeIconLoader: INodeIconLoader = object : INodeIconLoader {

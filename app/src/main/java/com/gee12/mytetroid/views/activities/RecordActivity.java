@@ -49,7 +49,6 @@ import com.gee12.mytetroid.views.dialogs.record.RecordDialogs;
 import com.gee12.mytetroid.helpers.TetroidClipboardListener;
 import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.common.utils.Utils;
 import com.gee12.mytetroid.common.utils.ViewUtils;
 import com.gee12.mytetroid.views.TetroidImagePicker;
@@ -955,10 +954,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         if (intent == null || (action = intent.getAction()) == null) {
             return;
         }
-        if (action.equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
-            // обработка внешнего изменения дерева записей
-//            mOutsideChangingHandler.run(true);
-        } else if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+        if (Intent.ACTION_SEARCH.equals(action)) {
             // обработка результата голосового поиска
             String query = intent.getStringExtra(SearchManager.QUERY);
             mSearchView.setQuery(query, true);

@@ -40,7 +40,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         val keepNodePref = findPreference<Preference>(getString(R.string.pref_key_is_keep_selected_node))
         keepNodePref!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             if (CommonSettings.isLoadFavoritesOnlyDef(context)) {
-                baseViewModel.showMessage(getString(R.string.title_not_avail_when_favor))
+                baseViewModel.showMessage(R.string.title_not_avail_when_favor)
             }
             true
         }

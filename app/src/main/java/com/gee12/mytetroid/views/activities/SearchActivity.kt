@@ -275,13 +275,13 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
         if (item.itemId == R.id.action_query_submit) {
             when {
                 TextUtils.isEmpty(etQuery.text.toString()) -> {
-                    viewModel.showMessage(getString(R.string.title_enter_query))
+                    viewModel.showMessage(R.string.title_enter_query)
                 }
                 spInNodeMode.selectedItemPosition == 1 && TextUtils.isEmpty(nodeId) -> {
-                    viewModel.showMessage(getString(R.string.log_cur_node_is_not_selected))
+                    viewModel.showMessage(R.string.log_cur_node_is_not_selected)
                 }
                 spInNodeMode.selectedItemPosition == 2 && TextUtils.isEmpty(nodeId) -> {
-                    viewModel.showMessage(getString(R.string.log_select_node_to_search))
+                    viewModel.showMessage(R.string.log_select_node_to_search)
                 }
                 else -> {
                     startSearch()

@@ -114,7 +114,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
             pref.isEnabled = false
             // принудительно отключаем
             pref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                baseViewModel.showMessage(getString(R.string.title_available_in_pro))
+                baseViewModel.showMessage(R.string.title_available_in_pro)
                 true
             }
             pref.dependency = null

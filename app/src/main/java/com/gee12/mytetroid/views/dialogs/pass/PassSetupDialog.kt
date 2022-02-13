@@ -44,7 +44,7 @@ class PassSetupDialog(
                 callback.applyPass(pass/*, node*/)
                 dialog.dismiss()
             } else {
-                viewModel.showMessage(getString(R.string.log_pass_confirm_not_match))
+                viewModel.showMessage(R.string.log_pass_confirm_not_match)
             }
         }
         setNegativeButton(R.string.answer_cancel)

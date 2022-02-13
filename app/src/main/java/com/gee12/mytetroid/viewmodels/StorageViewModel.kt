@@ -148,22 +148,22 @@ open class StorageViewModel(
         return when {
             !isStorageInited() -> {
                 if (showMessage) {
-                    showMessage(getString(
-                            if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.mes_storage_must_be_inited
-                            else R.string.mes_must_grant_perm_and_storage_inited
-                        ))
+                    showMessage(
+                        if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.mes_storage_must_be_inited
+                        else R.string.mes_must_grant_perm_and_storage_inited
+                    )
                 }
                 false
             }
             !isStorageLoaded() -> {
                 if (showMessage) {
-                    showMessage(getString(R.string.mes_storage_must_be_loaded))
+                    showMessage(R.string.mes_storage_must_be_loaded)
                 }
                 false
             }
             checkIsFavorMode && isLoadedFavoritesOnly() -> {
                 if (showMessage) {
-                    showMessage(getString(R.string.mes_all_nodes_must_be_loaded))
+                    showMessage(R.string.mes_all_nodes_must_be_loaded)
                 }
                 false
             }
