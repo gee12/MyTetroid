@@ -221,6 +221,18 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 finishWithResult(result.getCode(), result.getBundle());
                 break;
 
+            // permission
+            case PermissionCheck:
+            case PermissionGranted:
+                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
+                startInitStorage();
+                break;
+            case PermissionCanceled:
+                // закрываем активити, если нет разрешения на запись во внешнюю память
+                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
+                finish();
+                break;
+
             // ui
             case UpdateTitle:
                 setTitle((String) data);
@@ -251,16 +263,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         switch (event) {
-            case PermissionCheck:
-            case PermissionGranted:
-                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
-                startInitStorage();
-                break;
-            case PermissionCanceled:
-                // закрываем активити, если нет разрешения на запись во внешнюю память
-                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
-                finish();
-                break;
             case LoadOrDecrypt:
                 viewModel.loadOrDecryptStorage((StorageParams) data);
                 break;
@@ -636,7 +638,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     @Override
     public void startCamera() {
         // проверка разрешения на камеру
-        if (!viewModel.getPermissionInteractor().checkCameraPermission(this, Constants.REQUEST_CODE_PERMISSION_CAMERA)) {
+        if (!viewModel.checkCameraPermission(this)) {
             return;
         }
         imagePicker.startCamera();

@@ -693,7 +693,7 @@
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
-    <string name="log_request_perm">Запрос разрешения:&#160;</string>
+    <string name="log_request_perm_mask">Запрос разрешения: %s</string>
     <string name="log_camera_perm_granted">Предоставлено разрешение к использованию камеры</string>
     <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
     <string name="log_run_termux_commands_perm_granted">Предоставлено разрешение на запуск команд Termux</string>

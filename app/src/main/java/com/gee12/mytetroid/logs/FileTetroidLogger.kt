@@ -30,8 +30,8 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
     var fullFileName: String? = null
         private set
 
-    fun init(path: String, isWriteToFile: Boolean) {
-        setLogPath(path)
+    fun init(path: String?, isWriteToFile: Boolean) {
+        setLogPath(path.orEmpty())
         this.isWriteToFile = isWriteToFile
     }
 
@@ -107,11 +107,13 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
      * @param mes
      */
     private fun writeToFile(mes: String) {
-        val logFile = File(fullFileName)
+        if (fullFileName.isNullOrBlank() || dirPath.isNullOrBlank()) return
+
+        val logFile = File(fullFileName!!)
         if (!logFile.exists()) {
             try {
                 // проверка существования каталога
-                val dir = File(dirPath)
+                val dir = File(dirPath!!)
                 if (!dir.exists()) {
                     if (!dir.mkdirs()) {
                         logErrorWithoutFile("Unable to create directory to save log: $dirPath", true)

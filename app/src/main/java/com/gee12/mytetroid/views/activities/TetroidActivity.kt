@@ -1,153 +1,147 @@
-package com.gee12.mytetroid.views.activities;
+package com.gee12.mytetroid.views.activities
 
-import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.hideKeyboard;
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.view.*
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.ViewModelProvider
+import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
+import com.gee12.mytetroid.common.extensions.hideKeyboard
+import com.gee12.mytetroid.views.activities.StoragesActivity.Companion.start
+import com.gee12.mytetroid.views.activities.StorageSettingsActivity.Companion.newIntent
+import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
+import com.gee12.mytetroid.views.IViewEventListener
+import com.gee12.mytetroid.views.ActivityDoubleTapListener
+import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
+import com.gee12.mytetroid.common.Constants.ViewEvents
+import com.gee12.mytetroid.common.Constants.StorageEvents
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.utils.ViewUtils
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.viewmodels.PermissionRequestParams
+import com.gee12.mytetroid.views.dialogs.AskDialogs
+import lib.folderpicker.FolderPicker
+import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.views.TetroidMessage
+import java.lang.Exception
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+abstract class TetroidActivity<VM : BaseStorageViewModel>
+    : AppCompatActivity(), View.OnTouchListener, IViewEventListener {
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.data.settings.CommonSettings;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidStorage;
-import com.gee12.mytetroid.common.utils.ViewUtils;
-import com.gee12.mytetroid.viewmodels.BaseStorageViewModel;
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory;
-import com.gee12.mytetroid.views.ActivityDoubleTapListener;
-import com.gee12.mytetroid.views.IViewEventListener;
-import com.gee12.mytetroid.views.TetroidMessage;
-import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs;
-
-import org.jetbrains.annotations.NotNull;
-
-import lib.folderpicker.FolderPicker;
-
-public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends AppCompatActivity
-        implements View.OnTouchListener, IViewEventListener {
-
-    public interface IDownloadFileResult {
-        void onSuccess(Uri uri);
-        void onError(Exception ex);
+    interface IDownloadFileResult {
+        fun onSuccess(uri: Uri)
+        fun onError(ex: Exception)
     }
 
-    protected GestureDetectorCompat gestureDetector;
-    protected Menu optionsMenu;
-    protected Toolbar toolbar;
-    protected TextView tvTitle;
-    protected TextView tvSubtitle;
-    protected LinearLayout layoutProgress;
-    protected TextView tvProgress;
-    protected Intent receivedIntent;
-    protected boolean isFullScreen;
-    protected boolean isOnCreateProcessed;
-    protected boolean isGUICreated;
+    @JvmField
+    protected var receivedIntent: Intent? = null
+    @JvmField
+    protected var optionsMenu: Menu? = null
+    @JvmField
+    protected var tvTitle: TextView? = null
+    @JvmField
+    protected var tvSubtitle: TextView? = null
+    @JvmField
+    protected var toolbar: Toolbar? = null
+    @JvmField
+    protected var layoutProgress: LinearLayout? = null
+    @JvmField
+    protected var tvProgress: TextView? = null
 
-    protected VM viewModel;
+    protected lateinit var gestureDetector: GestureDetectorCompat
+    protected var isFullScreen = false
+    protected var isOnCreateProcessed = false
+    protected var isGUICreated = false
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(getLayoutResourceId());
+    protected lateinit var viewModel: VM
 
-        this.receivedIntent = getIntent();
 
-        this.toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        setVisibilityActionHome(true);
+    protected abstract fun getViewModelClazz(): Class<VM>
+    protected abstract fun getLayoutResourceId(): Int
+    protected open fun getStorageId(): Int? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(getLayoutResourceId())
+
+        receivedIntent = intent
+        toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        setVisibilityActionHome(true)
 
         // обработчик нажатия на экране
-        this.gestureDetector = new GestureDetectorCompat(this,
-                new ActivityDoubleTapListener(() -> toggleFullscreen(true)));
+        gestureDetector = GestureDetectorCompat(this,
+            ActivityDoubleTapListener {
+                toggleFullscreen(true)
+            })
+        tvTitle = toolbar?.findViewById(R.id.text_view_title)
+        tvSubtitle = toolbar?.findViewById(R.id.text_view_subtitle)
+        layoutProgress = findViewById(R.id.layout_progress_bar)
+        tvProgress = findViewById(R.id.progress_text)
 
-        this.tvTitle = toolbar.findViewById(R.id.text_view_title);
-        this.tvSubtitle = toolbar.findViewById(R.id.text_view_subtitle);
+        isOnCreateProcessed = false
+        isGUICreated = false
 
-        this.layoutProgress = findViewById(R.id.layout_progress_bar);
-        this.tvProgress = findViewById(R.id.progress_text);
-
-        this.isOnCreateProcessed = false;
-        this.isGUICreated = false;
-
-        initViewModel();
+        initViewModel()
     }
 
-    protected void initViewModel() {
-        viewModel = new ViewModelProvider(this, new TetroidViewModelFactory(getApplication(), getStorageId()))
-                .get(getViewModelClazz());
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, getClass().getSimpleName()));
 
-        viewModel.getViewEvent().observe(this, it -> onViewEvent(it.getState(), it.getData()));
-        viewModel.getStorageEvent().observe(this, it -> onStorageEvent(it.getState(), it.getData()));
-        viewModel.getObjectAction().observe(this, it -> onObjectEvent(it.getState(), it.getData()));
-        viewModel.getMessageObservable().observe(this, this::onMessage);
+
+    protected open fun initViewModel() {
+        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application, getStorageId()))
+            .get(getViewModelClazz())
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        viewModel.viewEvent.observe(this, { (state, data) -> onViewEvent(state, data) })
+        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
+        viewModel.objectAction.observe(this, { (state, data) -> onObjectEvent(state, data) })
+        viewModel.messageObservable.observe(this, { message: Message? -> onMessage(message) })
     }
-
-    protected abstract Class<VM> getViewModelClazz();
 
     /**
      * Установка пометки, что обработчик OnCreate был вызван, и можно вызвать другие обработчики,
-     *  следующие за ним (а не вразнобой на разных устройствах).
+     * следующие за ним (а не вразнобой на разных устройствах).
      */
-    protected void afterOnCreate() {
-        this.isOnCreateProcessed = true;
+    protected fun afterOnCreate() {
+        isOnCreateProcessed = true
         if (optionsMenu != null) {
-            onCreateOptionsMenu(optionsMenu);
-            onPrepareOptionsMenu(optionsMenu);
+            onCreateOptionsMenu(optionsMenu)
+            onPrepareOptionsMenu(optionsMenu)
         }
-    }
-
-    protected abstract int getLayoutResourceId();
-
-    protected Integer getStorageId() {
-        return null;
     }
 
     /**
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
-    protected void onUICreated(boolean uiCreated) {}
+    protected open fun onUICreated(uiCreated: Boolean) {
+    }
 
     /**
      * Обработчик изменения состояния View.
      * @param event
      * @param data
      */
-    protected void onViewEvent(Constants.ViewEvents event, Object data) {
-        switch (event) {
-//            case TaskStarted:
-//                int stringResId = (int) data;
-//                taskPreExecute(stringResId);
-//                break;
-//            case TaskFinished:
-//                taskPostExecute();
-//                break;
-            case ShowProgress:
-                boolean isVisible = !(data instanceof Boolean) || (boolean) data;
-                setProgressVisibility(isVisible, null);
-                break;
-            case ShowProgressText:
-                setProgressText((String) data);
-                break;
+    protected open fun onViewEvent(event: ViewEvents, data: Any?) {
+        when (event) {
+            ViewEvents.ShowProgress -> {
+                val isVisible = data !is Boolean || data
+                setProgressVisibility(isVisible, null)
+            }
+            ViewEvents.ShowProgressText -> setProgressText(data as String?)
+            ViewEvents.ShowPermissionRequest -> showPermissionRequest(data as PermissionRequestParams)
         }
     }
 
@@ -156,20 +150,12 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param event
      * @param data
      */
-    protected void onStorageEvent(Constants.StorageEvents event, Object data) {
-        switch (event) {
-            case NoDefaultStorage:
-                StorageDialogs.INSTANCE.askForDefaultStorageNotSpecified(this, () -> showStoragesActivity());
-                break;
-            case Inited:
-                afterStorageInited();
-                break;
-            case Loaded:
-                afterStorageLoaded((boolean) data);
-                break;
-            case Decrypted:
-                afterStorageDecrypted((TetroidNode) data);
-                break;
+    protected open fun onStorageEvent(event: StorageEvents, data: Any?) {
+        when (event) {
+            StorageEvents.NoDefaultStorage -> askForDefaultStorageNotSpecified(this) { showStoragesActivity() }
+            StorageEvents.Inited -> afterStorageInited()
+            StorageEvents.Loaded -> afterStorageLoaded(data as Boolean)
+            StorageEvents.Decrypted -> afterStorageDecrypted(data as TetroidNode)
         }
     }
 
@@ -178,45 +164,64 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param event
      * @param data
      */
-    protected void onObjectEvent(Object event, Object data) {
-
+    protected open fun onObjectEvent(event: Any, data: Any?) {
     }
 
-    public void afterStorageInited() {}
+    open fun afterStorageInited() {
+    }
 
-    public void afterStorageLoaded(boolean res) {}
+    open fun afterStorageLoaded(res: Boolean) {
+    }
 
-    public void afterStorageDecrypted(TetroidNode node) {}
+    open fun afterStorageDecrypted(node: TetroidNode?) {
+    }
 
-    protected void onPermissionGranted(int requestCode) {
+    private fun showPermissionRequest(params: PermissionRequestParams) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            this,
+            { params.requestCallback.invoke() },
+            when (params.permission) {
+                Constants.TetroidPermission.ReadStorage -> R.string.ask_request_read_ext_storage
+                Constants.TetroidPermission.WriteStorage -> R.string.ask_request_write_ext_storage
+                Constants.TetroidPermission.Camera -> R.string.ask_request_camera
+                Constants.TetroidPermission.Termux -> R.string.ask_permission_termux
+            }
+        )
+    }
+
+    protected open fun onPermissionGranted(requestCode: Int) {
         // по-умолчанию обрабатываем результат разрешения во ViewModel,
         //  но можем переопределить onPermissionGranted и в активити
-        viewModel.onPermissionGranted(requestCode);
+        viewModel.onPermissionGranted(requestCode)
     }
 
-    protected void onPermissionCanceled(int requestCode) {
-        viewModel.onPermissionCanceled(requestCode);
+    protected fun onPermissionCanceled(requestCode: Int) {
+        viewModel.onPermissionCanceled(requestCode)
     }
 
     // region FileFolderPicker
 
-    public void openFilePicker() {
-        openFileFolderPicker(true);
+    fun openFilePicker() {
+        openFileFolderPicker(true)
     }
 
-    public void openFolderPicker() {
-        openFileFolderPicker(false);
+    fun openFolderPicker() {
+        openFileFolderPicker(false)
     }
 
     /**
      * Открытие активности для выбора файла или каталога в файловой системе.
      */
-    public void openFileFolderPicker(boolean isPickFile) {
-        Intent intent = new Intent(this, FolderPicker.class);
-        intent.putExtra(FolderPicker.EXTRA_TITLE, (isPickFile) ? getString(R.string.title_select_file_to_upload) : getString(R.string.title_save_file_to));
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false));
-        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile);
-        startActivityForResult(intent, (isPickFile) ? Constants.REQUEST_CODE_FILE_PICKER : Constants.REQUEST_CODE_FOLDER_PICKER);
+    fun openFileFolderPicker(isPickFile: Boolean) {
+        val intent = Intent(this, FolderPicker::class.java)
+        intent.putExtra(
+            FolderPicker.EXTRA_TITLE,
+            if (isPickFile) getString(R.string.title_select_file_to_upload) else getString(R.string.title_save_file_to)
+        )
+        intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false))
+        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile)
+        startActivityForResult(intent, if (isPickFile) Constants.REQUEST_CODE_FILE_PICKER else Constants.REQUEST_CODE_FOLDER_PICKER)
     }
 
     // endregion FileFolderPicker
@@ -225,31 +230,30 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * Установка заголовка активности.
      * @param title
      */
-    @Override
-    public void setTitle(CharSequence title) {
-        tvTitle.setText(title);
+    override fun setTitle(title: CharSequence?) {
+        tvTitle?.text = title
     }
 
     /**
      * Установка подзаголовка активности.
      * @param title
      */
-    public void setSubtitle(CharSequence title) {
-        tvSubtitle.setText(title);
+    fun setSubtitle(title: CharSequence?) {
+        tvSubtitle?.text = title
     }
 
-//    /**
-//     * Если потеряли фокус на активности, то выходим их полноэкранного режима
-//     * (например, при нажатии на "физическую" кнопку вызова меню).
-//     * @param hasFocus
-//     */
-//    @Override
-//    public void onWindowFocusChanged(boolean hasFocus) {
-//        super.onWindowFocusChanged(hasFocus);
-//        if (!hasFocus) {
-//            setFullscreen(false);
-//        }
-//    }
+    //    /**
+    //     * Если потеряли фокус на активности, то выходим их полноэкранного режима
+    //     * (например, при нажатии на "физическую" кнопку вызова меню).
+    //     * @param hasFocus
+    //     */
+    //    @Override
+    //    public void onWindowFocusChanged(boolean hasFocus) {
+    //        super.onWindowFocusChanged(hasFocus);
+    //        if (!hasFocus) {
+    //            setFullscreen(false);
+    //        }
+    //    }
 
     /**
      * Включение/отключение полноэкранного режима.
@@ -257,18 +261,18 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param fromDoubleTap
      * @return
      */
-    public int toggleFullscreen(boolean fromDoubleTap) {
-        if (this instanceof RecordActivity) {
+    open fun toggleFullscreen(fromDoubleTap: Boolean): Int {
+        if (this is RecordActivity) {
             if (!fromDoubleTap || CommonSettings.isDoubleTapFullscreen(this)) {
-                boolean newValue = !isFullScreen;
-                ViewUtils.setFullscreen(this, newValue);
-                this.isFullScreen = newValue;
-                return (newValue) ? 1 : 0;
+                val newValue = !isFullScreen
+                ViewUtils.setFullscreen(this, newValue)
+                isFullScreen = newValue
+                return if (newValue) 1 else 0
             }
         } else {
-            return -1;
+            return -1
         }
-        return -1;
+        return -1
     }
 
     /**
@@ -278,34 +282,32 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param event
      * @return
      */
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return false;
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(event)
+        return false
     }
 
-    public boolean onBeforeCreateOptionsMenu(Menu menu) {
-        boolean onCreateCalled = isOnCreateProcessed();
+    fun onBeforeCreateOptionsMenu(menu: Menu?): Boolean {
+        val onCreateCalled = isOnCreateProcessed
         if (!onCreateCalled) {
-            this.optionsMenu = menu;
+            optionsMenu = menu
         }
-        return onCreateCalled;
+        return onCreateCalled
     }
 
     @SuppressLint("RestrictedApi")
-    public boolean onAfterCreateOptionsMenu(Menu menu) {
+    fun onAfterCreateOptionsMenu(menu: Menu?): Boolean {
         // запускаем только 1 раз
         if (!isGUICreated) {
             // для отображения иконок
-            if (menu instanceof MenuBuilder){
-                MenuBuilder m = (MenuBuilder) menu;
-                m.setOptionalIconsVisible(true);
+            if (menu is MenuBuilder) {
+                menu.setOptionalIconsVisible(true)
             }
         }
         // устанавливаем флаг, что стандартные элементы активности созданы
-        onUICreated(!isGUICreated);
-        this.isGUICreated = true;
-        return true;
+        onUICreated(!isGUICreated)
+        isGUICreated = true
+        return true
     }
 
 /*    @Override
@@ -315,11 +317,11 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
         return false;
     }*/
 
-    public void updateOptionsMenu() {
+    fun updateOptionsMenu() {
         if (optionsMenu != null) {
-            onPrepareOptionsMenu(optionsMenu);
+            onPrepareOptionsMenu(optionsMenu)
         } else {
-            viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false);
+            viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false)
         }
     }
 
@@ -328,117 +330,130 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param item
      * @return
      */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case R.id.action_fullscreen:
-                toggleFullscreen(false);
-                return true;
-            case R.id.action_about_app:
-                AboutActivity.start(this);
-                return true;
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_fullscreen -> {
+                toggleFullscreen(false)
+                return true
+            }
+            R.id.action_about_app -> {
+                AboutActivity.start(this)
+                return true
+            }
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean isGranted = (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-        switch (requestCode) {
+    /**
+     * Обработчик результата активити.
+     */
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-            case Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE: {
-                if (isGranted) {
-                    viewModel.log(R.string.log_write_ext_storage_perm_granted);
-                } else {
-                    viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true);
-                }
-            } break;
-
-            case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP: {
-                if (isGranted) {
-                    viewModel.log(R.string.log_write_ext_storage_perm_granted);
-                } else {
-                    viewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true);
-                }
-            } break;
-
-            case Constants.REQUEST_CODE_PERMISSION_TERMUX: {
-                if (isGranted) {
-                    viewModel.log(R.string.log_run_termux_commands_perm_granted);
-                } else {
-                    viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true);
-                }
-            } break;
-
-            default:
-                return;
+        // разрешение на запись в память на Android 11 запрашивается с помощью Intent
+        if (requestCode == Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val isGranted = (viewModel.permissionInteractor.hasWriteExtStoragePermission(this))
+                onRequestPermissionsResult(
+                    requestCode = requestCode,
+                    permissions = emptyArray(),
+                    grantResults = IntArray(1) {
+                        if (isGranted) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED }
+                )
+            }
         }
+    }
 
+    /**
+     * Обработчик запроса разрешения.
+     */
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val isGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        when (requestCode) {
+            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
+                if (isGranted) {
+                    viewModel.log(R.string.log_write_ext_storage_perm_granted)
+                } else {
+                    viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true)
+                }
+            }
+            Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP -> {
+                if (isGranted) {
+                    viewModel.log(R.string.log_write_ext_storage_perm_granted)
+                } else {
+                    viewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true)
+                }
+            }
+            Constants.REQUEST_CODE_PERMISSION_TERMUX -> {
+                if (isGranted) {
+                    viewModel.log(R.string.log_run_termux_commands_perm_granted)
+                } else {
+                    viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true)
+                }
+            }
+            else -> return
+        }
         if (isGranted) {
-            onPermissionGranted(requestCode);
+            onPermissionGranted(requestCode)
         } else {
-            onPermissionCanceled(requestCode);
+            onPermissionCanceled(requestCode)
         }
     }
 
-    public void taskPreExecute(int progressTextResId) {
-        blockInterface();
-        setProgressText(progressTextResId);
-        hideKeyboard(getWindow().getDecorView());
+    fun taskPreExecute(progressTextResId: Int) {
+        blockInterface()
+        setProgressText(progressTextResId)
+        window.decorView.hideKeyboard()
     }
 
-    public void taskPostExecute() {
-        unblockInterface();
-        setProgressVisibility(false, null);
+    fun taskPostExecute() {
+        unblockInterface()
+        setProgressVisibility(false, null)
     }
 
-    public void blockInterface() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    fun blockInterface() {
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
     }
 
-    public void unblockInterface() {
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    fun unblockInterface() {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
 
     /**
      * Обработчик, вызываемый перед запуском кода в обработчике onBackPressed().
      * @return true - можно продолжить работу обработчика onBackPressed(), иначе - прервать
      */
-    public boolean onBeforeBackPressed() {
+    fun onBeforeBackPressed(): Boolean {
         // если выполняется задание, то не реагируем на нажатие кнопки Back
-        return !viewModel.isBusy();
+        return !viewModel.isBusy
     }
 
-    protected void setVisibilityActionHome(boolean isVisible) {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(isVisible);
-        }
+    protected fun setVisibilityActionHome(isVisible: Boolean) {
+        val actionBar = supportActionBar
+        actionBar?.setDisplayHomeAsUpEnabled(isVisible)
     }
 
-    @Override
-    public void setProgressVisibility(boolean isVisible, String text) {
+    override fun setProgressVisibility(isVisible: Boolean, text: String?) {
         if (isVisible) {
-            tvProgress.setText(text);
-            layoutProgress.setVisibility(View.VISIBLE);
+            tvProgress?.text = text
+            layoutProgress?.visibility = View.VISIBLE
         } else {
-            layoutProgress.setVisibility(View.GONE);
+            layoutProgress?.visibility = View.GONE
         }
-        layoutProgress.setVisibility(ViewUtils.toVisibility(isVisible));
+        layoutProgress?.visibility = ViewUtils.toVisibility(isVisible)
     }
 
-    @Override
-    public void setProgressText(int progressTextResId) {
-        setProgressText(getString(progressTextResId));
+    override fun setProgressText(progressTextResId: Int) {
+        setProgressText(getString(progressTextResId))
     }
 
-    @Override
-    public void setProgressText(String progressText) {
-        layoutProgress.setVisibility(View.VISIBLE);
-        tvProgress.setText(progressText);
+    override fun setProgressText(progressText: String?) {
+        layoutProgress?.visibility = View.VISIBLE
+        tvProgress?.text = progressText
     }
 
     /**
@@ -446,8 +461,8 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param menuItem
      * @param isVisible
      */
-    protected void visibleMenuItem(MenuItem menuItem, boolean isVisible) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isVisible);
+    protected fun visibleMenuItem(menuItem: MenuItem?, isVisible: Boolean) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isVisible)
     }
 
     /**
@@ -455,8 +470,8 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param menuItem
      * @param isEnabled
      */
-    protected void enableMenuItem(MenuItem menuItem, boolean isEnabled) {
-        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled);
+    protected fun enableMenuItem(menuItem: MenuItem?, isEnabled: Boolean) {
+        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled)
     }
 
     /**
@@ -465,54 +480,48 @@ public abstract class TetroidActivity<VM extends BaseStorageViewModel> extends A
      * @param menu
      */
     @SuppressLint("RestrictedApi")
-    protected void setForceShowMenuIcons(View v, MenuBuilder menu) {
-        MenuPopupHelper menuHelper = new MenuPopupHelper(this, menu, v);
-        menuHelper.setForceShowIcon(true);
-        menuHelper.show();
+    protected fun setForceShowMenuIcons(v: View?, menu: MenuBuilder?) {
+        val menuHelper = MenuPopupHelper(this, menu!!, v!!)
+        menuHelper.setForceShowIcon(true)
+        menuHelper.show()
     }
 
     /**
      * Установка подзаголовка активности.
      * @param subtitle
      */
-    protected void setSubtitle(String subtitle) {
-        tvSubtitle.setVisibility(View.VISIBLE);
-        tvSubtitle.setTextSize(16);
-        tvSubtitle.setText(subtitle);
+    protected fun setSubtitle(subtitle: String?) {
+        tvSubtitle?.visibility = View.VISIBLE
+        tvSubtitle?.textSize = 16f
+        tvSubtitle?.text = subtitle
     }
 
-    public void showActivityForResult(Class<?> cls, int requestCode) {
-        Intent intent = new Intent(this, cls);
-        startActivityForResult(intent, requestCode);
+    open fun showActivityForResult(cls: Class<*>?, requestCode: Int) {
+        val intent = Intent(this, cls)
+        startActivityForResult(intent, requestCode)
     }
 
-    protected void showStoragesActivity() {
-        StoragesActivity.start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY);
+    protected fun showStoragesActivity() {
+        start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY)
     }
 
-    protected void showStorageSettingsActivity(TetroidStorage storage) {
-        if (storage == null) return;
-        startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY);
-    }
-
-    public boolean isOnCreateProcessed() {
-        return isOnCreateProcessed;
+    protected fun showStorageSettingsActivity(storage: TetroidStorage?) {
+        if (storage == null) return
+        startActivityForResult(newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
     }
 
     /**
      * Публикация сообщений.
      * @param message
      */
-    protected void onMessage(com.gee12.mytetroid.logs.Message message) {
-        TetroidMessage.show(this, message);
+    protected fun onMessage(message: Message?) {
+        TetroidMessage.show(this, message)
     }
 
     /**
      * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
      */
-    @Override
-    public void showSnackMoreInLogs() {
-        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator);
+    override fun showSnackMoreInLogs() {
+        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
     }
-
 }

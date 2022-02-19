@@ -12,7 +12,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import lib.folderpicker.FolderPicker
 import com.gee12.mytetroid.App
-import com.gee12.mytetroid.PermissionInteractor
+import com.gee12.mytetroid.interactors.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -100,7 +100,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun checkPermission(requestCode: Int): Boolean {
-        return permissionInteractor.checkWriteExtStoragePermission(requireActivity(), requestCode)
+        return baseViewModel.checkWriteExtStoragePermission(requireActivity(), requestCode)
     }
 
     /**

@@ -34,7 +34,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
         viewModel.startInitStorage(intent)
     }
 
-    override fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
+    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
         when (event) {
             Constants.StorageEvents.LoadedEntity -> onStorageFoundInBase()
             Constants.StorageEvents.Inited -> onStorageInitedOrLoaded(true)
@@ -118,7 +118,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
         }
     }
 
-    override fun onObjectEvent(event: Any?, data: Any?) {
+    override fun onObjectEvent(event: Any, data: Any?) {
         when (event) {
             StorageInfoViewModel.Event.StorageFolderSize -> {
                 findViewById<TextView>(R.id.text_view_size).text = data as String

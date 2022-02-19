@@ -149,7 +149,7 @@ open class StorageViewModel(
             !isStorageInited() -> {
                 if (showMessage) {
                     showMessage(
-                        if (permissionInteractor.writeExtStoragePermGranted(getContext())) R.string.mes_storage_must_be_inited
+                        if (permissionInteractor.hasWriteExtStoragePermission(getContext())) R.string.mes_storage_must_be_inited
                         else R.string.mes_must_grant_perm_and_storage_inited
                     )
                 }
@@ -293,7 +293,7 @@ open class StorageViewModel(
         CommonSettings.setLastStorageId(getContext(), storage.id)
 
         // сначала проверяем разрешение на запись во внешнюю память
-        postStorageEvent(Constants.StorageEvents.PermissionCheck)
+        postViewEvent(Constants.ViewEvents.PermissionCheck)
     }
 
     /**
@@ -827,6 +827,11 @@ open class StorageViewModel(
      * @param callback
      */
     fun startStorageSync(activity: Activity, callback: ICallback?) {
+        if (storage?.syncProfile?.appName == getString(R.string.title_app_termux)) {
+            if (!checkTermuxPermission(activity)) {
+                return
+            }
+        }
         val result = syncInteractor.startStorageSync(
             activity = activity,
             storagePath = getStoragePath(),

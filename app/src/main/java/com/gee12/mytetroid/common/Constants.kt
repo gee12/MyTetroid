@@ -117,6 +117,12 @@ object Constants {
         ShowMoreInLogs,
         ShowHomeButton,
 
+        // permission
+        PermissionCheck,
+        PermissionGranted,
+        PermissionCanceled,
+        ShowPermissionRequest,
+
         // pages
         OpenPage,
         ShowMainView,
@@ -135,9 +141,6 @@ object Constants {
         NotFoundInBase,
         LoadedEntity,
         Added,
-        PermissionCheck,
-        PermissionGranted,
-        PermissionCanceled,
         AskBeforeClearTrashOnExit,
         AskAfterSyncManually,
         AskBeforeSyncOnInit,
@@ -164,6 +167,13 @@ object Constants {
 
         // pincode
         AskPinCode
+    }
+
+    enum class TetroidPermission {
+        ReadStorage,
+        WriteStorage,
+        Camera,
+        Termux
     }
 
 }

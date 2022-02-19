@@ -1,9 +1,7 @@
 package com.gee12.mytetroid.viewmodels
 
-import android.app.Activity
 import android.app.Application
 import android.util.Log
-import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.helpers.IStorageProvider
@@ -28,8 +26,6 @@ open class BaseStorageViewModel(
 
     val storageEvent = SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>>()
     val objectAction = SingleLiveEvent<ViewModelEvent<Any, Any>>()
-
-    val permissionInteractor = PermissionInteractor(this.logger)
 
     val storageProvider: IStorageProvider = object : IStorageProvider {
         override fun getStorageOrNull(): TetroidStorage? = storage
@@ -74,44 +70,9 @@ open class BaseStorageViewModel(
 
     //endregion Event
 
-    //region Other
-
-    @JvmOverloads
-    fun checkReadExtStoragePermission(
-        activity: Activity,
-        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
-        callback: (() -> Unit)? = null
-    ): Boolean {
-        if (permissionInteractor.checkReadExtStoragePermission(activity, requestCode)) {
-            if (callback != null) callback.invoke()
-            else onPermissionGranted(requestCode)
-            return true
-        }
-        return false
-    }
-
-    @JvmOverloads
-    fun checkWriteExtStoragePermission(
-        activity: Activity,
-        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
-        callback: (() -> Unit)? = null
-    ): Boolean {
-        if (permissionInteractor.checkWriteExtStoragePermission(activity, requestCode)) {
-            if (callback != null) callback.invoke()
-            else onPermissionGranted(requestCode)
-            return true
-        }
-        return false
-    }
-
-    open fun onPermissionGranted(requestCode: Int) {
-        postStorageEvent(Constants.StorageEvents.PermissionGranted, requestCode)
-    }
-
-    open fun onPermissionCanceled(requestCode: Int) {
-        postStorageEvent(Constants.StorageEvents.PermissionCanceled, requestCode)
-    }
-
-    //endregion Other
-
 }
+
+data class PermissionRequestParams(
+    val permission: Constants.TetroidPermission,
+    val requestCallback: () -> Unit
+)

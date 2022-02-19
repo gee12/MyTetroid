@@ -19,6 +19,7 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.StorageEvents
+import com.gee12.mytetroid.common.Constants.ViewEvents
 import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
@@ -84,16 +85,22 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun onUICreated(uiCreated: Boolean) {}
 
-    override fun onStorageEvent(event: StorageEvents, data: Any) {
+    override fun onViewEvent(event: ViewEvents, data: Any?) {
         when (event) {
-            StorageEvents.PermissionGranted -> {
+            ViewEvents.PermissionGranted -> {
                 when (data) {
                     Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> viewModel.addNewStorage(this)
-                    Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> {} // ничего не делаем
+                    Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> Unit // ничего не делаем
                 }
             }
+            else -> Unit
+        }
+    }
+
+    override fun onStorageEvent(event: StorageEvents, data: Any?) {
+        when (event) {
             StorageEvents.Added -> (data as? TetroidStorage)?.let { onStorageAdded(it) }
-            else -> {}
+            else -> Unit
         }
     }
 
@@ -136,13 +143,18 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     private fun createStorageFiles(storage: TetroidStorage) {
         val storageViewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
             .get(StorageViewModel::class.java)
-        storageViewModel.storageEvent.observe(this, {
+        storageViewModel.viewEvent.observe(this, {
             when (it.state) {
                 // проверка разрешения перед созданием файлов хранилища
-                StorageEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this)
-                StorageEvents.PermissionGranted -> storageViewModel.initStorage()
+                ViewEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this)
+                ViewEvents.PermissionGranted -> storageViewModel.initStorage()
+                else -> Unit
+            }
+        })
+        storageViewModel.storageEvent.observe(this, {
+            when (it.state) {
                 StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
-                else -> {}
+                else -> Unit
             }
         })
         storageViewModel.startInitStorage(storage)
@@ -204,7 +216,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         // проверка разрешения перед диалогом добавления хранилища
         if (!viewModel.checkReadExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_READ_STORAGE)) return
 
-        val path = if (!StringUtil.isBlank(location)) location else viewModel.getLastFolderPathOrDefault(true)
+        val path = if (!StringUtil.isBlank(location)) location else viewModel?.getLastFolderPathOrDefault(true)
         val intent = Intent(this, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)

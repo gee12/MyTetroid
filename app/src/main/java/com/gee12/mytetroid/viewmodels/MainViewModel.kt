@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.viewmodels
 
-import android.Manifest
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
@@ -8,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.FileUtils
@@ -53,7 +51,7 @@ class MainViewModel(
     var curTag: TetroidTag? = null
     var curFile: TetroidFile? = null
 
-    var tempFileToOpen: TetroidFile? = null
+    var tempAttachToOpen: TetroidFile? = null
     var isDropRecordsFiltering = true
     var lastSearchProfile: SearchProfile? = null
     var lastFilterQuery: String? = null
@@ -895,15 +893,29 @@ class MainViewModel(
 
     // region Attaches
 
-    fun checkPermissionAndOpenAttach(attach: TetroidFile?) {
-        if (isStorageCrypted() && !CommonSettings.isDecryptFilesInTempDef(getContext())) {
-            log(R.string.log_viewing_decrypted_not_possible, true)
+    fun checkPermissionAndOpenAttach(activity: Activity, attach: TetroidFile) {
+        if (attach.isNonCryptedOrDecrypted) {
+            openAttach(attach)
         } else {
-            postEvent(MainEvents.CheckPermissionAndOpenAttach, attach)
+            if (isDecryptAttachesToTemp()) {
+                if (checkWriteExtStoragePermission(activity, Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP)) {
+                    openAttach(attach)
+                } else {
+                    // будет запрос разрешения на запись расшифрованного файла в память
+                    tempAttachToOpen = attach
+                }
+            } else {
+                log(R.string.log_viewing_decrypted_not_possible, true)
+            }
         }
     }
 
-    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    fun checkPermissionAndOpenTempAttach(activity: Activity) {
+        tempAttachToOpen?.let {
+            checkPermissionAndOpenAttach(activity, it)
+        }
+    }
+
     fun openAttach(attach: TetroidFile) {
         launch {
             attachesInteractor.openAttach(getContext(), attach)
@@ -1568,7 +1580,6 @@ class MainViewModel(
         UpdateTags,
 
         // attaches
-        CheckPermissionAndOpenAttach,
         ShowAttaches,
         AttachesFiltered,
         UpdateAttaches,

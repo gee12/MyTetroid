@@ -787,7 +787,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
     <string name="log_settings_copied_from_free">Application settings were copied from the Free version</string>
-    <string name="log_request_perm">Permission request:&#160;</string>
+    <string name="log_request_perm_mask">Permission request: %s</string>
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
     <string name="log_run_termux_commands_perm_granted">Permission granted to run Termux commands</string>

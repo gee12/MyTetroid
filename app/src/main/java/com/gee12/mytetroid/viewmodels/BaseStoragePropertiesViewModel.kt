@@ -51,8 +51,7 @@ abstract class BaseStoragePropertiesViewModel(
     val interactionInteractor = InteractionInteractor(this.logger)
 
     val syncInteractor =  SyncInteractor(
-        logger = this.logger,
-        permissionInteractor = permissionInteractor
+        logger = this.logger
     )
     val trashInteractor = TrashInteractor(
         logger = this.logger,
@@ -315,7 +314,7 @@ abstract class BaseStoragePropertiesViewModel(
 
     fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
 
-    fun isDecryptToTemp() = storage?.isDecyptToTemp ?: false
+    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp ?: false
 
     fun getMiddlePassHash() = storage?.middlePassHash
 

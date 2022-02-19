@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.views.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -29,7 +28,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -304,6 +302,17 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 showSnackMoreInLogs();
                 break;
 
+            // права доступа
+            case PermissionCheck:
+                viewModel.checkWriteExtStoragePermission(this);
+                break;
+            case PermissionGranted:
+                viewModel.syncAndInitStorage(this);
+                break;
+            case PermissionCanceled:
+                // ничего не делаем
+                break;
+
             // pages
             case OpenPage:
                 viewPager.setCurrent((int) data);
@@ -340,17 +349,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         switch (event) {
             case LoadedEntity:
                 onStorageUpdated();
-                break;
-
-            // права доступа
-            case PermissionCheck:
-                viewModel.checkWriteExtStoragePermission(this);
-                break;
-            case PermissionGranted:
-                viewModel.syncAndInitStorage(this);
-                break;
-            case PermissionCanceled:
-                // ничего не делаем
                 break;
 
             case AskBeforeClearTrashOnExit: {
@@ -501,9 +499,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 break;
 
             // attaches
-            case CheckPermissionAndOpenAttach:
-                checkPermissionAndOpenAttach((TetroidFile) data);
-                break;
             case ShowAttaches:
                 ObjectsInView attaches = (ObjectsInView) data;
                 getMainPage().showAttaches(attaches.getObjects());
@@ -1397,6 +1392,24 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         setTagsDataItems(viewModel.getTags());
     }
 
+    /**
+     * Обработчик клика на метке.
+     */
+    private AdapterView.OnItemClickListener onTagClicklistener = (parent, view, position, id) -> {
+        showTagRecords(position);
+    };
+
+    /**
+     * Обработчик долгого клика на метке.
+     */
+    private AdapterView.OnItemLongClickListener onTagLongClicklistener = (parent, view, position, id) -> {
+        Map.Entry<String, TetroidTag> tagEntry = listAdapterTags.getItem(position);
+        if (tagEntry != null) {
+            showTagPopupMenu(view, tagEntry.getValue());
+        }
+        return true;
+    };
+
     // endregion Tags
 
     // region Tag
@@ -1484,63 +1497,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     // endregion Record
-
-    // region Attaches
-
-    /**
-     * Отрытие прикрепленного файла.
-     * Если файл нужно расшифровать во временные каталог, спрашиваем разрешение
-     * на запись во внешнее хранилище.
-     * <p>
-     * FIXME: Разрешение WRITE_EXTERNAL_STORAGE просить не нужно,
-     *  т.к. оно и так запрашивается при загрузке хранилища.
-     *
-     * @param file
-     */
-    @SuppressLint("MissingPermission")
-    public void checkPermissionAndOpenAttach(TetroidFile file) {
-        if (file == null) {
-            return;
-        }
-//        if (Build.VERSION.SDK_INT >= 23) {
-        // если файл нужно расшифровать во временный каталог, нужно разрешение на запись
-        if (file.getRecord().isCrypted()
-                && CommonSettings.isDecryptFilesInTempDef(this)
-                && !viewModel.getPermissionInteractor().writeExtStoragePermGranted(this)) {
-            viewModel.setTempFileToOpen(file);
-            String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-            viewModel.log(getString(R.string.log_request_perm) + permission);
-            ActivityCompat.requestPermissions(
-                    this,
-                    new String[]{ permission },
-                    Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP);
-        } else {
-//        }
-            // расшифровываем без запроса разрешения во время выполнения, т.к. нужные разрешения
-            // уже были выданы при установке приложения
-            viewModel.openAttach(file);
-        }
-    }
-
-    /**
-     * Обработчик клика на метке.
-     */
-    private AdapterView.OnItemClickListener onTagClicklistener = (parent, view, position, id) -> {
-        showTagRecords(position);
-    };
-
-    /**
-     * Обработчик долгого клика на метке.
-     */
-    private AdapterView.OnItemLongClickListener onTagLongClicklistener = (parent, view, position, id) -> {
-        Map.Entry<String, TetroidTag> tagEntry = listAdapterTags.getItem(position);
-        if (tagEntry != null) {
-            showTagPopupMenu(view, tagEntry.getValue());
-        }
-        return true;
-    };
-
-    // endregion Attaches
 
     // region ContextMenus
 
@@ -1930,7 +1886,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onPermissionGranted(int requestCode) {
         switch (requestCode) {
             case Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP:
-                checkPermissionAndOpenAttach(viewModel.getTempFileToOpen());
+                viewModel.checkPermissionAndOpenTempAttach(this);
                 break;
             case Constants.REQUEST_CODE_PERMISSION_TERMUX:
                 viewModel.syncAndInitStorage(this);

@@ -6,9 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.text.TextUtils
-import com.gee12.mytetroid.PermissionInteractor
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.common.utils.Utils
@@ -16,8 +14,7 @@ import com.gee12.mytetroid.views.TetroidMessage
 
 
 class SyncInteractor(
-    private val logger: ITetroidLogger,
-    private val permissionInteractor: PermissionInteractor
+    private val logger: ITetroidLogger
 ) {
 
     companion object {
@@ -108,10 +105,6 @@ class SyncInteractor(
         logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_termux), command), false)
         if (command.isEmpty()) {
             logger.logError(R.string.log_sync_command_empty, true)
-            return false
-        }
-        // проверяем разрешение на запуск сервиса
-        if (!permissionInteractor.checkTermuxPermission(activity, Constants.REQUEST_CODE_PERMISSION_TERMUX)) {
             return false
         }
         // подставляем путь

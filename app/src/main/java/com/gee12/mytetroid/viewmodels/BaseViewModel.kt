@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.viewmodels
 
+import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -12,6 +13,8 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.interactors.PermissionInteractor
+import com.gee12.mytetroid.interactors.PermissionRequestData
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import java.util.*
 
@@ -28,6 +31,9 @@ open class BaseViewModel(
     var logger: TetroidLogger = BaseLogger().apply {
         init(CommonSettings.getLogPath(getContext()), CommonSettings.isWriteLogToFile(getContext()))
     }
+
+    val permissionInteractor = PermissionInteractor(this.logger)
+
 
     // Общий внутренний логгер: записывает логи в буфер и в файл
     // При первом запуске, когда окружение приложения (App.current) еще не инициализировано,
@@ -54,6 +60,116 @@ open class BaseViewModel(
     }
 
     //endregion View event
+
+    //region Permission
+
+    @JvmOverloads
+    fun checkReadExtStoragePermission(
+        activity: Activity,
+        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
+        callback: (() -> Unit)? = null
+    ): Boolean {
+        if (permissionInteractor.checkPermission(
+                PermissionRequestData(
+                    permission = Constants.TetroidPermission.ReadStorage,
+                    activity = activity,
+                    requestCode = requestCode,
+                    onManualPermissionRequest = { requestCallback ->
+                        showManualPermissionRequest(
+                            PermissionRequestParams(
+                                permission = Constants.TetroidPermission.ReadStorage,
+                                requestCallback = requestCallback
+                            )
+                        )
+                    }
+                )
+            )
+        ) {
+            if (callback != null) callback.invoke()
+            else onPermissionGranted(requestCode)
+            return true
+        }
+        return false
+    }
+
+    @JvmOverloads
+    fun checkWriteExtStoragePermission(
+        activity: Activity,
+        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
+        callback: (() -> Unit)? = null
+    ): Boolean {
+        if (permissionInteractor.checkPermission(
+                PermissionRequestData(
+                    permission = Constants.TetroidPermission.WriteStorage,
+                    activity = activity,
+                    requestCode = requestCode,
+                    onManualPermissionRequest = { requestCallback ->
+                        showManualPermissionRequest(
+                            PermissionRequestParams(
+                                permission = Constants.TetroidPermission.WriteStorage,
+                                requestCallback = requestCallback
+                            )
+                        )
+                    }
+                )
+            )
+        ) {
+            if (callback != null) callback.invoke()
+            else onPermissionGranted(requestCode)
+            return true
+        }
+        return false
+    }
+
+    fun checkCameraPermission(activity: Activity): Boolean {
+        return permissionInteractor.checkPermission(
+            PermissionRequestData(
+                permission = Constants.TetroidPermission.Camera,
+                activity = activity,
+                requestCode = Constants.REQUEST_CODE_PERMISSION_CAMERA,
+                onManualPermissionRequest = { requestCallback ->
+                    showManualPermissionRequest(
+                        PermissionRequestParams(
+                            permission = Constants.TetroidPermission.Camera,
+                            requestCallback = requestCallback
+                        )
+                    )
+                }
+            )
+        )
+    }
+
+    fun checkTermuxPermission(activity: Activity): Boolean {
+        return permissionInteractor.checkPermission(
+            PermissionRequestData(
+                permission = Constants.TetroidPermission.Termux,
+                activity = activity,
+                requestCode = Constants.REQUEST_CODE_PERMISSION_TERMUX,
+                onManualPermissionRequest = { requestCallback ->
+                    showManualPermissionRequest(
+                        PermissionRequestParams(
+                            permission = Constants.TetroidPermission.Termux,
+                            requestCallback = requestCallback
+                        )
+                    )
+                }
+            )
+        )
+    }
+
+    open fun onPermissionGranted(requestCode: Int) {
+        postViewEvent(Constants.ViewEvents.PermissionGranted, requestCode)
+    }
+
+    open fun onPermissionCanceled(requestCode: Int) {
+        postViewEvent(Constants.ViewEvents.PermissionCanceled, requestCode)
+    }
+
+    open fun showManualPermissionRequest(request: PermissionRequestParams) {
+        postViewEvent(Constants.ViewEvents.ShowPermissionRequest, request)
+    }
+
+    //endregion Permission
 
     //region Log
 

@@ -407,7 +407,9 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      */
     private void openAttach(int position) {
         TetroidFile attach = viewModel.getCurRecord().getAttachedFiles().get(position);
-        viewModel.checkPermissionAndOpenAttach(attach);
+        if (attach != null) {
+            viewModel.checkPermissionAndOpenAttach(requireActivity(), attach);
+        }
     }
 
     /**

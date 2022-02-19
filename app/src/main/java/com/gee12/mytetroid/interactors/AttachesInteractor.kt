@@ -1,10 +1,8 @@
 package com.gee12.mytetroid.interactors
 
-import android.Manifest
 import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
-import androidx.annotation.RequiresPermission
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -36,12 +34,11 @@ class AttachesInteractor(
 ) {
 
     /**
-     * Открытие прикрепленного файла сторонним приложением.
+     * Открытие прикрепленного файла сторонним приложением с предварительной расшифровкой (если необходимо).
      * @param context
      * @param file
      * @return
      */
-    @RequiresPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     suspend fun openAttach(context: Context, file: TetroidFile): Boolean {
         logger.logDebug(context.getString(R.string.log_start_attach_file_opening) + file.id)
         val record = file.record
@@ -70,7 +67,7 @@ class AttachesInteractor(
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
 //                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
-            val tempFolderPath: String = recordsInteractor.getPathToRecordFolderInTrash(record)
+            val tempFolderPath = recordsInteractor.getPathToRecordFolderInTrash(record)
             val tempFolder = File(tempFolderPath)
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                 logger.logError(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, true)

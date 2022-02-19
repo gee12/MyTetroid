@@ -38,15 +38,9 @@ class TetroidFileObserver(
                 Log.d("MyTetroid", "FileObserver event=${event.toHex()} path=$path")
                 if (mask == 0 || mask == ALL_EVENTS || event and mask > 0) {
                     when (event) {
-                        MODIFY -> {
-                            callback(Event.Modified)
-                        }
-                        MOVE_SELF -> {
-                            callback(Event.Moved)
-                        }
-                        DELETE_SELF -> {
-                            callback(Event.Deleted)
-                        }
+                        MODIFY -> callback(Event.Modified)
+                        MOVE_SELF -> callback(Event.Moved)
+                        DELETE_SELF -> callback(Event.Deleted)
                     }
                 }
             }

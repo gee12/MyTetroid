@@ -9,6 +9,7 @@ import android.view.Menu
 import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Constants.ViewEvents
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageSectionsSettingsFragment
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment
 import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettingsFragment
@@ -48,16 +49,18 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
 
     }
 
-    protected fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
+    protected fun onViewEvent(event: ViewEvents, data: Any?) {
 //        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onViewEvent(event, data)
 
         when (event) {
-            Constants.ViewEvents.ShowProgress -> setProgressVisibility(data as? Boolean ?: false)
-            Constants.ViewEvents.ShowProgressText -> setProgressText(data as? String)
-            Constants.ViewEvents.TaskStarted -> setProgressVisibility(true, data as String)
-            Constants.ViewEvents.TaskFinished -> setProgressVisibility(false)
-            Constants.ViewEvents.ShowMoreInLogs -> showSnackMoreInLogs()
-            else -> {}
+            ViewEvents.ShowProgress -> setProgressVisibility(data as? Boolean ?: false)
+            ViewEvents.ShowProgressText -> setProgressText(data as? String)
+            ViewEvents.TaskStarted -> setProgressVisibility(true, data as String)
+            ViewEvents.TaskFinished -> setProgressVisibility(false)
+            ViewEvents.ShowMoreInLogs -> showSnackMoreInLogs()
+            ViewEvents.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            ViewEvents.PermissionGranted -> viewModel.initStorage()
+            else -> Unit
         }
     }
 
@@ -66,11 +69,9 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
 
         when (event) {
             Constants.StorageEvents.LoadedEntity -> onStorageFoundInBase(data as TetroidStorage)
-            Constants.StorageEvents.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            Constants.StorageEvents.PermissionGranted -> viewModel.initStorage()
             Constants.StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
             Constants.StorageEvents.InitFailed -> onStorageInitFailed()
-            else -> {}
+            else -> Unit
         }
     }
 
