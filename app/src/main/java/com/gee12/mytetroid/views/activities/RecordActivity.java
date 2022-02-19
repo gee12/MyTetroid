@@ -251,8 +251,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             case TaskFinished:
                 taskPostExecute();
                 break;
+            default:
+                super.onViewEvent(event, data);
         }
-        super.onViewEvent(event, data);
     }
 
     /**
@@ -266,8 +267,9 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
             case LoadOrDecrypt:
                 viewModel.loadOrDecryptStorage((StorageParams) data);
                 break;
+            default:
+                super.onStorageEvent(event, data);
         }
-        super.onStorageEvent(event, data);
     }
 
     /**

@@ -334,8 +334,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case TaskFinished:
                 taskMainPostExecute();
                 break;
+            default:
+                super.onViewEvent(event, data);
         }
-        super.onViewEvent(event, data);
     }
 
     /**
@@ -417,8 +418,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             case TreeDeletedOutside:
                 showStorageTreeDeletedOutsideDialog();
                 break;
+            default:
+                super.onStorageEvent(event, data);
         }
-        super.onStorageEvent(event, data);
     }
 
     /**

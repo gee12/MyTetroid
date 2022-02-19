@@ -64,6 +64,8 @@ open class StorageDataXmlProcessor(
          * Версия формата структуры хранилища.
          */
         val DEF_VERSION = Version(1, 2)
+
+        private val ROOT_NODE = TetroidNode("", "<root>", -1)
     }
 
     private val ns: String? = null
@@ -97,10 +99,7 @@ open class StorageDataXmlProcessor(
      * Корневая ветка. Используется для добавления временных записей, которые
      * в mytetra.xml не записываются.
      */
-    private val rootNode = TetroidNode("", "<root>", -1).apply {
-        subNodes = rootNodes
-    }
-    override fun getRootNode() = rootNode
+    override fun getRootNode() = ROOT_NODE
 
     /**
      * Список меток.
@@ -160,6 +159,7 @@ open class StorageDataXmlProcessor(
         authorsCount = 0
         maxSubnodesCount = 0
         maxDepthLevel = 0
+        ROOT_NODE.subNodes = rootNodes
     }
 
     override fun setHelpers(loadHelper: IStorageLoadHelper, tagsParser: ITagsParser, iconLoader: INodeIconLoader) {
@@ -262,7 +262,7 @@ open class StorageDataXmlProcessor(
             }
             val tagName = parser.name
             if (tagName == "node") {
-                val node = readNode(context, parser, 0, rootNode)
+                val node = readNode(context, parser, 0, ROOT_NODE)
                 if (node != null && !isLoadFavoritesOnly) {
                     nodes?.add(node)
                 }
@@ -273,7 +273,7 @@ open class StorageDataXmlProcessor(
                 skip(parser)
             }
         }
-        rootNode.subNodes = nodes
+        ROOT_NODE.subNodes = nodes
         rootNodes = nodes ?: ArrayList()
         return true
     }

@@ -93,14 +93,14 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> Unit // ничего не делаем
                 }
             }
-            else -> Unit
+            else -> super.onViewEvent(event, data)
         }
     }
 
     override fun onStorageEvent(event: StorageEvents, data: Any?) {
         when (event) {
             StorageEvents.Added -> (data as? TetroidStorage)?.let { onStorageAdded(it) }
-            else -> Unit
+            else -> super.onStorageEvent(event, data)
         }
     }
 
@@ -213,10 +213,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
-        // проверка разрешения перед диалогом добавления хранилища
-        if (!viewModel.checkReadExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_READ_STORAGE)) return
-
-        val path = if (!StringUtil.isBlank(location)) location else viewModel?.getLastFolderPathOrDefault(true)
+        val path = location.ifBlank { viewModel.getLastFolderPathOrDefault(true) }
         val intent = Intent(this, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
