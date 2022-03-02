@@ -28,7 +28,7 @@ class PermissionInteractor(
      * Проверка разрешения на запись во внешнюю память.
      */
     fun hasWriteExtStoragePermission(context: Context): Boolean {
-        return when {
+        /*return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                 Environment.isExternalStorageManager()
             }
@@ -38,7 +38,8 @@ class PermissionInteractor(
             else -> {
                 true
             }
-        }
+        }*/
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
 
     /**
@@ -49,7 +50,7 @@ class PermissionInteractor(
         requestCode: Int,
         onManualPermissionRequest: (() -> Unit) -> Unit
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             logger.log(activity.getString(R.string.log_request_perm_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
             onManualPermissionRequest {
                 try {
@@ -67,7 +68,8 @@ class PermissionInteractor(
             }
         } else {
             requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
-        }
+        }*/
+        requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
     }
 
     /**
