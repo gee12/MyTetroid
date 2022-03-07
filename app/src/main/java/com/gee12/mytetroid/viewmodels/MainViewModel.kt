@@ -1371,21 +1371,26 @@ class MainViewModel(
             if (isStorageLoaded()) {
                 this.isStorageTreeChangingHandled = false
 
-                storageTreeInteractor.startStorageTreeObserver(
-                    storagePath = storageInteractor.getPathToMyTetraXml()
-                )
+                launch {
+                    storageTreeInteractor.startStorageTreeObserver(
+                        storagePath = storageInteractor.getPathToMyTetraXml()
+                    ) { event ->
+                        // обработка внешнего изменения дерева записей
+                        onStorageTreeOutsideChanged(event)
+                    }
+                }
             }
         } else {
             storageTreeInteractor.stopStorageTreeObserver()
         }
     }
 
-    fun onStorageTreeOutsideChanged(eventId: Int) {
+    fun onStorageTreeOutsideChanged(event: TetroidFileObserver.Event) {
         // проверяем, не был ли запущен обработчик второй раз подряд
         if (!isStorageTreeChangingHandled) {
             isStorageTreeChangingHandled = true
 
-            when (TetroidFileObserver.Event.fromId(eventId)) {
+            when (event) {
                 TetroidFileObserver.Event.Modified -> {
                     log(R.string.log_storage_tree_changed_outside)
                     postStorageEvent(Constants.StorageEvents.TreeChangedOutside)
@@ -1428,9 +1433,14 @@ class MainViewModel(
 
     override fun onStorageTreeSaved() {
         isStorageTreeChangingHandled = false
-        storageTreeInteractor.startStorageTreeObserver(
-            storagePath = storageInteractor.getPathToMyTetraXml()
-        )
+        launch {
+            storageTreeInteractor.startStorageTreeObserver(
+                storagePath = storageInteractor.getPathToMyTetraXml()
+            ) { event ->
+                // обработка внешнего изменения дерева записей
+                onStorageTreeOutsideChanged(event)
+            }
+        }
     }
 
     //endregion FileObserver

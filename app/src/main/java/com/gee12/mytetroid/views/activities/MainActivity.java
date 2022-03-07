@@ -2,10 +2,8 @@ package com.gee12.mytetroid.views.activities;
 
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -31,7 +29,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
@@ -80,7 +77,6 @@ import com.gee12.mytetroid.model.TetroidFile;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.model.TetroidRecord;
 import com.gee12.mytetroid.model.TetroidTag;
-import com.gee12.mytetroid.services.FileObserverService;
 import com.gee12.mytetroid.common.utils.FileUtils;
 import com.gee12.mytetroid.common.utils.Utils;
 import com.gee12.mytetroid.common.utils.ViewUtils;
@@ -129,9 +125,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     private boolean isActivityCreated;
     private int openedDrawerBeforeLock;
-
-    private BroadcastReceiver broadcastReceiver;
-    private LocalBroadcastManager broadcastManager;
 
 
     public MainActivity() {
@@ -235,7 +228,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
             btnLoadStorageTags.setOnClickListener(listener);
         }
 
-        initBroadcastReceiver();
     }
 
     /**
@@ -562,28 +554,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 finish();
                 break;
         }
-    }
-
-    /**
-     * Приемник сигнала о внешнем изменении дерева записей.
-     */
-    private void initBroadcastReceiver() {
-        this.broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(FileObserverService.ACTION_OBSERVER_EVENT_COME)) {
-                    int eventId;
-                    if ((eventId = intent.getIntExtra(FileObserverService.EXTRA_EVENT_ID, 0)) > 0) {
-                        // обработка внешнего изменения дерева записей
-                        viewModel.onStorageTreeOutsideChanged(eventId);
-                    }
-                }
-            }
-        };
-        this.broadcastManager = LocalBroadcastManager.getInstance(this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(FileObserverService.ACTION_OBSERVER_EVENT_COME);
-        broadcastManager.registerReceiver(broadcastReceiver, intentFilter);
     }
 
     // region UI
@@ -2433,7 +2403,6 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
 
     @Override
     protected void onDestroy() {
-        broadcastManager.unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
 

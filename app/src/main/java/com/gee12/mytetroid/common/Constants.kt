@@ -11,6 +11,8 @@ object Constants {
     const val ICONS_DIR_NAME = "icons"
     const val MYTETRA_XML_FILE_NAME = "mytetra.xml"
     const val DATABASE_INI_FILE_NAME = "database.ini"
+
+    const val LOG_TAG = "MyTetroid"
     /**
      * Версии настроек в SharedPreferences:
      *  1. Начальные, до версии приложения 50
