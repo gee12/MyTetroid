@@ -162,14 +162,13 @@ class NodesInteractor(
      * Загрузка иконки ветки.
      */
     fun loadNodeIcon(node: TetroidNode) {
-        if (TextUtils.isEmpty(node.iconName)) {
+        if (node.iconName.isNullOrEmpty()) {
             node.icon = null
-            return
         } else {
             try {
                 node.icon = FileUtils.loadSVGFromFile(storageInteractor.getPathToFileInIconsFolder(node.iconName))
             } catch (ex: Exception) {
-                logger.logError(ex)
+                logger.logError(ex, show = false)
             }
         }
     }

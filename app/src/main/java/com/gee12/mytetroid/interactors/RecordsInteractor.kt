@@ -58,7 +58,7 @@ class RecordsInteractor(
             return null
         }
         // проверка существования файла записи
-        val file = File(uri.path)
+        val file = File(uri.path.orEmpty())
         if (!file.exists()) {
             logger.logWarning(context.getString(R.string.log_record_file_is_missing), showMessage)
             return null
@@ -824,10 +824,6 @@ class RecordsInteractor(
 
     /**
      *
-     * @param record
-     * @param dirPath
-     * @param movePath
-     * @return
      */
     suspend fun moveOrDeleteRecordFolder(
         context: Context,
@@ -878,8 +874,6 @@ class RecordsInteractor(
 
     /**
      * Удаление каталога записи.
-     * @param record
-     * @return
      */
     fun deleteRecordFolder(context: Context, record: TetroidRecord): Boolean {
         logger.logOperStart(LogObj.RECORD_DIR, LogOper.DELETE, record)
@@ -899,9 +893,6 @@ class RecordsInteractor(
 
     /**
      * Открытие каталога записи.
-     * @param context
-     * @param record
-     * @return
      */
     fun openRecordFolder(context: Context?, record: TetroidRecord): Boolean {
         if (context == null) {
@@ -909,7 +900,6 @@ class RecordsInteractor(
             return false
         }
         logger.logDebug(context.getString(R.string.log_start_record_folder_opening) + record.id)
-//        Uri uri = Uri.parse(getUriToRecordFolder(record));
         val fileFullName = getPathToRecordFolder(record)
         if (!interactionInteractor.openFile(context, File(fileFullName))) {
             Utils.writeToClipboard(context, context.getString(R.string.title_record_folder_path), fileFullName)
@@ -920,9 +910,6 @@ class RecordsInteractor(
 
     /**
      * Получение даты последнего изменения записи.
-     * @param context
-     * @param record
-     * @return
      */
     fun getEditedDate(context: Context, record: TetroidRecord): Date? {
         if (record.isNew || record.isTemp) {
@@ -950,8 +937,6 @@ class RecordsInteractor(
     /**
      * Получение пути к каталогу записи в виде Uri, с учетом того, что это может быть временная запись.
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
-     * @param record
-     * @return
      */
     fun getUriToRecordFolder(record: TetroidRecord): String {
         val storageUri = if (record.isTemp) storageInteractor.getUriToStorageTrashFolder() else storageInteractor.getUriToStorageBaseFolder()
@@ -961,8 +946,6 @@ class RecordsInteractor(
     /**
      * Получение пути к каталогу записи, с учетом того, что это может быть временная запись.
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
-     * @param record
-     * @return
      */
     fun getPathToRecordFolder(record: TetroidRecord): String {
         val storagePath = if (record.isTemp) storageInteractor.getPathToStorageTrashFolder() else storageInteractor.getPathToStorageBaseFolder()

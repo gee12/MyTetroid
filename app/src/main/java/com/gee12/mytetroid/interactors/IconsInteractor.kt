@@ -64,7 +64,7 @@ class IconsInteractor(
         try {
             icon.icon  = FileUtils.loadSVGFromFile("${pathToIcons}/${icon.folder}/${icon.name}")
         } catch (ex: Exception) {
-            logger.logError(ex)
+            logger.logError(ex, show = true)
         }
     }
 }
