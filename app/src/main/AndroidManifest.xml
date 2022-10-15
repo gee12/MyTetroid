@@ -18,6 +18,7 @@
     From: https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
     -->
     <application
+        android:name=".AppKoin"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
