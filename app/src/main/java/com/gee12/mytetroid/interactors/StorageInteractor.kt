@@ -4,22 +4,18 @@ import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.SEPAR
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.ini.DatabaseConfig
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.helpers.IStoragePathHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.logs.LogObj
-import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.common.utils.StringUtils
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.IStorageHelper
-import com.gee12.mytetroid.helpers.IStoragePathHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import java.io.File
-import java.io.FileOutputStream
 import java.util.*
 
 /**
@@ -27,17 +23,18 @@ import java.util.*
  */
 class StorageInteractor(
     private val logger: ITetroidLogger,
+    private val resourcesProvider: IResourcesProvider,
     private val storagePathHelper: IStoragePathHelper,
-    private val storageHelper: IStorageHelper,
     private val storageDataProcessor: IStorageDataProcessor,
-    private val dataInteractor: DataInteractor
+    private val createNodeUseCase: CreateNodeUseCase,
 ) {
 
     /**
      * Создание файлов хранилища, если оно новое.
      * @param storage
      */
-    fun createStorage(storage: TetroidStorage): Boolean {
+    // TODO: CreateStorageUseCase
+    suspend fun createStorage(storage: TetroidStorage): Boolean {
         try {
             if (storage.isNew) {
                 if (createStorageFiles(storage.path)) {
@@ -55,7 +52,7 @@ class StorageInteractor(
      * Создание файлов хранилища в указанном расположении.
      * @param storagePath
      */
-    private fun createStorageFiles(storagePath: String): Boolean {
+    private suspend fun createStorageFiles(storagePath: String): Boolean {
         val storageDir = File(storagePath)
         if (storageDir.exists()) {
             // проверяем, пуст ли каталог
@@ -83,57 +80,18 @@ class StorageInteractor(
 
         // добавляем корневую ветку
         storageDataProcessor.init()
-        if (!storageHelper.createDefaultNode()) {
+
+        createNodeUseCase.run(
+            CreateNodeUseCase.Params(
+                name = resourcesProvider.getString(R.string.title_first_node),
+                parentNode = storageDataProcessor.getRootNode()
+            )
+        ).onFailure { failure ->
+            logger.logFailure(failure, show = false)
             return false
         }
 
         return true
-    }
-
-    /**
-     * Сохранение хранилища в файл mytetra.xml.
-     * @return Результат выполнения операции
-     */
-    suspend fun saveStorage(context: Context): Boolean {
-        val destPath = storagePathHelper.getPathToMyTetraXml()
-        val tempPath = destPath + "_tmp"
-        logger.logDebug(context.getString(R.string.log_saving_mytetra_xml))
-        try {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val saveResult = withContext(Dispatchers.IO) {
-                val fos = FileOutputStream(tempPath, false)
-                storageDataProcessor.save(fos)
-            }
-            if (saveResult) {
-                storageHelper.onBeforeStorageTreeSave()
-
-                val to = File(destPath)
-                // перемещаем старую версию файла mytetra.xml в корзину
-                val nameInTrash = dataInteractor.createDateTimePrefix() + "_" + Constants.MYTETRA_XML_FILE_NAME
-                if (dataInteractor.moveFile(context, destPath, storagePathHelper.getPathToStorageTrashFolder(), nameInTrash) <= 0) {
-                    // если не удалось переместить в корзину, удаляем
-                    if (to.exists() && !to.delete()) {
-//                        LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
-                        logger.logOperError(LogObj.FILE, LogOper.DELETE, destPath, false, false)
-                        return false
-                    }
-                }
-                // задаем правильное имя актуальной версии файла mytetra.xml
-                val from = File(tempPath)
-                if (!from.renameTo(to)) {
-                    val fromTo = StringUtils.getStringFromTo(context, tempPath, destPath)
-//                    LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask), tempPath, destPath), LogManager.Types.ERROR);
-                    logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
-                    return false
-                }
-
-                storageHelper.onStorageTreeSaved()
-                return true
-            }
-        } catch (ex: Exception) {
-            logger.logError(ex, true)
-        }
-        return false
     }
 
     // TODO: переделать на Either, чтобы вернуть строку с ошибкой

@@ -14,6 +14,8 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.helpers.IRecordPathHelper
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -26,11 +28,12 @@ import java.util.*
  */
 class AttachesInteractor(
     private val logger: ITetroidLogger,
-    private val storageInteractor: StorageInteractor,
     private val cryptInteractor: EncryptionInteractor,
     private val dataInteractor: DataInteractor,
     private val interactionInteractor: InteractionInteractor,
-    private val recordsInteractor: RecordsInteractor
+    private val recordsInteractor: RecordsInteractor,
+    private val recordPathHelper: IRecordPathHelper,
+    private val saveStorageUseCase: SaveStorageUseCase,
 ) {
 
     /**
@@ -45,7 +48,7 @@ class AttachesInteractor(
         val fileDisplayName = file.name
         val ext = FileUtils.getExtensionWithComma(fileDisplayName)
         val fileIdName = file.id + ext
-        val fullFileName: String = recordsInteractor.getPathToFileInRecordFolder(record, fileIdName)
+        val fullFileName: String = recordPathHelper.getPathToFileInRecordFolder(record, fileIdName)
         var srcFile: File
         srcFile = try {
             File(fullFileName)
@@ -67,7 +70,7 @@ class AttachesInteractor(
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
 //                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
-            val tempFolderPath = recordsInteractor.getPathToRecordFolderInTrash(record)
+            val tempFolderPath = recordPathHelper.getPathToRecordFolderInTrash(record)
             val tempFolder = File(tempFolderPath)
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
                 logger.logError(context.getString(R.string.log_could_not_create_temp_dir) + tempFolderPath, true)
@@ -145,7 +148,7 @@ class AttachesInteractor(
             file.setIsDecrypted(true)
         }
         // проверка каталога записи
-        val dirPath: String = recordsInteractor.getPathToRecordFolder(record)
+        val dirPath: String = recordPathHelper.getPathToRecordFolder(record)
         if (recordsInteractor.checkRecordFolder(context, dirPath, true, true) <= 0) {
             return null
         }
@@ -190,7 +193,7 @@ class AttachesInteractor(
         }
         files.add(file)
         // перезаписываем структуру хранилища в файл
-        if (storageInteractor.saveStorage(context)) {
+        if (saveStorage()) {
             /*   instance.mFilesCount++;*/
         } else {
             logger.logOperCancel(LogObj.FILE, LogOper.ATTACH)
@@ -234,7 +237,7 @@ class AttachesInteractor(
         var srcFile: File? = null
         if (isExtChanged) {
             // проверяем существование каталога записи
-            dirPath = recordsInteractor.getPathToRecordFolder(record)
+            dirPath = recordPathHelper.getPathToRecordFolder(record)
             val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, false)
             if (dirRes <= 0) {
                 return dirRes
@@ -257,7 +260,7 @@ class AttachesInteractor(
         }
 
         // перезаписываем структуру хранилища в файл
-        if (!storageInteractor.saveStorage(context)) {
+        if (!saveStorage()) {
             logger.logOperCancel(LogObj.FILE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
             file.name = oldName
@@ -307,7 +310,7 @@ class AttachesInteractor(
         var destFile: File? = null
         if (!withoutFile) {
             // проверяем существование каталога записи
-            dirPath = recordsInteractor.getPathToRecordFolder(record)
+            dirPath = recordPathHelper.getPathToRecordFolder(record)
             val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, false)
             if (dirRes <= 0) {
                 return dirRes
@@ -336,7 +339,7 @@ class AttachesInteractor(
         }
 
         // перезаписываем структуру хранилища в файл
-        if (!storageInteractor.saveStorage(context)) {
+        if (!saveStorage()) {
             logger.logOperCancel(LogObj.FILE, LogOper.DELETE)
             return 0
         }
@@ -367,7 +370,7 @@ class AttachesInteractor(
 
         // проверка исходного файла
         val fileIdName = file.idName
-        val recordPath: String = recordsInteractor.getPathToRecordFolder(file.record)
+        val recordPath: String = recordPathHelper.getPathToRecordFolder(file.record)
         val srcFile = File(recordPath, fileIdName)
         try {
             if (!srcFile.exists()) {
@@ -420,7 +423,7 @@ class AttachesInteractor(
             return null
         }
         val ext = FileUtils.getExtensionWithComma(attach.name)
-        return recordsInteractor.getPathToFileInRecordFolder(record, attach.id + ext)
+        return recordPathHelper.getPathToFileInRecordFolder(record, attach.id + ext)
     }
 
     /**
@@ -447,6 +450,18 @@ class AttachesInteractor(
      */
     fun getEditedDate(context: Context, attach: TetroidFile): Date? {
         return FileUtils.getFileModifiedDate(context, getAttachFullName(context, attach))
+    }
+
+    private suspend fun saveStorage(): Boolean {
+        return withContext(Dispatchers.IO) {
+            saveStorageUseCase.run()
+        }.foldResult(
+            onLeft = {
+                logger.logFailure(it, show = false)
+                false
+            },
+            onRight = { it }
+        )
     }
 
 }

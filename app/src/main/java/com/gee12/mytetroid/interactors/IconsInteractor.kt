@@ -4,6 +4,7 @@ import android.text.TextUtils
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.helpers.IStoragePathHelper
 import java.io.File
 import java.util.*
 
@@ -12,8 +13,11 @@ import java.util.*
  */
 class IconsInteractor(
     private val logger: ITetroidLogger,
-    private val pathToIcons: String
+    private val storagePathHelper: IStoragePathHelper,
 ) {
+
+    private val pathToIcons: String
+        get() = storagePathHelper.getPathToIcons()
 
     /**
      * Получение списка каталогов с иконками в каталоге "icons/".

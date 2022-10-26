@@ -13,7 +13,11 @@ class StorageTreeInteractor(
 
     private var fileObserver: TetroidFileObserver? = null
 
-    suspend fun startStorageTreeObserver(storagePath: String, callback: (TetroidFileObserver.Event) -> Unit) {
+    var treeChangedCallback: ((TetroidFileObserver.Event) -> Unit)? = null
+    var observerStartedCallback: (() -> Unit)? = null
+    var observerStoppedCallback: (() -> Unit)? = null
+
+    suspend fun startStorageTreeObserver(storagePath: String/*, callback: (TetroidFileObserver.Even) -> Unitt*/) {
         fileObserver?.stop()
         fileObserver = null
 
@@ -21,17 +25,21 @@ class StorageTreeInteractor(
             filePath = storagePath,
             mask = FileObserver.ALL_EVENTS
         ) { event ->
-            callback(event)
+            treeChangedCallback?.invoke(event)
         }
 
         fileObserver?.create()
         fileObserver?.start()
+
+        observerStartedCallback?.invoke()
     }
 
     fun stopStorageTreeObserver() {
         fileObserver?.stop()
         fileObserver = null
         logger.log(app.getString(R.string.log_mytetra_xml_observer_mask, app.getString(R.string.stopped)), false)
+
+        observerStoppedCallback?.invoke()
     }
 
 }

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.interactors
 
 import android.content.Context
+import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.ITetroidObject
@@ -16,9 +17,10 @@ import java.util.regex.Pattern
  * Поиск объектов хранилища.
  * Создается для конкретного хранилища.
  */
+// TODO: GlobalSearchUseCase
 class SearchInteractor(
-    private val profile: SearchProfile,
-    private val storageInteractor: StorageInteractor,
+    private val profile: SearchProfile, //TODO: в параметры
+    private val storageProvider: IStorageProvider,
     private val nodesInteractor: NodesInteractor,
     private val recordsInteractor: RecordsInteractor
 ) {
@@ -69,7 +71,7 @@ class SearchInteractor(
                 return foundObjects
             }
         } else {
-            srcNodes = storageInteractor.getRootNodes()
+            srcNodes = storageProvider.getRootNodes()
         }
         val regex = buildRegex(query, profile.isOnlyWholeWords)
         // поиск по веткам, записям, реквизитам записей, файлам

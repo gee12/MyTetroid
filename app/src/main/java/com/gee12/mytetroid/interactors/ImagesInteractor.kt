@@ -10,6 +10,7 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.common.utils.ImageUtils
+import com.gee12.mytetroid.helpers.IRecordPathHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -21,7 +22,8 @@ import java.lang.Exception
 class ImagesInteractor(
     private val logger: ITetroidLogger,
     private val dataInteractor: DataInteractor,
-    private val recordsInteractor: RecordsInteractor
+    private val recordsInteractor: RecordsInteractor,
+    private val recordPathHelper: IRecordPathHelper,
 ) {
 
     /**
@@ -41,12 +43,12 @@ class ImagesInteractor(
         val image = TetroidImage(nameId, record)
 
         // проверяем существование каталога записи
-        val dirPath: String = recordsInteractor.getPathToRecordFolder(record)
+        val dirPath: String = recordPathHelper.getPathToRecordFolder(record)
         val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, true)
         if (dirRes <= 0) {
             return null
         }
-        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(record, nameId)
+        val destFullName: String = recordPathHelper.getPathToFileInRecordFolder(record, nameId)
         logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
@@ -89,12 +91,12 @@ class ImagesInteractor(
         val image = TetroidImage(nameId, record)
 
         // проверяем существование каталога записи
-        val dirPath: String = recordsInteractor.getPathToRecordFolder(record)
+        val dirPath: String = recordPathHelper.getPathToRecordFolder(record)
         val dirRes: Int = recordsInteractor.checkRecordFolder(context, dirPath, true)
         if (dirRes <= 0) {
             return null
         }
-        val destFullName: String = recordsInteractor.getPathToFileInRecordFolder(record, nameId)
+        val destFullName: String = recordPathHelper.getPathToFileInRecordFolder(record, nameId)
         logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи

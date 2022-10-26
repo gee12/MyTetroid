@@ -1,12 +1,11 @@
 package com.gee12.mytetroid.interactors
 
-import com.gee12.mytetroid.helpers.IStorageHelper
+import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidFavorite
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.repo.FavoritesRepo
-import java.lang.Exception
 
 /**
  * Создается для конкретного хранилища.
@@ -14,15 +13,17 @@ import java.lang.Exception
 class FavoritesInteractor(
     private val logger: ITetroidLogger,
     private val favoritesRepo: FavoritesRepo,
-    private val storageHelper: IStorageHelper
+    private val storageProvider: IStorageProvider,
 ) {
     companion object {
         val FAVORITES_NODE = TetroidNode("FAVORITES_NODE", "", 0)
     }
 
-    private val storageId: Int get() = storageHelper.getStorageId()
+    private val storageId: Int
+        get() = storageProvider.storage?.id ?: 0
 
-    private val favorites = mutableListOf<TetroidFavorite>()
+    private val favorites: MutableList<TetroidFavorite>
+        get() = storageProvider.favorites
 
     suspend fun init() {
         reset()
@@ -33,35 +34,49 @@ class FavoritesInteractor(
         favorites.clear()
     }
 
-    fun getFavoriteRecords() = favorites.mapNotNull { it.obj as? TetroidRecord }
+    fun getFavoriteRecords(): List<TetroidRecord> {
+        return favorites.mapNotNull { it.obj as? TetroidRecord }
+    }
 
-    private suspend fun addFavorite(favorite: TetroidFavorite) = favoritesRepo.addFavorite(favorite, true)
-        .also {
-            if (it) favorites.add(favorite)
-        }
+    private suspend fun addFavorite(favorite: TetroidFavorite): Boolean {
+        return favoritesRepo.addFavorite(favorite, true)
+            .also {
+                if (it) favorites.add(favorite)
+            }
+    }
 
-    private suspend fun addFavorite(record: TetroidRecord) = addFavorite(storageId, record)
+    private suspend fun addFavorite(record: TetroidRecord): Boolean {
+        return addFavorite(storageId, record)
+    }
 
-    suspend fun addFavorite(storageId: Int, record: TetroidRecord) = addFavorite(
-        TetroidFavorite(
-            storageId = storageId,
-            record = record
+    suspend fun addFavorite(storageId: Int, record: TetroidRecord): Boolean {
+        return addFavorite(
+            TetroidFavorite(
+                storageId = storageId,
+                record = record
+            )
         )
-    )
+    }
 
-    suspend fun addFavorite(storageId: Int, recordId: String) = addFavorite(
-        TetroidFavorite(
-            storageId = storageId,
-            objectId = recordId
+    suspend fun addFavorite(storageId: Int, recordId: String): Boolean {
+        return addFavorite(
+            TetroidFavorite(
+                storageId = storageId,
+                objectId = recordId
+            )
         )
-    )
+    }
 
-    private suspend fun updateOrder(favorite: TetroidFavorite) = favoritesRepo.updateOrder(favorite)
+    private suspend fun updateOrder(favorite: TetroidFavorite): Boolean {
+        return favoritesRepo.updateOrder(favorite)
+    }
 
-    private suspend fun deleteFavorite(record: TetroidRecord) = favoritesRepo.deleteFavorite(storageId, record.id)
-        .also {
-            if (it) favorites.removeAll { it.objectId == record.id }
-        }
+    private suspend fun deleteFavorite(record: TetroidRecord): Boolean {
+        return favoritesRepo.deleteFavorite(storageId, record.id)
+            .also {
+                if (it) favorites.removeAll { it.objectId == record.id }
+            }
+    }
 
     /**
      * Проверка состоит ли запись в списке избранных у хранилища.

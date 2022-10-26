@@ -6,6 +6,9 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -13,8 +16,8 @@ import java.util.*
  */
 class TagsInteractor(
     private val logger: ITetroidLogger,
-    private val storageInteractor: StorageInteractor,
-    private val storageDataProcessor: IStorageDataProcessor
+    private val storageDataProcessor: IStorageDataProcessor,
+    private val saveStorageUseCase: SaveStorageUseCase,
 ) {
 
     /**
@@ -101,6 +104,19 @@ class TagsInteractor(
                 record.updateTagsString()
             }
         }
-        return storageInteractor.saveStorage(context)
+        return saveStorage()
     }
+
+    private suspend fun saveStorage(): Boolean {
+        return withContext(Dispatchers.IO) {
+            saveStorageUseCase.run()
+        }.foldResult(
+            onLeft = {
+                logger.logFailure(it, show = false)
+                false
+            },
+            onRight = { it }
+        )
+    }
+
 }

@@ -3,16 +3,20 @@ package com.gee12.mytetroid.interactors
 import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.helpers.IRecordPathHelper
+import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.helpers.IStoragePathHelper
+import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.data.ITagsParser
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.INodeIconLoader
-import com.gee12.mytetroid.helpers.IStoragePathHelper
-import java.lang.Exception
+import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
@@ -20,58 +24,18 @@ import java.util.*
  */
 class NodesInteractor(
     private val logger: ITetroidLogger,
-    private val storageInteractor: StorageInteractor,
+    private val resourcesProvider: IResourcesProvider,
     private val cryptInteractor: EncryptionInteractor,
     private val dataInteractor: DataInteractor,
     private val recordsInteractor: RecordsInteractor,
     private val favoritesInteractor: FavoritesInteractor,
     private val storagePathHelper: IStoragePathHelper,
-    private val storageDataProcessor: IStorageDataProcessor,
-    private val nodeIconLoader: INodeIconLoader,
-    private val tagsParser: ITagsParser
+    private val recordPathHelper: IRecordPathHelper,
+    private val storageProvider: IStorageProvider,
+    private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
+    private val loadNodeIconUseCase: LoadNodeIconUseCase,
+    private val saveStorageUseCase: SaveStorageUseCase,
 ) {
-
-    /**
-     * Создание ветки.
-     * @param name
-     * @param parentNode
-     * @return
-     */
-    suspend fun createNode(context: Context, name: String, parentNode: TetroidNode?): TetroidNode? {
-        if (TextUtils.isEmpty(name)) {
-            logger.logEmptyParams("DataManager.createNode()")
-            return null
-        }
-        logger.logOperStart(LogObj.NODE, LogOper.CREATE)
-
-        // генерируем уникальные идентификаторы
-        val id: String = dataInteractor.createUniqueId()
-        val crypted = (parentNode != null && parentNode.isCrypted)
-        val level = if (parentNode != null) parentNode.level + 1 else 0
-        val node = TetroidNode(
-            crypted, id,
-            cryptInteractor.encryptField(crypted, name),
-            null, level
-        )
-        node.parentNode = parentNode
-        node.records = ArrayList()
-        node.subNodes = ArrayList()
-        if (crypted) {
-            node.setDecryptedName(name)
-            node.setIsDecrypted(true)
-        }
-        // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
-        val list = (if (parentNode != null) parentNode.subNodes else storageInteractor.getRootNodes()) as MutableList<TetroidNode>
-        list.add(node)
-        // перезаписываем структуру хранилища в файл
-        if (!storageInteractor.saveStorage(context)) {
-            logger.logOperCancel(LogObj.NODE, LogOper.CREATE)
-            // удаляем запись из дерева
-            list.remove(node)
-            return null
-        }
-        return node
-    }
 
     /**
      * Изменение свойств ветки.
@@ -79,7 +43,7 @@ class NodesInteractor(
      * @param name
      * @return
      */
-    suspend fun editNodeFields(context: Context, node: TetroidNode, name: String): Boolean {
+    suspend fun editNodeFields(node: TetroidNode, name: String): Boolean {
         if (TextUtils.isEmpty(name)) {
             logger.logEmptyParams("DataManager.editNodeFields()")
             return false
@@ -93,7 +57,7 @@ class NodesInteractor(
             node.setDecryptedName(name)
         }
         // перезаписываем структуру хранилища в файл
-        if (!storageInteractor.saveStorage(context)) {
+        if (!saveStorage()) {
             logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
             // возвращаем изменения
             node.name = oldName
@@ -111,8 +75,8 @@ class NodesInteractor(
      * @param iconFileName
      * @return
      */
-    suspend fun setNodeIcon(context: Context, node: TetroidNode, iconFileName: String): Boolean {
-        return setNodeIcon(context, node, iconFileName, false)
+    suspend fun setNodeIcon(node: TetroidNode, iconFileName: String): Boolean {
+        return setNodeIcon(node, iconFileName, false)
     }
 
     /**
@@ -120,8 +84,8 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    suspend fun dropNodeIcon(context: Context, node: TetroidNode): Boolean {
-        return setNodeIcon(context, node, null, true)
+    suspend fun dropNodeIcon(node: TetroidNode): Boolean {
+        return setNodeIcon(node, null, true)
     }
 
     /**
@@ -130,7 +94,7 @@ class NodesInteractor(
      * @param iconFileName
      * @return
      */
-    suspend fun setNodeIcon(context: Context, node: TetroidNode?, iconFileName: String?, isDrop: Boolean): Boolean {
+    suspend fun setNodeIcon(node: TetroidNode?, iconFileName: String?, isDrop: Boolean): Boolean {
         if (node == null || TextUtils.isEmpty(iconFileName) && !isDrop) {
             logger.logEmptyParams("DataManager.setNodeIcon()")
             return false
@@ -144,7 +108,7 @@ class NodesInteractor(
             node.setDecryptedIconName(iconFileName)
         }
         // перезаписываем структуру хранилища в файл
-        if (storageInteractor.saveStorage(context)) {
+        if (saveStorage()) {
             loadNodeIcon(node)
         } else {
             logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
@@ -161,15 +125,11 @@ class NodesInteractor(
     /**
      * Загрузка иконки ветки.
      */
-    fun loadNodeIcon(node: TetroidNode) {
-        if (node.iconName.isNullOrEmpty()) {
-            node.icon = null
-        } else {
-            try {
-                node.icon = FileUtils.loadSVGFromFile(storageInteractor.getPathToFileInIconsFolder(node.iconName))
-            } catch (ex: Exception) {
-                logger.logError(ex, show = false)
-            }
+    private fun loadNodeIcon(node: TetroidNode) {
+        loadNodeIconUseCase.execute(
+            LoadNodeIconUseCase.Params(node)
+        ).onFailure {
+            logger.logFailure(it, show = false)
         }
     }
 
@@ -195,7 +155,7 @@ class NodesInteractor(
         )
 
         // перезаписываем структуру хранилища в файл
-        if (!storageInteractor.saveStorage(context)) {
+        if (!saveStorage()) {
             logger.logOperCancel(LogObj.NODE, LogOper.INSERT)
             // удаляем запись из дерева
             destParentNode.subNodes.remove(newNode)
@@ -238,7 +198,7 @@ class NodesInteractor(
             node.setIsDecrypted(true)
         }
         // загружаем такую же иконку
-        nodeIconLoader.loadIcon(context, node)
+        loadNodeIcon(node)
 
         // добавляем записи
         if (srcNode.recordsCount > 0) {
@@ -295,14 +255,14 @@ class NodesInteractor(
         logger.logOperStart(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE, node)
 
         // удаляем ветку из дерева
-        val parentNodes = (if (node.parentNode != null) node.parentNode.subNodes else storageInteractor.getRootNodes()) as MutableList<TetroidNode>
+        val parentNodes = (if (node.parentNode != null) node.parentNode.subNodes else storageProvider.getRootNodes()) as MutableList<TetroidNode>
         if (!parentNodes.remove(node)) {
-            logger.logError(context.getString(R.string.log_not_found_node_id) + node.id)
+            logger.logError(resourcesProvider.getString(R.string.log_not_found_node_id) + node.id)
             return false
         }
 
         // перезаписываем структуру хранилища в файл
-        if (storageInteractor.saveStorage(context)) {
+        if (saveStorage()) {
             // удаление всех объектов ветки рекурсивно
             deleteNodeRecursively(context, node, movePath, false)
         } else {
@@ -329,9 +289,13 @@ class NodesInteractor(
                 if (record.isFavorite) {
                     favoritesInteractor.remove(record, false)
                 }
-                tagsParser.deleteRecordTags(record)
+                deleteRecordTagsUseCase.run(
+                    DeleteRecordTagsUseCase.Params(record)
+                ).onFailure {
+                    logger.logFailure(it, show = false)
+                }
                 // проверяем существование каталога
-                val dirPath = recordsInteractor.getPathToRecordFolder(record)
+                val dirPath = recordPathHelper.getPathToRecordFolder(record)
                 if (recordsInteractor.checkRecordFolder(context, dirPath, false) <= 0) {
                     return if (breakOnFSErrors) {
                         false
@@ -373,7 +337,7 @@ class NodesInteractor(
     }
 
     fun getNode(id: String): TetroidNode? {
-        return getNodeInHierarchy(storageDataProcessor.getRootNodes(), id)
+        return getNodeInHierarchy(storageProvider.getRootNodes(), id)
     }
 
     /**
@@ -436,10 +400,10 @@ class NodesInteractor(
      * @return
      */
     fun isExistCryptedNodes(recheck: Boolean): Boolean {
-        var res: Boolean = storageDataProcessor.isExistCryptedNodes
+        var res: Boolean = storageProvider.isExistCryptedNodes()
         if (recheck) {
-            storageDataProcessor.isExistCryptedNodes = isExistCryptedNodes(storageDataProcessor.getRootNodes())
-            res = storageDataProcessor.isExistCryptedNodes
+            storageProvider.setIsExistCryptedNodes(isExistCryptedNodes(storageProvider.getRootNodes()))
+            res = storageProvider.isExistCryptedNodes()
         }
         return res
     }
@@ -465,6 +429,18 @@ class NodesInteractor(
         return if (node.parentNode != null) {
             if (node.parentNode == nodeAsParent) true else isNodeInNode(node.parentNode, nodeAsParent)
         } else false
+    }
+
+    private suspend fun saveStorage(): Boolean {
+        return withContext(Dispatchers.IO) {
+            saveStorageUseCase.run()
+        }.foldResult(
+            onLeft = {
+                logger.logFailure(it)
+                false
+            },
+            onRight = { it }
+        )
     }
 
 }
