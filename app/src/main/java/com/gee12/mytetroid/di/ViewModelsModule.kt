@@ -12,7 +12,9 @@ object ViewModelsModule {
             CommonSettingsViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
                 appBuildHelper = get(),
+                failureHandler = get(),
                 commonSettingsProvider = get(),
             )
         }
@@ -21,9 +23,11 @@ object ViewModelsModule {
             StorageSettingsViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 appBuildHelper = get(),
                 storageProvider = get(),
-                storageInteractor = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -34,16 +38,20 @@ object ViewModelsModule {
                 tagsInteractor = get(),
                 attachesInteractor = get(),
                 storagesRepo = get(),
-                storageDataProcessor = get(),
                 storagePathHelper = get(),
+                recordPathHelper = get(),
                 commonSettingsInteractor = get(),
                 dataInteractor = get(),
                 settingsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                environmentProvider = get(),
                 initAppUseCase = get(),
+                initOrCreateStorageUseCase = get(),
+                readStorageUseCase = get(),
+                saveStorageUseCase = get(),
+                checkStoragePasswordUseCase = get(),
+                changePasswordUseCase = get(),
             )
         }
 
@@ -51,9 +59,11 @@ object ViewModelsModule {
             StorageViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 appBuildHelper = get(),
                 storageProvider = get(),
-                storageInteractor = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -64,16 +74,20 @@ object ViewModelsModule {
                 tagsInteractor = get(),
                 attachesInteractor = get(),
                 storagesRepo = get(),
-                storageDataProcessor = get(),
                 storagePathHelper = get(),
+                recordPathHelper = get(),
                 commonSettingsInteractor = get(),
                 dataInteractor = get(),
                 settingsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                environmentProvider = get(),
                 initAppUseCase = get(),
+                initOrCreateStorageUseCase = get(),
+                readStorageUseCase = get(),
+                saveStorageUseCase = get(),
+                checkStoragePasswordUseCase = get(),
+                changePasswordUseCase = get(),
             )
         }
 
@@ -81,9 +95,11 @@ object ViewModelsModule {
             MainViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
                 appBuildHelper = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 storageProvider = get(),
-                storageInteractor = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -96,18 +112,22 @@ object ViewModelsModule {
                 storagesRepo = get(),
                 storageDataProcessor = get(),
                 storagePathHelper = get(),
+                recordPathHelper = get(),
                 commonSettingsInteractor = get(),
                 dataInteractor = get(),
                 settingsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                environmentProvider = get(),
-                initAppUseCase = get(),
-                storagesInteractor = get(),
                 migrationInteractor = get(),
                 storageTreeInteractor = get(),
-                commonSettingsProvider = get(),
+                initAppUseCase = get(),
+                initOrCreateStorageUseCase = get(),
+                readStorageUseCase = get(),
+                createNodeUseCase = get(),
+                saveStorageUseCase = get(),
+                checkStoragePasswordUseCase = get(),
+                changePasswordUseCase = get(),
             )
         }
 
@@ -115,9 +135,11 @@ object ViewModelsModule {
             RecordViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
                 appBuildHelper = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 storageProvider = get(),
-                storageInteractor = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -128,17 +150,21 @@ object ViewModelsModule {
                 tagsInteractor = get(),
                 attachesInteractor = get(),
                 storagesRepo = get(),
-                storageDataProcessor = get(),
                 storagePathHelper = get(),
+                recordPathHelper = get(),
                 commonSettingsInteractor = get(),
                 dataInteractor = get(),
                 settingsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                environmentProvider = get(),
-                initAppUseCase = get(),
                 imagesInteractor = get(),
+                initAppUseCase = get(),
+                initOrCreateStorageUseCase = get(),
+                readStorageUseCase = get(),
+                saveStorageUseCase = get(),
+                checkStoragePasswordUseCase = get(),
+                changePasswordUseCase = get(),
             )
         }
 
@@ -146,9 +172,13 @@ object ViewModelsModule {
             StoragesViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
                 appBuildHelper = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 storageProvider = get(),
                 storagePathHelper = get(),
+                storagesInteractor = get(),
             )
         }
 
@@ -156,8 +186,10 @@ object ViewModelsModule {
             IconsViewModel(
                 app = androidApplication(),
                 logger = get(),
-                environmentProvider = get(),
-                storageInteractor = get(),
+                notificator = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
+                iconsInteractor = get(),
             )
         }
 
@@ -165,6 +197,9 @@ object ViewModelsModule {
             LogsViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
             )
         }
 
@@ -172,9 +207,11 @@ object ViewModelsModule {
             StorageInfoViewModel(
                 app = androidApplication(),
                 logger = get(),
+                notificator = get(),
                 appBuildHelper = get(),
+                failureHandler = get(),
+                commonSettingsProvider = get(),
                 storageProvider = get(),
-                storageInteractor = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -187,14 +224,19 @@ object ViewModelsModule {
                 storagesRepo = get(),
                 storageDataProcessor = get(),
                 storagePathHelper = get(),
+                recordPathHelper = get(),
                 commonSettingsInteractor = get(),
                 dataInteractor = get(),
                 settingsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                environmentProvider = get(),
                 initAppUseCase = get(),
+                initOrCreateStorageUseCase = get(),
+                readStorageUseCase = get(),
+                saveStorageUseCase = get(),
+                checkStoragePasswordUseCase = get(),
+                changePasswordUseCase = get(),
             )
         }
 

@@ -7,13 +7,9 @@ import org.koin.dsl.module
 object ManagersModule {
     val managersModule = module {
 
-        single {
-            EnvironmentProvider()
-        }
-
         single<IStorageProvider> {
             StorageProvider(
-                environmentProvider = get()
+                logger = get(),
             )
         }
 

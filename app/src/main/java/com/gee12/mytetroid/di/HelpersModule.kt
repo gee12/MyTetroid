@@ -1,7 +1,8 @@
 package com.gee12.mytetroid.di
 
-import com.gee12.mytetroid.data.crypt.ITetroidCrypter
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
+import com.gee12.mytetroid.data.crypt.Crypter
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.crypt.EncryptHelper
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.helpers.*
@@ -19,19 +20,34 @@ object HelpersModule {
             )
         }
 
-        single {
+        single<IResourcesProvider> {
+            ResourcesProvider(
+                context = androidApplication()
+            )
+        }
+
+        single<ILocaleHelper> {
             LocaleHelper(
                 context = androidApplication()
             )
         }
 
+        single<INotificator> {
+            Notificator()
+        }
+
         single<ITetroidLogger> {
             TetroidLogger(
+                failureHandler = get(),
                 localeHelper = get(),
-                getStringCallback = null,
-                getStringArrayCallback = null,
-                showMessageCallback = null,
-                showSnackMoreInLogsCallback = null,
+                resourcesProvider = get(),
+                notificator = get(),
+            )
+        }
+
+        single<IFailureHandler> {
+            FailureHandler(
+                resourcesProvider = get(),
             )
         }
 
@@ -41,42 +57,35 @@ object HelpersModule {
             )
         }
 
-        single<IStorageLoadHelper> {
-            StorageLoadHelper(
-                storageCrypter = get(),
-                loadNodeIconUseCase = get(),
-                favoritesInteractor = get(),
-            )
-        }
-
-        single<ITagsParseHelper> {
-            TagsParseHelper(
-                tagsInteractor = get(),
-                storageDataProcessor = get(),
-            )
-        }
-
-        single<IStorageHelper> {
-            StorageHelper(
-                context = androidApplication(),
-                nodesInteractor = get(),
-                storageDataProcessor = get(),
+        single<IRecordPathHelper> {
+            RecordPathHelper(
+                storagePathHelper = get()
             )
         }
 
         single<IStorageDataProcessor> {
             StorageDataXmlProcessor(
-                loadHelper = get(),
-                tagsParseHelper = get(),
-                iconLoader = get(),
+                context = androidApplication(),
+                logger = get(),
+                encryptHelper = get(),
+                favoritesInteractor = get(),
+                parseRecordTagsUseCase = get(),
+                loadNodeIconUseCase = get(),
             )
         }
 
-        single<ITetroidCrypter> {
-            TetroidCrypter(
+        single {
+            Crypter(
+                get()
+            )
+        }
+
+        single<IEncryptHelper> {
+            EncryptHelper(
                 logger = get(),
-                tagsParseHelper = get(),
+                crypter = get(),
                 cryptRecordFilesUseCase = get(),
+                parseRecordTagsUseCase = get(),
             )
         }
 
