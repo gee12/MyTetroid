@@ -2,21 +2,65 @@ package com.gee12.mytetroid.logs
 
 import android.text.TextUtils
 import androidx.annotation.StringRes
-import com.gee12.mytetroid.model.TetroidObject
-import kotlin.jvm.JvmOverloads
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.TaskStage.Stages
+import com.gee12.mytetroid.model.TetroidObject
 
 
-abstract class TetroidLogger : FileTetroidLogger() {
+class TetroidLogger(
+    failureHandler: IFailureHandler,
+    private val localeHelper: ILocaleHelper,
+    private val resourcesProvider: IResourcesProvider,
+    private val notificator: INotificator,
+) : FileTetroidLogger(
+    failureHandler,
+) {
     
     companion object {
         const val PRESENT_SIMPLE = 0
         const val PAST_PERFECT = 1
         const val PRESENT_CONTINUOUS = 2
     }
+
+    //region
+
+    override fun logRaw(s: String) {
+        writeRawString(s)
+    }
+
+    override fun log(s: String, type: LogType, show: Boolean) {
+        log(s, type)
+        if (show) {
+            showMessage(s, type)
+        }
+    }
+
+    override fun log(resId: Int, type: LogType, show: Boolean) {
+        log(getString(resId), type, show)
+    }
+
+    override fun showMessage(s: String, type: LogType) {
+        notificator.showMessage(s, type)
+    }
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    fun showSnackMoreInLogs() {
+        notificator.showSnackMoreInLogs()
+    }
+
+    override fun getString(resId: Int): String {
+        return resourcesProvider.getString(resId)
+    }
+
+    fun getStringArray(resId: Int): Array<String> {
+        return resourcesProvider.getStringArray(resId)
+    }
+
+    //endregion
 
     //region Operation start
 
@@ -27,8 +71,8 @@ abstract class TetroidLogger : FileTetroidLogger() {
     @JvmOverloads
     override fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
         // меняем местами существительное и глагол в зависимости от языка
-        val first = if (App.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
-        val second = if (App.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val first = if (localeHelper.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val second = if (localeHelper.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
         val mes = String.format(getString(R.string.log_oper_start_mask), first, second) + add
         log(mes, LogType.INFO)
         return mes
@@ -108,7 +152,7 @@ abstract class TetroidLogger : FileTetroidLogger() {
         return mes
     }
 
-    fun logDuringOperErrors(obj: LogObj, oper: LogOper, show: Boolean): String {
+    override fun logDuringOperErrors(obj: LogObj, oper: LogOper, show: Boolean): String {
         val mes = String.format(
             getString(R.string.log_during_oper_errors_mask),
             oper.getString(PRESENT_CONTINUOUS, ::getStringArray), obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
@@ -131,7 +175,7 @@ abstract class TetroidLogger : FileTetroidLogger() {
 
     //region Task stage
 
-    fun logTaskStage(stage: TaskStage): String? {
+    override fun logTaskStage(stage: TaskStage): String? {
         when (stage.stage) {
             Stages.START -> {
 //                if (stage.task == StorageEncryptionSettingsFragment.ChangePassTask.class) {
@@ -179,21 +223,12 @@ abstract class TetroidLogger : FileTetroidLogger() {
 
     //endregion Task stage
 
-    //region Show message
-
-    /**
-     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
-     */
-    abstract fun showSnackMoreInLogs()
-
-    //endregion Show message
-
     //region String utils
 
     /**
      * Формирование строки с идентификатором объекта хранилища.
      */
-    fun addIdName(obj: TetroidObject?): String {
+    override fun addIdName(obj: TetroidObject?): String {
         return obj?.let { getIdString(obj) } ?: ""
     }
 
@@ -212,11 +247,8 @@ abstract class TetroidLogger : FileTetroidLogger() {
     }
 
     fun getStringFormat(@StringRes formatRes: Int, vararg args: String?): String {
-//        return Utils.getStringFormat(formatRes, if (args != null && args.size > 1) args as Array<Any?> else args)
         return getString(formatRes).format(*args)
     }
-
-    abstract fun getStringArray(resId: Int): Array<String>
 
     //endregion String utils
 

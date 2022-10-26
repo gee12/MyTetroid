@@ -1,6 +1,11 @@
 package com.gee12.mytetroid.logs
 
-abstract class BaseTetroidLogger : ITetroidLogger {
+import com.gee12.mytetroid.common.Failure
+import com.gee12.mytetroid.helpers.IFailureHandler
+
+abstract class BaseTetroidLogger(
+    val failureHandler: IFailureHandler,
+) : ITetroidLogger {
 
     //region ITetroidLogger
 
@@ -48,11 +53,18 @@ abstract class BaseTetroidLogger : ITetroidLogger {
     }
 
     override fun logError(ex: Exception, show: Boolean) {
-        log(FileTetroidLogger.getExceptionInfo(ex), LogType.ERROR, show)
+        log(failureHandler.getExceptionInfo(ex), LogType.ERROR, show)
     }
 
     override fun logError(s: String, ex: Exception, show: Boolean) {
-        log("$s: ${FileTetroidLogger.getExceptionInfo(ex)}", LogType.ERROR, show)
+        log("$s: ${failureHandler.getExceptionInfo(ex)}", LogType.ERROR, show)
+    }
+
+    override fun logFailure(failure: Failure, show: Boolean) {
+        val message = failureHandler.getFailureMessage(failure)
+        // TODO: сделать многострочные уведомления
+
+        log(message.title, LogType.ERROR, show)
     }
 
     //endregion ITetroidLogger
@@ -60,6 +72,7 @@ abstract class BaseTetroidLogger : ITetroidLogger {
     //region Show message
 
     abstract fun showMessage(s: String, type: LogType)
+
 
     //endregion Show message
 

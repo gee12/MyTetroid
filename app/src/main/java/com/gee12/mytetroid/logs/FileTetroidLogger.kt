@@ -2,15 +2,18 @@ package com.gee12.mytetroid.logs
 
 import android.text.format.DateFormat
 import android.util.Log
+import com.gee12.mytetroid.helpers.IFailureHandler
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.util.*
 
-abstract class FileTetroidLogger : BaseTetroidLogger() {
+abstract class FileTetroidLogger(
+    failureHandler: IFailureHandler,
+) : BaseTetroidLogger(
+    failureHandler,
+) {
 
     private var dirPath: String? = null
     private var isWriteToFile = false
@@ -20,22 +23,22 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
      * Получение списка логов, которые не удалось записать в файл.
      * @return
      */
-    val bufferString: String
+    override val bufferString: String
         get() = buffer.toString()
 
     /**
      * Получение полного пути к лог-файлу.
      * @return
      */
-    var fullFileName: String? = null
-        private set
+    override var fullFileName: String? = null
 
-    fun init(path: String?, isWriteToFile: Boolean) {
-        setLogPath(path.orEmpty())
+
+    override fun init(path: String, isWriteToFile: Boolean) {
+        setLogPath(path)
         this.isWriteToFile = isWriteToFile
     }
 
-    fun setLogPath(path: String) {
+    override fun setLogPath(path: String) {
         dirPath = path
         fullFileName = String.format("%s%s%s", path, File.separator, LOG_FILE_NAME)
     }
@@ -58,7 +61,7 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
     }
 
     fun logErrorWithoutFile(ex: Exception, show: Boolean = true) {
-        logErrorWithoutFile(getExceptionInfo(ex), show)
+        logErrorWithoutFile(failureHandler.getExceptionInfo(ex), show)
     }
 
     fun logToFile(s: String, type: LogType, isWriteToFile: Boolean) {
@@ -141,17 +144,7 @@ abstract class FileTetroidLogger : BaseTetroidLogger() {
     }
 
     companion object {
-        private const val CALLER_STACK_INDEX = 5
         private const val LOG_TAG = "MYTETROID"
         private const val LOG_FILE_NAME = "mytetroid.log"
-
-        fun getExceptionInfo(ex: Exception): String {
-            val caller = Thread.currentThread().stackTrace[CALLER_STACK_INDEX]
-            val fullClassName = caller.className
-            val className = fullClassName.substring(fullClassName.lastIndexOf('.') + 1)
-            val methodName = caller.methodName
-            val lineNumber = caller.lineNumber
-            return "%s.%s():%d\n%s".format(className, methodName, lineNumber, ex.message)
-        }
     }
 }
