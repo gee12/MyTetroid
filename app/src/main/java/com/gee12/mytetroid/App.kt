@@ -37,7 +37,7 @@ class AppKoin : MultiDexApplication() {
 
 object App {
 
-    // TODO: перенести в TetroidEnvironment
+    // TODO: убрать
     @JvmField
     var IsHighlightAttach = false
     @JvmField
@@ -52,6 +52,7 @@ object App {
 
     fun isFreeVersion() = BuildConfig.FLAVOR == "free"
 
+    // TODO: вынести в какой-нибудь EnvironmentHelper ?
     /**
      * Переключатель блокировки выключения экрана.
      * @param activity
@@ -72,4 +73,5 @@ object App {
             activity.finish()
         }
     }
+
 }

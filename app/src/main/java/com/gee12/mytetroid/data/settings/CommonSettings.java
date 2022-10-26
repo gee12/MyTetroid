@@ -2,25 +2,20 @@ package com.gee12.mytetroid.data.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.BuildConfig;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.RecordFieldsSelector;
 import com.gee12.mytetroid.StringList;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
-import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.common.utils.Utils;
+import com.gee12.mytetroid.model.TetroidNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+// TODO: -> CommonSettingsRepo
 public class CommonSettings {
 
     public static final String PREFS_NAME = "_preferences";
@@ -37,127 +32,7 @@ public class CommonSettings {
     public static final boolean DEF_SEARCH_IN_WHOLE_WORDS = false;
     public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
 
-    private static SharedPreferences settings;
-    private static boolean isCopiedFromFree;
-
-    //region Загрузка настроек
-
-    /**
-     * Инициализация настроек.
-     */
-    public static void init(Context context, CommonSettingsInteractor interactor) {
-        CommonSettings.settings = getPrefs(context);
-        PreferenceManager.setDefaultValues(context, R.xml.prefs, false);
-
-        // стартовые значения, которые нельзя установить в xml
-        if (getTrashPathDef(context) == null) {
-            setTrashPathDef(context, interactor.getDefaultTrashPath(context));
-        }
-        if (getLogPath(context) == null) {
-            setLogPath(context, interactor.getDefaultLogPath(context));
-        }
-        if (App.INSTANCE.isFreeVersion()) {
-            // принудительно отключаем
-            setIsLoadFavoritesOnly(context, false);
-        }
-
-        // удаление неактуальной опции из версии 4.1
-        if (isContains(context, R.string.pref_key_is_show_tags_in_records)) {
-            boolean isShow = isShowTagsInRecordsList(context);
-            Set<String> valuesSet = getRecordFieldsInList(context);
-            String value = context.getString(R.string.title_tags);
-            // включение или отключение значения списка выбора
-            setRecordFieldsInList(context, setItemInStringSet(context, valuesSet, isShow, value));
-            // удаляем значение старой опции
-            removePref(context, R.string.pref_key_is_show_tags_in_records);
-        }
-
-        App.IsHighlightAttach = isHighlightRecordWithAttach(context);
-        App.IsHighlightCryptedNodes = isHighlightEncryptedNodes(context);
-        App.HighlightAttachColor = getHighlightColor(context);
-        App.DateFormatString = getDateFormatString(context);
-        App.RecordFieldsInList = new RecordFieldsSelector(context, getRecordFieldsInList(context));
-    }
-
-    /**
-     *
-     * @param context
-     * @return
-     */
-    private static SharedPreferences getPrefs(Context context) {
-//        SettingsManager.settings = PreferenceManager.getDefaultSharedPreferences(context);
-        // SecurityException: MODE_WORLD_READABLE no longer supported
-        int mode = (BuildConfig.VERSION_CODE < 24) ? Context.MODE_WORLD_READABLE : Context.MODE_PRIVATE;
-        String defAppId = BuildConfig.DEF_APPLICATION_ID;
-        //if (BuildConfig.DEBUG) defAppId += ".debug";
-        SharedPreferences prefs;
-        if (App.INSTANCE.isFullVersion()) {
-            prefs = getPrefs(context, Context.MODE_PRIVATE);
-
-            if (prefs != null && prefs.getAll().size() == 0) {
-                // настроек нет, версия pro запущена в первый раз
-                try {
-                    Context freeContext = context.createPackageContext(defAppId, Context.CONTEXT_IGNORE_SECURITY);
-                    SharedPreferences freePrefs = freeContext.getSharedPreferences(
-                            defAppId + PREFS_NAME, mode);
-                    if (freePrefs.getAll().size() > 0) {
-                        // сохраняем все настройки из free в pro
-                        copyPrefs(freePrefs, prefs);
-                        isCopiedFromFree = true;
-                    }
-                } catch (Exception ex) {
-                    return prefs;
-                }
-            }
-            return prefs;
-        } else {
-            // открываем доступ к чтению настроек для версии Pro
-            prefs = getPrefs(context, mode);
-        }
-        return prefs;
-    }
-
-    private static SharedPreferences getPrefs(Context context, int mode) {
-        SharedPreferences prefs;
-        try {
-            prefs = context.getSharedPreferences(BuildConfig.APPLICATION_ID + PREFS_NAME, mode);
-        } catch (Exception ex) {
-            prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        }
-        return prefs;
-    }
-    /**
-     * Копирование настроек.
-     * @param srcPrefs
-     * @param destPrefs
-     */
-    private static void copyPrefs(SharedPreferences srcPrefs, SharedPreferences destPrefs) {
-        Map<String,?> srcMap = srcPrefs.getAll();
-        SharedPreferences.Editor destEditor = destPrefs.edit();
-
-        for (Map.Entry<String,?> entry : srcMap.entrySet()) {
-            Object value = entry.getValue();
-            if (value instanceof Boolean)
-                destEditor.putBoolean(entry.getKey(), (Boolean) value);
-            else if (value instanceof String)
-                destEditor.putString(entry.getKey(), (String) value);
-            else if (value instanceof Integer)
-                destEditor.putInt(entry.getKey(), (Integer) value);
-            else if (value instanceof Float)
-                destEditor.putFloat(entry.getKey(), (Float) value);
-            else if (value instanceof Long)
-                destEditor.putLong(entry.getKey(), (Long) value);
-            else if (value instanceof Set)
-                destEditor.putStringSet(entry.getKey(), Set.class.cast(value));
-        }
-        destEditor.apply();
-    }
-
-    public static boolean isCopiedFromFree() {
-        return isCopiedFromFree;
-    }
-
-    //endregion Загрузка настроек
+    public static SharedPreferences settings;
 
     //region Миграция
 
@@ -987,20 +862,6 @@ public class CommonSettings {
         return defValues;
     }
 
-    /**
-     * Удаление опции из настроек.
-     * @param context
-     * @param prefKeyStringRes
-     */
-    private static void removePref(Context context, int prefKeyStringRes) {
-        if (settings == null)
-            return;
-        if (settings.contains(context.getString(prefKeyStringRes))) {
-            SharedPreferences.Editor editor = settings.edit();
-            editor.remove(context.getString(prefKeyStringRes));
-            editor.apply();
-        }
-    }
 
     /**
      * Установка/отключение элемента списка выбора.
@@ -1019,29 +880,6 @@ public class CommonSettings {
             valuesList.remove(value);
         }
         return new HashSet<>(valuesList);
-    }
-
-    /**
-     * Проверка существования значения опции в настройках.
-     * @param context
-     * @param prefKeyStringRes
-     * @return
-     */
-    public static boolean isContains(Context context, int prefKeyStringRes) {
-        if (settings == null)
-            return false;
-        return settings.contains(context.getString(prefKeyStringRes));
-    }
-
-    /**
-     * Получение настроек.
-     * @return
-     */
-    public static SharedPreferences getSettings(Context context) {
-        if (settings == null) {
-            settings = getPrefs(context);
-        }
-        return settings;
     }
 
     //endregion Вспомогательные функции

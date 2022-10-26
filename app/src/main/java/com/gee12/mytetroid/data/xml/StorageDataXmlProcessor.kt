@@ -2,14 +2,17 @@ package com.gee12.mytetroid.data.xml
 
 import android.content.Context
 import android.util.Xml
-import com.gee12.mytetroid.helpers.IStorageInfoProvider
+import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.ITagsParser
-import com.gee12.mytetroid.helpers.INodeIconLoader
-import com.gee12.mytetroid.helpers.IStorageLoadHelper
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jdom2.output.XMLOutputter
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import org.jdom2.DocType
 import org.jdom2.Document
 import org.jdom2.Element
@@ -28,9 +31,8 @@ interface IStorageDataProcessor : IStorageInfoProvider {
     var isExistCryptedNodes: Boolean
 
     fun init()
-    fun setHelpers(loadHelper: IStorageLoadHelper, tagsParser: ITagsParser, iconLoader: INodeIconLoader)
     @Throws(XmlPullParserException::class, IOException::class)
-    suspend fun parse(context: Context, fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean
+    suspend fun parse(fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean
     @Throws(Exception::class)
     suspend fun save(fos: FileOutputStream): Boolean
     fun isLoaded(): Boolean
@@ -44,9 +46,23 @@ interface IStorageDataProcessor : IStorageInfoProvider {
  * Класс для загрузки и сохранения структуры хранилища в файле mytetra.xml.
  */
 open class StorageDataXmlProcessor(
-    private var loadHelper: IStorageLoadHelper,
-    private var tagsParser: ITagsParser,
-    private var iconLoader: INodeIconLoader
+    private val context: Context,
+    private val logger: ITetroidLogger,
+    private val encryptHelper: IEncryptHelper,
+    private val favoritesInteractor: FavoritesInteractor,
+    private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
+    private val loadNodeIconUseCase: LoadNodeIconUseCase,
+    override var formatVersion: Version? = null,
+    override var nodesCount: Int = 0,
+    override var cryptedNodesCount: Int = 0,
+    override var recordsCount: Int = 0,
+    override var cryptedRecordsCount: Int = 0,
+    override var filesCount: Int = 0,
+    override var tagsCount: Int = 0,
+    override var uniqueTagsCount: Int = 0,
+    override var authorsCount: Int = 0,
+    override var maxSubnodesCount: Int = 0,
+    override var maxDepthLevel: Int = 0
 ) : IStorageDataProcessor {
 
     companion object {
@@ -73,9 +89,6 @@ open class StorageDataXmlProcessor(
     override var isExistCryptedNodes = false // а вообще можно читать из crypt_mode=1
 
     var isNeedDecrypt = false
-
-    private var formatVersion: Version? = null
-    override fun getFormatVersion() = formatVersion
 
     /**
      * Загружено ли хранилище.
@@ -108,39 +121,6 @@ open class StorageDataXmlProcessor(
     override fun getTagsMap() = tagsMap
 
     /**
-     * Статистические данные.
-     */
-    private var nodesCount = 0
-    override fun getNodesCount() = nodesCount
-
-    private var cryptedNodesCount = 0
-    override fun getCryptedNodesCount() = cryptedNodesCount
-
-    private var recordsCount = 0
-    override fun getRecordsCount() = recordsCount
-
-    private var cryptedRecordsCount = 0
-    override fun getCryptedRecordsCount() = cryptedRecordsCount
-
-    private var filesCount = 0
-    override fun getFilesCount() = filesCount
-
-    private var tagsCount = 0
-    override fun getTagsCount() = tagsCount
-
-    private var uniqueTagsCount = 0
-    override fun getUniqueTagsCount() = uniqueTagsCount
-
-    private var authorsCount = 0
-    override fun getAuthorsCount() = authorsCount
-
-    private var maxSubnodesCount = 0
-    override fun getMaxSubnodesCount() = maxSubnodesCount
-
-    private var maxDepthLevel = 0
-    override fun getMaxDepthLevel() = maxDepthLevel
-
-    /**
      * Первоначальная инициализация переменных.
      */
     override fun init() {
@@ -162,12 +142,6 @@ open class StorageDataXmlProcessor(
         ROOT_NODE.subNodes = rootNodes
     }
 
-    override fun setHelpers(loadHelper: IStorageLoadHelper, tagsParser: ITagsParser, iconLoader: INodeIconLoader) {
-        this.loadHelper = loadHelper
-        this.tagsParser = tagsParser
-        this.iconLoader = iconLoader
-    }
-
     /**
      * Чтение хранилища из xml-файла.
      * @param fis
@@ -176,7 +150,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    override suspend fun parse(context: Context, fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean {
+    override suspend fun parse(fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean {
         this.isNeedDecrypt = isNeedDecrypt
         this.isLoadFavoritesOnly = isLoadFavoritesOnly
 
@@ -188,7 +162,7 @@ open class StorageDataXmlProcessor(
                 setInput(fis, null)
                 nextTag()
             }
-            readRoot(context, parser).also {
+            readRoot(parser).also {
                 isLoaded = it
             }
         }
@@ -202,7 +176,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readRoot(context: Context, parser: XmlPullParser): Boolean {
+    private suspend fun readRoot(parser: XmlPullParser): Boolean {
         var res = false
 
         parser.require(XmlPullParser.START_TAG, ns, "root")
@@ -214,7 +188,7 @@ open class StorageDataXmlProcessor(
             if (tagName == "format") {
                 formatVersion = readFormatVersion(parser)
             } else if (tagName == "content") {
-                res = readContent(context, parser)
+                res = readContent(parser)
             }
         }
         return res
@@ -252,7 +226,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readContent(context: Context, parser: XmlPullParser): Boolean {
+    private suspend fun readContent(parser: XmlPullParser): Boolean {
         val nodes: MutableList<TetroidNode>? = if (!isLoadFavoritesOnly) ArrayList() else null
 
         parser.require(XmlPullParser.START_TAG, ns, "content")
@@ -262,7 +236,7 @@ open class StorageDataXmlProcessor(
             }
             val tagName = parser.name
             if (tagName == "node") {
-                val node = readNode(context, parser, 0, ROOT_NODE)
+                val node = readNode(parser, 0, ROOT_NODE)
                 if (node != null && !isLoadFavoritesOnly) {
                     nodes?.add(node)
                 }
@@ -288,7 +262,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readNode(context: Context, parser: XmlPullParser, depthLevel: Int, parentNode: TetroidNode?): TetroidNode? {
+    private suspend fun readNode(parser: XmlPullParser, depthLevel: Int, parentNode: TetroidNode?): TetroidNode? {
         var crypt = false
         var id: String? = null
         var name: String? = null
@@ -331,7 +305,7 @@ open class StorageDataXmlProcessor(
             when (tagName) {
                 "recordtable" -> {
                     // записи
-                    records = readRecords(context, parser, node)
+                    records = readRecords(parser, node)
 
                     /*if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
                         break@loop
@@ -339,7 +313,7 @@ open class StorageDataXmlProcessor(
                 }
                 "node" -> {
                     // вложенная ветка
-                    val subNode = readNode(context, parser, depthLevel + 1, node)
+                    val subNode = readNode(parser, depthLevel + 1, node)
                     if (subNode != null && !isLoadFavoritesOnly) {
                         subNodes?.add(subNode)
                     }
@@ -355,7 +329,7 @@ open class StorageDataXmlProcessor(
 
             // расшифровка
             if (crypt && isNeedDecrypt) {
-                loadHelper.decryptNode(context, node)
+                decryptNode(node)
             }
             /*//else if (!crypt) {
             if (node.isNonCryptedOrDecrypted()) {
@@ -364,7 +338,7 @@ open class StorageDataXmlProcessor(
             }*/
 
             // загрузка иконки из файла (после расшифровки имени иконки)
-            iconLoader.loadIcon(context, node)
+            loadNodeIcon(node)
             nodesCount++
             if (crypt) cryptedNodesCount++
             if ((subNodes?.size ?: 0) > maxSubnodesCount) maxSubnodesCount = subNodes?.size ?: 0
@@ -382,7 +356,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readRecords(context: Context, parser: XmlPullParser, node: TetroidNode?): List<TetroidRecord>? {
+    private suspend fun readRecords(parser: XmlPullParser, node: TetroidNode?): List<TetroidRecord>? {
         val records: MutableList<TetroidRecord>? = if (!isLoadFavoritesOnly) ArrayList() else null
 
         parser.require(XmlPullParser.START_TAG, ns, "recordtable")
@@ -392,7 +366,7 @@ open class StorageDataXmlProcessor(
             }
             val tagName = parser.name
             if (tagName == "record") {
-                val record = readRecord(context, parser, node)
+                val record = readRecord(parser, node)
                 if (record != null && !isLoadFavoritesOnly) {
                     records!!.add(record)
                 }
@@ -426,7 +400,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readRecord(context: Context, parser: XmlPullParser, node: TetroidNode?): TetroidRecord? {
+    private suspend fun readRecord(parser: XmlPullParser, node: TetroidNode?): TetroidRecord? {
         var crypt = false
         var id: String? = null
         var name: String? = null
@@ -451,10 +425,11 @@ open class StorageDataXmlProcessor(
                 }
                 parser.require(XmlPullParser.END_TAG, ns, "record");
                 return null;
-            }*/id = parser.getAttributeValue(ns, "id")
+            }*/
+            id = parser.getAttributeValue(ns, "id")
 
             // проверяем id на избранность
-            isFavorite = loadHelper.checkRecordIsFavorite(id)
+            isFavorite = favoritesInteractor.isFavorite(id)
             if (isLoadFavoritesOnly && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
                 skip(parser) // пропускаем <files>, если есть
@@ -492,16 +467,16 @@ open class StorageDataXmlProcessor(
         record.attachedFiles = files
         if (isFavorite) {
             // добавляем избранную запись
-            loadHelper.loadRecordToFavorites(record)
+            favoritesInteractor.setObject(record)
         }
 
         // расшифровка
         if (crypt && isNeedDecrypt) {
-            loadHelper.decryptRecord(context, record)
+            decryptRecord(record)
         }
         if (record.isNonCryptedOrDecrypted) {
             // парсим метки, если запись не зашифрована
-            tagsParser.parseRecordTags(record, record.tagsString)
+            parseRecordTags(record)
         }
         parser.require(XmlPullParser.END_TAG, ns, "record")
         if (!isLoadFavoritesOnly) {
@@ -760,6 +735,50 @@ open class StorageDataXmlProcessor(
                 XmlPullParser.END_TAG -> depth--
                 XmlPullParser.START_TAG -> depth++
             }
+        }
+    }
+
+
+    private suspend fun decryptNode(node: TetroidNode): Boolean {
+        return encryptHelper.decryptNode(
+            context = context,
+            node = node,
+            isDecryptSubNodes = false,
+            isDecryptRecords = false,
+            loadIconCallback = {
+                loadNodeIcon(node)
+            },
+            isDropCrypt = false,
+            isDecryptFiles = false,
+        )
+    }
+
+    private suspend fun loadNodeIcon(node: TetroidNode) {
+        loadNodeIconUseCase.run(
+            LoadNodeIconUseCase.Params(node)
+        ).onFailure {
+            logger.logFailure(it, show = false)
+        }
+    }
+
+    private suspend fun decryptRecord(record: TetroidRecord): Boolean {
+        return encryptHelper.decryptRecordAndFiles(
+            context = context,
+            record = record,
+            dropCrypt = false,
+            decryptFiles = false
+        )
+    }
+
+    private suspend fun parseRecordTags(record: TetroidRecord) {
+        parseRecordTagsUseCase.run(
+            ParseRecordTagsUseCase.Params(
+                record = record,
+                tagsString = record.tagsString,
+                tagsMap = tagsMap,
+            )
+        ).onFailure {
+            logger.logFailure(it, show = false)
         }
     }
 

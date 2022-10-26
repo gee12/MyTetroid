@@ -9,11 +9,5 @@ import java.io.File
 class CommonSettingsRepo(
     private val context: Context
 ) {
-
-    fun getLastFolderPathOrDefault(forWrite: Boolean): String? {
-        val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
-        return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
-        else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
-    }
-
+    // TODO
 }

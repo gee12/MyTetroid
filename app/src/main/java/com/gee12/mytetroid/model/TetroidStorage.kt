@@ -35,7 +35,7 @@ class TetroidStorage(
     constructor(path: String) : this(getFolderNameFromPath(path), path) {
     }
 
-    fun getCopy(src: TetroidStorage): TetroidStorage {
+    fun resetFields(src: TetroidStorage): TetroidStorage {
         return src.also {
             it.isNew = isNew
             it.error = error

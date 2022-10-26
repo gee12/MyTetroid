@@ -28,9 +28,9 @@ class StoragePathHelper(
         const val FILE_URI_PREFIX = "file://"
     }
 
-    override fun getStoragePath() = storageProvider.getStorageOrNull()?.path.orEmpty()
+    override fun getStoragePath() = storageProvider.storage?.path.orEmpty()
 
-    override fun getPathToTrash() = storageProvider.getStorageOrNull()?.trashPath.orEmpty()
+    override fun getPathToTrash() = storageProvider.storage?.trashPath.orEmpty()
 
     override fun getPathToMyTetraXml(): String {
         return "${getStoragePath()}${Constants.SEPAR}${Constants.MYTETRA_XML_FILE_NAME}"
