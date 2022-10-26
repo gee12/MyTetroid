@@ -6,12 +6,26 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.helpers.INotificator
+import com.gee12.mytetroid.logs.ITetroidLogger
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
-    app: Application
-) : BaseViewModel(app), CoroutineScope {
+    app: Application,
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+) : BaseViewModel(
+    app,
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+), CoroutineScope {
 
     companion object {
         const val LINES_IN_RECYCLER_VIEW_ITEM = 10
@@ -35,7 +49,8 @@ class LogsViewModel(
 
                 try {
                     val data = withContext(Dispatchers.IO) {
-                        FileUtils.readTextFile(Uri.parse(logger.fullFileName), LINES_IN_RECYCLER_VIEW_ITEM)
+                        val fileUri = Uri.parse(logger.fullFileName)
+                        FileUtils.readTextFile(fileUri, LINES_IN_RECYCLER_VIEW_ITEM)
                     }
                     postEvent(Event.PostLoading, FileReadResult.Success(data))
                 } catch (ex: Exception) {
@@ -52,7 +67,7 @@ class LogsViewModel(
         }
     }
 
-    fun getLogsBufferString() = innerSharedLogger.bufferString
+    fun getLogsBufferString() = logger.bufferString
 
     fun postEvent(e: Event, param: Any? = null) {
         event.postValue(ViewModelEvent(e, param))

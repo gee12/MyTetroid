@@ -7,126 +7,92 @@ import android.net.Uri
 import android.text.TextUtils
 import androidx.annotation.MainThread
 import com.gee12.htmlwysiwygeditor.Dialogs.*
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.TetroidStorageData
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.data.crypt.TetroidCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
-import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.ini.DatabaseConfig
+import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.TaskStage
+import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
+import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
 import java.util.*
 
 open class StorageViewModel(
     app: Application,
-    storageData: TetroidStorageData? = null
-    /*logger: TetroidLogger?,*/
-) : StorageEncryptionViewModel(
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+    val appBuildHelper: AppBuildHelper,
+    storageProvider: IStorageProvider,
+    val favoritesInteractor: FavoritesInteractor,
+    val sensitiveDataProvider: ISensitiveDataProvider,
+    val passInteractor: PasswordInteractor,
+    val storageCrypter: IEncryptHelper,
+    val cryptInteractor: EncryptionInteractor,
+    val recordsInteractor: RecordsInteractor,
+    val nodesInteractor: NodesInteractor,
+    val tagsInteractor: TagsInteractor,
+    val attachesInteractor: AttachesInteractor,
+    val storagesRepo: StoragesRepo,
+    val storagePathHelper: IStoragePathHelper,
+    val recordPathHelper: IRecordPathHelper,
+    val commonSettingsInteractor: CommonSettingsInteractor,
+    val dataInteractor: DataInteractor,
+    val settingsInteractor: CommonSettingsInteractor,
+    val interactionInteractor: InteractionInteractor,
+    val syncInteractor: SyncInteractor,
+    val trashInteractor: TrashInteractor,
+    protected val initAppUseCase: InitAppUseCase,
+    protected val initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
+    protected val readStorageUseCase: ReadStorageUseCase,
+    protected val saveStorageUseCase: SaveStorageUseCase,
+    protected val checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    protected val changePasswordUseCase: ChangePasswordUseCase,
+) : BaseStorageViewModel(
     app,
-    /*logger,*/
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+    storageProvider,
 ) {
 
+    /*protected*/ lateinit var storageInteractor: StorageInteractor
+
+    private val databaseConfig = DatabaseConfig(this.logger)
+
+    private var isPinNeedEnter = false
+
     init {
-        storageData?.dataProcessor?.setHelpers(
-            loadHelper = storageLoadHelper,
-            tagsParser = tagsParser,
-            iconLoader = nodeIconLoader
-        )
+        // первоначальная инициализация компонентов приложения
+        initAppUseCase.execute(InitAppUseCase.Params)
+            .onFailure {
+                logFailure(it)
+            }
     }
-
-    override var storageDataProcessor: IStorageDataProcessor = storageData?.dataProcessor
-        ?: StorageDataXmlProcessor(
-            loadHelper = storageLoadHelper,
-            tagsParser = tagsParser,
-            iconLoader = nodeIconLoader
-        )
-
-    override var storageCrypter = storageData?.crypter
-        ?: TetroidCrypter(
-            logger = this.logger,
-            tagsParser = tagsParser,
-            recordFileCrypter = recordFileCrypter
-        )
-
-    override val storageInteractor = storageData?.storageInteractor
-        ?: StorageInteractor(
-            logger = this.logger,
-            storagePathHelper = storagePathHelper,
-            storageHelper = storageHelper,
-            storageDataProcessor = storageDataProcessor,
-            dataInteractor = dataInteractor
-        )
-    override val cryptInteractor = EncryptionInteractor(
-        logger = this.logger,
-        crypter = this.storageCrypter,
-        storageDataProcessor = storageDataProcessor,
-        nodeIconLoader = nodeIconLoader
-    )
-    override val favoritesInteractor = storageData?.favoritesInteractor ?: FavoritesInteractor(
-        logger = this.logger,
-        favoritesRepo = FavoritesRepo(getContext()),
-        storageHelper = storageHelper
-    )
-    override val recordsInteractor = RecordsInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        storageDataProcessor = storageDataProcessor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        interactionInteractor = interactionInteractor,
-        tagsParser = tagsParser,
-        favoritesInteractor = favoritesInteractor
-    )
-    override val nodesInteractor = NodesInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        recordsInteractor = recordsInteractor,
-        favoritesInteractor = favoritesInteractor,
-        storageDataProcessor = storageDataProcessor,
-        storagePathHelper = storagePathHelper,
-        tagsParser = tagsParser,
-        nodeIconLoader = nodeIconLoader
-    )
-
-    override val passInteractor = PasswordInteractor(
-        logger = this.logger,
-        databaseConfig = databaseConfig,
-        cryptInteractor = cryptInteractor,
-        nodesInteractor = nodesInteractor
-    )
-
-    override val tagsInteractor = TagsInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        storageDataProcessor = storageDataProcessor
-    )
-    override val attachesInteractor = AttachesInteractor(
-        logger = this.logger,
-        storageInteractor = storageInteractor,
-        cryptInteractor = cryptInteractor,
-        dataInteractor = dataInteractor,
-        interactionInteractor = interactionInteractor,
-        recordsInteractor = recordsInteractor
-    )
 
     var isLoadAllNodesForced = false
     var isAlreadyTryDecrypt = false
@@ -135,14 +101,6 @@ open class StorageViewModel(
 
 
     //region Init
-
-    init {
-        // первоначальная инициализация компонентов приложения.
-        App.init(
-            context = getContext(),
-            logger = this.logger
-        )
-    }
 
     fun checkStorageIsReady(checkIsFavorMode: Boolean, showMessage: Boolean): Boolean {
         return when {
@@ -211,7 +169,8 @@ open class StorageViewModel(
                 val id = currentStorage.id
                 val storage = storagesRepo.getStorage(id)
                 if (storage != null) {
-                    this@StorageViewModel.storage = currentStorage.getCopy(storage)
+                    storageProvider.setStorage(currentStorage.resetFields(storage))
+
                     postStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
                 } else {
                     postStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
@@ -223,13 +182,16 @@ open class StorageViewModel(
 
     open fun startInitStorageFromBase(id: Int) {
         launch {
-            val storage = withContext(Dispatchers.IO) { storagesRepo.getStorage(id) }
+            val storage = withContext(Dispatchers.IO) {
+                storagesRepo.getStorage(id)
+            }
             if (storage != null) {
-                this@StorageViewModel.storage = storage
+                storageProvider.setStorage(storage)
+
                 setStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
 
                 // если используется уже загруженное дерево веток из кэша
-                if (storageDataProcessor.isLoaded()) {
+                if (storageProvider.isLoaded()) {
                     storage.isLoaded = true
                 }
 
@@ -289,7 +251,8 @@ open class StorageViewModel(
      * Начинается с проверки разрешения на запись во внешнюю память устройства.
      */
     fun startInitStorage(storage: TetroidStorage) {
-        this.storage = storage
+        storageProvider.setStorage(storage)
+
         CommonSettings.setLastStorageId(getContext(), storage.id)
 
         // сначала проверяем разрешение на запись во внешнюю память
@@ -311,18 +274,38 @@ open class StorageViewModel(
      * Инициализация хранилища (с созданием файлов, если оно новое).
      */
     @MainThread
-    fun initStorage(isLoadFavoritesOnly: Boolean? = null): Boolean {
-        isAlreadyTryDecrypt = false
+    fun initStorage(isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
+        launch {
+            isAlreadyTryDecrypt = false
+            withContext(Dispatchers.IO) {
+                initOrCreateStorageUseCase.run(
+                    InitOrCreateStorageUseCase.Params(
+                        storage = storage!!, // FIXME
+                        databaseConfig = databaseConfig,
+                    )
+                )
+            }.onFailure { failure ->
+                logFailure(failure)
+                //logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
+                postStorageEvent(Constants.StorageEvents.InitFailed, isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly())
+            }.onSuccess { result ->
+                when (result) {
+                    is InitOrCreateStorageUseCase.Result.CreateStorage -> {
+                        storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
+                    }
+                    is InitOrCreateStorageUseCase.Result.InitStorage -> {
 
-        val result = initOrCreateStorage(storage!!)
-        if (result) {
-            log(getString(R.string.log_storage_inited) + getStoragePath())
-            setStorageEvent(Constants.StorageEvents.Inited, storage)
-        } else {
-            logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
-            postStorageEvent(Constants.StorageEvents.InitFailed, isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly())
+                    }
+                }
+                log(getString(R.string.log_storage_inited) + getStoragePath())
+                setStorageEvent(Constants.StorageEvents.Inited, storage)
+                if (isLoadAfter) {
+                    startLoadStorage(
+                        isLoadFavoritesOnly = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly()
+                    )
+                }
+            }
         }
-        return result
     }
 
     /**
@@ -331,11 +314,10 @@ open class StorageViewModel(
      * Вызывается уже после выполнения синхронизации.
      */
     fun initStorageAndLoad() {
-        val isLoadFavoritesOnly = checkIsNeedLoadFavoritesOnly()
-
-        if (initStorage(isLoadFavoritesOnly)) {
-            startLoadStorage(isLoadFavoritesOnly)
-        }
+        initStorage(
+            isLoadFavoritesOnly = checkIsNeedLoadFavoritesOnly(),
+            isLoadAfter = true
+        )
     }
 
     fun startLoadStorage(
@@ -344,6 +326,7 @@ open class StorageViewModel(
         isAllNodesLoading: Boolean = false
     ) {
         val params = StorageParams(
+            storage = storage!!,
             node = null,
             isNodeOpening = false,
             isLoadFavoritesOnly = isLoadFavoritesOnly,
@@ -376,50 +359,6 @@ open class StorageViewModel(
             !isStorageLoaded() && isLoadFavoritesOnly()
                     || (isStorageLoaded() && isLoadedFavoritesOnly())
         }
-    }
-
-    /**
-     * Непосредственная инициализация хранилища, с созданием файлов, если оно новое.
-     * Загрузка параметров из файла database.ini и инициализация переменных.
-     * @param storage
-     * @return
-     */
-    private fun initOrCreateStorage(storage: TetroidStorage): Boolean {
-//        storage.isLoaded = false
-        databaseConfig.setFileName(storageInteractor.getPathToDatabaseIniConfig())
-
-        val res: Boolean
-        try {
-            if (storage.isNew) {
-                logDebug(getString(R.string.log_start_storage_creating) + storage.path)
-                res = storageInteractor.createStorage(storage)
-                if (res) {
-                    storage.isNew = false
-                    storage.isLoaded = true
-                    log((R.string.log_storage_created), true)
-                    // обнуляем список избранных записей для нового хранилища
-                    favoritesInteractor.reset()
-                    storageEvent.postValue(ViewModelEvent(Constants.StorageEvents.FilesCreated, storage))
-                    return true
-                } else {
-                    logError(getString(R.string.log_failed_storage_create_mask, storage.path), true)
-                }
-            } else {
-                // загружаем database.ini
-                res = databaseConfig.load()
-                if (res) {
-                    // получаем id избранных записей из настроек
-                    if (storage.id != App.current?.storageData?.storageId) {
-                        runBlocking(Dispatchers.IO) { favoritesInteractor.init() }
-                    }
-                }
-            }
-        } catch (ex: Exception) {
-            logError(ex)
-            return false
-        }
-        storage.isInited = res
-        return res
     }
 
     fun onStoragePathChanged() {
@@ -455,7 +394,12 @@ open class StorageViewModel(
             startDecryptStorage(node)
         } else {
             // загружаем хранилище впервые, с расшифровкой (если нужно)
-            startReadStorage(isDecrypt, params.isLoadFavoritesOnly, params.isHandleReceivedIntent)
+            startReadStorage(
+                storage = params.storage,
+                isDecrypt = isDecrypt,
+                isFavoritesOnly = params.isLoadFavoritesOnly,
+                isOpenLastNode = params.isHandleReceivedIntent
+            )
         }
     }
 
@@ -468,6 +412,7 @@ open class StorageViewModel(
      * @param isDecrypt Необходимость расшифровки зашифрованных веток.
      */
     private fun startReadStorage(
+        storage: TetroidStorage,
         isDecrypt: Boolean,
         isFavoritesOnly: Boolean,
         isOpenLastNode: Boolean
@@ -475,88 +420,60 @@ open class StorageViewModel(
         logOperStart(LogObj.STORAGE, LogOper.LOAD)
 
         launch {
-            // FIXME: где правильнее сохранить ?
-            App.resetStorageData()
-
-            // перед загрузкой
             val stringResId = if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
             setViewEvent(Constants.ViewEvents.TaskStarted, stringResId)
 
-            // непосредственное чтение структуры хранилища
-            val result = readStorage(isDecrypt, isFavoritesOnly)
-
-            // после загрузки
-            setViewEvent(Constants.ViewEvents.TaskFinished)
-
-            if (result) {
-                storageDataProcessor.getRootNode().name = getString(R.string.title_root_node)
-                // FIXME: где правильнее сохранить ?
-                App.initStorageData(
-                    TetroidStorageData(
-                        storageId = storage?.id!!,
-                        viewModel = this@StorageViewModel
+            val result = withContext(Dispatchers.IO) {
+                readStorageUseCase.run(
+                    ReadStorageUseCase.Params(
+                        storage = storage,
+                        isDecrypt = isDecrypt,
+                        isFavoritesOnly = isFavoritesOnly,
+                        isOpenLastNode = isOpenLastNode,
                     )
                 )
+            }.foldResult(
+                onLeft = { failure ->
+                    logFailure(failure, show = true)
+                    setViewEvent(Constants.ViewEvents.TaskFinished)
 
-                val mes = getString(
-                    when {
-                        isFavoritesOnly -> R.string.log_storage_favor_loaded_mask
-                        isDecrypt -> R.string.log_storage_loaded_decrypted_mask
-                        else -> R.string.log_storage_loaded_mask
-                    }
-                )
-                log(mes.format(getStorageName()), true)
-            } else {
-                logWarning(getString(R.string.log_failed_storage_load) + getStoragePath(), true)
-            }
+                    // TODO ?
+                    //logWarning(getString(R.string.log_failed_storage_load_mask) + getStoragePath(), true)
+                    //postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                    false
+                },
+                onRight = {
+                    setViewEvent(Constants.ViewEvents.TaskFinished)
 
-            val params = StorageParams(
-                isDecrypt = isDecrypt,
-                isLoadFavoritesOnly = isFavoritesOnly,
-                isHandleReceivedIntent = isOpenLastNode,
-                result = result
+                    val mes = getString(
+                        when {
+                            isFavoritesOnly -> R.string.log_storage_favor_loaded_mask
+                            isDecrypt -> R.string.log_storage_loaded_decrypted_mask
+                            else -> R.string.log_storage_loaded_mask
+                        }
+                    )
+                    log(mes.format(getStorageName()), true)
+
+                    // загрузка ветки для быстрой вставки
+                    updateQuicklyNode()
+                    true
+                }
             )
+
             // инициализация контролов
-            setViewEvent(Constants.ViewEvents.InitGUI, params)
+            setViewEvent(
+                event = Constants.ViewEvents.InitGUI,
+                param = StorageParams(
+                    storage = storage,
+                    isDecrypt = isDecrypt,
+                    isLoadFavoritesOnly = isFavoritesOnly,
+                    isHandleReceivedIntent = isOpenLastNode,
+                    result = result
+                )
+            )
             // действия после загрузки хранилища
             setStorageEvent(Constants.StorageEvents.Loaded, result)
-        }
-    }
 
-    /**
-     * Загрузка хранилища из файла mytetra.xml.
-     * @param isDecrypt Расшифровывать ли ветки
-     * @param isFavorite Загружать ли только избранные записи
-     * @return
-     */
-    suspend fun readStorage(isDecrypt: Boolean, isFavorite: Boolean): Boolean {
-        val myTetraXmlFile = File(storagePathHelper.getPathToMyTetraXml())
-        if (!myTetraXmlFile.exists()) {
-            logError(getString(R.string.log_file_is_absent) + Constants.MYTETRA_XML_FILE_NAME, true)
-            return false
-        }
-
-        try {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            val result = withContext(Dispatchers.IO) {
-                val fis = FileInputStream(myTetraXmlFile)
-                // непосредственная обработка xml файла со структурой хранилища
-                storageDataProcessor.parse(
-                    context = getContext(),
-                    fis = fis,
-                    isNeedDecrypt = isDecrypt,
-                    isLoadFavoritesOnly = isFavorite
-                )
-            }
-            storage?.isLoaded = result
-
-            // загрузка ветки для быстрой вставки
-            updateQuicklyNode()
-            return result
-        } catch (ex: Exception) {
-            logError(ex)
-            postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
-            return false
         }
     }
 
@@ -618,7 +535,7 @@ open class StorageViewModel(
 
         var middlePassHash: String? = null
         when {
-            storageCrypter.middlePassHashOrNull?.also { middlePassHash = it } != null -> {
+            sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
                 cryptInteractor.initCryptPass(middlePassHash!!, true)
                 // спрашиваем ПИН-код
@@ -694,16 +611,10 @@ open class StorageViewModel(
         }
     }
 
-    override fun onPasswordCanceled(isSetup: Boolean, callback: EventCallbackParams) {
-        if (!isSetup) {
-            isAlreadyTryDecrypt = true
-            super.onPasswordCanceled(isSetup, callback)
-        }
-    }
-
     fun checkAndDecryptNode(node: TetroidNode): Boolean {
         if (!node.isNonCryptedOrDecrypted) {
             val params = StorageParams(
+                storage = storage!!,
                 node = node,
                 isDecrypt = true,
                 isNodeOpening = true,
@@ -723,6 +634,7 @@ open class StorageViewModel(
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
             //  поэтому отправляем FAVORITES_NODE
             val params = StorageParams(
+                storage = storage!!, // FIXME
                 isDecrypt = true,
                 node = FavoritesInteractor.FAVORITES_NODE,
                 isNodeOpening = true,
@@ -742,8 +654,10 @@ open class StorageViewModel(
     }
 
     fun clearSavedPass() {
-        passInteractor.clearSavedPass(storage!!)
-        updateStorageAsync(storage!!)
+        storage?.let {
+            passInteractor.clearSavedPass(it)
+            updateStorageAsync(it)
+        }
     }
 
     //endregion Decrypt
@@ -984,9 +898,484 @@ open class StorageViewModel(
 
     //endregion Other
 
+    //region Encryption
+
+
+    fun isStorageCrypted(): Boolean {
+        var iniFlag = false
+        try {
+            iniFlag = databaseConfig.isCryptMode
+        } catch (ex: Exception) {
+            logError(ex, true)
+        }
+        /*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
+                : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
+                : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
+                : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
+        return iniFlag || nodesInteractor.isExistCryptedNodes(false)
+    }
+
+    //region Password
+
+    /**
+     * Асинхронная проверка - имеется ли сохраненный пароль, и его запрос при необходимости.
+     * Используется:
+     *      * когда хранилище уже загружено (зашифровка/сброс шифровки ветки)
+     *      * либо когда загрузка хранилища не требуется (установка/сброс ПИН-кода)
+     * @param callback
+     */
+    fun checkStoragePass(callback: EventCallbackParams) {
+        launch {
+            withContext(Dispatchers.IO) {
+                checkStoragePasswordUseCase.run(
+                    CheckStoragePasswordUseCase.Params(
+                        storage = storage,
+                        isStorageCrypted = isStorageCrypted(),
+                        callback = callback,
+                    )
+                )
+            }.onFailure { failure ->
+                logFailure(failure)
+            }.onSuccess { result ->
+                when (result) {
+                    is CheckStoragePasswordUseCase.Result.AskPassword -> {
+                        askPassword(callback)
+                    }
+                    is CheckStoragePasswordUseCase.Result.AskPin -> {
+                        askPinCode(true, callback)
+                    }
+                    is CheckStoragePasswordUseCase.Result.AskForEmptyPassCheckingField -> {
+                        postStorageEvent(
+                            event = Constants.StorageEvents.AskForEmptyPassCheckingField,
+                            param = result.params
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun confirmEmptyPassCheckingFieldDialog(callback: EmptyPassCheckingFieldCallbackParams) {
+        cryptInteractor.initCryptPass(callback.passHash, true)
+        askPinCode(true, callback)
+    }
+
+    /**
+     * Отображения запроса пароля от хранилища.
+     * @param callback
+     */
+    fun askPassword(callback: EventCallbackParams) {
+        logger.log(R.string.log_show_pass_dialog, false)
+        // выводим окно с запросом пароля в асинхронном режиме
+        postStorageEvent(Constants.StorageEvents.AskPassword, callback)
+    }
+
+    fun onPasswordEntered(pass: String, isSetup: Boolean, callback: EventCallbackParams) {
+        if (isSetup) {
+            launch {
+                setupPass(pass)
+                postEventFromCallbackParam(callback)
+            }
+        } else {
+            checkPass(pass, { res: Boolean ->
+                launch {
+                    if (res) {
+                        initPass(pass)
+                        postEventFromCallbackParam(callback)
+                    } else {
+                        // повторяем запрос
+                        askPassword(callback)
+                    }
+                }
+            }, R.string.log_pass_is_incorrect)
+        }
+    }
+
+    fun onPasswordCanceled(isSetup: Boolean, callback: EventCallbackParams) {
+        if (!isSetup) {
+            isAlreadyTryDecrypt = true
+            //super.onPasswordCanceled(isSetup, callback)
+            (callback.data as? StorageParams)?.let {
+                if (!it.isNodeOpening) {
+                    //isAlreadyTryDecrypt = true
+                    it.isDecrypt = false
+                    postEventFromCallbackParam(callback)
+                }
+            }
+        }
+    }
+
+    fun startSetupPass(pass: String) {
+        launch {
+            setupPass(pass)
+        }
+    }
+
+    // TODO: SetupPasswordUseCase
+    @MainThread
+    suspend fun setupPass(pass: String) {
+        log(R.string.log_start_pass_setup)
+        setViewEvent(Constants.ViewEvents.TaskStarted, getString(R.string.task_pass_setting))
+        isBusy = true
+        val result = withContext(Dispatchers.IO) {
+            passInteractor.setupPass(storage!!, pass).also {
+                // сохраняем хэш пароля в бд (если установлена соответствующая опция)
+                updateStorageAsync(storage!!)
+            }
+        }
+        isBusy = false
+        setViewEvent(Constants.ViewEvents.TaskFinished)
+        if (result) {
+            setStorageEvent(Constants.StorageEvents.PassSetuped)
+        }
+    }
+
+    suspend fun initPass(pass: String) {
+        passInteractor.initPass(storage!!, pass)
+        updateStorageAsync(storage!!)
+    }
+
+    /**
+     * Каркас проверки введенного пароля.
+     * @param context
+     * @param pass
+     * @param callback
+     * @param wrongPassRes
+     */
+    // TODO: CheckPasswordUseCase
+    fun checkPass(pass: String, callback: ICallback, wrongPassRes: Int): Boolean {
+        try {
+            if (passInteractor.checkPass(pass)) {
+                callback.run(true)
+            } else {
+                logger.logError(wrongPassRes, true)
+                callback.run(false)
+                return false
+            }
+        } catch (ex: DatabaseConfig.EmptyFieldException) {
+            // если поля в INI-файле для проверки пустые
+            logger.logError(ex)
+            // спрашиваем "continue anyway?"
+            postStorageEvent(
+                Constants.StorageEvents.AskForEmptyPassCheckingField,
+                // TODO: тут спрашиваем нормально ли расшифровались данные
+                callback
+            )
+        }
+        return true
+    }
+
+    fun startChangePass(curPass: String, newPass: String) {
+        launch {
+            setViewEvent(Constants.ViewEvents.TaskStarted, getString(R.string.task_pass_changing))
+            isBusy = true
+            withContext(Dispatchers.IO) {
+                changePasswordUseCase.run(
+                    ChangePasswordUseCase.Params(
+                        storage = storage!!,
+                        curPass = curPass,
+                        newPass = newPass,
+                        taskProgress = taskProgressHandler,
+                    )
+                )
+            }.onFailure {
+                logger.logFailure(it)
+                isBusy = false
+                setViewEvent(Constants.ViewEvents.TaskFinished)
+            }.onSuccess { result ->
+                isBusy = false
+                setViewEvent(Constants.ViewEvents.TaskFinished)
+                if (result) {
+                    setStorageEvent(Constants.StorageEvents.PassChanged)
+                    logger.log(R.string.log_pass_changed, true)
+                } else {
+                    logger.logError(R.string.log_pass_change_error, true)
+                    setViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                }
+
+            }
+        }
+    }
+
+    //endregion Password
+
+    //region Pin
+
+    /**
+     * Проверка использования ПИН-кода с учетом версии приложения.
+     * @return
+     */
+    fun isRequestPINCode(): Boolean {
+        return appBuildHelper.isFullVersion()
+                && CommonSettings.isRequestPINCode(getContext())
+                && isPinNeedEnter
+    }
+
+    /**
+     * Запрос ПИН-кода, если установлена опция.
+     * К этому моменту факт того, что хэш пароля сохранен локально, должен быть уже проверен.
+     * @param specialFlag Дополнительный признак, указывающий на то, нужно ли спрашивать ПИН-код
+     * конкретно в данный момент.
+     * @param callback Обработчик обратного вызова.
+     */
+    fun askPinCode(specialFlag: Boolean, callback: EventCallbackParams) {
+        if (isRequestPINCode() && specialFlag) {
+            // выводим запрос ввода ПИН-кода
+            postStorageEvent(Constants.StorageEvents.AskPinCode, callback)
+        } else {
+            postEventFromCallbackParam(callback)
+        }
+    }
+
+    fun startCheckPinCode(pin: String, callback: EventCallbackParams): Boolean {
+        // зашифровываем введеный пароль перед сравнением
+        val res = checkPinCode(pin)
+        if (res) {
+            postEventFromCallbackParam(callback)
+            // сбрасываем признак
+            isPinNeedEnter = false
+            logger.log(R.string.log_pin_code_entered, false)
+        }
+        return res
+    }
+
+    fun checkPinCode(pin: String): Boolean {
+        // сравниваем хеши
+        val pinHash = storageCrypter.passToHash(pin)
+        return (pinHash == CommonSettings.getPINCodeHash(getContext()))
+    }
+
+    //endregion Pin
+
+
+    fun onPassLocalHashLocalParamChanged(newValue: Any): Boolean {
+        return if (getMiddlePassHash() != null) {
+            askPinCode(
+                specialFlag = true,
+                callback = EventCallbackParams(Constants.StorageEvents.SavePassHashLocalChanged, newValue)
+            )
+            false
+        } else {
+            // если пароль не задан, то нечего очищать, не задаем вопрос
+            true
+        }
+    }
+
+    private val taskProgressHandler = object : ITaskProgress {
+        override suspend fun nextStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
+            setStage(obj, oper, stage)
+        }
+
+        override suspend fun nextStage(obj: LogObj, oper: LogOper, stageExecutor: suspend () -> Boolean): Boolean {
+            setStage(obj, oper, TaskStage.Stages.START)
+            return if (stageExecutor.invoke()) {
+                setStage(obj, oper, TaskStage.Stages.SUCCESS)
+                true
+            } else {
+                setStage(obj, oper, TaskStage.Stages.FAILED)
+                false
+            }
+        }
+
+        private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
+            val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
+            val mes = logger.logTaskStage(taskStage)
+            postViewEvent(Constants.ViewEvents.ShowProgressText, mes)
+        }
+    }
+
+    //endregion Encryption
+
+    // region StorageProperties
+
+    var quicklyNode: TetroidNode?
+        get() {
+            val nodeId = storage?.quickNodeId
+            if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
+                return nodesInteractor.getNode(nodeId)
+            }
+            return null
+        }
+        set(value) {
+            updateStorageOption(getString(R.string.pref_key_quickly_node_id), value?.id ?: "")
+        }
+
+    open fun updateStorageOption(key: String, value: Any) {}
+
+
+    fun updateStorageAsync(storage: TetroidStorage) {
+        launch {
+            if (!storagesRepo.updateStorage(storage)) {
+                //...
+            }
+        }
+    }
+
+    fun updateStorageAsync() {
+        storage?.let {
+            updateStorageAsync(it)
+        }
+    }
+
+    suspend fun updateStorage(storage: TetroidStorage): Boolean {
+        return storagesRepo.updateStorage(storage)
+    }
+
+    fun getFavoriteRecords(): List<TetroidRecord> {
+        return favoritesInteractor.getFavoriteRecords()
+    }
+
+    /**
+     * Задана ли ветка для быстрой вставки в дереве.
+     */
+    fun isQuicklyNodeSet(): Boolean {
+        return storage?.quickNodeId != null
+    }
+
+    /**
+     * Актуализация ветки для быстрой вставки в дереве.
+     */
+    fun updateQuicklyNode() {
+        val nodeId = storage?.quickNodeId
+        if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
+            this.quicklyNode = nodesInteractor.getNode(nodeId)
+        }
+    }
+
+    fun dropSavedLocalPassHash() {
+        storage?.apply {
+            // удаляем хэш пароля и сбрасываем галку
+            middlePassHash = null
+            isSavePassLocal = false
+            updateStorageAsync(this)
+        }
+    }
+
+    fun clearTrashFolder() {
+        launch {
+            if (trashInteractor.clearTrashFolder(storage ?: return@launch)) {
+                log(R.string.title_trash_cleared, true)
+            } else {
+                logError(R.string.title_trash_clear_error, true)
+            }
+        }
+    }
+
+    //region Migration
+
+    fun isNeedMigration(): Boolean {
+        val fromVersion = CommonSettings.getSettingsVersion(getContext())
+        return (fromVersion != 0 && fromVersion < Constants.SETTINGS_VERSION_CURRENT)
+    }
+
+    //endregion Migration
+
+    //region Getters
+
+    fun isStorageInited() = storage?.isInited ?: false
+
+    fun isStorageLoaded() = /*(storage?.isLoaded ?: false) &&*/ storageProvider.isLoaded()
+
+    fun isStorageDecrypted() = storage?.isDecrypted ?: false
+
+    fun isStorageNonEncryptedOrDecrypted() = !isStorageCrypted() || isStorageDecrypted()
+
+    fun getStorageId() = storage?.id ?: 0
+
+    fun getStoragePath() = storage?.path.orEmpty()
+
+    fun getStorageName() = storage?.name ?: ""
+
+    fun isStorageDefault() = storage?.isDefault ?: false
+
+    fun isStorageReadOnly() = storage?.isReadOnly ?: false
+
+    fun getTrashPath() = storage?.trashPath.orEmpty()
+
+    fun getQuicklyNodeName() = quicklyNode?.name.orEmpty()
+
+    fun getQuicklyNodeNameOrMessage(): String? {
+        return if (storage?.quickNodeId != null) {
+            if (!isStorageLoaded()) {
+                getString(R.string.hint_need_load_storage)
+            } else if (isLoadedFavoritesOnly()) {
+                getString(R.string.hint_need_load_all_nodes)
+            } else quicklyNode?.name
+        } else null
+    }
+
+    fun getQuicklyNodeId() = quicklyNode?.id.orEmpty()
+
+    fun getStorageSyncProfile() = storage?.syncProfile
+
+    fun isStorageSyncEnabled() = storage?.syncProfile?.isEnabled ?: false
+
+    fun getStorageSyncAppName() = storage?.syncProfile?.appName.orEmpty()
+
+    fun getStorageSyncCommand() = storage?.syncProfile?.command.orEmpty()
+
+    fun isLoadFavoritesOnly() = /*storageProvider.isLoadedFavoritesOnly()*/ storage?.isLoadFavoritesOnly ?: false
+
+    fun isKeepLastNode() = storage?.isKeepLastNode ?: false
+
+    fun getLastNodeId() = storage?.lastNodeId
+
+    fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
+
+    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp ?: false
+
+    fun getMiddlePassHash() = storage?.middlePassHash
+
+    fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
+
+    fun isNodesExist() = storageProvider.getRootNodes().isNotEmpty()
+
+    fun isLoadedFavoritesOnly() = storageProvider.isLoadedFavoritesOnly()
+
+    fun getRootNodes(): List<TetroidNode> = storageProvider.getRootNodes()
+
+    fun getTagsMap(): Map<String,TetroidTag> = storageProvider.getTagsMap()
+
+    //endregion Getters
+
+    // region Setters
+
+    fun setIsDecrypted(value: Boolean) {
+        storage?.isDecrypted = value
+    }
+
+    fun setLastNodeId(nodeId: String?) {
+        storage?.lastNodeId = nodeId
+    }
+
+    //endregion Setters
+
+    //region IStorageCallback
+
+    suspend fun saveStorage(): Boolean {
+        return withContext(Dispatchers.IO) {
+            saveStorageUseCase.run()
+        }.foldResult(
+            onLeft = {
+                logFailure(it)
+                false
+            },
+            onRight = { it }
+        )
+    }
+
+    fun getPathToRecordFolder(record: TetroidRecord): String {
+        return recordPathHelper.getPathToRecordFolder(record)
+    }
+
+    //endregion IStorageCallback
+
+    //endregion StorageProperties
+
 }
 
 data class StorageParams(
+    val storage: TetroidStorage,
     var result: Boolean = false, // результат открытия/расшифровки
     var isDecrypt: Boolean? = null, // расшифровка хранилища, а не просто открытие
     val node: TetroidNode? = null, // ветка, которую нужно открыть после расшифровки хранилища
@@ -1017,3 +1406,14 @@ enum class SyncStorageType {
     BeforeInit,
     BeforeExit
 }
+
+open class EventCallbackParams(
+    val event: Any,
+    val data: Any?
+)
+
+class EmptyPassCheckingFieldCallbackParams(
+    val fieldName: String,
+    val passHash: String,
+    callback: EventCallbackParams
+) : EventCallbackParams(callback.event, callback.data)

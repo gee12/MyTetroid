@@ -4,29 +4,39 @@ import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.helpers.IStorageProvider
-import com.gee12.mytetroid.helpers.StoragePathHelper
+import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.StoragesInteractor
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class StoragesViewModel(
     app: Application,
-    /*logger: TetroidLogger?,*/
-) : BaseStorageViewModel(app/*, logger*/) {
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+    storageProvider: IStorageProvider,
+    private val appBuildHelper: AppBuildHelper,
+    private val storagePathHelper: IStoragePathHelper,
+    private val storagesInteractor: StoragesInteractor,
+) : BaseStorageViewModel(
+    app,
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+    storageProvider,
+) {
 
     enum class Event {
         ShowAddNewStorageDialog
     }
-
-    private val storagesInteractor = StoragesInteractor(StoragesRepo(app))
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
     val storages: LiveData<List<TetroidStorage>> get() = _storages
@@ -44,10 +54,7 @@ class StoragesViewModel(
     }
 
     fun checkStorageFilesExisting(storage: TetroidStorage) {
-        val pathHelper = StoragePathHelper(storageProvider = object : IStorageProvider {
-            override fun getStorageOrNull() = storage
-        })
-        storage.error = pathHelper.checkStorageFilesExistingError(getContext())
+        storage.error = storagePathHelper.checkStorageFilesExistingError(getContext())
     }
 
     fun setDefault(storage: TetroidStorage) {
@@ -63,7 +70,7 @@ class StoragesViewModel(
     }
 
     fun addNewStorage(activity: Activity) {
-        if (App.isFreeVersion() && storages.value?.isNotEmpty() == true) {
+        if (appBuildHelper.isFreeVersion() && storages.value?.isNotEmpty() == true) {
             showMessage(R.string.mes_cant_more_one_storage_on_free)
         } else {
             // проверка разрешения перед диалогом добавления хранилища

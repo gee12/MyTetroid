@@ -6,46 +6,55 @@ import android.content.Context
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.AndroidViewModel
-import com.gee12.mytetroid.App
+import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.SingleLiveEvent
-import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.logs.*
-import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.helpers.INotificator
 import com.gee12.mytetroid.interactors.PermissionInteractor
 import com.gee12.mytetroid.interactors.PermissionRequestData
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import java.util.*
+import com.gee12.mytetroid.logs.*
+import com.gee12.mytetroid.model.TetroidObject
+import kotlinx.coroutines.*
 
 open class BaseViewModel(
     application: Application,
-    /*logger: TetroidLogger?*/
+    val logger: ITetroidLogger,
+    val notificator: INotificator,
+    val failureHandler: IFailureHandler,
+    val commonSettingsProvider: CommonSettingsProvider,
 ) : AndroidViewModel(application) {
 
-    val commonSettingsRepo = CommonSettingsRepo(getContext())
+    private val internalCoroutineExceptionHandler =
+        CoroutineExceptionHandler { _, throwable ->
+            throwable.printStackTrace()
+        }
 
     val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
     var isBusy = false
 
-    var logger: TetroidLogger = BaseLogger().apply {
-        init(CommonSettings.getLogPath(getContext()), CommonSettings.isWriteLogToFile(getContext()))
-    }
-
+    // TODO: inject
     val permissionInteractor = PermissionInteractor(this.logger)
-
-
-    // Общий внутренний логгер: записывает логи в буфер и в файл
-    // При первом запуске, когда окружение приложения (App.current) еще не инициализировано,
-    //  общий логгер для приложения инициализируется из только что созданного logger данного ViewModel.
-    //  И далее в приложении уже используется только он.
-    protected val innerSharedLogger: FileTetroidLogger
-        get() = App.current?.logger ?: logger
 
     val messageObservable = SingleLiveEvent<Message>()
 
-
-    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsRepo.getLastFolderPathOrDefault(forWrite)
+    open fun initialize() {
+        logger.init(
+            path = commonSettingsProvider.getLogPath(),
+            isWriteToFile = commonSettingsProvider.isWriteLogToFile()
+        )
+        with(notificator) {
+            showMessageCallback = { message, type ->
+                this@BaseViewModel.showMessage(message, type)
+            }
+            showSnackMoreInLogsCallback = {
+                this@BaseViewModel.showSnackMoreInLogs()
+            }
+        }
+    }
 
     //region View event
 
@@ -227,6 +236,14 @@ open class BaseViewModel(
         logger.logError(s, ex, show)
     }
 
+    @JvmOverloads
+    fun logFailure(failure: Failure, show: Boolean = true) {
+        val message = failureHandler.getFailureMessage(failure)
+        // TODO: сделать многострочные уведомления
+
+        logger.logError(message.title, show)
+    }
+
     // common
     @JvmOverloads
     fun log(mes: String, type: LogType, show: Boolean = false) {
@@ -327,27 +344,37 @@ open class BaseViewModel(
 
     //endregion Context
 
-
-    inner class BaseLogger : TetroidLogger() {
-
-        override fun log(s: String, type: LogType, show: Boolean) {
-            innerSharedLogger.log(s, type)
-            if (show) {
-                showMessage(s, type)
-            }
+    suspend fun <T> withMain(block: suspend () -> T) : T{
+        return withContext(Dispatchers.Main){
+            block()
         }
+    }
 
-        override fun log(resId: Int, type: LogType, show: Boolean) {
-            log(getString(resId), type, show)
+    suspend fun <T> withIo(block: suspend CoroutineScope.() -> T): T {
+        return withContext(Dispatchers.IO){
+            block()
         }
+    }
 
-        override fun showMessage(s: String, type: LogType) = this@BaseViewModel.showMessage(s, type)
+    suspend fun <T> withComputation(block: suspend CoroutineScope.() -> T): T {
+        return withContext(Dispatchers.Default){
+            block()
+        }
+    }
 
-        override fun showSnackMoreInLogs() = this@BaseViewModel.showSnackMoreInLogs()
+    fun launchOnMain(block: suspend CoroutineScope.() -> Unit): Job {
+        return viewModelScope.launch(internalCoroutineExceptionHandler + Dispatchers.Main) {
+            block()
+        }
+    }
 
-        override fun getString(resId: Int) = this@BaseViewModel.getString(resId)
-
-        override fun getStringArray(resId: Int) = this@BaseViewModel.getStringArray(resId)
+    fun launchOnIo(
+        coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        exceptionHandler: CoroutineExceptionHandler? = null,
+        block: suspend CoroutineScope.() -> Unit): Job {
+        return viewModelScope.launch((exceptionHandler ?: internalCoroutineExceptionHandler) + coroutineDispatcher) {
+            block()
+        }
     }
 
 }

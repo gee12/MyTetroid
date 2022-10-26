@@ -4,7 +4,11 @@ import android.app.Application
 import android.util.Log
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.SingleLiveEvent
+import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.helpers.INotificator
 import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,24 +17,31 @@ import kotlin.coroutines.CoroutineContext
 
 open class BaseStorageViewModel(
     app: Application,
-    /*logger: TetroidLogger?*/
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+    protected val storageProvider: IStorageProvider,
 ) : BaseViewModel(
     app,
-    /*,logger*/
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    open var storage: TetroidStorage? = null
-        protected set
+    open val storage: TetroidStorage?
+        get() = storageProvider.storage
 
     val storageEvent = SingleLiveEvent<ViewModelEvent<Constants.StorageEvents, Any>>()
     val objectAction = SingleLiveEvent<ViewModelEvent<Any, Any>>()
 
-    val storageProvider: IStorageProvider = object : IStorageProvider {
-        override fun getStorageOrNull(): TetroidStorage? = storage
-    }
 
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsProvider.getLastFolderPathOrDefault(forWrite)
+
+    fun getRootNode() = storageProvider.getRootNode()
 
     //region Storage event
 

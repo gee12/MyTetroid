@@ -9,15 +9,11 @@ import android.os.Bundle
 import android.text.TextUtils
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.helpers.NetworkHelper
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebPageContentResult
-import com.gee12.mytetroid.helpers.UriHelper
-import com.gee12.mytetroid.interactors.ImagesInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
@@ -31,26 +27,89 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import androidx.annotation.MainThread
-import com.gee12.mytetroid.TetroidStorageData
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.repo.CommonSettingsRepo
+import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.usecase.InitAppUseCase
+import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
+import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 
 
 class RecordViewModel(
     app: Application,
-    storageData: TetroidStorageData? = null
-    /*logger: TetroidLogger?,*/
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+    appBuildHelper: AppBuildHelper,
+    storageProvider: IStorageProvider,
+    favoritesInteractor: FavoritesInteractor,
+    sensitiveDataProvider: ISensitiveDataProvider,
+    passInteractor: PasswordInteractor,
+    storageCrypter: IEncryptHelper,
+    cryptInteractor: EncryptionInteractor,
+    recordsInteractor: RecordsInteractor,
+    nodesInteractor: NodesInteractor,
+    tagsInteractor: TagsInteractor,
+    attachesInteractor: AttachesInteractor,
+    storagesRepo: StoragesRepo,
+    storagePathHelper: IStoragePathHelper,
+    recordPathHelper: IRecordPathHelper,
+    commonSettingsInteractor: CommonSettingsInteractor,
+    dataInteractor: DataInteractor,
+    settingsInteractor: CommonSettingsInteractor,
+    interactionInteractor: InteractionInteractor,
+    syncInteractor: SyncInteractor,
+    trashInteractor: TrashInteractor,
+    private val imagesInteractor: ImagesInteractor,
+    initAppUseCase: InitAppUseCase,
+    initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
+    readStorageUseCase: ReadStorageUseCase,
+    saveStorageUseCase: SaveStorageUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    changePasswordUseCase: ChangePasswordUseCase,
 ): StorageViewModel(
     app,
-    storageData
-    /*logger,*/
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+    appBuildHelper,
+    storageProvider,
+    favoritesInteractor,
+    sensitiveDataProvider,
+    passInteractor,
+    storageCrypter,
+    cryptInteractor,
+    recordsInteractor,
+    nodesInteractor,
+    tagsInteractor,
+    attachesInteractor,
+    storagesRepo,
+    storagePathHelper,
+    recordPathHelper,
+    commonSettingsInteractor,
+    dataInteractor,
+    settingsInteractor,
+    interactionInteractor,
+    syncInteractor,
+    trashInteractor,
+    initAppUseCase,
+    initOrCreateStorageUseCase,
+    readStorageUseCase,
+    saveStorageUseCase,
+    checkStoragePasswordUseCase,
+    changePasswordUseCase,
 ) {
-
-    private val imagesInteractor = ImagesInteractor(
-        logger = this.logger,
-        dataInteractor = dataInteractor,
-        recordsInteractor = recordsInteractor
-    )
 
     var curRecord = MutableLiveData<TetroidRecord>()
     var curMode = 0
@@ -306,12 +365,12 @@ class RecordViewModel(
             setViewEvent(Constants.ViewEvents.ShowHomeButton, false)
 
             // создаем временную запись
-            val node = if (quicklyNode != null) quicklyNode!! else storageDataProcessor.getRootNode()
+            val node = quicklyNode ?: storageProvider.getRootNode()
             val record = withContext(Dispatchers.IO) {
                 recordsInteractor.createTempRecord(getContext(), null, null, null, node)
             }
             if (record != null) {
-                curRecord.postValue(record!!)
+                curRecord.postValue(record)
                 setTitle(record.name)
             } else {
                 logOperError(LogObj.RECORD, LogOper.CREATE, true)
@@ -737,7 +796,7 @@ class RecordViewModel(
      * Обновление поля последнего изменения записи.
      */
     private fun updateEditedDate() {
-        if (App.isFullVersion()) {
+        if (appBuildHelper.isFullVersion()) {
             val dateFormat = getString(R.string.full_date_format_string)
             val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
 //            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
@@ -948,7 +1007,7 @@ class RecordViewModel(
         }
     }
 
-    fun getUriToRecordFolder(record: TetroidRecord) = recordsInteractor.getUriToRecordFolder(record)
+    fun getUriToRecordFolder(record: TetroidRecord) = recordPathHelper.getUriToRecordFolder(record)
 
     /**
      * Отображение или скрытие панели свойств в зависимости от настроек.

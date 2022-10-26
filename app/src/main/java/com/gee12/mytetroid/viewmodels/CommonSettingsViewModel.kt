@@ -1,18 +1,36 @@
 package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.crypt.Crypter
+import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.helpers.AppBuildHelper
+import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.helpers.INotificator
 import com.gee12.mytetroid.interactors.TrashInteractor
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
     app: Application,
-) : BaseViewModel(app), CoroutineScope {
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    val appBuildHelper: AppBuildHelper,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+) : BaseViewModel(
+    app,
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
@@ -27,7 +45,7 @@ class CommonSettingsViewModel(
      * @return
      */
     fun isRequestPINCode(): Boolean {
-        return App.isFullVersion()
+        return appBuildHelper.isFullVersion()
                 && CommonSettings.isRequestPINCode(getContext())
                 && CommonSettings.getPINCodeHash(getContext()) != null
     }
@@ -77,5 +95,7 @@ class CommonSettingsViewModel(
     }
 
     //endregion Pin
+
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsProvider.getLastFolderPathOrDefault(forWrite)
 
 }

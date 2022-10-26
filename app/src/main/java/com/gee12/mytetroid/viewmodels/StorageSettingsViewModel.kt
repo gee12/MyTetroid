@@ -4,18 +4,84 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.*
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
+import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.usecase.InitAppUseCase
+import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
+import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import kotlinx.coroutines.launch
-import java.util.*
 
 class StorageSettingsViewModel(
     app: Application,
-    /*logger: TetroidLogger?,*/
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    appBuildHelper: AppBuildHelper,
+    commonSettingsProvider: CommonSettingsProvider,
+    storageProvider: IStorageProvider,
+    favoritesInteractor: FavoritesInteractor,
+    sensitiveDataProvider: ISensitiveDataProvider,
+    passInteractor: PasswordInteractor,
+    storageCrypter: IEncryptHelper,
+    cryptInteractor: EncryptionInteractor,
+    recordsInteractor: RecordsInteractor,
+    nodesInteractor: NodesInteractor,
+    tagsInteractor: TagsInteractor,
+    attachesInteractor: AttachesInteractor,
+    storagesRepo: StoragesRepo,
+    storagePathHelper: IStoragePathHelper,
+    recordPathHelper: IRecordPathHelper,
+    commonSettingsInteractor: CommonSettingsInteractor,
+    dataInteractor: DataInteractor,
+    settingsInteractor: CommonSettingsInteractor,
+    interactionInteractor: InteractionInteractor,
+    syncInteractor: SyncInteractor,
+    trashInteractor: TrashInteractor,
+    initAppUseCase: InitAppUseCase,
+    initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
+    readStorageUseCase: ReadStorageUseCase,
+    saveStorageUseCase: SaveStorageUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    changePasswordUseCase: ChangePasswordUseCase,
 ) : StorageViewModel(
     app,
-    /*logger*/
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+    appBuildHelper,
+    storageProvider,
+    favoritesInteractor,
+    sensitiveDataProvider,
+    passInteractor,
+    storageCrypter,
+    cryptInteractor,
+    recordsInteractor,
+    nodesInteractor,
+    tagsInteractor,
+    attachesInteractor,
+    storagesRepo,
+    storagePathHelper,
+    recordPathHelper,
+    commonSettingsInteractor,
+    dataInteractor,
+    settingsInteractor,
+    interactionInteractor,
+    syncInteractor,
+    trashInteractor,
+    initAppUseCase,
+    initOrCreateStorageUseCase,
+    readStorageUseCase,
+    saveStorageUseCase,
+    checkStoragePasswordUseCase,
+    changePasswordUseCase,
 ) {
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()

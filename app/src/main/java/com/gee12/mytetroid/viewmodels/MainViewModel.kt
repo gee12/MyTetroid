@@ -9,19 +9,31 @@ import android.os.Bundle
 import androidx.annotation.MainThread
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.helpers.UriHelper
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
+import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
+import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
+import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -30,18 +42,76 @@ import java.util.HashMap
 
 class MainViewModel(
     app: Application,
-    /*logger: TetroidLogger?,*/
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    commonSettingsProvider: CommonSettingsProvider,
+    appBuildHelper: AppBuildHelper,
+    storageProvider: IStorageProvider,
+    favoritesInteractor: FavoritesInteractor,
+    sensitiveDataProvider: ISensitiveDataProvider,
+    passInteractor: PasswordInteractor,
+    storageCrypter: IEncryptHelper,
+    cryptInteractor: EncryptionInteractor,
+    recordsInteractor: RecordsInteractor,
+    nodesInteractor: NodesInteractor,
+    tagsInteractor: TagsInteractor,
+    attachesInteractor: AttachesInteractor,
+    storagesRepo: StoragesRepo,
+    storageDataProcessor: IStorageDataProcessor,
+    storagePathHelper: IStoragePathHelper,
+    recordPathHelper: IRecordPathHelper,
+    commonSettingsInteractor: CommonSettingsInteractor,
+    dataInteractor: DataInteractor,
+    settingsInteractor: CommonSettingsInteractor,
+    interactionInteractor: InteractionInteractor,
+    syncInteractor: SyncInteractor,
+    trashInteractor: TrashInteractor,
+    private val migrationInteractor: MigrationInteractor,
+    private val storageTreeInteractor: StorageTreeInteractor,
+    initAppUseCase: InitAppUseCase,
+    initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
+    readStorageUseCase: ReadStorageUseCase,
+    private val createNodeUseCase: CreateNodeUseCase,
+    saveStorageUseCase: SaveStorageUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    changePasswordUseCase: ChangePasswordUseCase,
 ): StorageViewModel(
     app,
-    /*logger,*/
+    logger,
+    notificator,
+    failureHandler,
+    commonSettingsProvider,
+    appBuildHelper,
+    storageProvider,
+    favoritesInteractor,
+    sensitiveDataProvider,
+    passInteractor,
+    storageCrypter,
+    cryptInteractor,
+    recordsInteractor,
+    nodesInteractor,
+    tagsInteractor,
+    attachesInteractor,
+    storagesRepo,
+    storagePathHelper,
+    recordPathHelper,
+    commonSettingsInteractor,
+    dataInteractor,
+    settingsInteractor,
+    interactionInteractor,
+    syncInteractor,
+    trashInteractor,
+    initAppUseCase,
+    initOrCreateStorageUseCase,
+    readStorageUseCase,
+    saveStorageUseCase,
+    checkStoragePasswordUseCase,
+    changePasswordUseCase,
 ) {
     companion object {
         private const val MYTETRA_XML_EXISTING_DELAY = 1000L
     }
-
-    val storagesInteractor = StoragesInteractor(this.storagesRepo)
-    val migrationInteractor = MigrationInteractor(this.logger, CommonSettingsRepo(app), storagesInteractor, favoritesInteractor)
-    val storageTreeInteractor = StorageTreeInteractor(app, this.logger)
 
     var curMainViewId = Constants.MAIN_VIEW_NONE
     var lastMainViewId = 0
@@ -58,6 +128,12 @@ class MainViewModel(
     var isFromRecordActivity = false
     private var isStorageTreeChangingHandled = false
 
+    init {
+        // FIXME: koin: циклическая зависимость
+        storageProvider.init(storageDataProcessor)
+
+        setStorageTreeObserverCallbacks()
+    }
 
     //region Migration
 
@@ -95,7 +171,7 @@ class MainViewModel(
         logger.log(getString(R.string.log_start_migrate_to_version_mask).format("5.0"), false)
 
         // параметры хранилища из SharedPreferences в бд
-        if (migrationInteractor.isNeedMigrateStorageFromPrefs(getContext())) {
+        if (migrationInteractor.isNeedMigrateStorageFromPrefs()) {
             if (!migrationInteractor.addDefaultStorageFromPrefs(getContext())) {
                 return false
             }
@@ -246,7 +322,7 @@ class MainViewModel(
                 url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
             }
             // создаем запись
-            val node = if (quicklyNode != null) quicklyNode!! else storageDataProcessor.getRootNode()
+            val node = quicklyNode ?: storageProvider.getRootNode()
             val record: TetroidRecord = recordsInteractor.createTempRecord(getContext(), subject, url, text, node) ?: return@launch
             if (isText) {
                 // запускаем активность просмотра записи
@@ -576,11 +652,18 @@ class MainViewModel(
 
     fun createNode(name: String, trueParentNode: TetroidNode?) {
         launch {
-            val node = nodesInteractor.createNode(getContext(), name, trueParentNode)
-            if (node != null) {
-                setEvent(MainEvents.NodeCreated, node)
-            } else {
+            withIo {
+                createNodeUseCase.run(
+                    CreateNodeUseCase.Params(
+                        name = name,
+                        parentNode = trueParentNode,
+                    )
+                )
+            }.onFailure { failure ->
+                logFailure(failure)
                 logOperErrorMore(LogObj.NODE, LogOper.CREATE)
+            }.onSuccess { node ->
+                setEvent(MainEvents.NodeCreated, node)
             }
         }
     }
@@ -591,7 +674,7 @@ class MainViewModel(
      */
     fun renameNode(node: TetroidNode, newName: String) {
         launch {
-            if (nodesInteractor.editNodeFields(getContext(), node, newName)) {
+            if (nodesInteractor.editNodeFields(node, newName)) {
                 logOperRes(LogObj.NODE, LogOper.RENAME)
                 updateNodes()
                 setEvent(MainEvents.NodeRenamed, node)
@@ -605,7 +688,7 @@ class MainViewModel(
         if (nodeId == null) return
         launch {
             val node = if (curNode?.id == nodeId) curNode else nodesInteractor.getNode(nodeId)
-            if (nodesInteractor.setNodeIcon(getContext(), node, iconPath, isDrop)) {
+            if (nodesInteractor.setNodeIcon(node, iconPath, isDrop)) {
                 logOperRes(LogObj.NODE, LogOper.CHANGE)
                 updateNodes()
             } else {
@@ -704,7 +787,7 @@ class MainViewModel(
 //                LogManager.log(this, getString(R.string.log_node_delete_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG)
 //            }
             // обновляем label с количеством избранных записей
-            if (App.isFullVersion()) {
+            if (appBuildHelper.isFullVersion()) {
                 updateFavoritesTitle()
             }
             // убираем список записей удаляемой ветки
@@ -1240,7 +1323,8 @@ class MainViewModel(
         if (profile == null) return
 
         this.lastSearchProfile = profile
-        val searchInteractor = SearchInteractor(profile, storageInteractor, nodesInteractor, recordsInteractor)
+        // TODO: to UseCase
+        val searchInteractor = SearchInteractor(profile, storageProvider, nodesInteractor, recordsInteractor)
 
         launch {
             log(getString(R.string.global_search_start).format(profile.query))
@@ -1362,6 +1446,21 @@ class MainViewModel(
 
     //region FileObserver
 
+    private fun setStorageTreeObserverCallbacks() {
+        with(storageTreeInteractor) {
+            treeChangedCallback = { event ->
+                // обработка внешнего изменения дерева записей
+                onStorageTreeOutsideChanged(event)
+            }
+            observerStartedCallback = {
+                isStorageTreeChangingHandled = true
+            }
+            observerStoppedCallback = {
+                isStorageTreeChangingHandled = false
+            }
+        }
+    }
+
     /**
      * Обработчик изменения структуры хранилища извне.
      */
@@ -1373,11 +1472,11 @@ class MainViewModel(
 
                 launch {
                     storageTreeInteractor.startStorageTreeObserver(
-                        storagePath = storageInteractor.getPathToMyTetraXml()
-                    ) { event ->
+                        storagePath = storagePathHelper.getPathToMyTetraXml()
+                    ) /*{ event ->
                         // обработка внешнего изменения дерева записей
                         onStorageTreeOutsideChanged(event)
-                    }
+                    }*/
                 }
             }
         } else {
@@ -1419,27 +1518,10 @@ class MainViewModel(
 
     fun saveMytetraXmlFromCurrentStorageTree() {
         launch {
-            if (storageInteractor.saveStorage(getContext())) {
+            if (saveStorage()) {
                 showMessage(R.string.mes_storage_tree_saved)
             }
             isStorageTreeChangingHandled = false
-        }
-    }
-
-    override fun onBeforeStorageTreeSave() {
-        isStorageTreeChangingHandled = true
-        storageTreeInteractor.stopStorageTreeObserver()
-    }
-
-    override fun onStorageTreeSaved() {
-        isStorageTreeChangingHandled = false
-        launch {
-            storageTreeInteractor.startStorageTreeObserver(
-                storagePath = storageInteractor.getPathToMyTetraXml()
-            ) { event ->
-                // обработка внешнего изменения дерева записей
-                onStorageTreeOutsideChanged(event)
-            }
         }
     }
 
@@ -1451,6 +1533,7 @@ class MainViewModel(
         launch {
             if (isStorageLoaded()) {
                 val params = StorageParams(
+                    storage = storage!!,
                     isLoadFavoritesOnly = isLoadedFavoritesOnly(),
                     isHandleReceivedIntent = true,
                     result = true
@@ -1555,7 +1638,7 @@ class MainViewModel(
         storageTreeInteractor.stopStorageTreeObserver()
 
         // удаляем загруженное хранилище из памяти
-        App.destruct()
+        storageProvider.resetStorage()
     }
 
     //endregion Main view
