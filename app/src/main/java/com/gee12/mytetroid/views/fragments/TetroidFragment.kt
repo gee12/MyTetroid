@@ -7,10 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.TetroidMessage
 
 abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTouchListener {
@@ -40,12 +38,8 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
         return inflater.inflate(resId, container, false)
     }
 
-    protected fun initViewModel() {
-        viewModel = ViewModelProvider(requireActivity(), TetroidViewModelFactory(requireActivity().application))
-            .get(getViewModelClazz())
+    protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))
-
-//        viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
     }
 
     /**

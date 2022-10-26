@@ -12,10 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
+import org.koin.android.ext.android.inject
 
 /**
  * Активность для управления настройками.
@@ -26,6 +27,8 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
     lateinit var optionsMenu: Menu
     private lateinit var lProgress: LinearLayout
     private lateinit var tvProgress: TextView
+
+    private val logger: ITetroidLogger by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         delegate.installViewFactory()
@@ -40,7 +43,7 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
 
         startDefaultFragment()
 
-        App.current?.logger?.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        logger.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
     protected abstract fun getLayoutResourceId(): Int

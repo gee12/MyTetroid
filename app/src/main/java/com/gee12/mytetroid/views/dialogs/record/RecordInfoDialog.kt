@@ -2,13 +2,12 @@ package com.gee12.mytetroid.views.dialogs.record
 
 import android.graphics.Color
 import android.view.View
-import android.widget.*
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import java.util.*
@@ -58,7 +57,7 @@ class RecordInfoDialog(
         (dialogView.findViewById<View>(R.id.text_view_created) as TextView).text =
             if (created != null) Utils.dateToString(created, dateFormat) else "-"
 
-        if (App.isFullVersion()) {
+        if (viewModel.appBuildHelper.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited).visibility = View.VISIBLE
             val edited: Date? = viewModel.recordsInteractor.getEditedDate(requireContext(), record!!)
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =

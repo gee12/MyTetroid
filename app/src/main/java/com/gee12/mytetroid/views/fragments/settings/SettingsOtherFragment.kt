@@ -42,7 +42,10 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == getString(R.string.pref_key_is_write_log)) {
             // меняем флаг
-            App.current?.logger?.init(CommonSettings.getLogPath(context), CommonSettings.isWriteLogToFile(context))
+            baseViewModel.logger.init(
+                path = CommonSettings.getLogPath(context).orEmpty(),
+                isWriteToFile = CommonSettings.isWriteLogToFile(context)
+            )
         }
     }
 

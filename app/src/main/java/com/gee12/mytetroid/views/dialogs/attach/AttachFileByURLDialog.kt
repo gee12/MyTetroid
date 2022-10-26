@@ -1,14 +1,11 @@
 package com.gee12.mytetroid.views.dialogs.attach
 
-import android.app.Dialog
-import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.lumyjuwon.richwysiwygeditor.R
-import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard
 
 class AttachFileByURLDialog(
     val callback: IAttachFileByURLResult

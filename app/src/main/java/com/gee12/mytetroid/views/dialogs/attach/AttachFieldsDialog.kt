@@ -1,10 +1,6 @@
 package com.gee12.mytetroid.views.dialogs.attach
 
-import android.app.Dialog
-import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
-import android.view.WindowManager
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.BuildConfig
@@ -14,7 +10,6 @@ import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
-import com.lumyjuwon.richwysiwygeditor.Utils.Keyboard
 import java.util.*
 import kotlin.math.abs
 

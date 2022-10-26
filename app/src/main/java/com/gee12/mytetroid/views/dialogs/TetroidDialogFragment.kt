@@ -17,11 +17,12 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
+import org.koin.android.ext.android.inject
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
@@ -32,7 +33,9 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     lateinit var dialogView: View
 
-    protected lateinit var viewModel: VM
+    private val _viewModel: BaseStorageViewModel by inject()
+    protected val viewModel: VM
+        get() = _viewModel as VM
 
     abstract fun getRequiredTag(): String
 
@@ -84,8 +87,6 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     }
 
     protected open fun initViewModel() {
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application, storageId))
-            .get(getViewModelClazz())
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 
         viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })

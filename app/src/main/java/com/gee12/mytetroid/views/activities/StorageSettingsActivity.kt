@@ -15,8 +15,8 @@ import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsF
 import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettingsFragment
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.TetroidMessage
+import org.koin.android.ext.android.inject
 
 /**
  * Активность для управления настройками хранилища.
@@ -24,7 +24,7 @@ import com.gee12.mytetroid.views.TetroidMessage
  */
 class StorageSettingsActivity : TetroidSettingsActivity() {
 
-    lateinit var viewModel: StorageSettingsViewModel
+    val viewModel: StorageSettingsViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,20 +32,13 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
     }
 
     fun initViewModel() {
-        viewModel = ViewModelProvider(
-            this, TetroidViewModelFactory(
-                app = application,
-                storageId = getStorageId()
-            )
-        )
-            .get(StorageSettingsViewModel::class.java)
 
-        viewModel.messageObservable.observe(this, {
+        viewModel.messageObservable.observe(this) {
             TetroidMessage.show(this, it)
-        })
-        viewModel.viewEvent.observe(this, { (event, data) -> onViewEvent(event, data) })
-        viewModel.storageEvent.observe(this, { (event, data) -> onStorageEvent(event, data) })
-        viewModel.updateStorageField.observe(this, { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) })
+        }
+        viewModel.viewEvent.observe(this) { (event, data) -> onViewEvent(event, data) }
+        viewModel.storageEvent.observe(this) { (event, data) -> onStorageEvent(event, data) }
+        viewModel.updateStorageField.observe(this) { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) }
 
     }
 

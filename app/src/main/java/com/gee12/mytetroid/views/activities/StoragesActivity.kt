@@ -24,14 +24,13 @@ import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import lib.folderpicker.FolderPicker
-import org.jsoup.internal.StringUtil
+import org.koin.java.KoinJavaComponent.get
 
 
 class StoragesActivity : TetroidActivity<StoragesViewModel>() {
@@ -50,7 +49,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
-        adapter = StoragesAdapter(this, currentStorageId = App.current?.storageData?.storageId)
+        adapter = StoragesAdapter(this, currentStorageId = viewModel.storage?.id)
         adapter.onItemClickListener = View.OnClickListener { v ->
             val itemPosition = recyclerView.getChildLayoutPosition(v!!)
             val item = adapter.getItem(itemPosition)
@@ -78,6 +77,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     override fun initViewModel() {
+        this.viewModel = get(StoragesViewModel::class.java)
         super.initViewModel()
         viewModel.storages.observe(this, { list -> showStoragesList(list) })
         viewModel.checkStoragesFilesExisting = true
@@ -141,22 +141,21 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun createStorageFiles(storage: TetroidStorage) {
-        val storageViewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
-            .get(StorageViewModel::class.java)
-        storageViewModel.viewEvent.observe(this, {
+        val storageViewModel: StorageViewModel = get(StorageViewModel::class.java)
+        storageViewModel.viewEvent.observe(this) {
             when (it.state) {
                 // проверка разрешения перед созданием файлов хранилища
                 ViewEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this)
                 ViewEvents.PermissionGranted -> storageViewModel.initStorage()
                 else -> Unit
             }
-        })
-        storageViewModel.storageEvent.observe(this, {
+        }
+        storageViewModel.storageEvent.observe(this) {
             when (it.state) {
                 StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
                 else -> Unit
             }
-        })
+        }
         storageViewModel.startInitStorage(storage)
     }
 
@@ -233,7 +232,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
      * @param menu
      * @return
      */
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.storages, menu)
         return true
     }

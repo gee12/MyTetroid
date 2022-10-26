@@ -7,24 +7,19 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import lib.folderpicker.FolderPicker
-import com.gee12.mytetroid.App
-import com.gee12.mytetroid.interactors.PermissionInteractor
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.views.TetroidMessage
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
+import lib.folderpicker.FolderPicker
+import org.koin.android.ext.android.inject
 
 open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
-    protected open lateinit var baseViewModel: CommonSettingsViewModel
-    protected open lateinit var permissionInteractor: PermissionInteractor
+    protected open val baseViewModel: CommonSettingsViewModel by inject()
 
     protected val application: Application
         get() = requireContext().applicationContext as Application
@@ -45,12 +40,8 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected open fun initViewModel() {
-        baseViewModel = ViewModelProvider(this, TetroidViewModelFactory(requireActivity().application, false))
-            .get(CommonSettingsViewModel::class.java)
         baseViewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
         baseViewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
-
-        permissionInteractor = PermissionInteractor(baseViewModel.logger)
     }
 
     open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
@@ -74,22 +65,21 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {}
 
     fun onSharedPreferenceChanged(key: String) {
-        onSharedPreferenceChanged(CommonSettings.getSettings(context), key)
+        onSharedPreferenceChanged(baseViewModel.commonSettingsProvider.getSettings(), key)
     }
 
     override fun onResume() {
         super.onResume()
-        CommonSettings.getSettings(context).registerOnSharedPreferenceChangeListener(this)
+        baseViewModel.commonSettingsProvider.getSettings().registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        CommonSettings.getSettings(context).unregisterOnSharedPreferenceChangeListener(this)
+        baseViewModel.commonSettingsProvider.getSettings().unregisterOnSharedPreferenceChangeListener(this)
     }
 
     protected fun openFolderPicker(title: String?, location: String, requestCode: Int) {
-        val path = if (location.isNotBlank()) location
-            else baseViewModel.getLastFolderPathOrDefault(true)
+        val path = location.ifBlank { baseViewModel.getLastFolderPathOrDefault(true) }
         val intent = Intent(context, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
@@ -108,7 +98,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
      * @param pref
      */
     protected fun disableIfFree(pref: Preference) {
-        if (App.isFullVersion()) {
+        if (baseViewModel.appBuildHelper.isFullVersion()) {
             pref.isEnabled = true
         } else {
             pref.isEnabled = false
@@ -140,7 +130,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun updateSummaryIfContains(@StringRes keyStringRes: Int, value: String?) {
-        if (CommonSettings.isContains(context, keyStringRes)) {
+        if (baseViewModel.commonSettingsProvider.isContains(keyStringRes)) {
             updateSummary(keyStringRes, value)
         }
     }

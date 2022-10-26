@@ -4,10 +4,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 
@@ -48,7 +47,7 @@ class AttachInfoDialog(
         )
         val dateFormat = getString(R.string.full_date_format_string)
 
-        if (App.isFullVersion()) {
+        if (viewModel.appBuildHelper.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited)?.visibility = View.VISIBLE
             val edited = viewModel.attachesInteractor.getEditedDate(requireContext(), attach)
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =

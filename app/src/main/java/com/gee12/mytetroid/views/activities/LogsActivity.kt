@@ -11,15 +11,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.views.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.viewmodels.LogsViewModel.*
 import com.gee12.mytetroid.views.TetroidMessage
+import org.koin.android.ext.android.inject
 import java.io.IOException
 
 /**
@@ -31,7 +30,7 @@ class LogsActivity : AppCompatActivity() {
     private lateinit var layoutError: LinearLayout
     private lateinit var textAdapter: TextAdapter
 
-    private lateinit var viewModel: LogsViewModel
+    private val viewModel: LogsViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +39,7 @@ class LogsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application, false))
-            .get(LogsViewModel::class.java)
+        viewModel.initialize()
 
         /*// убираем перенос слов, замедляющий работу
         if (Build.VERSION.SDK_INT >= 23) {

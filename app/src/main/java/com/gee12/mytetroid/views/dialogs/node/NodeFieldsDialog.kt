@@ -58,10 +58,10 @@ class NodeFieldsDialog(
             etName.setText(node.name)
         }
 
-        val parentNode = if (node != null && node != viewModel.storageDataProcessor.getRootNode()) {
+        val parentNode = if (node != null && node != viewModel.getRootNode()) {
             node.parentNode
         } else {
-            viewModel.storageDataProcessor.getRootNode()
+            viewModel.getRootNode()
         }
 
         //: NodesManager.getQuicklyNode();

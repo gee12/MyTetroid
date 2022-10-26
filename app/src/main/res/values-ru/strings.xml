@@ -546,8 +546,11 @@
     <string name="log_no_app_found_for_open_file">Не найдено подходящего приложения для открытия файла&#160;</string>
     <string name="log_no_app_found_for_share_text">Не найдено подходящего приложения для отправки текста</string>
     <string name="log_error_file_open">Ошибка открытия файла&#160;</string>
-    <string name="log_failed_storage_load">Не удалось загрузить хранилище:\n</string>
-    <string name="log_failed_storage_init">Не удалось инициализировать хранилище:\n</string>
+    <string name="log_failed_database_config_load_mask">Не удалось загрузить файл database.config:\n%s</string>
+    <string name="log_failed_storage_load_mask">Не удалось загрузить хранилище:\n%s</string>
+    <string name="log_failed_storage_init_mask">Не удалось инициализировать хранилище:\n%s</string>
+    <string name="log_failed_storage_read_mask">Не удалось прочитать файл mytetra.xml по пути:\n%s</string>
+    <string name="log_failed_storage_save_mask">Не удалось сохранить файл mytetra.xml по пути:\n%s</string>
     <string name="log_found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
     <string name="log_error_read_record_file">Ошибка чтения файла записи:&#160;</string>
@@ -587,7 +590,7 @@
     <string name="log_url_decode_error">Ошибка декодирования url:&#160;</string>
     <string name="log_before_record_save">Сохранение текста записи id=</string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
-    <string name="log_oper_start_mask">Начало %s %s</string>
+    <string name="log_oper_start_mask">Начало %1%s %2%s</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
 <!--    <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>-->
@@ -675,7 +678,7 @@
     <string name="log_mytetra_xml_was_saved">Структура хранилища сохранена в mytetra.xml</string>
 <!--    <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилища в mytetra.xml (подробнее в логах)</string>-->
     <string name="log_clear_storage_dir">Очистка каталога</string>
-    <string name="log_start_storage_creating">Начало создания хранилища:\n</string>
+    <string name="log_start_storage_creating_mask">Начало создания хранилища:\n%s</string>
     <string name="log_dir_is_missing">Каталог не существует</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="log_app_exit">Выход из приложения</string>

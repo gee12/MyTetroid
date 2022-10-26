@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.fragments;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -144,6 +146,11 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     }
 
     @Override
+    protected void initViewModel() {
+        viewModel = get(MainViewModel.class);
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -153,28 +160,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        checkViewModel();
-    }
-
-    private boolean checkViewModel() {
-        if (viewModel == null) {
-            if (getActivity() != null) {
-                App.restartApp(getActivity());
-            } else {
-                try {
-                    throw new Exception("MainPageFragment: MainActivity is null !!!");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return false;
-        }
-        return true;
-    }
 
     public void initListAdapters(Context context) {
         // список записей
@@ -232,9 +217,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * Возврат фрагмента в первоначальное состояние.
      */
     public void clearView() {
-        if (!checkViewModel()) {
-            return;
-        }
         viewModel.showMainView(Constants.MAIN_VIEW_NONE);
         lvRecords.setAdapter(null);
         lvAttaches.setAdapter(null);
@@ -250,9 +232,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
      * @param viewId
      */
     public void showRecords(List<TetroidRecord> records, int viewId) {
-        if (!checkViewModel()) {
-            return;
-        }
         viewModel.showMainView(viewId);
         tvRecordsEmpty.setText((viewId == Constants.MAIN_VIEW_FAVORITES)
                 ? R.string.title_favors_is_missing : R.string.title_records_is_missing);
@@ -548,7 +527,7 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     private void prepareRecordsContextMenu(@NonNull Menu menu, AdapterView.AdapterContextMenuInfo menuInfo) {
         if (menuInfo == null)
             return;
-        boolean isPro = App.INSTANCE.isFullVersion();
+        boolean isPro = viewModel.getAppBuildHelper().isFullVersion();
         boolean isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly();
         boolean isFavoritesView = (viewModel.getCurMainViewId() == Constants.MAIN_VIEW_FAVORITES);
         boolean isNonCrypted = false;

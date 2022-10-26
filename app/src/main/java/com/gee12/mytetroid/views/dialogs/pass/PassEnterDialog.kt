@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.views.dialogs.pass
 
-import android.app.Dialog
-import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import android.widget.EditText

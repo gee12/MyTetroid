@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.activities;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
@@ -41,6 +43,7 @@ import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.data.ICallback;
 import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
 import com.gee12.mytetroid.interactors.FavoritesInteractor;
+import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.logs.LogObj;
 import com.gee12.mytetroid.logs.LogOper;
 import com.gee12.mytetroid.logs.LogType;
@@ -221,7 +224,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         favoritesNode.setVisibility(View.GONE);
         btnLoadStorageNodes.setVisibility(View.GONE);
         btnLoadStorageTags.setVisibility(View.GONE);
-        if (App.INSTANCE.isFullVersion()) {
+        if (viewModel.getAppBuildHelper().isFullVersion()) {
             favoritesNode.setOnClickListener(v -> viewModel.showFavorites());
             View.OnClickListener listener = v -> viewModel.loadAllNodes(false);
             btnLoadStorageNodes.setOnClickListener(listener);
@@ -263,9 +266,13 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         CommonSettingsInteractor interactor = new CommonSettingsInteractor();
         interactor.createDefaultFolders(this);
 
-        CommonSettings.init(this, interactor);
+        viewModel = get(MainViewModel.class);
+        // TODO: koin:
+        viewModel.storageInteractor = get(StorageInteractor.class);
 
         super.initViewModel();
+
+        viewModel.getCommonSettingsProvider().init(this, interactor);
     }
 
     /**
@@ -585,9 +592,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         btnLoadStorageTags.setVisibility(loadButtonsVis);
         ViewUtils.setFabVisibility(fabCreateNode, isLoaded && !isOnlyFavorites);
         lvNodes.setVisibility((isOnlyFavorites) ? View.GONE : View.VISIBLE);
-        favoritesNode.setVisibility((isLoaded && App.INSTANCE.isFullVersion()) ? View.VISIBLE : View.GONE);
+        favoritesNode.setVisibility((isLoaded && viewModel.getAppBuildHelper().isFullVersion()) ? View.VISIBLE : View.GONE);
         tvNodesEmpty.setVisibility(View.GONE);
-        if (isLoaded && App.INSTANCE.isFullVersion()) {
+        if (isLoaded && viewModel.getAppBuildHelper().isFullVersion()) {
             updateFavoritesTitle();
         }
 
@@ -621,7 +628,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                 // списки записей, файлов
                 getMainPage().initListAdapters(this);
                 // список меток
-                setTagsDataItems(viewModel.getTags());
+                setTagsDataItems(viewModel.getTagsMap());
                 tvTagsEmpty.setText(R.string.log_tags_is_missing);
             } else {
                 setEmptyTextViews(R.string.title_storage_not_loaded);
@@ -670,7 +677,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
                     }
 
                     // список меток
-                    setTagsDataItems(viewModel.getTags());
+                    setTagsDataItems(viewModel.getTagsMap());
                     tvTagsEmpty.setText(R.string.log_tags_is_missing);
                 }
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing);
@@ -984,7 +991,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         viewModel.setCurNode(node);
         listAdapterNodes.setCurNode(node);
         listAdapterNodes.notifyDataSetChanged();
-        if (App.INSTANCE.isFullVersion()) {
+        if (viewModel.getAppBuildHelper().isFullVersion()) {
             setFavorIsCurNode(node == FavoritesInteractor.Companion.getFAVORITES_NODE());
         }
     }
@@ -1164,7 +1171,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     }
 
     private void setNodeIcon(TetroidNode node) {
-        IconsActivity.startIconsActivity(this, node, Constants.REQUEST_CODE_NODE_ICON);
+        IconsActivity.Companion.startIconsActivity(this, node, Constants.REQUEST_CODE_NODE_ICON);
     }
 
     /**
@@ -1361,7 +1368,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * Обновление списка меток.
      */
     public void updateTags() {
-        setTagsDataItems(viewModel.getTags());
+        setTagsDataItems(viewModel.getTagsMap());
     }
 
     /**
@@ -1581,7 +1588,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         popupMenu.inflate(R.menu.tag_context);
 
         Menu menu = popupMenu.getMenu();
-        visibleMenuItem(menu.findItem(R.id.action_rename), App.INSTANCE.isFullVersion());
+        visibleMenuItem(menu.findItem(R.id.action_rename), viewModel.getAppBuildHelper().isFullVersion());
 
         popupMenu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
@@ -2063,9 +2070,9 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         }
         Map<String, TetroidTag> tags;
         if (isSearch) {
-            tags = ScanManager.searchInTags(viewModel.getTags(), query);
+            tags = ScanManager.searchInTags(viewModel.getTagsMap(), query);
         } else {
-            tags = viewModel.getTags();
+            tags = viewModel.getTagsMap();
         }
         setTagsDataItems(tags);
         if (tags.isEmpty()) {

@@ -637,8 +637,11 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_no_app_found_for_open_file">No suitable application was found to open the file&#160;</string>
     <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
-    <string name="log_failed_storage_load">Failed to load storage:\n</string>
-    <string name="log_failed_storage_init">Failed to init storage:\n</string>
+    <string name="log_failed_database_config_load_mask">Failed to load database.config file:\n%s</string>
+    <string name="log_failed_storage_load_mask">Failed to load storage:\n%s</string>
+    <string name="log_failed_storage_init_mask">Failed to init storage:\n%s</string>
+    <string name="log_failed_storage_read_mask">Failed to read file mytetra.xml by path:\n%s</string>
+    <string name="log_failed_storage_save_mask">Failed to save file mytetra.xml by path:\n%s</string>
     <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
     <string name="log_error_read_record_file">Error reading record file:&#160;</string>
@@ -698,7 +701,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_create_record_dir_error">Record directory creating failed</string>
     <string name="log_check_record_dir_error">Record directory checking failed</string>
     <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
-    <string name="log_file_is_absent">File is absent:</string>
+    <string name="log_file_is_absent">File is absent:&#160;</string>
     <string name="log_file_checking_error">Error checking file existence:</string>
     <!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
     <!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
@@ -768,7 +771,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_mytetra_xml_was_saved">Storage structure saved in mytetra.xml</string>
 <!--    <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>-->
     <string name="log_clear_storage_dir">Clear storage folder</string>
-    <string name="log_start_storage_creating">Start storage creating:\n</string>
+    <string name="log_start_storage_creating_mask">Start storage creating:\n%s</string>
     <string name="log_dir_is_missing">Folder is missing</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
     <string name="log_app_exit">Exit from app</string>

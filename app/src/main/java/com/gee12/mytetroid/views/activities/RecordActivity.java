@@ -3,6 +3,8 @@ package com.gee12.mytetroid.views.activities;
 import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.focusAndShowKeyboard;
 import static com.gee12.mytetroid.common.extensions.ViewExtensionsKt.hideKeyboard;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -193,6 +195,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
 
     @Override
     protected void initViewModel() {
+        viewModel = get(RecordViewModel.class);
         super.initViewModel();
         viewModel.getCurRecord().observe(this, it -> viewModel.openRecord(it));
     }
@@ -465,7 +468,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
         Date created = record.getCreated();
         tvCreated.setText((created != null) ? Utils.dateToString(created, dateFormat) : "");
 
-        if (App.INSTANCE.isFullVersion()) {
+        if (viewModel.getAppBuildHelper().isFullVersion()) {
             (findViewById(R.id.label_record_edited)).setVisibility(View.VISIBLE);
             TextView tvEdited = findViewById(R.id.text_view_record_edited);
             tvEdited.setVisibility(View.VISIBLE);

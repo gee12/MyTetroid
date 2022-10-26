@@ -22,7 +22,6 @@ import com.gee12.mytetroid.views.activities.StorageSettingsActivity.Companion.ne
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.ActivityDoubleTapListener
-import com.gee12.mytetroid.viewmodels.factory.TetroidViewModelFactory
 import com.gee12.mytetroid.common.Constants.ViewEvents
 import com.gee12.mytetroid.common.Constants.StorageEvents
 import com.gee12.mytetroid.R
@@ -71,6 +70,17 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
 
     protected abstract fun getViewModelClazz(): Class<VM>
     protected abstract fun getLayoutResourceId(): Int
+
+    protected open fun initViewModel() {
+        viewModel.initialize()
+
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        viewModel.viewEvent.observe(this) { (state, data) -> onViewEvent(state, data) }
+        viewModel.storageEvent.observe(this) { (state, data) -> onStorageEvent(state, data) }
+        viewModel.objectAction.observe(this) { (state, data) -> onObjectEvent(state, data) }
+        viewModel.messageObservable.observe(this) { message: Message? -> onMessage(message) }
+    }
+
     protected open fun getStorageId(): Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,18 +108,6 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         initViewModel()
     }
 
-
-
-    protected open fun initViewModel() {
-        viewModel = ViewModelProvider(this, TetroidViewModelFactory(application, getStorageId()))
-            .get(getViewModelClazz())
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
-        viewModel.viewEvent.observe(this, { (state, data) -> onViewEvent(state, data) })
-        viewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
-        viewModel.objectAction.observe(this, { (state, data) -> onObjectEvent(state, data) })
-        viewModel.messageObservable.observe(this, { message: Message? -> onMessage(message) })
-    }
-
     /**
      * Установка пометки, что обработчик OnCreate был вызван, и можно вызвать другие обработчики,
      * следующие за ним (а не вразнобой на разных устройствах).
@@ -117,7 +115,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
     protected fun afterOnCreate() {
         isOnCreateProcessed = true
         if (optionsMenu != null) {
-            onCreateOptionsMenu(optionsMenu)
+            onCreateOptionsMenu(optionsMenu!!)
             onPrepareOptionsMenu(optionsMenu)
         }
     }

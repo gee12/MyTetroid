@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.preference.Preference
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -44,7 +43,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
             }
             true
         }
-        if (App.isFullVersion()) {
+        if (baseViewModel.appBuildHelper.isFullVersion()) {
             keepNodePref.dependency = getString(R.string.pref_key_is_load_favorites)
         }
 

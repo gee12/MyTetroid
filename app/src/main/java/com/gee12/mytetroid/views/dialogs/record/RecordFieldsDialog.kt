@@ -4,9 +4,11 @@ import android.content.DialogInterface
 import android.text.InputType
 import android.text.TextUtils
 import android.view.View
-import android.widget.*
+import android.widget.CheckedTextView
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
@@ -69,8 +71,11 @@ class RecordFieldsDialog(
         }
 
         val curRecordNode = record?.node
-        recordNode = if (curRecordNode != null && curRecordNode !== viewModel.storageDataProcessor.getRootNode()) curRecordNode
-            else node
+        recordNode = if (curRecordNode != null && curRecordNode != viewModel.getRootNode()) {
+            curRecordNode
+        } else {
+            node
+        }
         if (record != null) {
             etName.setText(record.name)
             etAuthor.setText(record.author)
@@ -83,7 +88,7 @@ class RecordFieldsDialog(
             etNode.setText(if (recordNode != null) recordNode?.name else getString(R.string.title_select_node))
             etNode.inputType = InputType.TYPE_NULL
         }
-        if (App.isFullVersion()) {
+        if (viewModel.appBuildHelper.isFullVersion()) {
             ctvFavor.visibility = View.VISIBLE
             ctvFavor.isChecked = record != null && record.isFavorite
             ctvFavor.setOnClickListener { ctvFavor.isChecked = !ctvFavor.isChecked }

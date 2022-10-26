@@ -18,6 +18,7 @@ import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile
+import org.koin.java.KoinJavaComponent.get
 
 /**
  * Аквтивность для настройки параметров глобального поиска.
@@ -104,6 +105,7 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
     }
 
     override fun initViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
         super.initViewModel()
         viewModel.storageEvent.observe(this, { (event, data) -> onStorageEvent(event, data) })
     }

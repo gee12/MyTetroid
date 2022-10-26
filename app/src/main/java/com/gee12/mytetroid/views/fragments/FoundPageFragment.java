@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.views.fragments;
 
+import static org.koin.java.KoinJavaComponent.get;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -70,6 +72,11 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
         view.findViewById(R.id.button_close).setOnClickListener(view1 -> viewModel.closeFoundFragment());
 
         return view;
+    }
+
+    @Override
+    protected void initViewModel() {
+        viewModel = get(MainViewModel.class);
     }
 
     public void setFounds(HashMap<ITetroidObject, FoundType> found, SearchProfile profile) {
