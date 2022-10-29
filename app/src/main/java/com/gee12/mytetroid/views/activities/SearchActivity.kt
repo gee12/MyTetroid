@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -18,6 +19,7 @@ import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile
+import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.get
 
 /**
@@ -107,12 +109,15 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
     override fun initViewModel() {
         this.viewModel = get(StorageViewModel::class.java)
         super.initViewModel()
-        viewModel.storageEvent.observe(this, { (event, data) -> onStorageEvent(event, data) })
+        lifecycleScope.launch {
+            viewModel.storageEventFlow.collect { (event, data) -> onStorageEvent(event, data) }
+        }
     }
 
     override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
         when (event) {
             Constants.StorageEvents.Inited -> onStorageInited()
+            else -> {}
         }
     }
 

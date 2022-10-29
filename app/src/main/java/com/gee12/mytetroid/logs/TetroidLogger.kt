@@ -209,6 +209,7 @@ class TetroidLogger(
             }
             Stages.SUCCESS -> return logOperRes(stage.obj, stage.oper, "", false)
             Stages.FAILED -> return logDuringOperErrors(stage.obj, stage.oper, false)
+            else -> {}
         }
         return null
     }

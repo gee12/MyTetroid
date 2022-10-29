@@ -14,7 +14,7 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.views.activities.StoragesActivity.Companion.start
@@ -35,6 +35,7 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import lib.folderpicker.FolderPicker
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.TetroidMessage
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 abstract class TetroidActivity<VM : BaseStorageViewModel>
@@ -75,9 +76,15 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         viewModel.initialize()
 
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
-        viewModel.viewEvent.observe(this) { (state, data) -> onViewEvent(state, data) }
-        viewModel.storageEvent.observe(this) { (state, data) -> onStorageEvent(state, data) }
-        viewModel.objectAction.observe(this) { (state, data) -> onObjectEvent(state, data) }
+        lifecycleScope.launch {
+            viewModel.viewEventFlow.collect { (state, data) -> onViewEvent(state, data) }
+        }
+        lifecycleScope.launch {
+            viewModel.storageEventFlow.collect { (state, data) -> onStorageEvent(state, data) }
+        }
+        lifecycleScope.launch {
+            viewModel.objectEventFlow.collect { (state, data) -> onObjectEvent(state, data) }
+        }
         viewModel.messageObservable.observe(this) { message: Message? -> onMessage(message) }
     }
 
@@ -140,6 +147,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
             }
             ViewEvents.ShowProgressText -> setProgressText(data as String?)
             ViewEvents.ShowPermissionRequest -> showPermissionRequest(data as PermissionRequestParams)
+            else -> {}
         }
     }
 
@@ -154,6 +162,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
             StorageEvents.Inited -> afterStorageInited()
             StorageEvents.Loaded -> afterStorageLoaded(data as Boolean)
             StorageEvents.Decrypted -> afterStorageDecrypted(data as TetroidNode)
+            else -> {}
         }
     }
 

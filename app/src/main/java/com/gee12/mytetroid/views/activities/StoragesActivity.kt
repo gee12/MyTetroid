@@ -10,12 +10,11 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.StorageEvents
@@ -29,6 +28,7 @@ import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.launch
 import lib.folderpicker.FolderPicker
 import org.koin.java.KoinJavaComponent.get
 
@@ -142,18 +142,22 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun createStorageFiles(storage: TetroidStorage) {
         val storageViewModel: StorageViewModel = get(StorageViewModel::class.java)
-        storageViewModel.viewEvent.observe(this) {
-            when (it.state) {
-                // проверка разрешения перед созданием файлов хранилища
-                ViewEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this)
-                ViewEvents.PermissionGranted -> storageViewModel.initStorage()
-                else -> Unit
+        lifecycleScope.launch {
+            storageViewModel.viewEventFlow.collect {
+                when (it.state) {
+                    // проверка разрешения перед созданием файлов хранилища
+                    ViewEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this@StoragesActivity)
+                    ViewEvents.PermissionGranted -> storageViewModel.initStorage()
+                    else -> Unit
+                }
             }
         }
-        storageViewModel.storageEvent.observe(this) {
-            when (it.state) {
-                StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
-                else -> Unit
+        lifecycleScope.launch {
+            storageViewModel.storageEventFlow.collect {
+                when (it.state) {
+                    StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
+                    else -> Unit
+                }
             }
         }
         storageViewModel.startInitStorage(storage)

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.R
@@ -14,6 +15,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.views.TetroidMessage
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
+import kotlinx.coroutines.launch
 import lib.folderpicker.FolderPicker
 import org.koin.android.ext.android.inject
 
@@ -40,8 +42,10 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected open fun initViewModel() {
-        baseViewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(activity, it) })
-        baseViewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
+        baseViewModel.messageObservable.observe(requireActivity()) { TetroidMessage.show(activity, it) }
+        lifecycleScope.launch {
+            baseViewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+        }
     }
 
     open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {

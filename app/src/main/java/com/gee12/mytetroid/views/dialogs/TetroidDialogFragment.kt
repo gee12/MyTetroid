@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -22,6 +22,7 @@ import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
@@ -89,13 +90,17 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 
-        viewModel.messageObservable.observe(requireActivity(), { TetroidMessage.show(requireActivity(), it) })
-        viewModel.viewEvent.observe(requireActivity(), { (event, data) -> onViewEvent(event, data) })
+        viewModel.messageObservable.observe(requireActivity()) { TetroidMessage.show(requireActivity(), it) }
+        lifecycleScope.launch {
+            viewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+        }
 
         // для диалогов, которым необходимо хранилище
         if (viewModel is StorageViewModel) {
             val storageViewModel = viewModel as StorageViewModel
-            storageViewModel.storageEvent.observe(this, { (state, data) -> onStorageEvent(state, data) })
+            lifecycleScope.launch {
+                storageViewModel.storageEventFlow.collect { (state, data) -> onStorageEvent(state, data) }
+            }
             storageViewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
         }
     }
@@ -114,6 +119,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     open fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
         when (event) {
             Constants.StorageEvents.Inited -> onStorageInited()
+            else -> {}
         }
     }
 

@@ -36,7 +36,7 @@ class LogsViewModel(
     val event = SingleLiveEvent<ViewModelEvent<Event, Any>>()
 
     fun load() {
-        launch {
+        launchOnMain {
             if (CommonSettings.isWriteLogToFile(getContext())) {
                 // читаем лог-файл
                 log(R.string.log_open_log_file)
@@ -44,7 +44,7 @@ class LogsViewModel(
 
                 if (logger.fullFileName == null) {
                     postEvent(Event.PostLoading, FileReadResult.Failure(getString(R.string.error_log_file_path_is_null)))
-                    return@launch
+                    return@launchOnMain
                 }
 
                 try {

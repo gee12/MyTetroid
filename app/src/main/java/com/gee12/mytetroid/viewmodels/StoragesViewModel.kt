@@ -12,8 +12,6 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class StoragesViewModel(
     app: Application,
@@ -44,7 +42,7 @@ class StoragesViewModel(
     var checkStoragesFilesExisting: Boolean = false
 
     fun loadStorages() {
-        launch(Dispatchers.IO) {
+        launchOnIo {
             val storages = storagesInteractor.getStorages()
                 .onEach {
                     if (checkStoragesFilesExisting) checkStorageFilesExisting(it)
@@ -58,8 +56,8 @@ class StoragesViewModel(
     }
 
     fun setDefault(storage: TetroidStorage) {
-        launch(Dispatchers.IO) {
-            if (storagesInteractor.setIsDefault(storage)) {
+        launchOnMain {
+            if (withIo { storagesInteractor.setIsDefault(storage) }) {
                 log(getString(R.string.log_storage_set_is_default_mask).format(storage.name), true)
                 loadStorages()
             } else {
@@ -75,7 +73,9 @@ class StoragesViewModel(
         } else {
             // проверка разрешения перед диалогом добавления хранилища
             checkWriteExtStoragePermission(activity) {
-                postEvent(Event.ShowAddNewStorageDialog)
+                launchOnMain {
+                    this@StoragesViewModel.sendEvent(Event.ShowAddNewStorageDialog)
+                }
             }
         }
     }
@@ -84,11 +84,11 @@ class StoragesViewModel(
         // заполняем поля настройками по-умолчанию
         storagesInteractor.initStorage(getContext(), storage)
 
-        launch(Dispatchers.IO) {
-            if (storagesInteractor.addStorage(storage)) {
+        launchOnMain {
+            if (withIo { storagesInteractor.addStorage(storage) }) {
                 log(getString(R.string.log_storage_added_mask).format(storage.name), true)
                 loadStorages()
-                postStorageEvent(Constants.StorageEvents.Added, storage)
+                this@StoragesViewModel.sendStorageEvent(Constants.StorageEvents.Added, storage)
             } else {
                 logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
             }
@@ -96,8 +96,8 @@ class StoragesViewModel(
     }
 
     fun deleteStorage(storage: TetroidStorage) {
-        launch(Dispatchers.IO) {
-            if (storagesInteractor.deleteStorage(storage)) {
+        launchOnMain {
+            if (withIo { storagesInteractor.deleteStorage(storage) }) {
                 log(getString(R.string.log_storage_deleted_mask).format(storage.name), true)
                 loadStorages()
             } else {

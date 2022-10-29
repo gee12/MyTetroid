@@ -81,7 +81,7 @@ class CommonSettingsViewModel(
     }
 
     fun clearTrashFolders() {
-        launch {
+        launchOnMain {
             when (trashInteractor.clearTrashFoldersIfNeeded(/*false*/)) {
                 TrashInteractor.TrashClearResult.SUCCESS -> {
                     log(R.string.title_trash_cleared, true)

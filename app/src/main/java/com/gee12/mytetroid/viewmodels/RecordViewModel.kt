@@ -21,7 +21,6 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.views.activities.MainActivity
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -29,12 +28,10 @@ import java.util.*
 import androidx.annotation.MainThread
 import com.gee12.mytetroid.data.crypt.IEncryptHelper
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
@@ -125,10 +122,11 @@ class RecordViewModel(
 
     //region Migration
 
-    @MainThread
     fun checkMigration() {
         if (isNeedMigration()) {
-            setEvent(RecordEvents.NeedMigration)
+            launchOnMain {
+                sendEvent(RecordEvents.NeedMigration)
+            }
         }
     }
 
@@ -147,7 +145,9 @@ class RecordViewModel(
                 initRecordFromWidget()
             }
             else -> {
-                postViewEvent(Constants.ViewEvents.FinishActivity)
+                launchOnMain {
+                    this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishActivity)
+                }
             }
         }
     }
@@ -164,7 +164,9 @@ class RecordViewModel(
             if (isSaveTempAfterStorageLoaded) {
                 isSaveTempAfterStorageLoaded = false
                 // сохраняем временную запись
-                postEvent(RecordEvents.EditFields, resultObj)
+                launchOnMain {
+                    this@RecordViewModel.sendEvent(RecordEvents.EditFields, resultObj)
+                }
             }
         }
     }
@@ -181,30 +183,29 @@ class RecordViewModel(
     /**
      * Событие окончания загрузки страницы.
      */
-    @UiThread
     fun onPageLoaded() {
-        launch {
-            if (isFirstLoad) {
-                isFirstLoad = false
-                // переключаем режим отображения
-                val defMode = if (
-                    curRecord.value!!.isNew
-                    || isReceivedImages
-                    || CommonSettings.isRecordEditMode(getContext())
-                ) Constants.MODE_EDIT
-                else Constants.MODE_VIEW
+        if (isFirstLoad) {
+            isFirstLoad = false
+            // переключаем режим отображения
+            val defMode = if (
+                curRecord.value!!.isNew
+                || isReceivedImages
+                || CommonSettings.isRecordEditMode(getContext())
+            ) Constants.MODE_EDIT
+            else Constants.MODE_VIEW
 
-                // сбрасываем флаг, т.к. уже воспользовались
-                curRecord.value!!.setIsNew(false)
-                switchMode(defMode)
+            // сбрасываем флаг, т.к. уже воспользовались
+            curRecord.value!!.setIsNew(false)
+            switchMode(defMode)
 
-                /*if (defMode == MODE_EDIT) {
-                ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
+            /*if (defMode == MODE_EDIT) {
+            ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
 //                Keyboard.showKeyboard(mEditor);
-            }*/
-            } else {
-                // переключаем только views
-                setEvent(RecordEvents.SwitchViews, curMode)
+        }*/
+        } else {
+            // переключаем только views
+            launchOnMain {
+                sendEvent(RecordEvents.SwitchViews, curMode)
             }
         }
     }
@@ -242,6 +243,7 @@ class RecordViewModel(
         try {
             url = URLDecoder.decode(url, "UTF-8")
         } catch (e: UnsupportedEncodingException) {
+
         }
         // удаляем baseUrl из строки адреса
         if (baseUrl != null && url.startsWith(baseUrl)) {
@@ -287,7 +289,9 @@ class RecordViewModel(
             }
         } ?: run {
             // обрабатываем внешнюю ссылку
-            postEvent(RecordEvents.OpenWebLink, url)
+            launchOnMain {
+                this@run.sendEvent(RecordEvents.OpenWebLink, url)
+            }
         }
     }
 
@@ -325,7 +329,7 @@ class RecordViewModel(
      * @return
      */
     private fun initRecordFromStorage(intent: Intent) {
-        launch {
+        launchOnMain {
             // получаем переданную запись
             val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
             if (recordId != null) {
@@ -347,11 +351,11 @@ class RecordViewModel(
                     }
                 } else {
                     logError(getString(R.string.log_not_found_record) + recordId, true)
-                    setViewEvent(Constants.ViewEvents.FinishActivity)
+                    sendViewEvent(Constants.ViewEvents.FinishActivity)
                 }
             } else {
                 logError(getString(R.string.log_not_transferred_record_id), true)
-                setViewEvent(Constants.ViewEvents.FinishActivity)
+                sendViewEvent(Constants.ViewEvents.FinishActivity)
             }
         }
     }
@@ -361,8 +365,8 @@ class RecordViewModel(
      * @return
      */
     private fun initRecordFromWidget() {
-        launch {
-            setViewEvent(Constants.ViewEvents.ShowHomeButton, false)
+        launchOnMain {
+            sendViewEvent(Constants.ViewEvents.ShowHomeButton, false)
 
             // создаем временную запись
             val node = quicklyNode ?: storageProvider.getRootNode()
@@ -374,7 +378,7 @@ class RecordViewModel(
                 setTitle(record.name)
             } else {
                 logOperError(LogObj.RECORD, LogOper.CREATE, true)
-                setViewEvent(Constants.ViewEvents.FinishActivity)
+                sendViewEvent(Constants.ViewEvents.FinishActivity)
             }
         }
     }
@@ -384,14 +388,16 @@ class RecordViewModel(
      * @param record
      */
     fun openRecord(record: TetroidRecord) {
-        log(getString(R.string.log_record_loading) + record.id)
-        setEvent(RecordEvents.LoadFields, record)
-        // текст
-        loadRecordTextFromFile(record)
+        launchOnMain {
+            log(getString(R.string.log_record_loading) + record.id)
+            sendEvent(RecordEvents.LoadFields, record)
+            // текст
+            loadRecordTextFromFile(record)
+        }
     }
 
     private fun loadRecordTextFromFile(record: TetroidRecord) {
-        launch {
+        launchOnMain {
             var text: String? = null
             if (!record.isNew) {
                 text = withContext(Dispatchers.IO) {
@@ -400,11 +406,11 @@ class RecordViewModel(
                 if (text == null) {
                     if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
                         logError(R.string.log_error_record_file_decrypting)
-                        setViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                        sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
                     }
                 }
             }
-            setEvent(RecordEvents.LoadRecordTextFromFile, text)
+            sendEvent(RecordEvents.LoadRecordTextFromFile, text)
         }
     }
 
@@ -423,7 +429,9 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherRecord(resObj.id) })
-            postEvent(RecordEvents.AskForLoadAllNodes, resObj)
+            launchOnMain {
+                this@RecordViewModel.sendEvent(RecordEvents.AskForLoadAllNodes, resObj)
+            }
         } else {
             showAnotherRecord(resObj.id)
         }
@@ -436,7 +444,9 @@ class RecordViewModel(
             bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
         }
 //        finishWithResult(RESULT_OPEN_RECORD, bundle)
-        postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_RECORD, bundle))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_RECORD, bundle))
+        }
     }
 
     /**
@@ -450,7 +460,9 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { showAnotherNodeDirectly(resObj.id) })
-            postEvent(RecordEvents.AskForLoadAllNodes, resObj)
+            launchOnMain {
+                this@RecordViewModel.sendEvent(RecordEvents.AskForLoadAllNodes, resObj)
+            }
         } else {
             showAnotherNodeDirectly(resObj.id)
         }
@@ -460,7 +472,9 @@ class RecordViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, id)
 //        finishWithResult(RESULT_OPEN_NODE, bundle)
-        postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_NODE, bundle))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_OPEN_NODE, bundle))
+        }
     }
 
     /**
@@ -474,7 +488,9 @@ class RecordViewModel(
         if (isLoadedFavoritesOnly()) {
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { openTagDirectly(tagName) })
-            postEvent(RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
+            launchOnMain {
+                this@RecordViewModel.sendEvent(RecordEvents.AskForLoadAllNodes, ResultObj(ResultObj.OPEN_TAG, tagName))
+            }
         } else {
             openTagDirectly(tagName)
         }
@@ -487,7 +503,9 @@ class RecordViewModel(
             bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
         }
 //        finishWithResult(RESULT_SHOW_TAG, bundle)
-        postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_TAG, bundle))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_TAG, bundle))
+        }
     }
 
     /**
@@ -504,8 +522,8 @@ class RecordViewModel(
     fun saveImages(imageUris: List<Uri>, isCamera: Boolean) {
         if (imageUris.isEmpty()) return
 
-        launch {
-            postEvent(if (isCamera) RecordEvents.StartCaptureCamera else RecordEvents.StartLoadImages)
+        launchOnMain {
+            this@RecordViewModel.sendEvent(if (isCamera) RecordEvents.StartCaptureCamera else RecordEvents.StartLoadImages)
 
             var errorCount = 0
             val savedImages: MutableList<TetroidImage> = ArrayList()
@@ -520,68 +538,91 @@ class RecordViewModel(
             }
             if (errorCount > 0) {
                 logWarning(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount))
-                postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
             }
 
-            postEvent(RecordEvents.InsertImages, savedImages)
+            this@RecordViewModel.sendEvent(RecordEvents.InsertImages, savedImages)
         }
     }
 
     fun saveImage(imageUri: Uri, deleteSrcFile: Boolean) {
-        launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, imageUri, deleteSrcFile)
+        launchOnMain {
+            val savedImage = withIo {
+                imagesInteractor.saveImage(
+                    context = getContext(),
+                    record = curRecord.value!!,
+                    srcUri = imageUri,
+                    deleteSrcFile = deleteSrcFile
+                )
+            }
             saveImage(savedImage)
         }
     }
 
     fun saveImage(bitmap: Bitmap) {
-        launch {
-            val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, bitmap)
+        launchOnMain {
+            val savedImage = withIo {
+                imagesInteractor.saveImage(
+                    context = getContext(),
+                    record = curRecord.value!!,
+                    bitmap = bitmap
+                )
+            }
             saveImage(savedImage)
         }
     }
 
     private fun saveImage(image: TetroidImage?) {
-        if (image != null) {
+        launchOnMain {
+            if (image != null) {
 //            mEditor.insertImage(image)
-            postEvent(RecordEvents.InsertImages, listOf(image))
-        } else {
-            logOperError(LogObj.IMAGE, LogOper.SAVE, true)
-            postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                this@RecordViewModel.sendEvent(RecordEvents.InsertImages, listOf(image))
+            } else {
+                logOperError(LogObj.IMAGE, LogOper.SAVE, true)
+                this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+            }
         }
     }
 
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
-        launch {
-            postViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_page_downloading))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_page_downloading))
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String?, isTextOnly: Boolean) {
+                    launchOnMain {
 //                    mEditor.insertWebPageContent(content, isTextOnly)
-                    if (isTextOnly) postEvent(RecordEvents.InsertWebPageText)
-                    else postEvent(RecordEvents.InsertWebPageContent)
-                    postViewEvent(Constants.ViewEvents.ShowProgress, false)
+                        if (isTextOnly) this@RecordViewModel.sendEvent(RecordEvents.InsertWebPageText)
+                        else this@RecordViewModel.sendEvent(RecordEvents.InsertWebPageContent)
+                        this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
-                    logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
-                    postViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    launchOnMain {
+                        logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
+                        this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    }
                 }
             })
         }
     }
 
     fun downloadImage(url: String?) {
-        launch {
-            postViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_image_downloading))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgressText, getString(R.string.title_image_downloading))
             NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
                 override fun onSuccess(bitmap: Bitmap) {
-                    saveImage(bitmap)
-                    postViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    launchOnMain {
+                        saveImage(bitmap)
+                        this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
-                    logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                    postViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    launchOnMain {
+                        logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
+                        this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowProgress, false)
+                    }
                 }
             })
         }
@@ -617,24 +658,29 @@ class RecordViewModel(
 //    }
 
     private fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
-        postViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
-        launch {
-            withContext(Dispatchers.IO) {
-                val attach = attachesInteractor.attachFile(getContext(), fileFullName, record, deleteSrcFile)
-                postViewEvent(Constants.ViewEvents.TaskFinished)
-                if (attach != null) {
-                    log(getString(R.string.log_file_was_attached), true)
-                    postEvent(RecordEvents.FileAttached, attach)
-                } else {
-                    logError(getString(R.string.log_files_attach_error), true)
-                    postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
-                }
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
+            val attach = withIo {
+                attachesInteractor.attachFile(
+                    context = getContext(),
+                    fullName = fileFullName,
+                    record = record,
+                    deleteSrcFile = deleteSrcFile
+                )
+            }
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.TaskFinished)
+            if (attach != null) {
+                log(getString(R.string.log_file_was_attached), true)
+                this@RecordViewModel.sendEvent(RecordEvents.FileAttached, attach)
+            } else {
+                logError(getString(R.string.log_files_attach_error), true)
+                this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
             }
         }
     }
 
     fun downloadAndAttachFile(uri: Uri) {
-        launch {
+        launchOnMain {
             super.downloadFileToCache(uri.toString(), object : IDownloadFileResult {
                 override fun onSuccess(uri: Uri) {
                     attachFile(uri, true)
@@ -654,7 +700,9 @@ class RecordViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, record.id)
 //        finishWithResult(RESULT_SHOW_ATTACHES, bundle)
-        postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_ATTACHES, bundle))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_SHOW_ATTACHES, bundle))
+        }
     }
 
     /**
@@ -686,7 +734,8 @@ class RecordViewModel(
         var runBeforeSaving = false
         if (isNeedSave
             && CommonSettings.isRecordAutoSave(getContext())
-            && !curRecord.value!!.isTemp) {
+            && !curRecord.value!!.isTemp
+        ) {
             // автоматически сохраняем текст записи, если:
             //  * есть изменения
             //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
@@ -700,14 +749,16 @@ class RecordViewModel(
             modeToSwitch = newMode
             return
         }
-        // перезагружаем html-текст записи в webView, если был режим редактирования HTML
-        if (oldMode == Constants.MODE_HTML) {
-            setEvent(RecordEvents.LoadRecordTextFromHtml)
-        } else {
-            setEvent(RecordEvents.SwitchViews, newMode)
+        launchOnMain {
+            // перезагружаем html-текст записи в webView, если был режим редактирования HTML
+            if (oldMode == Constants.MODE_HTML) {
+                sendEvent(RecordEvents.LoadRecordTextFromHtml)
+            } else {
+                sendEvent(RecordEvents.SwitchViews, newMode)
+            }
+            curMode = newMode
+            sendViewEvent(Constants.ViewEvents.UpdateOptionsMenu)
         }
-        curMode = newMode
-        setViewEvent(Constants.ViewEvents.UpdateOptionsMenu)
     }
 
     //endregion Mode
@@ -727,7 +778,9 @@ class RecordViewModel(
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
-                postEvent(RecordEvents.AskForSaving, obj)
+                launchOnMain {
+                    this@RecordViewModel.sendEvent(RecordEvents.AskForSaving, obj)
+                }
                 return true
             }
         }
@@ -753,12 +806,16 @@ class RecordViewModel(
      */
     private fun saveRecord(callBefore: Boolean, obj: ResultObj?): Boolean {
         if (callBefore) {
-            postEvent(RecordEvents.BeforeSaving)
+            launchOnMain {
+                this@RecordViewModel.sendEvent(RecordEvents.BeforeSaving)
+            }
             return true
         } else {
             if (curRecord.value!!.isTemp) {
                 if (isStorageLoaded()) {
-                    postEvent(RecordEvents.EditFields, obj)
+                    launchOnMain {
+                        this@RecordViewModel.sendEvent(RecordEvents.EditFields, obj)
+                    }
                 } else {
                     isSaveTempAfterStorageLoaded = true
                     loadStorage()
@@ -774,7 +831,9 @@ class RecordViewModel(
 
     private fun saveRecord() {
         // запрашиваем у View html-текст записи и сохраняем
-        postEvent(RecordEvents.Save)
+        launchOnMain {
+            this@RecordViewModel.sendEvent(RecordEvents.Save)
+        }
     }
 
     /**
@@ -801,7 +860,9 @@ class RecordViewModel(
             val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
 //            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
             val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
-            postEvent(RecordEvents.EditedDateChanged, editedDate)
+            launchOnMain {
+                this@RecordViewModel.sendEvent(RecordEvents.EditedDateChanged, editedDate)
+            }
         }
     }
 
@@ -814,22 +875,22 @@ class RecordViewModel(
         if (resObj == null) {
             resObj = ResultObj(null)
         }
-        launch {
-            when (resObj.type) {
-                ResultObj.EXIT,
-                ResultObj.START_MAIN_ACTIVITY ->
-                    if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
-                        postViewEvent(Constants.ViewEvents.FinishActivity)
+        when (resObj.type) {
+            ResultObj.EXIT,
+            ResultObj.START_MAIN_ACTIVITY ->
+                if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
+                    launchOnMain {
+                        this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishActivity)
                     }
-                ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
-                ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
-                ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
-                ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
-                ResultObj.NONE -> if (resObj.needReloadText) {
-                    // перезагружаем baseUrl в WebView
-//                loadRecordText(mRecord, false)
-                    loadRecordTextFromFile(curRecord.value!!)
                 }
+            ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
+            ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
+            ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
+            ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
+            ResultObj.NONE -> if (resObj.needReloadText) {
+                // перезагружаем baseUrl в WebView
+//                loadRecordText(mRecord, false)
+                loadRecordTextFromFile(curRecord.value!!)
             }
         }
     }
@@ -841,31 +902,36 @@ class RecordViewModel(
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
-    @MainThread
     private fun onRecordFieldsIsEdited(startMainActivity: Boolean): Boolean {
         if (isFieldsEdited) {
             when {
 //                ActivityCompat.getReferrer()
                 isFromAnotherActivity -> {
-                    // закрываем активность, возвращая результат:
-                    // указываем родительской активности, что нужно обновить список записей
-                    val intent = Intent()
-                    intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
-                    setViewEvent(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
+                    launchOnMain {
+                        // закрываем активность, возвращая результат:
+                        // указываем родительской активности, что нужно обновить список записей
+                        val intent = Intent()
+                        intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
+                        sendViewEvent(Constants.ViewEvents.SetActivityResult, ActivityResult(Activity.RESULT_OK, intent = intent))
+                    }
                 }
                 startMainActivity -> {
-                    // запускаем главную активность, помещая результат
+                    launchOnMain {
+                        // запускаем главную активность, помещая результат
 //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                    if (curRecord.value!!.node != null) {
-                        openRecordNodeInMainView();
-                        setViewEvent(Constants.ViewEvents.FinishActivity)
-                    } else {
-                        showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
+                        if (curRecord.value!!.node != null) {
+                            openRecordNodeInMainView()
+                            sendViewEvent(Constants.ViewEvents.FinishActivity)
+                        } else {
+                            showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
+                        }
                     }
                     return true
                 }
                 else -> {
-                    setViewEvent(Constants.ViewEvents.FinishActivity)
+                    launchOnMain {
+                        sendViewEvent(Constants.ViewEvents.FinishActivity)
+                    }
                     return true
                 }
             }
@@ -873,7 +939,6 @@ class RecordViewModel(
         return false
     }
 
-    @MainThread
     private fun openRecordNodeInMainView() {
         val bundle = Bundle().apply {
             putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE)
@@ -883,7 +948,9 @@ class RecordViewModel(
             putExtras(bundle)
             action = Constants.ACTION_RECORD
         }
-        setViewEvent(Constants.ViewEvents.StartActivity, intent)
+        launchOnMain {
+            sendViewEvent(Constants.ViewEvents.StartActivity, intent)
+        }
     }
 
     //endregion SaveRecord
@@ -957,12 +1024,16 @@ class RecordViewModel(
     fun deleteRecord() {
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.id)
-        postViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_DELETE_RECORD, bundle))
+        launchOnMain {
+            this@RecordViewModel.sendViewEvent(Constants.ViewEvents.FinishWithResult, ActivityResult(Constants.RESULT_DELETE_RECORD, bundle))
+        }
     }
 
     private fun dropIsEdited() {
         isEdited = false
-        postEvent(RecordEvents.IsEditedChanged, false)
+        launchOnMain {
+            this@RecordViewModel.sendEvent(RecordEvents.IsEditedChanged, false)
+        }
     }
 
     fun editFields(
@@ -974,12 +1045,22 @@ class RecordViewModel(
         node: TetroidNode,
         isFavor: Boolean
     ) {
-        launch {
+        launchOnMain {
             val wasTemp = curRecord.value!!.isTemp
-            if (recordsInteractor.editRecordFields(getContext(), curRecord.value, name, tags, author, url, node, isFavor)) {
+            if (recordsInteractor.editRecordFields(
+                    context = getContext(),
+                    record = curRecord.value,
+                    name = name,
+                    tagsString = tags,
+                    author = author,
+                    url = url,
+                    node = node,
+                    isFavor = isFavor
+                )
+            ) {
                 isFieldsEdited = true
                 setTitle(name)
-                postEvent(RecordEvents.LoadFields, curRecord.value)
+                this@RecordViewModel.sendEvent(RecordEvents.LoadFields, curRecord.value)
                 if (wasTemp) {
                     // сохраняем текст записи
                     val resObj = if (obj == null) {
@@ -992,7 +1073,7 @@ class RecordViewModel(
                     }
                     saveRecord(resObj)
                     // показываем кнопку Home для возврата в ветку записи
-                    postViewEvent(Constants.ViewEvents.ShowHomeButton, true)
+                    this@RecordViewModel.sendViewEvent(Constants.ViewEvents.ShowHomeButton, true)
                 } else {
                     log(R.string.log_record_fields_changed, true)
                 }
@@ -1007,7 +1088,9 @@ class RecordViewModel(
         }
     }
 
-    fun getUriToRecordFolder(record: TetroidRecord) = recordPathHelper.getUriToRecordFolder(record)
+    fun getUriToRecordFolder(record: TetroidRecord): String {
+        return recordPathHelper.getUriToRecordFolder(record)
+    }
 
     /**
      * Отображение или скрытие панели свойств в зависимости от настроек.
@@ -1034,7 +1117,9 @@ class RecordViewModel(
         }
     }
 
-    fun getRecordEditedDate(record: TetroidRecord) = recordsInteractor.getEditedDate(getContext(), record)
+    fun getRecordEditedDate(record: TetroidRecord): Date? {
+        return recordsInteractor.getEditedDate(getContext(), record)
+    }
 
     fun getRecordName() = curRecord.value?.name
 
@@ -1047,7 +1132,9 @@ class RecordViewModel(
     fun isHtmlMode() = curMode == Constants.MODE_HTML
 
     fun setTitle(title: String) {
-        setViewEvent(Constants.ViewEvents.UpdateTitle, title)
+        launchOnMain {
+            sendViewEvent(Constants.ViewEvents.UpdateTitle, title)
+        }
     }
 
     enum class RecordEvents {

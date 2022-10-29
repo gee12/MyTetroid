@@ -19,6 +19,8 @@ import com.gee12.mytetroid.interactors.PermissionRequestData
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 open class BaseViewModel(
     application: Application,
@@ -33,7 +35,9 @@ open class BaseViewModel(
             throwable.printStackTrace()
         }
 
-    val viewEvent = SingleLiveEvent<ViewModelEvent<Constants.ViewEvents, Any>>()
+    private val _viewEventFlow = MutableSharedFlow<ViewModelEvent<Constants.ViewEvents, Any>>(extraBufferCapacity = 0)
+    val viewEventFlow = _viewEventFlow.asSharedFlow()
+
     var isBusy = false
 
     // TODO: inject
@@ -58,14 +62,9 @@ open class BaseViewModel(
 
     //region View event
 
-    fun postViewEvent(event: Constants.ViewEvents, param: Any? = null) {
+    suspend fun sendViewEvent(event: Constants.ViewEvents, param: Any? = null) {
         Log.i("MYTETROID", "postViewEvent(): state=$event param=$param")
-        viewEvent.postValue(ViewModelEvent(event, param))
-    }
-
-    fun setViewEvent(event: Constants.ViewEvents, param: Any? = null) {
-        Log.i("MYTETROID", "setViewEvent(): state=$event param=$param")
-        viewEvent.value = ViewModelEvent(event, param)
+        _viewEventFlow.emit(ViewModelEvent(event, param))
     }
 
     //endregion View event
@@ -167,15 +166,21 @@ open class BaseViewModel(
     }
 
     open fun onPermissionGranted(requestCode: Int) {
-        postViewEvent(Constants.ViewEvents.PermissionGranted, requestCode)
+        launchOnMain {
+            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.PermissionGranted, requestCode)
+        }
     }
 
     open fun onPermissionCanceled(requestCode: Int) {
-        postViewEvent(Constants.ViewEvents.PermissionCanceled, requestCode)
+        launchOnMain {
+            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.PermissionCanceled, requestCode)
+        }
     }
 
     open fun showManualPermissionRequest(request: PermissionRequestParams) {
-        postViewEvent(Constants.ViewEvents.ShowPermissionRequest, request)
+        launchOnMain {
+            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.ShowPermissionRequest, request)
+        }
     }
 
     //endregion Permission
@@ -327,7 +332,9 @@ open class BaseViewModel(
     }
 
     fun showSnackMoreInLogs() {
-        postViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+        launchOnMain {
+            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+        }
     }
 
     //endregion Message

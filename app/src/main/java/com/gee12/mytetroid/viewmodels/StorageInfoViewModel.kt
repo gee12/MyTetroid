@@ -94,32 +94,32 @@ class StorageInfoViewModel(
     fun getStorageInfo(): IStorageInfoProvider = storageDataProcessor
 
     fun startInitStorage(intent: Intent) {
-        launch {
-            setViewEvent(Constants.ViewEvents.TaskStarted)
+        launchOnMain {
+            sendViewEvent(Constants.ViewEvents.TaskStarted)
             if (!super.initStorage(intent)) {
-                setStorageEvent(Constants.StorageEvents.InitFailed)
+                sendStorageEvent(Constants.StorageEvents.InitFailed)
             }
-            setViewEvent(Constants.ViewEvents.TaskFinished)
+            sendViewEvent(Constants.ViewEvents.TaskFinished)
         }
     }
 
     fun computeStorageFolderSize() {
-        launch {
-            val size = withContext(Dispatchers.IO) {
+        launchOnMain {
+            val size = withIo {
                 storageInteractor.getStorageFolderSize(getContext()) ?: getString(R.string.title_error)
             }
-            setEvent(Event.StorageFolderSize, size)
+            sendEvent(Event.StorageFolderSize, size)
         }
     }
 
     fun computeMyTetraXmlLastModifiedDate() {
-        launch {
-            val date = withContext(Dispatchers.IO) {
+        launchOnMain {
+            val date = withIo {
                 storageInteractor.getMyTetraXmlLastModifiedDate(getContext())?.let {
                     Utils.dateToString(it, getString(R.string.full_date_format_string))
                 } ?: getString(R.string.title_error)
             }
-            setEvent(Event.MyTetraXmlLastModifiedDate, date)
+            sendEvent(Event.MyTetraXmlLastModifiedDate, date)
         }
     }
 

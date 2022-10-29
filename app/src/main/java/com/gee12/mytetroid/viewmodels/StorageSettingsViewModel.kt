@@ -148,7 +148,7 @@ class StorageSettingsViewModel(
                 getString(R.string.pref_key_check_outside_changing) -> isFieldChanged(key, syncProfile.isCheckOutsideChanging, value) { syncProfile.isCheckOutsideChanging = it }
             }
             if (isFieldsChanged) {
-                launch {
+                launchOnMain {
                     updateStorage(this@apply)
                     onStorageOptionChanged(key, value)
                 }

@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.ViewEvents
@@ -16,6 +16,7 @@ import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettin
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.views.TetroidMessage
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 /**
@@ -36,8 +37,12 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         viewModel.messageObservable.observe(this) {
             TetroidMessage.show(this, it)
         }
-        viewModel.viewEvent.observe(this) { (event, data) -> onViewEvent(event, data) }
-        viewModel.storageEvent.observe(this) { (event, data) -> onStorageEvent(event, data) }
+        lifecycleScope.launch {
+            viewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+        }
+        lifecycleScope.launch {
+            viewModel.storageEventFlow.collect { (event, data) -> onStorageEvent(event, data) }
+        }
         viewModel.updateStorageField.observe(this) { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) }
 
     }
