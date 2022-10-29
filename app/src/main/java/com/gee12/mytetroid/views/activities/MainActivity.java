@@ -168,7 +168,11 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
         drawerLayout.setOnTouchListener(this);
 
         // страницы (главная и найдено)
-        this.viewPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), gestureDetector);
+        this.viewPagerAdapter = new MainPagerAdapter(
+            viewModel,
+            getSupportFragmentManager(),
+            gestureDetector
+        );
         this.viewPager = findViewById(R.id.view_pager);
         viewPager.setAdapter(viewPagerAdapter);
 //        mViewPager.setGestureDetector(mGestureDetector);

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.views.fragments.FoundPageFragment;
 import com.gee12.mytetroid.views.fragments.MainPageFragment;
 import com.gee12.mytetroid.views.fragments.TetroidFragment;
@@ -13,10 +14,10 @@ public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private TetroidFragment[] fragments = new TetroidFragment[2];
 
-    public MainPagerAdapter(FragmentManager fm, GestureDetectorCompat detector) {
+    public MainPagerAdapter(MainViewModel viewModel, FragmentManager fm, GestureDetectorCompat detector) {
         super(fm);
-        fragments[0] = new MainPageFragment(detector);
-        fragments[1] = new FoundPageFragment(detector);
+        fragments[0] = new MainPageFragment(viewModel, detector);
+        fragments[1] = new FoundPageFragment(viewModel, detector);
     }
 
     @Override

@@ -66,8 +66,10 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         return MainViewModel.class;
     }
 
-    public MainPageFragment(GestureDetectorCompat gestureDetector) {
+    public MainPageFragment(MainViewModel viewModel, GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
+
+        this.viewModel = viewModel;
     }
 
     public MainPageFragment() {}
@@ -143,11 +145,6 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
         });
 
         return view;
-    }
-
-    @Override
-    protected void initViewModel() {
-        viewModel = get(MainViewModel.class);
     }
 
     @Override

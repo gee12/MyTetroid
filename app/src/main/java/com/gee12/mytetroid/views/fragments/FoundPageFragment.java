@@ -37,8 +37,10 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
     }
 
 
-    public FoundPageFragment(GestureDetectorCompat detector) {
+    public FoundPageFragment(MainViewModel viewModel, GestureDetectorCompat detector) {
         super(detector);
+
+        this.viewModel = viewModel;
     }
 
     public FoundPageFragment() {
@@ -72,11 +74,6 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
         view.findViewById(R.id.button_close).setOnClickListener(view1 -> viewModel.closeFoundFragment());
 
         return view;
-    }
-
-    @Override
-    protected void initViewModel() {
-        viewModel = get(MainViewModel.class);
     }
 
     public void setFounds(HashMap<ITetroidObject, FoundType> found, SearchProfile profile) {
