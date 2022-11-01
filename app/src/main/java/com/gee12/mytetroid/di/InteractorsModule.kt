@@ -25,12 +25,6 @@ object InteractorsModule {
         }
 
         single {
-            CommonSettingsInteractor(
-                logger = get()
-            )
-        }
-
-        single {
             InteractionInteractor(
                 logger = get()
             )

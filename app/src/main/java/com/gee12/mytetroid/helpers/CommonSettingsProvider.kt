@@ -4,14 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.gee12.mytetroid.*
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.interactors.CommonSettingsInteractor
+import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jsoup.internal.StringUtil
 import java.io.File
 
 class CommonSettingsProvider(
     private val context: Context,
+    private val logger: ITetroidLogger,
     private val appBuildHelper: AppBuildHelper,
 ) {
     private var isCopiedFromFree = false
@@ -21,19 +24,16 @@ class CommonSettingsProvider(
     /**
      * Инициализация настроек.
      */
-    fun init(
-        context: Context,
-        interactor: CommonSettingsInteractor
-    ) {
+    fun init(context: Context) {
         CommonSettings.settings = getPrefs()
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false)
 
         // стартовые значения, которые нельзя установить в xml
         if (CommonSettings.getTrashPathDef(context) == null) {
-            CommonSettings.setTrashPathDef(context, interactor.getDefaultTrashPath(context))
+            CommonSettings.setTrashPathDef(context, getDefaultTrashPath(context))
         }
         if (CommonSettings.getLogPath(context) == null) {
-            CommonSettings.setLogPath(context, interactor.getDefaultLogPath(context))
+            CommonSettings.setLogPath(context, getDefaultLogPath(context))
         }
         if (appBuildHelper.isFreeVersion()) {
             // принудительно отключаем
@@ -165,6 +165,14 @@ class CommonSettingsProvider(
         return CommonSettings.settings
     }
 
+    fun getDefaultTrashPath(context: Context): String {
+        return "${FileUtils.getAppExternalFilesDir(context)}/${Constants.TRASH_DIR_NAME}"
+    }
+
+    fun getDefaultLogPath(context: Context): String {
+        return "${FileUtils.getAppExternalFilesDir(context)}/${Constants.LOG_DIR_NAME}"
+    }
+
     fun getLastFolderPathOrDefault(forWrite: Boolean): String? {
         val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
         return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
@@ -201,6 +209,21 @@ class CommonSettingsProvider(
 
     fun getFavorites(): StringList {
         return CommonSettings.getFavorites(context)
+    }
+
+    /**
+     * Проверка строки формата даты/времени.
+     * В версии приложения <= 11 введенная строка в настройках не проверялась,
+     *  что могло привести к падению приложения при отображении списка.
+     */
+    fun checkDateFormatString(): String {
+        val dateFormatString = CommonSettings.getDateFormatString(context)
+        return if (Utils.checkDateFormatString(dateFormatString)) {
+            dateFormatString
+        } else {
+            logger.logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), show = false)
+            context.getString(R.string.def_date_format_string)
+        }
     }
 
 }

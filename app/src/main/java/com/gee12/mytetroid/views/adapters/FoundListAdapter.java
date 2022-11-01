@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.interactors.CommonSettingsInteractor;
+import com.gee12.mytetroid.helpers.CommonSettingsProvider;
 import com.gee12.mytetroid.interactors.RecordsInteractor;
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.ITetroidObject;
@@ -33,11 +33,11 @@ public class FoundListAdapter extends RecordsBaseListAdapter {
     public FoundListAdapter(
             Context context,
             RecordsInteractor recordsInteractor,
-            CommonSettingsInteractor commonSettingsInteractor,
+            CommonSettingsProvider settingsProvider,
             OnRecordAttachmentClickListener onAttachmentClickListener
             /*, List<ITetroidObject> dataSet*/
     ) {
-        super(context, recordsInteractor, commonSettingsInteractor, onAttachmentClickListener);
+        super(context, recordsInteractor, settingsProvider, onAttachmentClickListener);
         this.dataSet = new ArrayList<>();
         this.isShowNodeName = true;
     }
