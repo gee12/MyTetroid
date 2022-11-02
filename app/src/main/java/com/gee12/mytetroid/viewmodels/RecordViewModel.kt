@@ -2,6 +2,7 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -956,8 +957,8 @@ class RecordViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openRecordFolder() {
-        if (!recordsInteractor.openRecordFolder(getContext(), curRecord.value!!)) {
+    fun openRecordFolder(context: Context) {
+        if (!recordsInteractor.openRecordFolder(context, curRecord.value!!)) {
             log(R.string.log_missing_file_manager, true)
         }
     }

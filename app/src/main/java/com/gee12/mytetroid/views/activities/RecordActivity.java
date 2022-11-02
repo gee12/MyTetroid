@@ -1087,7 +1087,7 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
                 viewModel.openRecordAttaches();
                 return true;
             case R.id.action_cur_record_folder:
-                viewModel.openRecordFolder();
+                viewModel.openRecordFolder(this);
                 return true;
             case R.id.action_share:
                 shareRecord();
