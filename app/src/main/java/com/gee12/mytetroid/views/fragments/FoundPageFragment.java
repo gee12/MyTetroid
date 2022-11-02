@@ -31,11 +31,6 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
     private TextView tvEmpty;
     private int foundCount;
 
-    @Override
-    protected Class<MainViewModel> getViewModelClazz() {
-        return MainViewModel.class;
-    }
-
 
     public FoundPageFragment(MainViewModel viewModel, GestureDetectorCompat detector) {
         super(detector);
@@ -44,6 +39,14 @@ public class FoundPageFragment extends TetroidFragment<MainViewModel> {
     }
 
     public FoundPageFragment() {
+        super();
+    }
+
+    @Override
+    public void createViewModel() {
+        if (viewModel == null) {
+            viewModel = get(MainViewModel.class);
+        }
     }
 
     @Override

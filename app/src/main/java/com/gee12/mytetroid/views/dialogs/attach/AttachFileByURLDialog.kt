@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.lumyjuwon.richwysiwygeditor.R
+import org.koin.java.KoinJavaComponent.get
 
 class AttachFileByURLDialog(
     val callback: IAttachFileByURLResult
@@ -19,9 +20,11 @@ class AttachFileByURLDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = com.lumyjuwon.richwysiwygeditor.R.layout.dialog_insert_web_content
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(com.gee12.mytetroid.R.string.title_download_attach_file)

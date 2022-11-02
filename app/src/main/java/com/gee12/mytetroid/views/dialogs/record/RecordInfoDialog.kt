@@ -10,6 +10,7 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
+import org.koin.java.KoinJavaComponent.get
 import java.util.*
 
 /**
@@ -24,9 +25,11 @@ class RecordInfoDialog(
 
     override fun isPossibleToShow() = (record != null && record.isNonCryptedOrDecrypted)
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_record_info
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(record?.name)

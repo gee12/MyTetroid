@@ -13,13 +13,12 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.ViewEvents
 import com.gee12.mytetroid.viewmodels.StorageInfoViewModel
+import org.koin.java.KoinJavaComponent.get
 
 /**
  * Активность для просмотра информации о хранилище.
  */
 class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
-
-    override fun getViewModelClazz() = StorageInfoViewModel::class.java
 
     override fun getLayoutResourceId() = R.layout.activity_storage_info
 
@@ -32,6 +31,10 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
 
         // загружаем параметры хранилища из бд
         viewModel.startInitStorage(intent)
+    }
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageInfoViewModel::class.java)
     }
 
     override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {

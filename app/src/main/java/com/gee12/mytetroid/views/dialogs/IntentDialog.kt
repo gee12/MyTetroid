@@ -8,6 +8,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.ReceivedData
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.adapters.IntentsAdapter
+import org.koin.java.KoinJavaComponent.get
 
 /**
  * Диалог со списком вариантов обработки переданного объекта.
@@ -25,9 +26,11 @@ class IntentDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_list_view
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
 //        builder.setTitle("Выберите действие");

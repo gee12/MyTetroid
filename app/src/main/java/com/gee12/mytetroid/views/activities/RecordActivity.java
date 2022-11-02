@@ -115,11 +115,6 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     @Override
-    protected Class<RecordViewModel> getViewModelClazz() {
-        return RecordViewModel.class;
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -194,8 +189,12 @@ public class RecordActivity extends TetroidActivity<RecordViewModel> implements
     }
 
     @Override
-    protected void initViewModel() {
+    public void createViewModel() {
         viewModel = get(RecordViewModel.class);
+    }
+
+    @Override
+    protected void initViewModel() {
         super.initViewModel();
         viewModel.getCurRecord().observe(this, it -> viewModel.openRecord(it));
     }

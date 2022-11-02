@@ -12,6 +12,7 @@ import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
 import com.gee12.mytetroid.views.adapters.NodesListAdapter.OnNodeHeaderClickListener
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
+import org.koin.java.KoinJavaComponent.get
 import pl.openrnd.multilevellistview.MultiLevelListView
 
 /**
@@ -62,9 +63,11 @@ class NodeChooserDialog(
         return true
     }
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_nodes
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(R.string.title_choose_node)

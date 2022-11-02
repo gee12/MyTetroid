@@ -69,8 +69,9 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
     protected lateinit var viewModel: VM
 
 
-    protected abstract fun getViewModelClazz(): Class<VM>
     protected abstract fun getLayoutResourceId(): Int
+
+    abstract fun createViewModel()
 
     protected open fun initViewModel() {
         viewModel.initialize()
@@ -112,6 +113,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         isOnCreateProcessed = false
         isGUICreated = false
 
+        createViewModel()
         initViewModel()
     }
 

@@ -14,6 +14,7 @@ import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
+import org.koin.java.KoinJavaComponent.get
 import java.io.File
 
 class StorageDialog(
@@ -36,9 +37,11 @@ class StorageDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_storage
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(if (storage != null) R.string.title_edit_storage else R.string.title_add_storage)

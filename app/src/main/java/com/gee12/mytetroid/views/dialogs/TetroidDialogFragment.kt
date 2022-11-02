@@ -34,9 +34,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     lateinit var dialogView: View
 
-    private val _viewModel: BaseStorageViewModel by inject()
-    protected val viewModel: VM
-        get() = _viewModel as VM
+    protected lateinit var viewModel: VM
 
     abstract fun getRequiredTag(): String
 
@@ -60,11 +58,10 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     protected open var storageId: Int? = null
 
-    protected abstract fun getViewModelClazz(): Class<VM>
-
     protected abstract fun getLayoutResourceId(): Int
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        createViewModel()
         initViewModel()
 
         val builder = Dialogs.AskDialogBuilder.create(context, getLayoutResourceId())
@@ -86,6 +83,8 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return dialogView
     }
+
+    abstract fun createViewModel()
 
     protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))

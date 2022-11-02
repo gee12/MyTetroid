@@ -9,6 +9,7 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
+import org.koin.java.KoinJavaComponent.get
 
 /**
  * Диалог информации о прикрепленном файле.
@@ -22,9 +23,11 @@ class AttachInfoDialog(
 
     override fun isPossibleToShow() = attach != null && attach.isNonCryptedOrDecrypted
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_attach_info
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(attach?.name)

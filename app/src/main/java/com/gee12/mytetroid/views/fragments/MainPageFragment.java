@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 
-import com.gee12.mytetroid.App;
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.viewmodels.MainViewModel;
@@ -61,18 +60,22 @@ public class MainPageFragment extends TetroidFragment<MainViewModel> {
     private FilesListAdapter listAdapterAttaches;
 
 
-    @Override
-    protected Class<MainViewModel> getViewModelClazz() {
-        return MainViewModel.class;
-    }
-
     public MainPageFragment(MainViewModel viewModel, GestureDetectorCompat gestureDetector) {
         super(gestureDetector);
 
         this.viewModel = viewModel;
     }
 
-    public MainPageFragment() {}
+    public MainPageFragment() {
+        super();
+    }
+
+    @Override
+    public void createViewModel() {
+        if (viewModel == null) {
+            viewModel = get(MainViewModel.class);
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

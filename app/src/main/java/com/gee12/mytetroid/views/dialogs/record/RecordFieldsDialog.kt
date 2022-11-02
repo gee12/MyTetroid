@@ -19,6 +19,7 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.gee12.mytetroid.views.dialogs.node.NodeChooserDialog
+import org.koin.java.KoinJavaComponent.get
 import java.util.*
 import kotlin.math.abs
 
@@ -47,9 +48,11 @@ class RecordFieldsDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_record
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = dialogView.findViewById(R.id.edit_text_name)

@@ -46,8 +46,6 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
     private var nodeId: String? = null
     private var node: TetroidNode? = null
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.activity_search
 
     override fun getStorageId() = intent?.extras?.getInt(Constants.EXTRA_STORAGE_ID)
@@ -106,8 +104,11 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
         viewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
     }
 
-    override fun initViewModel() {
+    override fun createViewModel() {
         this.viewModel = get(StorageViewModel::class.java)
+    }
+
+    override fun initViewModel() {
         super.initViewModel()
         lifecycleScope.launch {
             viewModel.storageEventFlow.collect { (event, data) -> onStorageEvent(event, data) }

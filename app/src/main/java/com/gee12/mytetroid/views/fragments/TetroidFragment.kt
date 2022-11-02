@@ -18,25 +18,29 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
     protected lateinit var viewModel: VM
 
 
-    protected abstract fun getViewModelClazz(): Class<VM>
-
     abstract fun getTitle(): String
 
-    constructor() {}
+    constructor() {
+        createViewModel()
+    }
 
     constructor(detector: GestureDetectorCompat?) {
         gestureDetector = detector
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        createViewModel()
         initViewModel()
         return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, resId: Int): View? {
+        createViewModel()
         initViewModel()
         return inflater.inflate(resId, container, false)
     }
+
+    abstract fun createViewModel()
 
     protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))

@@ -10,6 +10,7 @@ import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import com.lumyjuwon.richwysiwygeditor.RichEditor.Utils
+import org.koin.java.KoinJavaComponent.get
 import java.util.*
 
 class PinCodeLengthDialog(
@@ -30,9 +31,11 @@ class PinCodeLengthDialog(
 
     override fun isPossibleToShow() = true
 
-    override fun getViewModelClazz() = StorageViewModel::class.java
-
     override fun getLayoutResourceId() = R.layout.dialog_pin_code_length
+
+    override fun createViewModel() {
+        this.viewModel = get(StorageViewModel::class.java)
+    }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setCanceledOnTouchOutside(false)

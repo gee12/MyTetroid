@@ -41,8 +41,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun getLayoutResourceId() = R.layout.activity_storages
 
-    override fun getViewModelClazz() = StoragesViewModel::class.java
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,8 +74,11 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         loadStorages()
     }
 
-    override fun initViewModel() {
+    override fun createViewModel() {
         this.viewModel = get(StoragesViewModel::class.java)
+    }
+
+    override fun initViewModel() {
         super.initViewModel()
         viewModel.storages.observe(this, { list -> showStoragesList(list) })
         viewModel.checkStoragesFilesExisting = true
