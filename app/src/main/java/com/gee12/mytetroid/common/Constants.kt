@@ -141,7 +141,7 @@ object Constants {
     enum class StorageEvents {
         NoDefaultStorage,
         NotFoundInBase,
-        LoadedEntity,
+        GetEntity,
         Added,
         AskBeforeClearTrashOnExit,
         AskAfterSyncManually,

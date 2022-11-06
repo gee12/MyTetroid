@@ -104,7 +104,7 @@ class StorageInfoViewModel(
     fun startInitStorage(intent: Intent) {
         launchOnMain {
             sendViewEvent(Constants.ViewEvents.TaskStarted)
-            if (!super.initStorage(intent)) {
+            if (!initStorage(intent)) {
                 sendStorageEvent(Constants.StorageEvents.InitFailed)
             }
             sendViewEvent(Constants.ViewEvents.TaskFinished)

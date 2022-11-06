@@ -335,7 +335,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
     protected void onStorageEvent(Constants.StorageEvents event, Object data) {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event="+event+", data="+data);
         switch (event) {
-            case LoadedEntity:
+            case GetEntity:
                 onStorageUpdated();
                 break;
 

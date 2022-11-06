@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
-import androidx.annotation.MainThread
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -131,18 +130,21 @@ open class StorageViewModel(
      * Инициализация хранилища по ID, переданному в Intent.
      */
     fun initStorage(intent: Intent): Boolean {
-        if (storage != null) {
+        val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+
+        return if (storage != null && storage?.id == storageId) {
             launchOnMain {
+                sendStorageEvent(Constants.StorageEvents.GetEntity, storage)
                 sendStorageEvent(Constants.StorageEvents.Inited, storage)
             }
-            return true
-        }
-        val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
-        return if (storageId > 0) {
-            startInitStorageFromBase(storageId)
             true
         } else {
-            initStorageFromLastStorageId()
+            if (storageId > 0) {
+                startInitStorageFromBase(storageId)
+                true
+            } else {
+                initStorageFromLastStorageId()
+            }
         }
     }
 
@@ -171,7 +173,7 @@ open class StorageViewModel(
                 if (storage != null) {
                     storageProvider.setStorage(currentStorage.resetFields(storage))
 
-                    this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
+                    this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.GetEntity, storage)
                 } else {
                     this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
                     log(getString(R.string.log_storage_not_found_mask).format(id), true)
@@ -181,14 +183,14 @@ open class StorageViewModel(
     }
 
     open fun startInitStorageFromBase(id: Int) {
-        launchOnMain {
-            val storage = withContext(Dispatchers.IO) {
-                storagesRepo.getStorage(id)
-            }
+        launchOnIo {
+            val storage = storagesRepo.getStorage(id)
             if (storage != null) {
                 storageProvider.setStorage(storage)
 
-                sendStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
+                withMain {
+                    sendStorageEvent(Constants.StorageEvents.GetEntity, storage)
+                }
 
                 // если используется уже загруженное дерево веток из кэша
                 if (storageProvider.isLoaded()) {
@@ -198,7 +200,9 @@ open class StorageViewModel(
                 // загружаем настройки, но не загружаем само хранилище
                 initStorage()
             } else {
-                sendStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
+                withMain {
+                    sendStorageEvent(Constants.StorageEvents.NotFoundInBase, id)
+                }
                 log(getString(R.string.log_storage_not_found_mask).format(id))
             }
         }
@@ -237,7 +241,7 @@ open class StorageViewModel(
         launch(Dispatchers.IO) {
             val storage = storagesRepo.getStorage(id)
             if (storage != null) {
-                this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.LoadedEntity, storage)
+                this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.GetEntity, storage)
                 startInitStorage(storage)
             } else {
                 this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.NotFoundInBase, id)

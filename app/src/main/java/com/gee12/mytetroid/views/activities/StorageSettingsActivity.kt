@@ -66,7 +66,7 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageEvent(event, data)
 
         when (event) {
-            Constants.StorageEvents.LoadedEntity -> onStorageFoundInBase(data as TetroidStorage)
+            Constants.StorageEvents.GetEntity -> onStorageFoundInBase(data as TetroidStorage)
             Constants.StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
             Constants.StorageEvents.InitFailed -> onStorageInitFailed()
             else -> Unit
