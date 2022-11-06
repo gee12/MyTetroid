@@ -434,13 +434,13 @@ public class FileUtils {
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                throw new Exception(context.getString(R.string.log_file_is_missing) + fullFileName);
+                throw new Exception(context.getString(R.string.error_file_is_missing_mask, fullFileName));
             }
             size = getFileSize(file);
         } catch (SecurityException ex) {
-            throw new Exception(context.getString(R.string.log_denied_read_file_access) + fullFileName);
+            throw new Exception(context.getString(R.string.error_denied_read_file_access_mask, fullFileName));
         } catch (Exception ex) {
-            throw new Exception(context.getString(R.string.log_get_file_size_error) + fullFileName);
+            throw new Exception(context.getString(R.string.error_get_file_size_mask, fullFileName));
         }
 //        return FileUtils.fileSizeToStringBin(context, size);
         return android.text.format.Formatter.formatFileSize(context, size);
@@ -488,13 +488,13 @@ public class FileUtils {
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                throw new Exception(context.getString(R.string.log_file_is_missing) + fullFileName);
+                throw new Exception(context.getString(R.string.error_file_is_missing_mask) + fullFileName);
             }
             date = getFileLastModifiedDate(file);
         } catch (SecurityException ex) {
-            throw new Exception(context.getString(R.string.log_denied_read_file_access) + fullFileName);
+            throw new Exception(context.getString(R.string.error_denied_read_file_access_mask, fullFileName));
         } catch (Exception ex) {
-            throw new Exception(context.getString(R.string.log_get_file_size_error) + fullFileName);
+            throw new Exception(context.getString(R.string.error_get_file_size_mask, fullFileName));
         }
         return date;
     }

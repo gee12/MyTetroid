@@ -227,6 +227,8 @@ object ViewModelsModule {
                 saveStorageUseCase = get(),
                 checkStoragePasswordUseCase = get(),
                 changePasswordUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getFileModifiedDateUseCase = get(),
             )
         }
 

@@ -50,4 +50,11 @@ sealed class Failure(val ex: Throwable? = null) {
         class File(ex: Throwable? = null) : Decrypt(ex)
     }
 
+    sealed class File(val path: String, ex: Throwable? = null) : Failure(ex) {
+        class IsMissing(path: String) : File(path)
+        class AccessDenied(path: String, ex: Throwable? = null) : File(path, ex)
+        class GetFileSize(path: String, ex: Throwable? = null) : File(path, ex)
+        class GetFolderSize(path: String, ex: Throwable? = null) : File(path, ex)
+    }
+
 }

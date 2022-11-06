@@ -3,7 +3,7 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import android.content.Intent
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.crypt.IEncryptHelper
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
@@ -11,6 +11,8 @@ import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.usecase.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
@@ -50,6 +52,8 @@ class StorageInfoViewModel(
     saveStorageUseCase: SaveStorageUseCase,
     checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
+    private val getFolderSizeUseCase: GetFolderSizeUseCase,
+    private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
 ) : StorageViewModel(
     app,
     logger,
@@ -82,9 +86,17 @@ class StorageInfoViewModel(
     changePasswordUseCase,
 ), CoroutineScope {
 
-    enum class Event {
-        MyTetraXmlLastModifiedDate,
-        StorageFolderSize
+    sealed class Event {
+        sealed class GetMyTetraXmlLastModifiedDate {
+            object InProgress : GetMyTetraXmlLastModifiedDate()
+            data class Failed(val failure: Failure) : GetMyTetraXmlLastModifiedDate()
+            data class Success(val date: String) : GetMyTetraXmlLastModifiedDate()
+        }
+        sealed class GetStorageFolderSize {
+            object InProgress : GetStorageFolderSize()
+            data class Failed(val failure: Failure) : GetStorageFolderSize()
+            data class Success(val size: String) : GetStorageFolderSize()
+        }
     }
 
     fun getStorageInfo(): IStorageInfoProvider = storageDataProcessor
@@ -101,21 +113,39 @@ class StorageInfoViewModel(
 
     fun computeStorageFolderSize() {
         launchOnMain {
-            val size = withIo {
-                storageInteractor.getStorageFolderSize(getContext()) ?: getString(R.string.title_error)
+            sendEvent(Event.GetStorageFolderSize.InProgress)
+            withIo {
+                getFolderSizeUseCase.run(
+                    GetFolderSizeUseCase.Params(
+                        folderPath = storagePathHelper.getStoragePath(),
+                    )
+                ).onFailure {
+                    sendEvent(Event.GetStorageFolderSize.Failed(it))
+                    val title = failureHandler.getFailureMessage(it)
+                    logError(getString(R.string.error_get_storage_folder_size_mask).format(title))
+                }.onSuccess { size ->
+                    sendEvent(Event.GetStorageFolderSize.Success(size))
+                }
             }
-            sendEvent(Event.StorageFolderSize, size)
         }
     }
 
     fun computeMyTetraXmlLastModifiedDate() {
         launchOnMain {
-            val date = withIo {
-                storageInteractor.getMyTetraXmlLastModifiedDate(getContext())?.let {
-                    Utils.dateToString(it, getString(R.string.full_date_format_string))
-                } ?: getString(R.string.title_error)
+            sendEvent(Event.GetMyTetraXmlLastModifiedDate.InProgress)
+            getFileModifiedDateUseCase.run(
+                GetFileModifiedDateUseCase.Params(
+                    filePath = storagePathHelper.getPathToMyTetraXml(),
+                )
+            ).map { date ->
+                Utils.dateToString(date, getString(R.string.full_date_format_string))
+            }.onFailure {
+                sendEvent(Event.GetMyTetraXmlLastModifiedDate.Failed(it))
+                val title = failureHandler.getFailureMessage(it)
+                logError(getString(R.string.error_get_mytetra_xml_modified_date_mask).format(title))
+            }.onSuccess { dateString ->
+                sendEvent(Event.GetMyTetraXmlLastModifiedDate.Success(dateString))
             }
-            sendEvent(Event.MyTetraXmlLastModifiedDate, date)
         }
     }
 

@@ -564,7 +564,7 @@
     <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%1$s] в [%2$s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
     <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
-    <string name="log_file_is_missing">Файл отсутствует на диске:&#160;</string>
+    <string name="error_file_is_missing_mask">Файл отсутствует на диске: %s</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
@@ -574,8 +574,9 @@
     <string name="log_start_storage_sync_mask">Запуск синхронизации хранилища. Приложение: \"%s\", команда: \"%s\"</string>
     <string name="log_started_storage_sync_mask">Запущена синхронизация хранилища с помощью \"%s\"</string>
     <string name="log_storage_sync_unknown_app_mask">Неизвестное приложение для синхронизации: \"%s\"</string>
-    <string name="log_get_file_size_error">Ошибка получения размера файла:&#160;</string>
-    <string name="log_denied_read_file_access">Отказано в доступе к файлу на чтение:&#160;</string>
+    <string name="error_get_file_size_mask">Ошибка получения размера файла: %s</string>
+    <string name="error_get_folder_size_mask">Ошибка получения размера каталога: %s</string>
+    <string name="error_denied_read_file_access_mask">Отказано в доступе к файлу на чтение: %s</string>
     <string name="log_file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>
     <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>

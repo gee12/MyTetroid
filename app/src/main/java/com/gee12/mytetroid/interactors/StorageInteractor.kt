@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Constants.SEPAR
@@ -12,11 +11,9 @@ import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.helpers.IStoragePathHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import java.io.File
-import java.util.*
 
 /**
  * Создается для конкретного хранилища.
@@ -94,56 +91,11 @@ class StorageInteractor(
         return true
     }
 
-    // TODO: переделать на Either, чтобы вернуть строку с ошибкой
-    fun getStorageFolderSize(context: Context): String? {
-        return try {
-            FileUtils.getFileSize(context, storagePathHelper.getStoragePath())
-        } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_storage_folder_size_mask).format(ex.localizedMessage))
-            null
-        }
-    }
-
-    fun getMyTetraXmlLastModifiedDate(context: Context): Date? {
-        return try {
-            FileUtils.getFileModifiedDate(context, storagePathHelper.getPathToMyTetraXml())
-        } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_mytetra_xml_modified_date_mask).format(ex.localizedMessage))
-            null
-        }
-    }
-
     private fun createBaseFolder(storagePath: String): Boolean {
         val baseDir = File(storagePath, Constants.BASE_DIR_NAME)
         return baseDir.mkdir()
     }
 
-    fun isLoaded() = storageDataProcessor.isLoaded()
-
-    fun isLoadedFavoritesOnly() = storageDataProcessor.isLoadFavoritesOnlyMode()
-
-    fun getPathToMyTetraXml() = storagePathHelper.getPathToMyTetraXml()
-
-    fun getPathToStorageBaseFolder() = storagePathHelper.getPathToStorageBaseFolder()
-
-    fun getUriToStorageBaseFolder() = storagePathHelper.getUriToStorageBaseFolder()
-
     fun getPathToDatabaseIniConfig() = storagePathHelper.getPathToDatabaseIniConfig()
-
-    fun getPathToIcons() = storagePathHelper.getPathToIcons()
-
-    fun getPathToFileInIconsFolder(fileName: String) = storagePathHelper.getPathToFileInIconsFolder(fileName)
-
-    fun getPathToStorageTrashFolder() = storagePathHelper.getPathToStorageTrashFolder()
-
-    fun getUriToStorageTrashFolder() = storagePathHelper.getUriToStorageTrashFolder()
-
-    fun getStoragePath() = storagePathHelper.getStoragePath()
-
-    fun getStorageTrashPath() = storagePathHelper.getPathToTrash()
-
-    fun getRootNodes(): List<TetroidNode> {
-        return storageDataProcessor.getRootNodes()
-    }
 
 }

@@ -247,7 +247,7 @@ class AttachesInteractor(
             filePath = dirPath + Constants.SEPAR.toString() + fileIdName
             srcFile = File(filePath)
             if (!srcFile.exists()) {
-                logger.logError(context.getString(R.string.log_file_is_missing) + filePath)
+                logger.logError(context.getString(R.string.error_file_is_missing_mask) + filePath)
                 return -2
             }
         }
@@ -321,7 +321,7 @@ class AttachesInteractor(
             destFilePath = dirPath + Constants.SEPAR.toString() + fileIdName
             destFile = File(destFilePath)
             if (!destFile.exists()) {
-                logger.logError(context.getString(R.string.log_file_is_missing) + destFilePath)
+                logger.logError(context.getString(R.string.error_file_is_missing_mask) + destFilePath)
                 return -2
             }
         }

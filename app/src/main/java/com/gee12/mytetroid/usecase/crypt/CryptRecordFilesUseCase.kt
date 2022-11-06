@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.usecase.crypt
 
-import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getIdString
@@ -50,7 +49,7 @@ class CryptRecordFilesUseCase(
             for (attach in record.attachedFiles) {
                 file = File(recordFolderPath, attach.idName)
                 if (!file.exists()) {
-                    logger.logWarning(resourcesProvider.getString(R.string.log_file_is_missing) + attach.getIdString(resourcesProvider), false)
+                    logger.logWarning(resourcesProvider.getString(R.string.error_file_is_missing_mask) + attach.getIdString(resourcesProvider), false)
                     continue
                 }
                 encryptOrDecryptFileUseCase.run(

@@ -181,6 +181,16 @@ object InteractorsModule {
         }
 
         single {
+            GetFolderSizeUseCase(
+                context = androidApplication(),
+            )
+        }
+
+        single {
+            GetFileModifiedDateUseCase()
+        }
+
+        single {
             InitAppUseCase(
                 context = androidApplication(),
                 logger = get(),

@@ -656,7 +656,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%1$s] to [%2$s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
     <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
-    <string name="log_file_is_missing">File is missing on the disk:&#160;</string>
+    <string name="error_file_is_missing_mask">File is missing on the disk: %s</string>
     <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
@@ -665,8 +665,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_start_storage_sync_mask">Start storage sync. App: \"%s\", command: \"%s\"</string>
     <string name="log_started_storage_sync_mask">Started storage sync with app \"%s\"</string>
     <string name="log_storage_sync_unknown_app_mask">Unknown app for sync: \"%s\"</string>
-    <string name="log_get_file_size_error">Error getting file size:&#160;</string>
-    <string name="log_denied_read_file_access">Denied read access to the file:&#160;</string>
+    <string name="error_get_file_size_mask">Error getting file size: %s</string>
+    <string name="error_get_folder_size_mask">Error getting folder size: %s</string>
+    <string name="error_denied_read_file_access_mask">Denied read access to the file: %s</string>
     <string name="log_file_sharing_error">File sharing error:&#160;</string>
     <string name="log_record_file_reading">Record file reading: id=</string>
     <string name="log_error_record_reading">Record reading error</string>

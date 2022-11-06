@@ -123,12 +123,27 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
 
     override fun onObjectEvent(event: Any, data: Any?) {
         when (event) {
-            StorageInfoViewModel.Event.StorageFolderSize -> {
-                findViewById<TextView>(R.id.text_view_size).text = data as String
+            StorageInfoViewModel.Event.GetStorageFolderSize.InProgress -> {
+                findViewById<View>(R.id.progress_size).visibility = View.VISIBLE
+            }
+            is StorageInfoViewModel.Event.GetStorageFolderSize.Failed -> {
+                findViewById<TextView>(R.id.text_view_size).text = getString(R.string.title_error)
                 findViewById<View>(R.id.progress_size).visibility = View.GONE
             }
-            StorageInfoViewModel.Event.MyTetraXmlLastModifiedDate -> {
-                findViewById<TextView>(R.id.text_view_last_edit).text = data as String
+            is StorageInfoViewModel.Event.GetStorageFolderSize.Success -> {
+                findViewById<TextView>(R.id.text_view_size).text = event.size
+                findViewById<View>(R.id.progress_size).visibility = View.GONE
+            }
+
+            StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.InProgress -> {
+                findViewById<View>(R.id.progress_last_edit).visibility = View.VISIBLE
+            }
+            is StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.Failed -> {
+                findViewById<TextView>(R.id.text_view_last_edit).text = getString(R.string.title_error)
+                findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
+            }
+            is StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.Success -> {
+                findViewById<TextView>(R.id.text_view_last_edit).text = event.date
                 findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
             }
         }

@@ -39,6 +39,9 @@ class FailureHandler(
             is Failure.Storage -> {
                 getStorageFailureMessage(failure)
             }
+            is Failure.File -> {
+                getFileFailureMessage(failure)
+            }
             else -> NotificationData.Empty
         }
     }
@@ -93,6 +96,31 @@ class FailureHandler(
 //                NotificationData(
 //                    title = getString(R.string.)
 //                )
+            }
+        }
+    }
+
+    private fun getFileFailureMessage(failure: Failure.File): NotificationData {
+        return when (failure) {
+            is Failure.File.IsMissing -> {
+                NotificationData(
+                    title = getString(R.string.error_file_is_missing_mask, failure.path)
+                )
+            }
+            is Failure.File.AccessDenied -> {
+                NotificationData(
+                    title = getString(R.string.error_denied_read_file_access_mask, failure.path)
+                )
+            }
+            is Failure.File.GetFileSize -> {
+                NotificationData(
+                    title = getString(R.string.error_get_file_size_mask, failure.path)
+                )
+            }
+            is Failure.File.GetFolderSize -> {
+                NotificationData(
+                    title = getString(R.string.error_get_folder_size_mask, failure.path)
+                )
             }
         }
     }
