@@ -7,6 +7,7 @@ import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
 import com.gee12.mytetroid.usecase.crypt.EncryptOrDecryptFileUseCase
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
+import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -263,6 +264,18 @@ object InteractorsModule {
                 dataInteractor = get(),
                 cryptInteractor = get(),
                 storageProvider = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            InsertNodeUseCase(
+                context = androidApplication(),
+                logger = get(),
+                dataInteractor = get(),
+                loadNodeIconUseCase = get(),
+                cryptInteractor = get(),
+                recordsInteractor = get(),
                 saveStorageUseCase = get(),
             )
         }

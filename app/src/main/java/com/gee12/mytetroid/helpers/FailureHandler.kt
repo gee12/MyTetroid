@@ -36,12 +36,34 @@ class FailureHandler(
                     }
                 )
             }
+            is Failure.Record -> {
+                getRecordFailureMessage(failure)
+            }
             is Failure.Storage -> {
                 getStorageFailureMessage(failure)
             }
             is Failure.File -> {
                 getFileFailureMessage(failure)
             }
+            else -> NotificationData.Empty
+        }
+    }
+
+    private fun getRecordFailureMessage(failure: Failure.Record): NotificationData {
+        when (failure) {
+            is Failure.Record.Create.NameIsEmpty -> {
+                NotificationData(
+                    title = getString(R.string.error_record_name_is_empty),
+                    message = failure.ex?.getInfo()
+                )
+            }
+//            is Failure.Record.CloneRecordToNode -> {
+//                NotificationData(
+//                    title = getString(R.string.log_failed_storage_create_mask, failure.storageName),
+//                    message = failure.ex?.getInfo()
+//                )
+//            }
+            // TODO
             else -> NotificationData.Empty
         }
     }

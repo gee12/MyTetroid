@@ -36,6 +36,13 @@ sealed class Failure(val ex: Throwable? = null) {
         }
     }
 
+    sealed class Record(ex: Throwable? = null) : Failure(ex) {
+        sealed class Create(ex: Throwable? = null) : Record(ex) {
+            object NameIsEmpty : Create()
+        }
+        object CloneRecordToNode : Record()
+    }
+
     sealed class Tags(ex: Throwable? = null) : Failure(ex) {
         sealed class Parse(ex: Throwable? = null) : Node(ex) {
             object TagIsEmpty : Create()

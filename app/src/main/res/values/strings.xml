@@ -846,6 +846,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_storage_tree_changed_outside">The mytetra.xml file with the record tree has been modified by a third party program</string>
     <string name="log_storage_tree_deleted_outside">The mytetra.xml file with the record tree has been removed by a third party program</string>
 
+    <string name="error_record_create_mask">Record creation error:\n%s</string>
+    <string name="error_record_name_is_empty">Record name is empty</string>
+
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>
 </resources>

@@ -748,6 +748,9 @@
     <string name="log_start_migrate_to_version_mask">Запуск миграции на версию %s</string>
     <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
 
+    <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
+    <string name="error_record_name_is_empty">Пустое имя записи</string>
+
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
 </resources>
