@@ -122,6 +122,7 @@ object ViewModelsModule {
                 saveStorageUseCase = get(),
                 checkStoragePasswordUseCase = get(),
                 changePasswordUseCase = get(),
+                insertNodeUseCase = get(),
             )
         }
 

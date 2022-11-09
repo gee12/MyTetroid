@@ -247,8 +247,8 @@ class TetroidLogger(
         return getStringFormat(R.string.log_obj_id_mask, obj.id)
     }
 
-    fun getStringFormat(@StringRes formatRes: Int, vararg args: String?): String {
-        return getString(formatRes).format(*args)
+    fun getStringFormat(@StringRes formatRes: Int, vararg args: String): String {
+        return resourcesProvider.getString(formatRes, *args)
     }
 
     //endregion String utils

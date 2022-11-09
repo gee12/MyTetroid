@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.MainThread
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.onFailure
@@ -31,6 +30,7 @@ import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
+import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -74,6 +74,7 @@ class MainViewModel(
     saveStorageUseCase: SaveStorageUseCase,
     checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
+    private val insertNodeUseCase: InsertNodeUseCase,
 ): StorageViewModel(
     app,
     logger,
@@ -719,17 +720,25 @@ class MainViewModel(
         val clipboard = TetroidClipboard.getInstance()
         // вставляем с попыткой восстановить каталог записи
         val node = clipboard.getObject() as TetroidNode
-        val isCutted = clipboard.isCutted
+        val isCut = clipboard.isCutted
         val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
 
         launchOnMain {
-            if (nodesInteractor.insertNode(getContext(), node, trueParentNode, isCutted)) {
+            withIo {
+                insertNodeUseCase.run(
+                    InsertNodeUseCase.Params(
+                        srcNode = node,
+                        parentNode = trueParentNode,
+                        isCut = isCut,
+                    )
+                )
+            }.onFailure {
+                logFailure(it, show = false)
+                logOperErrorMore(LogObj.NODE, LogOper.INSERT)
+            }.onSuccess { newNode ->
                 // ищем вновь созданную ветку - копию node
                 //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
-                val insertedNode = nodesInteractor.getNode(node.id)
-                sendEvent(MainEvents.NodeInserted, insertedNode)
-            } else {
-                logOperErrorMore(LogObj.NODE, LogOper.INSERT)
+                sendEvent(MainEvents.NodeInserted, newNode)
             }
         }
     }

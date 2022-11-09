@@ -1188,7 +1188,7 @@ public class MainActivity extends TetroidActivity<MainViewModel> {
      * @param pos  Позиция элемента в списке
      * @param isUp
      */
-    // TODO: перенести во ViewModel
+    // TODO: ReorderNodeUseCase in VM
     private void reorderNode(TetroidNode node, int pos, boolean isUp) {
         if (node == null)
             return;
