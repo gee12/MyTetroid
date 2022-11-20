@@ -105,7 +105,96 @@ class MainViewModel(
     saveStorageUseCase,
     checkStoragePasswordUseCase,
     changePasswordUseCase,
+    decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase,
 ) {
+
+    sealed class MainEvent : VMEvent() {
+        // migration
+        object Migrated : MainEvent()
+
+        sealed class Node(val node: TetroidNode) : MainEvent() {
+            class Encrypt(node: TetroidNode) : Node(node)
+            class DropEncrypt(node: TetroidNode) : Node(node)
+            class Show(node: TetroidNode) : Node(node)
+            class Created(node: TetroidNode) : Node(node)
+            class Inserted(node: TetroidNode) : Node(node)
+            class Renamed(node: TetroidNode) : Node(node)
+            class AskForDelete(node: TetroidNode) : Node(node)
+            class Cutted(node: TetroidNode) : Node(node)
+            class Deleted(node: TetroidNode) : Node(node)
+        }
+        data class SetCurrentNode(
+            val node: TetroidNode?
+        ) : MainEvent()
+        object UpdateNodes : MainEvent()
+
+        sealed class Record : MainEvent() {
+            data class Open(
+                val bundle: Bundle,
+            ) : MainEvent()
+            data class Deleted(
+                val record: TetroidRecord,
+            ) : MainEvent()
+            data class Cutted(
+                val record: TetroidRecord,
+            ) : MainEvent()
+        }
+        data class ShowRecords(
+            val records: List<TetroidRecord>,
+            val viewId: Int,
+            val dropSearch: Boolean = true,
+        ) : MainEvent()
+        data class RecordsFiltered(
+            val query: String,
+            val records: List<TetroidRecord>,
+            val viewId: Int,
+        ) : MainEvent()
+        object UpdateRecords : MainEvent()
+
+        // tags
+        object UpdateTags : MainEvent()
+
+        // attaches
+        data class ShowAttaches(
+            val attaches: List<TetroidFile>,
+        ) : MainEvent()
+        data class AttachesFiltered(
+            val query: String,
+            val attaches: List<TetroidFile>,
+            val viewId: Int,
+        ) : MainEvent()
+        object UpdateAttaches : MainEvent()
+        data class AttachDeleted(
+            val attach: TetroidFile,
+        ) : MainEvent()
+
+        // favorites
+        object UpdateFavoritesTitle : MainEvent()
+
+        // global search
+        data class GlobalSearchStart(
+            val query: String?,
+        ) : MainEvent()
+        object GlobalResearch : MainEvent()
+        data class GlobalSearchFinished(
+            val found: HashMap<ITetroidObject, FoundType>,
+            val profile: SearchProfile,
+        ) : MainEvent()
+
+        // file system
+        data class AskForOperationWithoutDir(
+            val clipboardParams: ClipboardParams,
+        ) : MainEvent()
+        data class AskForOperationWithoutFile(
+            val clipboardParams: ClipboardParams,
+        ) : MainEvent()
+        object OpenFilePicker : MainEvent()
+        object OpenFolderPicker : MainEvent()
+
+        object Exit : MainEvent()
+    }
+
     companion object {
         private const val MYTETRA_XML_EXISTING_DELAY = 1000L
     }
@@ -156,7 +245,7 @@ class MainViewModel(
         if (result == true) {
             CommonSettings.setSettingsCurrentVersion(getContext())
             launchOnMain {
-                this@MainViewModel.sendEvent(MainEvents.Migrated)
+                sendEvent(MainEvent.Migrated)
             }
         } else if (result == false) {
             logger.logError(R.string.log_error_migration, true)
@@ -184,7 +273,7 @@ class MainViewModel(
 
     fun openPage(pageId: Int) {
         launchOnMain {
-            sendViewEvent(Constants.ViewEvents.OpenPage, pageId)
+            sendViewEvent(ViewEvent.OpenPage(pageId))
         }
     }
 
@@ -195,14 +284,14 @@ class MainViewModel(
             this.lastMainViewId = curMainViewId
         }
         launchOnMain {
-            sendViewEvent(Constants.ViewEvents.ShowMainView, viewId)
+            sendViewEvent(ViewEvent.ShowMainView(viewId))
         }
         this.curMainViewId = viewId
     }
 
     fun closeFoundFragment() {
         launchOnMain {
-            sendViewEvent(Constants.ViewEvents.CloseFoundView)
+            sendViewEvent(ViewEvent.CloseFoundView)
         }
     }
 
@@ -220,7 +309,7 @@ class MainViewModel(
 
     fun updateToolbar(viewId: Int, title: String?) {
         launchOnMain {
-            this@MainViewModel.sendViewEvent(Constants.ViewEvents.UpdateToolbar, ToolbarParams(viewId, title))
+            sendViewEvent(ViewEvent.UpdateToolbar(viewId, title))
         }
     }
 
@@ -232,7 +321,7 @@ class MainViewModel(
 
     fun showRecords(records: List<TetroidRecord>, viewId: Int, dropSearch: Boolean = true) {
         launchOnMain {
-            sendEvent(MainEvents.ShowRecords, ObjectsInView(records, viewId, dropSearch))
+            sendEvent(MainEvent.ShowRecords(records, viewId, dropSearch))
         }
     }
 
@@ -252,7 +341,7 @@ class MainViewModel(
             val res = insertRecord(record, isCutted, false)
             when (res) {
                 -1 -> {
-                    this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.INSERT, record, isCutted))
+                    sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.INSERT, record, isCutted)))
                 }
                 -2 -> logOperErrorMore(LogObj.RECORD_DIR, LogOper.INSERT)
                 else -> onInsertRecordResult(record, res, isCutted)
@@ -262,10 +351,13 @@ class MainViewModel(
 
     private suspend fun insertRecord(record: TetroidRecord, isCutted: Boolean, withoutDir: Boolean): Int {
         if (curNode == null) return -2
-        val message = getString(if (isCutted) R.string.progress_insert_record else R.string.progress_copy_record)
-        sendViewEvent(Constants.ViewEvents.ShowProgressText, message)
+        sendViewEvent(
+            ViewEvent.ShowProgressText(
+                message = getString(if (isCutted) R.string.progress_insert_record else R.string.progress_copy_record)
+            )
+        )
         val result = recordsInteractor.insertRecord(getContext(), record, isCutted, curNode!!, withoutDir)
-        sendViewEvent(Constants.ViewEvents.ShowProgress, false)
+        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
         return result
     }
 
@@ -351,7 +443,7 @@ class MainViewModel(
                     }
                     if (hasError) {
                         logWarning(R.string.log_files_attach_error, true)
-                        this@MainViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                        sendViewEvent(ViewEvent.ShowMoreInLogs)
                     }
                     // запускаем активность записи, к которой уже будут прикреплены файлы
                     openRecordWithAttachedFiles(record.id)
@@ -371,7 +463,7 @@ class MainViewModel(
         launchOnMain {
             val res = deleteRecord(record, false)
             if (res == -1) {
-                sendEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, record))
+                sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.DELETE, record)))
             } else {
                 onDeleteRecordResult(record, res, false)
             }
@@ -385,7 +477,7 @@ class MainViewModel(
      */
     private suspend fun onDeleteRecordResult(record: TetroidRecord, res: Int, isCutted: Boolean) {
         if (res > 0) {
-            sendEvent(MainEvents.RecordDeleted, record)
+            sendEvent(MainEvent.Record.Deleted(record))
             updateTags()
             updateNodes()
             // обновляем избранное
@@ -402,7 +494,7 @@ class MainViewModel(
             }
         } else if (res == -2 && !isCutted) {
             logWarning(R.string.log_erorr_move_record_dir_when_del, true)
-            sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+            sendViewEvent(ViewEvent.ShowMoreInLogs)
         } else {
             logOperErrorMore(LogObj.RECORD, if (isCutted) LogOper.CUT else LogOper.DELETE)
         }
@@ -491,7 +583,7 @@ class MainViewModel(
             // удаляем запись из текущей ветки и каталог перемещаем в корзину
             val res: Int = cutRecord(record, false)
             if (res == -1) {
-                this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.CUT, record))
+                sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.CUT, record)))
 //                }
             } else {
                 onDeleteRecordResult(record, res, true)
@@ -589,7 +681,7 @@ class MainViewModel(
      */
     private fun openRecord(bundle: Bundle) {
         launchOnMain {
-            sendEvent(MainEvents.OpenRecord, bundle)
+            sendEvent(MainEvent.Record.Open(bundle))
         }
     }
 
@@ -606,7 +698,7 @@ class MainViewModel(
 
     private fun updateRecords() {
         launchOnMain {
-            sendEvent(MainEvents.UpdateRecords)
+            sendEvent(MainEvent.UpdateRecords)
         }
     }
 
@@ -626,7 +718,7 @@ class MainViewModel(
             launchOnMain {
                 log(getString(R.string.log_open_node) + StringUtils.getIdString(getContext(), node))
                 curNode = node
-                sendEvent(MainEvents.SetCurrentNode, node)
+                sendEvent(MainEvent.SetCurrentNode(node))
                 showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
 
                 // сохраняем выбранную ветку
@@ -673,7 +765,7 @@ class MainViewModel(
                 logFailure(failure)
                 logOperErrorMore(LogObj.NODE, LogOper.CREATE)
             }.onSuccess { node ->
-                sendEvent(MainEvents.NodeCreated, node)
+                sendEvent(MainEvent.Node.Created(node))
             }
         }
     }
@@ -687,7 +779,7 @@ class MainViewModel(
             if (nodesInteractor.editNodeFields(node, newName)) {
                 logOperRes(LogObj.NODE, LogOper.RENAME)
                 updateNodes()
-                sendEvent(MainEvents.NodeRenamed, node)
+                sendEvent(MainEvent.Node.Renamed(node))
             } else {
                 logOperErrorMore(LogObj.NODE, LogOper.RENAME)
             }
@@ -738,7 +830,7 @@ class MainViewModel(
             }.onSuccess { newNode ->
                 // ищем вновь созданную ветку - копию node
                 //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
-                sendEvent(MainEvents.NodeInserted, newNode)
+                sendEvent(MainEvent.Node.Inserted(newNode))
             }
         }
     }
@@ -784,7 +876,7 @@ class MainViewModel(
             return
         }
         launchOnMain {
-            this@MainViewModel.sendEvent(MainEvents.AskForDeleteNode, node)
+            sendEvent(MainEvent.Node.AskForDelete(node))
         }
     }
 
@@ -798,7 +890,7 @@ class MainViewModel(
     private fun onDeleteNodeResult(node: TetroidNode, res: Boolean, isCutted: Boolean) {
         if (res) {
             launchOnMain {
-                sendEvent(if (isCutted) MainEvents.NodeCutted else MainEvents.NodeDeleted, node)
+                sendEvent(if (isCutted) MainEvent.Node.Cutted(node) else MainEvent.Node.Deleted(node))
             }
             // удаляем элемент внутри списка
 //            if (mListAdapterNodes.deleteItem(pos)) {
@@ -816,7 +908,7 @@ class MainViewModel(
                 curRecord = null
                 curNode = null
                 launchOnMain {
-                    sendViewEvent(Constants.ViewEvents.ClearMainView)
+                    sendViewEvent(ViewEvent.ClearMainView)
                 }
             }
             if (node.isCrypted) {
@@ -865,9 +957,10 @@ class MainViewModel(
      */
     private fun startEncryptDecryptNode(node: TetroidNode, isEncrypt: Boolean) {
         launchOnMain {
-            this@MainViewModel.sendViewEvent(
-                Constants.ViewEvents.TaskStarted,
-                if (isEncrypt) R.string.task_node_encrypting else R.string.task_node_drop_crypting
+            sendViewEvent(
+                ViewEvent.TaskStarted(
+                    if (isEncrypt) R.string.task_node_encrypting else R.string.task_node_drop_crypting
+                )
             )
 
             logOperStart(LogObj.NODE, if (isEncrypt) LogOper.ENCRYPT else LogOper.DROPCRYPT, node)
@@ -898,7 +991,7 @@ class MainViewModel(
                 } else 0
             }
 
-            sendViewEvent(Constants.ViewEvents.TaskFinished)
+            sendViewEvent(ViewEvent.TaskFinished)
 
             if (result > 0) {
                 logOperRes(LogObj.NODE, operation)
@@ -923,15 +1016,18 @@ class MainViewModel(
                     showNode(node)
                 }
             }
-            sendViewEvent(Constants.ViewEvents.HandleReceivedIntent)
+            sendViewEvent(ViewEvent.HandleReceivedIntent)
         }
     }
 
     private fun setStage(obj: LogObj, oper: LogOper, stage: Stages) {
         val taskStage = TaskStage(Constants.TetroidView.Main, obj, oper, stage)
-        val mes = logger.logTaskStage(taskStage)
         launchOnMain {
-            this@MainViewModel.sendViewEvent(Constants.ViewEvents.ShowProgressText, mes)
+            sendViewEvent(
+                ViewEvent.ShowProgressText(
+                    message = logger.logTaskStage(taskStage).orEmpty()
+                )
+            )
         }
     }
 
@@ -943,7 +1039,7 @@ class MainViewModel(
 
     fun updateNodes() {
         launchOnMain {
-            sendEvent(MainEvents.UpdateNodes)
+            sendEvent(MainEvent.UpdateNodes)
         }
     }
 
@@ -971,7 +1067,7 @@ class MainViewModel(
             if (tag != null) {
                 curTag = tag
                 // сбрасываем текущую ветку
-                sendEvent(MainEvents.SetCurrentNode, null)
+                sendEvent(MainEvent.SetCurrentNode(node = null))
                 log(getString(R.string.log_open_tag_records_mask).format(tag.name))
                 showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
             } else {
@@ -995,7 +1091,7 @@ class MainViewModel(
 
     fun updateTags() {
         launchOnMain {
-            sendEvent(MainEvents.UpdateTags)
+            sendEvent(MainEvent.UpdateTags)
         }
     }
 
@@ -1033,9 +1129,9 @@ class MainViewModel(
     }
 
     fun showAttaches(attaches: List<TetroidFile>) {
-    launchOnMain {
-        sendEvent(MainEvents.ShowAttaches, ObjectsInView(attaches))
-    }
+        launchOnMain {
+            sendEvent(MainEvent.ShowAttaches(attaches))
+        }
     }
 
     /**
@@ -1055,11 +1151,11 @@ class MainViewModel(
 
     open fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
         launchOnMain {
-            sendViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_attach_file)
+            sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
             val attach = withContext(Dispatchers.IO) {
                 attachesInteractor.attachFile(getContext(), fileFullName, record, deleteSrcFile)
             }
-            sendViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
+            sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
             if (attach != null) {
                 log(R.string.log_file_was_attached, true)
                 updateAttaches()
@@ -1070,7 +1166,7 @@ class MainViewModel(
                 }
             } else {
                 logError(R.string.log_file_attaching_error, true)
-                sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+                sendViewEvent(ViewEvent.ShowMoreInLogs)
             }
         }
     }
@@ -1093,7 +1189,7 @@ class MainViewModel(
      */
     fun pickAndAttachFile() {
         launchOnMain {
-            this@MainViewModel.sendEvent(MainEvents.OpenFilePicker)
+            sendEvent(MainEvent.OpenFilePicker)
         }
     }
 
@@ -1118,8 +1214,8 @@ class MainViewModel(
     fun deleteAttach(file: TetroidFile) {
         launchOnMain {
             when (val res: Int = attachesInteractor.deleteAttachedFile(getContext(), file, false)) {
-                -2 -> this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.DELETE, file))
-                -1 -> this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.DELETE, file))
+                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.DELETE, file)))
+                -1 -> sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.DELETE, file)))
                 else -> onDeleteAttachResult(file, res)
             }
         }
@@ -1133,7 +1229,7 @@ class MainViewModel(
     private fun onDeleteAttachResult(file: TetroidFile, res: Int) {
         if (res > 0) {
             launchOnMain {
-                sendEvent(MainEvents.AttachDeleted, file)
+                sendEvent(MainEvent.AttachDeleted(attach = file))
             }
             // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
             // если был удален единственный файл
@@ -1153,9 +1249,9 @@ class MainViewModel(
     fun renameAttach(file: TetroidFile, name: String) {
         launchOnMain {
             when (val res = attachesInteractor.editAttachedFileFields(getContext(), file, name)) {
-                -2 -> this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutFile, ClipboardParams(LogOper.RENAME, file))
+                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.RENAME, file)))
                 // TODO: добавить вариант Создать каталог записи
-                -1 -> this@MainViewModel.sendEvent(MainEvents.AskForOperationWithoutDir, ClipboardParams(LogOper.RENAME, file))
+                -1 -> sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.RENAME, file)))
                 else -> onRenameAttachResult(res)
             }
         }
@@ -1213,7 +1309,7 @@ class MainViewModel(
     fun saveAttachOnDevice(file: TetroidFile) {
         curFile = file
         launchOnMain {
-            this@MainViewModel.sendEvent(MainEvents.OpenFolderPicker)
+            sendEvent(MainEvent.OpenFolderPicker)
         }
     }
 
@@ -1222,9 +1318,9 @@ class MainViewModel(
      */
     fun saveCurAttachOnDevice(folderPath: String?) {
         launchOnMain {
-            this@MainViewModel.sendViewEvent(Constants.ViewEvents.TaskStarted, R.string.task_file_saving)
+            sendViewEvent(ViewEvent.TaskStarted(R.string.task_file_saving))
             val res = attachesInteractor.saveFile(getContext(), curFile, folderPath)
-            this@MainViewModel.sendViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
+            sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
             onSaveFileResult(res)
         }
     }
@@ -1257,7 +1353,7 @@ class MainViewModel(
 
     private fun updateAttaches() {
         launchOnMain {
-            sendEvent(MainEvents.UpdateAttaches)
+            sendEvent(MainEvent.UpdateAttaches)
         }
     }
 
@@ -1272,9 +1368,9 @@ class MainViewModel(
         launchOnMain {
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!isLoadedFavoritesOnly()) {
-                sendEvent(MainEvents.SetCurrentNode, FavoritesInteractor.FAVORITES_NODE)
+                sendEvent(MainEvent.SetCurrentNode(node = FavoritesInteractor.FAVORITES_NODE))
             }
-            showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, true)
+            showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, dropSearch = true)
 
             // сохраняем выбранную ветку
             saveLastSelectedNode()
@@ -1317,7 +1413,7 @@ class MainViewModel(
 
     private fun updateFavoritesTitle() {
         launchOnMain {
-            sendEvent(MainEvents.UpdateFavoritesTitle)
+            sendEvent(MainEvent.UpdateFavoritesTitle)
         }
     }
 
@@ -1346,7 +1442,7 @@ class MainViewModel(
 
     fun research() {
         launchOnMain {
-            this@MainViewModel.sendEvent(MainEvents.GlobalResearch)
+            sendEvent(MainEvent.GlobalResearch)
         }
     }
 
@@ -1354,18 +1450,16 @@ class MainViewModel(
      * Запуск глобального поиска.
      * @param profile
      */
-    fun startGlobalSearch(profile: SearchProfile?) {
-        if (profile == null) return
-
+    fun startGlobalSearch(profile: SearchProfile) {
         this.lastSearchProfile = profile
         // TODO: to UseCase
         val searchInteractor = SearchInteractor(profile, storageProvider, nodesInteractor, recordsInteractor)
 
         launchOnMain {
             log(getString(R.string.global_search_start).format(profile.query))
-            sendViewEvent(Constants.ViewEvents.TaskStarted, R.string.global_searching)
+            sendViewEvent(ViewEvent.TaskStarted(R.string.global_searching))
             val found = searchInteractor.globalSearch(getContext())
-            sendViewEvent(Constants.ViewEvents.TaskFinished/*, Gravity.NO_GRAVITY*/)
+            sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
 
             if (found == null) {
                 log(getString(R.string.log_global_search_return_null), true)
@@ -1380,13 +1474,13 @@ class MainViewModel(
             }
             log(String.format(getString(R.string.global_search_end), found.size))
 
-            sendEvent(MainEvents.GlobalSearchFinished, GlobalSearchParams(found, profile))
+            sendEvent(MainEvent.GlobalSearchFinished(found, profile))
         }
     }
 
     fun startGlobalSearchFromFilterQuery() {
         launchOnMain {
-            this@MainViewModel.sendEvent(MainEvents.GlobalSearchStart, lastFilterQuery)
+            sendEvent(MainEvent.GlobalSearchStart(query = lastFilterQuery))
         }
     }
 
@@ -1440,7 +1534,7 @@ class MainViewModel(
             if (lastFilterQuery.isNullOrEmpty()) {
                 lastFilterQuery = query
             }
-            sendEvent(MainEvents.RecordsFiltered, FilteredObjectsInView(query, found, viewId))
+            sendEvent(MainEvent.RecordsFiltered(query, found, viewId))
         }
     }
 
@@ -1457,7 +1551,11 @@ class MainViewModel(
             log(String.format(getString(R.string.filter_files_by_query), record.name, query))
             val found = ScanManager.searchInFiles(record.attachedFiles, query)
             showAttaches(found)
-            sendEvent(MainEvents.AttachesFiltered, FilteredObjectsInView(query, found, Constants.MAIN_VIEW_RECORD_FILES))
+            sendEvent(MainEvent.AttachesFiltered(
+                query = query,
+                attaches = found,
+                viewId = Constants.MAIN_VIEW_RECORD_FILES,
+            ))
         }
     }
 
@@ -1530,7 +1628,7 @@ class MainViewModel(
                 TetroidFileObserver.Event.Modified -> {
                     log(R.string.log_storage_tree_changed_outside)
                     launchOnMain {
-                        this@MainViewModel.sendStorageEvent(Constants.StorageEvents.TreeChangedOutside)
+                        this@MainViewModel.sendStorageEvent(StorageEvent.TreeChangedOutside)
                     }
                 }
                 TetroidFileObserver.Event.Moved,
@@ -1542,10 +1640,10 @@ class MainViewModel(
                         }
                         if (FileUtils.isFileExist(storagePathHelper.getPathToMyTetraXml())) {
                             log(R.string.log_storage_tree_changed_outside)
-                            this@MainViewModel.sendStorageEvent(Constants.StorageEvents.TreeChangedOutside)
+                            this@MainViewModel.sendStorageEvent(StorageEvent.TreeChangedOutside)
                         } else {
                             log(R.string.log_storage_tree_deleted_outside)
-                            this@MainViewModel.sendStorageEvent(Constants.StorageEvents.TreeDeletedOutside)
+                            this@MainViewModel.sendStorageEvent(StorageEvent.TreeDeletedOutside)
                         }
                     }
                 }
@@ -1573,16 +1671,17 @@ class MainViewModel(
     fun onUICreated() {
         launchOnMain {
             if (isStorageLoaded()) {
-                val params = StorageParams(
-                    storage = storage!!,
-                    isLoadFavoritesOnly = isLoadedFavoritesOnly(),
-                    isHandleReceivedIntent = true,
-                    result = true
-                )
                 // инициализация контролов
-                sendViewEvent(Constants.ViewEvents.InitGUI, params)
+                sendViewEvent(
+                    ViewEvent.InitGUI(
+                        storage = storage!!,
+                        isLoadFavoritesOnly = isLoadedFavoritesOnly(),
+                        isHandleReceivedIntent = true,
+                        result = true
+                    )
+                )
                 // действия после загрузки хранилища
-                sendStorageEvent(Constants.StorageEvents.Loaded, true)
+                sendStorageEvent(StorageEvent.Loaded(result = true))
             } else {
                 // проверяем необходимость миграции
                 val mirgationStarted = withContext(Dispatchers.IO) {
@@ -1631,7 +1730,7 @@ class MainViewModel(
             } else {
                 // спрашиваем что делать
                 launchOnMain {
-                    sendStorageEvent(Constants.StorageEvents.AskForSyncAfterFailureSyncOnExit)
+                    sendStorageEvent(StorageEvent.AskForSyncAfterFailureSyncOnExit)
                 }
             }
         }
@@ -1640,7 +1739,7 @@ class MainViewModel(
     fun exitAfterAsks() {
         launchOnMain {
             onExit()
-            sendEvent(MainEvents.Exit)
+            sendEvent(MainEvent.Exit)
         }
     }
 
@@ -1663,7 +1762,7 @@ class MainViewModel(
                     callback?.run(false)
                 }
                 TrashInteractor.TrashClearResult.NEED_ASK -> {
-                    this@MainViewModel.sendStorageEvent(Constants.StorageEvents.AskBeforeClearTrashOnExit, callback)
+                    sendStorageEvent(StorageEvent.AskBeforeClearTrashOnExit(callback))
                 }
                 TrashInteractor.TrashClearResult.NONE -> {
                     callback?.run(true)
@@ -1683,58 +1782,6 @@ class MainViewModel(
     }
 
     //endregion Main view
-    enum class MainEvents {
-        // migration
-        Migrated,
-
-        // crypt
-        EncryptNode,
-        DropEncryptNode,
-
-        // nodes
-        ShowNode,
-        SetCurrentNode,
-        NodeCreated,
-        NodeInserted,
-        NodeRenamed,
-        AskForDeleteNode,
-        NodeCutted,
-        NodeDeleted,
-        UpdateNodes,
-
-        // records
-        OpenRecord,
-        ShowRecords,
-        RecordsFiltered,
-        RecordDeleted,
-        RecordCutted,
-        UpdateRecords,
-
-        // tags
-        UpdateTags,
-
-        // attaches
-        ShowAttaches,
-        AttachesFiltered,
-        UpdateAttaches,
-        AttachDeleted,
-
-        // favorites
-        UpdateFavoritesTitle,
-
-        // global search
-        GlobalSearchStart,
-        GlobalResearch,
-        GlobalSearchFinished,
-
-        // file system
-        AskForOperationWithoutDir,
-        AskForOperationWithoutFile,
-        OpenFilePicker,
-        OpenFolderPicker,
-
-        Exit
-    }
 
 }
 
@@ -1742,14 +1789,4 @@ class ClipboardParams(
     val operation: LogOper,
     val obj: TetroidObject,
     val isCutted: Boolean = false
-)
-
-class GlobalSearchParams(
-    val found: HashMap<ITetroidObject, FoundType>,
-    val profile: SearchProfile
-)
-
-class ToolbarParams(
-    val viewId: Int,
-    val title: String?
 )

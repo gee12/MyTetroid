@@ -3,9 +3,9 @@ package com.gee12.mytetroid.views.fragments.settings.storage
 import android.os.Bundle
 import android.view.View
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants.StorageEvents
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.activities.StorageSettingsActivity
 import com.gee12.mytetroid.views.fragments.settings.TetroidSettingsFragment
 import java.lang.Exception
@@ -28,7 +28,7 @@ open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
         }
     }
 
-    open fun onStorageEvent(event: StorageEvents, data: Any?) {
+    open fun onStorageEvent(event: StorageViewModel.StorageEvent) {
     }
 
     open fun onStorageFoundInBase(storage: TetroidStorage) {

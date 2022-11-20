@@ -17,12 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Constants.StorageEvents
-import com.gee12.mytetroid.common.Constants.ViewEvents
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.viewmodels.StoragesViewModel
+import com.gee12.mytetroid.viewmodels.StoragesViewModel.StoragesEvent
+import com.gee12.mytetroid.viewmodels.VMEvent
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
@@ -86,28 +88,28 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun onUICreated(uiCreated: Boolean) {}
 
-    override fun onViewEvent(event: ViewEvents, data: Any?) {
+    override fun onViewEvent(event: ViewEvent) {
         when (event) {
-            ViewEvents.PermissionGranted -> {
-                when (data) {
+            is ViewEvent.PermissionGranted -> {
+                when (event.requestCode) {
                     Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> viewModel.addNewStorage(this)
                     Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> Unit // ничего не делаем
                 }
             }
-            else -> super.onViewEvent(event, data)
+            else -> super.onViewEvent(event)
         }
     }
 
-    override fun onStorageEvent(event: StorageEvents, data: Any?) {
+    override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            StorageEvents.Added -> (data as? TetroidStorage)?.let { onStorageAdded(it) }
-            else -> super.onStorageEvent(event, data)
+            is StorageEvent.Added -> onStorageAdded(event.storage)
+            else -> super.onStorageEvent(event)
         }
     }
 
-    override fun onObjectEvent(event: Any, data: Any?) {
+    override fun onObjectEvent(event: VMEvent) {
         when (event) {
-            StoragesViewModel.Event.ShowAddNewStorageDialog -> showStorageDialog(null)
+            StoragesEvent.ShowAddNewStorageDialog -> showStorageDialog(null)
         }
     }
 
@@ -144,19 +146,19 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     private fun createStorageFiles(storage: TetroidStorage) {
         val storageViewModel: StorageViewModel = get(StorageViewModel::class.java)
         lifecycleScope.launch {
-            storageViewModel.viewEventFlow.collect {
-                when (it.state) {
+            storageViewModel.viewEventFlow.collect { event ->
+                when (event) {
                     // проверка разрешения перед созданием файлов хранилища
-                    ViewEvents.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this@StoragesActivity)
-                    ViewEvents.PermissionGranted -> storageViewModel.initStorage()
+                    ViewEvent.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this@StoragesActivity)
+                    is ViewEvent.PermissionGranted -> storageViewModel.initStorage()
                     else -> Unit
                 }
             }
         }
         lifecycleScope.launch {
-            storageViewModel.storageEventFlow.collect {
-                when (it.state) {
-                    StorageEvents.FilesCreated -> onStorageFilesCreated(storage)
+            storageViewModel.storageEventFlow.collect { event ->
+                when (event) {
+                    is StorageEvent.FilesCreated -> onStorageFilesCreated(event.storage)
                     else -> Unit
                 }
             }

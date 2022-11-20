@@ -11,8 +11,11 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Constants.ViewEvents
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.viewmodels.StorageInfoViewModel
+import com.gee12.mytetroid.viewmodels.StorageInfoViewModel.StorageInfoEvent
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
+import com.gee12.mytetroid.viewmodels.VMEvent
 import org.koin.java.KoinJavaComponent.get
 
 /**
@@ -37,13 +40,13 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
         this.viewModel = get(StorageInfoViewModel::class.java)
     }
 
-    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
+    override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            Constants.StorageEvents.GetEntity -> onStorageFoundInBase()
-            Constants.StorageEvents.Inited -> onStorageInitedOrLoaded(true)
-            Constants.StorageEvents.InitFailed -> onStorageInitFailed()
-            Constants.StorageEvents.Loaded -> onStorageInitedOrLoaded(data as Boolean)
-            else -> super.onStorageEvent(event, data)
+            is StorageEvent.GetEntity -> onStorageFoundInBase()
+            is StorageEvent.Inited -> onStorageInitedOrLoaded(true)
+            is StorageEvent.InitFailed -> onStorageInitFailed()
+            is StorageEvent.Loaded -> onStorageInitedOrLoaded(event.result)
+            else -> super.onStorageEvent(event)
         }
     }
 
@@ -113,36 +116,36 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
             ?: getString(R.string.mes_storage_init_error)
     }
 
-    override fun onViewEvent(event: ViewEvents, data: Any?) {
+    override fun onViewEvent(event: ViewEvent) {
         when (event) {
-            ViewEvents.TaskStarted -> taskPreExecute(R.string.task_storage_initializing)
-            ViewEvents.TaskFinished -> taskPostExecute()
+            is ViewEvent.TaskStarted -> taskPreExecute(R.string.task_storage_initializing)
+            ViewEvent.TaskFinished -> taskPostExecute()
             else -> {}
         }
     }
 
-    override fun onObjectEvent(event: Any, data: Any?) {
+    override fun onObjectEvent(event: VMEvent) {
         when (event) {
-            StorageInfoViewModel.Event.GetStorageFolderSize.InProgress -> {
+            StorageInfoEvent.GetStorageFolderSize.InProgress -> {
                 findViewById<View>(R.id.progress_size).visibility = View.VISIBLE
             }
-            is StorageInfoViewModel.Event.GetStorageFolderSize.Failed -> {
+            is StorageInfoEvent.GetStorageFolderSize.Failed -> {
                 findViewById<TextView>(R.id.text_view_size).text = getString(R.string.title_error)
                 findViewById<View>(R.id.progress_size).visibility = View.GONE
             }
-            is StorageInfoViewModel.Event.GetStorageFolderSize.Success -> {
+            is StorageInfoEvent.GetStorageFolderSize.Success -> {
                 findViewById<TextView>(R.id.text_view_size).text = event.size
                 findViewById<View>(R.id.progress_size).visibility = View.GONE
             }
 
-            StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.InProgress -> {
+            StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress -> {
                 findViewById<View>(R.id.progress_last_edit).visibility = View.VISIBLE
             }
-            is StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.Failed -> {
+            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed -> {
                 findViewById<TextView>(R.id.text_view_last_edit).text = getString(R.string.title_error)
                 findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
             }
-            is StorageInfoViewModel.Event.GetMyTetraXmlLastModifiedDate.Success -> {
+            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success -> {
                 findViewById<TextView>(R.id.text_view_last_edit).text = event.date
                 findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
             }

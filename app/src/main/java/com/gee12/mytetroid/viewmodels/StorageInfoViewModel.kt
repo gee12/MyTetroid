@@ -86,13 +86,13 @@ class StorageInfoViewModel(
     changePasswordUseCase,
 ), CoroutineScope {
 
-    sealed class Event {
-        sealed class GetMyTetraXmlLastModifiedDate {
+    sealed class StorageInfoEvent : VMEvent() {
+        sealed class GetMyTetraXmlLastModifiedDate : StorageInfoEvent() {
             object InProgress : GetMyTetraXmlLastModifiedDate()
             data class Failed(val failure: Failure) : GetMyTetraXmlLastModifiedDate()
             data class Success(val date: String) : GetMyTetraXmlLastModifiedDate()
         }
-        sealed class GetStorageFolderSize {
+        sealed class GetStorageFolderSize : StorageInfoEvent() {
             object InProgress : GetStorageFolderSize()
             data class Failed(val failure: Failure) : GetStorageFolderSize()
             data class Success(val size: String) : GetStorageFolderSize()
@@ -103,28 +103,28 @@ class StorageInfoViewModel(
 
     fun startInitStorage(intent: Intent) {
         launchOnMain {
-            sendViewEvent(Constants.ViewEvents.TaskStarted)
+            sendViewEvent(ViewEvent.TaskStarted())
             if (!initStorage(intent)) {
-                sendStorageEvent(Constants.StorageEvents.InitFailed)
+                sendStorageEvent(StorageEvent.InitFailed(isOnlyFavorites = checkIsNeedLoadFavoritesOnly()))
             }
-            sendViewEvent(Constants.ViewEvents.TaskFinished)
+            sendViewEvent(ViewEvent.TaskFinished)
         }
     }
 
     fun computeStorageFolderSize() {
         launchOnMain {
-            sendEvent(Event.GetStorageFolderSize.InProgress)
+            sendEvent(StorageInfoEvent.GetStorageFolderSize.InProgress)
             withIo {
                 getFolderSizeUseCase.run(
                     GetFolderSizeUseCase.Params(
                         folderPath = storagePathHelper.getStoragePath(),
                     )
                 ).onFailure {
-                    sendEvent(Event.GetStorageFolderSize.Failed(it))
+                    sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
                     val title = failureHandler.getFailureMessage(it)
                     logError(getString(R.string.error_get_storage_folder_size_mask).format(title))
                 }.onSuccess { size ->
-                    sendEvent(Event.GetStorageFolderSize.Success(size))
+                    sendEvent(StorageInfoEvent.GetStorageFolderSize.Success(size))
                 }
             }
         }
@@ -132,7 +132,7 @@ class StorageInfoViewModel(
 
     fun computeMyTetraXmlLastModifiedDate() {
         launchOnMain {
-            sendEvent(Event.GetMyTetraXmlLastModifiedDate.InProgress)
+            sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress)
             getFileModifiedDateUseCase.run(
                 GetFileModifiedDateUseCase.Params(
                     filePath = storagePathHelper.getPathToMyTetraXml(),
@@ -140,11 +140,11 @@ class StorageInfoViewModel(
             ).map { date ->
                 Utils.dateToString(date, getString(R.string.full_date_format_string))
             }.onFailure {
-                sendEvent(Event.GetMyTetraXmlLastModifiedDate.Failed(it))
+                sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
                 val title = failureHandler.getFailureMessage(it)
                 logError(getString(R.string.error_get_mytetra_xml_modified_date_mask).format(title))
             }.onSuccess { dateString ->
-                sendEvent(Event.GetMyTetraXmlLastModifiedDate.Success(dateString))
+                sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success(dateString))
             }
         }
     }

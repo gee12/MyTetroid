@@ -11,6 +11,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.views.dialogs.pass.PassDialogs
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.views.dialogs.pass.PassChangeDialog
 
 class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
@@ -19,12 +20,12 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         super.onCreatePreferences(savedInstanceState, rootKey)
     }
 
-    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
+    override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            Constants.StorageEvents.PassChanged,
-            Constants.StorageEvents.PassSetuped -> onPasswordChanged()
-            Constants.StorageEvents.SavePassHashLocalChanged -> changeSavePassHashLocal(data as Boolean)
-            else -> super.onStorageEvent(event, data)
+            StorageEvent.PassChanged,
+            StorageEvent.PassSetuped -> onPasswordChanged()
+            is StorageEvent.SavePassHashLocalChanged -> changeSavePassHashLocal(event.isSaveLocal)
+            else -> super.onStorageEvent(event)
         }
     }
 

@@ -11,6 +11,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.views.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
@@ -18,6 +19,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.viewmodels.LogsViewModel.*
 import com.gee12.mytetroid.views.TetroidMessage
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.io.IOException
 
@@ -51,31 +53,36 @@ class LogsActivity : AppCompatActivity() {
         recycleView.adapter = textAdapter
         layoutError = findViewById(R.id.layout_read_error)
 
-        viewModel.event.observe(this, { (state, data) -> onEvent(state, data) })
-        viewModel.messageObservable.observe(this, { TetroidMessage.show(this, it) })
+        lifecycleScope.launch {
+            viewModel.logsEventFlow.collect { event -> onEvent(event) }
+        }
+        lifecycleScope.launch {
+            viewModel.messageEventFlow.collect { TetroidMessage.show(this@LogsActivity, it) }
+        }
 
         viewModel.load()
 
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
 
-    private fun onEvent(event: Event, data: Any?) {
+    private fun onEvent(event: LogsEvent) {
         when (event) {
-            Event.PreLoading -> {
+            LogsEvent.Loading.InProcess -> {
                 window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 setProgresVisible(true)
             }
 
-            Event.PostLoading -> {
+            is LogsEvent.Loading.Success,
+            is LogsEvent.Loading.Failed -> {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
                 setProgresVisible(false)
 
-                when (data) {
-                    is FileReadResult.Success -> {
-                        textAdapter.setItems(data.data)
+                when (event) {
+                    is LogsEvent.Loading.Success -> {
+                        textAdapter.setItems(event.data)
                     }
-                    is FileReadResult.Failure -> {
-                        val mes = "%s%s\n\n%s".format(getString(R.string.log_file_read_error), viewModel.logger.fullFileName, data.text)
+                    is LogsEvent.Loading.Failed -> {
+                        val mes = "%s%s\n\n%s".format(getString(R.string.log_file_read_error), viewModel.logger.fullFileName, event.text)
                         (findViewById<View>(R.id.text_view_error) as TextView).text = mes
                         layoutError.visibility = View.VISIBLE
                         recycleView.visibility = View.GONE
@@ -85,12 +92,13 @@ class LogsActivity : AppCompatActivity() {
                             showBufferLogs()
                         }
                     }
+                    else -> {}
                 }
 
                 scrollToBottom()
             }
 
-            Event.ShowBufferLogs -> {
+            LogsEvent.ShowBufferLogs -> {
                 showBufferLogs()
             }
         }

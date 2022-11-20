@@ -9,12 +9,13 @@ import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Constants.ViewEvents
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageSectionsSettingsFragment
 import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment
 import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettingsFragment
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.views.TetroidMessage
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -34,41 +35,43 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
 
     fun initViewModel() {
 
-        viewModel.messageObservable.observe(this) {
-            TetroidMessage.show(this, it)
+        lifecycleScope.launch {
+            viewModel.messageEventFlow.collect { message -> TetroidMessage.show(this@StorageSettingsActivity, message) }
         }
         lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { (event, data) -> onStorageEvent(event, data) }
+            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
         }
         viewModel.updateStorageField.observe(this) { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) }
 
     }
 
-    protected fun onViewEvent(event: ViewEvents, data: Any?) {
+    protected fun onViewEvent(event: ViewEvent) {
 //        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onViewEvent(event, data)
 
         when (event) {
-            ViewEvents.ShowProgress -> setProgressVisibility(data as? Boolean ?: false)
-            ViewEvents.ShowProgressText -> setProgressText(data as? String)
-            ViewEvents.TaskStarted -> setProgressVisibility(true, data as String)
-            ViewEvents.TaskFinished -> setProgressVisibility(false)
-            ViewEvents.ShowMoreInLogs -> showSnackMoreInLogs()
-            ViewEvents.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            ViewEvents.PermissionGranted -> viewModel.initStorage()
+            is ViewEvent.ShowProgress -> setProgressVisibility(event.isVisible)
+            is ViewEvent.ShowProgressText -> setProgressText(event.message)
+            is ViewEvent.TaskStarted -> {
+                setProgressVisibility(true, event.titleResId?.let { getString(it) })
+            }
+            ViewEvent.TaskFinished -> setProgressVisibility(false)
+            ViewEvent.ShowMoreInLogs -> showSnackMoreInLogs()
+            ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            is ViewEvent.PermissionGranted -> viewModel.initStorage()
             else -> Unit
         }
     }
 
-    protected fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
-        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageEvent(event, data)
+    protected fun onStorageEvent(event: StorageEvent) {
+        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageEvent(event)
 
         when (event) {
-            Constants.StorageEvents.GetEntity -> onStorageFoundInBase(data as TetroidStorage)
-            Constants.StorageEvents.Inited -> onStorageInited(data as TetroidStorage)
-            Constants.StorageEvents.InitFailed -> onStorageInitFailed()
+            is StorageEvent.GetEntity -> onStorageFoundInBase(event.storage)
+            is StorageEvent.Inited -> onStorageInited(event.storage)
+            is StorageEvent.InitFailed -> onStorageInitFailed()
             else -> Unit
         }
     }

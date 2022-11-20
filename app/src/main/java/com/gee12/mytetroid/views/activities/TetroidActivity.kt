@@ -22,18 +22,18 @@ import com.gee12.mytetroid.views.activities.StorageSettingsActivity.Companion.ne
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.ActivityDoubleTapListener
-import com.gee12.mytetroid.common.Constants.ViewEvents
-import com.gee12.mytetroid.common.Constants.StorageEvents
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.PermissionRequestParams
 import com.gee12.mytetroid.views.dialogs.AskDialogs
 import lib.folderpicker.FolderPicker
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
+import com.gee12.mytetroid.viewmodels.VMEvent
 import com.gee12.mytetroid.views.TetroidMessage
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -78,15 +78,17 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
 
         viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
         lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { (state, data) -> onViewEvent(state, data) }
+            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { (state, data) -> onStorageEvent(state, data) }
+            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.objectEventFlow.collect { (state, data) -> onObjectEvent(state, data) }
+            viewModel.objectEventFlow.collect { event -> onObjectEvent(event) }
         }
-        viewModel.messageObservable.observe(this) { message: Message? -> onMessage(message) }
+        lifecycleScope.launch {
+            viewModel.messageEventFlow.collect { message -> onMessage(message) }
+        }
     }
 
     protected open fun getStorageId(): Int? = null
@@ -141,14 +143,13 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
      * @param event
      * @param data
      */
-    protected open fun onViewEvent(event: ViewEvents, data: Any?) {
+    protected open fun onViewEvent(event: ViewEvent) {
         when (event) {
-            ViewEvents.ShowProgress -> {
-                val isVisible = data !is Boolean || data
-                setProgressVisibility(isVisible, null)
+            is ViewEvent.ShowProgress -> {
+                setProgressVisibility(event.isVisible, null)
             }
-            ViewEvents.ShowProgressText -> setProgressText(data as String?)
-            ViewEvents.ShowPermissionRequest -> showPermissionRequest(data as PermissionRequestParams)
+            is ViewEvent.ShowProgressText -> setProgressText(event.message)
+            is ViewEvent.ShowPermissionRequest -> showPermissionRequest(event.request)
             else -> {}
         }
     }
@@ -158,12 +159,12 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
      * @param event
      * @param data
      */
-    protected open fun onStorageEvent(event: StorageEvents, data: Any?) {
+    protected open fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            StorageEvents.NoDefaultStorage -> askForDefaultStorageNotSpecified(this) { showStoragesActivity() }
-            StorageEvents.Inited -> afterStorageInited()
-            StorageEvents.Loaded -> afterStorageLoaded(data as Boolean)
-            StorageEvents.Decrypted -> afterStorageDecrypted(data as TetroidNode)
+            StorageEvent.NoDefaultStorage -> askForDefaultStorageNotSpecified(this) { showStoragesActivity() }
+            is StorageEvent.Inited -> afterStorageInited()
+            is StorageEvent.Loaded -> afterStorageLoaded(event.result)
+            StorageEvent.Decrypted -> afterStorageDecrypted(/*data as TetroidNode*/)
             else -> {}
         }
     }
@@ -173,7 +174,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
      * @param event
      * @param data
      */
-    protected open fun onObjectEvent(event: Any, data: Any?) {
+    protected open fun onObjectEvent(event: VMEvent) {
     }
 
     open fun afterStorageInited() {
@@ -182,7 +183,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
     open fun afterStorageLoaded(res: Boolean) {
     }
 
-    open fun afterStorageDecrypted(node: TetroidNode?) {
+    open fun afterStorageDecrypted(/*node: TetroidNode?*/) {
     }
 
     private fun showPermissionRequest(params: PermissionRequestParams) {

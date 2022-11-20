@@ -111,13 +111,13 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
     override fun initViewModel() {
         super.initViewModel()
         lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { (event, data) -> onStorageEvent(event, data) }
+            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
         }
     }
 
-    override fun onStorageEvent(event: Constants.StorageEvents, data: Any?) {
+    override fun onStorageEvent(event: StorageViewModel.StorageEvent) {
         when (event) {
-            Constants.StorageEvents.Inited -> onStorageInited()
+            is StorageViewModel.StorageEvent.Inited -> onStorageInited()
             else -> {}
         }
     }
@@ -302,7 +302,6 @@ class SearchActivity : TetroidActivity<StorageViewModel>() {
 
     companion object {
 
-        @JvmStatic
         fun start(activity: Activity, query: String?, currentNodeId: String?, storageId: Int?) {
             val intent = Intent(activity, SearchActivity::class.java).apply {
                 if (storageId != null) {

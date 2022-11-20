@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.views.TetroidMessage
 import com.gee12.mytetroid.views.activities.TetroidSettingsActivity
@@ -42,19 +42,23 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected open fun initViewModel() {
-        baseViewModel.messageObservable.observe(requireActivity()) { TetroidMessage.show(activity, it) }
         lifecycleScope.launch {
-            baseViewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+            baseViewModel.messageEventFlow.collect { message -> TetroidMessage.show(activity, message) }
+        }
+        lifecycleScope.launch {
+            baseViewModel.viewEventFlow.collect { event -> onViewEvent(event) }
         }
     }
 
-    open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
+    open fun onViewEvent(event: ViewEvent) {
         when (event) {
-            Constants.ViewEvents.ShowProgress -> settingsActivity?.setProgressVisibility(data as? Boolean ?: false)
-            Constants.ViewEvents.ShowProgressText -> settingsActivity?.setProgressText(data as? String)
-            Constants.ViewEvents.TaskStarted -> settingsActivity?.setProgressVisibility(true, data as String)
-            Constants.ViewEvents.TaskFinished -> settingsActivity?.setProgressVisibility(false)
-            Constants.ViewEvents.ShowMoreInLogs -> settingsActivity?.showSnackMoreInLogs()
+            is ViewEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
+            is ViewEvent.ShowProgressText -> settingsActivity?.setProgressText(event.message)
+            is ViewEvent.TaskStarted -> {
+                settingsActivity?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
+            }
+            ViewEvent.TaskFinished -> settingsActivity?.setProgressVisibility(false)
+            ViewEvent.ShowMoreInLogs -> settingsActivity?.showSnackMoreInLogs()
             else -> {}
         }
     }

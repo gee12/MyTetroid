@@ -13,17 +13,16 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.views.IViewEventListener
 import com.gee12.mytetroid.views.TetroidMessage
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
@@ -89,35 +88,39 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 
-        viewModel.messageObservable.observe(requireActivity()) { TetroidMessage.show(requireActivity(), it) }
         lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { (event, data) -> onViewEvent(event, data) }
+            viewModel.messageEventFlow.collect { message -> TetroidMessage.show(requireActivity(), message) }
+        }
+        lifecycleScope.launch {
+            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
         }
 
         // для диалогов, которым необходимо хранилище
         if (viewModel is StorageViewModel) {
             val storageViewModel = viewModel as StorageViewModel
             lifecycleScope.launch {
-                storageViewModel.storageEventFlow.collect { (state, data) -> onStorageEvent(state, data) }
+                storageViewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
             }
             storageViewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
         }
     }
 
-    protected open fun onViewEvent(event: Constants.ViewEvents, data: Any?) {
+    protected open fun onViewEvent(event: ViewEvent) {
         when (event) {
-            Constants.ViewEvents.ShowProgress -> viewEventListener?.setProgressVisibility(data as? Boolean ?: false)
-            Constants.ViewEvents.ShowProgressText -> viewEventListener?.setProgressText(data as? String)
-            Constants.ViewEvents.TaskStarted -> viewEventListener?.setProgressVisibility(true, data as String)
-            Constants.ViewEvents.TaskFinished -> viewEventListener?.setProgressVisibility(false)
-            Constants.ViewEvents.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
+            is ViewEvent.ShowProgress -> viewEventListener?.setProgressVisibility(event.isVisible)
+            is ViewEvent.ShowProgressText -> viewEventListener?.setProgressText(event.message)
+            is ViewEvent.TaskStarted -> {
+                viewEventListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
+            }
+            ViewEvent.TaskFinished -> viewEventListener?.setProgressVisibility(false)
+            ViewEvent.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
             else -> {}
         }
     }
 
-    open fun onStorageEvent(event: Constants.StorageEvents?, data: Any?) {
+    open fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            Constants.StorageEvents.Inited -> onStorageInited()
+            is StorageEvent.Inited -> onStorageInited()
             else -> {}
         }
     }

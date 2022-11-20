@@ -9,6 +9,7 @@ import com.gee12.mytetroid.helpers.INotificator
 import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -36,10 +37,10 @@ open class BaseStorageViewModel(
     open val storage: TetroidStorage?
         get() = storageProvider.storage
 
-    private val _storageEventFlow = MutableSharedFlow<ViewModelEvent<Constants.StorageEvents, Any>>(extraBufferCapacity = 0)
+    private val _storageEventFlow = MutableSharedFlow<StorageEvent>(extraBufferCapacity = 0)
     val storageEventFlow = _storageEventFlow.asSharedFlow()
 
-    private val _objectEventFlow = MutableSharedFlow<ViewModelEvent<Any, Any>>(extraBufferCapacity = 0)
+    private val _objectEventFlow = MutableSharedFlow<VMEvent>(extraBufferCapacity = 0)
     val objectEventFlow = _objectEventFlow.asSharedFlow()
 
 
@@ -49,26 +50,26 @@ open class BaseStorageViewModel(
 
     //region Storage event
 
-    suspend fun sendStorageEvent(event: Constants.StorageEvents, param: Any? = null) {
-        Log.i("MYTETROID", "postStorageEvent(): state=$event param=$param")
-        _storageEventFlow.emit(ViewModelEvent(event, param))
+    suspend fun sendStorageEvent(event: StorageEvent) {
+        Log.i("MYTETROID", "postStorageEvent(): state=$event")
+        _storageEventFlow.emit(event)
     }
 
     //endregion Storage event
 
     //region Event
 
-    suspend fun sendEvent(event: Any, param: Any? = null) {
-        Log.i("MYTETROID", "sendEvent(): state=$event param=$param")
-        _objectEventFlow.emit(ViewModelEvent(event, param))
+    suspend fun sendEvent(event: VMEvent) {
+        Log.i("MYTETROID", "sendEvent(): state=$event")
+        _objectEventFlow.emit(event)
     }
 
-    suspend fun postEventFromCallbackParam(callback: EventCallbackParams) {
-        when (callback.event) {
-            is Constants.ViewEvents -> this.sendViewEvent(callback.event, callback.data)
-            is Constants.StorageEvents -> this.sendStorageEvent(callback.event, callback.data)
-            is MainViewModel.MainEvents -> this.sendEvent(callback.event, callback.data)
-            is RecordViewModel.RecordEvents -> this.sendEvent(callback.event, callback.data)
+    suspend fun sendEventFromCallbackParam(callbackEvent: VMEvent) {
+        when (callbackEvent) {
+            is ViewEvent -> this.sendViewEvent(callbackEvent)
+            is StorageEvent -> this.sendStorageEvent(callbackEvent)
+            is MainViewModel.MainEvent -> this.sendEvent(callbackEvent)
+            is RecordViewModel.RecordEvent -> this.sendEvent(callbackEvent)
             else -> {}
         }
     }

@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
-import com.gee12.mytetroid.common.SingleLiveEvent
 import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
@@ -35,7 +34,7 @@ open class BaseViewModel(
             throwable.printStackTrace()
         }
 
-    private val _viewEventFlow = MutableSharedFlow<ViewModelEvent<Constants.ViewEvents, Any>>(extraBufferCapacity = 0)
+    private val _viewEventFlow = MutableSharedFlow<ViewEvent>(extraBufferCapacity = 0)
     val viewEventFlow = _viewEventFlow.asSharedFlow()
 
     var isBusy = false
@@ -43,7 +42,9 @@ open class BaseViewModel(
     // TODO: inject
     val permissionInteractor = PermissionInteractor(this.logger)
 
-    val messageObservable = SingleLiveEvent<Message>()
+    private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
+    val messageEventFlow = _messageEventFlow.asSharedFlow()
+
 
     open fun initialize() {
         logger.init(
@@ -62,9 +63,9 @@ open class BaseViewModel(
 
     //region View event
 
-    suspend fun sendViewEvent(event: Constants.ViewEvents, param: Any? = null) {
-        Log.i("MYTETROID", "postViewEvent(): state=$event param=$param")
-        _viewEventFlow.emit(ViewModelEvent(event, param))
+    suspend fun sendViewEvent(event: ViewEvent) {
+        Log.i("MYTETROID", "postViewEvent(): state=$event")
+        _viewEventFlow.emit(event)
     }
 
     //endregion View event
@@ -167,19 +168,19 @@ open class BaseViewModel(
 
     open fun onPermissionGranted(requestCode: Int) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.PermissionGranted, requestCode)
+            this@BaseViewModel.sendViewEvent(ViewEvent.PermissionGranted(requestCode))
         }
     }
 
     open fun onPermissionCanceled(requestCode: Int) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.PermissionCanceled, requestCode)
+            this@BaseViewModel.sendViewEvent(ViewEvent.PermissionCanceled(requestCode))
         }
     }
 
     open fun showManualPermissionRequest(request: PermissionRequestParams) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.ShowPermissionRequest, request)
+            this@BaseViewModel.sendViewEvent(ViewEvent.ShowPermissionRequest(request))
         }
     }
 
@@ -328,12 +329,14 @@ open class BaseViewModel(
     }
 
     fun showMessage(message: String, type: LogType) {
-        messageObservable.postValue(Message(message, type))
+        launchOnMain {
+            _messageEventFlow.emit(Message(message, type))
+        }
     }
 
     fun showSnackMoreInLogs() {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(Constants.ViewEvents.ShowMoreInLogs)
+            this@BaseViewModel.sendViewEvent(ViewEvent.ShowMoreInLogs)
         }
     }
 
@@ -352,19 +355,19 @@ open class BaseViewModel(
     //endregion Context
 
     suspend fun <T> withMain(block: suspend () -> T) : T{
-        return withContext(Dispatchers.Main){
+        return withContext(Dispatchers.Main) {
             block()
         }
     }
 
     suspend fun <T> withIo(block: suspend CoroutineScope.() -> T): T {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             block()
         }
     }
 
     suspend fun <T> withComputation(block: suspend CoroutineScope.() -> T): T {
-        return withContext(Dispatchers.Default){
+        return withContext(Dispatchers.Default) {
             block()
         }
     }
@@ -384,10 +387,4 @@ open class BaseViewModel(
         }
     }
 
-}
-
-data class ViewModelException<E>(val event: E, val throwable: Throwable)
-
-data class ViewModelEvent<S, D>(var state: S, var data: D?) {
-    constructor(state: S): this(state, null)
 }

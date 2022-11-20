@@ -5,7 +5,6 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -32,8 +31,8 @@ class StoragesViewModel(
     storageProvider,
 ) {
 
-    enum class Event {
-        ShowAddNewStorageDialog
+    sealed class StoragesEvent : VMEvent() {
+        object ShowAddNewStorageDialog : StoragesEvent()
     }
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
@@ -74,7 +73,7 @@ class StoragesViewModel(
             // проверка разрешения перед диалогом добавления хранилища
             checkWriteExtStoragePermission(activity) {
                 launchOnMain {
-                    this@StoragesViewModel.sendEvent(Event.ShowAddNewStorageDialog)
+                    sendEvent(StoragesEvent.ShowAddNewStorageDialog)
                 }
             }
         }
@@ -88,7 +87,7 @@ class StoragesViewModel(
             if (withIo { storagesInteractor.addStorage(storage) }) {
                 log(getString(R.string.log_storage_added_mask).format(storage.name), true)
                 loadStorages()
-                this@StoragesViewModel.sendStorageEvent(Constants.StorageEvents.Added, storage)
+                sendStorageEvent(StorageViewModel.StorageEvent.Added(storage))
             } else {
                 logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
             }
