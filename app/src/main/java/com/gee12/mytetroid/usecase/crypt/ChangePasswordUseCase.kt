@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.usecase.crypt
 
-import android.content.Context
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.ITaskProgress
 import com.gee12.mytetroid.interactors.EncryptionInteractor
@@ -16,12 +15,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ChangePasswordUseCase(
-    private val context: Context,
     private val logger: ITetroidLogger,
     private val cryptInteractor: EncryptionInteractor,
     private val passInteractor: PasswordInteractor,
     private val storagesRepo: StoragesRepo,
     private val saveStorageUseCase: SaveStorageUseCase,
+    private val decryptStorageUseCase: DecryptStorageUseCase,
 ) : UseCase<Boolean, ChangePasswordUseCase.Params>() {
 
     data class Params(
@@ -40,8 +39,8 @@ class ChangePasswordUseCase(
         // сначала устанавливаем текущий пароль
         taskProgress.nextStage(LogObj.CUR_PASS, LogOper.SET, TaskStage.Stages.START)
         initPass(storage, curPass)
-            .onFailure { failure ->
-                return failure.toLeft()
+            .onFailure {
+                return it.toLeft()
             }.onSuccess { result ->
                 if (!result) {
                     return false.toRight()
@@ -50,8 +49,20 @@ class ChangePasswordUseCase(
 
         // и расшифровываем хранилище
         if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
-                cryptInteractor.decryptStorage(context, true)
-                    .also { storage.isDecrypted = it }
+                decryptStorageUseCase.run(
+                    DecryptStorageUseCase.Params(decryptFiles = true)
+                ).map { result ->
+                    storage.isDecrypted = result
+                    result
+                }.foldResult(
+                    onLeft = {
+                        logger.logFailure(it)
+                        false
+                    },
+                    onRight = {
+                        it
+                    }
+                )
             }
         ) return false.toRight()
 
@@ -61,7 +72,7 @@ class ChangePasswordUseCase(
 
         // и перешифровываем зашифрованные ветки
         if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
-                cryptInteractor.reencryptStorage(context)
+                cryptInteractor.reencryptStorage()
             }
         ) return false.toRight()
 

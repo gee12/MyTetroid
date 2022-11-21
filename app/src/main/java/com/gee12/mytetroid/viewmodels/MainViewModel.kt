@@ -26,9 +26,11 @@ import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
+import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -71,9 +73,11 @@ class MainViewModel(
     readStorageUseCase: ReadStorageUseCase,
     private val createNodeUseCase: CreateNodeUseCase,
     saveStorageUseCase: SaveStorageUseCase,
-    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
     private val insertNodeUseCase: InsertNodeUseCase,
+    decryptStorageUseCase: DecryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
 ): StorageViewModel(
     app,
     resourcesProvider,
@@ -929,7 +933,7 @@ class MainViewModel(
             showMessage(R.string.mes_quickly_node_cannot_encrypt)
         } else {
             checkStoragePass(
-                EventCallbackParams(MainEvents.EncryptNode, node)
+                callbackEvent = MainEvent.Node.Encrypt(node)
             )
         }
     }
@@ -940,7 +944,7 @@ class MainViewModel(
      */
     fun startDropEncryptNode(node: TetroidNode) {
         checkStoragePass(
-            EventCallbackParams(MainEvents.DropEncryptNode, node)
+            MainEvent.Node.DropEncrypt(node)
         )
     }
 
@@ -968,24 +972,33 @@ class MainViewModel(
             val nodeWasEncrypted = node.isCrypted
             val operation = if (isEncrypt) LogOper.ENCRYPT else LogOper.DROPCRYPT
 
-            val result = withContext(Dispatchers.IO) {
+            val result = withIo {
                 // сначала расшифровываем хранилище
                 if (isStorageCrypted() && !isStorageDecrypted()) {
                     setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.START)
-                    if (cryptInteractor.decryptStorage(getContext(), false)) {
-                        setIsDecrypted(true)
-                        setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.SUCCESS)
-                    } else {
-                        setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.FAILED)
-                        return@withContext -2
-                    }
+
+                    decryptStorageUseCase.run(
+                        DecryptStorageUseCase.Params(decryptFiles = false)
+                    ).map { result ->
+                        setIsDecrypted(result)
+                    }.foldResult(
+                        onLeft = {
+                            logFailure(it)
+                            setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.FAILED)
+                            return@withIo -2
+                        },
+                        onRight = {
+                            setStage(LogObj.STORAGE, LogOper.DECRYPT, Stages.SUCCESS)
+                        }
+                    )
                 }
+
                 // зашифровуем, только если хранилище не зашифровано или уже расшифровано
-                return@withContext if (isStorageNonEncryptedOrDecrypted()) {
+                return@withIo if (isStorageNonEncryptedOrDecrypted()) {
                     setStage(LogObj.NODE, operation, Stages.START)
 
-                    val result = if (isEncrypt) cryptInteractor.encryptNode(getContext(), node)
-                    else cryptInteractor.dropCryptNode(getContext(), node)
+                    val result = if (isEncrypt) cryptInteractor.encryptNode(node)
+                    else cryptInteractor.dropCryptNode(node)
 
                     if (result && saveStorage()) 1 else -1
                 } else 0
@@ -1007,8 +1020,8 @@ class MainViewModel(
     }
 
     override fun afterStorageDecrypted(node: TetroidNode?) {
-        super.afterStorageDecrypted(node)
         launchOnMain {
+            sendStorageEvent(StorageEvent.Decrypted)
             if (node != null) {
                 if (node === FavoritesInteractor.FAVORITES_NODE) {
                     showFavorites()
@@ -1776,6 +1789,9 @@ class MainViewModel(
 
         // останавливаем отслеживание изменения структуры хранилища
         storageTreeInteractor.stopStorageTreeObserver()
+
+        // удаляем сохраненный хэш пароля из памяти
+        sensitiveDataProvider.resetMiddlePassHash()
 
         // удаляем загруженное хранилище из памяти
         storageProvider.resetStorage()

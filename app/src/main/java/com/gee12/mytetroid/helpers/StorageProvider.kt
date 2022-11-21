@@ -56,8 +56,8 @@ class StorageProvider(
     }
 
     override fun isLoaded(): Boolean {
-        return (storage?.isLoaded ?: false)
-                && storageDataProcessor.isLoaded()
+        return /*(storage?.isLoaded ?: false)
+                &&*/ storageDataProcessor.isLoaded()
     }
 
     override fun isLoadedFavoritesOnly(): Boolean {

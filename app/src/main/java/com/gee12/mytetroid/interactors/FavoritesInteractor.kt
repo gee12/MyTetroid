@@ -99,21 +99,25 @@ class FavoritesInteractor(
     /**
      * Добавление новой записи в избранное.
      */
-    suspend fun add(record: TetroidRecord) = addFavorite(record)
-        .also {
-            if (it) record.setIsFavorite(true)
-        }
+    suspend fun add(record: TetroidRecord): Boolean {
+        return addFavorite(record)
+            .also {
+                if (it) record.setIsFavorite(true)
+            }
+    }
 
     /**
      * Удаление записи из избранного.
      * @param resetFlag Нужно ли сбрасывать флаг isFavorite у записи
      */
-    suspend fun remove(record: TetroidRecord, resetFlag: Boolean) = deleteFavorite(record)
-        .also {
-            if (it && resetFlag) {
-                record.setIsFavorite(false)
+    suspend fun remove(record: TetroidRecord, resetFlag: Boolean): Boolean {
+        return deleteFavorite(record)
+            .also {
+                if (it && resetFlag) {
+                    record.setIsFavorite(false)
+                }
             }
-        }
+    }
 
     suspend fun addOrRemoveIfNeed(record: TetroidRecord, isNeedFavorite: Boolean): Boolean {
         val isAlreadyFavorite = isFavorite(record.id)

@@ -119,6 +119,15 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         initViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.setNotificatorCallbacks()
+    }
+
     /**
      * Установка пометки, что обработчик OnCreate был вызван, и можно вызвать другие обработчики,
      * следующие за ним (а не вразнобой на разных устройствах).

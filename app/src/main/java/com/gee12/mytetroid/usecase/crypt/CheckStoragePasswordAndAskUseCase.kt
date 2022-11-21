@@ -8,33 +8,27 @@ import com.gee12.mytetroid.interactors.EncryptionInteractor
 import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.viewmodels.EmptyPassCheckingFieldCallbackParams
-import com.gee12.mytetroid.viewmodels.EventCallbackParams
 
-class CheckStoragePasswordUseCase(
+class CheckStoragePasswordAndAskUseCase(
     private val logger: ITetroidLogger,
     private val cryptInteractor: EncryptionInteractor,
     private val passInteractor: PasswordInteractor,
     private val sensitiveDataProvider: ISensitiveDataProvider,
-) : UseCase<CheckStoragePasswordUseCase.Result, CheckStoragePasswordUseCase.Params>() {
+) : UseCase<CheckStoragePasswordAndAskUseCase.Result, CheckStoragePasswordAndAskUseCase.Params>() {
 
     data class Params(
         val storage: TetroidStorage?,
         val isStorageCrypted: Boolean,
-        val callback: EventCallbackParams,
     )
 
     sealed class Result {
-        data class AskPassword(
-            val callback: EventCallbackParams
-        ) : Result()
+        object AskPassword : Result()
         data class AskPin(
-            val specialFlag: Boolean, val callback: EventCallbackParams
+            val specialFlag: Boolean,
         ) : Result()
         data class AskForEmptyPassCheckingField(
-            //val middlePassHash: String,
-            //val callback: EventCallbackParams,
-            val params: EmptyPassCheckingFieldCallbackParams,
+            val fieldName: String,
+            val passHash: String,
         ) : Result()
     }
 
@@ -42,7 +36,6 @@ class CheckStoragePasswordUseCase(
         val storage = params.storage
         val isStorageCrypted = params.isStorageCrypted
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
-        val callback = params.callback
 
         var middlePassHash: String? = null
         return when {
@@ -52,7 +45,6 @@ class CheckStoragePasswordUseCase(
                 // запрос ПИН-кода
                 Result.AskPin(
                     specialFlag = true,
-                    callback = callback,
                 ).toRight()
             }
             isSaveMiddlePassLocal && storage?.middlePassHash.also { middlePassHash = it } != null -> {
@@ -63,14 +55,11 @@ class CheckStoragePasswordUseCase(
                         // запрос ПИН-кода
                         Result.AskPin(
                             specialFlag = true,
-                            callback = callback,
                         ).toRight()
                     } else {
                         logger.log(R.string.log_wrong_saved_pass, true)
                         // спрашиваем пароль
-                        Result.AskPassword(
-                            callback = callback,
-                        ).toRight()
+                        Result.AskPassword.toRight()
                     }
                 } catch (ex: DatabaseConfig.EmptyFieldException) {
                     // если поля в INI-файле для проверки пустые
@@ -79,27 +68,21 @@ class CheckStoragePasswordUseCase(
                     if (isStorageCrypted) {
                         // спрашиваем "continue anyway?"
                         Result.AskForEmptyPassCheckingField(
-                            params = EmptyPassCheckingFieldCallbackParams(
-                                fieldName = ex.fieldName,
-                                passHash = middlePassHash!!,
-                                callback = callback
-                            )
+                            fieldName = ex.fieldName,
+                            passHash = middlePassHash!!,
                         ).toRight()
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
                         cryptInteractor.initCryptPass(middlePassHash!!, true)
                         Result.AskPin(
                             specialFlag = true,
-                            callback = callback,
                         ).toRight()
                     }
                 }
             }
             else -> {
                 // спрашиваем или задаем пароль
-                Result.AskPassword(
-                    callback = callback,
-                ).toRight()
+                Result.AskPassword.toRight()
             }
         }
     }

@@ -42,41 +42,18 @@ class EncryptionInteractor(
     /**
      * Перешифровка хранилища (перед этим ветки должны быть расшифрованы).
      */
-    suspend fun reencryptStorage(context: Context): Boolean {
+    suspend fun reencryptStorage(): Boolean {
         return crypter.encryptNodes(
-            context = context,
             nodes = storageDataProcessor.getRootNodes(),
             isReencrypt = true
         )
     }
 
     /**
-     * Расшифровка хранилища (временная).
-     */
-    suspend fun decryptStorage(context: Context, decryptFiles: Boolean): Boolean = withContext(Dispatchers.IO) {
-        crypter.decryptNodes(
-            context = context,
-            nodes = storageDataProcessor.getRootNodes(),
-            isDecryptSubNodes = true,
-            isDecryptRecords = true,
-            loadIconCallback = { node ->
-                loadNodeIconUseCase.execute(
-                    LoadNodeIconUseCase.Params(node)
-                ).onFailure {
-                    logger.logFailure(it, show = false)
-                }
-            },
-            isDropCrypt = false,
-            isDecryptFiles = decryptFiles
-        )
-    }
-
-    /**
      * Расшифровка ветки с подветками (постоянная).
      */
-    suspend fun dropCryptNode(context: Context, node: TetroidNode): Boolean {
+    suspend fun dropCryptNode(node: TetroidNode): Boolean {
         return crypter.decryptNode(
-            context = context,
             node = node,
             isDecryptSubNodes = true,
             isDecryptRecords = true,
@@ -111,9 +88,9 @@ class EncryptionInteractor(
     /**
      * Зашифровка (незашифрованной) ветки с подветками.
      */
-    suspend fun encryptNode(context: Context, node: TetroidNode): Boolean {
+    suspend fun encryptNode(node: TetroidNode): Boolean {
         //TetroidLog.logOperStart(TetroidLog.Objs.NODE, TetroidLog.Opers.ENCRYPT, node);
-        return crypter.encryptNode(context, node, false)
+        return crypter.encryptNode(node, false)
     }
 
     /**

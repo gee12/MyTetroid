@@ -211,6 +211,10 @@ class CommonSettingsProvider(
         return CommonSettings.getFavorites(context)
     }
 
+    fun isAskPassOnStart(): Boolean {
+        return CommonSettings.isAskPassOnStart(context)
+    }
+
     /**
      * Проверка строки формата даты/времени.
      * В версии приложения <= 11 введенная строка в настройках не проверялась,

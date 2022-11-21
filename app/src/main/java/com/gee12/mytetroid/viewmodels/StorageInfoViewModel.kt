@@ -15,7 +15,9 @@ import com.gee12.mytetroid.usecase.GetFileModifiedDateUseCase
 import com.gee12.mytetroid.usecase.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
+import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -51,10 +53,12 @@ class StorageInfoViewModel(
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
-    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
     private val getFolderSizeUseCase: GetFolderSizeUseCase,
     private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+    decryptStorageUseCase: DecryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -86,6 +90,8 @@ class StorageInfoViewModel(
     saveStorageUseCase,
     checkStoragePasswordUseCase,
     changePasswordUseCase,
+    decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase,
 ), CoroutineScope {
 
     sealed class StorageInfoEvent : VMEvent() {

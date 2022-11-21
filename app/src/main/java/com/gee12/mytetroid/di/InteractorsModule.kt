@@ -2,12 +2,10 @@ package com.gee12.mytetroid.di
 
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.usecase.*
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
-import com.gee12.mytetroid.usecase.crypt.EncryptOrDecryptFileUseCase
+import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
+import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -281,7 +279,7 @@ object InteractorsModule {
         }
 
         single {
-            CheckStoragePasswordUseCase(
+            CheckStoragePasswordAndAskUseCase(
                 logger = get(),
                 cryptInteractor = get(),
                 passInteractor = get(),
@@ -291,12 +289,31 @@ object InteractorsModule {
 
         single {
             ChangePasswordUseCase(
-                context = get(),
                 logger = get(),
                 cryptInteractor = get(),
                 passInteractor = get(),
                 storagesRepo = get(),
                 saveStorageUseCase = get(),
+                decryptStorageUseCase = get(),
+            )
+        }
+
+        single {
+            DecryptStorageUseCase(
+                logger = get(),
+                crypter = get(),
+                storageDataProcessor = get(),
+                loadNodeIconUseCase = get(),
+            )
+        }
+
+        single {
+            CheckStoragePasswordAndDecryptUseCase(
+                logger = get(),
+                sensitiveDataProvider = get(),
+                commonSettingsProvider = get(),
+                cryptInteractor = get(),
+                passInteractor = get(),
             )
         }
 

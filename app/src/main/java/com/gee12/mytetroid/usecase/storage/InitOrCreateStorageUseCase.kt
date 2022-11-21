@@ -24,7 +24,6 @@ class InitOrCreateStorageUseCase(
 
     data class Params(
         val storage: TetroidStorage,
-        val databaseConfig: DatabaseConfig,
     )
 
     sealed class Result {
@@ -34,7 +33,7 @@ class InitOrCreateStorageUseCase(
 
     override suspend fun run(params: Params): Either<Failure, Result> {
         val storage = params.storage
-        val databaseConfig = params.databaseConfig
+        val databaseConfig = storageProvider.databaseConfig
 
         //storage.isLoaded = false
         val databaseConfigFileName = storageInteractor.getPathToDatabaseIniConfig()
@@ -62,9 +61,11 @@ class InitOrCreateStorageUseCase(
                 val res = databaseConfig.load()
                 storage.isInited = res
                 if (res) {
-                    // FIXME: изменить ?
+                    // FIXME: упростить логику работы с favorites
                     // получаем id избранных записей из настроек
-                    if (storage.id != storageProvider.storage?.id) {
+                    if (storage.id != storageProvider.storage?.id
+                        || storageProvider.favorites.isEmpty()
+                    ) {
                         favoritesInteractor.init()
                     }
                     Result.InitStorage.toRight()

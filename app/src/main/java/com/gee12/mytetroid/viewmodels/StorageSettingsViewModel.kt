@@ -12,11 +12,12 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
+import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import kotlinx.coroutines.launch
 
 class StorageSettingsViewModel(
     app: Application,
@@ -47,8 +48,10 @@ class StorageSettingsViewModel(
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
-    checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
+    decryptStorageUseCase: DecryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -80,6 +83,8 @@ class StorageSettingsViewModel(
     saveStorageUseCase,
     checkStoragePasswordUseCase,
     changePasswordUseCase,
+    decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase,
 ) {
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()

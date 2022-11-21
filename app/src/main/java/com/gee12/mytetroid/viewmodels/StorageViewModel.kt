@@ -10,7 +10,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.interactors.*
@@ -25,7 +24,9 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
+import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
+import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
@@ -65,8 +66,10 @@ open class StorageViewModel(
     protected val initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     protected val readStorageUseCase: ReadStorageUseCase,
     protected val saveStorageUseCase: SaveStorageUseCase,
-    protected val checkStoragePasswordUseCase: CheckStoragePasswordUseCase,
+    protected val checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     protected val changePasswordUseCase: ChangePasswordUseCase,
+    protected val decryptStorageUseCase: DecryptStorageUseCase,
+    protected val checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -145,8 +148,6 @@ open class StorageViewModel(
     }
 
     /*protected*/ lateinit var storageInteractor: StorageInteractor
-
-    private val databaseConfig = DatabaseConfig(this.logger)
 
     private var isPinNeedEnter = false
 
@@ -279,8 +280,7 @@ open class StorageViewModel(
 
     /**
      * Запуск первичной инициализации хранилища по-умолчанию с указанием флага isCheckFavorMode
-     * @param isCheckFavoritesOnlyMode Стоит ли проверять необходимость загрузки только избранных записей.
-     *                          Если отключено, то всегда загружать хранилище полностью.
+     * @param isLoadAllNodesForced Если true, то всегда загружать хранилище полностью.
      */
     fun startInitStorage(id: Int, isLoadAllNodesForced: Boolean) {
         this.isLoadAllNodesForced = isLoadAllNodesForced
@@ -362,7 +362,6 @@ open class StorageViewModel(
                 initOrCreateStorageUseCase.run(
                     InitOrCreateStorageUseCase.Params(
                         storage = storage,
-                        databaseConfig = databaseConfig,
                     )
                 )
             }.onFailure { failure ->
@@ -536,9 +535,10 @@ open class StorageViewModel(
                             isFavoritesOnly -> R.string.log_storage_favor_loaded_mask
                             isDecrypt -> R.string.log_storage_loaded_decrypted_mask
                             else -> R.string.log_storage_loaded_mask
-                        }
+                        },
+                        getStorageName()
                     )
-                    log(mes.format(getStorageName()), true)
+                    log(mes, show = true)
 
                     // загрузка ветки для быстрой вставки
                     updateQuicklyNode()
@@ -577,19 +577,28 @@ open class StorageViewModel(
             sendViewEvent(ViewEvent.TaskStarted(R.string.task_storage_decrypting))
 
             // непосредственная расшифровка
-            val result = cryptInteractor.decryptStorage(getContext(), false)
-            setIsDecrypted(result)
-
-            // после расшифровки
-            sendViewEvent(Constants.ViewEvents.TaskFinished)
-
-            if (result) {
-                log(R.string.log_storage_decrypted, true)
-            } else {
-                logDuringOperErrors(LogObj.STORAGE, LogOper.DECRYPT, true)
+            withIo {
+                decryptStorageUseCase.run(
+                    DecryptStorageUseCase.Params(decryptFiles = false)
+                )
+            }.map { result ->
+                result.also { setIsDecrypted(result) }
+            }.onFailure {
+                logFailure(it)
+                logDuringOperErrors(LogObj.STORAGE, LogOper.DECRYPT, show = true)
+                afterStorageDecrypted(null)
+            }.onSuccess { result ->
+                if (result) {
+                    log(R.string.log_storage_decrypted, show = true)
+                    // действия после расшифровки хранилища
+                    afterStorageDecrypted(node)
+                } else {
+                    logDuringOperErrors(LogObj.STORAGE, LogOper.DECRYPT, show = true)
+                    afterStorageDecrypted(null)
+                }
             }
-            // действия после расшифровки хранилища
-            afterStorageDecrypted(node)
+            // после расшифровки
+            sendViewEvent(ViewEvent.TaskFinished)
         }
     }
 
@@ -615,88 +624,45 @@ open class StorageViewModel(
      * или ветку с избранным (если именно она передана в node)
      */
     private fun checkPassAndDecryptStorage(params: StorageParams) {
-        val callback = EventCallbackParams(Constants.StorageEvents.LoadOrDecrypt, params)
+        val callbackEvent = StorageEvent.LoadOrDecrypt(params)
 
         // устанавливаем признак
         setIsPINNeedToEnter()
 
-        var middlePassHash: String? = null
-        when {
-            sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
-                // хэш пароля уже установлен (вводили до этого и проверяли)
-                cryptInteractor.initCryptPass(middlePassHash!!, true)
-                // спрашиваем ПИН-код
-                askPinCode(params.isNodeOpening, callback)
-            }
-            isSaveMiddlePassLocal() && storage?.middlePassHash.also { middlePassHash = it } != null -> {
-                // хэш пароля сохранен локально, проверяем
-                params.passHash = middlePassHash
-
-                try {
-                    if (passInteractor.checkMiddlePassHash(middlePassHash)) {
-                        // сохраненный хеш пароля подошел, устанавливаем его
-                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        // спрашиваем ПИН-код
-                        askPinCode(params.isNodeOpening, callback)
-                    } else if (params.isNodeOpening) {
-                        // если сохраненный хэш пароля не подошел, и это открытие зашифрованной ветки,
-                        //  то сразу спрашиваем пароль
-                        askPassword(callback)
-                    } else {
-                        // в остальных случаях, когда сохраненный хэш пароля не подошел,
-                        //  загружаем хранилище без расшифровки
-                        log(R.string.log_wrong_saved_pass, true)
-                        if (!isAlreadyTryDecrypt) {
-                            isAlreadyTryDecrypt = true
-                            params.isDecrypt = false
-                            loadOrDecryptStorage(params)
-                        }
+        launchOnMain {
+            withIo {
+                checkStoragePasswordAndDecryptUseCase.run(
+                    CheckStoragePasswordAndDecryptUseCase.Params(
+                        params = params,
+                        storage = storage,
+                        isAlreadyTryDecrypt = isAlreadyTryDecrypt,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { result ->
+                when (result) {
+                    is CheckStoragePasswordAndDecryptUseCase.Result.AskPassword -> {
+                        askPassword(callbackEvent)
                     }
-                } catch (ex: EmptyFieldException) {
-                    // если поля в INI-файле для проверки пустые
-                    logError(ex)
-                    // спрашиваем "continue anyway?"
-                    params.fieldName = ex.fieldName
-                    launchOnMain {
-                        this@StorageViewModel.sendStorageEvent(
-                            Constants.StorageEvents.AskForEmptyPassCheckingField,
-                            EmptyPassCheckingFieldCallbackParams(ex.fieldName, middlePassHash!!, callback)
+                    is CheckStoragePasswordAndDecryptUseCase.Result.AskPin -> {
+                        askPinCode(params.isNodeOpening, callbackEvent)
+                    }
+                    is CheckStoragePasswordAndDecryptUseCase.Result.LoadWithoutDecrypt -> {
+                        isAlreadyTryDecrypt = true
+                        loadOrDecryptStorage(params)
+                    }
+                    is CheckStoragePasswordAndDecryptUseCase.Result.AskForEmptyPassCheckingField -> {
+                        sendStorageEvent(
+                            StorageEvent.AskForEmptyPassCheckingField(
+                                fieldName = result.fieldName,
+                                passHash = result.passHash,
+                                callbackEvent = callbackEvent
+                            )
                         )
                     }
+                    else -> {}
                 }
-            }
-            CommonSettings.isAskPassOnStart(getContext()) || params.isNodeOpening -> {
-                // если пароль не установлен и не сохранен локально, то спрашиваем его, если:
-                //  * нужно расшифровывать хранилище сразу на старте
-                //  * функция вызвана во время открытия зашифрованной ветки
-                //  * ??? если мы не вызвали загрузку всех веток
-                askPassword(callback)
-            }
-            else -> {
-                // если пароль не установлен и не сохранен локально, и его не нужно спрашивать, то
-                //  просто загружаем хранилище без расшифровки
-                params.isDecrypt = false
-                loadOrDecryptStorage(params)
-            }
-        }
-    }
-
-    fun getEmptyPassCheckingFieldCallback(
-        params: StorageParams,
-        callbackEvent: Constants.StorageEvents
-    ) = object : IApplyCancelResult {
-        val callback = EventCallbackParams(callbackEvent, params)
-
-        override fun onApply() {
-            cryptInteractor.initCryptPass(params.passHash ?: "", true)
-            // спрашиваем ПИН-код
-            askPinCode(params.isNodeOpening, callback)
-        }
-        override fun onCancel() {
-            if (!params.isNodeOpening) {
-                // загружаем хранилище без расшифровки
-                params.isDecrypt = false
-                loadOrDecryptStorage(params)
             }
         }
     }
@@ -1016,7 +982,7 @@ open class StorageViewModel(
     fun isStorageCrypted(): Boolean {
         var iniFlag = false
         try {
-            iniFlag = databaseConfig.isCryptMode
+            iniFlag = storageProvider.databaseConfig.isCryptMode
         } catch (ex: Exception) {
             logError(ex, true)
         }
@@ -1036,30 +1002,32 @@ open class StorageViewModel(
      *      * либо когда загрузка хранилища не требуется (установка/сброс ПИН-кода)
      * @param callback
      */
-    fun checkStoragePass(callback: EventCallbackParams) {
+    fun checkStoragePass(callbackEvent: VMEvent) {
         launchOnMain {
             withContext(Dispatchers.IO) {
                 checkStoragePasswordUseCase.run(
-                    CheckStoragePasswordUseCase.Params(
+                    CheckStoragePasswordAndAskUseCase.Params(
                         storage = storage,
                         isStorageCrypted = isStorageCrypted(),
-                        callback = callback,
                     )
                 )
             }.onFailure { failure ->
                 logFailure(failure)
             }.onSuccess { result ->
                 when (result) {
-                    is CheckStoragePasswordUseCase.Result.AskPassword -> {
-                        askPassword(callback)
+                    is CheckStoragePasswordAndAskUseCase.Result.AskPassword -> {
+                        askPassword(callbackEvent)
                     }
-                    is CheckStoragePasswordUseCase.Result.AskPin -> {
-                        askPinCode(true, callback)
+                    is CheckStoragePasswordAndAskUseCase.Result.AskPin -> {
+                        askPinCode(true, callbackEvent)
                     }
-                    is CheckStoragePasswordUseCase.Result.AskForEmptyPassCheckingField -> {
-                        this@StorageViewModel.sendStorageEvent(
-                            event = Constants.StorageEvents.AskForEmptyPassCheckingField,
-                            param = result.params
+                    is CheckStoragePasswordAndAskUseCase.Result.AskForEmptyPassCheckingField -> {
+                        sendStorageEvent(
+                            StorageEvent.AskForEmptyPassCheckingField(
+                                fieldName = result.fieldName,
+                                passHash = result.passHash,
+                                callbackEvent = callbackEvent,
+                            )
                         )
                     }
                 }
@@ -1067,16 +1035,28 @@ open class StorageViewModel(
         }
     }
 
-    fun confirmEmptyPassCheckingFieldDialog(callback: EmptyPassCheckingFieldCallbackParams) {
-        cryptInteractor.initCryptPass(callback.passHash, true)
-        askPinCode(true, callback)
+    fun confirmEmptyPassCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
+        cryptInteractor.initCryptPass(passHash, true)
+        askPinCode(true, callbackEvent)
+    }
+
+    fun cancelEmptyPassCheckingFieldDialog(callbackEvent: VMEvent) {
+        when (callbackEvent) {
+            is StorageEvent.LoadOrDecrypt -> {
+                if (!callbackEvent.params.isNodeOpening) {
+                    // загружаем хранилище без расшифровки
+                    callbackEvent.params.isDecrypt = false
+                    loadOrDecryptStorage(callbackEvent.params)
+                }
+            }
+            else -> {}
+        }
     }
 
     /**
      * Отображения запроса пароля от хранилища.
-     * @param callback
      */
-    fun askPassword(callback: EventCallbackParams) {
+    fun askPassword(callbackEvent: VMEvent) {
         logger.log(R.string.log_show_pass_dialog, false)
         // выводим окно с запросом пароля в асинхронном режиме
         launchOnMain {
@@ -1084,37 +1064,33 @@ open class StorageViewModel(
         }
     }
 
-    fun onPasswordEntered(pass: String, isSetup: Boolean, callback: EventCallbackParams) {
+    fun onPasswordEntered(pass: String, isSetup: Boolean, callbackEvent: VMEvent) {
         if (isSetup) {
             launchOnMain {
                 setupPass(pass)
-                postEventFromCallbackParam(callback)
+                sendEventFromCallbackParam(callbackEvent)
             }
         } else {
-            checkPass(pass, { res: Boolean ->
-                launchOnMain {
-                    if (res) {
-                        initPass(pass)
-                        postEventFromCallbackParam(callback)
-                    } else {
-                        // повторяем запрос
-                        askPassword(callback)
-                    }
-                }
-            }, R.string.log_pass_is_incorrect)
+            checkPassOnDecrypt(
+                pass = pass,
+                callbackEvent = callbackEvent,
+            )
         }
     }
 
-    fun onPasswordCanceled(isSetup: Boolean, callback: EventCallbackParams) {
+    fun onPasswordCanceled(isSetup: Boolean, callbackEvent: VMEvent) {
         if (!isSetup) {
             isAlreadyTryDecrypt = true
             //super.onPasswordCanceled(isSetup, callback)
-            (callback.data as? StorageParams)?.let {
-                if (!it.isNodeOpening) {
-                    //isAlreadyTryDecrypt = true
-                    it.isDecrypt = false
-                    launchOnMain {
-                        postEventFromCallbackParam(callback)
+            // FIXME: не уверен в решении ..
+            when (callbackEvent) {
+                is StorageEvent.LoadOrDecrypt -> {
+                    if (!callbackEvent.params.isNodeOpening) {
+                        //isAlreadyTryDecrypt = true
+                        callbackEvent.params.isDecrypt = false
+                        launchOnMain {
+                            sendEventFromCallbackParam(callbackEvent)
+                        }
                     }
                 }
             }
@@ -1146,25 +1122,46 @@ open class StorageViewModel(
     }
 
     suspend fun initPass(pass: String) {
-        passInteractor.initPass(storage!!, pass)
-        updateStorageAsync(storage!!)
+        storage?.let {
+            passInteractor.initPass(it, pass)
+            updateStorageAsync(it)
+        }
     }
 
-    /**
-     * Каркас проверки введенного пароля.
-     * @param context
-     * @param pass
-     * @param callback
-     * @param wrongPassRes
-     */
-    // TODO: CheckPasswordUseCase
-    fun checkPass(pass: String, callback: ICallback, wrongPassRes: Int): Boolean {
+    fun checkPassOnDecrypt(pass: String, callbackEvent: VMEvent) {
         try {
             if (passInteractor.checkPass(pass)) {
-                callback.run(true)
+                launchOnMain {
+                    withIo { initPass(pass) }
+                    sendEventFromCallbackParam(callbackEvent)
+                }
             } else {
-                logger.logError(wrongPassRes, true)
-                callback.run(false)
+                logger.logError(R.string.log_pass_is_incorrect, show = true)
+                // повторяем запрос
+                askPassword(callbackEvent)
+            }
+        } catch (ex: DatabaseConfig.EmptyFieldException) {
+            // если поля в INI-файле для проверки пустые
+            logger.logError(ex)
+            // спрашиваем "continue anyway?"
+            launchOnMain {
+                sendStorageEvent(
+                    StorageEvent.AskForEmptyPassCheckingField(
+                        fieldName = ex.fieldName,
+                        passHash = "",
+                        callbackEvent = callbackEvent,
+                    )
+                )
+            }
+        }
+    }
+
+    fun checkPassAndChange(curPass: String, newPass: String): Boolean {
+        try {
+            if (passInteractor.checkPass(curPass)) {
+                startChangePass(curPass, newPass)
+            } else {
+                logger.logError(R.string.log_cur_pass_is_incorrect, show = true)
                 return false
             }
         } catch (ex: DatabaseConfig.EmptyFieldException) {
@@ -1172,10 +1169,15 @@ open class StorageViewModel(
             logger.logError(ex)
             // спрашиваем "continue anyway?"
             launchOnMain {
-                this@StorageViewModel.sendStorageEvent(
-                    Constants.StorageEvents.AskForEmptyPassCheckingField,
-                    // TODO: тут спрашиваем нормально ли расшифровались данные
-                    callback
+                sendStorageEvent(
+                    StorageEvent.AskForEmptyPassCheckingField(
+                        fieldName = ex.fieldName,
+                        passHash = "",
+                        callbackEvent = StorageEvent.ChangePassDirectly(
+                            curPass = curPass,
+                            newPass = newPass,
+                        ),
+                    )
                 )
             }
         }
@@ -1235,23 +1237,23 @@ open class StorageViewModel(
      * конкретно в данный момент.
      * @param callback Обработчик обратного вызова.
      */
-    fun askPinCode(specialFlag: Boolean, callback: EventCallbackParams) {
+    fun askPinCode(specialFlag: Boolean, callbackEvent: VMEvent) {
         launchOnMain {
             if (isRequestPINCode() && specialFlag) {
                 // выводим запрос ввода ПИН-кода
-                this@StorageViewModel.sendStorageEvent(Constants.StorageEvents.AskPinCode, callback)
+                sendStorageEvent(StorageEvent.AskPinCode(callbackEvent))
             } else {
-                postEventFromCallbackParam(callback)
+                sendEventFromCallbackParam(callbackEvent)
             }
         }
     }
 
-    fun startCheckPinCode(pin: String, callback: EventCallbackParams): Boolean {
+    fun startCheckPinCode(pin: String, callbackEvent: VMEvent): Boolean {
         // зашифровываем введеный пароль перед сравнением
         val res = checkPinCode(pin)
         if (res) {
             launchOnMain {
-                postEventFromCallbackParam(callback)
+                sendEventFromCallbackParam(callbackEvent)
             }
             // сбрасываем признак
             isPinNeedEnter = false
@@ -1268,12 +1270,11 @@ open class StorageViewModel(
 
     //endregion Pin
 
-
-    fun onPassLocalHashLocalParamChanged(newValue: Any): Boolean {
+    fun onPassLocalHashLocalParamChanged(isSaveLocal: Boolean): Boolean {
         return if (getMiddlePassHash() != null) {
             askPinCode(
                 specialFlag = true,
-                callback = EventCallbackParams(Constants.StorageEvents.SavePassHashLocalChanged, newValue)
+                callbackEvent = StorageEvent.SavePassHashLocalChanged(isSaveLocal)
             )
             false
         } else {
@@ -1400,7 +1401,7 @@ open class StorageViewModel(
 
     fun isStorageInited() = storage?.isInited ?: false
 
-    fun isStorageLoaded() = /*(storage?.isLoaded ?: false) &&*/ storageProvider.isLoaded()
+    fun isStorageLoaded() = (storage?.isLoaded ?: false) && storageProvider.isLoaded()
 
     fun isStorageDecrypted() = storage?.isDecrypted ?: false
 
