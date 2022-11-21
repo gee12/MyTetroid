@@ -21,7 +21,7 @@ object NetworkHelper {
             try {
                 val conn = Jsoup.connect(url)
                 val doc = conn.get()
-                var content: String? = ""
+                var content = ""
                 val body = doc.body()
                 if (body != null) {
                     content = if (isTextOnly) {
@@ -72,7 +72,7 @@ object NetworkHelper {
     }
 
     interface IWebPageContentResult {
-        fun onSuccess(content: String?, isTextOnly: Boolean)
+        fun onSuccess(content: String, isTextOnly: Boolean)
         fun onError(ex: Exception)
     }
 

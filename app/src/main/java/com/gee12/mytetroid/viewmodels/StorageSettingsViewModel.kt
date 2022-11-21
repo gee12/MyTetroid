@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 
 class StorageSettingsViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -50,6 +51,7 @@ class StorageSettingsViewModel(
     changePasswordUseCase: ChangePasswordUseCase,
 ) : StorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

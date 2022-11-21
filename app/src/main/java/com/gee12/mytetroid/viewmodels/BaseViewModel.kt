@@ -13,6 +13,7 @@ import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
 import com.gee12.mytetroid.helpers.INotificator
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.interactors.PermissionInteractor
 import com.gee12.mytetroid.interactors.PermissionRequestData
 import com.gee12.mytetroid.logs.*
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 open class BaseViewModel(
     application: Application,
+    val resourcesProvider: IResourcesProvider,
     val logger: ITetroidLogger,
     val notificator: INotificator,
     val failureHandler: IFailureHandler,
@@ -47,10 +49,14 @@ open class BaseViewModel(
 
 
     open fun initialize() {
+        // FIXME: перенести в InitAppUseCase ?
         logger.init(
             path = commonSettingsProvider.getLogPath(),
             isWriteToFile = commonSettingsProvider.isWriteLogToFile()
         )
+    }
+
+    fun setNotificatorCallbacks() {
         with(notificator) {
             showMessageCallback = { message, type ->
                 this@BaseViewModel.showMessage(message, type)
@@ -344,11 +350,11 @@ open class BaseViewModel(
 
     //region Context
 
-    fun getString(resId: Int) = getApplication<Application>().resources.getString(resId)
+    fun getString(resId: Int) = resourcesProvider.getString(resId)
 
-    fun getString(resId: Int, vararg params: Any) = getApplication<Application>().resources.getString(resId, *params)
+    fun getString(resId: Int, vararg params: Any) = resourcesProvider.getString(resId, *params)
 
-    fun getStringArray(resId: Int) = getApplication<Application>().resources.getStringArray(resId)
+    fun getStringArray(resId: Int) = resourcesProvider.getStringArray(resId)
 
     fun getContext(): Context = getApplication()
 

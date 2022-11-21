@@ -153,9 +153,10 @@ class TetroidLogger(
     }
 
     override fun logDuringOperErrors(obj: LogObj, oper: LogOper, show: Boolean): String {
-        val mes = String.format(
-            getString(R.string.log_during_oper_errors_mask),
-            oper.getString(PRESENT_CONTINUOUS, ::getStringArray), obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val mes = getStringFormat(
+            R.string.log_during_oper_errors_mask,
+            oper.getString(PRESENT_CONTINUOUS, ::getStringArray),
+            obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
         )
         log(mes, LogType.ERROR, show)
         showSnackMoreInLogs()

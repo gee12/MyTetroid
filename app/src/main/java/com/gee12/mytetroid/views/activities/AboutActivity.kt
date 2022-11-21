@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.viewmodels.MainViewModel
 import org.koin.android.ext.android.inject
 
@@ -32,7 +32,7 @@ class AboutActivity() : AppCompatActivity() {
         viewModel.initialize()
 
         val tvVersion = findViewById<TextView>(R.id.text_view_version)
-        tvVersion.text = Utils.getVersionName(viewModel.logger, this)
+        tvVersion.text = this.getAppVersionName()
         val bRateApp = findViewById<Button>(R.id.button_rate_app)
         bRateApp.setOnClickListener {
             rateApp()

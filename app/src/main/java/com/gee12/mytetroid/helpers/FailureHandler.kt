@@ -50,7 +50,7 @@ class FailureHandler(
     }
 
     private fun getRecordFailureMessage(failure: Failure.Record): NotificationData {
-        when (failure) {
+        return when (failure) {
             is Failure.Record.Create.NameIsEmpty -> {
                 NotificationData(
                     title = getString(R.string.error_record_name_is_empty),

@@ -7,6 +7,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 
 class IconsViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     val iconsInteractor: IconsInteractor,
@@ -14,6 +15,7 @@ class IconsViewModel(
     commonSettingsProvider: CommonSettingsProvider,
 ) : BaseViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

@@ -43,6 +43,7 @@ import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 
 class RecordViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -74,6 +75,7 @@ class RecordViewModel(
     changePasswordUseCase: ChangePasswordUseCase,
 ): StorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

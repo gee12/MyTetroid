@@ -14,6 +14,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 
 class StoragesViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -24,6 +25,7 @@ class StoragesViewModel(
     private val storagesInteractor: StoragesInteractor,
 ) : BaseStorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

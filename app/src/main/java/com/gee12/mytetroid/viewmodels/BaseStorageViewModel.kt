@@ -3,10 +3,7 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import android.util.Log
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.helpers.CommonSettingsProvider
-import com.gee12.mytetroid.helpers.IFailureHandler
-import com.gee12.mytetroid.helpers.INotificator
-import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
@@ -19,6 +16,7 @@ import kotlin.coroutines.CoroutineContext
 
 open class BaseStorageViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -26,6 +24,7 @@ open class BaseStorageViewModel(
     protected val storageProvider: IStorageProvider,
 ) : BaseViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

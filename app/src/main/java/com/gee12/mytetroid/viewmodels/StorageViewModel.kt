@@ -7,9 +7,7 @@ import android.net.Uri
 import android.text.TextUtils
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.ini.DatabaseConfig.EmptyFieldException
@@ -40,6 +38,7 @@ import java.util.*
 
 open class StorageViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -70,6 +69,7 @@ open class StorageViewModel(
     protected val changePasswordUseCase: ChangePasswordUseCase,
 ) : BaseStorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

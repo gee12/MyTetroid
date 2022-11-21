@@ -25,7 +25,7 @@ interface IEncryptHelper {
      * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
      * @return
      */
-    suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean
+    suspend fun encryptNodes(nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка ветки.
@@ -33,7 +33,7 @@ interface IEncryptHelper {
      * @param isReencrypt
      * @return
      */
-    suspend fun encryptNode(context: Context, node: TetroidNode?, isReencrypt: Boolean): Boolean
+    suspend fun encryptNode(node: TetroidNode?, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей ветки.
@@ -50,7 +50,7 @@ interface IEncryptHelper {
      * уже зашифрована.
      * @return
      */
-    suspend fun encryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, isReencrypt: Boolean): Boolean
+    suspend fun encryptRecordsAndFiles(records: List<TetroidRecord>, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей записи.
@@ -77,7 +77,6 @@ interface IEncryptHelper {
      * @return
      */
     suspend fun decryptNodes(
-        context: Context,
         nodes: List<TetroidNode>,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
@@ -95,7 +94,6 @@ interface IEncryptHelper {
      * @return
      */
     suspend fun decryptNode(
-        context: Context,
         node: TetroidNode?,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
@@ -119,14 +117,12 @@ interface IEncryptHelper {
      * @return
      */
     suspend fun decryptRecordsAndFiles(
-        context: Context,
         records: List<TetroidRecord>,
         dropCrypt: Boolean,
         decryptFiles: Boolean
     ): Boolean
 
     suspend fun decryptRecordAndFiles(
-        context: Context,
         record: TetroidRecord?,
         dropCrypt: Boolean,
         decryptFiles: Boolean
@@ -202,10 +198,10 @@ class EncryptHelper(
      * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
      * @return
      */
-    override suspend fun encryptNodes(context: Context, nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptNodes(nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean {
         var res = true
         for (node in nodes) {
-            res = res and encryptNode(context, node, isReencrypt)
+            res = res and encryptNode(node, isReencrypt)
         }
         return res
     }
@@ -216,19 +212,19 @@ class EncryptHelper(
      * @param isReencrypt
      * @return
      */
-    override suspend fun encryptNode(context: Context, node: TetroidNode?, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptNode(node: TetroidNode?, isReencrypt: Boolean): Boolean {
         if (node == null) return false
         var res = true
         if (!isReencrypt && !node.isCrypted || isReencrypt && node.isCrypted && node.isDecrypted) {
             // зашифровываем поля
             res = encryptNodeFields(node, isReencrypt)
             if (node.recordsCount > 0) {
-                res = res and encryptRecordsAndFiles(context, node.records, isReencrypt)
+                res = res and encryptRecordsAndFiles(node.records, isReencrypt)
             }
         }
         // зашифровываем подветки
         if (node.subNodesCount > 0) {
-            res = res and encryptNodes(context, node.subNodes, isReencrypt)
+            res = res and encryptNodes(node.subNodes, isReencrypt)
         }
         return res
     }
@@ -277,7 +273,7 @@ class EncryptHelper(
      * уже зашифрована.
      * @return
      */
-    override suspend fun encryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptRecordsAndFiles(records: List<TetroidRecord>, isReencrypt: Boolean): Boolean {
         var res = true
         for (record in records) {
             // зашифровываем файлы записи
@@ -381,7 +377,6 @@ class EncryptHelper(
      * @return
      */
     override suspend fun decryptNodes(
-        context: Context,
         nodes: List<TetroidNode>,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
@@ -392,7 +387,6 @@ class EncryptHelper(
         var res = true
         for (node in nodes) {
             res = res and decryptNode(
-                context = context,
                 node = node,
                 isDecryptSubNodes = isDecryptSubNodes,
                 isDecryptRecords = isDecryptRecords,
@@ -413,7 +407,6 @@ class EncryptHelper(
      * @return
      */
     override suspend fun decryptNode(
-        context: Context,
         node: TetroidNode?,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
@@ -432,7 +425,6 @@ class EncryptHelper(
             //  (пока сразу)
             if (isDecryptRecords && node.recordsCount > 0) {
                 res = res and decryptRecordsAndFiles(
-                    context = context,
                     records = node.records,
                     dropCrypt = isDropCrypt,
                     decryptFiles = isDecryptFiles
@@ -442,7 +434,6 @@ class EncryptHelper(
         // расшифровываем подветки
         if (isDecryptSubNodes && node.subNodesCount > 0) {
             res = res and decryptNodes(
-                context = context,
                 nodes = node.subNodes,
                 isDecryptSubNodes = true,
                 isDecryptRecords = isDecryptRecords,
@@ -494,15 +485,15 @@ class EncryptHelper(
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    override suspend fun decryptRecordsAndFiles(context: Context, records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordsAndFiles(records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         var res = true
         for (record in records) {
-            res = res and decryptRecordAndFiles(context, record, dropCrypt, decryptFiles)
+            res = res and decryptRecordAndFiles(record, dropCrypt, decryptFiles)
         }
         return res
     }
 
-    override suspend fun decryptRecordAndFiles(context: Context, record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordAndFiles(record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         if (record == null) return false
 
         var res = decryptRecordFields(record, dropCrypt)

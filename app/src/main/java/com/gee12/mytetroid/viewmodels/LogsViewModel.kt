@@ -8,6 +8,7 @@ import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
 import com.gee12.mytetroid.helpers.INotificator
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,12 +17,14 @@ import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
 ) : BaseViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

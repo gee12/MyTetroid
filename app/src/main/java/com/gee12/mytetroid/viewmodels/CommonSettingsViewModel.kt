@@ -4,10 +4,7 @@ import android.app.Application
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.helpers.AppBuildHelper
-import com.gee12.mytetroid.helpers.CommonSettingsProvider
-import com.gee12.mytetroid.helpers.IFailureHandler
-import com.gee12.mytetroid.helpers.INotificator
+import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
@@ -19,6 +16,7 @@ import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     val appBuildHelper: AppBuildHelper,
@@ -26,6 +24,7 @@ class CommonSettingsViewModel(
     commonSettingsProvider: CommonSettingsProvider,
 ) : BaseViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

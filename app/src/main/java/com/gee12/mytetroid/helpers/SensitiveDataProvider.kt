@@ -6,7 +6,7 @@ interface ISensitiveDataProvider {
     fun resetMiddlePassHash()
 }
 
-class SensitiveDataProvider() : ISensitiveDataProvider {
+class SensitiveDataProvider : ISensitiveDataProvider {
 
     var middlePassHash: String? = null
 

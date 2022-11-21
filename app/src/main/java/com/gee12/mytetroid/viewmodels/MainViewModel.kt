@@ -7,9 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import com.gee12.mytetroid.*
-import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
@@ -42,6 +40,7 @@ import java.util.HashMap
 
 class MainViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -77,6 +76,7 @@ class MainViewModel(
     private val insertNodeUseCase: InsertNodeUseCase,
 ): StorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,

@@ -46,7 +46,6 @@ interface IStorageDataProcessor : IStorageInfoProvider {
  * Класс для загрузки и сохранения структуры хранилища в файле mytetra.xml.
  */
 open class StorageDataXmlProcessor(
-    private val context: Context,
     private val logger: ITetroidLogger,
     private val encryptHelper: IEncryptHelper,
     private val favoritesInteractor: FavoritesInteractor,
@@ -741,7 +740,6 @@ open class StorageDataXmlProcessor(
 
     private suspend fun decryptNode(node: TetroidNode): Boolean {
         return encryptHelper.decryptNode(
-            context = context,
             node = node,
             isDecryptSubNodes = false,
             isDecryptRecords = false,
@@ -763,7 +761,6 @@ open class StorageDataXmlProcessor(
 
     private suspend fun decryptRecord(record: TetroidRecord): Boolean {
         return encryptHelper.decryptRecordAndFiles(
-            context = context,
             record = record,
             dropCrypt = false,
             decryptFiles = false

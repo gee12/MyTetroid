@@ -65,7 +65,6 @@ object HelpersModule {
 
         single<IStorageDataProcessor> {
             StorageDataXmlProcessor(
-                context = androidApplication(),
                 logger = get(),
                 encryptHelper = get(),
                 favoritesInteractor = get(),

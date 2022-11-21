@@ -23,6 +23,7 @@ import kotlinx.coroutines.*
 
 class StorageInfoViewModel(
     app: Application,
+    resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
@@ -56,6 +57,7 @@ class StorageInfoViewModel(
     private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
 ) : StorageViewModel(
     app,
+    resourcesProvider,
     logger,
     notificator,
     failureHandler,
