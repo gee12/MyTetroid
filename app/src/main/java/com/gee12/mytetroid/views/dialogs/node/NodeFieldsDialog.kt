@@ -25,12 +25,8 @@ class NodeFieldsDialog(
     private val node: TetroidNode?,
     private val chooseParent: Boolean,
     override var storageId: Int?,
-    private val callback: IResult
+    private val onApply: (name: String, parentNode: TetroidNode) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IResult {
-        fun onApply(name: String, parent: TetroidNode)
-    }
 
     private lateinit var etName: EditText
 
@@ -114,7 +110,7 @@ class NodeFieldsDialog(
 
         // кнопки результата
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
-            callback.onApply(
+            onApply(
                 etName.text.toString(),
                 if (chooseParent && nodeCallback.selectedNode != null) nodeCallback.selectedNode!! else parentNode
             )

@@ -15,12 +15,8 @@ import org.koin.java.KoinJavaComponent.get
  */
 class IntentDialog(
     private val isText: Boolean,
-    private val callback: IItemClickListener
+    private val onItemClick: (item: ReceivedData) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IItemClickListener {
-        fun onItemClick(item: ReceivedData)
-    }
 
     override fun getRequiredTag() = TAG
 
@@ -37,7 +33,7 @@ class IntentDialog(
         val listView = view.findViewById<ListView>(R.id.list_view)
         val dataSet = if (isText) ReceivedData.textIntents() else ReceivedData.imageIntents()
         listView.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            callback.onItemClick(dataSet[position])
+            onItemClick(dataSet[position])
             dialog.cancel()
         }
         listView.adapter = IntentsAdapter(context, dataSet)

@@ -9,18 +9,14 @@ import com.lumyjuwon.richwysiwygeditor.R
 import org.koin.java.KoinJavaComponent.get
 
 class AttachFileByURLDialog(
-    val callback: IAttachFileByURLResult
+    val onApply: (url: String) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IAttachFileByURLResult {
-        fun onApply(url: String?)
-    }
 
     override fun getRequiredTag() = TAG
 
     override fun isPossibleToShow() = true
 
-    override fun getLayoutResourceId() = com.lumyjuwon.richwysiwygeditor.R.layout.dialog_insert_web_content
+    override fun getLayoutResourceId() = R.layout.dialog_insert_web_content
 
     override fun createViewModel() {
         this.viewModel = get(StorageViewModel::class.java)
@@ -31,7 +27,7 @@ class AttachFileByURLDialog(
         val etLink = view.findViewById<EditText>(R.id.edit_text_link)
         view.findViewById<View>(R.id.checkbox_text_only).visibility = View.GONE
 
-        setPositiveButton(com.gee12.mytetroid.R.string.answer_ok) { _, _ -> callback.onApply(etLink.text.toString()) }
+        setPositiveButton(com.gee12.mytetroid.R.string.answer_ok) { _, _ -> onApply(etLink.text.toString()) }
         setNegativeButton(com.gee12.mytetroid.R.string.answer_cancel)
 
         showKeyboard(etLink)

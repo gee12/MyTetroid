@@ -31,8 +31,16 @@ object PassDialogs {
         }
     }
 
-    fun showEmptyPassCheckingFieldDialog(context: Context, fieldName: String, callback: IApplyCancelResult) {
-        Dialogs.showAlertDialog(context, String.format(context.getString(R.string.log_empty_middle_hash_check_data_field), fieldName), callback)
+    fun showEmptyPassCheckingFieldDialog(
+        context: Context,
+        fieldName: String,
+        callback: IApplyCancelResult
+    ) {
+        Dialogs.showAlertDialog(
+            context,
+            context.getString(R.string.log_empty_middle_hash_check_data_field, fieldName),
+            callback
+        )
     }
 
 }

@@ -753,4 +753,5 @@
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
+    <string name="title_main_fragment">Главная</string>
 </resources>

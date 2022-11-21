@@ -31,12 +31,8 @@ class RecordFieldsDialog(
     private val chooseNode: Boolean,
     private val node: TetroidNode?,
     override var storageId: Int?,
-    private val callback: IResult
+    private val onApply: (name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IResult {
-        fun onApply(name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean)
-    }
 
     private lateinit var etName: EditText
 
@@ -137,7 +133,7 @@ class RecordFieldsDialog(
         // кнопки результата
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
             val selectedNode = if (chooseNode && nodeCallback.selectedNode != null) nodeCallback.selectedNode!! else recordNode ?: return@setPositiveButton
-            callback.onApply(
+            onApply(
                 etName.text.toString(),
                 etTags.text.toString(),
                 etAuthor.text.toString(),

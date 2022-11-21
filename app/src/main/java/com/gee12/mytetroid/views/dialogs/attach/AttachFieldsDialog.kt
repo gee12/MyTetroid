@@ -16,12 +16,8 @@ import kotlin.math.abs
 
 class AttachFieldsDialog(
     private val file: TetroidFile?,
-    private val callback: IFileFieldsResult
+    private val onApply: (name: String) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IFileFieldsResult {
-        fun onApply(name: String)
-    }
 
     private lateinit var etName: EditText
 
@@ -52,7 +48,7 @@ class AttachFieldsDialog(
             etName.setText(file.name)
         }
 
-        setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(etName.text.toString()) }
+        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(etName.text.toString()) }
         setNegativeButton(R.string.answer_cancel)
 
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }

@@ -11,12 +11,8 @@ import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import org.koin.java.KoinJavaComponent.get
 
 class PassChangeDialog(
-    private val callback: IPassChangeResult
+    private val onApplyPass: (curPass: String, newPass: String) -> Boolean,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IPassChangeResult {
-        fun applyPass(curPass: String, newPass: String): Boolean
-    }
 
     override fun getRequiredTag() = TAG
 
@@ -52,7 +48,7 @@ class PassChangeDialog(
             // проверка совпадения паролей
             if (newPass.contentEquals(confirmPass)) {
                 // проверка текущего пароля
-                if (callback.applyPass(curPass, newPass)) {
+                if (onApplyPass(curPass, newPass)) {
                     dialog.dismiss()
                 }
             } else {

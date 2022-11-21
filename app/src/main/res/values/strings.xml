@@ -843,12 +843,13 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
     <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
     <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
-    <string name="log_storage_tree_changed_outside">The mytetra.xml file with the record tree has been modified by a third party program</string>
-    <string name="log_storage_tree_deleted_outside">The mytetra.xml file with the record tree has been removed by a third party program</string>
+    <string name="log_storage_tree_changed_outside" translatable="false">The mytetra.xml file with the record tree has been modified by a third party program</string>
+    <string name="log_storage_tree_deleted_outside" translatable="false">The mytetra.xml file with the record tree has been removed by a third party program</string>
 
     <string name="error_record_create_mask">Record creation error:\n%s</string>
     <string name="error_record_name_is_empty">Record name is empty</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>
+    <string name="title_main_fragment">Main</string>
 </resources>

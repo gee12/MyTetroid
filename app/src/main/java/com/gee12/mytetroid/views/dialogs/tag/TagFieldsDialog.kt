@@ -1,8 +1,5 @@
 package com.gee12.mytetroid.views.dialogs.tag
 
-import android.app.Dialog
-import android.os.Bundle
-import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -19,12 +16,8 @@ import kotlin.math.abs
 
 class TagFieldsDialog(
     private val tag: TetroidTag?,
-    private val callback: ITagFieldsResult
+    private val onApply: (name: String) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface ITagFieldsResult {
-        fun onApply(name: String)
-    }
 
     private lateinit var etName: EditText
 
@@ -51,7 +44,7 @@ class TagFieldsDialog(
             etName.setText(tag.name.lowercase(Locale.getDefault()))
         }
 
-        setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(etName.text.toString()) }
+        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(etName.text.toString()) }
         setNegativeButton(R.string.answer_cancel)
 
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }

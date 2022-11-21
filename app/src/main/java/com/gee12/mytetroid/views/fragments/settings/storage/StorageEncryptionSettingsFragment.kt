@@ -40,7 +40,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         // сохранение пароля локально
         findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
             ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            return@OnPreferenceChangeListener viewModel.onPassLocalHashLocalParamChanged(newValue)
+            return@OnPreferenceChangeListener viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
         }
 
         updateChangeSetupPasswordPref()
@@ -87,17 +87,21 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
     private fun changeSavePassHashLocal(newValue: Boolean) {
         if (!newValue && viewModel.isSaveMiddlePassLocal()) {
             // удалить сохраненный хэш пароля?
-            AskDialogs.showYesNoDialog(context, object : IApplyCancelResult {
-                override fun onApply() {
-                    viewModel.dropSavedLocalPassHash()
-                    (findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local)))?.isChecked = false
-                }
+            AskDialogs.showYesNoDialog(
+                context,
+                object : IApplyCancelResult {
+                    override fun onApply() {
+                        viewModel.dropSavedLocalPassHash()
+                        (findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local)))?.isChecked = false
+                    }
 
-                override fun onCancel() {
-                    // устанавливаем галку обратно
-//                    SettingsManager.setIsSaveMiddlePassHashLocal(true);
-                }
-            }, R.string.ask_clear_saved_pass_hash)
+                    override fun onCancel() {
+                        // устанавливаем галку обратно
+    //                    SettingsManager.setIsSaveMiddlePassHashLocal(true);
+                    }
+                },
+                R.string.ask_clear_saved_pass_hash
+            )
         }
     }
 
@@ -111,16 +115,13 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
     private fun changePass() {
         viewModel.log(R.string.log_start_pass_change)
         // вводим пароли
-        PassChangeDialog(object : PassChangeDialog.IPassChangeResult {
-            override fun applyPass(curPass: String, newPass: String): Boolean {
-                // проверяем введенный текущий пароль
-                return viewModel.checkPass(curPass, { isPassCorrect ->
-                    if (isPassCorrect) {
-                        viewModel.startChangePass(curPass, newPass)
-                    }
-                }, R.string.log_cur_pass_is_incorrect)
-            }
-        }).showIfPossible(parentFragmentManager)
+        PassChangeDialog { curPass, newPass ->
+            // проверяем введенный текущий пароль
+            viewModel.checkPassAndChange(
+                curPass = curPass,
+                newPass = newPass,
+            )
+        }.showIfPossible(parentFragmentManager)
     }
 
     /**
