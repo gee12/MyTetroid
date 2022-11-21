@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.FileUtils
 
 interface IStoragePathHelper {
@@ -33,11 +34,11 @@ class StoragePathHelper(
     override fun getPathToTrash() = storageProvider.storage?.trashPath.orEmpty()
 
     override fun getPathToMyTetraXml(): String {
-        return "${getStoragePath()}${Constants.SEPAR}${Constants.MYTETRA_XML_FILE_NAME}"
+        return makePath(getStoragePath(), Constants.MYTETRA_XML_FILE_NAME)
     }
 
     override fun getPathToStorageBaseFolder(): String {
-        return "${getStoragePath()}${Constants.SEPAR}${Constants.BASE_DIR_NAME}"
+        return makePath(getStoragePath(), Constants.BASE_DIR_NAME)
     }
 
     override fun getUriToStorageBaseFolder(): Uri {
@@ -45,15 +46,15 @@ class StoragePathHelper(
     }
 
     override fun getPathToDatabaseIniConfig(): String {
-        return "${getStoragePath()}${Constants.SEPAR}${Constants.DATABASE_INI_FILE_NAME}"
+        return makePath(getStoragePath(), Constants.DATABASE_INI_FILE_NAME)
     }
 
     override fun getPathToIcons(): String {
-        return "${getStoragePath()}${Constants.SEPAR}${Constants.ICONS_DIR_NAME}"
+        return makePath(getStoragePath(), Constants.ICONS_DIR_NAME)
     }
 
     override fun getPathToFileInIconsFolder(fileName: String): String {
-        return "${getPathToIcons()}${Constants.SEPAR}$fileName"
+        return makePath(getPathToIcons(), fileName)
     }
 
     override fun getPathToStorageTrashFolder(): String {

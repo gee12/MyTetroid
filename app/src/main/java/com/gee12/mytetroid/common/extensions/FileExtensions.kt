@@ -11,6 +11,10 @@ fun makePath(vararg destinations: String): String {
     return destinations.joinToString(File.separator)
 }
 
-fun makeFilePath(vararg destinations: String): File {
+fun makeFolderPath(vararg destinations: String): String {
+    return destinations.joinToString(File.separator).plus(File.separator)
+}
+
+fun makePathToFile(vararg destinations: String): File {
     return makePath(*destinations).toFile()
 }

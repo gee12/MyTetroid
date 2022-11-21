@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants.SEPAR
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -60,11 +60,11 @@ class RecordsInteractor(
         if (checkRecordFolder(context, dirPath, true, showMessage) <= 0) {
             return null
         }
-        val path = dirPath + SEPAR + record.fileName
+        val filePath = makePath(dirPath, record.fileName)
         val uri: Uri = try {
-            Uri.parse(path)
+            Uri.parse(filePath)
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.log_error_generate_record_file_path) + path, ex)
+            logger.logError(context.getString(R.string.log_error_generate_record_file_path) + filePath, ex)
             return null
         }
         // проверка существования файла записи
@@ -80,11 +80,11 @@ class RecordsInteractor(
                     @Suppress("BlockingMethodInNonBlockingContext")
                     withContext(Dispatchers.IO) { FileUtils.readFile(uri) }
                 } catch (ex: Exception) {
-                    logger.logError(context.getString(R.string.log_error_read_record_file) + path, ex)
+                    logger.logError(context.getString(R.string.log_error_read_record_file) + filePath, ex)
                     return null
                 }
                 if (bytes == null) {
-                    logger.logError(context.getString(R.string.log_error_decrypt_record_file) + path)
+                    logger.logError(context.getString(R.string.log_error_decrypt_record_file) + filePath)
                     return null
                 } else if (bytes.isEmpty()) {
                     // файл пуст
@@ -96,7 +96,7 @@ class RecordsInteractor(
                     cryptInteractor.decryptText(bytes)
                 }
                 if (res == null) {
-                    logger.logError(context.getString(R.string.log_error_decrypt_record_file) + path)
+                    logger.logError(context.getString(R.string.log_error_decrypt_record_file) + filePath)
                 }
             }
         } else {
@@ -104,7 +104,7 @@ class RecordsInteractor(
                 @Suppress("BlockingMethodInNonBlockingContext")
                 res = withContext(Dispatchers.IO) { FileUtils.readTextFile(uri) }
             } catch (ex: Exception) {
-                logger.logError(context.getString(R.string.log_error_read_record_file) + path, ex)
+                logger.logError(context.getString(R.string.log_error_read_record_file) + filePath, ex)
             }
         }
         return res
@@ -142,11 +142,11 @@ class RecordsInteractor(
             return false
         }
         // формирование пути к файлу записи
-        val path = dirPath + SEPAR + record.fileName
+        val filePath = makePath(dirPath, record.fileName)
         val uri: Uri = try {
-            Uri.parse(path)
+            Uri.parse(filePath)
         } catch (ex: java.lang.Exception) {
-            logger.logError(context.getString(R.string.log_error_generate_record_file_path) + path, ex)
+            logger.logError(context.getString(R.string.log_error_generate_record_file_path) + filePath, ex)
             return false
         }
         // запись файла, зашифровуя при необходимости
@@ -158,7 +158,7 @@ class RecordsInteractor(
                 FileUtils.writeFile(uri, htmlText)
             }
         } catch (ex: IOException) {
-            logger.logError(context.getString(R.string.log_error_write_to_record_file) + path, ex)
+            logger.logError(context.getString(R.string.log_error_write_to_record_file) + filePath, ex)
             return false
         }
         return true
@@ -416,7 +416,7 @@ class RecordsInteractor(
         }
         val dir = File(dirPath)
         // создаем файл записи (пустой)
-        val filePath = dirPath + SEPAR + record.fileName
+        val filePath = makePath(dirPath, record.fileName)
         val fileUri: Uri = try {
             Uri.parse(filePath)
         } catch (ex: java.lang.Exception) {
@@ -493,7 +493,7 @@ class RecordsInteractor(
             return null
         }
         // создаем файл записи (пустой)
-        val filePath = dirPath + SEPAR + record.fileName
+        val filePath = makePath(dirPath, record.fileName)
         val fileUri: Uri = try {
             Uri.parse(filePath)
         } catch (ex: java.lang.Exception) {

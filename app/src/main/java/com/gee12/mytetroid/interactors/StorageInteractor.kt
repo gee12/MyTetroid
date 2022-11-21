@@ -2,7 +2,7 @@ package com.gee12.mytetroid.interactors
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Constants.SEPAR
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.ini.DatabaseConfig
@@ -64,7 +64,7 @@ class StorageInteractor(
 
         // сохраняем новый database.ini
         val databaseConfig = DatabaseConfig(logger).apply {
-            setFileName(storagePath + SEPAR + Constants.DATABASE_INI_FILE_NAME)
+            setFileName(makePath(storagePath, Constants.DATABASE_INI_FILE_NAME))
         }
         if (!databaseConfig.saveDefault()) {
             return false

@@ -1,10 +1,7 @@
 package com.gee12.mytetroid.common
 
-import java.io.File
-
 object Constants {
 
-    val SEPAR = File.separator
     const val BASE_DIR_NAME = "base"
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"

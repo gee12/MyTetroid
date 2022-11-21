@@ -4,7 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.makePathToFile
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -69,7 +70,6 @@ class AttachesInteractor(
 //                File tempFile = createTempCacheFile(context, fileIdName);
 //                File tempFile = new File(String.format("%s%s/_%s", getStoragePathBase(), record.getDirName(), fileIdName));
 //                File tempFile = createTempExtStorageFile(context, fileIdName);
-//                String tempFolderPath = SettingsManager.getTrashPath() + SEPAR + record.getDirName();
             val tempFolderPath = recordPathHelper.getPathToRecordFolderInTrash(record)
             val tempFolder = File(tempFolderPath)
             if (!tempFolder.exists() && !tempFolder.mkdirs()) {
@@ -153,7 +153,7 @@ class AttachesInteractor(
             return null
         }
         // формируем путь к файлу назначения в каталоге записи
-        val destFilePath = dirPath + Constants.SEPAR.toString() + fileIdName
+        val destFilePath = makePath(dirPath, fileIdName)
         val destFileUri: Uri = try {
             Uri.parse(destFilePath)
         } catch (ex: Exception) {
@@ -244,7 +244,7 @@ class AttachesInteractor(
             }
             // проверяем существование самого файла
             val fileIdName = file.id + ext
-            filePath = dirPath + Constants.SEPAR.toString() + fileIdName
+            filePath = makePath(dirPath, fileIdName)
             srcFile = File(filePath)
             if (!srcFile.exists()) {
                 logger.logError(context.getString(R.string.error_file_is_missing_mask) + filePath)
@@ -272,8 +272,7 @@ class AttachesInteractor(
         // меняем расширение, если изменилось
         if (isExtChanged) {
             val newFileIdName = file.id + newExt
-            val newFilePath = dirPath + Constants.SEPAR.toString() + newFileIdName
-            val destFile = File(newFilePath)
+            val destFile = makePathToFile(dirPath.orEmpty(), newFileIdName)
             val fromTo: String = StringUtils.getStringFromTo(context, filePath, newFileIdName)
             if (srcFile!!.renameTo(destFile)) {
                 logger.logOperRes(LogObj.FILE, LogOper.RENAME, fromTo, false)
@@ -318,7 +317,7 @@ class AttachesInteractor(
             // проверяем существование самого файла
             val ext = FileUtils.getExtensionWithComma(file.name)
             val fileIdName = file.id + ext
-            destFilePath = dirPath + Constants.SEPAR.toString() + fileIdName
+            destFilePath = makePath(dirPath, fileIdName)
             destFile = File(destFilePath)
             if (!destFile.exists()) {
                 logger.logError(context.getString(R.string.error_file_is_missing_mask) + destFilePath)

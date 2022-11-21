@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.helpers
 
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.makeFolderPath
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.model.TetroidRecord
 
 interface IRecordPathHelper {
@@ -19,8 +20,12 @@ class RecordPathHelper(
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
      */
     override fun getUriToRecordFolder(record: TetroidRecord): String {
-        val storageUri = if (record.isTemp) storagePathHelper.getUriToStorageTrashFolder() else storagePathHelper.getUriToStorageBaseFolder()
-        return "$storageUri${Constants.SEPAR}${record.dirName}${Constants.SEPAR}"
+        val storageUri = if (record.isTemp) {
+            storagePathHelper.getUriToStorageTrashFolder()
+        } else {
+            storagePathHelper.getUriToStorageBaseFolder()
+        }
+        return makeFolderPath(storageUri.toString(), record.dirName)
     }
 
     /**
@@ -28,16 +33,20 @@ class RecordPathHelper(
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
      */
     override fun getPathToRecordFolder(record: TetroidRecord): String {
-        val storagePath = if (record.isTemp) storagePathHelper.getPathToStorageTrashFolder() else storagePathHelper.getPathToStorageBaseFolder()
-        return "$storagePath${Constants.SEPAR}${record.dirName}"
+        val storagePath = if (record.isTemp) {
+            storagePathHelper.getPathToStorageTrashFolder()
+        } else {
+            storagePathHelper.getPathToStorageBaseFolder()
+        }
+        return makePath(storagePath, record.dirName)
     }
 
     override fun getPathToRecordFolderInTrash(record: TetroidRecord): String {
-        return "${storagePathHelper.getPathToStorageTrashFolder()}${Constants.SEPAR}${record.dirName}"
+        return makePath(storagePathHelper.getPathToStorageTrashFolder(), record.dirName)
     }
 
     override fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): String {
-        return "${getPathToRecordFolder(record)}${Constants.SEPAR}$fileName"
+        return makePath(getPathToRecordFolder(record), fileName)
     }
 
 }
