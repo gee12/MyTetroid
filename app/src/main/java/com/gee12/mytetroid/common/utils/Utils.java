@@ -313,21 +313,6 @@ public class Utils {
     }
 
     /**
-     *
-     * @param context
-     * @return
-     */
-    public static String getVersionName(ITetroidLogger logger, Context context) {
-        try {
-            PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            return pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException ex) {
-            logger.logError(ex, false);
-        }
-        return null;
-    }
-
-    /**
      * Запись текста в буфер обмена.
      * @param context
      * @param label

@@ -3,8 +3,8 @@ package com.gee12.mytetroid.usecase
 import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
@@ -20,9 +20,10 @@ class InitAppUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
 
         logger.logRaw("************************************************************")
-        logger.log(context.getString(R.string.log_app_start_mask).format(Utils.getVersionName(logger, context)), false)
+        logger.log(context.getString(R.string.log_app_start_mask, context.getAppVersionName()), false)
+
         if (commonSettingsProvider.isCopiedFromFree()) {
-            logger.log(R.string.log_settings_copied_from_free, true)
+            logger.log(R.string.log_settings_copied_from_free, show = true)
         }
 
         createDefaultFolders()
