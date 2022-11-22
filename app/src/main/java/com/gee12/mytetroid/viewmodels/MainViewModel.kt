@@ -1165,7 +1165,7 @@ class MainViewModel(
     open fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
         launchOnMain {
             sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
-            val attach = withContext(Dispatchers.IO) {
+            val attach = withIo {
                 attachesInteractor.attachFile(getContext(), fileFullName, record, deleteSrcFile)
             }
             sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
@@ -1697,7 +1697,7 @@ class MainViewModel(
                 sendStorageEvent(StorageEvent.Loaded(result = true))
             } else {
                 // проверяем необходимость миграции
-                val mirgationStarted = withContext(Dispatchers.IO) {
+                val mirgationStarted = withIo {
                     checkAndStartMigration()
                 }
 

@@ -25,6 +25,12 @@ class FavoritesInteractor(
     private val favorites: MutableList<TetroidFavorite>
         get() = storageProvider.favorites
 
+    suspend fun initIfNeed() {
+        if (favorites.isEmpty() || favorites.any { it.id != storageId }) {
+            init()
+        }
+    }
+
     suspend fun init() {
         reset()
         favorites.addAll(favoritesRepo.getFavorites(storageId))

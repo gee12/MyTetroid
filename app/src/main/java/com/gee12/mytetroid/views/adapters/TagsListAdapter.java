@@ -21,43 +21,42 @@ import java.util.Map;
 
 public class TagsListAdapter extends BaseAdapter {
 
-    /**
-     *
-     */
     private class TagsViewHolder {
         TextView nameView;
         TextView recordsCountView;
     }
 
-    private final LayoutInflater mInflater;
-    private final Context mContext;
-    private ArrayList mData;
+    private final LayoutInflater inflater;
+    private ArrayList dataSet;
 
     public TagsListAdapter(Context context) {
-        this.mContext = context;
-        this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mData = new ArrayList<>();
+        this.inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.dataSet = new ArrayList<>();
+    }
+
+    public void reset() {
+        this.dataSet = new ArrayList<>();
     }
 
     public void setDataItems(Map<String,TetroidTag> data, SortHelper sortHelper) {
-        this.mData = new ArrayList<>(data.entrySet());
+        this.dataSet = new ArrayList<>(data.entrySet());
         sort(sortHelper);
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return mData.size();
+        return dataSet.size();
     }
 
     @Override
     public Map.Entry<String, TetroidTag> getItem(int position) {
-        return (Map.Entry) mData.get(position);
+        return (Map.Entry) dataSet.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return mData.get(position).hashCode();
+        return dataSet.get(position).hashCode();
     }
 
     @Override
@@ -65,7 +64,7 @@ public class TagsListAdapter extends BaseAdapter {
         TagsViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new TagsViewHolder();
-            convertView = mInflater.inflate(R.layout.list_item_tag, null);
+            convertView = inflater.inflate(R.layout.list_item_tag, null);
             viewHolder.nameView = convertView.findViewById(R.id.tag_view_name);
             viewHolder.recordsCountView = convertView.findViewById(R.id.tag_view_records_count);
             convertView.setTag(viewHolder);
@@ -90,7 +89,7 @@ public class TagsListAdapter extends BaseAdapter {
     }
 
     public void sort(boolean byName, boolean isAscent) {
-        Collections.sort(mData, new Comparator<Map.Entry<String, TetroidTag>>() {
+        Collections.sort(dataSet, new Comparator<Map.Entry<String, TetroidTag>>() {
             @Override
             public int compare(Map.Entry<String, TetroidTag> o1, Map.Entry<String, TetroidTag> o2) {
                 if (o1 == o2) {

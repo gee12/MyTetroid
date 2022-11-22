@@ -131,6 +131,9 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
             }
                 .showIfPossible(parentFragmentManager)
         }
+
+        initListAdapters()
+
         return view
     }
 
@@ -140,10 +143,10 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         activity?.onMainPageCreated()
     }
 
-    fun initListAdapters(context: Context?) {
+    private fun initListAdapters() {
         // список записей
         listAdapterRecords = RecordsListAdapter(
-            context,
+            requireContext(),
             viewModel.recordsInteractor,
             viewModel.commonSettingsProvider
         ) { record: TetroidRecord? ->
@@ -152,8 +155,16 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         lvRecords.adapter = listAdapterRecords
 
         // список файлов
-        listAdapterAttaches = FilesListAdapter(context, viewModel.attachesInteractor)
+        listAdapterAttaches = FilesListAdapter(
+            requireContext(),
+            viewModel.attachesInteractor
+        )
         lvAttaches.adapter = listAdapterAttaches
+    }
+
+    fun resetListAdapters() {
+        listAdapterRecords.reset()
+        listAdapterAttaches.reset()
     }
 
     /**
@@ -420,7 +431,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     // region OptionsMenu
 
-    fun onCreateOptionsMenu(menu: Menu?) {}
+    fun onCreateOptionsMenu(menu: Menu) {
+    }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         val isRecordFilesView = viewModel.curMainViewId == Constants.MAIN_VIEW_RECORD_FILES

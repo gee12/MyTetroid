@@ -42,9 +42,6 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         boolean onLongClick(View view, TetroidNode node, int pos);
     }
 
-    /**
-     *
-     */
     private class NodeViewHolder {
         ImageView iconView;
         TextView nameView;
@@ -53,20 +50,24 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         ConstraintLayout headerView;
     }
 
-    private Context mContext;
-    private LayoutInflater mInflater;
-    private OnNodeHeaderClickListener mOnNodeHeaderClickListener;
-    private TetroidNode mCurNode;
+    private final Context context;
+    private final LayoutInflater inflater;
+    private OnNodeHeaderClickListener onNodeHeaderClickListener;
+    private TetroidNode curNode;
 
     public NodesListAdapter(Context context, OnNodeHeaderClickListener onNodeHeaderClickListener) {
         super();
-        this.mContext = context;
-        this.mOnNodeHeaderClickListener = onNodeHeaderClickListener;
-        this.mInflater = LayoutInflater.from(context);
+        this.context = context;
+        this.onNodeHeaderClickListener = onNodeHeaderClickListener;
+        this.inflater = LayoutInflater.from(context);
+    }
+
+    public void reset() {
+        this.curNode = null;
     }
 
     public void setNodeHeaderClickListener(OnNodeHeaderClickListener onNodeHeaderClickListener) {
-        this.mOnNodeHeaderClickListener = onNodeHeaderClickListener;
+        this.onNodeHeaderClickListener = onNodeHeaderClickListener;
     }
 
     @Override
@@ -89,7 +90,7 @@ public class NodesListAdapter extends MultiLevelListAdapter {
         NodeViewHolder viewHolder;
         if (convertView == null) {
             viewHolder = new NodeViewHolder();
-            convertView = mInflater.inflate(R.layout.list_item_node, null);
+            convertView = inflater.inflate(R.layout.list_item_node, null);
             viewHolder.iconView = convertView.findViewById(R.id.node_view_icon);
             viewHolder.nameView = convertView.findViewById(R.id.node_view_name);
             viewHolder.recordsCountView = convertView.findViewById(R.id.node_view_records_count);
@@ -118,21 +119,21 @@ public class NodesListAdapter extends MultiLevelListAdapter {
             viewHolder.iconView.setVisibility(View.GONE);
         }
         // название
-        String cryptedName = mContext.getString(R.string.title_crypted_node_name);
+        String cryptedName = context.getString(R.string.title_crypted_node_name);
         viewHolder.nameView.setText(node.getCryptedName(cryptedName));
         // количество записей в ветке
         if (node.getRecordsCount() > 0 && node.isNonCryptedOrDecrypted()) {
             viewHolder.recordsCountView.setVisibility(View.VISIBLE);
             viewHolder.recordsCountView.setText(String.format(Locale.getDefault(), "[%d]", node.getRecordsCount()));
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorBaseText));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText));
         } else {
             viewHolder.recordsCountView.setVisibility(View.GONE);
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(mContext, R.color.colorLightText));
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText));
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
-        viewHolder.headerView.setOnClickListener(v -> mOnNodeHeaderClickListener.onClick(node, pos));
-        viewHolder.headerView.setOnLongClickListener(v -> mOnNodeHeaderClickListener.onLongClick(view, node, pos));
+        viewHolder.headerView.setOnClickListener(v -> onNodeHeaderClickListener.onClick(node, pos));
+        viewHolder.headerView.setOnLongClickListener(v -> onNodeHeaderClickListener.onLongClick(view, node, pos));
         // стрелка раскрытия/закрытия ветки
         if (itemInfo.isExpandable() && node.isNonCryptedOrDecrypted()) {
             viewHolder.arrowView.setVisibility(View.VISIBLE);
@@ -151,8 +152,8 @@ public class NodesListAdapter extends MultiLevelListAdapter {
 //        layoutParams.leftMargin = 20 * node.getLevel();
 
         // подсветка
-        if (mCurNode == node) {
-            convertView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorCurNode));
+        if (curNode == node) {
+            convertView.setBackgroundColor(ContextCompat.getColor(context, R.color.colorCurNode));
         } else if (node.isCrypted() && App.IsHighlightCryptedNodes) {
             convertView.setBackgroundColor(App.HighlightAttachColor);
         } else {
@@ -163,11 +164,11 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     }
 
     public void setCurNode(TetroidNode node) {
-        this.mCurNode = node;
+        this.curNode = node;
     }
 
     public TetroidNode getCurNode() {
-        return mCurNode;
+        return curNode;
     }
 
     public TetroidNode getItem(int position) {

@@ -386,7 +386,7 @@ class RecordViewModel(
             val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
             if (recordId != null) {
                 // получаем запись
-                val record = withContext(Dispatchers.IO) { recordsInteractor.getRecord(recordId) }
+                val record = withIo { recordsInteractor.getRecord(recordId) }
                 if (record != null) {
                     curRecord.postValue(record!!)
                     setTitle(record.name)
@@ -422,7 +422,7 @@ class RecordViewModel(
 
             // создаем временную запись
             val node = quicklyNode ?: storageProvider.getRootNode()
-            val record = withContext(Dispatchers.IO) {
+            val record = withIo {
                 recordsInteractor.createTempRecord(getContext(), null, null, null, node)
             }
             if (record != null) {
@@ -452,7 +452,7 @@ class RecordViewModel(
         launchOnMain {
             var text: String? = null
             if (!record.isNew) {
-                text = withContext(Dispatchers.IO) {
+                text = withIo {
                     recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, true)
                 }
                 if (text == null) {

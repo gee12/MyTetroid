@@ -61,13 +61,7 @@ class InitOrCreateStorageUseCase(
                 val res = databaseConfig.load()
                 storage.isInited = res
                 if (res) {
-                    // FIXME: упростить логику работы с favorites
-                    // получаем id избранных записей из настроек
-                    if (storage.id != storageProvider.storage?.id
-                        || storageProvider.favorites.isEmpty()
-                    ) {
-                        favoritesInteractor.init()
-                    }
+                    favoritesInteractor.initIfNeed()
                     Result.InitStorage.toRight()
                 } else {
                     Failure.Storage.DatabaseConfig.Load(

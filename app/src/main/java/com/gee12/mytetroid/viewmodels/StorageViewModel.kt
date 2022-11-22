@@ -358,7 +358,7 @@ open class StorageViewModel(
     fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
         launchOnMain {
             isAlreadyTryDecrypt = false
-            withContext(Dispatchers.IO) {
+            withIo {
                 initOrCreateStorageUseCase.run(
                     InitOrCreateStorageUseCase.Params(
                         storage = storage,
@@ -508,7 +508,7 @@ open class StorageViewModel(
                 )
             )
 
-            val result = withContext(Dispatchers.IO) {
+            val result = withIo {
                 readStorageUseCase.run(
                     ReadStorageUseCase.Params(
                         storage = storage,
@@ -1004,7 +1004,7 @@ open class StorageViewModel(
      */
     fun checkStoragePass(callbackEvent: VMEvent) {
         launchOnMain {
-            withContext(Dispatchers.IO) {
+            withIo {
                 checkStoragePasswordUseCase.run(
                     CheckStoragePasswordAndAskUseCase.Params(
                         storage = storage,
@@ -1108,7 +1108,7 @@ open class StorageViewModel(
         log(R.string.log_start_pass_setup)
         sendViewEvent(ViewEvent.TaskStarted(R.string.task_pass_setting))
         isBusy = true
-        val result = withContext(Dispatchers.IO) {
+        val result = withIo {
             passInteractor.setupPass(storage!!, pass).also {
                 // сохраняем хэш пароля в бд (если установлена соответствующая опция)
                 updateStorageAsync(storage!!)
@@ -1480,7 +1480,7 @@ open class StorageViewModel(
     //region IStorageCallback
 
     suspend fun saveStorage(): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withIo {
             saveStorageUseCase.run()
         }.foldResult(
             onLeft = {

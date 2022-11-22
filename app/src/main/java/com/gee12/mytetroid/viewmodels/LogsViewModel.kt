@@ -63,7 +63,7 @@ class LogsViewModel(
                 }
 
                 try {
-                    val data = withContext(Dispatchers.IO) {
+                    val data = withIo {
                         val fileUri = Uri.parse(logger.fullFileName)
                         FileUtils.readTextFile(fileUri, LINES_IN_RECYCLER_VIEW_ITEM)
                     }

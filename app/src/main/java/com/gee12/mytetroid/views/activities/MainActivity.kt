@@ -215,6 +215,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             btnLoadStorageNodes.setOnClickListener(listener)
             btnLoadStorageTags.setOnClickListener(listener)
         }
+
+        initNodesTagsListAdapters()
     }
 
     /**
@@ -448,7 +450,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             // обработка только "ветки" избранных записей
             if (isLoaded) {
                 // списки записей, файлов
-                mainPage.initListAdapters(this)
+                mainPage.resetListAdapters()
                 viewModel.showFavorites()
                 // список меток
                 tvTagsEmpty.setText(R.string.title_load_all_nodes)
@@ -458,13 +460,13 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             }
         } else if (isAllNodesOpening) {
             // загрузка всех записей, после того, как уже были загружены избранные записи
-            initNodesTagsListAdapters()
+            resetNodesTagsListAdapters()
             if (isLoaded) {
                 // список веток
                 listAdapterNodes.setDataItems(rootNodes)
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing)
                 // списки записей, файлов
-                mainPage.initListAdapters(this)
+                mainPage.resetListAdapters()
                 // список меток
                 setTagsDataItems(viewModel.getTagsMap())
                 tvTagsEmpty.setText(R.string.log_tags_is_missing)
@@ -472,7 +474,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 setEmptyTextViews(R.string.title_storage_not_loaded)
             }
         } else {
-            initNodesTagsListAdapters()
+            resetNodesTagsListAdapters()
             if (isLoaded) {
                 // выбираем ветку, выбранную в прошлый раз
                 var nodesAdapterInited = false
@@ -501,7 +503,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 }
                 if (!isEmpty) {
                     // списки записей, файлов
-                    mainPage.initListAdapters(this)
+                    mainPage.resetListAdapters()
                     if (nodeToSelect != null) {
                         if (nodeToSelect === FAVORITES_NODE) {
                             viewModel.showFavorites()
@@ -532,6 +534,11 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         // список меток
         listAdapterTags = TagsListAdapter(this)
         lvTags.adapter = listAdapterTags
+    }
+
+    private fun resetNodesTagsListAdapters() {
+        listAdapterNodes.reset()
+        listAdapterTags.reset()
     }
 
     /**
@@ -579,17 +586,16 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      * Установка заголовка и подзаголовка ToolBar.
      */
     fun updateMainToolbar(viewId: Int, title: String?) {
-        var title = title
-        when (viewId) {
-            Constants.MAIN_VIEW_GLOBAL_FOUND -> title = getString(R.string.title_global_search)
-            Constants.MAIN_VIEW_NONE -> title = null
-            Constants.MAIN_VIEW_NODE_RECORDS -> title = viewModel.getCurNodeName()
-            Constants.MAIN_VIEW_TAG_RECORDS -> title = viewModel.getCurTagName()
-            Constants.MAIN_VIEW_FAVORITES -> title = getString(R.string.title_favorites)
-            Constants.MAIN_VIEW_RECORD_FILES -> {}
-            else -> {}
+        val newTitle = when (viewId) {
+            Constants.MAIN_VIEW_GLOBAL_FOUND -> getString(R.string.title_global_search)
+            Constants.MAIN_VIEW_NONE -> null
+            Constants.MAIN_VIEW_NODE_RECORDS -> viewModel.getCurNodeName()
+            Constants.MAIN_VIEW_TAG_RECORDS -> viewModel.getCurTagName()
+            Constants.MAIN_VIEW_FAVORITES -> getString(R.string.title_favorites)
+            Constants.MAIN_VIEW_RECORD_FILES -> title
+            else -> title
         }
-        setTitle(title)
+        setTitle(newTitle)
         setSubtitle(viewId)
         updateOptionsMenu()
     }
@@ -637,7 +643,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      */
     private fun reinitStorage() {
         closeFoundFragment()
-        mainPage!!.clearView()
+        mainPage.clearView()
         viewModel.startReinitStorage()
     }
 
@@ -652,7 +658,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         updateNodes()
         updateTags()
         // обновляем и записи, т.к. расшифровка могла быть вызвана из Favorites
-        mainPage!!.updateRecordList()
+        mainPage.updateRecordList()
         checkReceivedIntent(receivedIntent)
     }
 
@@ -783,9 +789,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      * Обновление списка веток.
      */
     fun updateNodes() {
-        if (listAdapterNodes != null) {
-            listAdapterNodes.notifyDataSetChanged()
-        }
+        listAdapterNodes.notifyDataSetChanged()
     }
 
     /**
@@ -1100,7 +1104,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
     // region Tags
     
     private fun setTagsDataItems(tags: Map<String, TetroidTag>) {
-        listAdapterTags?.setDataItems(
+        listAdapterTags.setDataItems(
             tags, SortHelper(
                 CommonSettings.getTagsSortMode(this, SortHelper.byNameAsc())
             )
@@ -1518,7 +1522,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         } else {
             // обновляем список записей, чтобы обновить дату изменения
             if (App.RecordFieldsInList.checkIsEditedDate()) {
-                mainPage!!.updateRecordList()
+                mainPage.updateRecordList()
             }
         }
         when (resCode) {
@@ -1926,8 +1930,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageNotNull)
         enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageNotNull)
         enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageNotNull)
-        //        viewModel.getStorage()
-        mainPage!!.onPrepareOptionsMenu(menu)
+
+        mainPage.onPrepareOptionsMenu(menu)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -1967,7 +1971,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
                 return true
             }
-            else -> if (mainPage!!.onOptionsItemSelected(id)) {
+            else -> if (mainPage.onOptionsItemSelected(id)) {
                 return true
             }
         }
@@ -1999,8 +2003,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 var needToOpenDrawer = true
                 val curPage = viewPager.currentItem
                 if (curPage == Constants.PAGE_MAIN || curPage == Constants.PAGE_FOUND) {
-                    if (curPage == Constants.PAGE_MAIN && mainPage!!.onBackPressed()
-                        || curPage == Constants.PAGE_FOUND && foundPage!!.onBackPressed()
+                    if (curPage == Constants.PAGE_MAIN && mainPage.onBackPressed()
+                        || curPage == Constants.PAGE_FOUND && foundPage.onBackPressed()
                     ) {
                         needToOpenDrawer = false
                     }
@@ -2020,8 +2024,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             } else {
                 val curPage = viewPager.currentItem
                 if (curPage == Constants.PAGE_MAIN || curPage == Constants.PAGE_FOUND) {
-                    if (curPage == Constants.PAGE_MAIN && !mainPage!!.onBackPressed()
-                        || curPage == Constants.PAGE_FOUND && !foundPage!!.onBackPressed()
+                    if (curPage == Constants.PAGE_MAIN && !mainPage.onBackPressed()
+                        || curPage == Constants.PAGE_FOUND && !foundPage.onBackPressed()
                     ) {
                         if (CommonSettings.isConfirmAppExit(this)) {
                             askForExit()
