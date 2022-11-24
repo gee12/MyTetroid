@@ -11,6 +11,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 
 class StoragesViewModel(
     app: Application,
@@ -21,8 +22,8 @@ class StoragesViewModel(
     commonSettingsProvider: CommonSettingsProvider,
     storageProvider: IStorageProvider,
     private val appBuildHelper: AppBuildHelper,
-    private val storagePathHelper: IStoragePathHelper,
     private val storagesInteractor: StoragesInteractor,
+    private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -46,23 +47,41 @@ class StoragesViewModel(
         launchOnIo {
             val storages = storagesInteractor.getStorages()
                 .onEach {
-                    if (checkStoragesFilesExisting) checkStorageFilesExisting(it)
+                    if (checkStoragesFilesExisting) {
+                        checkStorageFilesExisting(it)
+                    }
                 }
             _storages.postValue(storages)
         }
     }
 
-    fun checkStorageFilesExisting(storage: TetroidStorage) {
-        storage.error = storagePathHelper.checkStorageFilesExistingError(getContext())
+    private suspend fun checkStorageFilesExisting(storage: TetroidStorage) {
+        storage.error = checkStorageFilesExistingUseCase.run(
+            CheckStorageFilesExistingUseCase.Params(storage)
+        ).foldResult(
+            onLeft = {
+                failureHandler.getFailureMessage(it).title
+            },
+            onRight = { result ->
+                when (result) {
+                    is CheckStorageFilesExistingUseCase.Result.Error -> {
+                        result.errorsString
+                    }
+                    is CheckStorageFilesExistingUseCase.Result.Success -> {
+                        null
+                    }
+                }
+            }
+        )
     }
 
     fun setDefault(storage: TetroidStorage) {
         launchOnMain {
             if (withIo { storagesInteractor.setIsDefault(storage) }) {
-                log(getString(R.string.log_storage_set_is_default_mask).format(storage.name), true)
+                log(getString(R.string.log_storage_set_is_default_mask, storage.name), true)
                 loadStorages()
             } else {
-                logError(getString(R.string.error_storage_set_is_default_mask).format(storage.name), true)
+                logError(getString(R.string.error_storage_set_is_default_mask, storage.name), true)
                 showSnackMoreInLogs()
             }
         }
@@ -83,11 +102,11 @@ class StoragesViewModel(
 
     fun addStorage(storage: TetroidStorage) {
         // заполняем поля настройками по-умолчанию
-        storagesInteractor.initStorage(getContext(), storage)
+        storagesInteractor.initStorage(storage)
 
         launchOnMain {
             if (withIo { storagesInteractor.addStorage(storage) }) {
-                log(getString(R.string.log_storage_added_mask).format(storage.name), true)
+                log(getString(R.string.log_storage_added_mask, storage.name), true)
                 loadStorages()
                 sendStorageEvent(StorageViewModel.StorageEvent.Added(storage))
             } else {
@@ -99,7 +118,7 @@ class StoragesViewModel(
     fun deleteStorage(storage: TetroidStorage) {
         launchOnMain {
             if (withIo { storagesInteractor.deleteStorage(storage) }) {
-                log(getString(R.string.log_storage_deleted_mask).format(storage.name), true)
+                log(getString(R.string.log_storage_deleted_mask, storage.name), true)
                 loadStorages()
             } else {
                 logDuringOperErrors(LogObj.STORAGE, LogOper.DELETE, true)

@@ -82,7 +82,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun initViewModel() {
         super.initViewModel()
-        viewModel.storages.observe(this, { list -> showStoragesList(list) })
+        viewModel.storages.observe(this) { list -> showStoragesList(list) }
         viewModel.checkStoragesFilesExisting = true
     }
 
@@ -196,15 +196,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         storageDialog = StorageDialog(
             storage = storage,
             isDefault = (viewModel.storages.value?.isEmpty() == true),
-            callback = object : StorageDialog.IStorageResult {
-                override fun onApply(storage: TetroidStorage) {
-                    viewModel.addStorage(storage)
-                }
-
-                override fun onSelectPath(path: String) {
-                    selectStorageFolder(path)
-                }
-            }).apply {
+            onApply = { storage ->
+                viewModel.addStorage(storage)
+            },
+            onSelectPath = { path ->
+                selectStorageFolder(path)
+            }
+        ).apply {
             showIfPossible(supportFragmentManager)
         }
     }

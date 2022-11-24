@@ -15,6 +15,7 @@ import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -52,6 +53,7 @@ class StorageSettingsViewModel(
     changePasswordUseCase: ChangePasswordUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -85,6 +87,7 @@ class StorageSettingsViewModel(
     changePasswordUseCase,
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase,
 ) {
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()
@@ -113,19 +116,19 @@ class StorageSettingsViewModel(
                     isFieldChanged(key, path, value.toString()) {
                         path = it
                         isStoragePathChanged = true
-                        log(getString(R.string.log_storage_path_changed_mask).format(path), false)
+                        log(getString(R.string.log_storage_path_changed_mask, path), false)
                     }
                 }
                 getString(R.string.pref_key_storage_name) -> {
                     isFieldChanged(key, name, value.toString()) {
                         name = it
-                        log(getString(R.string.log_storage_name_changed_mask).format(name), false)
+                        log(getString(R.string.log_storage_name_changed_mask, name), false)
                     }
                 }
                 getString(R.string.pref_key_temp_path) -> {
                     isFieldChanged(key, trashPath, value) {
                         trashPath = it
-                        log(getString(R.string.log_storage_trash_path_changed_mask).format(name), false)
+                        log(getString(R.string.log_storage_trash_path_changed_mask, name), false)
                     }
                 }
                 getString(R.string.pref_key_is_def_storage) -> isFieldChanged(key, isDefault, value) { isDefault = it }

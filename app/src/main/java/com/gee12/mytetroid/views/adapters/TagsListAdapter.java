@@ -36,6 +36,7 @@ public class TagsListAdapter extends BaseAdapter {
 
     public void reset() {
         this.dataSet = new ArrayList<>();
+        notifyDataSetChanged();
     }
 
     public void setDataItems(Map<String,TetroidTag> data, SortHelper sortHelper) {

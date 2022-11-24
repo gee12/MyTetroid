@@ -42,6 +42,7 @@ object ViewModelsModule {
                 changePasswordUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 
@@ -84,6 +85,7 @@ object ViewModelsModule {
                 insertNodeUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 
@@ -122,6 +124,7 @@ object ViewModelsModule {
                 changePasswordUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 
@@ -162,6 +165,7 @@ object ViewModelsModule {
                 getFileModifiedDateUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 
@@ -199,6 +203,7 @@ object ViewModelsModule {
                 changePasswordUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 
@@ -224,8 +229,8 @@ object ViewModelsModule {
                 failureHandler = get(),
                 commonSettingsProvider = get(),
                 storageProvider = get(),
-                storagePathHelper = get(),
                 storagesInteractor = get(),
+                checkStorageFilesExistingUseCase = get(),
             )
         }
 

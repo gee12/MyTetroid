@@ -8,6 +8,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.views.adapters.StoragesAdapter.StorageViewHolder
 import androidx.recyclerview.widget.RecyclerView
@@ -71,13 +72,12 @@ class StoragesAdapter(
         fun bind(storage: TetroidStorage) {
             tvName.text = storage.name
             tvPath.text = storage.path
-            ivCurrent.visibility = if (storage.id == currentStorageId) VISIBLE else GONE
-            ivDefault.visibility = if (storage.isDefault) VISIBLE else GONE
+            ivCurrent.isVisible = storage.id == currentStorageId
+            ivDefault.isVisible = storage.isDefault
             if (storage.error != null) {
                 ivError.visibility = VISIBLE
                 tvError.visibility = VISIBLE
                 tvError.text = storage.error
-
             } else {
                 ivError.visibility = GONE
                 tvError.visibility = GONE

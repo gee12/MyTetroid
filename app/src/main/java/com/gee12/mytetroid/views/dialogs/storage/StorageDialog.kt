@@ -20,13 +20,9 @@ import java.io.File
 class StorageDialog(
     private val storage: TetroidStorage?,
     private val isDefault: Boolean? = null,
-    private val callback: IStorageResult
+    private val onApply: (storage: TetroidStorage) -> Unit,
+    private val onSelectPath: (path: String) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
-
-    interface IStorageResult {
-        fun onApply(storage: TetroidStorage)
-        fun onSelectPath(path: String)
-    }
 
     private lateinit var etPath: EditText
     private lateinit var etName: EditText
@@ -66,20 +62,20 @@ class StorageDialog(
         }
         cbIsDefault.isChecked = isDefault ?: storage?.isDefault ?: false
 
-        val clickListener = View.OnClickListener { callback.onSelectPath(etPath.text.toString()) }
+        val clickListener = View.OnClickListener { onSelectPath(etPath.text.toString()) }
         bPath.setOnClickListener(clickListener)
         etPath.setOnClickListener(clickListener)
 
         // кнопки результата
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
             val result = TetroidStorage(
-                etName.text.toString(),
-                etPath.text.toString(),
-                cbIsDefault.isChecked,
-                cbReadOnly.isChecked,
-                isNew
+                name = etName.text.toString(),
+                path = etPath.text.toString(),
+                isDefault = cbIsDefault.isChecked,
+                isReadOnly = cbReadOnly.isChecked,
+                isNew = isNew
             )
-            callback.onApply(result)
+            onApply(result)
         }
         setNegativeButton(R.string.answer_cancel)
 

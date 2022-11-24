@@ -36,7 +36,7 @@ public class FilesListAdapter extends BaseAdapter {
     }
 
     public void reset() {
-        this.dataSet = new ArrayList<>();
+        reset(new ArrayList<>());
     }
 
     public void reset(List<TetroidFile> data) {

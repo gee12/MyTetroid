@@ -1,11 +1,9 @@
 package com.gee12.mytetroid.helpers
 
-import android.content.Context
 import android.net.Uri
-import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.model.TetroidStorage
 
 interface IStoragePathHelper {
     fun getStoragePath(): String
@@ -18,20 +16,20 @@ interface IStoragePathHelper {
     fun getPathToFileInIconsFolder(fileName: String): String
     fun getPathToStorageTrashFolder(): String
     fun getUriToStorageTrashFolder(): Uri
-    fun checkStorageFilesExistingError(context: Context): String?
 }
 
 class StoragePathHelper(
-    private val storageProvider: IStorageProvider
+    private val storageProvider: IStorageProvider?,
+    private val storage: TetroidStorage? = null,
 ) : IStoragePathHelper {
 
     companion object {
         const val FILE_URI_PREFIX = "file://"
     }
 
-    override fun getStoragePath() = storageProvider.storage?.path.orEmpty()
+    override fun getStoragePath() = storage?.path ?: storageProvider?.storage?.path.orEmpty()
 
-    override fun getPathToTrash() = storageProvider.storage?.trashPath.orEmpty()
+    override fun getPathToTrash() = storage?.trashPath ?: storageProvider?.storage?.trashPath.orEmpty()
 
     override fun getPathToMyTetraXml(): String {
         return makePath(getStoragePath(), Constants.MYTETRA_XML_FILE_NAME)
@@ -63,38 +61,6 @@ class StoragePathHelper(
 
     override fun getUriToStorageTrashFolder(): Uri {
         return Uri.parse("${FILE_URI_PREFIX}${getPathToTrash()}")
-    }
-
-    override fun checkStorageFilesExistingError(context: Context): String? {
-        return when {
-            !FileUtils.isFileExist(getStoragePath()) -> {
-                context.getString(R.string.error_storage_folder_is_not_exists)
-            }
-            FileUtils.isDirEmpty(getStoragePath()) -> {
-                context.getString(R.string.error_storage_folder_is_empty)
-            }
-            else -> {
-                val errorList = mutableListOf<String>()
-                if (!FileUtils.isFileExist(getPathToStorageBaseFolder())) {
-                    errorList.add(context.getString(R.string.folder_name_mask, Constants.BASE_DIR_NAME))
-                }
-                if (!FileUtils.isFileExist(getPathToDatabaseIniConfig())) {
-                    errorList.add(context.getString(R.string.file_name_mask, Constants.DATABASE_INI_FILE_NAME))
-                }
-                if (!FileUtils.isFileExist(getPathToMyTetraXml())) {
-                    errorList.add(context.getString(R.string.file_name_mask, Constants.MYTETRA_XML_FILE_NAME))
-                }
-                when (errorList.size) {
-                    1 -> {
-                        context.getString(R.string.title_is_not_exist_mask, errorList.first())
-                    }
-                    2,3 -> {
-                        context.getString(R.string.title_is_not_exist_plural_mask, errorList.joinToString())
-                    }
-                    else -> null
-                }
-            }
-        }
     }
 
 }

@@ -63,7 +63,9 @@ public class NodesListAdapter extends MultiLevelListAdapter {
     }
 
     public void reset() {
+        super.setDataItems(new ArrayList<>());
         this.curNode = null;
+        notifyDataSetChanged();
     }
 
     public void setNodeHeaderClickListener(OnNodeHeaderClickListener onNodeHeaderClickListener) {

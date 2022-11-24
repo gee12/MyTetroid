@@ -31,6 +31,7 @@ import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -78,6 +79,7 @@ class MainViewModel(
     private val insertNodeUseCase: InsertNodeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
 ): StorageViewModel(
     app,
     resourcesProvider,
@@ -111,6 +113,7 @@ class MainViewModel(
     changePasswordUseCase,
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase,
 ) {
 
     sealed class MainEvent : VMEvent() {
@@ -259,11 +262,11 @@ class MainViewModel(
     }
 
     private suspend fun migrateTo50(): Boolean {
-        logger.log(getString(R.string.log_start_migrate_to_version_mask).format("5.0"), false)
+        logger.log(getString(R.string.log_start_migrate_to_version_mask, "5.0"), false)
 
         // параметры хранилища из SharedPreferences в бд
         if (migrationInteractor.isNeedMigrateStorageFromPrefs()) {
-            if (!migrationInteractor.addDefaultStorageFromPrefs(getContext())) {
+            if (!migrationInteractor.addDefaultStorageFromPrefs()) {
                 return false
             }
         }
@@ -1062,12 +1065,12 @@ class MainViewModel(
 
     fun getCurTagName() = curTag?.name ?: ""
 
-    fun showTag(tagName: String?) {
+    fun showTag(tagName: String) {
         val tag = tagsInteractor.getTag(tagName)
         if (tag != null) {
             showTag(tag)
         } else {
-            logWarning(getString(R.string.search_tag_not_found_mask).format(tagName), true)
+            logWarning(getString(R.string.search_tag_not_found_mask, tagName), true)
         }
     }
 
@@ -1081,7 +1084,7 @@ class MainViewModel(
                 curTag = tag
                 // сбрасываем текущую ветку
                 sendEvent(MainEvent.SetCurrentNode(node = null))
-                log(getString(R.string.log_open_tag_records_mask).format(tag.name))
+                log(getString(R.string.log_open_tag_records_mask, tag.name))
                 showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
             } else {
                 logError(R.string.log_tag_is_null, true)
@@ -1398,7 +1401,7 @@ class MainViewModel(
                 log(mes + ": " + StringUtils.getIdString(getContext(), record), false)
                 updateFavoritesTitle(record)
             } else {
-                logOperError(LogObj.RECORD, LogOper.ADD, getString(R.string.log_with_id_to_favor_mask).format(record.id), true, true)
+                logOperError(LogObj.RECORD, LogOper.ADD, getString(R.string.log_with_id_to_favor_mask, record.id), true, true)
             }
         }
     }
@@ -1412,7 +1415,7 @@ class MainViewModel(
                 updateFavoritesTitle()
                 updateRecords()
             } else {
-                logOperError(LogObj.RECORD, LogOper.DELETE, getString(R.string.log_with_id_from_favor_mask).format(record.id), true, true)
+                logOperError(LogObj.RECORD, LogOper.DELETE, getString(R.string.log_with_id_from_favor_mask, record.id), true, true)
             }
         }
     }
@@ -1469,7 +1472,7 @@ class MainViewModel(
         val searchInteractor = SearchInteractor(profile, storageProvider, nodesInteractor, recordsInteractor)
 
         launchOnMain {
-            log(getString(R.string.global_search_start).format(profile.query))
+            log(getString(R.string.global_search_start, profile.query))
             sendViewEvent(ViewEvent.TaskStarted(R.string.global_searching))
             val found = searchInteractor.globalSearch(getContext())
             sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
@@ -1477,8 +1480,10 @@ class MainViewModel(
             if (found == null) {
                 log(getString(R.string.log_global_search_return_null), true)
                 return@launchOnMain
-            } else if (profile.isSearchInNode && profile.node != null) {
-                log(getString(R.string.global_search_by_node_result).format(profile.node?.name), true)
+            } else if (profile.isSearchInNode) {
+                profile.node?.let { node ->
+                    log(getString(R.string.global_search_by_node_result, node.name), true)
+                }
             }
 
             // уведомляем, если не смогли поискать в зашифрованных ветках
@@ -1539,8 +1544,8 @@ class MainViewModel(
     private fun filterRecords(query: String, records: List<TetroidRecord>, viewId: Int) {
         launchOnMain {
             val message = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
-                getString(R.string.filter_records_in_node_by_query).format(getCurNodeName(), query)
-            else getString(R.string.filter_records_in_tag_by_query).format(getCurTagName(), query)
+                getString(R.string.filter_records_in_node_by_query, getCurNodeName(), query)
+            else getString(R.string.filter_records_in_tag_by_query, getCurTagName(), query)
             log(message)
             val found = ScanManager.searchInRecordsNames(records, query)
             showRecords(found, viewId, false)

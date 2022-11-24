@@ -29,6 +29,7 @@ public class RecordsListAdapter extends RecordsBaseListAdapter {
 
     public void reset() {
         this.dataSet = new ArrayList<>();
+        notifyDataSetChanged();
     }
 
     public void setDataItems(List<TetroidRecord> dataSet, int viewId) {

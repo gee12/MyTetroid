@@ -6,6 +6,7 @@ import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -37,6 +38,7 @@ object InteractorsModule {
 
         single {
             StoragesInteractor(
+                context = androidApplication(),
                 storagesRepo = get()
             )
         }
@@ -242,6 +244,12 @@ object InteractorsModule {
                 storageProvider = get(),
                 storageDataProcessor = get(),
                 storagePathHelper = get(),
+            )
+        }
+
+        single {
+            CheckStorageFilesExistingUseCase(
+                resourcesProvider = get(),
             )
         }
 

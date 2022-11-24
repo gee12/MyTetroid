@@ -36,7 +36,7 @@ class ImagesInteractor(
      */
     suspend fun saveImage(context: Context, record: TetroidRecord, srcUri: Uri, deleteSrcFile: Boolean): TetroidImage? {
         val srcPath = srcUri.path
-        logger.logDebug(context.getString(R.string.log_start_image_file_saving_mask).format(srcPath, record.id))
+        logger.logDebug(context.getString(R.string.log_start_image_file_saving_mask, srcPath, record.id))
 
         // генерируем уникальное имя файла
         val nameId: String = dataInteractor.createUniqueImageName()
@@ -49,7 +49,7 @@ class ImagesInteractor(
             return null
         }
         val destFullName: String = recordPathHelper.getPathToFileInRecordFolder(record, nameId)
-        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
+        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask, destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
             withContext(Dispatchers.IO) {
@@ -58,7 +58,7 @@ class ImagesInteractor(
             val destFile = File(destFullName)
             if (destFile.exists()) {
                 if (deleteSrcFile) {
-                    logger.logDebug(context.getString(R.string.log_start_image_file_deleting_mask).format(srcUri))
+                    logger.logDebug(context.getString(R.string.log_start_image_file_deleting_mask, srcUri))
                     val srcFile = File(srcPath)
                     // удаляем исходный файл за ненадобностью
                     if (!srcFile.delete()) {
@@ -97,7 +97,7 @@ class ImagesInteractor(
             return null
         }
         val destFullName: String = recordPathHelper.getPathToFileInRecordFolder(record, nameId)
-        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask).format(destFullName))
+        logger.logDebug(context.getString(R.string.log_start_image_file_converting_mask, destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
             withContext(Dispatchers.IO) {

@@ -24,9 +24,8 @@ class MigrationInteractor(
     /**
      * Миграция с версии < 5.0, когда не было многобазовости.
      */
-    suspend fun addDefaultStorageFromPrefs(context: Context): Boolean {
+    suspend fun addDefaultStorageFromPrefs(): Boolean {
         val storage = storagesInteractor.initStorage(
-            context,
             TetroidStorage(
                 path = commonSettingsProvider.getStoragePath()
             )

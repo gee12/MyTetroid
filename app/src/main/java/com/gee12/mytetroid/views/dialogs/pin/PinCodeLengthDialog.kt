@@ -41,7 +41,7 @@ class PinCodeLengthDialog(
         dialog.setCanceledOnTouchOutside(false)
         setTitle(R.string.title_enter_pin_code_length)
 
-        view.findViewById<TextView>(R.id.text_view_label).text = getString(R.string.label_pin_code_size_mask).format(minSize, maxSize)
+        view.findViewById<TextView>(R.id.text_view_label).text = getString(R.string.label_pin_code_size_mask, minSize, maxSize)
         etSize = view.findViewById(R.id.edit_text_size)
         if (curSize in minSize..maxSize) {
             etSize.setText(String.format(Locale.getDefault(), "%d", curSize))

@@ -442,7 +442,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         // элементы фильтра веток и меток
         ViewUtils.setVisibleIfNotNull(searchViewNodes, isLoaded && !isOnlyFavorites)
         ViewUtils.setVisibleIfNotNull(searchViewTags, isLoaded && !isOnlyFavorites)
-        ViewUtils.setVisibleIfNotNull(findViewById(R.id.button_tags_sort) as View, isLoaded && !isOnlyFavorites)
+        val view = findViewById<View>(R.id.button_tags_sort)
+        ViewUtils.setVisibleIfNotNull(view, isLoaded && !isOnlyFavorites)
 
         // обновляем заголовок в шторке
         updateStorageNameLabel(isLoaded)
@@ -1561,8 +1562,9 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             }
             Constants.RESULT_SHOW_TAG -> {
                 if (checkIsNeedLoadAllNodes(data)) return
-                val tagName = data.getStringExtra(Constants.EXTRA_TAG_NAME)
-                viewModel.showTag(tagName)
+                data.getStringExtra(Constants.EXTRA_TAG_NAME)?.let { tagName ->
+                    viewModel.showTag(tagName)
+                }
             }
             Constants.RESULT_DELETE_RECORD -> {
                 val recordId3 = data.getStringExtra(Constants.EXTRA_OBJECT_ID)

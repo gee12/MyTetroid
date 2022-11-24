@@ -287,15 +287,15 @@ class RecordsInteractor(
                 @Suppress("BlockingMethodInNonBlockingContext")
                 val res = withContext(Dispatchers.IO) { FileUtils.copyDirRecursive(srcDir, destDir) }
                 if (res) {
-                    logger.logDebug(context.getString(R.string.log_copy_record_dir_mask).format(destDirPath))
+                    logger.logDebug(context.getString(R.string.log_copy_record_dir_mask, destDirPath))
                     // переименовываем прикрепленные файлы
                     renameRecordAttaches(context, srcRecord, record)
                 } else {
-                    logger.logError(context.getString(R.string.log_error_copy_record_dir_mask).format(srcDirPath, destDirPath))
+                    logger.logError(context.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath))
                     return errorRes
                 }
             } catch (ex: IOException) {
-                logger.logError(context.getString(R.string.log_error_copy_record_dir_mask).format(srcDirPath, destDirPath), ex)
+                logger.logError(context.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath), ex)
                 return errorRes
             }
         }
@@ -988,7 +988,7 @@ class RecordsInteractor(
         return try {
             FileUtils.getFileModifiedDate(context, fileName)
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_record_modified_date_mask).format(ex.localizedMessage))
+            logger.logError(context.getString(R.string.error_get_record_modified_date_mask, ex.localizedMessage))
             null
         }
     }
@@ -998,7 +998,7 @@ class RecordsInteractor(
         return try {
             FileUtils.getFileSize(context, recordPathHelper.getPathToRecordFolder(record))
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_record_folder_size_mask).format(ex.localizedMessage))
+            logger.logError(context.getString(R.string.error_get_record_folder_size_mask, ex.localizedMessage))
             null
         }
     }

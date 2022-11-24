@@ -6,6 +6,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
 
 class StoragesInteractor(
+    private val context: Context,
     private val storagesRepo: StoragesRepo
 ) {
 
@@ -19,7 +20,7 @@ class StoragesInteractor(
 
     suspend fun setIsDefault(storage: TetroidStorage) = storagesRepo.setIsDefault(storage)
 
-    fun initStorage(context: Context, storage: TetroidStorage): TetroidStorage {
+    fun initStorage(storage: TetroidStorage): TetroidStorage {
         return storage.apply {
             // основное
             isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)

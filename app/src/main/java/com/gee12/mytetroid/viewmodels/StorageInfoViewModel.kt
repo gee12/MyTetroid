@@ -18,6 +18,7 @@ import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -59,6 +60,7 @@ class StorageInfoViewModel(
     private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -92,6 +94,7 @@ class StorageInfoViewModel(
     changePasswordUseCase,
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase,
 ), CoroutineScope {
 
     sealed class StorageInfoEvent : VMEvent() {
@@ -130,7 +133,7 @@ class StorageInfoViewModel(
                 ).onFailure {
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
                     val title = failureHandler.getFailureMessage(it)
-                    logError(getString(R.string.error_get_storage_folder_size_mask).format(title))
+                    logError(getString(R.string.error_get_storage_folder_size_mask, title))
                 }.onSuccess { size ->
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Success(size))
                 }
@@ -150,7 +153,7 @@ class StorageInfoViewModel(
             }.onFailure {
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
                 val title = failureHandler.getFailureMessage(it)
-                logError(getString(R.string.error_get_mytetra_xml_modified_date_mask).format(title))
+                logError(getString(R.string.error_get_mytetra_xml_modified_date_mask, title))
             }.onSuccess { dateString ->
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success(dateString))
             }

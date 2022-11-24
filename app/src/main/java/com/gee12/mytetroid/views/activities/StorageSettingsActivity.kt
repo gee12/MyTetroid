@@ -9,14 +9,14 @@ import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.viewmodels.ViewEvent
-import com.gee12.mytetroid.views.fragments.settings.storage.StorageSectionsSettingsFragment
-import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment
-import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettingsFragment
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.views.TetroidMessage
+import com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment
+import com.gee12.mytetroid.views.fragments.settings.storage.StorageSectionsSettingsFragment
+import com.gee12.mytetroid.views.fragments.settings.storage.TetroidStorageSettingsFragment
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -34,7 +34,6 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
     }
 
     fun initViewModel() {
-
         lifecycleScope.launch {
             viewModel.messageEventFlow.collect { message -> TetroidMessage.show(this@StorageSettingsActivity, message) }
         }
@@ -85,24 +84,26 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
 
         val storageFilesError = viewModel.checkStorageFilesExistingError()
         setWarningMenuItem(
-            isVisible = (storageFilesError != null)
-        ) {
-            viewModel.showMessage(
-                storageFilesError ?: getString(R.string.mes_storage_init_error)
-            )
-        }
+            isVisible = (storageFilesError != null),
+            onClick = {
+                viewModel.showMessage(
+                    storageFilesError ?: getString(R.string.mes_storage_init_error)
+                )
+            }
+        )
     }
 
     protected fun onStorageInitFailed() {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageInitFailed()
 
         setWarningMenuItem(
-            isVisible = true
-        ) {
-            viewModel.showMessage(
-                viewModel.checkStorageFilesExistingError() ?: getString(R.string.mes_storage_init_error)
-            )
-        }
+            isVisible = true,
+            onClick = {
+                viewModel.showMessage(
+                    viewModel.checkStorageFilesExistingError() ?: getString(R.string.mes_storage_init_error)
+                )
+            }
+        )
     }
 
     protected fun onUpdateStorageFieldEvent(key: String, value: String) {
@@ -121,9 +122,11 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
     }
 
     fun getStorageId(): Int {
-        return if (intent?.hasExtra(Constants.EXTRA_STORAGE_ID) == true)
+        return if (intent?.hasExtra(Constants.EXTRA_STORAGE_ID) == true) {
             intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
-        else 0
+        } else {
+            0
+        }
     }
 
     override fun getLayoutResourceId() = R.layout.activity_settings

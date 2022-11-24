@@ -27,6 +27,7 @@ import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
 import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
@@ -70,6 +71,7 @@ open class StorageViewModel(
     protected val changePasswordUseCase: ChangePasswordUseCase,
     protected val decryptStorageUseCase: DecryptStorageUseCase,
     protected val checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
+    protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -246,7 +248,7 @@ open class StorageViewModel(
                     this@StorageViewModel.sendStorageEvent(StorageEvent.GetEntity(storage))
                 } else {
                     this@StorageViewModel.sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
-                    log(getString(R.string.log_storage_not_found_mask).format(storageId), show = true)
+                    log(getString(R.string.log_storage_not_found_mask, storageId), show = true)
                 }
             }
         }
@@ -273,7 +275,7 @@ open class StorageViewModel(
                 withMain {
                     sendStorageEvent(StorageEvent.NotFoundInBase(storageId = storageId))
                 }
-                log(getString(R.string.log_storage_not_found_mask).format(storageId))
+                log(getString(R.string.log_storage_not_found_mask, storageId))
             }
         }
     }
@@ -314,7 +316,7 @@ open class StorageViewModel(
                 startInitStorage(storage)
             } else {
                 this@StorageViewModel.sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
-                log(getString(R.string.log_storage_not_found_mask).format(storageId), true)
+                log(getString(R.string.log_storage_not_found_mask, storageId), true)
             }
         }
     }
@@ -367,8 +369,10 @@ open class StorageViewModel(
             }.onFailure { failure ->
                 logFailure(failure)
                 //logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
-                sendStorageEvent(StorageEvent.InitFailed(
-                    isOnlyFavorites = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly())
+                sendStorageEvent(
+                    StorageEvent.InitFailed(
+                        isOnlyFavorites = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly()
+                    )
                 )
             }.onSuccess { result ->
                 when (result) {
@@ -972,7 +976,25 @@ open class StorageViewModel(
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()
 
-    fun checkStorageFilesExistingError() = storagePathHelper.checkStorageFilesExistingError(getContext())
+    fun checkStorageFilesExistingError(): String? {
+        return checkStorageFilesExistingUseCase.execute(
+            CheckStorageFilesExistingUseCase.Params(storage!!)
+        ).foldResult(
+            onLeft = {
+                failureHandler.getFailureMessage(it).title
+            },
+            onRight = { result ->
+                when (result) {
+                    is CheckStorageFilesExistingUseCase.Result.Error -> {
+                        result.errorsString
+                    }
+                    is CheckStorageFilesExistingUseCase.Result.Success -> {
+                        null
+                    }
+                }
+            }
+        )
+    }
 
     //endregion Other
 

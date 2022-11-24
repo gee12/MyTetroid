@@ -435,7 +435,7 @@ class AttachesInteractor(
         return try {
             FileUtils.getFileSize(context, getAttachFullName(context, attach))
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.error_get_attach_file_size_mask).format(ex.localizedMessage), false)
+            logger.logError(context.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage), false)
             null
         }
     }
