@@ -40,7 +40,7 @@ abstract class FileTetroidLogger(
 
     override fun setLogPath(path: String) {
         dirPath = path
-        fullFileName = String.format("%s%s%s", path, File.separator, LOG_FILE_NAME)
+        fullFileName = "%s%s%s".format(path, File.separator, LOG_FILE_NAME)
     }
 
     fun log(s: String, type: LogType) {

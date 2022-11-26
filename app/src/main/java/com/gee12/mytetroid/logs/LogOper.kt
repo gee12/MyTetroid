@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.logs
 
-import android.content.Context
 import com.gee12.mytetroid.R
 
 
@@ -35,11 +34,7 @@ enum class LogOper {
         maRes = arrayRes
     }
 
-    fun getString(context: Context, tense: Int): String {
-        return if (maRes > 0 && tense >= 0 && tense < 3) context.resources.getStringArray(maRes)[tense] else ""
-    }
-
-    fun getString(tense: Int, callback: (arrayResId: Int) -> Array<String>): String {
-        return if (maRes > 0 && tense >= 0 && tense < 3) callback(maRes)[tense] else ""
+    fun getString(tense: Int, getStringArrayCallback: (arrayResId: Int) -> Array<String>): String {
+        return if (maRes > 0 && tense >= 0 && tense < 3) getStringArrayCallback(maRes)[tense] else ""
     }
 }

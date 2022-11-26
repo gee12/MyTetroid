@@ -1097,7 +1097,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             )
         )
         val favoritesCountView = findViewById<TextView>(R.id.favorites_count)
-        favoritesCountView.text = String.format(Locale.getDefault(), "[%d]", size)
+        favoritesCountView.text = "[%d]".format(Locale.getDefault(), size)
     }
 
     // endregion Favorites
@@ -1859,7 +1859,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      */
     private fun searchInNodesNames(query: String?) {
         if (listAdapterNodes != null) {
-            if (TextUtils.isEmpty(query)) {
+            if (query.isNullOrEmpty()) {
                 // просто выводим все ветки
                 listAdapterNodes.setDataItems(viewModel.getRootNodes())
                 setListEmptyViewState(tvNodesEmpty, false, "")

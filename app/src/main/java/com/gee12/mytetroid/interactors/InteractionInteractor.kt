@@ -10,12 +10,14 @@ import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import java.io.File
 
 /**
  * Не зависит от конкретного хранилища, может быть Singleton.
  */
 class InteractionInteractor(
+    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger
 ) {
 
@@ -32,18 +34,18 @@ class InteractionInteractor(
         intent.putExtra(Intent.EXTRA_SUBJECT, subject)
         intent.putExtra(Intent.EXTRA_TEXT, text)
         // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
-        val chooser = Intent.createChooser(intent, context.getString(R.string.title_send_to))
+        val chooser = Intent.createChooser(intent, resourcesProvider.getString(R.string.title_send_to))
         chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
             // проверить, есть ли подходящее приложение для открытия файла
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(chooser)
             } else {
-                logger.logWarning(context.getString(R.string.log_no_app_found_for_share_text), true)
+                logger.logWarning(resourcesProvider.getString(R.string.log_no_app_found_for_share_text), true)
                 return false
             }
         } catch (ex: Exception) {
-            logger.logWarning(context.getString(R.string.log_no_app_found_for_share_text), true)
+            logger.logWarning(resourcesProvider.getString(R.string.log_no_app_found_for_share_text), true)
             return false
         }
         return true
@@ -69,7 +71,7 @@ class InteractionInteractor(
                 Uri.fromFile(file)
             }
         } catch (ex: Exception) {
-            logger.logError(context.getString(R.string.log_file_sharing_error) + fileName, true)
+            logger.logError(resourcesProvider.getString(R.string.log_file_sharing_error) + fileName, true)
             logger.logError(ex, false)
             return false
         }
@@ -92,7 +94,7 @@ class InteractionInteractor(
 //        } else {
             // Try a second way to find a compatible file explorer app.
             intent.setDataAndType(fileUri, "application/*")
-            val chooserIntent = Intent.createChooser(intent, context.getString(R.string.title_open_with))
+            val chooserIntent = Intent.createChooser(intent, resourcesProvider.getString(R.string.title_open_with))
             if (chooserIntent != null) {
                 context.startActivity(chooserIntent)
             } else {
@@ -141,7 +143,7 @@ class InteractionInteractor(
 //        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         // всегда отображать диалог выбора приложения (не использовать выбор по-умолчанию)
         val destIntent = if (createChooser) {
-            Intent.createChooser(intent, context.getString(R.string.title_open_with))
+            Intent.createChooser(intent, resourcesProvider.getString(R.string.title_open_with))
         } else {
             intent
         }
@@ -153,14 +155,14 @@ class InteractionInteractor(
                 true
             } else {
                 if (writeLog) {
-                    logger.log(context.getString(R.string.log_no_app_found_for_open_file) + fileName, true)
+                    logger.log(resourcesProvider.getString(R.string.log_no_app_found_for_open_file) + fileName, true)
                 }
                 false
             }
         }
         catch (ex: Exception) { // ActivityNotFoundException
             if (writeLog) {
-                logger.log(context.getString(R.string.log_error_file_open) + fileName, true)
+                logger.log(resourcesProvider.getString(R.string.log_error_file_open) + fileName, true)
             }
             false
         }

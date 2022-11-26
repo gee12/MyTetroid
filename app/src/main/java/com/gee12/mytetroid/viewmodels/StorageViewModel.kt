@@ -822,7 +822,6 @@ open class StorageViewModel(
             //  1) синхронизацию не удалось запустить
             //  2) выбрана синхронизация с помощью приложения, не предусматривающего ответ
             val waitSyncResult = syncInteractor.isWaitSyncResult(
-                context = getContext(),
                 appName = storage?.syncProfile?.appName.orEmpty()
             )
             if (!result || !waitSyncResult) {
@@ -873,16 +872,16 @@ open class StorageViewModel(
 
     open fun editRecordFields(record: TetroidRecord, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
         launchOnMain {
-            recordsInteractor.editRecordFields(getContext(), record, name, tags, author, url, node, isFavor)
+            recordsInteractor.editRecordFields(record, name, tags, author, url, node, isFavor)
         }
     }
 
     suspend fun cutRecord(record: TetroidRecord, withoutDir: Boolean): Int {
-        return recordsInteractor.cutRecord(getContext(), record, withoutDir)
+        return recordsInteractor.cutRecord(record, withoutDir)
     }
 
     suspend fun deleteRecord(record: TetroidRecord, withoutDir: Boolean): Int {
-        return recordsInteractor.deleteRecord(getContext(), record, withoutDir)
+        return recordsInteractor.deleteRecord(record, withoutDir)
     }
 
     //endregion Records

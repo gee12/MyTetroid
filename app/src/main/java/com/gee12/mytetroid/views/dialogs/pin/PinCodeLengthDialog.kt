@@ -44,7 +44,7 @@ class PinCodeLengthDialog(
         view.findViewById<TextView>(R.id.text_view_label).text = getString(R.string.label_pin_code_size_mask, minSize, maxSize)
         etSize = view.findViewById(R.id.edit_text_size)
         if (curSize in minSize..maxSize) {
-            etSize.setText(String.format(Locale.getDefault(), "%d", curSize))
+            etSize.setText("%d".format(Locale.getDefault(), curSize))
         }
 
         setPositiveButton(R.string.answer_ok) { _, _ ->

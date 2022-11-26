@@ -41,7 +41,7 @@ class TagsInteractor(
      * @param tag
      * @param newName
      */
-    suspend fun renameTag(context: Context, tag: TetroidTag, newName: String): Boolean {
+    suspend fun renameTag(tag: TetroidTag, newName: String): Boolean {
         if (TextUtils.isEmpty(newName)) {
             logger.logError(R.string.log_tag_is_null, true)
             return false

@@ -3,22 +3,19 @@ package com.gee12.mytetroid.interactors
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
-import java.lang.Exception
 
 
 class PermissionInteractor(
-    private val logger: ITetroidLogger
+    private val resourcesProvider: IResourcesProvider,
+    private val logger: ITetroidLogger,
 ) {
     companion object {
         const val PERMISSION_TERMUX = "com.termux.permission.RUN_COMMAND"
@@ -101,7 +98,7 @@ class PermissionInteractor(
     }
 
     fun requestPermission(activity: Activity, permission: String, requestCode: Int) {
-        logger.log(activity.getString(R.string.log_request_perm_mask) + permission, false)
+        logger.log(resourcesProvider.getString(R.string.log_request_perm_mask) + permission, false)
         ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
     }
 

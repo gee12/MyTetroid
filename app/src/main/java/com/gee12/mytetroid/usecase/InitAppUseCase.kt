@@ -6,10 +6,12 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
 
 class InitAppUseCase(
+    private val resourcesProvider: IResourcesProvider,
     private val context: Context,
     private val logger: ITetroidLogger,
     private val commonSettingsProvider: CommonSettingsProvider,
@@ -20,7 +22,7 @@ class InitAppUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
 
         logger.logRaw("************************************************************")
-        logger.log(context.getString(R.string.log_app_start_mask, context.getAppVersionName()), false)
+        logger.log(resourcesProvider.getString(R.string.log_app_start_mask, context.getAppVersionName().orEmpty()), false)
 
         if (commonSettingsProvider.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, show = true)
@@ -35,11 +37,11 @@ class InitAppUseCase(
 
     private fun createDefaultFolders() {
         createFolder(
-            path = commonSettingsProvider.getDefaultTrashPath(context),
+            path = commonSettingsProvider.getDefaultTrashPath(),
             name = Constants.TRASH_DIR_NAME
         )
         createFolder(
-            path = commonSettingsProvider.getDefaultLogPath(context),
+            path = commonSettingsProvider.getDefaultLogPath(),
             name = Constants.LOG_DIR_NAME
         )
     }
@@ -48,8 +50,8 @@ class InitAppUseCase(
         try {
             val dir = File(path)
             when (FileUtils.createDirsIfNeed(dir)) {
-                1 -> logger.log(context.getString(R.string.log_created_folder_mask, name, path), show = false)
-                -1 -> logger.logError(context.getString(R.string.log_error_creating_folder_mask, name, path), show = false)
+                1 -> logger.log(resourcesProvider.getString(R.string.log_created_folder_mask, name, path), show = false)
+                -1 -> logger.logError(resourcesProvider.getString(R.string.log_error_creating_folder_mask, name, path), show = false)
                 else -> {}
             }
         } catch (ex: Exception) {

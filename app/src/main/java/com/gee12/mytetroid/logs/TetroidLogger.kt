@@ -52,8 +52,8 @@ class TetroidLogger(
         notificator.showSnackMoreInLogs()
     }
 
-    override fun getString(resId: Int): String {
-        return resourcesProvider.getString(resId)
+    override fun getString(resId: Int, vararg args: Any): String {
+        return resourcesProvider.getString(resId, *args)
     }
 
     fun getStringArray(resId: Int): Array<String> {
@@ -73,7 +73,7 @@ class TetroidLogger(
         // меняем местами существительное и глагол в зависимости от языка
         val first = if (localeHelper.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
         val second = if (localeHelper.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
-        val mes = String.format(getString(R.string.log_oper_start_mask), first, second) + add
+        val mes = getString(R.string.log_oper_start_mask, first, second) + add
         log(mes, LogType.INFO)
         return mes
     }
@@ -83,9 +83,10 @@ class TetroidLogger(
     //region Operation cancel
 
     override fun logOperCancel(obj: LogObj, oper: LogOper): String {
-        val mes = String.format(
-            getString(R.string.log_oper_cancel_mask),
-            obj.getString(PRESENT_CONTINUOUS, ::getStringArray), oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val mes = getString(
+            R.string.log_oper_cancel_mask,
+            obj.getString(PRESENT_CONTINUOUS, ::getStringArray),
+            oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
         )
         log(mes, LogType.DEBUG)
         return mes
@@ -139,9 +140,10 @@ class TetroidLogger(
     }
 
     override fun logOperError(obj: LogObj, oper: LogOper, add: String?, more: Boolean, show: Boolean): String {
-        val mes = String.format(
-            getString(R.string.log_oper_error_mask),
-            oper.getString(PRESENT_SIMPLE, ::getStringArray), obj.getString(PRESENT_SIMPLE, ::getStringArray),
+        val mes = getString(
+            R.string.log_oper_error_mask,
+            oper.getString(PRESENT_SIMPLE, ::getStringArray),
+            obj.getString(PRESENT_SIMPLE, ::getStringArray),
             add ?: ""
         )
 //                (more) ? context.getString(R.string.log_more_in_logs) : "");

@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import android.text.TextUtils
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.onFailure
@@ -138,8 +137,8 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    suspend fun deleteNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, storagePathHelper.getPathToTrash(), false)
+    suspend fun deleteNode(node: TetroidNode): Boolean {
+        return deleteNode(node, storagePathHelper.getPathToTrash(), false)
     }
 
     /**
@@ -147,8 +146,8 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    suspend fun cutNode(context: Context, node: TetroidNode): Boolean {
-        return deleteNode(context, node, storagePathHelper.getPathToTrash(), true)
+    suspend fun cutNode(node: TetroidNode): Boolean {
+        return deleteNode(node, storagePathHelper.getPathToTrash(), true)
     }
 
     /**
@@ -156,7 +155,7 @@ class NodesInteractor(
      * @param node
      * @return
      */
-    private suspend fun deleteNode(context: Context, node: TetroidNode, movePath: String, isCutting: Boolean): Boolean {
+    private suspend fun deleteNode(node: TetroidNode, movePath: String, isCutting: Boolean): Boolean {
         logger.logOperStart(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE, node)
 
         // удаляем ветку из дерева
@@ -169,7 +168,7 @@ class NodesInteractor(
         // перезаписываем структуру хранилища в файл
         if (saveStorage()) {
             // удаление всех объектов ветки рекурсивно
-            deleteNodeRecursively(context, node, movePath, false)
+            deleteNodeRecursively(node, movePath, false)
         } else {
             logger.logOperCancel(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE)
             return false
@@ -182,7 +181,6 @@ class NodesInteractor(
      * @param node
      */
     private suspend fun deleteNodeRecursively(
-        context: Context,
         node: TetroidNode,
         movePath: String,
         breakOnFSErrors: Boolean
@@ -201,7 +199,7 @@ class NodesInteractor(
                 }
                 // проверяем существование каталога
                 val dirPath = recordPathHelper.getPathToRecordFolder(record)
-                if (recordsInteractor.checkRecordFolder(context, dirPath, false) <= 0) {
+                if (recordsInteractor.checkRecordFolder(dirPath, false) <= 0) {
                     return if (breakOnFSErrors) {
                         false
                     } else {
@@ -209,13 +207,13 @@ class NodesInteractor(
                     }
                 }
                 // перемещаем каталог
-                if (recordsInteractor.moveOrDeleteRecordFolder(context, record, dirPath, movePath) <= 0 && breakOnFSErrors) {
+                if (recordsInteractor.moveOrDeleteRecordFolder(record, dirPath, movePath) <= 0 && breakOnFSErrors) {
                     return false
                 }
             }
         }
         for (subNode in node.subNodes) {
-            if (!deleteNodeRecursively(context, subNode, movePath, breakOnFSErrors) && breakOnFSErrors) {
+            if (!deleteNodeRecursively(subNode, movePath, breakOnFSErrors) && breakOnFSErrors) {
                 return false
             }
         }

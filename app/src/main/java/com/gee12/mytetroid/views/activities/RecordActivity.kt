@@ -736,9 +736,9 @@ class RecordActivity : TetroidActivity<RecordViewModel>(),
 
     fun onFindTextResult(matches: Int) {
         if (matches > 0) {
-            viewModel.log(String.format(getString(R.string.log_n_matches_found), matches), true)
+            viewModel.log(getString(R.string.log_n_matches_found, matches), show = true)
         } else {
-            viewModel.log(getString(R.string.log_matches_not_found), true)
+            viewModel.log(getString(R.string.log_matches_not_found), show = true)
         }
     }
 

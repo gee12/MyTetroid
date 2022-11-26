@@ -78,7 +78,7 @@ abstract class BaseTetroidLogger(
 
     //region String utils
 
-    abstract fun getString(resId: Int): String
+    abstract fun getString(resId: Int, vararg args: Any): String
 
     //endregion String utils
 

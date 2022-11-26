@@ -591,7 +591,7 @@
     <string name="log_url_decode_error">Ошибка декодирования url:&#160;</string>
     <string name="log_before_record_save">Сохранение текста записи id=</string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
-    <string name="log_oper_start_mask">Начало %1%s %2%s</string>
+    <string name="log_oper_start_mask">Начало %1$s %2$s</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
 <!--    <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>-->

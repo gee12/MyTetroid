@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidNode
@@ -38,19 +37,17 @@ class SearchInteractor(
 
     /**
      * Глобальный поиск.
-     * @param context
-     * @return
      */
-    suspend fun globalSearch(context: Context): HashMap<ITetroidObject, FoundType> {
+    suspend fun globalSearch(): HashMap<ITetroidObject, FoundType> {
         foundObjects = HashMap()
 
         profile.node = profile.nodeId?.let { nodesInteractor.getNode(it) }
         if (profile.isSplitToWords) {
             for (word in profile.query.split(QUERY_SEPAR).toTypedArray()) {
-                foundObjects.putAll(globalSearch(context, profile.node, word))
+                foundObjects.putAll(globalSearch(profile.node, word))
             }
         } else {
-            foundObjects.putAll(globalSearch(context, profile.node, profile.query))
+            foundObjects.putAll(globalSearch(profile.node, profile.query))
         }
         return foundObjects
     }
@@ -61,7 +58,7 @@ class SearchInteractor(
      * @param query
      * @return
      */
-    private suspend fun globalSearch(context: Context, node: TetroidNode?, query: String): HashMap<ITetroidObject, FoundType> {
+    private suspend fun globalSearch(node: TetroidNode?, query: String): HashMap<ITetroidObject, FoundType> {
         val srcNodes: List<TetroidNode>
         if (profile.isSearchInNode) {
             if (node != null) {
@@ -80,7 +77,7 @@ class SearchInteractor(
 //                || inTags;
         val inRecords = profile.isInRecords()
         if (profile.inNodes || inRecords) {
-            globalSearchInNodes(context, srcNodes, regex, inRecords)
+            globalSearchInNodes(srcNodes, regex, inRecords)
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
         // 2 - если используем тип (2), то комментируем
@@ -97,7 +94,7 @@ class SearchInteractor(
      * @param regex
      * @param inRecords
      */
-    private suspend fun globalSearchInNodes(context: Context, nodes: List<TetroidNode>, regex: Regex, inRecords: Boolean) {
+    private suspend fun globalSearchInNodes(nodes: List<TetroidNode>, regex: Regex, inRecords: Boolean) {
         for (node in nodes) {
             if (!node.isNonCryptedOrDecrypted) {
                 isExistCryptedNodes = true
@@ -112,10 +109,10 @@ class SearchInteractor(
                 addFoundObject(node, FoundType.TYPE_NODE_ID)
             }
             if (inRecords && node.recordsCount > 0) {
-                globalSearchInRecords(context, node.records, regex)
+                globalSearchInRecords(node.records, regex)
             }
             if (node.subNodesCount > 0) {
-                globalSearchInNodes(context, node.subNodes, regex, inRecords)
+                globalSearchInNodes(node.subNodes, regex, inRecords)
             }
         }
     }
@@ -126,7 +123,7 @@ class SearchInteractor(
      * @param regex
      * @return
      */
-    private suspend fun globalSearchInRecords(context: Context, srcRecords: List<TetroidRecord>, regex: Regex) {
+    private suspend fun globalSearchInRecords(srcRecords: List<TetroidRecord>, regex: Regex) {
         for (record in srcRecords) {
             // поиск по именам записей
             if (profile.inRecordsNames && record.name.matches(regex)) {
@@ -150,7 +147,7 @@ class SearchInteractor(
             }
             // поиск по тексту записи (читаем текст html файла)
             if (profile.inText) {
-                val text = recordsInteractor.getRecordTextDecrypted(context, record)
+                val text = recordsInteractor.getRecordTextDecrypted(record)
                 if (text != null && text.matches(regex)) {
                     addFoundObject(record, FoundType.TYPE_RECORD_TEXT)
                 }

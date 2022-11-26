@@ -1,10 +1,10 @@
 package com.gee12.mytetroid.usecase.storage
 
-import android.content.Context
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.common.extensions.getStringFromTo
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.helpers.IStoragePathHelper
 import com.gee12.mytetroid.interactors.DataInteractor
 import com.gee12.mytetroid.interactors.StorageTreeInteractor
@@ -20,7 +20,7 @@ import java.io.FileOutputStream
  * Сохранение структуры хранилища в файл mytetra.xml.
  */
 class SaveStorageUseCase(
-    private val context: Context,
+    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val storagePathHelper: IStoragePathHelper,
     private val storageDataProcessor: IStorageDataProcessor,
@@ -37,7 +37,7 @@ class SaveStorageUseCase(
     override suspend fun run(params: Params): Either<Failure, Boolean> {
         val destPath = storagePathHelper.getPathToMyTetraXml()
         val tempPath = destPath + "_tmp"
-        logger.logDebug(context.getString(R.string.log_saving_mytetra_xml))
+        logger.logDebug(resourcesProvider.getString(R.string.log_saving_mytetra_xml))
         return try {
             val saveResult = withContext(Dispatchers.IO) {
                 val fos = FileOutputStream(tempPath, false)
@@ -50,7 +50,7 @@ class SaveStorageUseCase(
                 val to = File(destPath)
                 // перемещаем старую версию файла mytetra.xml в корзину
                 val nameInTrash = dataInteractor.createDateTimePrefix() + "_" + Constants.MYTETRA_XML_FILE_NAME
-                if (dataInteractor.moveFile(context, destPath, storagePathHelper.getPathToStorageTrashFolder(), nameInTrash) <= 0) {
+                if (dataInteractor.moveFile(destPath, storagePathHelper.getPathToStorageTrashFolder(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
                         //LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
@@ -61,7 +61,7 @@ class SaveStorageUseCase(
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 val from = File(tempPath)
                 if (!from.renameTo(to)) {
-                    val fromTo = StringUtils.getStringFromTo(context, tempPath, destPath)
+                    val fromTo = resourcesProvider.getStringFromTo(tempPath, destPath)
                     //LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask), tempPath, destPath), LogManager.Types.ERROR);
                     logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
                     return Failure.Storage.Save.RenameXmlFileFromTempName.toLeft()

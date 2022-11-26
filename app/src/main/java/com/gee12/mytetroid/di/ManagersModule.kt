@@ -20,6 +20,7 @@ object ManagersModule {
         single {
             CommonSettingsProvider(
                 context = androidApplication(),
+                resourcesProvider = get(),
                 logger = get(),
                 appBuildHelper = get()
             )

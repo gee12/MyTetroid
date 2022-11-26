@@ -456,7 +456,7 @@ class RecordViewModel(
             var text: String? = null
             if (!record.isNew) {
                 text = withIo {
-                    recordsInteractor.getRecordHtmlTextDecrypted(getContext(), record, true)
+                    recordsInteractor.getRecordHtmlTextDecrypted(record, true)
                 }
                 if (text == null) {
                     if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
@@ -611,7 +611,7 @@ class RecordViewModel(
                 }
             }
             if (errorCount > 0) {
-                logWarning(String.format(getString(R.string.log_failed_to_save_images_mask), errorCount))
+                logWarning(getString(R.string.log_failed_to_save_images_mask, errorCount))
                 sendViewEvent(ViewEvent.ShowMoreInLogs)
             }
 
@@ -637,7 +637,6 @@ class RecordViewModel(
         launchOnMain {
             val savedImage = withIo {
                 imagesInteractor.saveImage(
-                    context = getContext(),
                     record = curRecord.value!!,
                     bitmap = bitmap
                 )
@@ -746,7 +745,6 @@ class RecordViewModel(
             sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
             val attach = withIo {
                 attachesInteractor.attachFile(
-                    context = getContext(),
                     fullName = fileFullName,
                     record = record,
                     deleteSrcFile = deleteSrcFile
@@ -929,7 +927,7 @@ class RecordViewModel(
      */
     fun saveRecordText(htmlText: String) {
         log(getString(R.string.log_before_record_save) + curRecord.value!!.id)
-        if (recordsInteractor.saveRecordHtmlText(getContext(), curRecord.value!!, htmlText)) {
+        if (recordsInteractor.saveRecordHtmlText(curRecord.value!!, htmlText)) {
             log(R.string.log_record_saved, true)
             // сбрасываем пометку изменения записи
             dropIsEdited()
@@ -946,7 +944,6 @@ class RecordViewModel(
         if (appBuildHelper.isFullVersion()) {
             val dateFormat = getString(R.string.full_date_format_string)
             val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
-//            (findViewById<View>(R.id.text_view_record_edited) as TextView).text =
             val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
             launchOnMain {
                 sendEvent(RecordEvent.EditedDateChanged(dateString = editedDate))
@@ -956,7 +953,6 @@ class RecordViewModel(
 
     /**
      * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
-     * @param resObj
      */
     fun onAfterSaving(srcResObj: ResultObj?) {
         var resObj = srcResObj
@@ -1146,7 +1142,6 @@ class RecordViewModel(
         launchOnMain {
             val wasTemp = curRecord.value!!.isTemp
             if (recordsInteractor.editRecordFields(
-                    context = getContext(),
                     record = curRecord.value,
                     name = name,
                     tagsString = tags,

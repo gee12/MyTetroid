@@ -10,11 +10,13 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.views.TetroidMessage
 
 
 class SyncInteractor(
-    private val logger: ITetroidLogger
+    private val logger: ITetroidLogger,
+    private val resourcesProvider: IResourcesProvider,
 ) {
 
     companion object {
@@ -34,31 +36,31 @@ class SyncInteractor(
         requestCode: Int
     ): Boolean {
         return when (appName) {
-            activity.getString(R.string.title_app_termux) -> {
+            resourcesProvider.getString(R.string.title_app_termux) -> {
                 startTermuxSync(activity, storagePath, command)
             }
-            activity.getString(R.string.title_app_mgit) -> {
+            resourcesProvider.getString(R.string.title_app_mgit) -> {
                 startMGitSync(activity, storagePath, command, requestCode)
             }
-            activity.getString(R.string.title_app_autosync) -> {
+            resourcesProvider.getString(R.string.title_app_autosync) -> {
                 startAutosyncSync(activity, command)
             }
             else -> {
-                logger.logError(activity.getString(R.string.log_storage_sync_unknown_app_mask, appName))
+                logger.logError(resourcesProvider.getString(R.string.log_storage_sync_unknown_app_mask, appName))
                 false
             }
         }
     }
 
-    fun isWaitSyncResult(context: Context, appName: String): Boolean {
-        return appName == context.getString(R.string.title_app_mgit)
+    fun isWaitSyncResult(appName: String): Boolean {
+        return appName == resourcesProvider.getString(R.string.title_app_mgit)
     }
 
     /**
      * Отправка запроса на синхронизацию в MGit.
      */
     private fun startMGitSync(activity: Activity, storagePath: String, command: String, requestCode: Int): Boolean {
-        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_mgit), command), false)
+        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask, resourcesProvider.getString(R.string.title_app_mgit), command), false)
         if (command.isEmpty()) {
             logger.logError(R.string.log_sync_command_empty, true)
             return false
@@ -72,13 +74,13 @@ class SyncInteractor(
                 activity.startActivityForResult(
                     Intent.createChooser(
                         intent,
-                        activity.getString(R.string.title_choose_sync_app)
+                        resourcesProvider.getString(R.string.title_choose_sync_app)
                     ), requestCode
                 )
             }
         } catch (ex: Exception) {
             logger.logError(ex, false)
-            logger.logError(activity.getString(R.string.log_sync_app_not_installed), true)
+            logger.logError(resourcesProvider.getString(R.string.log_sync_app_not_installed), true)
             return false
         }
         return true
@@ -102,7 +104,7 @@ class SyncInteractor(
      * Запуск команды/скрипта синхронизации с помощью Termux.
      */
     private fun startTermuxSync(activity: Activity, storagePath: String, command: String): Boolean {
-        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_termux), command), false)
+        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask, resourcesProvider.getString(R.string.title_app_termux), command), false)
         if (command.isEmpty()) {
             logger.logError(R.string.log_sync_command_empty, true)
             return false
@@ -142,14 +144,14 @@ class SyncInteractor(
             putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg)
         }
         val fullCommand = (command + " " + args?.let { TextUtils.join(" ", args) })
-        logger.log(activity.getString(R.string.log_start_storage_sync_mask) + fullCommand)
+        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask) + fullCommand)
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 activity.startForegroundService(intent)
             } else {
                 activity.startService(intent)
             }
-            logger.log(activity.getString(R.string.log_started_storage_sync_mask, activity.getString(R.string.title_app_termux)), true)
+            logger.log(resourcesProvider.getString(R.string.log_started_storage_sync_mask, resourcesProvider.getString(R.string.title_app_termux)), true)
         } catch (ex: Exception) {
             logger.logError(ex, false)
             logger.logError(R.string.log_error_when_sync, true)
@@ -165,11 +167,11 @@ class SyncInteractor(
      * https://metactrl.com/autosync/automation/
      */
     private fun startAutosyncSync(activity: Activity, command: String): Boolean {
-        val intent = createIntentToAutosync(parseExtrasToAutosync(activity, command))
-        logger.log(activity.getString(R.string.log_start_storage_sync_mask, activity.getString(R.string.title_app_autosync), command), false)
+        val intent = createIntentToAutosync(parseExtrasToAutosync(command))
+        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask, resourcesProvider.getString(R.string.title_app_autosync), command), false)
         try {
             activity.sendBroadcast(intent)
-            logger.log(activity.getString(R.string.log_started_storage_sync_mask, activity.getString(R.string.title_app_autosync)), true)
+            logger.log(resourcesProvider.getString(R.string.log_started_storage_sync_mask, resourcesProvider.getString(R.string.title_app_autosync)), true)
         } catch (ex: Exception) {
             logger.logError(ex, false)
             logger.logError(R.string.log_error_when_sync, true)
@@ -182,7 +184,7 @@ class SyncInteractor(
     /**
      * Получение extras из строки.
      */
-    private fun parseExtrasToAutosync(context: Context, command: String): Array<Pair<String, String>>? {
+    private fun parseExtrasToAutosync(command: String): Array<Pair<String, String>>? {
         return if (command.isBlank()) {
             null
         } else {
@@ -197,7 +199,7 @@ class SyncInteractor(
                             second = keyValue[1].trim()
                         )
                     } else {
-                        logger.logError(context.getString(R.string.log_error_when_parse_autosync_extra_mask, it), false)
+                        logger.logError(resourcesProvider.getString(R.string.log_error_when_parse_autosync_extra_mask, it), false)
                         null
                     }
                 }.toTypedArray()

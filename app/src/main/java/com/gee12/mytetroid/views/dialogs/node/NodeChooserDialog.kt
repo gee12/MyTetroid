@@ -143,7 +143,7 @@ class NodeChooserDialog(
                     adapter.setDataItems(found)
                     if (found.isEmpty()) {
                         tvEmpty?.visibility = View.VISIBLE
-                        tvEmpty?.text = String.format(getString(R.string.search_nodes_not_found_mask), query)
+                        tvEmpty?.text = getString(R.string.search_nodes_not_found_mask, query)
                     } else {
                         tvEmpty?.visibility = View.GONE
                     }

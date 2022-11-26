@@ -9,11 +9,11 @@ import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
-import org.jsoup.internal.StringUtil
 import java.io.File
 
 class CommonSettingsProvider(
     private val context: Context,
+    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val appBuildHelper: AppBuildHelper,
 ) {
@@ -30,10 +30,10 @@ class CommonSettingsProvider(
 
         // стартовые значения, которые нельзя установить в xml
         if (CommonSettings.getTrashPathDef(context) == null) {
-            CommonSettings.setTrashPathDef(context, getDefaultTrashPath(context))
+            CommonSettings.setTrashPathDef(context, getDefaultTrashPath())
         }
         if (CommonSettings.getLogPath(context) == null) {
-            CommonSettings.setLogPath(context, getDefaultLogPath(context))
+            CommonSettings.setLogPath(context, getDefaultLogPath())
         }
         if (appBuildHelper.isFreeVersion()) {
             // принудительно отключаем
@@ -44,7 +44,7 @@ class CommonSettingsProvider(
         if (isContains(R.string.pref_key_is_show_tags_in_records)) {
             val isShow = CommonSettings.isShowTagsInRecordsList(context)
             val valuesSet = CommonSettings.getRecordFieldsInList(context)
-            val value = context.getString(R.string.title_tags)
+            val value = resourcesProvider.getString(R.string.title_tags)
             // включение или отключение значения списка выбора
             CommonSettings.setRecordFieldsInList(context, CommonSettings.setItemInStringSet(context, valuesSet, isShow, value))
             // удаляем значение старой опции
@@ -74,7 +74,7 @@ class CommonSettingsProvider(
                     val freePrefs = freeContext.getSharedPreferences(
                         defAppId + CommonSettings.PREFS_NAME, mode
                     )
-                    if (freePrefs.all.size > 0) {
+                    if (freePrefs.all.isNotEmpty()) {
                         // сохраняем все настройки из free в pro
                         copyPrefs(freePrefs, prefs)
                         isCopiedFromFree = true
@@ -134,9 +134,9 @@ class CommonSettingsProvider(
      */
     private fun removePref(prefKeyStringRes: Int) {
         if (CommonSettings.settings == null) return
-        if (CommonSettings.settings.contains(context.getString(prefKeyStringRes))) {
+        if (CommonSettings.settings.contains(resourcesProvider.getString(prefKeyStringRes))) {
             val editor = CommonSettings.settings.edit()
-            editor.remove(context.getString(prefKeyStringRes))
+            editor.remove(resourcesProvider.getString(prefKeyStringRes))
             editor.apply()
         }
     }
@@ -150,7 +150,7 @@ class CommonSettingsProvider(
         return if (CommonSettings.settings == null) {
             false
         } else {
-            CommonSettings.settings.contains(context.getString(prefKeyStringRes))
+            CommonSettings.settings.contains(resourcesProvider.getString(prefKeyStringRes))
         }
     }
 
@@ -225,8 +225,8 @@ class CommonSettingsProvider(
         return if (Utils.checkDateFormatString(dateFormatString)) {
             dateFormatString
         } else {
-            logger.logWarning(context.getString(R.string.log_incorrect_dateformat_in_settings), show = false)
-            context.getString(R.string.def_date_format_string)
+            logger.logWarning(resourcesProvider.getString(R.string.log_incorrect_dateformat_in_settings), show = false)
+            resourcesProvider.getString(R.string.def_date_format_string)
         }
     }
 

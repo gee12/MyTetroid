@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
-import com.gee12.mytetroid.common.utils.StringUtils
+import com.gee12.mytetroid.common.extensions.getIdNameString
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
 import com.gee12.mytetroid.helpers.INotificator
@@ -42,7 +42,7 @@ open class BaseViewModel(
     var isBusy = false
 
     // TODO: inject
-    val permissionInteractor = PermissionInteractor(this.logger)
+    val permissionInteractor = PermissionInteractor(resourcesProvider, this.logger)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()
@@ -276,8 +276,8 @@ open class BaseViewModel(
         return logger.logOperRes(obj, oper, "", true) ?: ""
     }
 
-    open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject?, show: Boolean): String {
-        return logger.logOperRes(obj, oper, StringUtils.getIdNameString(getContext(), tetroidObj), show) ?: ""
+    open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject, show: Boolean): String {
+        return logger.logOperRes(obj, oper, tetroidObj.getIdNameString(resourcesProvider), show) ?: ""
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean): String {

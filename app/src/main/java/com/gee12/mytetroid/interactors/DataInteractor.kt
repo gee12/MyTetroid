@@ -1,13 +1,13 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.getStringFromTo
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.common.utils.StringUtils
 import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -18,7 +18,8 @@ import kotlin.math.abs
  * Не зависит от конкретного хранилища, может быть Singleton.
  */
 class DataInteractor(
-    private val logger: ITetroidLogger
+    private val resourcesProvider: IResourcesProvider,
+    private val logger: ITetroidLogger,
 ) {
 
     companion object {
@@ -86,7 +87,7 @@ class DataInteractor(
      * @return 1 - успешно
      * -2 - ошибка (не удалось переместить или переименовать)
      */
-    suspend fun moveFile(context: Context, srcFullFileName: String,  /* String srcFileName, */
+    suspend fun moveFile(srcFullFileName: String, /* String srcFileName, */
         destPath: String, newFileName: String?
     ): Int {
         var srcFile = File(srcFullFileName)
@@ -95,7 +96,7 @@ class DataInteractor(
         // перемещаем файл или каталог
         val moveToDirRecursive = withContext(Dispatchers.IO) {  FileUtils.moveToDirRecursive(srcFile, destDir) }
         if (!moveToDirRecursive) {
-            val fromTo = StringUtils.getStringFromTo(context, srcFullFileName, destPath)
+            val fromTo = resourcesProvider.getStringFromTo(srcFullFileName, destPath)
 //            logger.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                    srcFullFileName, destPath), LogManager.Types.ERROR);
             logger.logOperError(LogObj.FILE, LogOper.REORDER, fromTo, false, false)
@@ -103,7 +104,7 @@ class DataInteractor(
         }
         if (newFileName == null) {
             val destDirPath = destDir.absolutePath + File.separator + srcFileName
-            val to = StringUtils.getStringFormat(context, R.string.log_to_mask, destDirPath)
+            val to = resourcesProvider.getString(R.string.log_to_mask, destDirPath)
 //            logger.log(String.format(context.getString(R.string.log_file_moved_mask),
 //                    destDirPath), LogManager.Types.DEBUG);
             logger.logOperRes(LogObj.FILE, LogOper.REORDER, to, false)
@@ -113,12 +114,12 @@ class DataInteractor(
             val destFile = File(destPath, newFileName)
             val renameTo = withContext(Dispatchers.IO) {  srcFile.renameTo(destFile) }
             if (renameTo) {
-                val to = StringUtils.getStringFormat(context, R.string.log_to_mask, destFile.absolutePath)
+                val to = resourcesProvider.getString(R.string.log_to_mask, destFile.absolutePath)
 //                logger.log(String.format(context.getString(R.string.log_file_moved_mask),
 //                        destFile.getAbsolutePath()), LogManager.Types.DEBUG);
                 logger.logOperRes(LogObj.FILE, LogOper.REORDER, to, false)
             } else {
-                val fromTo = StringUtils.getStringFromTo(context, srcFile.absolutePath, destFile.absolutePath)
+                val fromTo = resourcesProvider.getStringFromTo(srcFile.absolutePath, destFile.absolutePath)
 //                logger.log(String.format(context.getString(R.string.log_error_move_file_mask),
 //                        srcFile.getAbsolutePath(), destFile.getAbsolutePath()), LogManager.Types.ERROR);
                 logger.logOperError(LogObj.FILE, LogOper.REORDER, fromTo, false, false)

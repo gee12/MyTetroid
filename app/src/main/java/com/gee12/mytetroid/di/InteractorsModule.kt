@@ -20,19 +20,22 @@ object InteractorsModule {
 
         single {
             DataInteractor(
+                resourcesProvider = get(),
                 logger = get()
             )
         }
 
         single {
             InteractionInteractor(
-                logger = get()
+                resourcesProvider = get(),
+                logger = get(),
             )
         }
 
         single {
             PermissionInteractor(
-                logger = get()
+                logger = get(),
+                resourcesProvider = get(),
             )
         }
 
@@ -59,7 +62,8 @@ object InteractorsModule {
 
         single {
             SyncInteractor(
-                logger = get()
+                resourcesProvider = get(),
+                logger = get(),
             )
         }
 
@@ -82,6 +86,7 @@ object InteractorsModule {
 
         single {
             ImagesInteractor(
+                resourcesProvider = get(),
                 logger = get(),
                 dataInteractor = get(),
                 recordsInteractor = get(),
@@ -101,6 +106,7 @@ object InteractorsModule {
 
         single {
             AttachesInteractor(
+                resourcesProvider = get(),
                 logger = get(),
                 cryptInteractor = get(),
                 dataInteractor = get(),
@@ -148,6 +154,7 @@ object InteractorsModule {
 
         single {
             RecordsInteractor(
+                resourcesProvider = get(),
                 logger = get(),
                 appBuildHelper = get(),
                 storagePathHelper = get(),
@@ -194,6 +201,7 @@ object InteractorsModule {
         single {
             InitAppUseCase(
                 context = androidApplication(),
+                resourcesProvider = get(),
                 logger = get(),
                 commonSettingsProvider = get(),
             )
@@ -255,7 +263,7 @@ object InteractorsModule {
 
         single {
             SaveStorageUseCase(
-                context = androidApplication(),
+                resourcesProvider = get(),
                 logger = get(),
                 storagePathHelper = get(),
                 storageDataProcessor = get(),
@@ -327,7 +335,7 @@ object InteractorsModule {
 
         single {
             EncryptOrDecryptFileUseCase(
-                context = get(),
+                resourcesProvider = get(),
                 logger = get(),
                 crypter = get(),
             )
