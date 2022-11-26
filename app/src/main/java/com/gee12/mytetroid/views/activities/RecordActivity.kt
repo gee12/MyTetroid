@@ -24,6 +24,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
@@ -1163,8 +1164,8 @@ class RecordActivity : TetroidActivity<RecordViewModel>(),
         super.onStop()
     }
 
-    fun setEditorProgressVisibility(vis: Boolean) {
-        mHtmlProgressBar.visibility = ViewUtils.toVisibility(vis)
+    fun setEditorProgressVisibility(isVisible: Boolean) {
+        mHtmlProgressBar.isVisible = isVisible
     }
 
     /**

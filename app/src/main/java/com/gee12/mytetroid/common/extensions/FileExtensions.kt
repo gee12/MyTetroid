@@ -18,3 +18,20 @@ fun makeFolderPath(vararg destinations: String): String {
 fun makePathToFile(vararg destinations: String): File {
     return makePath(*destinations).toFile()
 }
+
+fun String.isFileExist(): Boolean {
+    return try {
+        File(this).exists()
+    } catch (ex: Exception) {
+        ex.printStackTrace()
+        false
+    }
+}
+
+fun File?.isDirEmpty(): Boolean {
+    return this == null || listFiles()?.size == 0 ?: true
+}
+
+fun String.isDirEmpty(): Boolean {
+    return isEmpty() || toFile().isDirEmpty()
+}

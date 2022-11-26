@@ -14,6 +14,7 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
 import com.gee12.mytetroid.common.extensions.hideKeyboard
@@ -463,7 +464,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         } else {
             layoutProgress?.visibility = View.GONE
         }
-        layoutProgress?.visibility = ViewUtils.toVisibility(isVisible)
+        layoutProgress?.isVisible = isVisible
     }
 
     override fun setProgressText(progressTextResId: Int) {

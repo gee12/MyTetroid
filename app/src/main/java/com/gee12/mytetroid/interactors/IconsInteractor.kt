@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.interactors
 
 import android.text.TextUtils
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.common.utils.FileUtils
@@ -66,7 +67,7 @@ class IconsInteractor(
     fun loadIconIfNull(icon: TetroidIcon) {
         if (icon.icon != null) return
         try {
-            icon.icon  = FileUtils.loadSVGFromFile("${pathToIcons}/${icon.folder}/${icon.name}")
+            icon.icon  = FileUtils.loadSVGFromFile(makePath(pathToIcons, icon.folder, icon.name))
         } catch (ex: Exception) {
             logger.logError(ex, show = true)
         }

@@ -6,6 +6,7 @@ import android.text.TextUtils
 import android.view.*
 import android.widget.*
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
@@ -698,8 +699,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         tvRecordsEmpty.text = s
     }
 
-    fun showGlobalSearchButton(vis: Boolean) {
-        btnUseGlobalSearch.visibility = if (vis) View.VISIBLE else View.GONE
+    fun showGlobalSearchButton(isVisible: Boolean) {
+        btnUseGlobalSearch.isVisible = isVisible
     }
 
     fun onAttachesFiltered(query: String?, found: List<TetroidFile?>) {

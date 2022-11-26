@@ -5,7 +5,9 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.common.extensions.getAppExternalFilesDir
+import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -165,18 +167,21 @@ class CommonSettingsProvider(
         return CommonSettings.settings
     }
 
-    fun getDefaultTrashPath(context: Context): String {
-        return "${FileUtils.getAppExternalFilesDir(context)}/${Constants.TRASH_DIR_NAME}"
+    fun getDefaultTrashPath(): String {
+        return makePath(context.getAppExternalFilesDir().orEmpty(), Constants.TRASH_DIR_NAME)
     }
 
-    fun getDefaultLogPath(context: Context): String {
-        return "${FileUtils.getAppExternalFilesDir(context)}/${Constants.LOG_DIR_NAME}"
+    fun getDefaultLogPath(): String {
+        return makePath(context.getAppExternalFilesDir().orEmpty(), Constants.LOG_DIR_NAME)
     }
 
     fun getLastFolderPathOrDefault(forWrite: Boolean): String? {
         val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
-        return if (!StringUtil.isBlank(lastFolder) && File(lastFolder).exists()) lastFolder
-        else FileUtils.getExternalPublicDocsOrAppDir(context, forWrite)
+        return if (lastFolder.isNotBlank() && File(lastFolder).exists()) {
+            lastFolder
+        } else {
+            context.getExternalPublicDocsOrAppDir(forWrite)
+        }
     }
 
     fun getLogPath(): String {

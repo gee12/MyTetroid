@@ -17,6 +17,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager.widget.PagerTabStrip
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -440,10 +441,9 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         }
 
         // элементы фильтра веток и меток
-        ViewUtils.setVisibleIfNotNull(searchViewNodes, isLoaded && !isOnlyFavorites)
-        ViewUtils.setVisibleIfNotNull(searchViewTags, isLoaded && !isOnlyFavorites)
-        val view = findViewById<View>(R.id.button_tags_sort)
-        ViewUtils.setVisibleIfNotNull(view, isLoaded && !isOnlyFavorites)
+        searchViewNodes.isVisible = isLoaded && !isOnlyFavorites
+        searchViewTags.isVisible = isLoaded && !isOnlyFavorites
+        btnTagsSort.isVisible = isLoaded && !isOnlyFavorites
 
         // обновляем заголовок в шторке
         updateStorageNameLabel(isLoaded)

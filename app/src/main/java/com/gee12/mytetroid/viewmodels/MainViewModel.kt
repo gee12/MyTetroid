@@ -1658,7 +1658,7 @@ class MainViewModel(
                         withIo {
                             delay(MYTETRA_XML_EXISTING_DELAY)
                         }
-                        if (FileUtils.isFileExist(storagePathHelper.getPathToMyTetraXml())) {
+                        if (storagePathHelper.getPathToMyTetraXml().isFileExist()) {
                             log(R.string.log_storage_tree_changed_outside)
                             this@MainViewModel.sendStorageEvent(StorageEvent.TreeChangedOutside)
                         } else {

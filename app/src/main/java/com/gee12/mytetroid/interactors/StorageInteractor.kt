@@ -2,9 +2,9 @@ package com.gee12.mytetroid.interactors
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.isDirEmpty
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.helpers.IResourcesProvider
@@ -53,7 +53,7 @@ class StorageInteractor(
         val storageDir = File(storagePath)
         if (storageDir.exists()) {
             // проверяем, пуст ли каталог
-            if (!FileUtils.isDirEmpty(storageDir)) {
+            if (!storageDir.isDirEmpty()) {
                 logger.log(R.string.log_dir_not_empty)
                 return false
             }

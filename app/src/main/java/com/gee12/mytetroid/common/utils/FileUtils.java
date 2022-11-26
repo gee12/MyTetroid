@@ -352,16 +352,6 @@ public class FileUtils {
     }
 
     /**
-     * Получение каталога приложения во внешнем хранилище (удаляется вместе с приложением).
-     * @param context
-     * @return
-     */
-    public static String getAppExternalFilesDir(Context context) {
-        File file = context.getExternalFilesDir(null);
-        return (file != null) ? file.getAbsolutePath() : null;
-    }
-
-    /**
      * Получение общедоступного каталога "Документы" во внешнем хранилище (без проверки состояния).
      * @return
      */
@@ -370,22 +360,6 @@ public class FileUtils {
             return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
         } else {
             return Environment.getExternalStorageDirectory() + "/Documents";
-        }
-    }
-
-    /**
-     * Получение общедоступного каталога "Документы" или каталога приложения, если первый недоступен.
-     * @param context
-     * @param forWrite
-     * @return
-     */
-    public static String getExternalPublicDocsOrAppDir(Context context, boolean forWrite) {
-        String externalState = Environment.getExternalStorageState();
-        if ((!forWrite || !Environment.MEDIA_MOUNTED_READ_ONLY.equals(externalState))
-                && Environment.MEDIA_MOUNTED.equals(externalState)) {
-            return getExternalPublicDocsDir();
-        } else {
-            return getAppExternalFilesDir(context);
         }
     }
 
@@ -403,24 +377,6 @@ public class FileUtils {
      */
     private static boolean isExternalStorageAvailable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
-
-    /**
-     * Проверка, пуст ли каталог.
-     * @param dir
-     * @return
-     */
-    public static boolean isDirEmpty(File dir) {
-        if (dir == null)
-            return true;
-        File[] childs = dir.listFiles();
-        return (childs == null || childs.length == 0);
-    }
-
-    public static boolean isDirEmpty(String dirPath) {
-        if (dirPath == null)
-            return true;
-        return isDirEmpty(new File(dirPath));
     }
 
     /**
@@ -510,12 +466,4 @@ public class FileUtils {
         return new Date(file.lastModified());
     }
 
-    public static boolean isFileExist(String path) {
-        try {
-            return new File(path).exists();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
-    }
 }
