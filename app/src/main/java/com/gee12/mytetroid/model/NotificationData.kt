@@ -1,17 +1,41 @@
 package com.gee12.mytetroid.model
 
-import com.gee12.mytetroid.logs.LogType
-
-data class NotificationData(
+sealed class NotificationData(
     val title: String,
     val message: String? = null,
-    val type: LogType? = null,
+    val type: Type? = null,
 ) {
 
-    companion object {
-
-        val Empty = NotificationData(title = "")
-
+    enum class Type {
+        INFO,
+        DEBUG,
+        WARNING,
+        ERROR,
     }
+
+    class Empty : NotificationData(
+        title = "",
+        type = Type.INFO
+    )
+
+    class Info(
+        title: String,
+        message: String? = null,
+    ) : NotificationData(title, message, Type.INFO)
+
+    class Debug(
+        title: String,
+        message: String? = null,
+    ) : NotificationData(title, message, Type.DEBUG)
+
+    class Warning(
+        title: String,
+        message: String? = null,
+    ) : NotificationData(title, message, Type.WARNING)
+
+    class Error(
+        title: String,
+        message: String? = null,
+    ) : NotificationData(title, message, Type.ERROR)
 
 }

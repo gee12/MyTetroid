@@ -23,10 +23,10 @@ class FailureHandler(
     override fun getFailureMessage(failure: Failure): NotificationData {
         return when (failure) {
             is Failure.UnknownError -> {
-                NotificationData(title = "Unknown error")
+                NotificationData.Error(title = "Unknown error")
             }
             is Failure.ArgumentIsEmpty -> {
-                NotificationData(
+                NotificationData.Error(
                     title = buildString {
                         append("Required argument ")
                         failure.clazz.ifNotEmpty { append("$it.") }
@@ -45,77 +45,77 @@ class FailureHandler(
             is Failure.File -> {
                 getFileFailureMessage(failure)
             }
-            else -> NotificationData.Empty
+            else -> NotificationData.Empty()
         }
     }
 
     private fun getRecordFailureMessage(failure: Failure.Record): NotificationData {
         return when (failure) {
             is Failure.Record.Create.NameIsEmpty -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.error_record_name_is_empty),
                     message = failure.ex?.getInfo()
                 )
             }
 //            is Failure.Record.CloneRecordToNode -> {
-//                NotificationData(
+//                NotificationData.Error(
 //                    title = getString(R.string.log_failed_storage_create_mask, failure.storageName),
 //                    message = failure.ex?.getInfo()
 //                )
 //            }
             // TODO
-            else -> NotificationData.Empty
+            else -> NotificationData.Empty()
         }
     }
 
     private fun getStorageFailureMessage(failure: Failure.Storage): NotificationData {
         return when (failure) {
             is Failure.Storage.Create -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.log_failed_storage_create_mask, failure.storageName),
                     message = failure.ex?.getInfo()
                 )
             }
             is Failure.Storage.Init -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.log_failed_storage_init_mask, failure.storagePath),
                     message = failure.ex?.getInfo()
                 )
             }
             // load
             is Failure.Storage.Load.XmlFileNotExist -> {
-                NotificationData(
+                NotificationData.Error(
                     // TODO: заюзать storagePath
                     title = getString(R.string.log_file_is_absent) + Constants.MYTETRA_XML_FILE_NAME
                 )
             }
             is Failure.Storage.Load.ReadXmlFile -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.log_failed_storage_read_mask, failure.storagePath),
                     message = failure.ex?.getInfo()
                 )
             }
             is Failure.Storage.DatabaseConfig.Load -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.log_failed_database_config_load_mask, failure.storagePath)
                 )
             }
             // save
             is Failure.Storage.Save.SaveXmlFile -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.log_failed_storage_save_mask, failure.storagePath),
                     message = failure.ex?.getInfo()
                 )
             }
             Failure.Storage.Save.RenameXmlFileFromTempName -> {
                 TODO()
-//                NotificationData(
+//                NotificationData.Error(
 //                    title = getString(R.string.)
 //                )
             }
             Failure.Storage.Save.RemoveOldXmlFile -> {
                 TODO()
-//                NotificationData(
+//                NotificationData.Error(
 //                    title = getString(R.string.)
 //                )
             }
@@ -125,22 +125,22 @@ class FailureHandler(
     private fun getFileFailureMessage(failure: Failure.File): NotificationData {
         return when (failure) {
             is Failure.File.IsMissing -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.error_file_is_missing_mask, failure.path)
                 )
             }
             is Failure.File.AccessDenied -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.error_denied_read_file_access_mask, failure.path)
                 )
             }
             is Failure.File.GetFileSize -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.error_get_file_size_mask, failure.path)
                 )
             }
             is Failure.File.GetFolderSize -> {
-                NotificationData(
+                NotificationData.Error(
                     title = getString(R.string.error_get_folder_size_mask, failure.path)
                 )
             }
