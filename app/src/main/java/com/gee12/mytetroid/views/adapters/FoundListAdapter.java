@@ -19,9 +19,6 @@ import java.util.List;
 
 public class FoundListAdapter extends RecordsBaseListAdapter {
 
-    /**
-     *
-     */
     private static class FoundViewHolder extends RecordViewHolder {
         TextView foundInView;
         TextView typeView;

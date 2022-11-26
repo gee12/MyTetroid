@@ -27,7 +27,7 @@ import com.gee12.mytetroid.viewmodels.StoragesViewModel.StoragesEvent
 import com.gee12.mytetroid.viewmodels.VMEvent
 import com.gee12.mytetroid.views.adapters.StoragesAdapter
 import com.gee12.mytetroid.views.dialogs.AskDialogs
-import com.gee12.mytetroid.views.dialogs.storage.StorageDialog
+import com.gee12.mytetroid.views.dialogs.storage.StorageFieldsDialog
 import com.gee12.mytetroid.views.dialogs.storage.StorageDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
@@ -39,7 +39,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StoragesAdapter
-    private var storageDialog: StorageDialog? = null
+    private var storageDialog: StorageFieldsDialog? = null
 
     override fun getLayoutResourceId() = R.layout.activity_storages
 
@@ -109,7 +109,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     override fun onObjectEvent(event: VMEvent) {
         when (event) {
-            StoragesEvent.ShowAddNewStorageDialog -> showStorageDialog(null)
+            StoragesEvent.ShowAddNewStorageDialog -> showStorageDialog(storageId = null)
         }
     }
 
@@ -192,9 +192,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         )
     }
 
-    private fun showStorageDialog(storage: TetroidStorage?) {
-        storageDialog = StorageDialog(
-            storage = storage,
+    private fun showStorageDialog(storageId: Int?) {
+        storageDialog = StorageFieldsDialog(
+            storageId = storageId,
             isDefault = (viewModel.storages.value?.isEmpty() == true),
             onApply = { storage ->
                 viewModel.addStorage(storage)

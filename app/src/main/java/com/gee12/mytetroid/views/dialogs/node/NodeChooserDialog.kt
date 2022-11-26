@@ -8,6 +8,7 @@ import androidx.appcompat.widget.SearchView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.ScanManager
 import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.adapters.NodesListAdapter
 import com.gee12.mytetroid.views.adapters.NodesListAdapter.OnNodeHeaderClickListener
@@ -78,7 +79,7 @@ class NodeChooserDialog(
         setNegativeButton(R.string.answer_cancel)
     }
 
-    override fun onStorageInited() {
+    override fun onStorageInited(storage: TetroidStorage) {
         // проверяем уже после загрузки хранилища
         if (!isStorageLoaded()) {
             dismiss()

@@ -16,7 +16,9 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
-import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.common.extensions.ifTrueOrNull
+import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
@@ -57,6 +59,8 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     protected open var storageId: Int? = null
 
+    protected open var isInitCurrentStorage: Boolean = true
+
     protected abstract fun getLayoutResourceId(): Int
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -89,7 +93,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 
         lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { message -> TetroidMessage.show(requireActivity(), message) }
+            viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
         lifecycleScope.launch {
             viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
@@ -101,7 +105,13 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
             lifecycleScope.launch {
                 storageViewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
             }
-            storageViewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(context))
+            val storageId = storageId
+                ?: isInitCurrentStorage.ifTrueOrNull {
+                    storageViewModel.getStorageId()
+                }
+            storageId?.let {
+                storageViewModel.startInitStorageFromBase(storageId = it)
+            }
         }
     }
 
@@ -120,12 +130,12 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     open fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            is StorageEvent.Inited -> onStorageInited()
+            is StorageEvent.Inited -> onStorageInited(event.storage)
             else -> {}
         }
     }
 
-    open fun onStorageInited() {}
+    open fun onStorageInited(storage: TetroidStorage) {}
 
     protected open fun initButtons() {
         onPositiveButtonCallback?.let { callback ->
@@ -212,6 +222,10 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     protected fun hideKeyboard(view: View) {
         view.hideKeyboard()
+    }
+
+    protected fun showMessage(message: Message) {
+        TetroidMessage.show(requireActivity(), message)
     }
 
 }

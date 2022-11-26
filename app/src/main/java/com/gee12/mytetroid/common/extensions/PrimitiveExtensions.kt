@@ -5,3 +5,11 @@ fun String.ifNotEmpty(block: (String) -> Unit) {
         block(this)
     }
 }
+
+fun <T> Boolean.ifTrueOrNull(predicate: () -> T): T? {
+    return if (this) {
+        predicate()
+    } else {
+        null
+    }
+}

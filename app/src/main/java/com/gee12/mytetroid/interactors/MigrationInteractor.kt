@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import android.content.Context
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.helpers.AppBuildHelper
 import com.gee12.mytetroid.helpers.CommonSettingsProvider
@@ -25,7 +24,7 @@ class MigrationInteractor(
      * Миграция с версии < 5.0, когда не было многобазовости.
      */
     suspend fun addDefaultStorageFromPrefs(): Boolean {
-        val storage = storagesInteractor.initStorage(
+        val storage = storagesInteractor.initStorageFromDefaultSettings(
             TetroidStorage(
                 path = commonSettingsProvider.getStoragePath()
             )

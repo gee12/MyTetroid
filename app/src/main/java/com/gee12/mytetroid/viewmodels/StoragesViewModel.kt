@@ -102,7 +102,7 @@ class StoragesViewModel(
 
     fun addStorage(storage: TetroidStorage) {
         // заполняем поля настройками по-умолчанию
-        storagesInteractor.initStorage(storage)
+        storagesInteractor.initStorageFromDefaultSettings(storage)
 
         launchOnMain {
             if (withIo { storagesInteractor.addStorage(storage) }) {

@@ -20,7 +20,8 @@ class StoragesInteractor(
 
     suspend fun setIsDefault(storage: TetroidStorage) = storagesRepo.setIsDefault(storage)
 
-    fun initStorage(storage: TetroidStorage): TetroidStorage {
+    // TODO: InitStorageFromDefaultSettingsUseCase
+    fun initStorageFromDefaultSettings(storage: TetroidStorage): TetroidStorage {
         return storage.apply {
             // основное
             isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)

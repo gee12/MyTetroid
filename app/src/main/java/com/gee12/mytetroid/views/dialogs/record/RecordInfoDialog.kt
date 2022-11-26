@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import org.koin.java.KoinJavaComponent.get
@@ -36,7 +37,7 @@ class RecordInfoDialog(
         setPositiveButton(R.string.answer_ok)
     }
 
-    override fun onStorageInited() {
+    override fun onStorageInited(storage: TetroidStorage) {
         (dialogView.findViewById<View>(R.id.text_view_id) as TextView).text = record?.id
         val tvNode = dialogView.findViewById<View>(R.id.text_view_node) as TextView
         when {

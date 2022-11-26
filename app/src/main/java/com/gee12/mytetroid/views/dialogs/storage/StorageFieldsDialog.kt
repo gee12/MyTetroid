@@ -17,15 +17,18 @@ import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import org.koin.java.KoinJavaComponent.get
 import java.io.File
 
-class StorageDialog(
-    private val storage: TetroidStorage?,
+class StorageFieldsDialog(
+    override var storageId: Int? = null,
     private val isDefault: Boolean? = null,
     private val onApply: (storage: TetroidStorage) -> Unit,
     private val onSelectPath: (path: String) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
 
+    override var isInitCurrentStorage: Boolean = false
+
     private lateinit var etPath: EditText
     private lateinit var etName: EditText
+    private lateinit var cbIsDefault: CheckedTextView
     private var isPathSelected = false
     private var isNew = false
 
@@ -40,27 +43,19 @@ class StorageDialog(
     }
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
-        setTitle(if (storage != null) R.string.title_edit_storage else R.string.title_add_storage)
+        setTitle(if (storageId != null) R.string.title_edit_storage else R.string.title_add_storage)
 
         etPath = view.findViewById(R.id.edit_text_path)
         etPath.inputType = InputType.TYPE_NULL
         val bPath = view.findViewById<ImageButton>(R.id.button_path)
         etName = view.findViewById(R.id.edit_text_name)
-        val cbIsDefault = view.findViewById<CheckedTextView>(R.id.check_box_is_default)
+        cbIsDefault = view.findViewById(R.id.check_box_is_default)
         cbIsDefault.setOnClickListener { cbIsDefault.isChecked = !cbIsDefault.isChecked }
         val cbReadOnly = view.findViewById<CheckedTextView>(R.id.check_box_read_only)
         // TODO: принудительно отключаем (пока)
         cbReadOnly.isEnabled = false
 
-        if (storage != null) {
-            if (!TextUtils.isEmpty(storage.path)) {
-                etPath.setText(storage.path)
-                etPath.textSize = 14f
-                isPathSelected = true
-            }
-            etName.setText(storage.name)
-        }
-        cbIsDefault.isChecked = isDefault ?: storage?.isDefault ?: false
+        cbIsDefault.isChecked = isDefault ?: false
 
         val clickListener = View.OnClickListener { onSelectPath(etPath.text.toString()) }
         bPath.setOnClickListener(clickListener)
@@ -80,11 +75,19 @@ class StorageDialog(
         setNegativeButton(R.string.answer_cancel)
 
         etName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
+    }
 
-        if (storage != null) {
-            etName.setSelectionAtEnd()
-            showKeyboard(etName)
+    override fun onStorageInited(storage: TetroidStorage) {
+        if (!TextUtils.isEmpty(storage.path)) {
+            etPath.setText(storage.path)
+            etPath.textSize = 14f
+            isPathSelected = true
         }
+        etName.setText(storage.name)
+        cbIsDefault.isChecked = isDefault ?: storage.isDefault
+
+        etName.setSelectionAtEnd()
+        showKeyboard(etName)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

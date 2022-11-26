@@ -168,18 +168,19 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         listAdapterAttaches.reset()
     }
 
-    /**
-     *
-     * @param viewId
-     */
     fun showView(viewId: Int) {
         fabAddRecord.hide()
         fabAddAttach.hideMenu(true)
         var whichChild = viewId
         var title: String? = null
         when (viewId) {
-            Constants.MAIN_VIEW_NONE, Constants.MAIN_VIEW_TAG_RECORDS -> whichChild = Constants.MAIN_VIEW_NODE_RECORDS
-            Constants.MAIN_VIEW_NODE_RECORDS -> fabAddRecord.show()
+            Constants.MAIN_VIEW_NONE,
+            Constants.MAIN_VIEW_TAG_RECORDS -> {
+                whichChild = Constants.MAIN_VIEW_NODE_RECORDS
+            }
+            Constants.MAIN_VIEW_NODE_RECORDS -> {
+                fabAddRecord.show()
+            }
             Constants.MAIN_VIEW_RECORD_FILES -> {
                 if (!viewModel.isLoadedFavoritesOnly()) {
                     fabAddAttach.showMenu(true)
@@ -212,7 +213,11 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     fun showRecords(records: List<TetroidRecord>, viewId: Int) {
         viewModel.showMainView(viewId)
         tvRecordsEmpty.setText(
-            if (viewId == Constants.MAIN_VIEW_FAVORITES) R.string.title_favors_is_missing else R.string.title_records_is_missing
+            if (viewId == Constants.MAIN_VIEW_FAVORITES) {
+                R.string.title_favors_is_missing
+            } else {
+                R.string.title_records_is_missing
+            }
         )
         showGlobalSearchButton(false)
         listAdapterRecords.setDataItems(records, viewId)
@@ -695,8 +700,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         return viewModel.onMainViewBackPressed(curView)
     }
 
-    fun setRecordsEmptyViewText(s: String?) {
-        tvRecordsEmpty.text = s
+    fun setRecordsEmptyViewText(text: String?) {
+        tvRecordsEmpty.text = text
     }
 
     fun showGlobalSearchButton(isVisible: Boolean) {

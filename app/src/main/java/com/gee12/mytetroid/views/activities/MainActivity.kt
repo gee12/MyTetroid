@@ -96,6 +96,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
     private lateinit var favoritesNode: View
     private lateinit var btnLoadStorageNodes: Button
     private lateinit var btnLoadStorageTags: Button
+    private lateinit var btnTagsSort: View
     private lateinit var fabCreateNode: FloatingActionButton
 
     private var isActivityCreated = false
@@ -195,7 +196,8 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         searchViewTags = vTagsHeader.findViewById(R.id.search_view_tags)
         searchViewTags.visibility = View.GONE
         initTagsSearchView(searchViewTags, vTagsHeader)
-        vTagsHeader.findViewById<View>(R.id.button_tags_sort).setOnClickListener { view: View ->
+        btnTagsSort = vTagsHeader.findViewById(R.id.button_tags_sort)
+        btnTagsSort.setOnClickListener { view: View ->
             showTagsSortPopupMenu(view)
         }
 
@@ -369,14 +371,15 @@ class MainActivity : TetroidActivity<MainViewModel>() {
             is MainEvent.ShowRecords -> {
                 showRecords(
                     records = event.records,
-                    viewId = event.viewId
+                    viewId = event.viewId,
+                    dropSearch = event.dropSearch,
                 )
             }
             is MainEvent.RecordsFiltered -> {
                 mainPage.onRecordsFiltered(
-                    event.query,
-                    event.records,
-                    event.viewId
+                    query = event.query,
+                    found = event.records,
+                    viewId = event.viewId
                 )
             }
             MainEvent.UpdateRecords -> mainPage.updateRecordList()
@@ -1164,7 +1167,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      * Отображение списка записей.
      */
     private fun showRecords(records: List<TetroidRecord>, viewId: Int) {
-        showRecords(records, viewId, true)
+        showRecords(records, viewId, dropSearch = true)
     }
 
     /**
@@ -1801,7 +1804,11 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 // ничего не делать, если хранилище не было загружено
                 if (listAdapterNodes == null) return
                 searchInNodesNames(null)
-                setListEmptyViewState(tvNodesEmpty, viewModel.getRootNodes().isEmpty(), R.string.title_nodes_is_missing)
+                setListEmptyViewState(
+                    tvEmpty = tvNodesEmpty,
+                    isVisible = viewModel.getRootNodes().isEmpty(),
+                    stringId = R.string.title_nodes_is_missing
+                )
                 tvHeader.visibility = View.VISIBLE
                 ivIcon.visibility = View.VISIBLE
             }

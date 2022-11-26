@@ -54,8 +54,12 @@ class CreateNodeUseCase(
         }
 
         // добавляем запись в родительскую ветку (и соответственно, в дерево), если она задана
-        val list = (if (parentNode != null) parentNode.subNodes else storageProvider.getRootNodes()) as MutableList<TetroidNode>
-        list.add(node)
+        val nodesList = (if (parentNode != null) {
+            parentNode.subNodes
+        } else {
+            storageProvider.getRootNodes()
+        }) as MutableList<TetroidNode>
+        nodesList.add(node)
 
         // перезаписываем структуру хранилища в файл
         return saveStorageUseCase.run()
@@ -63,7 +67,7 @@ class CreateNodeUseCase(
                 onLeft = { failure ->
                     logger.logOperCancel(LogObj.NODE, LogOper.CREATE)
                     // удаляем запись из дерева
-                    list.remove(node)
+                    nodesList.remove(node)
                     failure.toLeft()
                 },
                 onRight = {

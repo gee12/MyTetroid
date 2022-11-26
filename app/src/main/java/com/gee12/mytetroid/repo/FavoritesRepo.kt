@@ -3,9 +3,7 @@ package com.gee12.mytetroid.repo
 import android.content.Context
 import com.gee12.mytetroid.database.TetroidDatabase
 import com.gee12.mytetroid.database.entity.FavoriteEntity
-import com.gee12.mytetroid.database.entity.StorageEntity
 import com.gee12.mytetroid.model.TetroidFavorite
-import com.gee12.mytetroid.model.TetroidStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

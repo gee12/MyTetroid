@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.views.dialogs.TetroidDialogFragment
 import org.koin.java.KoinJavaComponent.get
@@ -34,7 +35,7 @@ class AttachInfoDialog(
         setPositiveButton(R.string.answer_ok)
     }
 
-    override fun onStorageInited() {
+    override fun onStorageInited(storage : TetroidStorage) {
         // проверяем уже после загрузки хранилища
         if (attach?.record == null) {
             viewModel.logError(getString(R.string.log_file_record_is_null), true)
