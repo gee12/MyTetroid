@@ -7,13 +7,13 @@
         android:summary="@string/pref_is_save_pass_hash_local_summ"
         android:title="@string/pref_is_save_pass_hash_local" />
 
-    <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+    <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
         android:defaultValue="false"
         android:key="@string/pref_key_request_pin_code"
         android:summary="@string/pref_request_pin_code_summ"
         android:title="@string/pref_request_pin_code" />
 
-    <com.gee12.mytetroid.views.DisabledListPreference
+    <com.gee12.mytetroid.ui.views.prefs.DisabledListPreference
         android:defaultValue="@string/pref_when_ask_password_on_select"
         android:entries="@array/when_ask_password_entries"
         android:entryValues="@array/when_ask_password_entries"

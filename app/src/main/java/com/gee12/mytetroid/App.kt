@@ -9,7 +9,7 @@ import androidx.multidex.MultiDexApplication
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.di.*
-import com.gee12.mytetroid.views.activities.MainActivity
+import com.gee12.mytetroid.ui.activities.MainActivity
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 

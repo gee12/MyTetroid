@@ -1,15 +1,15 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.storage.StorageMainSettingsFragment"
+    <Preference app:fragment="com.gee12.mytetroid.ui.fragments.settings.storage.StorageMainSettingsFragment"
         android:title="@string/pref_category_main"
         android:icon="@drawable/ic_storage"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.storage.StorageEncryptionSettingsFragment"
+    <Preference app:fragment="com.gee12.mytetroid.ui.fragments.settings.storage.StorageEncryptionSettingsFragment"
         android:title="@string/pref_category_crypt"
         android:icon="@drawable/ic_encrypt"/>
 
-    <Preference app:fragment="com.gee12.mytetroid.views.fragments.settings.storage.StorageSyncSettingsFragment"
+    <Preference app:fragment="com.gee12.mytetroid.ui.fragments.settings.storage.StorageSyncSettingsFragment"
         android:title="@string/pref_category_sync"
         android:icon="@drawable/ic_sync"/>
 

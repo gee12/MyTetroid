@@ -30,11 +30,10 @@ import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
+import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.*
 

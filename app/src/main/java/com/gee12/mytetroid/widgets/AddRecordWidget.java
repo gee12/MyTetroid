@@ -9,7 +9,7 @@ import android.widget.RemoteViews;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.common.Constants;
-import com.gee12.mytetroid.views.activities.RecordActivity;
+import com.gee12.mytetroid.ui.activities.RecordActivity;
 
 /**
  * Implementation of App Widget functionality.

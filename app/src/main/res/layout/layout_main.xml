@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.gee12.mytetroid.views.MainViewPager
+    <com.gee12.mytetroid.ui.views.MainViewPager
         android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,7 +26,7 @@
             android:textColor="@color/colorMoreLightText"
             android:layout_gravity="top"/>
 
-    </com.gee12.mytetroid.views.MainViewPager>
+    </com.gee12.mytetroid.ui.views.MainViewPager>
 
     <include
         android:id="@+id/layout_progress_bar"

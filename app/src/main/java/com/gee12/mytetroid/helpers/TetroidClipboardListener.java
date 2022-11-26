@@ -2,8 +2,8 @@ package com.gee12.mytetroid.helpers;
 
 import android.net.Uri;
 
-import com.gee12.mytetroid.views.activities.RecordActivity;
-import com.gee12.mytetroid.views.dialogs.ClipboardDialogs;
+import com.gee12.mytetroid.ui.activities.RecordActivity;
+import com.gee12.mytetroid.ui.dialogs.ClipboardDialogs;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.common.utils.UriUtils;
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;

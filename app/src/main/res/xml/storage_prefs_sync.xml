@@ -6,7 +6,7 @@
         android:summary="@string/pref_is_sync_summ_storage"
         android:title="@string/pref_is_sync_storage" />
 
-    <com.gee12.mytetroid.views.DisabledListPreference
+    <com.gee12.mytetroid.ui.views.prefs.DisabledListPreference
         android:defaultValue="@string/title_app_mgit"
         android:dependency="@string/pref_key_is_sync_storage"
         android:entries="@array/sync_apps"

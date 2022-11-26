@@ -29,14 +29,14 @@
         android:summary="@string/pref_is_ask_before_clear_trash_before_exit_summ"
         android:title="@string/pref_is_ask_before_clear_trash_before_exit" />
 
-    <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+    <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
         android:defaultValue="false"
         android:disableDependentsState="true"
         android:key="@string/pref_key_is_load_favorites"
         android:summary="@string/pref_load_only_favorites_summ"
         android:title="@string/pref_load_only_favorites" />
 
-    <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+    <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
         android:defaultValue="true"
         android:key="@string/pref_key_is_keep_selected_node"
         android:summary="@string/pref_is_keep_selected_node_summ"

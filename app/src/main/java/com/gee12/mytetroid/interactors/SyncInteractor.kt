@@ -11,7 +11,7 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.views.TetroidMessage
+import com.gee12.mytetroid.ui.TetroidMessage
 
 
 class SyncInteractor(

@@ -35,7 +35,7 @@ import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.views.activities.TetroidActivity.IDownloadFileResult
+import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
 import kotlinx.coroutines.*
 import java.lang.Exception
 import java.util.ArrayList

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
-    tools:context=".views.activities.RecordActivity">
+    tools:context=".ui.activities.RecordActivity">
 
     <include
         layout="@layout/layout_toolbar"
@@ -175,7 +175,7 @@
 
         </net.cachapa.expandablelayout.ExpandableLayout>
 
-        <com.gee12.mytetroid.views.TetroidEditor
+        <com.gee12.mytetroid.ui.views.TetroidEditor
             android:id="@+id/html_editor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -190,7 +190,7 @@
             android:layout_alignParentBottom="true"
             android:visibility="gone">
 
-            <com.gee12.mytetroid.views.TetroidEditText
+            <com.gee12.mytetroid.ui.views.TetroidEditText
                 android:id="@+id/edit_text_html"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

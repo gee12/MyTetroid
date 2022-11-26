@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
     android:orientation="vertical"
-    tools:context=".views.activities.SettingsActivity">
+    tools:context=".ui.activities.SettingsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

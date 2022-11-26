@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <com.gee12.mytetroid.views.TextViewHtml
+        <com.gee12.mytetroid.ui.views.TextViewHtml
             android:text="@string/text_pass_change_warning_html"
             android_ex:isHtml="true"
             android:layout_marginBottom="8pt"

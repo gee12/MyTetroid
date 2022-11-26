@@ -19,7 +19,7 @@
             android:summary="@string/pref_is_def_storage_summ"
             android:title="@string/pref_is_def_storage" />
 
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+        <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
             android:defaultValue="false"
             android:key="@string/pref_key_is_read_only"
             android:summary="@string/pref_is_read_only_summ"
@@ -54,20 +54,20 @@
 
     <PreferenceCategory android:key="@string/pref_key_sub_category_other" android:title="@string/pref_sub_category_other">
 
-        <com.gee12.mytetroid.views.DisabledPreference
+        <com.gee12.mytetroid.ui.views.prefs.DisabledPreference
             android:key="@string/pref_key_quickly_node_id"
             android:dependency="@string/pref_key_is_def_storage"
             android:summary="@string/pref_quickly_node_summ"
             android:title="@string/pref_quickly_node" />
 
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+        <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
             android:defaultValue="false"
             android:disableDependentsState="true"
             android:key="@string/pref_key_is_load_favorites"
             android:summary="@string/pref_load_only_favorites_summ_storage"
             android:title="@string/pref_load_only_favorites" />
 
-        <com.gee12.mytetroid.views.DisabledCheckBoxPreference
+        <com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
             android:defaultValue="true"
             android:key="@string/pref_key_is_keep_selected_node"
             android:summary="@string/pref_is_keep_selected_node_summ_storage"
