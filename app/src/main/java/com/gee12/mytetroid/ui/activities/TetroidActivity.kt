@@ -88,7 +88,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
             viewModel.objectEventFlow.collect { event -> onObjectEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { message -> onMessage(message) }
+            viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
     }
 
@@ -534,7 +534,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
      * Публикация сообщений.
      * @param message
      */
-    protected fun onMessage(message: Message?) {
+    protected fun showMessage(message: Message?) {
         TetroidMessage.show(this, message)
     }
 

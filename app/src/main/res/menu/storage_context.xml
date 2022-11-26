@@ -13,10 +13,10 @@
         android:icon="@drawable/ic_storage_info"
         />
     <item
-        android:id="@+id/action_edit"
-        android:title="@string/title_edit"
+        android:id="@+id/action_storage_settings"
+        android:title="@string/title_storage_settings"
         android:orderInCategory="20"
-        android:icon="@drawable/ic_edit"
+        android:icon="@drawable/ic_storage_settings"
         />
     <item
         android:id="@+id/action_set_default"

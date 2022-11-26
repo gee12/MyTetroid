@@ -36,6 +36,9 @@ class StoragesViewModel(
 
     sealed class StoragesEvent : VMEvent() {
         object ShowAddNewStorageDialog : StoragesEvent()
+        data class AddedNewStorage(
+            val storage: TetroidStorage,
+        ) : StoragesEvent()
     }
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()
@@ -108,7 +111,7 @@ class StoragesViewModel(
             if (withIo { storagesInteractor.addStorage(storage) }) {
                 log(getString(R.string.log_storage_added_mask, storage.name), true)
                 loadStorages()
-                sendStorageEvent(StorageViewModel.StorageEvent.Added(storage))
+                sendEvent(StoragesEvent.AddedNewStorage(storage))
             } else {
                 logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
             }

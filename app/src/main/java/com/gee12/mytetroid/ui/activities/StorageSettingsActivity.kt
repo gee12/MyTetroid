@@ -13,7 +13,6 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.viewmodels.ViewEvent
-import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.fragments.settings.storage.StorageMainSettingsFragment
 import com.gee12.mytetroid.ui.fragments.settings.storage.StorageSectionsSettingsFragment
 import com.gee12.mytetroid.ui.fragments.settings.storage.TetroidStorageSettingsFragment
@@ -35,7 +34,7 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
 
     fun initViewModel() {
         lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { message -> TetroidMessage.show(this@StorageSettingsActivity, message) }
+            viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
         lifecycleScope.launch {
             viewModel.viewEventFlow.collect { event -> onViewEvent(event) }

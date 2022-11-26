@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_error"
-        android:title="Ошибка"
+        android:title="@string/title_error"
         android:icon="@drawable/ic_warning_red_2"
         app:showAsAction="always"
         android:visible="false"/>

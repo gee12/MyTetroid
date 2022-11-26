@@ -174,19 +174,19 @@ open class BaseViewModel(
 
     open fun onPermissionGranted(requestCode: Int) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(ViewEvent.PermissionGranted(requestCode))
+            sendViewEvent(ViewEvent.PermissionGranted(requestCode))
         }
     }
 
     open fun onPermissionCanceled(requestCode: Int) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(ViewEvent.PermissionCanceled(requestCode))
+            sendViewEvent(ViewEvent.PermissionCanceled(requestCode))
         }
     }
 
     open fun showManualPermissionRequest(request: PermissionRequestParams) {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(ViewEvent.ShowPermissionRequest(request))
+            sendViewEvent(ViewEvent.ShowPermissionRequest(request))
         }
     }
 
@@ -342,7 +342,7 @@ open class BaseViewModel(
 
     fun showSnackMoreInLogs() {
         launchOnMain {
-            this@BaseViewModel.sendViewEvent(ViewEvent.ShowMoreInLogs)
+            sendViewEvent(ViewEvent.ShowMoreInLogs)
         }
     }
 

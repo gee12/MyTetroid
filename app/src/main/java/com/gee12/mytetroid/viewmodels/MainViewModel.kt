@@ -1693,7 +1693,7 @@ class MainViewModel(
             if (isStorageLoaded()) {
                 // инициализация контролов
                 sendViewEvent(
-                    ViewEvent.InitGUI(
+                    ViewEvent.InitUI(
                         storage = storage!!,
                         isLoadFavoritesOnly = isLoadedFavoritesOnly(),
                         isHandleReceivedIntent = true,

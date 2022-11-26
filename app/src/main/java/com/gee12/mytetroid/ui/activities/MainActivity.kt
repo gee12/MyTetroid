@@ -256,7 +256,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
     override fun onViewEvent(event: ViewEvent) {
         Log.i("MYTETROID", "MainActivity.onViewEvent(): event=$event")
         when (event) {
-            is ViewEvent.InitGUI -> {
+            is ViewEvent.InitUI -> {
                 initUI(
                     isLoaded = event.result,
                     isOnlyFavorites = event.isLoadFavoritesOnly,
@@ -291,6 +291,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event=$event")
         when (event) {
             is StorageEvent.GetEntity -> onStorageUpdated()
+            is StorageEvent.Inited -> onStorageInited()
             is StorageEvent.AskBeforeClearTrashOnExit -> {
                 showClearTrashDialog(event.callback)
             }
@@ -549,12 +550,18 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      */
     private fun showMigrationDialog() {
         if (BuildConfig.VERSION_CODE == Constants.SETTINGS_VERSION_CURRENT) {
-            AskDialogs.showOkDialog(this, R.string.mes_migration_50, R.string.answer_ok, false) { viewModel.startInitStorage() }
+            AskDialogs.showOkDialog(this, R.string.mes_migration_50, R.string.answer_ok, false) {
+                viewModel.startInitStorage()
+            }
         }
     }
 
     private fun updateStorageNameLabel(isLoaded: Boolean) {
-        val title = if (isLoaded) viewModel.getStorageName() else getString(R.string.main_header_title)
+        val title = if (isLoaded) {
+            viewModel.getStorageName()
+        } else {
+            getString(R.string.main_header_title)
+        }
         (findViewById<View>(R.id.text_view_app_name) as TextView).text = title
     }
 
@@ -682,6 +689,11 @@ class MainActivity : TetroidActivity<MainViewModel>() {
      */
     private fun onStorageUpdated() {
         updateStorageNameLabel(viewModel.isStorageLoaded())
+    }
+
+    private fun onStorageInited() {
+        closeFoundFragment()
+        mainPage.clearView()
     }
 
     // endregion LoadStorage

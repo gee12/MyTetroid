@@ -14,6 +14,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.IViewEventListener
 import com.gee12.mytetroid.ui.TetroidMessage
 import org.koin.android.ext.android.inject
@@ -108,6 +109,10 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
      */
     override fun showSnackMoreInLogs() {
         TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
+    }
+
+    protected fun showMessage(message: Message) {
+        TetroidMessage.show(this, message)
     }
 
     //region ToolBar in PreferenceActivity

@@ -32,8 +32,6 @@ import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
@@ -87,9 +85,6 @@ open class StorageViewModel(
             val storageId: Int,
         ) : StorageEvent()
         data class GetEntity(
-            val storage: TetroidStorage,
-        ) : StorageEvent()
-        data class Added(
             val storage: TetroidStorage,
         ) : StorageEvent()
         data class AskBeforeClearTrashOnExit(
@@ -238,15 +233,15 @@ open class StorageViewModel(
 
     fun startReloadStorageEntity() {
         storage?.let { currentStorage ->
-            launch(Dispatchers.IO) {
+            launchOnIo {
                 val storageId = currentStorage.id
                 val storage = storagesRepo.getStorage(storageId)
                 if (storage != null) {
                     storageProvider.setStorage(currentStorage.resetFields(storage))
 
-                    this@StorageViewModel.sendStorageEvent(StorageEvent.GetEntity(storage))
+                    sendStorageEvent(StorageEvent.GetEntity(storage))
                 } else {
-                    this@StorageViewModel.sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
+                    sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
                     log(getString(R.string.log_storage_not_found_mask, storageId), show = true)
                 }
             }
@@ -283,9 +278,9 @@ open class StorageViewModel(
      * Запуск первичной инициализации хранилища по-умолчанию с указанием флага isCheckFavorMode
      * @param isLoadAllNodesForced Если true, то всегда загружать хранилище полностью.
      */
-    fun startInitStorage(id: Int, isLoadAllNodesForced: Boolean) {
+    fun startInitStorage(storageId: Int, isLoadAllNodesForced: Boolean) {
         this.isLoadAllNodesForced = isLoadAllNodesForced
-        startInitStorage(id)
+        startInitStorage(storageId)
     }
 
     /**
@@ -308,13 +303,13 @@ open class StorageViewModel(
      * Поиск хранилища в базе данных и запуск первичной его инициализация.
      */
     fun startInitStorage(storageId: Int) {
-        launch(Dispatchers.IO) {
+        launchOnIo {
             val storage = storagesRepo.getStorage(storageId)
             if (storage != null) {
-                this@StorageViewModel.sendStorageEvent(StorageEvent.GetEntity(storage))
+                sendStorageEvent(StorageEvent.GetEntity(storage))
                 startInitStorage(storage)
             } else {
-                this@StorageViewModel.sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
+                sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
                 log(getString(R.string.log_storage_not_found_mask, storageId), true)
             }
         }
@@ -551,9 +546,8 @@ open class StorageViewModel(
 
             // инициализация контролов
             sendViewEvent(
-                ViewEvent.InitGUI(
+                ViewEvent.InitUI(
                     storage = storage,
-                    isDecrypt = isDecrypt,
                     isLoadFavoritesOnly = isFavoritesOnly,
                     isHandleReceivedIntent = isOpenLastNode,
                     result = result
@@ -607,7 +601,7 @@ open class StorageViewModel(
 
     open fun afterStorageDecrypted(node: TetroidNode?) {
         launchOnMain {
-            this@StorageViewModel.sendStorageEvent(StorageEvent.Decrypted/*, node*/)
+            sendStorageEvent(StorageEvent.Decrypted/*, node*/)
         }
     }
 

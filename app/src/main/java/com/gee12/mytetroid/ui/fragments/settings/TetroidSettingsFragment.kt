@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.TetroidMessage
@@ -43,7 +44,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
 
     protected open fun initViewModel() {
         lifecycleScope.launch {
-            baseViewModel.messageEventFlow.collect { message -> TetroidMessage.show(activity, message) }
+            baseViewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
         lifecycleScope.launch {
             baseViewModel.viewEventFlow.collect { event -> onViewEvent(event) }
@@ -157,6 +158,10 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
             it.setTitle(titleResId)
             it.setSubTitle(subtitle)
         }
+    }
+
+    private fun showMessage(message: Message) {
+        TetroidMessage.show(activity, message)
     }
 
 }

@@ -17,6 +17,7 @@ import com.gee12.mytetroid.ui.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.viewmodels.LogsViewModel.*
 import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
@@ -57,7 +58,7 @@ class LogsActivity : AppCompatActivity() {
             viewModel.logsEventFlow.collect { event -> onEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { TetroidMessage.show(this@LogsActivity, it) }
+            viewModel.messageEventFlow.collect { showMessage(it) }
         }
 
         viewModel.load()
@@ -145,6 +146,10 @@ class LogsActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showMessage(message: Message) {
+        TetroidMessage.show(this, message)
     }
 
     companion object {

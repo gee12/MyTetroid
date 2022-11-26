@@ -13,29 +13,26 @@ import com.gee12.mytetroid.ui.dialogs.AskDialogs
 
 object StorageDialogs {
 
-    interface IItemClickListener {
-        fun onItemClick(isNew: Boolean)
-    }
-
     /**
      * Диалог со списком вариантов указания хранилища.
-     * @param context
-     * @param listener
      */
-    fun createStorageSelectionDialog(context: Context?, listener: IItemClickListener) {
+    fun createStorageSelectionDialog(
+        context: Context,
+        onItemClick: (isNew: Boolean) -> Unit,
+    ) {
         val builder = AskDialogBuilder.create(context, R.layout.dialog_list_view)
 //        builder.setTitle("Выберите действие");
         val dialog = builder.create()
         val listView = builder.view.findViewById<ListView>(R.id.list_view)
         listView.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-            listener.onItemClick(position == 1)
+            onItemClick(position == 1)
             dialog.cancel()
         }
         listView.adapter = StorageChooserAdapter(context)
         dialog.show()
     }
 
-    fun askForDefaultStorageNotSpecified(context: Context?, callback: IApplyResult?) {
+    fun askForDefaultStorageNotSpecified(context: Context, callback: IApplyResult?) {
         AskDialogs.showYesNoDialog(
             context,
             callback?.toApplyCancelResult(),

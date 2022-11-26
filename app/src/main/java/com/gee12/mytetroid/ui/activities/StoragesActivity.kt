@@ -100,16 +100,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         }
     }
 
-    override fun onStorageEvent(event: StorageEvent) {
-        when (event) {
-            is StorageEvent.Added -> onStorageAdded(event.storage)
-            else -> super.onStorageEvent(event)
-        }
-    }
-
     override fun onObjectEvent(event: VMEvent) {
         when (event) {
             StoragesEvent.ShowAddNewStorageDialog -> showStorageDialog(storageId = null)
+            is StoragesEvent.AddedNewStorage -> onStorageAdded(event.storage)
         }
     }
 
@@ -123,7 +117,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun selectStorage(storage: TetroidStorage) {
-        AskDialogs.showLoadStorageDialog(this, storage.name) { finishWithResult(storage) }
+        AskDialogs.showLoadStorageDialog(this, storage.name) {
+            finishWithResult(storage)
+        }
     }
 
     private fun finishWithResult(storage: TetroidStorage) {
@@ -168,11 +164,16 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStorageFilesCreated(storage: TetroidStorage) {
         loadStorages()
-        AskDialogs.showOpenStorageSettingsDialog(this) { editStorage(storage) }
+        AskDialogs.showOpenStorageSettingsDialog(this) {
+            showStorageSettings(storage)
+        }
     }
 
-    private fun editStorage(storage: TetroidStorage) {
-        startActivityForResult(StorageSettingsActivity.newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
+    private fun showStorageSettings(storage: TetroidStorage) {
+        startActivityForResult(
+            StorageSettingsActivity.newIntent(this, storage),
+            Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY
+        )
     }
 
     private fun showStorageInfo(storage: TetroidStorage) {
@@ -209,11 +210,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun selectStorageFolder(path: String) {
         // спрашиваем: создать или выбрать хранилище ?
-        StorageDialogs.createStorageSelectionDialog(this, object : StorageDialogs.IItemClickListener {
-            override fun onItemClick(isNew: Boolean) {
+        StorageDialogs.createStorageSelectionDialog(
+            context = this,
+            onItemClick = { isNew ->
                 openFolderPicker(getString(R.string.title_storage_folder), path, isNew)
             }
-        })
+        )
     }
 
     private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
@@ -279,8 +281,8 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     selectStorage(storage)
                     true
                 }
-                R.id.action_edit -> {
-                    editStorage(storage)
+                R.id.action_storage_settings -> {
+                    showStorageSettings(storage)
                     true
                 }
                 R.id.action_info -> {

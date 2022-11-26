@@ -214,15 +214,16 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
 
     private fun selectStorageFolder() {
         // спрашиваем: создать или выбрать хранилище ?
-        StorageDialogs.createStorageSelectionDialog(context, object : StorageDialogs.IItemClickListener {
-            override fun onItemClick(isNew: Boolean) {
+        StorageDialogs.createStorageSelectionDialog(
+            context = requireContext(),
+            onItemClick = { isNew ->
                 openFolderPicker(
                     getString(R.string.title_storage_folder),
                     viewModel.getStoragePath(),
                     isNew
                 )
             }
-        })
+        )
     }
 
     protected fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
