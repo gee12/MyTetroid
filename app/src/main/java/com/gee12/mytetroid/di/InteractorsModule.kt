@@ -113,9 +113,7 @@ object InteractorsModule {
 
         single {
             FavoritesInteractor(
-                logger = get(),
                 favoritesRepo = get(),
-                storageProvider = get(),
             )
         }
 
@@ -278,8 +276,38 @@ object InteractorsModule {
                 dataInteractor = get(),
                 loadNodeIconUseCase = get(),
                 cryptInteractor = get(),
-                recordsInteractor = get(),
                 saveStorageUseCase = get(),
+                cloneRecordToNodeUseCase = get(),
+            )
+        }
+
+        single {
+            GetIconsFoldersUseCase()
+        }
+
+        single {
+            GetIconsFromFolderUseCase()
+        }
+
+        single {
+            CloneRecordToNodeUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                recordsInteractor = get(),
+                favoritesInteractor = get(),
+                dataInteractor = get(),
+                recordPathHelper = get(),
+                storagePathHelper = get(),
+                cryptInteractor = get(),
+                cloneAttachesToRecordUseCase = get(),
+                parseRecordTagsUseCase = get(),
+            )
+        }
+
+        single {
+            CloneAttachesToRecordUseCase(
+                dataInteractor = get(),
+                cryptInteractor = get(),
             )
         }
 

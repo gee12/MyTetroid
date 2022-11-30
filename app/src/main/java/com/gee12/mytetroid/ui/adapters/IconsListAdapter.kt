@@ -1,117 +1,95 @@
-package com.gee12.mytetroid.ui.adapters;
+package com.gee12.mytetroid.ui.adapters
 
-import android.content.Context;
-import android.graphics.Color;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.Context
+import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.model.TetroidIcon
+import java.util.ArrayList
 
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.interactors.IconsInteractor;
-import com.gee12.mytetroid.model.TetroidIcon;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class IconsListAdapter extends BaseAdapter {
-
-    /**
-     *
-     */
-    private class IconViewHolder {
-        ImageView iconView;
-        TextView nameView;
+class IconsListAdapter(
+    private val context: Context,
+    private val onLoadIconIfNeed: (TetroidIcon) -> Unit,
+) : BaseAdapter() {
+    private inner class IconViewHolder {
+        var iconView: ImageView? = null
+        var nameView: TextView? = null
     }
 
-    private LayoutInflater mInflater;
-    private List<TetroidIcon> mDataSet;
-    private Context mContext;
-    private TetroidIcon mSelectedIcon;
-    private View mSelectedView;
-    private IconsInteractor mIconsInteractor;
+    private val inflater: LayoutInflater
+    private var dataSet: List<TetroidIcon>
+    var selectedIcon: TetroidIcon? = null
+    private var selectedView: View? = null
 
-    public IconsListAdapter(Context context, IconsInteractor interactor) {
-        this.mContext = context;
-        this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.mDataSet = new ArrayList<>();
-        this.mIconsInteractor = interactor;
+    init {
+        inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        dataSet = ArrayList()
     }
 
-    public void setData(List<TetroidIcon> data) {
-        this.mDataSet = data;
-        notifyDataSetChanged();
+    fun setData(data: List<TetroidIcon>) {
+        dataSet = data
+        notifyDataSetChanged()
     }
 
-    public void setSelectedIcon(TetroidIcon icon) {
-        this.mSelectedIcon = icon;
-    }
-
-    public void setSelectedView(View view) {
+    fun setSelectedView(view: View?) {
         // сбрасываем выделение у прошлого view
-        if (mSelectedView != null && mSelectedView != view) {
-            setSelected(mSelectedView, false);
+        if (selectedView != null && selectedView !== view) {
+            setSelected(selectedView, isSelected = false)
         }
-        this.mSelectedView = view;
-        setSelected(mSelectedView, true);
+        selectedView = view
+        setSelected(selectedView, isSelected = true)
     }
 
-    public TetroidIcon getSelectedIcon() {
-        return mSelectedIcon;
+    override fun getCount(): Int {
+        return dataSet.size
     }
 
-    @Override
-    public int getCount() {
-        return mDataSet.size();
+    override fun getItem(position: Int): Any {
+        return dataSet[position]
     }
 
-    @Override
-    public Object getItem(int position) {
-        return mDataSet.get(position);
+    override fun getItemId(position: Int): Long {
+        return dataSet[position].path.hashCode().toLong()
     }
 
-    @Override
-    public long getItemId(int position) {
-        return mDataSet.get(position).getPath().hashCode();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        IconViewHolder viewHolder;
-        if (convertView == null) {
-            viewHolder = new IconViewHolder();
-            convertView = mInflater.inflate(R.layout.list_item_icon, null);
-            viewHolder.iconView = convertView.findViewById(R.id.icon_view_image);
-            viewHolder.nameView = convertView.findViewById(R.id.icon_view_name);
-            convertView.setTag(viewHolder);
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        var view = convertView
+        val viewHolder: IconViewHolder
+        if (view == null) {
+            viewHolder = IconViewHolder()
+            view = inflater.inflate(R.layout.list_item_icon, null)
+            viewHolder.iconView = view.findViewById(R.id.icon_view_image)
+            viewHolder.nameView = view.findViewById(R.id.icon_view_name)
+            view.tag = viewHolder
         } else {
-            viewHolder = (IconViewHolder) convertView.getTag();
+            viewHolder = view.tag as IconViewHolder
         }
-
-        final TetroidIcon icon = mDataSet.get(position);
+        val icon = dataSet[position]
         // иконка
-        mIconsInteractor.loadIconIfNull(icon);
-        viewHolder.iconView.setImageDrawable(icon.getIcon());
+        onLoadIconIfNeed(icon)
+        viewHolder.iconView!!.setImageDrawable(icon.icon)
         // имя
-        viewHolder.nameView.setText(icon.getName());
+        viewHolder.nameView!!.text = icon.name
 
         // выделение
-        boolean isSelected = icon == mSelectedIcon;
-        setSelected(convertView, isSelected);
-        if (isSelected && mSelectedView == null) {
+        val isSelected = icon === selectedIcon
+        setSelected(view, isSelected)
+        if (isSelected && selectedView == null) {
             // получаем выделенный view в первый раз, т.к. listView.getChildAt(pos) позвращает null на старте
-            mSelectedView = convertView;
+            selectedView = view
         }
-
-        return convertView;
+        return view!!
     }
 
-    private void setSelected(View view, boolean isSelected) {
-        if (view == null)
-            return;
-        int color = (isSelected) ? mContext.getColor(R.color.colorCurNode) : Color.TRANSPARENT;
-        view.setBackgroundColor(color);
+    private fun setSelected(view: View?, isSelected: Boolean) {
+        if (view == null) return
+        val color = if (isSelected) context.getColor(R.color.colorCurNode) else Color.TRANSPARENT
+        view.setBackgroundColor(color)
     }
+
 }

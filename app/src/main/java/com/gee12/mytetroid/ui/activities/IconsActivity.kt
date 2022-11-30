@@ -4,173 +4,179 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.text.TextUtils
-import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ListView
-import android.widget.Spinner
+import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.IconsViewModel
 import com.gee12.mytetroid.ui.adapters.IconsListAdapter
-import java.io.File
+import com.gee12.mytetroid.viewmodels.ViewEvent
+import org.koin.java.KoinJavaComponent.get
 import java.util.stream.IntStream
-import org.koin.android.ext.android.inject
 
 /**
  * Активность для выбора иконки ветки.
  */
-class IconsActivity : AppCompatActivity() {
+class IconsActivity : TetroidActivity<IconsViewModel>() {
 
     private lateinit var spFolders: Spinner
-    private var mFoldersAdapter: ArrayAdapter<String>? = null
+    private lateinit var iconsListView: ListView
+    private lateinit var foldersAdapter: ArrayAdapter<String>
     private lateinit var iconsAdapter: IconsListAdapter
-    private lateinit var btnSubmit: View
-    private var mNodeId: String? = null
-    private var mSelectedIcon: TetroidIcon? = null
-    private val viewModel: IconsViewModel by inject()
+    private lateinit var btnSubmit: Button
+    private lateinit var btnClear: Button
+    private var selectedIcon: TetroidIcon? = null
+
+
+    override fun getLayoutResourceId() = R.layout.activity_icons
+
+    override fun createViewModel() {
+        viewModel = get(IconsViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_icons)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        viewModel.initialize()
+        btnSubmit = findViewById(R.id.button_submit)
+        btnSubmit.setOnClickListener {
+            setResult(selectedIcon)
+        }
+
+        btnClear = findViewById(R.id.button_clear_icon)
+        btnClear.setOnClickListener {
+            setResult(null)
+        }
 
         // список иконок
-        val mListView = findViewById<ListView>(R.id.list_view_icons)
-        iconsAdapter = IconsListAdapter(this, viewModel.iconsInteractor)
-        mListView.adapter = iconsAdapter
-        mListView.onItemClickListener =
+        iconsListView = findViewById(R.id.list_view_icons)
+        initIconsList()
+        iconsListView.onItemClickListener =
             AdapterView.OnItemClickListener { _, view: View?, i: Int, _ ->
-                val icon = iconsAdapter.getItem(i) as? TetroidIcon
-                if (icon != null) {
-                    mSelectedIcon = icon
-                    iconsAdapter.selectedIcon = icon
-                    iconsAdapter.setSelectedView(view)
-                    btnSubmit.isEnabled = true
+                (iconsAdapter.getItem(i) as? TetroidIcon)?.let { icon ->
+                    onIconSelected(icon, view)
                 }
             }
 
         // список каталогов
-        spFolders = findViewById<Spinner>(R.id.spinner_folders)
-        val folders = viewModel.getIconsFolders()
-        if (folders != null) {
-            if (folders.isEmpty()) {
-                viewModel.logWarning(R.string.log_icons_dirs_absent)
-                return
+        spFolders = findViewById(R.id.spinner_folders)
+
+        spFolders.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                foldersAdapter.getItem(position)?.let { folder ->
+                    onFolderSelected(folder)
+                }
             }
-            mFoldersAdapter = ArrayAdapter(
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // загрузка
+        val nodeId = intent.extras?.getString(Constants.EXTRA_NODE_ID).orEmpty()
+        val iconPath = intent.extras?.getString(Constants.EXTRA_NODE_ICON_PATH).orEmpty()
+        viewModel.init(nodeId, iconPath)
+    }
+
+    override fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            is IconsViewModel.IconsEvent.IconsFolders -> {
+                loadIconsFolders(event.folders)
+            }
+            is IconsViewModel.IconsEvent.CurrentIcon -> {
+                selectIcon(event.icon)
+            }
+            is IconsViewModel.IconsEvent.IconsFromFolder -> {
+                loadIconsFromFolder(event.folder, event.icons)
+            }
+            else -> super.onViewEvent(event)
+        }
+    }
+
+    private fun loadIconsFolders(folders: List<String>) {
+        if (folders.isEmpty()) {
+            viewModel.logWarning(R.string.log_icons_dirs_absent)
+        } else {
+            foldersAdapter = ArrayAdapter(
                 this,
                 android.R.layout.simple_spinner_item,
                 folders
             )
-            mFoldersAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spFolders.setAdapter(mFoldersAdapter)
-            spFolders.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-                @RequiresApi(api = Build.VERSION_CODES.N)
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val folder = mFoldersAdapter?.getItem(position)
-                    if (folder != null) {
-                        val icons = viewModel.getIconsFromFolder(folder)
-                        if (icons != null) {
-                            // пришлось заново пересоздавать адаптер, т.к. при простой установке dataSet
-                            // с помощью reset(icons)
-                            // не сбрасывалось выделение от предыдущего списка icons (из другого раздела)
-                            iconsAdapter = IconsListAdapter(this@IconsActivity, viewModel.iconsInteractor)
-                            mListView.adapter = iconsAdapter
-                            if (mSelectedIcon != null && folder == mSelectedIcon!!.folder) {
-                                val selectedIconName = mSelectedIcon!!.name
-                                val iconPos = IntStream.range(0, icons.size)
-                                    .filter { i: Int -> selectedIconName == icons[i].name }
-                                    .findFirst()
-                                if (iconPos.isPresent) {
-                                    // выделяем существующую иконку
-                                    val pos = iconPos.asInt
-                                    val icon = icons[pos]
-                                    mSelectedIcon = icon
-                                    iconsAdapter.selectedIcon = icon
-                                    btnSubmit.isEnabled = true
-                                }
-                                iconsAdapter.setData(icons)
-                                if (iconPos.isPresent) {
-                                    val pos = iconPos.asInt
-                                    mListView.setSelection(pos)
-                                }
-                            } else {
-//                                mIconsAdapter.setSelectedIcon(null);
-//                                mIconsAdapter.setSelectedView(null);
-                                iconsAdapter.setData(icons)
-//                                mListView.setItemChecked(-1, true);
-//                                mListView.setSelection(-1);
-//                                mListView.setSelectionAfterHeaderView();
-                            }
-                        }
-                    }
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            })
-        } else {
-            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME))
+            foldersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spFolders.adapter = foldersAdapter
         }
-        findViewById<View>(R.id.button_clear_icon).setOnClickListener { _ ->
-            setResult(
-                null
-            )
-        }
-        btnSubmit = findViewById(R.id.button_submit)
-        btnSubmit.setOnClickListener {
-            setResult(mSelectedIcon)
-        }
-
-        // получаем данные
-        val extras = intent.extras
-        if (extras != null) {
-            mNodeId = extras.getString(Constants.EXTRA_NODE_ID)
-            val iconPath = extras.getString(Constants.EXTRA_NODE_ICON_PATH)
-            selectCurrentIcon(iconPath!!)
-        }
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, this.javaClass.simpleName))
     }
 
-    private fun selectCurrentIcon(iconPath: String) {
-        if (!TextUtils.isEmpty(iconPath)) {
-            val pathParts = iconPath.split(File.separator).toTypedArray()
-            if (pathParts.size >= 2) {
-                val name = pathParts[pathParts.size - 1]
-                val folder = pathParts[pathParts.size - 2]
-                mSelectedIcon = TetroidIcon(folder, name)
-                val pos = mFoldersAdapter?.getPosition(folder) ?: -1
-                if (pos >= 0) {
-                    spFolders.setSelection(pos)
+    private fun loadIconsFromFolder(folder: String, icons: List<TetroidIcon>?) {
+        if (icons != null) {
+            // пришлось заново пересоздавать адаптер, т.к. при простой установке dataSet
+            // с помощью reset(icons)
+            // не сбрасывалось выделение от предыдущего списка icons (из другого раздела)
+            initIconsList()
+            if (selectedIcon != null && folder == selectedIcon!!.folder) {
+                val selectedIconName = selectedIcon!!.name
+                // TODO: переписать с использованием Kotlin
+                val iconPosition = IntStream.range(0, icons.size)
+                    .filter { i: Int -> selectedIconName == icons[i].name }
+                    .findFirst()
+                if (iconPosition.isPresent) {
+                    // выделяем существующую иконку
+                    val pos = iconPosition.asInt
+                    val icon = icons[pos]
+                    selectedIcon = icon
+                    iconsAdapter.selectedIcon = icon
+                    btnSubmit.isEnabled = true
                 }
+                iconsAdapter.setData(icons)
+                if (iconPosition.isPresent) {
+                    val pos = iconPosition.asInt
+                    iconsListView.setSelection(pos)
+                }
+            } else {
+//              mIconsAdapter.setSelectedIcon(null);
+//              mIconsAdapter.setSelectedView(null);
+                iconsAdapter.setData(icons)
+//              mListView.setItemChecked(-1, true);
+//              mListView.setSelection(-1);
+//              mListView.setSelectionAfterHeaderView();
             }
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
+    private fun initIconsList() {
+        iconsAdapter = IconsListAdapter(
+            context = this,
+            onLoadIconIfNeed = { icon ->
+                viewModel.loadIconIfNeed(icon)
             }
+        )
+        iconsListView.adapter = iconsAdapter
+    }
+
+    private fun onIconSelected(icon: TetroidIcon, view: View?) {
+        selectedIcon = icon
+        iconsAdapter.selectedIcon = icon
+        iconsAdapter.setSelectedView(view)
+        btnSubmit.isEnabled = true
+    }
+
+    private fun onFolderSelected(folder: String) {
+        viewModel.getIconsFromFolder(folder)
+    }
+
+    private fun selectIcon(icon: TetroidIcon) {
+        selectedIcon = icon
+        val folderPosition = foldersAdapter.getPosition(icon.folder)
+        if (folderPosition >= 0) {
+            spFolders.setSelection(folderPosition)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun setResult(icon: TetroidIcon?) {
         val intent = Intent()
-        intent.putExtra(Constants.EXTRA_NODE_ID, mNodeId)
+        intent.putExtra(Constants.EXTRA_NODE_ID, viewModel.nodeId)
         intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, icon?.path)
         intent.putExtra(Constants.EXTRA_IS_DROP, icon == null)
         setResult(RESULT_OK, intent)
@@ -179,10 +185,7 @@ class IconsActivity : AppCompatActivity() {
 
     companion object {
 
-        fun startIconsActivity(activity: Activity, node: TetroidNode?, requestCode: Int) {
-            if (node == null) {
-                return
-            }
+        fun start(activity: Activity, node: TetroidNode, requestCode: Int) {
             val intent = Intent(activity, IconsActivity::class.java)
             intent.putExtra(Constants.EXTRA_NODE_ID, node.id)
             intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, node.iconName)

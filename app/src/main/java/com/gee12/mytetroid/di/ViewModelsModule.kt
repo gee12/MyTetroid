@@ -251,7 +251,9 @@ object ViewModelsModule {
                 notificator = get(),
                 failureHandler = get(),
                 commonSettingsProvider = get(),
-                iconsInteractor = get(),
+                storagePathHelper = get(),
+                getIconsFoldersUseCase = get(),
+                getIconsFromFolderUseCase = get(),
             )
         }
 
