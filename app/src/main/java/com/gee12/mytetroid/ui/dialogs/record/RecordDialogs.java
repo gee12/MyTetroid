@@ -4,24 +4,11 @@ import android.content.Context;
 
 import com.gee12.htmlwysiwygeditor.Dialogs;
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.interactors.NodesInteractor;
-import com.gee12.mytetroid.interactors.RecordsInteractor;
-import com.gee12.mytetroid.interactors.StorageInteractor;
 import com.gee12.mytetroid.logs.LogOper;
 import com.gee12.mytetroid.model.TetroidNode;
 import com.gee12.mytetroid.ui.dialogs.AskDialogs;
 
 public class RecordDialogs {
-
-    private StorageInteractor storageInteractor;
-    private RecordsInteractor recordsInteractor;
-    private NodesInteractor nodesInteractor;
-
-    public RecordDialogs(StorageInteractor storageInteractor, RecordsInteractor recordsInteractor, NodesInteractor nodesInteractor) {
-        this.storageInteractor = storageInteractor;
-        this.recordsInteractor = recordsInteractor;
-        this.nodesInteractor = nodesInteractor;
-    }
 
     public interface IRecordFieldsResult {
         void onApply(String name, String tags, String author, String url, TetroidNode node, boolean isFavor);

@@ -13,6 +13,7 @@ interface IStorageProvider {
 
     val storage: TetroidStorage?
     val databaseConfig: DatabaseConfig
+    val dataProcessor: IStorageDataProcessor
     val favorites: MutableList<TetroidFavorite>
 
     fun init(storageDataProcessor: IStorageDataProcessor)
@@ -31,17 +32,16 @@ class StorageProvider(
     private val logger: ITetroidLogger,
 ) : IStorageProvider {
 
-    private lateinit var storageDataProcessor: IStorageDataProcessor
-
     override var storage: TetroidStorage? = null
         private set
-
     override val databaseConfig = DatabaseConfig(logger)
-
+    override lateinit var dataProcessor: IStorageDataProcessor
+        private set
     override val favorites: MutableList<TetroidFavorite> = mutableListOf()
 
+
     override fun init(storageDataProcessor: IStorageDataProcessor) {
-        this.storageDataProcessor = storageDataProcessor
+        this.dataProcessor = storageDataProcessor
     }
 
     override fun setStorage(storage: TetroidStorage) {
@@ -49,40 +49,42 @@ class StorageProvider(
     }
 
     override fun resetStorage() {
-        this.storage = null
+        storage = null
+        databaseConfig.setFileName(null)
+        favorites.clear()
         // TODO
-        // dataProcessor.reset()
-        // crypter.reset()
+//         dataProcessor.reset()
+//         crypter.reset()
     }
 
     override fun isLoaded(): Boolean {
         return /*(storage?.isLoaded ?: false)
-                &&*/ storageDataProcessor.isLoaded()
+                &&*/ dataProcessor.isLoaded()
     }
 
     override fun isLoadedFavoritesOnly(): Boolean {
         return /*(storage?.isLoadFavoritesOnly ?: false)
-                &&*/ storageDataProcessor.isLoadFavoritesOnlyMode()
+                &&*/ dataProcessor.isLoadFavoritesOnlyMode()
     }
 
     override fun isExistCryptedNodes(): Boolean {
-        return storageDataProcessor.isExistCryptedNodes
+        return dataProcessor.isExistCryptedNodes
     }
 
     override fun setIsExistCryptedNodes(value: Boolean) {
-        storageDataProcessor.isExistCryptedNodes = value
+        dataProcessor.isExistCryptedNodes = value
     }
 
     override fun getRootNodes(): List<TetroidNode> {
-        return storageDataProcessor.getRootNodes()
+        return dataProcessor.getRootNodes()
     }
 
     override fun getTagsMap(): HashMap<String, TetroidTag> {
-        return storageDataProcessor.getTagsMap()
+        return dataProcessor.getTagsMap()
     }
 
     override fun getRootNode(): TetroidNode {
-        return storageDataProcessor.getRootNode()
+        return dataProcessor.getRootNode()
     }
 
 }

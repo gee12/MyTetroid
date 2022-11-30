@@ -26,7 +26,7 @@ import org.koin.java.KoinJavaComponent.get
  * Аквтивность для настройки параметров глобального поиска.
  */
 // TODO: создать SearchViewModel
-class SearchActivity : TetroidActivity<StorageViewModel>() {
+class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
 
     private lateinit var etQuery: EditText
     private lateinit var cbText: CheckBox

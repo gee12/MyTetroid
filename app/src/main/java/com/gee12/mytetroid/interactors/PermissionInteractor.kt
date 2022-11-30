@@ -98,7 +98,7 @@ class PermissionInteractor(
     }
 
     fun requestPermission(activity: Activity, permission: String, requestCode: Int) {
-        logger.log(resourcesProvider.getString(R.string.log_request_perm_mask) + permission, false)
+        logger.log(resourcesProvider.getString(R.string.log_request_permission_mask, permission), false)
         ActivityCompat.requestPermissions(activity, arrayOf(permission), requestCode)
     }
 

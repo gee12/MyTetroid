@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.viewmodels.ViewEvent
@@ -21,7 +21,14 @@ import org.koin.java.KoinJavaComponent.get
 /**
  * Активность для просмотра информации о хранилище.
  */
-class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
+class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
+
+    private lateinit var layoutError: View
+    private lateinit var textViewError: TextView
+    private lateinit var progressSize: View
+    private lateinit var progressLastEdit: View
+    private lateinit var layoutLoadStorage: View
+    private lateinit var buttonLoadStorage: Button
 
     override fun getLayoutResourceId() = R.layout.activity_storage_info
 
@@ -32,6 +39,13 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        layoutError = findViewById(R.id.layout_error)
+        textViewError = findViewById(R.id.text_view_error)
+        progressSize = findViewById(R.id.progress_size)
+        progressLastEdit = findViewById(R.id.progress_last_edit)
+        layoutLoadStorage = findViewById(R.id.layout_load_storage)
+        buttonLoadStorage = findViewById(R.id.button_load_storage)
+
         // загружаем параметры хранилища из бд
         viewModel.startInitStorage(intent)
     }
@@ -40,9 +54,17 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
         this.viewModel = get(StorageInfoViewModel::class.java)
     }
 
+    override fun onViewEvent(event: ViewEvent) {
+        when (event) {
+            ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            is ViewEvent.PermissionGranted -> viewModel.initStorage()
+            else -> Unit
+        }
+    }
+
     override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            is StorageEvent.GetEntity -> onStorageFoundInBase()
+            is StorageEvent.FoundInBase -> onStorageFoundInBase()
             is StorageEvent.Inited -> onStorageInitedOrLoaded(true)
             is StorageEvent.InitFailed -> onStorageInitFailed()
             is StorageEvent.Loaded -> onStorageInitedOrLoaded(event.result)
@@ -58,26 +80,26 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     }
 
     private fun onStorageInitedOrLoaded(result: Boolean) {
-        viewModel.checkStorageFilesExistingError()?.let { error ->
-            findViewById<RelativeLayout>(R.id.layout_error).visibility = View.VISIBLE
-            findViewById<TextView>(R.id.text_view_error).text = error
-        } ?: run {
-            findViewById<RelativeLayout>(R.id.layout_error).visibility = View.GONE
-        }
+        val error = viewModel.checkStorageFilesExistingError()
+        layoutError.isVisible = !error.isNullOrEmpty()
+        textViewError.text = error
 
         when {
             !viewModel.isStorageLoaded() -> {
-                findViewById<LinearLayout>(R.id.layout_load_storage).visibility = View.VISIBLE
-                findViewById<Button>(R.id.button_load_storage).setOnClickListener {
-                    viewModel.startLoadStorage(
-                        isLoadFavoritesOnly = false,
-                        isHandleReceivedIntent = false
-                    )
+                layoutLoadStorage.visibility = View.VISIBLE
+                buttonLoadStorage.apply {
+                    text = getString(R.string.action_load_storage)
+                    setOnClickListener {
+                        viewModel.startLoadStorage(
+                            isLoadFavoritesOnly = false,
+                            isHandleReceivedIntent = false
+                        )
+                    }
                 }
             }
             viewModel.isLoadedFavoritesOnly() -> {
-                findViewById<LinearLayout>(R.id.layout_load_storage).visibility = View.VISIBLE
-                findViewById<Button>(R.id.button_load_storage).apply {
+                layoutLoadStorage.visibility = View.VISIBLE
+                buttonLoadStorage.apply {
                     text = getString(R.string.action_load_all_nodes)
                     setOnClickListener {
                         viewModel.loadAllNodes(
@@ -93,7 +115,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     }
 
     private fun fillData() {
-        findViewById<LinearLayout>(R.id.layout_load_storage).visibility = View.GONE
+        layoutLoadStorage.visibility = View.GONE
         findViewById<RelativeLayout>(R.id.layout_data).visibility = View.VISIBLE
         val info = viewModel.getStorageInfo()
         info.calcCounters()
@@ -111,43 +133,34 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     }
 
     private fun onStorageInitFailed() {
-        findViewById<RelativeLayout>(R.id.layout_error).visibility = View.VISIBLE
-        findViewById<TextView>(R.id.text_view_error).text = viewModel.checkStorageFilesExistingError()
-            ?: getString(R.string.mes_storage_init_error)
-    }
-
-    override fun onViewEvent(event: ViewEvent) {
-        when (event) {
-            is ViewEvent.TaskStarted -> taskPreExecute(R.string.task_storage_initializing)
-            ViewEvent.TaskFinished -> taskPostExecute()
-            else -> {}
-        }
+        layoutError.visibility = View.VISIBLE
+        textViewError.text = viewModel.checkStorageFilesExistingError() ?: getString(R.string.mes_storage_init_error)
     }
 
     override fun onObjectEvent(event: VMEvent) {
         when (event) {
             StorageInfoEvent.GetStorageFolderSize.InProgress -> {
-                findViewById<View>(R.id.progress_size).visibility = View.VISIBLE
+                progressSize.visibility = View.VISIBLE
             }
             is StorageInfoEvent.GetStorageFolderSize.Failed -> {
                 findViewById<TextView>(R.id.text_view_size).text = getString(R.string.title_error)
-                findViewById<View>(R.id.progress_size).visibility = View.GONE
+                progressSize.visibility = View.GONE
             }
             is StorageInfoEvent.GetStorageFolderSize.Success -> {
                 findViewById<TextView>(R.id.text_view_size).text = event.size
-                findViewById<View>(R.id.progress_size).visibility = View.GONE
+                progressSize.visibility = View.GONE
             }
 
             StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress -> {
-                findViewById<View>(R.id.progress_last_edit).visibility = View.VISIBLE
+                progressLastEdit.visibility = View.VISIBLE
             }
             is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed -> {
                 findViewById<TextView>(R.id.text_view_last_edit).text = getString(R.string.title_error)
-                findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
+                progressLastEdit.visibility = View.GONE
             }
             is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success -> {
                 findViewById<TextView>(R.id.text_view_last_edit).text = event.date
-                findViewById<View>(R.id.progress_last_edit).visibility = View.GONE
+                progressLastEdit.visibility = View.GONE
             }
         }
     }
@@ -163,7 +176,7 @@ class StorageInfoActivity : TetroidActivity<StorageInfoViewModel>() {
     }
 
     companion object {
-        @JvmStatic
+
         fun start(context: Context, storageId: Int) {
             val intent = Intent(context, StorageInfoActivity::class.java).apply {
                 putExtra(Constants.EXTRA_STORAGE_ID, storageId)

@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.interactors
 
-import com.gee12.mytetroid.helpers.IStorageProvider
-import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidFavorite
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
@@ -11,7 +9,6 @@ import com.gee12.mytetroid.repo.FavoritesRepo
  * Создается для конкретного хранилища.
  */
 class FavoritesInteractor(
-    private val logger: ITetroidLogger,
     private val favoritesRepo: FavoritesRepo,
     private val storageProvider: IStorageProvider,
 ) {
@@ -26,7 +23,7 @@ class FavoritesInteractor(
         get() = storageProvider.favorites
 
     suspend fun initIfNeed() {
-        if (favorites.isEmpty() || favorites.any { it.id != storageId }) {
+        if (favorites.isEmpty() || favorites.any { it.storageId != storageId }) {
             init()
         }
     }

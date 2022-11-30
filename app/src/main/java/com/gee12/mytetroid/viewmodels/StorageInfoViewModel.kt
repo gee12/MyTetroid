@@ -6,22 +6,22 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.crypt.IEncryptHelper
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.repo.FavoritesRepo
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.GetFileModifiedDateUseCase
 import com.gee12.mytetroid.usecase.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.InitAppUseCase
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
-import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import kotlinx.coroutines.*
 
 class StorageInfoViewModel(
@@ -33,7 +33,7 @@ class StorageInfoViewModel(
     commonSettingsProvider: CommonSettingsProvider,
     appBuildHelper: AppBuildHelper,
     favoritesInteractor: FavoritesInteractor,
-    storageProvider: IStorageProvider,
+    private val currentStorageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
     passInteractor: PasswordInteractor,
     storageCrypter: IEncryptHelper,
@@ -43,7 +43,6 @@ class StorageInfoViewModel(
     tagsInteractor: TagsInteractor,
     attachesInteractor: AttachesInteractor,
     storagesRepo: StoragesRepo,
-    private val storageDataProcessor: IStorageDataProcessor,
     storagePathHelper: IStoragePathHelper,
     recordPathHelper: IRecordPathHelper,
     dataInteractor: DataInteractor,
@@ -56,11 +55,13 @@ class StorageInfoViewModel(
     saveStorageUseCase: SaveStorageUseCase,
     checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
-    private val getFolderSizeUseCase: GetFolderSizeUseCase,
-    private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    setupPasswordUseCase : SetupPasswordUseCase,
+    initPasswordUseCase : InitPasswordUseCase,
+    private val getFolderSizeUseCase: GetFolderSizeUseCase,
+    private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -69,7 +70,7 @@ class StorageInfoViewModel(
     failureHandler,
     commonSettingsProvider,
     appBuildHelper,
-    storageProvider,
+    storageProvider = StorageProvider(logger),
     favoritesInteractor,
     sensitiveDataProvider,
     passInteractor,
@@ -95,6 +96,8 @@ class StorageInfoViewModel(
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase,
+    setupPasswordUseCase,
+    initPasswordUseCase,
 ), CoroutineScope {
 
     sealed class StorageInfoEvent : VMEvent() {
@@ -110,7 +113,7 @@ class StorageInfoViewModel(
         }
     }
 
-    fun getStorageInfo(): IStorageInfoProvider = storageDataProcessor
+    fun getStorageInfo(): IStorageInfoProvider = storageProvider.dataProcessor
 
     fun startInitStorage(intent: Intent) {
         launchOnMain {
@@ -120,6 +123,51 @@ class StorageInfoViewModel(
             }
             sendViewEvent(ViewEvent.TaskFinished)
         }
+    }
+
+    override fun initStorage(intent: Intent): Boolean {
+        val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+
+        return if (currentStorageProvider.storage?.id == storageId) {
+            storageProvider = currentStorageProvider
+            launchOnMain {
+                storage?.let {
+                    sendStorageEvent(StorageEvent.FoundInBase(it))
+                    sendStorageEvent(StorageEvent.Inited(it))
+                }
+            }
+            true
+        } else {
+            if (storageId > 0) {
+                resetToAnotherStorage()
+
+                startInitStorageFromBase(storageId)
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    /**
+     * (Пере-)создаем объекты для работы с данным хранилищем,
+     *  если оно не совпадает с уже загруженным.
+     */
+    private fun resetToAnotherStorage() {
+        storagePathHelper = StoragePathHelper(storageProvider)
+        val dataProcessor = StorageDataXmlProcessor(
+            logger = logger,
+            encryptHelper = storageCrypter,
+            favoritesInteractor = FavoritesInteractor(
+                favoritesRepo = FavoritesRepo(getContext()),
+            ),
+            parseRecordTagsUseCase = ParseRecordTagsUseCase(),
+            loadNodeIconUseCase = LoadNodeIconUseCase(
+                logger = logger,
+                storagePathHelper = StoragePathHelper(storageProvider)
+            ),
+        )
+        storageProvider.init(dataProcessor)
     }
 
     fun computeStorageFolderSize() {

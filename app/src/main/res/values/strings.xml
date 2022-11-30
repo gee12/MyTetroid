@@ -196,6 +196,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_storage_error">Storage error</string>
     <string name="title_need_load_storage">Need to load storage…</string>
 
+    <string name="progress_loading">Loading…</string>
     <string name="progress_copy_record">Record copying…</string>
     <string name="progress_insert_record">Record inserting…</string>
     <string name="progress_images_loading">Images loading…</string>
@@ -637,11 +638,12 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_no_app_found_for_open_file">No suitable application was found to open the file&#160;</string>
     <string name="log_no_app_found_for_share_text">No suitable application was found to share the text</string>
     <string name="log_error_file_open">File open error&#160;</string>
-    <string name="log_failed_database_config_load_mask">Failed to load database.config file:\n%s</string>
+    <string name="error_load_file_in_path_mask">Failed to load file [%s] in path:\n%s</string>
     <string name="log_failed_storage_load_mask">Failed to load storage:\n%s</string>
     <string name="log_failed_storage_init_mask">Failed to init storage:\n%s</string>
-    <string name="log_failed_storage_read_mask">Failed to read file mytetra.xml by path:\n%s</string>
-    <string name="log_failed_storage_save_mask">Failed to save file mytetra.xml by path:\n%s</string>
+    <string name="error_read_file_in_path_mask">Failed to read file [%s] in path:\n%s</string>
+    <string name="error_save_file_in_path_mask">Failed to save file [%s] in path:\n%s</string>
+    <string name="errorrename_file_from_to_mask">Failed to rename file from [%s] to [%s]</string>
     <string name="log_found_crypted_nodes">Encrypted nodes were found. To search for them, enter the password.</string>
     <string name="log_missing_file_manager">File manager not found. Path to folder was copied to clipboard.</string>
     <string name="log_error_read_record_file">Error reading record file:&#160;</string>
@@ -655,8 +657,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <!--    <string name="log_error_move_file_mask">Error moving file/folder from [%s] to [%s]</string>-->
     <string name="log_error_copy_record_dir_mask">Error copying the record folder from [%1$s] to [%2$s]</string>
     <string name="log_copy_record_dir_mask">Was copied the record folder to [%s]</string>
-    <string name="log_error_delete_file">Error deleting an attached file:&#160;</string>
-    <string name="error_file_is_missing_mask">File is missing on the disk: %s</string>
+    <string name="error_delete_file_by_path_mask">Error to delete file [%s] in path:\n%s</string>
+    <string name="error_file_is_missing_mask">File is missing: %s</string>
+    <string name="error_folder_is_missing_mask">Folder is missing: %s</string>
     <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
@@ -685,7 +688,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_oper_start_mask">Start %1$s %2$s</string>
     <string name="log_error_creating_record_file">Error creating record file</string>
     <string name="log_saving_mytetra_xml">Saving file mytetra.xml</string>
-    <!--    <string name="log_failed_delete_file">Failed to deleting the file:&#160;</string>-->
     <string name="log_record_not_have_node">The record does not have a node</string>
     <string name="log_not_found_record_in_node">Not found record in node records</string>
     <string name="log_oper_cancel_mask">Cancel %1$s %2$s, as failed to save mytetra.xml</string>
@@ -703,6 +705,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_check_record_dir_error">Record directory checking failed</string>
     <string name="log_link_to_obj_parsing_error">Failed to recognize the storage object by link</string>
     <string name="log_file_is_absent">File is absent:&#160;</string>
+    <string name="log_file_is_absent_in_path_mask">File [%s] is absent in path: %s</string>
     <string name="log_file_checking_error">Error checking file existence:</string>
     <!--    <string name="log_error_encrypt_file">Error copying and encrypting a file from [%s] to [%s]</string>-->
     <!--    <string name="log_error_copy_file">Error copying a file from [%s] to [%s]</string>-->
@@ -713,7 +716,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_record_not_have_attached_files">The record does not have attached files</string>
     <string name="log_not_found_file_in_record">Not found file in the record</string>
     <!--    <string name="log_rename_file_mask">File renaming to [%s]</string>-->
-    <!--    <string name="log_rename_file_error_mask">File renaming error from [%s] to [%s]</string>-->
     <string name="log_record_file_is_missing">No recording file will be created when saving</string>
     <string name="log_start_record_file_reading">Start reading a file of record id=</string>
     <string name="log_start_record_file_saving">Start saving a file of record id=</string>
@@ -750,8 +752,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 <!--    <string name="log_files_attach_error">Errors occurred while attaching file(s) (more in logs)</string>-->
     <string name="log_files_attach_error">Errors occurred while attaching file(s)</string>
     <string name="log_start_record_text_decrypting">Start decrypting the text of the record</string>
-    <string name="log_error_file_decrypt">Error decrypting file</string>
-    <string name="log_error_file_encrypt">Error encrypting file</string>
+    <string name="error_file_decrypt_mask">Error decrypting file [%s]</string>
+    <string name="error_file_encrypt_mask">Error encrypting file [%s]</string>
     <string name="log_cannot_delete_root_node">Cannot delete a single root node</string>
     <!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
     <!--    <string name="log_file_moved_mask">File/folder was moved to %s</string>-->
@@ -773,7 +775,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 <!--    <string name="log_mytetra_xml_saving_error">Failed to save the storage structure in mytetra.xml (more in the logs)</string>-->
     <string name="log_clear_storage_dir">Clear storage folder</string>
     <string name="log_start_storage_creating_mask">Start storage creating:\n%s</string>
-    <string name="log_dir_is_missing">Folder is missing</string>
+    <string name="error_storage_folder_is_missing_mask">Folder for new storage is missing:\n%s</string>
     <string name="log_no_nodes_in_storage">No nodes uploaded to storage</string>
     <string name="log_app_exit">Exit from app</string>
     <string name="log_obj_id_mask" translatable="false">&#160;id=%s</string>
@@ -791,7 +793,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
     <string name="log_settings_copied_from_free">Application settings were copied from the Free version</string>
-    <string name="log_request_perm_mask">Permission request: %s</string>
+    <string name="log_request_permission_mask">Permission request: %s</string>
     <string name="log_camera_perm_granted">Permission granted to use the camera</string>
     <string name="log_write_ext_storage_perm_granted">Permission granted to write to the device’s external storage</string>
     <string name="log_run_termux_commands_perm_granted">Permission granted to run Termux commands</string>
@@ -805,7 +807,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_start_review" translatable="false">Start in-app review</string>
     <string name="log_storage_need_load">Storage must be loaded</string>
     <string name="log_all_nodes_need_load">All nodes of storage must be loaded</string>
-    <string name="log_dir_not_empty">Directory is not empty</string>
+    <string name="error_storage_folder_not_empty_mask">Directory for storage is not empty:\n %s</string>
     <string name="log_mytetra_xml_observer_mask">Track changes to a file mytetra.xml was %s</string>
     <string name="log_sync_command_empty">Synchronisation command is not specified</string>
     <string name="log_error_when_sync">An error occurred while trying to sync storage</string>
@@ -816,7 +818,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_download_web_page_mask">Error loading web-page content:\n%s</string>
     <string name="log_error_download_file_mask">Error loading file:\n%s</string>
     <string name="log_error_download_image_mask">Error loading image:\n%s</string>
-    <string name="log_failed_storage_create_mask">Storage creation error:\n%s</string>
+    <string name="error_create_storage_files_in_path_mask">Failed to create storage files in path:\n%s</string>
     <string name="log_link_is_empty">Link is empty</string>
     <string name="log_added_to_favor">Added to favorites</string>
     <string name="log_deleted_from_favor">Deleted from favorites</string>
@@ -841,15 +843,19 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_error_pin_crypt_migrate">Error re-encrypting PIN from RC5 to MD5</string>
     <string name="log_error_migration">Settings migration failed</string>
     <string name="log_created_folder_mask">Created folder: %s [%s]</string>
-    <string name="log_error_creating_folder_mask">Error creating folder: %s [%s]</string>
+    <string name="error_create_folder_in_path_mask">Error creating folder: %s [%s]</string>
     <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
     <string name="log_storage_tree_changed_outside" translatable="false">The mytetra.xml file with the record tree has been modified by a third party program</string>
     <string name="log_storage_tree_deleted_outside" translatable="false">The mytetra.xml file with the record tree has been removed by a third party program</string>
 
     <string name="error_record_create_mask">Record creation error:\n%s</string>
     <string name="error_record_name_is_empty">Record name is empty</string>
+    <string name="error_save_storage_in_database">Failed to save storage in database</string>
+    <string name="error_save_pass_check_data">Failed to save crypt_check data for password</string>
+    <string name="error_clone_record_to_node">Failed clone record to node</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>
     <string name="title_main_fragment">Main</string>
+    <string name="log_pass_hash_saved_local">Password hash is saved locally</string>
 </resources>

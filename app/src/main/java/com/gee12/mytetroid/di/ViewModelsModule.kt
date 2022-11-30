@@ -43,6 +43,8 @@ object ViewModelsModule {
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
+                setupPasswordUseCase = get(),
+                initPasswordUseCase = get(),
             )
         }
 
@@ -86,6 +88,8 @@ object ViewModelsModule {
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
+                setupPasswordUseCase = get(),
+                initPasswordUseCase = get(),
             )
         }
 
@@ -125,6 +129,8 @@ object ViewModelsModule {
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
+                setupPasswordUseCase = get(),
+                initPasswordUseCase = get(),
             )
         }
 
@@ -137,7 +143,7 @@ object ViewModelsModule {
                 appBuildHelper = get(),
                 failureHandler = get(),
                 commonSettingsProvider = get(),
-                storageProvider = get(),
+                currentStorageProvider = get(),
                 favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
                 passInteractor = get(),
@@ -148,7 +154,6 @@ object ViewModelsModule {
                 tagsInteractor = get(),
                 attachesInteractor = get(),
                 storagesRepo = get(),
-                storageDataProcessor = get(),
                 storagePathHelper = get(),
                 recordPathHelper = get(),
                 dataInteractor = get(),
@@ -166,6 +171,8 @@ object ViewModelsModule {
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
+                setupPasswordUseCase = get(),
+                initPasswordUseCase = get(),
             )
         }
 
@@ -204,6 +211,8 @@ object ViewModelsModule {
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
+                setupPasswordUseCase = get(),
+                initPasswordUseCase = get(),
             )
         }
 

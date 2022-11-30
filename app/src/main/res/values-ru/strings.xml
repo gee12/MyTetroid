@@ -192,6 +192,7 @@
     <string name="title_storage_error">Ошибка хранилища</string>
     <string name="title_need_load_storage">Загрузите хранилище…</string>
 
+    <string name="progress_loading">Загрузка…</string>
     <string name="progress_copy_record">Копирование записи…</string>
     <string name="progress_insert_record">Вставка записи…</string>
     <string name="progress_images_loading">Загрузка изображения(-й)…</string>
@@ -546,11 +547,12 @@
     <string name="log_no_app_found_for_open_file">Не найдено подходящего приложения для открытия файла&#160;</string>
     <string name="log_no_app_found_for_share_text">Не найдено подходящего приложения для отправки текста</string>
     <string name="log_error_file_open">Ошибка открытия файла&#160;</string>
-    <string name="log_failed_database_config_load_mask">Не удалось загрузить файл database.config:\n%s</string>
+    <string name="error_load_file_in_path_mask">Не удалось загрузить файл [%s] по пути:\n%s</string>
     <string name="log_failed_storage_load_mask">Не удалось загрузить хранилище:\n%s</string>
     <string name="log_failed_storage_init_mask">Не удалось инициализировать хранилище:\n%s</string>
-    <string name="log_failed_storage_read_mask">Не удалось прочитать файл mytetra.xml по пути:\n%s</string>
-    <string name="log_failed_storage_save_mask">Не удалось сохранить файл mytetra.xml по пути:\n%s</string>
+    <string name="error_read_file_in_path_mask">Не удалось прочитать файл [%s] по пути:\n%s</string>
+    <string name="error_save_file_in_path_mask">Не удалось сохранить файл [%s] по пути:\n%s</string>
+    <string name="errorrename_file_from_to_mask">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="log_found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
     <string name="log_error_read_record_file">Ошибка чтения файла записи:&#160;</string>
@@ -563,8 +565,9 @@
 <!--    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>-->
     <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%1$s] в [%2$s]</string>
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
-    <string name="log_error_delete_file">Ошибка удаления прикрепленного файла:&#160;</string>
-    <string name="error_file_is_missing_mask">Файл отсутствует на диске: %s</string>
+    <string name="error_delete_file_by_path_mask">Ошибка удаления файла [%s] по пути:\n%s</string>
+    <string name="error_file_is_missing_mask">Файл не существует: %s</string>
+    <string name="error_folder_is_missing_mask">Каталог не существует: %s</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
@@ -594,9 +597,7 @@
     <string name="log_oper_start_mask">Начало %1$s %2$s</string>
     <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
-<!--    <string name="log_failed_delete_file">Не удалось удалить файл:&#160;</string>-->
 <!--    <string name="log_rename_file_mask">Файл был переименован в [%s]</string>-->
-<!--    <string name="log_rename_file_error_mask">Не удалось переименовать файл из [%s] в [%s]</string>-->
     <string name="log_record_not_have_node">У записи не указана ветка</string>
     <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
     <string name="log_oper_cancel_mask">Отмена %1$s %2$s, т.к. не удалось сохранить mytetra.xml</string>
@@ -614,6 +615,7 @@
     <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки</string>
     <string name="log_link_to_obj_parsing_error">Не удалось распознать объект хранилища по ссылке</string>
     <string name="log_file_is_absent">Файл отсутствует:&#160;</string>
+    <string name="log_file_is_absent_in_path_mask">Файл [%s] отсутствует по пути: %s</string>
     <string name="log_file_checking_error">Ошибка проверки существования файла:&#160;</string>
 <!--    <string name="log_error_encrypt_file">Ошибка копирования и зашифровки файла из [%s] в [%s]</string>-->
 <!--    <string name="log_error_copy_file">Ошибка копирования файла из [%s] в [%s]</string>-->
@@ -658,8 +660,8 @@
 <!--    <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки (подробнее в логах)</string>-->
     <string name="log_files_attach_error">При прикреплении файла(ов) произошли ошибки</string>
     <string name="log_start_record_text_decrypting">Начало расшифровки текста записи</string>
-    <string name="log_error_file_decrypt">Ошибка расшифровки файла записи</string>
-    <string name="log_error_file_encrypt">Ошибка зашифровки файла записи</string>
+    <string name="error_file_decrypt_mask">Ошибка расшифровки файла записи [%s]</string>
+    <string name="error_file_encrypt_mask">Ошибка зашифровки файла записи [%s]</string>
     <string name="log_cannot_delete_root_node">Нельзя удалить единственную корневую ветку</string>
 <!--    <string name="log_file_moved_mask">Файл/каталог был перемещен в %s</string>-->
     <string name="log_start_pass_setup">Начало установки пароля хранилища</string>
@@ -680,7 +682,7 @@
 <!--    <string name="log_mytetra_xml_saving_error">Не удалось сохранить структуру хранилища в mytetra.xml (подробнее в логах)</string>-->
     <string name="log_clear_storage_dir">Очистка каталога</string>
     <string name="log_start_storage_creating_mask">Начало создания хранилища:\n%s</string>
-    <string name="log_dir_is_missing">Каталог не существует</string>
+    <string name="error_storage_folder_is_missing_mask">Каталог для нового хранилища не существует:\n%s</string>
     <string name="log_no_nodes_in_storage">В хранилище не загружено ни одной ветки</string>
     <string name="log_app_exit">Выход из приложения</string>
     <string name="log_obj_id_name_mask">&#160;id=%1$s, имя=\"%2$s\"</string>
@@ -697,7 +699,7 @@
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
-    <string name="log_request_perm_mask">Запрос разрешения: %s</string>
+    <string name="log_request_permission_mask">Запрос разрешения: %s</string>
     <string name="log_camera_perm_granted">Предоставлено разрешение к использованию камеры</string>
     <string name="log_write_ext_storage_perm_granted">Предоставлено разрешение на запись во внешнюю память устройства</string>
     <string name="log_run_termux_commands_perm_granted">Предоставлено разрешение на запуск команд Termux</string>
@@ -709,7 +711,7 @@
     <string name="log_sync_app_not_installed">По-видимому, приложение MGit не установлено</string>
     <string name="log_storage_need_load">Необходимо загрузить хранилище</string>
     <string name="log_all_nodes_need_load">Необходимо загрузить все ветки хранилища</string>
-    <string name="log_dir_not_empty">Каталог не пуст</string>
+    <string name="error_storage_folder_not_empty_mask">Каталог для нового хранилища не пуст:\n%s</string>
     <string name="log_mytetra_xml_observer_mask">Отслеживание изменений файла mytetra.xml было %s</string>
     <string name="log_sync_command_empty">Не указана команда синхронизации</string>
     <string name="log_error_when_sync">Произошла ошибка при попытке синхронизации хранилища</string>
@@ -720,7 +722,7 @@
     <string name="log_error_download_web_page_mask">Ошибка загрузки содержимого страницы:\n%s</string>
     <string name="log_error_download_file_mask">Ошибка загрузки файла:\n%s</string>
     <string name="log_error_download_image_mask">Ошибка загрузки изображения:\n%s</string>
-    <string name="log_failed_storage_create_mask">Ошибка создания хранилища:\n%s</string>
+    <string name="error_create_storage_files_in_path_mask">Ошибка создания файлов хранилища по пути:\n%s</string>
     <string name="log_link_is_empty">Пустая ссылка</string>
     <string name="log_added_to_favor">Добавлено в избранное</string>
     <string name="log_deleted_from_favor">Удалено из избранного</string>
@@ -741,7 +743,7 @@
     <string name="log_error_pin_crypt_migrate">Ошибка перешифровки ПИН-кода из RC5 в MD5</string>
     <string name="log_error_migration">Ошибка выполнения миграции настроек</string>
     <string name="log_created_folder_mask">Создан каталог: %s [%s]</string>
-    <string name="log_error_creating_folder_mask">Ошибка создания каталога: %s [%s]</string>
+    <string name="error_create_folder_in_path_mask">Ошибка создания каталога: %s [%s]</string>
     <string name="log_storage_path_changed_mask">Изменен путь к хранилищу: %s</string>
     <string name="log_storage_trash_path_changed_mask">Изменен путь к корзине хранилища: %s</string>
     <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
@@ -750,8 +752,12 @@
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>
+    <string name="error_save_storage_in_database">Ошибка сохранения хранилища в базе данных</string>
+    <string name="error_save_pass_check_data">Ошибка сохранения данных crypt_check для пароля</string>
+    <string name="error_clone_record_to_node">Не удалось скопировать запись в ветку</string>
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
     <string name="title_main_fragment">Главная</string>
+    <string name="log_pass_hash_saved_local">Хэш пароля сохранен локально</string>
 </resources>

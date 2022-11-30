@@ -342,7 +342,7 @@ class NodesInteractor(
                 logger.logFailure(it)
                 false
             },
-            onRight = { it }
+            onRight = { true }
         )
     }
 

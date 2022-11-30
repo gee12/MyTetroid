@@ -115,7 +115,7 @@ class TagsInteractor(
                 logger.logFailure(it, show = false)
                 false
             },
-            onRight = { it }
+            onRight = { true }
         )
     }
 

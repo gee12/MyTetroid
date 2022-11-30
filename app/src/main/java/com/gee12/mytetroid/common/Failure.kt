@@ -57,9 +57,6 @@ sealed class Failure(val ex: Throwable? = null) {
     }
 
     sealed class Tags(ex: Throwable? = null) : Failure(ex) {
-        sealed class Parse(ex: Throwable? = null) : Node(ex) {
-            object TagIsEmpty : Create()
-        }
     }
 
     sealed class Encrypt(ex: Throwable? = null) : Failure(ex) {
@@ -74,7 +71,11 @@ sealed class Failure(val ex: Throwable? = null) {
         class IsMissing(path: String) : File(path)
         class AccessDenied(path: String, ex: Throwable? = null) : File(path, ex)
         class GetFileSize(path: String, ex: Throwable? = null) : File(path, ex)
-        class GetFolderSize(path: String, ex: Throwable? = null) : File(path, ex)
+    }
+
+    sealed class Folder(val path: String, ex: Throwable? = null) : Failure(ex) {
+        class IsMissing(path: String) : Folder(path)
+        class GetFolderSize(path: String, ex: Throwable? = null) : Folder(path, ex)
     }
 
 }

@@ -116,6 +116,14 @@ fun <L, R> Either<L, R>.getOrElse(value: R): R =
     }
 
 /**
+ * Calls the specified function [fn] with `this` either object as its argument and returns `this` either object.
+ */
+inline fun <L, R> Either<L, R>.onComplete(fn: (Either<L, R>) -> Unit): Either<L, R> {
+    fn(this)
+    return this
+}
+
+/**
  * Left-biased onFailure() FP convention dictates that when this class is Left, it'll perform
  * the onFailure functionality passed as a parameter, but, overall will still return an either
  * object so you chain calls.
@@ -200,7 +208,7 @@ fun <T> runBeforeLeft(items: List<() -> Either<Failure, T>>): Either<Failure, Bo
     }
 }
 
-suspend fun ifEitherSuspend(value: Boolean, block: suspend () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
+suspend fun ifEitherOrTrueSuspend(value: Boolean, block: suspend () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
     return if (value) {
         block()
     } else {
@@ -208,10 +216,26 @@ suspend fun ifEitherSuspend(value: Boolean, block: suspend () -> Either<Failure,
     }
 }
 
-fun ifEither(value: Boolean, block: () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
+fun ifEitherOrTrue(value: Boolean, block: () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
     return if (value) {
         block()
     } else {
         true.toRight()
+    }
+}
+
+suspend fun ifEitherOrFalseSuspend(value: Boolean, block: suspend () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
+    return if (value) {
+        block()
+    } else {
+        false.toRight()
+    }
+}
+
+fun ifEitherOrFalse(value: Boolean, block: () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
+    return if (value) {
+        block()
+    } else {
+        false.toRight()
     }
 }

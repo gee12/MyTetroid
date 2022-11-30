@@ -22,6 +22,7 @@ import com.gee12.mytetroid.helpers.AppBuildHelper
 import com.gee12.mytetroid.helpers.IRecordPathHelper
 import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.helpers.IStoragePathHelper
+import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
@@ -48,6 +49,7 @@ class RecordsInteractor(
     private val favoritesInteractor: FavoritesInteractor,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
+    private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) {
 
@@ -178,6 +180,7 @@ class RecordsInteractor(
         return checkRecordFolder(dirPath, isCreate, false)
     }
 
+    // TODO CheckRecordFolderUseCase
     fun checkRecordFolder(dirPath: String, isCreate: Boolean, showMessage: Boolean): Int {
         val folder = File(dirPath)
         try {
@@ -202,149 +205,12 @@ class RecordsInteractor(
     }
 
     /**
-     * Перемещение или копирование записи в ветку.
-     * @param srcRecord
-     * @param node
-     * @param isCutted
-     * @return
-     */
-    // TODO: CloneRecordToNodeUseCase
-    suspend fun cloneRecordToNode(
-        context: Context,
-        srcRecord: TetroidRecord,
-        node: TetroidNode,
-        isCutted: Boolean,
-        breakOnFSErrors: Boolean
-    ): TetroidRecord? {
-        logger.logOperStart(LogObj.RECORD, LogOper.INSERT, srcRecord)
-
-        // генерируем уникальные идентификаторы, если запись копируется
-        val id = if (isCutted) srcRecord.id else dataInteractor.createUniqueId()
-        val dirName = if (isCutted) srcRecord.dirName else dataInteractor.createUniqueId()
-        val name = srcRecord.name
-        val tagsString = srcRecord.tagsString
-        val author = srcRecord.author
-        val url = srcRecord.url
-
-        // создаем копию записи
-        val crypted = node.isCrypted
-        val record = TetroidRecord(
-            crypted, id,
-            encryptField(crypted, name),
-            encryptField(crypted, tagsString),
-            encryptField(crypted, author),
-            encryptField(crypted, url),
-            srcRecord.created, dirName, srcRecord.fileName, node
-        )
-        if (crypted) {
-            record.setDecryptedValues(name, tagsString, author, url)
-            record.setIsDecrypted(true)
-        }
-        if (isCutted) {
-            record.setIsFavorite(srcRecord.isFavorite)
-        }
-        // добавляем прикрепленные файлы в запись
-        cloneAttachesToRecord(srcRecord, record, isCutted)
-        record.setIsNew(false)
-        // добавляем запись в ветку (и соответственно, в дерево)
-        node.addRecord(record)
-        // добавляем в избранное обратно
-        if (isCutted && record.isFavorite) {
-            favoritesInteractor.add(record)
-        }
-        // добавляем метки в запись и в коллекцию меток
-        parseRecordTags(record, tagsString)
-
-        val errorRes = if (breakOnFSErrors) null else record
-        // проверяем существование каталога записи
-        val srcDirPath = if (isCutted) {
-            recordPathHelper.getPathToRecordFolderInTrash(srcRecord)
-        } else {
-            recordPathHelper.getPathToRecordFolder(srcRecord)
-        }
-        val dirRes = checkRecordFolder(srcDirPath, false)
-        val srcDir = if (dirRes > 0) {
-            File(srcDirPath)
-        } else {
-            return errorRes
-        }
-        val destDirPath = recordPathHelper.getPathToRecordFolder(record)
-        val destDir = File(destDirPath)
-        if (isCutted) {
-            // вырезаем уникальную приставку в имени каталога
-            val dirNameInBase = srcRecord.dirName.substring(DataInteractor.PREFIX_DATE_TIME_FORMAT.length + 1)
-            // перемещаем каталог записи
-            val res = moveRecordFolder(
-                record = record,
-                srcPath = srcDirPath,
-                destPath = storagePathHelper.getPathToStorageBaseFolder(),
-                newDirName = dirNameInBase
-            )
-            if (res < 0) {
-                return errorRes
-            }
-        } else {
-            // копируем каталог записи
-            try {
-                @Suppress("BlockingMethodInNonBlockingContext")
-                val res = withContext(Dispatchers.IO) { FileUtils.copyDirRecursive(srcDir, destDir) }
-                if (res) {
-                    logger.logDebug(resourcesProvider.getString(R.string.log_copy_record_dir_mask, destDirPath))
-                    // переименовываем прикрепленные файлы
-                    renameRecordAttaches(srcRecord, record)
-                } else {
-                    logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath))
-                    return errorRes
-                }
-            } catch (ex: IOException) {
-                logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath), ex)
-                return errorRes
-            }
-        }
-
-        // зашифровываем или расшифровываем файл записи
-//        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
-//        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
-        return if (!cryptInteractor.cryptRecordFiles(record, srcRecord.isCrypted, crypted) && breakOnFSErrors) {
-            errorRes
-        } else record
-    }
-
-    /**
-     * Перемещение или копирование прикрепленных файлов в другую запись.
-     * @param srcRecord
-     * @param destRecord
-     * @param isCutted
-     */
-    private fun cloneAttachesToRecord(srcRecord: TetroidRecord, destRecord: TetroidRecord, isCutted: Boolean) {
-        if (srcRecord.attachedFilesCount > 0) {
-            val crypted = destRecord.isCrypted
-            val attaches: MutableList<TetroidFile> = ArrayList()
-            for (srcAttach in srcRecord.attachedFiles) {
-                // генерируем уникальные идентификаторы, если запись копируется
-                val id = if (isCutted) srcAttach.id else dataInteractor.createUniqueId()
-                val name = srcAttach.name
-                val attach = TetroidFile(
-                    crypted, id,
-                    encryptField(crypted, name), srcAttach.fileType, destRecord
-                )
-                if (crypted) {
-                    attach.setDecryptedName(name)
-                    attach.setIsCrypted(true)
-                    attach.setIsDecrypted(true)
-                }
-                attaches.add(attach)
-            }
-            destRecord.attachedFiles = attaches
-        }
-    }
-
-    /**
      * Переименование скопированных прикрепленных файлов в каталоге записи.
      * @param srcRecord
      * @param destRecord
      */
-    private fun renameRecordAttaches(srcRecord: TetroidRecord, destRecord: TetroidRecord) {
+    // TODO: RenameRecordAttachesUseCase
+    fun renameRecordAttaches(srcRecord: TetroidRecord, destRecord: TetroidRecord) {
         for (i in 0 until srcRecord.attachedFilesCount) {
             val srcAttach = srcRecord.attachedFiles[i]
             val destAttach = destRecord.attachedFiles[i]
@@ -690,7 +556,6 @@ class RecordsInteractor(
      * -2 - ошибка (не удалось вставить запись)
      */
     suspend fun insertRecord(
-        context: Context,
         srcRecord: TetroidRecord,
         isCutted: Boolean,
         node: TetroidNode,
@@ -737,7 +602,16 @@ class RecordsInteractor(
             record.setIsDecrypted(true)
         }
         // прикрепленные файлы
-        cloneAttachesToRecord(srcRecord, record, isCutted)
+        cloneAttachesToRecordUseCase.run(
+            CloneAttachesToRecordUseCase.Params(
+                srcRecord = srcRecord,
+                destRecord = record,
+                isCutted = isCutted
+            )
+        ).onFailure {
+            // TODO: возвращать Failure после переноса метода в UseCase
+            return -1
+        }
         record.setIsNew(false)
         val destDirPath = recordPathHelper.getPathToRecordFolder(record)
         val destDir = File(destDirPath)
@@ -1057,7 +931,7 @@ class RecordsInteractor(
                 logger.logFailure(it)
                 false
             },
-            onRight = { it }
+            onRight = { true }
         )
     }
 

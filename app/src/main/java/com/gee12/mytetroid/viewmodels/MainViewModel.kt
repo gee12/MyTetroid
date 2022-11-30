@@ -25,12 +25,8 @@ import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
-import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
@@ -368,7 +364,7 @@ class MainViewModel(
                 message = getString(if (isCutted) R.string.progress_insert_record else R.string.progress_copy_record)
             )
         )
-        val result = recordsInteractor.insertRecord(getContext(), record, isCutted, curNode!!, withoutDir)
+        val result = recordsInteractor.insertRecord(record, isCutted, curNode!!, withoutDir)
         sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
         return result
     }

@@ -26,10 +26,6 @@ class ParseRecordTagsUseCase(
         val tagsString = params.tagsString
         val tagsMap = params.tagsMap
 
-        if (tagsString.isEmpty()) {
-            return Failure.Tags.Parse.TagIsEmpty.toLeft()
-        }
-
         for (tagName in tagsString.split(StorageDataXmlProcessor.TAGS_SEPAR.toRegex()).toTypedArray()) {
             val lowerCaseTagName = tagName.lowercase(Locale.getDefault())
             var tag: TetroidTag

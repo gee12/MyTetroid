@@ -35,7 +35,6 @@ import com.gee12.mytetroid.data.TetroidClipboard
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.helpers.SortHelper
 import com.gee12.mytetroid.interactors.FavoritesInteractor.Companion.FAVORITES_NODE
-import com.gee12.mytetroid.interactors.StorageInteractor
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
@@ -45,7 +44,6 @@ import com.gee12.mytetroid.viewmodels.MainViewModel.MainEvent
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.ui.views.MainViewPager
 import com.gee12.mytetroid.ui.SearchViewXListener
-import com.gee12.mytetroid.ui.activities.IconsActivity.Companion.startIconsActivity
 import com.gee12.mytetroid.ui.activities.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.activities.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.adapters.MainPagerAdapter
@@ -77,7 +75,7 @@ import java.util.*
 /**
  * Главная активность приложения со списком веток, записей и меток.
  */
-class MainActivity : TetroidActivity<MainViewModel>() {
+class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var lvNodes: MultiLevelListView
@@ -242,8 +240,6 @@ class MainActivity : TetroidActivity<MainViewModel>() {
 
     override fun createViewModel() {
         viewModel = get(MainViewModel::class.java)
-        // TODO: koin: исправить циклическую зависимость
-        viewModel.storageInteractor = get(StorageInteractor::class.java)
     }
 
     override fun initViewModel() {
@@ -268,7 +264,6 @@ class MainActivity : TetroidActivity<MainViewModel>() {
                 updateMainToolbar(event.viewId, event.title)
             }
             ViewEvent.HandleReceivedIntent -> checkReceivedIntent(receivedIntent)
-            ViewEvent.ShowMoreInLogs -> showSnackMoreInLogs()
             ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
             is ViewEvent.PermissionGranted -> viewModel.syncAndInitStorage(this)
             is ViewEvent.PermissionCanceled -> {}
@@ -290,7 +285,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
     override fun onStorageEvent(event: StorageEvent) {
         Log.i("MYTETROID", "MainActivity.onStorageEvent(): event=$event")
         when (event) {
-            is StorageEvent.GetEntity -> onStorageUpdated()
+            is StorageEvent.FoundInBase -> onStorageUpdated()
             is StorageEvent.Inited -> onStorageInited()
             is StorageEvent.AskBeforeClearTrashOnExit -> {
                 showClearTrashDialog(event.callback)
@@ -958,7 +953,7 @@ class MainActivity : TetroidActivity<MainViewModel>() {
     }
 
     private fun setNodeIcon(node: TetroidNode) {
-        startIconsActivity(this, node, Constants.REQUEST_CODE_NODE_ICON)
+        IconsActivity.start(this, node, Constants.REQUEST_CODE_NODE_ICON)
     }
 
     /**

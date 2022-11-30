@@ -21,7 +21,7 @@ open class BaseStorageViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
-    protected val storageProvider: IStorageProvider,
+    protected open var storageProvider: IStorageProvider,
 ) : BaseViewModel(
     app,
     resourcesProvider,

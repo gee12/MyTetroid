@@ -35,7 +35,7 @@ import lib.folderpicker.FolderPicker
 import org.koin.java.KoinJavaComponent.get
 
 
-class StoragesActivity : TetroidActivity<StoragesViewModel>() {
+class StoragesActivity : TetroidStorageActivity<StoragesViewModel>() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StoragesAdapter

@@ -16,30 +16,20 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
-import com.gee12.mytetroid.common.extensions.hideKeyboard
-import com.gee12.mytetroid.ui.activities.StoragesActivity.Companion.start
-import com.gee12.mytetroid.ui.activities.StorageSettingsActivity.Companion.newIntent
-import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
-import com.gee12.mytetroid.ui.IViewEventListener
-import com.gee12.mytetroid.ui.ActivityDoubleTapListener
-import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.viewmodels.PermissionRequestParams
-import com.gee12.mytetroid.ui.dialogs.AskDialogs
-import lib.folderpicker.FolderPicker
-import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
-import com.gee12.mytetroid.viewmodels.VMEvent
+import com.gee12.mytetroid.ui.ActivityDoubleTapListener
+import com.gee12.mytetroid.ui.IViewEventListener
 import com.gee12.mytetroid.ui.TetroidMessage
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
-abstract class TetroidActivity<VM : BaseStorageViewModel>
+abstract class TetroidActivity<VM : BaseViewModel>
     : AppCompatActivity(), View.OnTouchListener, IViewEventListener {
 
     interface IDownloadFileResult {
@@ -47,19 +37,12 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
         fun onError(ex: Exception)
     }
 
-    @JvmField
     protected var receivedIntent: Intent? = null
-    @JvmField
     protected var optionsMenu: Menu? = null
-    @JvmField
     protected var tvTitle: TextView? = null
-    @JvmField
     protected var tvSubtitle: TextView? = null
-    @JvmField
     protected var toolbar: Toolbar? = null
-    @JvmField
     protected var layoutProgress: LinearLayout? = null
-    @JvmField
     protected var tvProgress: TextView? = null
 
     protected lateinit var gestureDetector: GestureDetectorCompat
@@ -82,17 +65,9 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
             viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
-        }
-        lifecycleScope.launch {
-            viewModel.objectEventFlow.collect { event -> onObjectEvent(event) }
-        }
-        lifecycleScope.launch {
             viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
     }
-
-    protected open fun getStorageId(): Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -155,45 +130,16 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
      */
     protected open fun onViewEvent(event: ViewEvent) {
         when (event) {
-            is ViewEvent.ShowProgress -> {
-                setProgressVisibility(event.isVisible, null)
-            }
+            is ViewEvent.ShowProgress -> setProgressVisibility(event.isVisible)
             is ViewEvent.ShowProgressText -> setProgressText(event.message)
             is ViewEvent.ShowPermissionRequest -> showPermissionRequest(event.request)
+            is ViewEvent.TaskStarted -> {
+                taskPreExecute(event.titleResId ?: R.string.progress_loading)
+            }
+            ViewEvent.TaskFinished -> taskPostExecute()
+            ViewEvent.ShowMoreInLogs -> showSnackMoreInLogs()
             else -> {}
         }
-    }
-
-    /**
-     * Обработчик изменения состояния хранилища.
-     * @param event
-     * @param data
-     */
-    protected open fun onStorageEvent(event: StorageEvent) {
-        when (event) {
-            StorageEvent.NoDefaultStorage -> askForDefaultStorageNotSpecified(this) { showStoragesActivity() }
-            is StorageEvent.Inited -> afterStorageInited()
-            is StorageEvent.Loaded -> afterStorageLoaded(event.result)
-            StorageEvent.Decrypted -> afterStorageDecrypted(/*data as TetroidNode*/)
-            else -> {}
-        }
-    }
-
-    /**
-     * Обработчик изменения состояния объекта.
-     * @param event
-     * @param data
-     */
-    protected open fun onObjectEvent(event: VMEvent) {
-    }
-
-    open fun afterStorageInited() {
-    }
-
-    open fun afterStorageLoaded(res: Boolean) {
-    }
-
-    open fun afterStorageDecrypted(/*node: TetroidNode?*/) {
     }
 
     private fun showPermissionRequest(params: PermissionRequestParams) {
@@ -219,32 +165,6 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
     protected fun onPermissionCanceled(requestCode: Int) {
         viewModel.onPermissionCanceled(requestCode)
     }
-
-    // region FileFolderPicker
-
-    fun openFilePicker() {
-        openFileFolderPicker(true)
-    }
-
-    fun openFolderPicker() {
-        openFileFolderPicker(false)
-    }
-
-    /**
-     * Открытие активности для выбора файла или каталога в файловой системе.
-     */
-    fun openFileFolderPicker(isPickFile: Boolean) {
-        val intent = Intent(this, FolderPicker::class.java)
-        intent.putExtra(
-            FolderPicker.EXTRA_TITLE,
-            if (isPickFile) getString(R.string.title_select_file_to_upload) else getString(R.string.title_save_file_to)
-        )
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false))
-        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile)
-        startActivityForResult(intent, if (isPickFile) Constants.REQUEST_CODE_FILE_PICKER else Constants.REQUEST_CODE_FOLDER_PICKER)
-    }
-
-    // endregion FileFolderPicker
 
     /**
      * Установка заголовка активности.
@@ -360,6 +280,10 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
                 AboutActivity.start(this)
                 return true
             }
+            android.R.id.home -> {
+                finish()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -429,7 +353,7 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
 
     fun taskPostExecute() {
         unblockInterface()
-        setProgressVisibility(false, null)
+        setProgressVisibility(isVisible = false)
     }
 
     fun blockInterface() {
@@ -519,15 +443,6 @@ abstract class TetroidActivity<VM : BaseStorageViewModel>
     open fun showActivityForResult(cls: Class<*>?, requestCode: Int) {
         val intent = Intent(this, cls)
         startActivityForResult(intent, requestCode)
-    }
-
-    protected fun showStoragesActivity() {
-        start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY)
-    }
-
-    protected fun showStorageSettingsActivity(storage: TetroidStorage?) {
-        if (storage == null) return
-        startActivityForResult(newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
     }
 
     /**

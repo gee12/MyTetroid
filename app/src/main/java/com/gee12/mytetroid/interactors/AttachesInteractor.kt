@@ -103,7 +103,7 @@ class AttachesInteractor(
         if (deleteSrcFile && res != null) {
             val srcFile = File(fullName)
             if (!FileUtils.deleteRecursive(srcFile)) {
-                logger.logError(resourcesProvider.getString(R.string.log_error_delete_file) + fullName)
+                logger.logError(resourcesProvider.getString(R.string.error_delete_file_by_path_mask, srcFile.name, fullName))
             }
         }
         return res
@@ -344,9 +344,9 @@ class AttachesInteractor(
         }
 
         // удаляем сам файл
-        if (!withoutFile) {
+        if (!withoutFile && destFile != null && destFilePath != null) {
             if (!FileUtils.deleteRecursive(destFile)) {
-                logger.logError(resourcesProvider.getString(R.string.log_error_delete_file) + destFilePath)
+                logger.logError(resourcesProvider.getString(R.string.error_delete_file_by_path_mask, destFile.name, destFilePath))
                 return 0
             }
         }
@@ -455,7 +455,7 @@ class AttachesInteractor(
                 logger.logFailure(it, show = false)
                 false
             },
-            onRight = { it }
+            onRight = { true }
         )
     }
 

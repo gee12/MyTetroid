@@ -68,7 +68,7 @@ import org.koin.java.KoinJavaComponent.get
 /**
  * Активность просмотра и редактирования содержимого записи.
  */
-class RecordActivity : TetroidActivity<RecordViewModel>(), 
+class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     IPageLoadListener, 
     ILinkLoadListener, 
     IHtmlReceiveListener, 
@@ -271,18 +271,23 @@ class RecordActivity : TetroidActivity<RecordViewModel>(),
     // region Storage
 
     private fun startInitStorage() {
-        viewModel.checkWriteExtStoragePermission(this, Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE) {
-            when (receivedIntent!!.action) {
-                Intent.ACTION_MAIN, Constants.ACTION_ADD_RECORD -> if (!viewModel.initStorage(
-                        receivedIntent!!
-                    )
-                ) {
-                    finish()
+        viewModel.checkWriteExtStoragePermission(
+            activity = this,
+            requestCode = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
+            callback =  {
+                when (receivedIntent?.action) {
+                    Intent.ACTION_MAIN,
+                    Constants.ACTION_ADD_RECORD -> {
+                        if (!viewModel.initStorage(receivedIntent!!)) {
+                            finish()
+                        }
+                    }
+                    else -> {
+                        finish()
+                    }
                 }
-                else -> finish()
             }
-            null
-        }
+        )
     }
 
     override fun afterStorageInited() {

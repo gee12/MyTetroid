@@ -23,10 +23,6 @@ import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
-import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -55,7 +51,7 @@ open class StorageViewModel(
     val tagsInteractor: TagsInteractor,
     val attachesInteractor: AttachesInteractor,
     val storagesRepo: StoragesRepo,
-    val storagePathHelper: IStoragePathHelper,
+    protected open var storagePathHelper: IStoragePathHelper,
     val recordPathHelper: IRecordPathHelper,
     val dataInteractor: DataInteractor,
     val interactionInteractor: InteractionInteractor,
@@ -87,7 +83,7 @@ open class StorageViewModel(
         data class NotFoundInBase(
             val storageId: Int,
         ) : StorageEvent()
-        data class GetEntity(
+        data class FoundInBase(
             val storage: TetroidStorage,
         ) : StorageEvent()
         data class AskBeforeClearTrashOnExit(
@@ -194,13 +190,13 @@ open class StorageViewModel(
     /**
      * Инициализация хранилища по ID, переданному в Intent.
      */
-    fun initStorage(intent: Intent): Boolean {
+    open fun initStorage(intent: Intent): Boolean {
         val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
 
         return if (storage != null && storage?.id == storageId) {
             launchOnMain {
                 storage?.let {
-                    sendStorageEvent(StorageEvent.GetEntity(it))
+                    sendStorageEvent(StorageEvent.FoundInBase(it))
                     sendStorageEvent(StorageEvent.Inited(it))
                 }
             }
@@ -240,7 +236,7 @@ open class StorageViewModel(
                 if (storage != null) {
                     storageProvider.setStorage(currentStorage.resetFields(storage))
 
-                    sendStorageEvent(StorageEvent.GetEntity(storage))
+                    sendStorageEvent(StorageEvent.FoundInBase(storage))
                 } else {
                     sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
                     log(getString(R.string.log_storage_not_found_mask, storageId), show = true)
@@ -256,7 +252,7 @@ open class StorageViewModel(
                 storageProvider.setStorage(storage)
 
                 withMain {
-                    sendStorageEvent(StorageEvent.GetEntity(storage))
+                    sendStorageEvent(StorageEvent.FoundInBase(storage))
                 }
 
                 // если используется уже загруженное дерево веток из кэша
@@ -307,7 +303,7 @@ open class StorageViewModel(
         launchOnIo {
             val storage = storagesRepo.getStorage(storageId)
             if (storage != null) {
-                sendStorageEvent(StorageEvent.GetEntity(storage))
+                sendStorageEvent(StorageEvent.FoundInBase(storage))
                 startInitStorage(storage)
             } else {
                 sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
@@ -1376,7 +1372,7 @@ open class StorageViewModel(
     fun updateStorageAsync(storage: TetroidStorage) {
         launchOnMain {
             if (!storagesRepo.updateStorage(storage)) {
-                //...
+//                logFailure()
             }
         }
     }
@@ -1542,7 +1538,7 @@ open class StorageViewModel(
                 logFailure(it)
                 false
             },
-            onRight = { it }
+            onRight = { true }
         )
     }
 

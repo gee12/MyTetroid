@@ -51,7 +51,7 @@ class InitAppUseCase(
             val dir = File(path)
             when (FileUtils.createDirsIfNeed(dir)) {
                 1 -> logger.log(resourcesProvider.getString(R.string.log_created_folder_mask, name, path), show = false)
-                -1 -> logger.logError(resourcesProvider.getString(R.string.log_error_creating_folder_mask, name, path), show = false)
+                -1 -> logger.logError(resourcesProvider.getString(R.string.error_create_folder_in_path_mask, name, path), show = false)
                 else -> {}
             }
         } catch (ex: Exception) {

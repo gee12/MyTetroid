@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.usecase.node
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.interactors.DataInteractor
 import com.gee12.mytetroid.interactors.EncryptionInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -9,7 +8,6 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import java.util.ArrayList
 
 /**
  * Создание ветки.
@@ -18,13 +16,13 @@ class CreateNodeUseCase(
     private val logger: ITetroidLogger,
     private val dataInteractor: DataInteractor,
     private val cryptInteractor: EncryptionInteractor,
-    private val storageProvider: IStorageProvider,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<TetroidNode, CreateNodeUseCase.Params>() {
 
     data class Params(
         val name: String,
         val parentNode: TetroidNode?,
+        val rootNodes: List<TetroidNode>,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidNode> {
@@ -57,7 +55,7 @@ class CreateNodeUseCase(
         val nodesList = (if (parentNode != null) {
             parentNode.subNodes
         } else {
-            storageProvider.getRootNodes()
+            params.rootNodes
         }) as MutableList<TetroidNode>
         nodesList.add(node)
 

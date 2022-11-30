@@ -15,8 +15,8 @@ import com.gee12.mytetroid.ui.TetroidMessage
 
 
 class SyncInteractor(
-    private val logger: ITetroidLogger,
     private val resourcesProvider: IResourcesProvider,
+    private val logger: ITetroidLogger,
 ) {
 
     companion object {

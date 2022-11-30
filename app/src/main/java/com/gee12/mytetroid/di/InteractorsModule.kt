@@ -2,14 +2,15 @@ package com.gee12.mytetroid.di
 
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.usecase.*
+import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
 import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
-import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.usecase.node.icon.GetIconsFoldersUseCase
+import com.gee12.mytetroid.usecase.node.icon.GetIconsFromFolderUseCase
+import com.gee12.mytetroid.usecase.record.CloneRecordToNodeUseCase
+import com.gee12.mytetroid.usecase.storage.*
 import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import org.koin.android.ext.koin.androidApplication
@@ -78,13 +79,6 @@ object InteractorsModule {
         }
 
         single {
-            IconsInteractor(
-                logger = get(),
-                storagePathHelper = get(),
-            )
-        }
-
-        single {
             ImagesInteractor(
                 resourcesProvider = get(),
                 logger = get(),
@@ -126,16 +120,6 @@ object InteractorsModule {
         }
 
         single {
-            StorageInteractor(
-                logger = get(),
-                resourcesProvider = get(),
-                storagePathHelper = get(),
-                storageDataProcessor = get(),
-                createNodeUseCase = get(),
-            )
-        }
-
-        single {
             NodesInteractor(
                 logger = get(),
                 resourcesProvider = get(),
@@ -166,6 +150,7 @@ object InteractorsModule {
                 favoritesInteractor = get(),
                 parseRecordTagsUseCase = get(),
                 deleteRecordTagsUseCase = get(),
+                cloneAttachesToRecordUseCase = get(),
                 saveStorageUseCase = get(),
             )
         }
@@ -180,7 +165,6 @@ object InteractorsModule {
 
         single {
             PasswordInteractor(
-                logger = get(),
                 storageProvider = get(),
                 cryptInteractor = get(),
                 nodesInteractor = get(),
@@ -224,24 +208,34 @@ object InteractorsModule {
         }
 
         single {
-            ParseRecordTagsUseCase(
-                //storageDataProcessor = get(),
-            )
+            ParseRecordTagsUseCase()
         }
 
         single {
             DeleteRecordTagsUseCase(
-                storageProvider = get(),
                 tagsInteractor = get(),
             )
         }
 
         single {
             InitOrCreateStorageUseCase(
-                logger = get(),
+                createStorageUseCase = get(),
+                initStorageUseCase = get(),
+            )
+        }
+
+        single {
+            CreateStorageUseCase(
                 resourcesProvider = get(),
-                storageProvider = get(),
-                storageInteractor = get(),
+                logger = get(),
+                storageDataProcessor = get(),
+                favoritesInteractor = get(),
+                createNodeUseCase = get(),
+            )
+        }
+
+        single {
+            InitStorageUseCase(
                 favoritesInteractor = get(),
             )
         }
@@ -249,9 +243,6 @@ object InteractorsModule {
         single {
             ReadStorageUseCase(
                 resourcesProvider = get(),
-                storageProvider = get(),
-                storageDataProcessor = get(),
-                storagePathHelper = get(),
             )
         }
 
@@ -277,14 +268,12 @@ object InteractorsModule {
                 logger = get(),
                 dataInteractor = get(),
                 cryptInteractor = get(),
-                storageProvider = get(),
                 saveStorageUseCase = get(),
             )
         }
 
         single {
             InsertNodeUseCase(
-                context = androidApplication(),
                 logger = get(),
                 dataInteractor = get(),
                 loadNodeIconUseCase = get(),
@@ -305,13 +294,31 @@ object InteractorsModule {
 
         single {
             ChangePasswordUseCase(
-                logger = get(),
                 cryptInteractor = get(),
-                passInteractor = get(),
-                storagesRepo = get(),
                 saveStorageUseCase = get(),
                 decryptStorageUseCase = get(),
+                initPasswordUseCase = get(),
+                savePasswordCheckDataUseCase = get(),
             )
+        }
+
+        single {
+            SetupPasswordUseCase(
+                initPasswordUseCase = get(),
+                savePasswordCheckDataUseCase = get(),
+            )
+        }
+
+        single {
+            InitPasswordUseCase(
+                storagesRepo = get(),
+                cryptInteractor = get(),
+                sensitiveDataProvider = get(),
+            )
+        }
+
+        single {
+            SavePasswordCheckDataUseCase()
         }
 
         single {
@@ -335,8 +342,6 @@ object InteractorsModule {
 
         single {
             EncryptOrDecryptFileUseCase(
-                resourcesProvider = get(),
-                logger = get(),
                 crypter = get(),
             )
         }

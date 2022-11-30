@@ -19,7 +19,6 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.ui.activities.MainActivity
-import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
@@ -30,6 +29,7 @@ import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
@@ -761,7 +761,7 @@ class RecordViewModel(
 
     fun downloadAndAttachFile(uri: Uri) {
         launchOnMain {
-            super.downloadFileToCache(uri.toString(), object : IDownloadFileResult {
+            super.downloadFileToCache(uri.toString(), object : TetroidActivity.IDownloadFileResult {
                 override fun onSuccess(uri: Uri) {
                     attachFile(uri, true)
                 }
