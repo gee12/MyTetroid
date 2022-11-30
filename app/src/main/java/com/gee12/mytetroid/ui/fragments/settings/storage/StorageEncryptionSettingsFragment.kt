@@ -82,10 +82,13 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
     }
 
     /**
-     * Обработка сброса опции локального сохранения пароля.
+     * Обработка изменения опции локального сохранения пароля.
      */
     private fun changeSavePassHashLocal(newValue: Boolean) {
-        if (!newValue && viewModel.isSaveMiddlePassLocal()) {
+        if (newValue) {
+            viewModel.saveMiddlePassHashLocalIfCached()
+            (findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local)))?.isChecked = true
+        } else if (viewModel.isSaveMiddlePassLocal() && !viewModel.getMiddlePassHash().isNullOrEmpty()) {
             // удалить сохраненный хэш пароля?
             AskDialogs.showYesNoDialog(
                 context,

@@ -1,18 +1,13 @@
 package com.gee12.mytetroid.usecase.crypt
 
-import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.crypt.Crypter
-import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
 
 /**
  * Зашифровка или расшифровка файла при необходимости.
  */
 class EncryptOrDecryptFileUseCase(
-    private val resourcesProvider: IResourcesProvider,
-    private val logger: ITetroidLogger,
     private val crypter: Crypter,
 ) : UseCase<EncryptOrDecryptFileUseCase.Result, EncryptOrDecryptFileUseCase.Params>() {
 
@@ -62,15 +57,9 @@ class EncryptOrDecryptFileUseCase(
         ex: Exception? = null
     ): Either.Left<Failure> {
         return if (isEncrypt) {
-            ex?.let {
-                logger.logError(resourcesProvider.getString(R.string.log_error_file_encrypt) + file.absolutePath, ex)
-            }
-            Failure.Encrypt.File(ex).toLeft()
+            Failure.Encrypt.File(fileName = file.path, ex).toLeft()
         } else {
-            ex?.let {
-                logger.logError(resourcesProvider.getString(R.string.log_error_file_decrypt) + file.absolutePath, ex)
-            }
-            Failure.Decrypt.File(ex).toLeft()
+            Failure.Decrypt.File(fileName = file.path, ex).toLeft()
         }
     }
 

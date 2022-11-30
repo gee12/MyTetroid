@@ -26,15 +26,15 @@ class SaveStorageUseCase(
     private val storageDataProcessor: IStorageDataProcessor,
     private val dataInteractor: DataInteractor,
     private val storageTreeInteractor: StorageTreeInteractor,
-) : UseCase<Boolean, SaveStorageUseCase.Params>() {
+) : UseCase<UseCase.None, SaveStorageUseCase.Params>() {
 
     object Params
 
-    suspend fun run(): Either<Failure, Boolean> {
+    suspend fun run(): Either<Failure, None> {
         return run(Params)
     }
 
-    override suspend fun run(params: Params): Either<Failure, Boolean> {
+    override suspend fun run(params: Params): Either<Failure, None> {
         val destPath = storagePathHelper.getPathToMyTetraXml()
         val tempPath = destPath + "_tmp"
         logger.logDebug(resourcesProvider.getString(R.string.log_saving_mytetra_xml))
@@ -53,29 +53,32 @@ class SaveStorageUseCase(
                 if (dataInteractor.moveFile(destPath, storagePathHelper.getPathToStorageTrashFolder(), nameInTrash) <= 0) {
                     // если не удалось переместить в корзину, удаляем
                     if (to.exists() && !to.delete()) {
-                        //LogManager.log(context.getString(R.string.log_failed_delete_file) + destPath, LogManager.Types.ERROR);
                         logger.logOperError(LogObj.FILE, LogOper.DELETE, destPath, false, false)
-                        return Failure.Storage.Save.RemoveOldXmlFile.toLeft()
+                        return Failure.Storage.Save.RemoveOldXmlFile(
+                            pathToFile = to.path
+                        ).toLeft()
                     }
                 }
                 // задаем правильное имя актуальной версии файла mytetra.xml
                 val from = File(tempPath)
                 if (!from.renameTo(to)) {
                     val fromTo = resourcesProvider.getStringFromTo(tempPath, destPath)
-                    //LogManager.log(String.format(context.getString(R.string.log_rename_file_error_mask), tempPath, destPath), LogManager.Types.ERROR);
                     logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
-                    return Failure.Storage.Save.RenameXmlFileFromTempName.toLeft()
+                    return Failure.Storage.Save.RenameXmlFileFromTempName(
+                        from = from.path,
+                        to = to.path,
+                    ).toLeft()
                 }
 
                 // TODO: ...
                 onStorageTreeSaved()
-                true.toRight()
+                None.toRight()
             } else {
-                Failure.Storage.Save.SaveXmlFile(storagePath = destPath).toLeft()
+                Failure.Storage.Save.SaveXmlFile(pathToFile = destPath).toLeft()
             }
         } catch (ex: Exception) {
             logger.logError(ex, true)
-            Failure.Storage.Save.SaveXmlFile(storagePath = destPath, ex).toLeft()
+            Failure.Storage.Save.SaveXmlFile(pathToFile = destPath, ex).toLeft()
         }
     }
 

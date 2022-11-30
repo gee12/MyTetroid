@@ -31,10 +31,7 @@ import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
-import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
@@ -76,6 +73,8 @@ class RecordViewModel(
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    setupPasswordUseCase : SetupPasswordUseCase,
+    initPasswordUseCase : InitPasswordUseCase,
 ): StorageViewModel(
     app,
     resourcesProvider,
@@ -110,6 +109,8 @@ class RecordViewModel(
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase,
+    setupPasswordUseCase,
+    initPasswordUseCase,
 ) {
 
     sealed class RecordEvent : VMEvent() {

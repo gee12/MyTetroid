@@ -11,10 +11,7 @@ import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
-import com.gee12.mytetroid.usecase.crypt.ChangePasswordUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndDecryptUseCase
-import com.gee12.mytetroid.usecase.crypt.CheckStoragePasswordAndAskUseCase
-import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
@@ -54,6 +51,8 @@ class StorageSettingsViewModel(
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    setupPasswordUseCase : SetupPasswordUseCase,
+    initPasswordUseCase : InitPasswordUseCase,
 ) : StorageViewModel(
     app,
     resourcesProvider,
@@ -88,6 +87,8 @@ class StorageSettingsViewModel(
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase,
+    setupPasswordUseCase,
+    initPasswordUseCase,
 ) {
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()

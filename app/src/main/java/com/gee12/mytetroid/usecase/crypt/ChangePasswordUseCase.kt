@@ -2,107 +2,100 @@ package com.gee12.mytetroid.usecase.crypt
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.ITaskProgress
+import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.interactors.EncryptionInteractor
-import com.gee12.mytetroid.interactors.PasswordInteractor
-import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class ChangePasswordUseCase(
-    private val logger: ITetroidLogger,
     private val cryptInteractor: EncryptionInteractor,
-    private val passInteractor: PasswordInteractor,
-    private val storagesRepo: StoragesRepo,
     private val saveStorageUseCase: SaveStorageUseCase,
     private val decryptStorageUseCase: DecryptStorageUseCase,
+    private val initPasswordUseCase: InitPasswordUseCase,
+    private val savePasswordCheckDataUseCase: SavePasswordCheckDataUseCase,
 ) : UseCase<Boolean, ChangePasswordUseCase.Params>() {
 
     data class Params(
         val storage: TetroidStorage,
-        val curPass: String,
-        val newPass: String,
+        val databaseConfig: DatabaseConfig,
+        val curPassword: String,
+        val newPassword: String,
         val taskProgress: ITaskProgress,
     )
 
     override suspend fun run(params: Params): Either<Failure, Boolean> {
-        val storage = params.storage
-        val curPass = params.curPass
-        val newPass = params.newPass
-        val taskProgress = params.taskProgress
-
         // сначала устанавливаем текущий пароль
-        taskProgress.nextStage(LogObj.CUR_PASS, LogOper.SET, TaskStage.Stages.START)
-        initPass(storage, curPass)
-            .onFailure {
-                return it.toLeft()
-            }.onSuccess { result ->
-                if (!result) {
-                    return false.toRight()
+        return initPassword(params, initNewPassword = false)
+            // и расшифровываем хранилище
+            .flatMap {
+                decryptStorage(params)
+            }.flatMap { result ->
+                ifEitherOrFalseSuspend(result) {
+                    // теперь устанавливаем новый пароль
+                    initPassword(params, initNewPassword = true)
+                        // и перешифровываем зашифрованные ветки
+                        .flatMap {
+                            reEncryptStorage(params)
+                        }.flatMap { result ->
+                            ifEitherOrFalseSuspend(result) {
+                                // сохраняем mytetra.xml
+                                saveStorage(params)
+                                    // сохраняем database.ini
+                                    .flatMap { savePassCheckData(params) }
+                            }
+                        }
                 }
             }
-
-        // и расшифровываем хранилище
-        if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
-                decryptStorageUseCase.run(
-                    DecryptStorageUseCase.Params(decryptFiles = true)
-                ).map { result ->
-                    storage.isDecrypted = result
-                    result
-                }.foldResult(
-                    onLeft = {
-                        logger.logFailure(it)
-                        false
-                    },
-                    onRight = {
-                        it
-                    }
-                )
-            }
-        ) return false.toRight()
-
-        // теперь устанавливаем новый пароль
-        taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SET, TaskStage.Stages.START)
-        initPass(storage, newPass)
-
-        // и перешифровываем зашифрованные ветки
-        if (!taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
-                cryptInteractor.reencryptStorage()
-            }
-        ) return false.toRight()
-
-        // сохраняем mytetra.xml
-        taskProgress.nextStage(LogObj.STORAGE, LogOper.SAVE) {
-            saveStorage()
-        }
-
-        // сохраняем данные в database.ini
-        taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SAVE, TaskStage.Stages.START)
-        passInteractor.savePassCheckData(newPass)
-
-        return true.toRight()
     }
 
-    private suspend fun initPass(storage: TetroidStorage, pass: String): Either<Failure, Boolean> {
-        passInteractor.initPass(storage, pass)
-        return storagesRepo.updateStorage(storage).toRight()
-    }
+    private suspend fun initPassword(params: Params, initNewPassword: Boolean): Either<Failure, None> {
+        val logObj = if (initNewPassword) LogObj.NEW_PASS else LogObj.CUR_PASS
+        params.taskProgress.nextStage(logObj, LogOper.SET, TaskStage.Stages.START)
 
-    private suspend fun saveStorage(): Boolean {
-        return withContext(Dispatchers.IO) {
-            saveStorageUseCase.run()
-        }.foldResult(
-            onLeft = {
-                logger.logFailure(it)
-                false
-            },
-            onRight = { it }
+        return initPasswordUseCase.run(
+            InitPasswordUseCase.Params(
+                storage = params.storage,
+                databaseConfig = params.databaseConfig,
+                password = params.newPassword,
+            )
         )
+    }
+
+    private suspend fun decryptStorage(params: Params) : Either<Failure, Boolean> {
+        return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
+            decryptStorageUseCase.run(
+                DecryptStorageUseCase.Params(decryptFiles = true)
+            ).map { result ->
+                params.storage.isDecrypted = result
+                result
+            }
+        }
+    }
+
+    private suspend fun reEncryptStorage(params: Params) : Either<Failure, Boolean> {
+        return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
+            cryptInteractor.reencryptStorage().toRight()
+        }
+    }
+
+    private suspend fun saveStorage(params: Params) : Either<Failure, None> {
+        return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.SAVE) {
+            saveStorageUseCase.run()
+        }
+    }
+
+    private suspend fun savePassCheckData(params: Params) : Either<Failure, Boolean> {
+        return params.taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SAVE) {
+            savePasswordCheckDataUseCase.run(
+                SavePasswordCheckDataUseCase.Params(
+                    databaseConfig = params.databaseConfig,
+                    password = params.newPassword,
+                )
+            )
+        }
     }
 
 }

@@ -30,7 +30,8 @@ import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
+import com.gee12.mytetroid.ui.activities.TetroidStorageActivity.IDownloadFileResult
+import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import java.io.File
 import java.util.*
@@ -69,6 +70,8 @@ open class StorageViewModel(
     protected val decryptStorageUseCase: DecryptStorageUseCase,
     protected val checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    protected val setupPasswordUseCase: SetupPasswordUseCase,
+    protected val initPasswordUseCase: InitPasswordUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -142,8 +145,6 @@ open class StorageViewModel(
             val callbackEvent: VMEvent,
         ) : StorageEvent()
     }
-
-    /*protected*/ lateinit var storageInteractor: StorageInteractor
 
     private var isPinNeedEnter = false
 
@@ -358,6 +359,7 @@ open class StorageViewModel(
                 initOrCreateStorageUseCase.run(
                     InitOrCreateStorageUseCase.Params(
                         storage = storage,
+                        databaseConfig = storageProvider.databaseConfig,
                     )
                 )
             }.onFailure { failure ->
@@ -371,6 +373,7 @@ open class StorageViewModel(
             }.onSuccess { result ->
                 when (result) {
                     is InitOrCreateStorageUseCase.Result.CreateStorage -> {
+                        logger.log(R.string.log_storage_created, true)
                         sendStorageEvent(StorageEvent.FilesCreated(storage))
                     }
                     is InitOrCreateStorageUseCase.Result.InitStorage -> {
@@ -509,6 +512,7 @@ open class StorageViewModel(
             val result = withIo {
                 readStorageUseCase.run(
                     ReadStorageUseCase.Params(
+                        storageProvider = storageProvider,
                         storage = storage,
                         isDecrypt = isDecrypt,
                         isFavoritesOnly = isFavoritesOnly,
@@ -527,6 +531,8 @@ open class StorageViewModel(
                 },
                 onRight = {
                     sendViewEvent(ViewEvent.TaskFinished)
+
+                    storageProvider.setStorage(storage)
 
                     val mes = getString(
                         when {
@@ -1078,15 +1084,15 @@ open class StorageViewModel(
         }
     }
 
-    fun onPasswordEntered(pass: String, isSetup: Boolean, callbackEvent: VMEvent) {
+    fun onPasswordEntered(password: String, isSetup: Boolean, callbackEvent: VMEvent) {
         if (isSetup) {
             launchOnMain {
-                setupPass(pass)
+                setupPass(password)
                 sendEventFromCallbackParam(callbackEvent)
             }
         } else {
             checkPassOnDecrypt(
-                pass = pass,
+                password = password,
                 callbackEvent = callbackEvent,
             )
         }
@@ -1111,42 +1117,62 @@ open class StorageViewModel(
         }
     }
 
-    fun startSetupPass(pass: String) {
+    fun startSetupPass(password: String) {
         launchOnMain {
-            setupPass(pass)
+            setupPass(password)
         }
     }
 
-    // TODO: SetupPasswordUseCase
-    suspend fun setupPass(pass: String) {
+    suspend fun setupPass(password: String) {
         log(R.string.log_start_pass_setup)
         sendViewEvent(ViewEvent.TaskStarted(R.string.task_pass_setting))
         isBusy = true
-        val result = withIo {
-            passInteractor.setupPass(storage!!, pass).also {
-                // сохраняем хэш пароля в бд (если установлена соответствующая опция)
-                updateStorageAsync(storage!!)
-            }
-        }
-        isBusy = false
-        sendViewEvent(ViewEvent.TaskFinished)
-        if (result) {
+
+        withIo {
+            setupPasswordUseCase.run(
+                SetupPasswordUseCase.Params(
+                    storage = storage!!,
+                    databaseConfig = storageProvider.databaseConfig,
+                    password = password,
+                )
+            )
+        }.onComplete {
+            isBusy = false
+            sendViewEvent(ViewEvent.TaskFinished)
+        }.onFailure {
+            // TODO
+            //logger.log(R.string.log_pass_set_error, true)
+            logFailure(it)
+        }.onSuccess {
+            logger.log(R.string.log_pass_setted, true)
             sendStorageEvent(StorageEvent.PassSetuped)
         }
     }
 
-    suspend fun initPass(pass: String) {
-        storage?.let {
-            passInteractor.initPass(it, pass)
-            updateStorageAsync(it)
+    private suspend fun initPassword(password: String) {
+        withIo {
+            initPasswordUseCase.run(
+                InitPasswordUseCase.Params(
+                    storage = storage!!,
+                    databaseConfig = storageProvider.databaseConfig,
+                    password = password,
+                )
+            )
+        }.onFailure {
+            // TODO
+            //logger.log(R.string.log_pass_set_error, true)
+            logFailure(it)
+        }.onSuccess {
+            //logger.log(R.string.log_pass_inited, true)
+            //sendStorageEvent(StorageEvent.PasswordInited)
         }
     }
 
-    fun checkPassOnDecrypt(pass: String, callbackEvent: VMEvent) {
+    private fun checkPassOnDecrypt(password: String, callbackEvent: VMEvent) {
         try {
-            if (passInteractor.checkPass(pass)) {
+            if (passInteractor.checkPass(password)) {
                 launchOnMain {
-                    withIo { initPass(pass) }
+                    initPassword(password)
                     sendEventFromCallbackParam(callbackEvent)
                 }
             } else {
@@ -1206,8 +1232,9 @@ open class StorageViewModel(
                 changePasswordUseCase.run(
                     ChangePasswordUseCase.Params(
                         storage = storage!!,
-                        curPass = curPass,
-                        newPass = newPass,
+                        databaseConfig = storageProvider.databaseConfig,
+                        curPassword = curPass,
+                        newPassword = newPass,
                         taskProgress = taskProgressHandler,
                     )
                 )
@@ -1286,14 +1313,17 @@ open class StorageViewModel(
 
     fun onPassLocalHashLocalParamChanged(isSaveLocal: Boolean): Boolean {
         return if (getMiddlePassHash() != null) {
+            // если пароль задан, то проверяем ПИН-код
             askPinCode(
                 specialFlag = true,
                 callbackEvent = StorageEvent.SavePassHashLocalChanged(isSaveLocal)
             )
             false
         } else {
-            // если пароль не задан, то нечего очищать, не задаем вопрос
-            true
+            launchOnMain {
+                sendStorageEvent(StorageEvent.SavePassHashLocalChanged(isSaveLocal))
+            }
+            false
         }
     }
 
@@ -1302,15 +1332,14 @@ open class StorageViewModel(
             setStage(obj, oper, stage)
         }
 
-        override suspend fun nextStage(obj: LogObj, oper: LogOper, stageExecutor: suspend () -> Boolean): Boolean {
+        override suspend fun <L,R> nextStage(obj: LogObj, oper: LogOper, executeStage: suspend () ->  Either<L,R>):  Either<L,R> {
             setStage(obj, oper, TaskStage.Stages.START)
-            return if (stageExecutor.invoke()) {
-                setStage(obj, oper, TaskStage.Stages.SUCCESS)
-                true
-            } else {
-                setStage(obj, oper, TaskStage.Stages.FAILED)
-                false
-            }
+            return executeStage()
+                .onFailure {
+                    setStage(obj, oper, TaskStage.Stages.FAILED)
+                }.onSuccess {
+                    setStage(obj, oper, TaskStage.Stages.SUCCESS)
+                }
         }
 
         private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
@@ -1476,6 +1505,18 @@ open class StorageViewModel(
     fun getRootNodes(): List<TetroidNode> = storageProvider.getRootNodes()
 
     fun getTagsMap(): Map<String,TetroidTag> = storageProvider.getTagsMap()
+
+    fun saveMiddlePassHashLocalIfCached() {
+        // сохраняем хеш локально, если пароль был введен
+        sensitiveDataProvider.getMiddlePassHashOrNull()?.let { passHash ->
+            storage?.apply {
+                isSavePassLocal = true
+                middlePassHash = passHash
+                updateStorageAsync(this)
+                log(R.string.log_pass_hash_saved_local, show = true)
+            }
+        }
+    }
 
     //endregion Getters
 

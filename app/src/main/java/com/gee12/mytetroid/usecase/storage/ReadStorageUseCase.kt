@@ -2,7 +2,7 @@ package com.gee12.mytetroid.usecase.storage
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.model.TetroidStorage
 import java.io.File
@@ -13,61 +13,59 @@ import java.io.FileInputStream
  */
 class ReadStorageUseCase(
     private val resourcesProvider: IResourcesProvider,
-    private val storageProvider: IStorageProvider,
-    private val storageDataProcessor: IStorageDataProcessor,
-    private val storagePathHelper: IStoragePathHelper,
 ) : UseCase<UseCase.None, ReadStorageUseCase.Params>() {
 
     data class Params(
+        val storageProvider: IStorageProvider,
         val storage: TetroidStorage,
         val isDecrypt: Boolean,
         val isFavoritesOnly: Boolean,
-        val isOpenLastNode: Boolean
+        val isOpenLastNode: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
+        val storageProvider = params.storageProvider
         val storage = params.storage
 
         // FIXME ?
         //storageProvider.resetStorage()
 
-        return readStorage(
-            storage = storage,
-            isDecrypt = params.isDecrypt,
-            isFavorite = params.isFavoritesOnly
-        ).flatMap {
-            storageProvider.getRootNode().name = resourcesProvider.getString(R.string.title_root_node)
-            storageProvider.setStorage(storage)
+        return readStorage(params)
+            .flatMap {
+                storageProvider.getRootNode().name = resourcesProvider.getString(R.string.title_root_node)
+                storageProvider.setStorage(storage)
 
-            None.toRight()
-        }
+                None.toRight()
+            }
     }
 
     /**
      * Загрузка хранилища из файла mytetra.xml.
      */
-    private suspend fun readStorage(storage: TetroidStorage, isDecrypt: Boolean, isFavorite: Boolean): Either<Failure, None> {
+    private suspend fun readStorage(params: Params): Either<Failure, None> {
+        val storage = params.storage
+
         return try {
-            val myTetraXmlFile = File(storagePathHelper.getPathToMyTetraXml())
+            val myTetraXmlFile = File(makePath(params.storage.path, Constants.MYTETRA_XML_FILE_NAME))
             if (!myTetraXmlFile.exists()) {
                 storage.isLoaded = false
-                return Failure.Storage.Load.XmlFileNotExist(storagePath = storage.path).toLeft()
+                return Failure.Storage.Load.XmlFileNotExist(pathToFile = myTetraXmlFile.path).toLeft()
             }
 
             @Suppress("BlockingMethodInNonBlockingContext")
             val fis = FileInputStream(myTetraXmlFile)
             // непосредственная обработка xml файла со структурой хранилища
-            storageDataProcessor.parse(
+            params.storageProvider.dataProcessor.parse(
                 fis = fis,
-                isNeedDecrypt = isDecrypt,
-                isLoadFavoritesOnly = isFavorite
+                isNeedDecrypt = params.isDecrypt,
+                isLoadFavoritesOnly = params.isFavoritesOnly
             )
             storage.isLoaded = true
 
             None.toRight()
         } catch (ex: Exception) {
             storage.isLoaded = false
-            Failure.Storage.Load.ReadXmlFile(storagePath = storage.path, ex).toLeft()
+            Failure.Storage.Load.ReadXmlFile(pathToFile = storage.path, ex).toLeft()
         }
     }
 

@@ -35,7 +35,8 @@ import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.ui.activities.TetroidActivity.IDownloadFileResult
+import com.gee12.mytetroid.ui.activities.TetroidStorageActivity.IDownloadFileResult
+import com.gee12.mytetroid.usecase.crypt.*
 import kotlinx.coroutines.*
 import java.lang.Exception
 import java.util.ArrayList
@@ -80,6 +81,8 @@ class MainViewModel(
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    setupPasswordUseCase : SetupPasswordUseCase,
+    initPasswordUseCase : InitPasswordUseCase,
 ): StorageViewModel(
     app,
     resourcesProvider,
@@ -114,6 +117,8 @@ class MainViewModel(
     decryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase,
+    setupPasswordUseCase,
+    initPasswordUseCase,
 ) {
 
     sealed class MainEvent : VMEvent() {

@@ -11,21 +11,34 @@ sealed class Failure(val ex: Throwable? = null) {
     class UnknownError(ex: Throwable? = null) : Failure(ex)
 
     sealed class Storage(ex: Throwable? = null) : Failure(ex) {
-        class Create(val storageName: String, ex: Throwable? = null) : Storage(ex)
+        sealed class Create(ex: Throwable? = null) : Storage(ex) {
+            class FilesError(val pathToFolder: String, ex: Throwable) : Create(ex)
+            class FolderNotEmpty(val pathToFolder: String) : Create()
+            class FolderIsMissing(val pathToFolder: String) : Create()
+            class BaseFolder(val pathToFolder: String) : Create()
+        }
         class Init(val storagePath: String, ex: Throwable?) : Storage(ex)
 
         sealed class Load(ex: Throwable? = null) : Storage(ex) {
-            class ReadXmlFile(val storagePath: String, ex: Throwable?) : Load(ex)
-            data class XmlFileNotExist(val storagePath: String) : Load()
+            class ReadXmlFile(val pathToFile: String, ex: Throwable?) : Load(ex)
+            data class XmlFileNotExist(val pathToFile: String) : Load()
         }
         sealed class Save(ex: Throwable? = null) : Storage(ex) {
-            class SaveXmlFile(val storagePath: String, ex: Throwable? = null) : Save(ex)
-            object RemoveOldXmlFile : Save()
-            object RenameXmlFileFromTempName : Save()
+            object UpdateInBase : Save()
+            class PassCheckData(ex: Throwable) : Save(ex)
+            class SaveXmlFile(val pathToFile: String, ex: Throwable? = null) : Save(ex)
+            data class RemoveOldXmlFile(
+                val pathToFile: String,
+            ) : Save()
+            data class RenameXmlFileFromTempName(
+                val from: String,
+                val to: String,
+            ) : Save()
         }
 
         sealed class DatabaseConfig(ex: Throwable? = null) : Storage(ex) {
-            class Load(val storagePath: String, ex: Throwable? = null) : DatabaseConfig(ex)
+            class Load(val pathToFile: String, ex: Throwable? = null) : DatabaseConfig(ex)
+            class Save(val pathToFile: String, ex: Throwable? = null) : DatabaseConfig(ex)
         }
 
     }
@@ -50,11 +63,11 @@ sealed class Failure(val ex: Throwable? = null) {
     }
 
     sealed class Encrypt(ex: Throwable? = null) : Failure(ex) {
-        class File(ex: Throwable? = null) : Encrypt(ex)
+        class File(val fileName: String, ex: Throwable? = null) : Encrypt(ex)
     }
 
     sealed class Decrypt(ex: Throwable? = null) : Failure(ex) {
-        class File(ex: Throwable? = null) : Decrypt(ex)
+        class File(val fileName: String, ex: Throwable? = null) : Decrypt(ex)
     }
 
     sealed class File(val path: String, ex: Throwable? = null) : Failure(ex) {

@@ -24,6 +24,10 @@ open class INIConfig(
         this.fileName = fileName
     }
 
+    fun getFileName() : String? {
+        return fileName
+    }
+
     /**
      * Загрузка параметров из файла.
      * @return
