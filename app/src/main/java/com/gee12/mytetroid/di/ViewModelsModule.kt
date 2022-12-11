@@ -1,39 +1,59 @@
 package com.gee12.mytetroid.di
 
+import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.helpers.StorageProvider
 import com.gee12.mytetroid.viewmodels.*
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.qualifier.named
+import org.koin.core.scope.ScopeID
 import org.koin.dsl.module
 
 object ViewModelsModule {
     val viewModelsModule = module {
 
-        viewModel {
+        factory { ScopeContainer() }
+
+//        scope<DependencyScope> {
+//            scoped(/*qualifier = named("scopedContainer")*/) {
+//                StorageProvider(
+//                    logger = get(),
+//                    crypter = get(),
+//                    dataProcessor = get(),
+//                )
+//            }
+//        }
+
+//        factory { (scopeId: ScopeID, name: String) ->
+//            Environment(getScope(scopeId).get(qualifier = named(name)))
+//        }
+
+        viewModel { //(scopeId: ScopeID, name: String) ->
             StorageViewModel(
                 app = androidApplication(),
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
                 failureHandler = get(),
+
                 commonSettingsProvider = get(),
-                appBuildHelper = get(),
+                buildInfoProvider = get(),
                 storageProvider = get(),
-                favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
-                passInteractor = get(),
-                storageCrypter = get(),
-                cryptInteractor = get(),
-                recordsInteractor = get(),
-                nodesInteractor = get(),
-                tagsInteractor = get(),
-                attachesInteractor = get(),
+                storagePathProvider = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+
                 storagesRepo = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                dataInteractor = get(),
+                storageCrypter = /*getScope(scopeId).*/get(),
+
+                passInteractor = get(),
+                favoritesInteractor = get(),
+                tagsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
+
                 initAppUseCase = get(),
                 initOrCreateStorageUseCase = get(),
                 readStorageUseCase = get(),
@@ -45,6 +65,11 @@ object ViewModelsModule {
                 checkStorageFilesExistingUseCase = get(),
                 setupPasswordUseCase = get(),
                 initPasswordUseCase = get(),
+
+                getFileModifiedDateUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getNodeByIdUseCase = get(),
+                getRecordByIdUseCase = get(),
             )
         }
 
@@ -54,42 +79,64 @@ object ViewModelsModule {
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
-                appBuildHelper = get(),
+                buildInfoProvider = get(),
                 failureHandler = get(),
+
                 commonSettingsProvider = get(),
                 storageProvider = get(),
-                favoritesInteractor = get(),
+                storagePathProvider = get(),
                 sensitiveDataProvider = get(),
-                passInteractor = get(),
-                storageCrypter = get(),
-                cryptInteractor = get(),
-                recordsInteractor = get(),
-                nodesInteractor = get(),
-                tagsInteractor = get(),
-                attachesInteractor = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+
                 storagesRepo = get(),
-                storageDataProcessor = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                dataInteractor = get(),
+                storageCrypter = get(),
+
+                favoritesInteractor = get(),
+                passInteractor = get(),
+                tagsInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
                 migrationInteractor = get(),
                 storageTreeInteractor = get(),
+
                 initAppUseCase = get(),
                 initOrCreateStorageUseCase = get(),
                 readStorageUseCase = get(),
-                createNodeUseCase = get(),
                 saveStorageUseCase = get(),
                 checkStoragePasswordUseCase = get(),
                 changePasswordUseCase = get(),
-                insertNodeUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
                 setupPasswordUseCase = get(),
                 initPasswordUseCase = get(),
+
+                getFileModifiedDateUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getNodeByIdUseCase = get(),
+                getRecordByIdUseCase = get(),
+
+                globalSearchUseCase = get(),
+                createNodeUseCase = get(),
+                insertNodeUseCase = get(),
+                deleteNodeUseCase = get(),
+                editNodeFieldsUseCase = get(),
+                loadNodeIconUseCase = get(),
+                setNodeIconUseCase = get(),
+
+                insertRecordUseCase = get(),
+                createRecordUseCase = get(),
+                createTempRecordUseCase = get(),
+                editRecordFieldsUseCase = get(),
+                cutOrDeleteRecordUseCase = get(),
+
+                getFileFromAttachUseCase = get(),
+                createAttachToRecordUseCase = get(),
+                deleteAttachUseCase = get(),
+                editAttachFieldsUseCase = get(),
+                saveAttachUseCase = get(),
             )
         }
 
@@ -99,27 +146,26 @@ object ViewModelsModule {
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
-                appBuildHelper = get(),
                 failureHandler = get(),
+
+                buildInfoProvider = get(),
                 commonSettingsProvider = get(),
                 storageProvider = get(),
-                favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
-                passInteractor = get(),
-                storageCrypter = get(),
-                cryptInteractor = get(),
-                recordsInteractor = get(),
-                nodesInteractor = get(),
-                tagsInteractor = get(),
-                attachesInteractor = get(),
+                storagePathProvider = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+
                 storagesRepo = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                dataInteractor = get(),
+                storageCrypter = get(),
+
+                passInteractor = get(),
+                tagsInteractor = get(),
+                favoritesInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
-                imagesInteractor = get(),
+
                 initAppUseCase = get(),
                 initOrCreateStorageUseCase = get(),
                 readStorageUseCase = get(),
@@ -131,48 +177,64 @@ object ViewModelsModule {
                 checkStorageFilesExistingUseCase = get(),
                 setupPasswordUseCase = get(),
                 initPasswordUseCase = get(),
+
+                getFileModifiedDateUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getNodeByIdUseCase = get(),
+                getRecordByIdUseCase = get(),
+
+                createTempRecordUseCase = get(),
+                getRecordHtmlTextDecryptedUseCase = get(),
+                saveRecordHtmlTextUseCase = get(),
+                createAttachToRecordUseCase = get(),
+                saveImageFromUriUseCase = get(),
+                saveImageFromBitmapUseCase = get(),
+                editRecordFieldsUseCase = get(),
             )
         }
 
-        viewModel {
+        viewModel { (storageProvider: IStorageProvider) ->
             StorageInfoViewModel(
                 app = androidApplication(),
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
-                appBuildHelper = get(),
                 failureHandler = get(),
+
+                buildInfoProvider = get(),
                 commonSettingsProvider = get(),
-                currentStorageProvider = get(),
-                favoritesInteractor = get(),
+                storageProvider = storageProvider,
                 sensitiveDataProvider = get(),
-                passInteractor = get(),
-                storageCrypter = get(),
-                cryptInteractor = get(),
-                recordsInteractor = get(),
-                nodesInteractor = get(),
-                tagsInteractor = get(),
-                attachesInteractor = get(),
+                storagePathProvider = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+
                 storagesRepo = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                dataInteractor = get(),
+                storageCrypter = get(),
+
+                passInteractor = get(),
+                tagsInteractor = get(),
+                favoritesInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
+
                 initAppUseCase = get(),
                 initOrCreateStorageUseCase = get(),
                 readStorageUseCase = get(),
                 saveStorageUseCase = get(),
                 checkStoragePasswordUseCase = get(),
                 changePasswordUseCase = get(),
-                getFolderSizeUseCase = get(),
-                getFileModifiedDateUseCase = get(),
                 decryptStorageUseCase = get(),
                 checkStoragePasswordAndDecryptUseCase = get(),
                 checkStorageFilesExistingUseCase = get(),
                 setupPasswordUseCase = get(),
                 initPasswordUseCase = get(),
+
+                getFileModifiedDateUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getNodeByIdUseCase = get(),
+                getRecordByIdUseCase = get(),
             )
         }
 
@@ -183,25 +245,25 @@ object ViewModelsModule {
                 logger = get(),
                 notificator = get(),
                 failureHandler = get(),
+
+                buildInfoProvider = get(),
                 commonSettingsProvider = get(),
-                appBuildHelper = get(),
                 storageProvider = get(),
-                favoritesInteractor = get(),
                 sensitiveDataProvider = get(),
-                passInteractor = get(),
-                storageCrypter = get(),
-                cryptInteractor = get(),
-                recordsInteractor = get(),
-                nodesInteractor = get(),
-                tagsInteractor = get(),
-                attachesInteractor = get(),
+                storagePathProvider = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+
                 storagesRepo = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                dataInteractor = get(),
+                storageCrypter = get(),
+
+                passInteractor = get(),
+                tagsInteractor = get(),
+                favoritesInteractor = get(),
                 interactionInteractor = get(),
                 syncInteractor = get(),
                 trashInteractor = get(),
+
                 initAppUseCase = get(),
                 initOrCreateStorageUseCase = get(),
                 readStorageUseCase = get(),
@@ -213,6 +275,11 @@ object ViewModelsModule {
                 checkStorageFilesExistingUseCase = get(),
                 setupPasswordUseCase = get(),
                 initPasswordUseCase = get(),
+
+                getFileModifiedDateUseCase = get(),
+                getFolderSizeUseCase = get(),
+                getNodeByIdUseCase = get(),
+                getRecordByIdUseCase = get(),
             )
         }
 
@@ -222,7 +289,7 @@ object ViewModelsModule {
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
-                appBuildHelper = get(),
+                buildInfoProvider = get(),
                 failureHandler = get(),
                 commonSettingsProvider = get(),
             )
@@ -234,12 +301,16 @@ object ViewModelsModule {
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
-                appBuildHelper = get(),
                 failureHandler = get(),
+
+                buildInfoProvider = get(),
                 commonSettingsProvider = get(),
                 storageProvider = get(),
+
                 storagesInteractor = get(),
+
                 checkStorageFilesExistingUseCase = get(),
+                initStorageFromDefaultSettingsUseCase = get(),
             )
         }
 
@@ -251,7 +322,7 @@ object ViewModelsModule {
                 notificator = get(),
                 failureHandler = get(),
                 commonSettingsProvider = get(),
-                storagePathHelper = get(),
+                storagePathProvider = get(),
                 getIconsFoldersUseCase = get(),
                 getIconsFromFolderUseCase = get(),
             )

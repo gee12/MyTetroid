@@ -28,7 +28,7 @@ class AppKoin : MultiDexApplication() {
                 InteractorsModule.interactorsModule,
                 ViewModelsModule.viewModelsModule,
                 ManagersModule.managersModule,
-                HelpersModule.helpersModule,
+                StorageModule.helpersModule,
             )
         }
 

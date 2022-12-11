@@ -1,15 +1,25 @@
 package com.gee12.mytetroid.di
 
 import com.gee12.mytetroid.interactors.*
+import com.gee12.mytetroid.providers.DataNameProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.usecase.*
-import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
+import com.gee12.mytetroid.usecase.attach.*
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
 import com.gee12.mytetroid.usecase.crypt.DecryptStorageUseCase
+import com.gee12.mytetroid.usecase.file.MoveFileUseCase
+import com.gee12.mytetroid.usecase.node.DeleteNodeUseCase
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFoldersUseCase
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFromFolderUseCase
-import com.gee12.mytetroid.usecase.record.CloneRecordToNodeUseCase
+import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.node.icon.SetNodeIconUseCase
+import com.gee12.mytetroid.usecase.record.*
+import com.gee12.mytetroid.usecase.record.image.SaveImageFromBitmapUseCase
+import com.gee12.mytetroid.usecase.record.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.usecase.storage.*
 import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
@@ -19,11 +29,8 @@ import org.koin.dsl.module
 object InteractorsModule {
     val interactorsModule = module {
 
-        single {
-            DataInteractor(
-                resourcesProvider = get(),
-                logger = get()
-            )
+        single<IDataNameProvider> {
+            DataNameProvider()
         }
 
         single {
@@ -42,7 +49,6 @@ object InteractorsModule {
 
         single {
             StoragesInteractor(
-                context = androidApplication(),
                 storagesRepo = get()
             )
         }
@@ -71,85 +77,18 @@ object InteractorsModule {
         single {
             MigrationInteractor(
                 logger = get(),
-                appBuildHelper = get(),
+                buildInfoProvider = get(),
                 commonSettingsProvider = get(),
                 storagesInteractor = get(),
                 favoritesInteractor = get(),
-            )
-        }
-
-        single {
-            ImagesInteractor(
-                resourcesProvider = get(),
-                logger = get(),
-                dataInteractor = get(),
-                recordsInteractor = get(),
-                recordPathHelper = get(),
-            )
-        }
-
-        single {
-            EncryptionInteractor(
-                logger = get(),
-                crypter = get(),
-                storageDataProcessor = get(),
-                loadNodeIconUseCase = get(),
-                cryptRecordFilesUseCase = get(),
-            )
-        }
-
-        single {
-            AttachesInteractor(
-                resourcesProvider = get(),
-                logger = get(),
-                cryptInteractor = get(),
-                dataInteractor = get(),
-                interactionInteractor = get(),
-                recordsInteractor = get(),
-                recordPathHelper = get(),
-                saveStorageUseCase = get(),
+                initStorageFromDefaultSettingsUseCase = get(),
             )
         }
 
         single {
             FavoritesInteractor(
                 favoritesRepo = get(),
-            )
-        }
-
-        single {
-            NodesInteractor(
-                logger = get(),
-                resourcesProvider = get(),
-                cryptInteractor = get(),
-                dataInteractor = get(),
-                recordsInteractor = get(),
-                favoritesInteractor = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
                 storageProvider = get(),
-                deleteRecordTagsUseCase = get(),
-                loadNodeIconUseCase = get(),
-                saveStorageUseCase = get(),
-            )
-        }
-
-        single {
-            RecordsInteractor(
-                resourcesProvider = get(),
-                logger = get(),
-                appBuildHelper = get(),
-                storagePathHelper = get(),
-                recordPathHelper = get(),
-                storageDataProcessor = get(),
-                cryptInteractor = get(),
-                dataInteractor = get(),
-                interactionInteractor = get(),
-                favoritesInteractor = get(),
-                parseRecordTagsUseCase = get(),
-                deleteRecordTagsUseCase = get(),
-                cloneAttachesToRecordUseCase = get(),
-                saveStorageUseCase = get(),
             )
         }
 
@@ -164,8 +103,7 @@ object InteractorsModule {
         single {
             PasswordInteractor(
                 storageProvider = get(),
-                cryptInteractor = get(),
-                nodesInteractor = get(),
+                crypter = get(),
                 sensitiveDataProvider = get(),
             )
         }
@@ -180,38 +118,23 @@ object InteractorsModule {
             GetFileModifiedDateUseCase()
         }
 
+//        single {
+//            GenerateDateTimeFilePrefixUseCase()
+//        }
+
+        single {
+            MoveFileUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+            )
+        }
+
         single {
             InitAppUseCase(
                 context = androidApplication(),
                 resourcesProvider = get(),
                 logger = get(),
                 commonSettingsProvider = get(),
-            )
-        }
-
-        single {
-            LoadNodeIconUseCase(
-                logger = get(),
-                storagePathHelper = get(),
-            )
-        }
-
-        single {
-            CryptRecordFilesUseCase(
-                logger = get(),
-                resourcesProvider = get(),
-                recordPathHelper = get(),
-                encryptOrDecryptFileUseCase = get(),
-            )
-        }
-
-        single {
-            ParseRecordTagsUseCase()
-        }
-
-        single {
-            DeleteRecordTagsUseCase(
-                tagsInteractor = get(),
             )
         }
 
@@ -254,18 +177,28 @@ object InteractorsModule {
             SaveStorageUseCase(
                 resourcesProvider = get(),
                 logger = get(),
-                storagePathHelper = get(),
+                dataNameProvider = get(),
+                storagePathProvider = get(),
                 storageDataProcessor = get(),
-                dataInteractor = get(),
                 storageTreeInteractor = get(),
+                moveFileUseCase = get(),
             )
         }
 
         single {
+            InitStorageFromDefaultSettingsUseCase(
+                context = androidApplication()
+            )
+        }
+
+        //region Node
+
+        single {
             CreateNodeUseCase(
                 logger = get(),
-                dataInteractor = get(),
-                cryptInteractor = get(),
+                dataNameProvider = get(),
+                storageProvider = get(),
+                crypter = get(),
                 saveStorageUseCase = get(),
             )
         }
@@ -273,13 +206,44 @@ object InteractorsModule {
         single {
             InsertNodeUseCase(
                 logger = get(),
-                dataInteractor = get(),
+                dataNameProvider = get(),
                 loadNodeIconUseCase = get(),
-                cryptInteractor = get(),
+                crypter = get(),
                 saveStorageUseCase = get(),
                 cloneRecordToNodeUseCase = get(),
             )
         }
+
+        single {
+            LoadNodeIconUseCase(
+                logger = get(),
+                storagePathProvider = get(),
+            )
+        }
+
+        single {
+            SetNodeIconUseCase(
+                logger = get(),
+                crypter = get(),
+                loadNodeIconUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            DeleteNodeUseCase(
+                logger = get(),
+                favoritesInteractor = get(),
+                deleteRecordTagsUseCase = get(),
+                checkRecordFolderUseCase = get(),
+                moveOrDeleteRecordFolder = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        //endregion Node
+
+        //region Node icon
 
         single {
             GetIconsFoldersUseCase()
@@ -289,32 +253,223 @@ object InteractorsModule {
             GetIconsFromFolderUseCase()
         }
 
+        //region Node icon
+
+        //region Record
+
+        factory {
+            CutOrDeleteRecordUseCase(
+                logger = get(),
+                recordPathProvider = get(),
+                favoritesInteractor = get(),
+                checkRecordFolderUseCase = get(),
+                deleteRecordTagsUseCase = get(),
+                moveOrDeleteRecordFolderUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            CryptRecordFilesUseCase(
+                logger = get(),
+                resourcesProvider = get(),
+                recordPathProvider = get(),
+                encryptOrDecryptFileUseCase = get(),
+            )
+        }
+
+        single {
+            ParseRecordTagsUseCase(
+                storageProvider = get(),
+            )
+        }
+
+        single {
+            DeleteRecordTagsUseCase(
+                storageProvider = get(),
+                tagsInteractor = get(),
+            )
+        }
+
         single {
             CloneRecordToNodeUseCase(
                 resourcesProvider = get(),
                 logger = get(),
-                recordsInteractor = get(),
                 favoritesInteractor = get(),
-                dataInteractor = get(),
-                recordPathHelper = get(),
-                storagePathHelper = get(),
-                cryptInteractor = get(),
+                dataNameProvider = get(),
+                recordPathProvider = get(),
+                storagePathProvider = get(),
+                crypter = get(),
+                checkRecordFolderUseCase = get(),
                 cloneAttachesToRecordUseCase = get(),
                 parseRecordTagsUseCase = get(),
+                cryptRecordFilesUseCase = get(),
+                renameRecordAttachesUseCase = get(),
+                moveFileUseCase = get(),
+            )
+        }
+
+        single {
+            CheckRecordFolderUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+            )
+        }
+
+        single {
+            InsertRecordUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                storagePathProvider = get(),
+                recordPathProvider = get(),
+                dataNameProvider = get(),
+                crypter = get(),
+                favoritesInteractor = get(),
+                checkRecordFolderUseCase = get(),
+                cloneAttachesToRecordUseCase = get(),
+                renameRecordAttachesUseCase = get(),
+                moveFileUseCase = get(),
+                parseRecordTagsUseCase = get(),
+                cryptRecordFilesUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            CreateRecordUseCase(
+                logger = get(),
+                dataNameProvider = get(),
+                recordPathProvider = get(),
+                crypter = get(),
+                favoritesInteractor = get(),
+                checkRecordFolderUseCase = get(),
+                parseRecordTagsUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            GetRecordHtmlTextUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                checkRecordFolderUseCase = get(),
+            )
+        }
+
+        single {
+            GetRecordParsedTextUseCase(
+                getRecordHtmlTextDecryptedUseCase = get(),
+            )
+        }
+
+        single {
+            SaveRecordHtmlTextUseCase(
+                recordPathProvider = get(),
+                crypter = get(),
+                checkRecordFolderUseCase = get(),
+            )
+        }
+
+        single {
+            MoveOrDeleteRecordFolderUseCase(
+                logger = get(),
+                moveFileUseCase = get(),
+//                generateDateTimeFilePrefixUseCase = get(),
+                dataNameProvider = get(),
+            )
+        }
+
+        //endregion Record
+
+        //region Attach
+
+        single {
+            CreateAttachToRecordUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                dataNameProvider = get(),
+                recordPathProvider = get(),
+                crypter = get(),
+                checkRecordFolderUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            SaveAttachUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                recordPathProvider = get(),
+                crypter = get(),
             )
         }
 
         single {
             CloneAttachesToRecordUseCase(
-                dataInteractor = get(),
-                cryptInteractor = get(),
+                dataNameProvider = get(),
+                crypter = get(),
             )
         }
 
         single {
+            EditAttachFieldsUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                recordPathProvider = get(),
+                crypter = get(),
+                checkRecordFolderUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        single {
+            RenameRecordAttachesUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                recordPathProvider = get(),
+            )
+        }
+
+        single {
+            DeleteAttachUseCase(
+                logger = get(),
+                recordPathProvider = get(),
+                checkRecordFolderUseCase = get(),
+                saveStorageUseCase = get(),
+            )
+        }
+
+        //endregion Attach
+
+        //region Image
+
+        single {
+            SaveImageFromUriUseCase(
+                context = androidApplication(),
+                resourcesProvider = get(),
+                logger = get(),
+                dataNameProvider = get(),
+                recordPathProvider = get(),
+                checkRecordFolderUseCase = get(),
+            )
+        }
+
+        single {
+            SaveImageFromBitmapUseCase(
+                resourcesProvider = get(),
+                logger = get(),
+                dataNameProvider = get(),
+                recordPathProvider = get(),
+                checkRecordFolderUseCase = get(),
+            )
+        }
+
+        //endregion Image
+
+        single {
             CheckStoragePasswordAndAskUseCase(
                 logger = get(),
-                cryptInteractor = get(),
+                crypter = get(),
                 passInteractor = get(),
                 sensitiveDataProvider = get(),
             )
@@ -322,7 +477,8 @@ object InteractorsModule {
 
         single {
             ChangePasswordUseCase(
-                cryptInteractor = get(),
+                storageProvider = get(),
+                crypter = get(),
                 saveStorageUseCase = get(),
                 decryptStorageUseCase = get(),
                 initPasswordUseCase = get(),
@@ -340,7 +496,7 @@ object InteractorsModule {
         single {
             InitPasswordUseCase(
                 storagesRepo = get(),
-                cryptInteractor = get(),
+                crypter = get(),
                 sensitiveDataProvider = get(),
             )
         }
@@ -363,7 +519,7 @@ object InteractorsModule {
                 logger = get(),
                 sensitiveDataProvider = get(),
                 commonSettingsProvider = get(),
-                cryptInteractor = get(),
+                crypter = get(),
                 passInteractor = get(),
             )
         }
@@ -371,6 +527,14 @@ object InteractorsModule {
         single {
             EncryptOrDecryptFileUseCase(
                 crypter = get(),
+            )
+        }
+
+        single {
+            GlobalSearchUseCase(
+                logger = get(),
+                getNodeByIdUseCase = get(),
+                getRecordParsedTextUseCase = get(),
             )
         }
 
