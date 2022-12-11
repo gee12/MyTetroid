@@ -4,13 +4,14 @@ import android.util.Xml
 import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.FavoritesInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jdom2.output.XMLOutputter
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.providers.IStorageInfoProvider
+import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import org.jdom2.DocType
 import org.jdom2.Document
@@ -46,7 +47,7 @@ interface IStorageDataProcessor : IStorageInfoProvider {
  */
 open class StorageDataXmlProcessor(
     private val logger: ITetroidLogger,
-    private val encryptHelper: IEncryptHelper,
+    private val encryptHelper: IStorageCrypter,
     private val favoritesInteractor: FavoritesInteractor,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
@@ -771,7 +772,7 @@ open class StorageDataXmlProcessor(
             ParseRecordTagsUseCase.Params(
                 record = record,
                 tagsString = record.tagsString,
-                tagsMap = tagsMap,
+//                tagsMap = tagsMap,
             )
         ).onFailure {
             logger.logFailure(it, show = false)

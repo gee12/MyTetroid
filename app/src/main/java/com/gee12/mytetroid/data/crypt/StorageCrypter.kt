@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.data.crypt
 
 import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidFile
@@ -11,12 +10,11 @@ import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import org.jsoup.internal.StringUtil
 import java.io.File
 
-interface IEncryptHelper {
+interface IStorageCrypter {
 
-    var storageDataProcessor: IStorageDataProcessor
-
-    fun initFromPass(pass: String)
-    fun initFromMiddleHash(passHash: String)
+//    fun init(storageProvider: StorageProvider)
+    fun setKeyFromPassword(pass: String)
+    fun setKeyFromMiddleHash(passHash: String)
 
     /**
      * Зашифровка веток.
@@ -32,7 +30,7 @@ interface IEncryptHelper {
      * @param isReencrypt
      * @return
      */
-    suspend fun encryptNode(node: TetroidNode?, isReencrypt: Boolean): Boolean
+    suspend fun encryptNode(node: TetroidNode, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей ветки.
@@ -93,7 +91,7 @@ interface IEncryptHelper {
      * @return
      */
     suspend fun decryptNode(
-        node: TetroidNode?,
+        node: TetroidNode,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
         loadIconCallback: suspend (TetroidNode) -> Unit,
@@ -122,7 +120,7 @@ interface IEncryptHelper {
     ): Boolean
 
     suspend fun decryptRecordAndFiles(
-        record: TetroidRecord?,
+        record: TetroidRecord,
         dropCrypt: Boolean,
         decryptFiles: Boolean
     ): Boolean
@@ -133,7 +131,10 @@ interface IEncryptHelper {
      * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      * @return
      */
-    suspend fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean
+    suspend fun decryptRecordFields(
+        record: TetroidRecord,
+        dropCrypt: Boolean
+    ): Boolean
 
     /**
      * Расшифровка полей прикрепленного файла.
@@ -143,9 +144,9 @@ interface IEncryptHelper {
      */
     fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean
 
-    fun decryptBase64(field: String?): String?
+    fun decryptTextBase64(field: String): String?
 
-    fun encryptTextBase64(field: String?): String?
+    fun encryptTextBase64(field: String): String?
 
     fun decryptText(bytes: ByteArray): String
 
@@ -164,24 +165,28 @@ interface IEncryptHelper {
     fun getErrorCode(): Int
 }
 
-class EncryptHelper(
+class StorageCrypter(
     private val logger: ITetroidLogger,
+//    private val storageProvider: IStorageProvider,
     private val crypter: Crypter,
     private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
-) : IEncryptHelper {
+) : IStorageCrypter {
 
-    // TODO: koin: исправить циклическую зависимость
-    override lateinit var storageDataProcessor: IStorageDataProcessor
+//    private val tagsMap: HashMap<String, TetroidTag>
 
-    override fun initFromPass(pass: String) {
+//    override fun init(storageProvider: StorageProvider) {
+//
+//    }
+
+    override fun setKeyFromPassword(pass: String) {
         val key = crypter.passToKey(pass)
         // записываем в память
         crypter.setCryptKey(key)
         init(key)
     }
 
-    override fun initFromMiddleHash(passHash: String) {
+    override fun setKeyFromMiddleHash(passHash: String) {
         val key = crypter.middlePassHashToKey(passHash)
         init(key)
     }
@@ -211,7 +216,7 @@ class EncryptHelper(
      * @param isReencrypt
      * @return
      */
-    override suspend fun encryptNode(node: TetroidNode?, isReencrypt: Boolean): Boolean {
+    override suspend fun encryptNode(node: TetroidNode, isReencrypt: Boolean): Boolean {
         if (node == null) return false
         var res = true
         if (!isReencrypt && !node.isCrypted || isReencrypt && node.isCrypted && node.isDecrypted) {
@@ -406,7 +411,7 @@ class EncryptHelper(
      * @return
      */
     override suspend fun decryptNode(
-        node: TetroidNode?,
+        node: TetroidNode,
         isDecryptSubNodes: Boolean,
         isDecryptRecords: Boolean,
         loadIconCallback: suspend (TetroidNode) -> Unit,
@@ -453,7 +458,7 @@ class EncryptHelper(
     override fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean {
         var res: Boolean
         // name
-        var temp = decryptBase64(node.getName(true))
+        var temp = decryptTextBase64(node.getName(true))
         res = temp != null
         if (res) {
             if (dropCrypt) {
@@ -462,7 +467,7 @@ class EncryptHelper(
             } else node.setDecryptedName(temp)
         }
         // icon
-        temp = decryptBase64(node.getIconName(true))
+        temp = decryptTextBase64(node.getIconName(true))
         res = res and (temp != null)
         if (temp != null) {
             if (dropCrypt) {
@@ -492,7 +497,7 @@ class EncryptHelper(
         return res
     }
 
-    override suspend fun decryptRecordAndFiles(record: TetroidRecord?, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordAndFiles(record: TetroidRecord, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         if (record == null) return false
 
         var res = decryptRecordFields(record, dropCrypt)
@@ -518,7 +523,7 @@ class EncryptHelper(
      */
     override suspend fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean {
         var res: Boolean
-        var temp = decryptBase64(record.getName(true))
+        var temp = decryptTextBase64(record.getName(true))
         res = temp != null
         if (res) {
             if (dropCrypt) {
@@ -528,7 +533,7 @@ class EncryptHelper(
                 record.setDecryptedName(temp)
             }
         }
-        temp = decryptBase64(record.getTagsString(true))
+        temp = decryptTextBase64(record.getTagsString(true))
         res = res and (temp != null)
         if (temp != null) {
             if (dropCrypt) {
@@ -541,13 +546,13 @@ class EncryptHelper(
                 ParseRecordTagsUseCase.Params(
                     record = record,
                     tagsString = temp,
-                    tagsMap = storageDataProcessor.getTagsMap(),
+//                    tagsMap = storageProvider.getTagsMap(),
                 )
             ).onFailure {
                 logger.logFailure(it, show = false)
             }
         }
-        temp = decryptBase64(record.getAuthor(true))
+        temp = decryptTextBase64(record.getAuthor(true))
         res = res and (temp != null)
         if (temp != null) {
             if (dropCrypt) {
@@ -555,7 +560,7 @@ class EncryptHelper(
                 record.setDecryptedAuthor(null)
             } else record.setDecryptedAuthor(temp)
         }
-        temp = decryptBase64(record.getUrl(true))
+        temp = decryptTextBase64(record.getUrl(true))
         res = res and (temp != null)
         if (temp != null) {
             if (dropCrypt) {
@@ -577,7 +582,7 @@ class EncryptHelper(
      * @return
      */
     override fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean {
-        val temp = decryptBase64(file.getName(true))
+        val temp = decryptTextBase64(file.getName(true))
         val res = temp != null
         if (res) {
             if (dropCrypt) {
@@ -592,11 +597,11 @@ class EncryptHelper(
         return res
     }
 
-    override fun decryptBase64(field: String?): String? {
+    override fun decryptTextBase64(field: String): String? {
         return crypter.decryptBase64(field)
     }
 
-    override fun encryptTextBase64(field: String?): String? {
+    override fun encryptTextBase64(field: String): String? {
         return crypter.encryptTextBase64(field)
     }
 
@@ -616,6 +621,8 @@ class EncryptHelper(
         return cryptRecordFilesUseCase.run(
             CryptRecordFilesUseCase.Params(
                 record = record,
+                // TODO: это по идее уйдет
+//                pathToRecordFolder = storageProvider.recordPathProvider.getPathToRecordFolder(record),
                 isCrypted = isCrypted,
                 isEncrypt = isEncrypt,
             )

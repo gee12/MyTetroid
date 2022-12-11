@@ -11,7 +11,7 @@ import com.gee12.mytetroid.model.TetroidObject
 
 class TetroidLogger(
     failureHandler: IFailureHandler,
-    private val localeHelper: ILocaleHelper,
+    private val localeHelper: ILocaleProvider,
     private val resourcesProvider: IResourcesProvider,
     private val notificator: INotificator,
 ) : FileTetroidLogger(

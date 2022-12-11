@@ -208,11 +208,11 @@ fun <T> runBeforeLeft(items: List<() -> Either<Failure, T>>): Either<Failure, Bo
     }
 }
 
-suspend fun ifEitherOrTrueSuspend(value: Boolean, block: suspend () -> Either<Failure, Boolean>): Either<Failure, Boolean> {
+suspend fun ifEitherOrNoneSuspend(value: Boolean, block: suspend () -> Either<Failure, UseCase.None>): Either<Failure, UseCase.None> {
     return if (value) {
-        block()
+        block().map { UseCase.None }
     } else {
-        true.toRight()
+        UseCase.None.toRight()
     }
 }
 
