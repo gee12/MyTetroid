@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.common
 
+
 sealed class Failure(val ex: Throwable? = null) {
 
     data class ArgumentIsEmpty(
@@ -27,9 +28,6 @@ sealed class Failure(val ex: Throwable? = null) {
             object UpdateInBase : Save()
             class PassCheckData(ex: Throwable) : Save(ex)
             class SaveXmlFile(val pathToFile: String, ex: Throwable? = null) : Save(ex)
-            data class RemoveOldXmlFile(
-                val pathToFile: String,
-            ) : Save()
             data class RenameXmlFileFromTempName(
                 val from: String,
                 val to: String,
@@ -44,19 +42,37 @@ sealed class Failure(val ex: Throwable? = null) {
     }
 
     sealed class Node(ex: Throwable? = null) : Failure(ex) {
-        sealed class Create(ex: Throwable? = null) : Node(ex) {
-            object NameIsEmpty : Create()
-        }
+        object NameIsEmpty : Node()
+        class NotFound(val nodeId: String) : Node()
     }
 
     sealed class Record(ex: Throwable? = null) : Failure(ex) {
-        sealed class Create(ex: Throwable? = null) : Record(ex) {
-            object NameIsEmpty : Create()
-        }
+        object NameIsEmpty : Record()
+        class NotFound(val recordId: String) : Record()
+        class NotFoundInNode(val recordId: String) : Record()
         object CloneRecordToNode : Record()
+        sealed class CheckFolder(ex: Throwable? = null) : Record(ex) {
+            class FolderNotExist(val folderPath: String) : CheckFolder()
+            class CreateFolderError(val folderPath: String) : CheckFolder()
+            class UnknownError(val folderPath: String, ex: Exception) : CheckFolder(ex)
+        }
+        sealed class Read(ex: Throwable? = null) : Record(ex) {
+            class NotDecrypted : Read()
+            class ParseFromHtml(ex: Throwable) : Read(ex)
+        }
+
+    }
+
+    sealed class Attach(ex: Throwable? = null) : Failure(ex) {
+        object NameIsEmpty : Attach()
+        class NotFoundInRecord(val attachId: String) : Attach()
     }
 
     sealed class Tags(ex: Throwable? = null) : Failure(ex) {
+    }
+
+    sealed class Image(ex: Throwable? = null) : Failure(ex) {
+        class SaveFile(val fileName: String, ex: Throwable? = null) : Image(ex)
     }
 
     sealed class Encrypt(ex: Throwable? = null) : Failure(ex) {
@@ -67,15 +83,26 @@ sealed class Failure(val ex: Throwable? = null) {
         class File(val fileName: String, ex: Throwable? = null) : Decrypt(ex)
     }
 
-    sealed class File(val path: String, ex: Throwable? = null) : Failure(ex) {
-        class IsMissing(path: String) : File(path)
-        class AccessDenied(path: String, ex: Throwable? = null) : File(path, ex)
-        class GetFileSize(path: String, ex: Throwable? = null) : File(path, ex)
+    sealed class File(ex: Throwable? = null) : Failure(ex) {
+        class NotExist(val path: String) : File()
+        class AccessDenied(val path: String, ex: Throwable? = null) : File(ex)
+        class GetFileSize(val path: String, ex: Throwable? = null) : File(ex)
+        class Read(val path: String, ex: Throwable? = null) : File(ex)
+        class Write(val fileName: String, val path: String, ex: Throwable? = null) : File(ex)
+        class Create(val filePath: String, ex: Throwable? = null) : File(ex)
+        class Delete(val filePath: String, ex: Throwable? = null) : File(ex)
+        class MoveToFolder(val filePath: String, val folderPath: String) : File()
+        class RenameTo(val filePath: String, val newName: String) : File()
+        class Copy(val filePath: String, val newPath: String) : File()
+        class CreateUriPath(val path: String) : File()
+//        class UnknownError(ex: Exception) : File(ex)
     }
 
-    sealed class Folder(val path: String, ex: Throwable? = null) : Failure(ex) {
-        class IsMissing(path: String) : Folder(path)
-        class GetFolderSize(path: String, ex: Throwable? = null) : Folder(path, ex)
+    sealed class Folder(ex: Throwable? = null) : Failure(ex) {
+        class NotExist(val path: String) : Folder()
+        class GetFolderSize(val path: String, ex: Throwable? = null) : Folder(ex)
+        class Delete(val path: String) : Folder()
+        class Copy(val path: String, val newPath: String) : Folder()
     }
 
 }

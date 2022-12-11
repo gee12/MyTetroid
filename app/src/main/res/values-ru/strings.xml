@@ -526,9 +526,9 @@
     <string name="log_pass_is_incorrect">Введен неверный пароль</string>
     <string name="log_cur_pass_is_incorrect">Введен неверный текущий пароль</string>
     <string name="log_viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
-    <string name="log_could_not_decrypt_file">Не удалось расшифровать файл&#160;</string>
+<!--    <string name="log_could_not_decrypt_file">Не удалось расшифровать файл&#160;</string>-->
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
-    <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>
+<!--    <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>-->
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
 <!--    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>-->
@@ -539,7 +539,7 @@
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_inited">Настройки хранилища загружены:&#160;</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
-    <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>
+<!--    <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>-->
     <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана.\nВозможен поиск только по всей базе или в другой ветке</string>
     <string name="log_select_node_to_search">Выберите ветку для поиска</string>
     <string name="log_incorrect_dateformat_in_settings">В настройках указан некорректный формат даты/времени создания записи. Будет использован формат по-умолчанию.</string>
@@ -550,22 +550,28 @@
     <string name="error_load_file_in_path_mask">Не удалось загрузить файл [%s] по пути:\n%s</string>
     <string name="log_failed_storage_load_mask">Не удалось загрузить хранилище:\n%s</string>
     <string name="log_failed_storage_init_mask">Не удалось инициализировать хранилище:\n%s</string>
-    <string name="error_read_file_in_path_mask">Не удалось прочитать файл [%s] по пути:\n%s</string>
+    <string name="error_read_file_in_path_mask">Не удалось прочитать файл по пути:\n%s</string>
     <string name="error_save_file_in_path_mask">Не удалось сохранить файл [%s] по пути:\n%s</string>
     <string name="errorrename_file_from_to_mask">Не удалось переименовать файл из [%s] в [%s]</string>
     <string name="log_found_crypted_nodes">Были обнаружены зашифрованные ветки. Для поиска по ним введите пароль.</string>
     <string name="log_missing_file_manager">Не найден файловый менеджер. Путь к каталогу скопирован в буфер обмена.</string>
-    <string name="log_error_read_record_file">Ошибка чтения файла записи:&#160;</string>
+<!--    <string name="error_read_file_mask">Ошибка чтения файла записи:\n%s</string>-->
     <string name="log_error_decrypt_record_file">Ошибка расшифровки файла записи:&#160;</string>
-    <string name="log_error_generate_record_file_path">Ошибка формирования пути к файлу записи:&#160;</string>
+    <string name="error_generate_uri_path_mask">Ошибка формирования пути к файлу:\n%s</string>
+    <string name="error_record_not_decrypted">Запись должна быть расшифрована</string>
+    <string name="error_parse_text_from_html">Ошибка получения текста из html</string>
     <string name="log_error_generate_record_folder_path">Ошибка формирования пути к каталогу записи:&#160;</string>
     <string name="log_error_generate_file_path">Ошибка формирования пути к прикрепленному файлу:&#160;</string>
 <!--    <string name="log_error_create_record_folder">Ошибка создания каталога записи:&#160;</string>-->
 <!--    <string name="log_error_del_record_dir">Ошибка удаления каталога записи:&#160;</string>-->
-<!--    <string name="log_error_move_file_mask">Ошибка перемещения файла/каталога из [%s] в [%s]</string>-->
-    <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%1$s] в [%2$s]</string>
+    <string name="error_rename_file_mask">Ошибка переименования файла из [%s] в [%s]</string>
+    <string name="error_copy_file_mask">Ошибка копирования файла из [%s] в [%s]</string>
+    <string name="error_copy_folder_mask">Ошибка копирования каталога из [%s] в [%s]</string>
+    <string name="error_move_file_to_folder_mask">Ошибка перемещения файла из [%s] в [%s]</string>
+<!--    <string name="log_error_copy_record_dir_mask">Ошибка копирования каталога записи из [%1$s] в [%2$s]</string>-->
     <string name="log_copy_record_dir_mask">Был скопирован каталог записи в [%s]</string>
-    <string name="error_delete_file_by_path_mask">Ошибка удаления файла [%s] по пути:\n%s</string>
+    <string name="error_delete_file_by_path_mask">Ошибка удаления файла по пути:\n%s</string>
+    <string name="error_delete_folder_by_path_mask">Ошибка удаления каталога [%s] по пути:\n%s</string>
     <string name="error_file_is_missing_mask">Файл не существует: %s</string>
     <string name="error_folder_is_missing_mask">Каталог не существует: %s</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
@@ -584,8 +590,9 @@
     <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>
     <string name="log_not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
-    <string name="log_error_write_to_record_file">Ошибка записи в файл:&#160;</string>
-    <string name="log_not_found_node_id">Не найдена ветка с id=</string>
+<!--    <string name="log_error_write_to_record_file">Ошибка записи в файл:&#160;</string>-->
+    <string name="error_node_not_found_with_id_mask">Не найдена ветка с id = %s</string>
+    <string name="error_record_not_found_with_id_mask">Не найдена запись с id = %s</string>
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
     <string name="log_not_transferred_storage_id">Не передан Id хранилища</string>
@@ -595,11 +602,11 @@
     <string name="log_before_record_save">Сохранение текста записи id=</string>
     <string name="log_wrong_tag_link_format">Неверный формат ссылки на метку</string>
     <string name="log_oper_start_mask">Начало %1$s %2$s</string>
-    <string name="log_error_creating_record_file">Ошибка создания файла записи</string>
+    <string name="error_create_new_file">Ошибка создания нового файла по пути:\n%s</string>
     <string name="log_saving_mytetra_xml">Сохранение файла mytetra.xml</string>
 <!--    <string name="log_rename_file_mask">Файл был переименован в [%s]</string>-->
     <string name="log_record_not_have_node">У записи не указана ветка</string>
-    <string name="log_not_found_record_in_node">Не найдена запись в списке записей ветки</string>
+    <string name="error_record_not_exist_in_node_mask">Не найдена запись с id=[%s] в списке записей ветки</string>
     <string name="log_oper_cancel_mask">Отмена %1$s %2$s, т.к. не удалось сохранить mytetra.xml</string>
     <string name="log_record_delete_absent_dir">Ошибка удаления записи: отсутствует каталог&#160;</string>
     <string name="log_get_item_is_null">Не удается получить текущий элемент списка</string>
@@ -608,8 +615,9 @@
     <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_record_dir">Отсутствует каталог записи \"%s\". Создаем..</string>
-    <string name="log_create_record_dir_error">Не удалось создать каталог</string>
-    <string name="log_check_record_dir_error">Не удалось проверить каталог записи</string>
+    <string name="error_create_record_folder_mask">Не удалось создать каталог:\n%s</string>
+    <string name="error_check_record_folder_mask">Не удалось проверить каталог записи:\n%s</string>
+    <string name="error_record_folder_not_exist_mask">Отсутствует каталог записи:\n%s</string>
     <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s</string>
 <!--    <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки (подробнее в логах)</string>-->
     <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки</string>
@@ -623,9 +631,9 @@
     <string name="log_file_attaching_error">Не удается прикрепить файл к записи</string>
     <string name="log_file_was_attached">Файл прикреплен</string>
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
-    <string name="log_not_found_file_in_record">Не найден файл в списке файлов записи</string>
+    <string name="error_attach_not_found_in_record">Прикрепленный файл не найден в списке файлов записи</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
-    <string name="log_start_record_file_reading">Начало чтения файла записи id=</string>
+    <string name="start_record_file_reading_mask">Начало чтения файла записи id=%s</string>
     <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
     <string name="log_start_attach_file_opening">Начало открытия прикрепленного файла id=</string>
     <string name="log_start_record_folder_opening">Начало открытия каталога записи id=</string>
@@ -637,7 +645,7 @@
     <string name="log_start_image_file_saving_mask">Начало сохранения изображения [%1$s] в запись id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Начало конвертирования файла изображения в [%s]</string>
     <string name="log_start_image_file_deleting_mask">Начало удаления файла изображения [%s]</string>
-    <string name="log_error_image_file_saving">Не удалось сохранить файл изображения</string>
+    <string name="error_save_image_file_mask">Не удалось сохранить файл изображения:\n%s</string>
 <!--    <string name="log_failed_to_save_images_mask">Не удалось сохранить изображений: %d (подробнее в логах)</string>-->
     <string name="log_failed_to_save_images_mask">Не удалось сохранить изображений: %d</string>
     <string name="log_error_deleting_src_image_file">Не удалось удалить исходный файл изображения:</string>
@@ -752,9 +760,12 @@
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>
+    <string name="error_node_name_is_empty">Пустое имя ветки</string>
+    <string name="error_attach_name_is_empty">Пустое имя прикрепленного файла</string>
     <string name="error_save_storage_in_database">Ошибка сохранения хранилища в базе данных</string>
     <string name="error_save_pass_check_data">Ошибка сохранения данных crypt_check для пароля</string>
     <string name="error_clone_record_to_node">Не удалось скопировать запись в ветку</string>
+<!--    <string name="error_file_unknown">Неизвестная ошибка</string>-->
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
