@@ -23,7 +23,7 @@ class GetIconsFromFolderUseCase(
         val iconsFolderFullName = makePath(pathToIcons, folderName)
         val folder = File(iconsFolderFullName)
         if (!folder.exists()) {
-            return Failure.Folder.IsMissing(path = folder.path).toLeft()
+            return Failure.Folder.NotExist(path = folder.path).toLeft()
         }
 
         return folder.listFiles()?.filter { file ->

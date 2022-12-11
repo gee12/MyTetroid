@@ -16,7 +16,7 @@ class GetIconsFoldersUseCase(
     override suspend fun run(params: Params): Either<Failure, List<String>> {
         val folder = File(params.pathToIconsFolder)
         if (!folder.exists()) {
-            return Failure.Folder.IsMissing(path = folder.path).toLeft()
+            return Failure.Folder.NotExist(path = folder.path).toLeft()
         }
         return folder.listFiles()
             ?.filter { it.isDirectory }
