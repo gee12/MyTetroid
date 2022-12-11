@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.interactors
 
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.model.TetroidStorage
@@ -9,15 +10,12 @@ import com.gee12.mytetroid.model.TetroidStorage
  */
 class PasswordInteractor(
     private val storageProvider: IStorageProvider,
-    private val cryptInteractor: EncryptionInteractor,
-    private val nodesInteractor: NodesInteractor,
+    private val crypter: IStorageCrypter,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) {
 
     private val databaseConfig: DatabaseConfig
         get() = storageProvider.databaseConfig
-
-    fun isCrypted() = nodesInteractor.isExistCryptedNodes(false)
 
     /**
      * Проверка введенного пароля с сохраненным проверочным хэшем.
@@ -29,7 +27,7 @@ class PasswordInteractor(
     fun checkPass(pass: String?): Boolean {
         val salt = databaseConfig.cryptCheckSalt
         val checkHash = databaseConfig.cryptCheckHash
-        return cryptInteractor.crypter.checkPass(pass, salt, checkHash)
+        return crypter.checkPass(pass, salt, checkHash)
     }
 
     /**
@@ -41,7 +39,7 @@ class PasswordInteractor(
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkMiddlePassHash(passHash: String?): Boolean {
         val checkData = databaseConfig.middleHashCheckData
-        return cryptInteractor.crypter.checkMiddlePassHash(passHash, checkData)
+        return crypter.checkMiddlePassHash(passHash, checkData)
     }
 
     /**
