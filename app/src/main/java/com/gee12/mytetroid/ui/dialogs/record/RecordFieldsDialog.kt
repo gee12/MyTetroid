@@ -87,7 +87,7 @@ class RecordFieldsDialog(
             etNode.setText(if (recordNode != null) recordNode?.name else getString(R.string.title_select_node))
             etNode.inputType = InputType.TYPE_NULL
         }
-        if (viewModel.appBuildHelper.isFullVersion()) {
+        if (viewModel.buildInfoProvider.isFullVersion()) {
             ctvFavor.visibility = View.VISIBLE
             ctvFavor.isChecked = record != null && record.isFavorite
             ctvFavor.setOnClickListener { ctvFavor.isChecked = !ctvFavor.isChecked }

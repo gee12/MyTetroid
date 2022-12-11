@@ -14,7 +14,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.IconsViewModel
 import com.gee12.mytetroid.ui.adapters.IconsListAdapter
 import com.gee12.mytetroid.viewmodels.ViewEvent
-import org.koin.java.KoinJavaComponent.get
+import org.koin.android.ext.android.get
 import java.util.stream.IntStream
 
 /**
@@ -34,7 +34,7 @@ class IconsActivity : TetroidActivity<IconsViewModel>() {
     override fun getLayoutResourceId() = R.layout.activity_icons
 
     override fun createViewModel() {
-        viewModel = get(IconsViewModel::class.java)
+        viewModel = get()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

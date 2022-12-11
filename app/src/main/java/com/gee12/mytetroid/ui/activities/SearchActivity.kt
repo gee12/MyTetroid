@@ -20,7 +20,6 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.get
 
 /**
  * Аквтивность для настройки параметров глобального поиска.
@@ -47,8 +46,6 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
     private var node: TetroidNode? = null
 
     override fun getLayoutResourceId() = R.layout.activity_search
-
-    override fun getStorageId() = intent?.extras?.getInt(Constants.EXTRA_STORAGE_ID)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +102,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
     }
 
     override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
+        this.viewModel = storageScope.get()
     }
 
     override fun initViewModel() {
@@ -161,14 +158,16 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
             else -> CommonSettings.getSearchNodeId(this)
         }
         nodeId?.let {
-            node = viewModel.getNode(it)?.also { node ->
-                etNodeName.setText(node.name)
-            } ?: run {
-                nodeId = null
-                etNodeName.setText(R.string.title_select_node)
-                // не отображаем сообщение, т.к. ветка могла быть из другого хранилища
-                viewModel.logWarning(getString(R.string.log_not_found_node_id) + it, false)
-                null
+            lifecycleScope.launch {
+                node = viewModel.getNode(it)?.also { node ->
+                    etNodeName.setText(node.name)
+                } ?: run {
+                    nodeId = null
+                    etNodeName.setText(R.string.title_select_node)
+                    // не отображаем сообщение, т.к. ветка могла быть из другого хранилища
+                    viewModel.logWarning(getString(R.string.error_node_not_found_with_id_mask) + it, false)
+                    null
+                }
             }
         } ?: run {
             if (spInNodeMode.selectedItemPosition == 1) {

@@ -26,6 +26,9 @@ import com.gee12.mytetroid.ui.ActivityDoubleTapListener
 import com.gee12.mytetroid.ui.IViewEventListener
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.viewmodels.BaseViewModel
+import com.gee12.mytetroid.viewmodels.PermissionRequestParams
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
 

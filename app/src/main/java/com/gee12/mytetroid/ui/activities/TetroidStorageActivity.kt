@@ -6,6 +6,8 @@ import android.view.*
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.di.ScopeContainer
+import com.gee12.mytetroid.helpers.StorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.activities.StorageSettingsActivity.Companion.newIntent
 import com.gee12.mytetroid.ui.activities.StoragesActivity.Companion.start
@@ -15,11 +17,24 @@ import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.viewmodels.VMEvent
 import kotlinx.coroutines.launch
 import lib.folderpicker.FolderPicker
+import org.koin.android.ext.android.get
+import org.koin.core.scope.Scope
 
 abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivity<VM>() {
 
+    private val scopeContainer: ScopeContainer
+    protected val storageScope: Scope
 
-    protected open fun getStorageId(): Int? = null
+    init {
+        val currentStorageProvider = ScopeContainer.current.scope.get<StorageProvider>()
+        val currentStorageId = currentStorageProvider.storage?.id
+        scopeContainer = (if (currentStorageId?.let { it == getStorageId() } == true) ScopeContainer.current else get())
+        storageScope = scopeContainer.scope
+    }
+
+    fun getStorageId(): Int {
+        return intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+    }
 
     override fun initViewModel() {
         super.initViewModel()

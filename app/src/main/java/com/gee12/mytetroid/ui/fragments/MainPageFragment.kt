@@ -28,6 +28,7 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent.get
 
 class MainPageFragment : TetroidFragment<MainViewModel> {
@@ -148,17 +149,26 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         // список записей
         listAdapterRecords = RecordsListAdapter(
             requireContext(),
-            viewModel.recordsInteractor,
-            viewModel.commonSettingsProvider
-        ) { record: TetroidRecord? ->
-            viewModel.showRecordAttaches(record, false)
-        }
+            resourcesProvider = viewModel.resourcesProvider,
+            dateTimeFormat = viewModel.commonSettingsProvider.checkDateFormatString(),
+            getEditedDateCallback = { record ->
+                // FIXME
+                runBlocking {
+                    viewModel.getEditedDate(record)
+                }
+            },
+            onClick = { record ->
+                viewModel.showRecordAttaches(record, false)
+            }
+        )
         lvRecords.adapter = listAdapterRecords
 
         // список файлов
         listAdapterAttaches = FilesListAdapter(
-            requireContext(),
-            viewModel.attachesInteractor
+            context = requireContext(),
+            getAttachedFileSize = { attach ->
+                viewModel.getAttachFileSize(requireContext(), attach)
+            }
         )
         lvAttaches.adapter = listAdapterAttaches
     }
@@ -264,7 +274,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         showRecord(record)
     }
 
-    fun showRecord(record: TetroidRecord?) {
+    fun showRecord(record: TetroidRecord) {
         viewModel.openRecord(record)
     }
 
@@ -303,9 +313,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * Обработка результата удаления записи.
      * @param record
      */
-    fun onDeleteRecordResult(record: TetroidRecord?) {
-        listAdapterRecords.dataSet.remove(record)
-        listAdapterRecords.notifyDataSetChanged()
+    fun onDeleteRecordResult(record: TetroidRecord) {
+        listAdapterRecords.delete(record)
         lvAttaches.adapter = null
     }
 
@@ -345,7 +354,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         }.showIfPossible(parentFragmentManager)
     }
 
-    fun showRecordInfoDialog(record: TetroidRecord?) {
+    fun showRecordInfoDialog(record: TetroidRecord) {
         RecordInfoDialog(
             record = record,
             storageId = viewModel.getStorageId()
@@ -356,7 +365,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     // region Attaches
 
-    fun showAttaches(files: List<TetroidFile?>?) {
+    fun showAttaches(files: List<TetroidFile>) {
         viewModel.showMainView(Constants.MAIN_VIEW_RECORD_FILES)
         listAdapterAttaches.reset(files)
         lvAttaches.adapter = listAdapterAttaches
@@ -404,9 +413,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * Обработка результата удаления файла.
      * @param attach
      */
-    fun onDeleteAttachResult(attach: TetroidFile?) {
-        listAdapterAttaches.dataSet.remove(attach)
-        updateAttachesList()
+    fun onDeleteAttachResult(attach: TetroidFile) {
+        listAdapterAttaches.delete(attach)
     }
 
     /**
@@ -464,11 +472,11 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
                 return true
             }
             R.id.action_cur_record -> {
-                showRecord(viewModel.curRecord)
+                showRecord(viewModel.curRecord!!)
                 return true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(viewModel.curRecord)
+                viewModel.openRecordFolder(viewModel.curRecord!!)
                 return true
             }
         }
@@ -509,7 +517,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      */
     private fun prepareRecordsContextMenu(menu: Menu, menuInfo: AdapterView.AdapterContextMenuInfo?) {
         if (menuInfo == null) return
-        val isPro = viewModel.appBuildHelper.isFullVersion()
+        val isPro = viewModel.buildInfoProvider.isFullVersion()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         val isFavoritesView = viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES
         var isNonCrypted = false
@@ -555,10 +563,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         activateMenuItem(menu.findItem(R.id.action_move_up), !isLoadedFavoritesOnly && filesCount > 0)
         activateMenuItem(menu.findItem(R.id.action_move_down), !isLoadedFavoritesOnly && filesCount > 0)
         val file = listAdapterAttaches.getItem(menuInfo.position) as? TetroidFile
-        activateMenuItem(
-            menu.findItem(R.id.action_save_as), file != null
-                    && !TextUtils.isEmpty(viewModel.getAttachSize(file))
-        )
+        val attachFileSize = file?.let { viewModel.getAttachFileSize(requireContext(), it) }
+        activateMenuItem(menu.findItem(R.id.action_save_as), !attachFileSize.isNullOrEmpty())
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly)
     }
 

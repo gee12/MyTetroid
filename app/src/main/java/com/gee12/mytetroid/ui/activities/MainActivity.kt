@@ -65,10 +65,12 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.fragments.FoundPageFragment
 import com.gee12.mytetroid.ui.fragments.MainPageFragment
+import com.gee12.mytetroid.viewmodels.MainViewModel
+import com.gee12.mytetroid.viewmodels.VMEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.runBlocking
 import lib.folderpicker.FolderPicker
-import org.koin.java.KoinJavaComponent.get
 import pl.openrnd.multilevellistview.*
 import java.util.*
 
@@ -205,7 +207,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         favoritesNode.visibility = View.GONE
         btnLoadStorageNodes.visibility = View.GONE
         btnLoadStorageTags.visibility = View.GONE
-        if (viewModel.appBuildHelper.isFullVersion()) {
+        if (viewModel.buildInfoProvider.isFullVersion()) {
             favoritesNode.setOnClickListener { 
                 viewModel.showFavorites() 
             }
@@ -239,7 +241,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     override fun createViewModel() {
-        viewModel = get(MainViewModel::class.java)
+        viewModel = storageScope.get()
     }
 
     override fun initViewModel() {
@@ -393,7 +395,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.GlobalSearchFinished -> {
                 onGlobalSearchFinished(event.found, event.profile)
             }
-            is MainEvent.AskForOperationWithoutDir -> {
+            is MainEvent.AskForOperationWithoutFolder -> {
                 val clipboardParams = event.clipboardParams
                 if (clipboardParams.obj is TetroidRecord) {
                     RecordDialogs.operWithoutDir(this, clipboardParams.operation) {
@@ -432,9 +434,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         btnLoadStorageTags.visibility = loadButtonsVis
         ViewUtils.setFabVisibility(fabCreateNode, isLoaded && !isOnlyFavorites)
         lvNodes.visibility = if (isOnlyFavorites) View.GONE else View.VISIBLE
-        favoritesNode.visibility = if (isLoaded && viewModel.appBuildHelper.isFullVersion()) View.VISIBLE else View.GONE
+        favoritesNode.visibility = if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) View.VISIBLE else View.GONE
         tvNodesEmpty.visibility = View.GONE
-        if (isLoaded && viewModel.appBuildHelper.isFullVersion()) {
+        if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) {
             updateFavoritesTitle()
         }
 
@@ -484,7 +486,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                         if (nodeId == FAVORITES_NODE.id) {
                             nodeToSelect = FAVORITES_NODE
                         } else {
-                            nodeToSelect = viewModel.getNode(nodeId)
+                            // TODO: убрать runBlocking
+                            nodeToSelect = runBlocking { viewModel.getNode(nodeId) }
                             if (nodeToSelect != null) {
                                 val expandNodes = viewModel.createNodesHierarchy(nodeToSelect)
                                 listAdapterNodes.setDataItems(rootNodes, expandNodes)
@@ -760,25 +763,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     //region Nodes
 
     /**
-     * Открытие записей ветки по Id.
-     */
-    fun showNode(nodeId: String) {
-        val node = viewModel.getNode(nodeId)
-        if (node != null) {
-            viewModel.showNode(node)
-        } else {
-            viewModel.logError(getString(R.string.log_not_found_node_id) + nodeId, true)
-        }
-    }
-
-    /**
      * Установка и выделение текущей ветки.
      */
     private fun setCurNode(node: TetroidNode?) {
         viewModel.curNode = node
         listAdapterNodes.curNode = node
         listAdapterNodes.notifyDataSetChanged()
-        if (viewModel.appBuildHelper.isFullVersion()) {
+        if (viewModel.buildInfoProvider.isFullVersion()) {
             setFavorIsCurNode(node === FAVORITES_NODE)
         }
     }
@@ -961,7 +952,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun showDeleteNodeDialog(node: TetroidNode) {
         val isQuicklyNode = node.id === viewModel.getQuicklyNodeId()
-        deleteNode(this, node.name, isQuicklyNode) { viewModel.deleteNode(node) }
+        deleteNode(this, node.name, isQuicklyNode) {
+            viewModel.deleteOrCutNode(node, isCutting = false)
+        }
     }
 
     private fun onNodeDeleted(node: TetroidNode, isCutted: Boolean) {
@@ -1010,7 +1003,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Копирование ветки.
      */
     private fun copyNode(node: TetroidNode) {
-        if (viewModel.nodesInteractor.hasNonDecryptedNodes(node)) {
+        if (viewModel.hasNonDecryptedNodes(node)) {
             viewModel.showMessage(getString(R.string.log_enter_pass_first), LogType.WARNING)
             return
         }
@@ -1327,7 +1320,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val popupMenu = PopupMenu(this, v)
         popupMenu.inflate(R.menu.tag_context)
         val menu = popupMenu.menu
-        visibleMenuItem(menu.findItem(R.id.action_rename), viewModel.appBuildHelper.isFullVersion())
+        visibleMenuItem(menu.findItem(R.id.action_rename), viewModel.buildInfoProvider.isFullVersion())
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_open_tag -> {
@@ -1387,6 +1380,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработка возвращаемого результата других активностей.
      */
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             Constants.REQUEST_CODE_STORAGES_ACTIVITY -> {
@@ -1434,7 +1428,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     val nodeId = data?.getStringExtra(Constants.EXTRA_NODE_ID)
                     val iconPath = data?.getStringExtra(Constants.EXTRA_NODE_ICON_PATH)
                     val isDrop = data?.getBooleanExtra(Constants.EXTRA_IS_DROP, false) ?: false
-                    viewModel.setNodeIcon(nodeId, iconPath, isDrop)
+                    if (nodeId != null) {
+                        viewModel.setNodeIcon(nodeId, iconPath, isDrop)
+                    }
                 }
             }
         }
@@ -1545,28 +1541,28 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 // сбрасываем Intent, чтобы избежать циклической перезагрузки хранилища
                 receivedIntent = null
             }
-            Constants.RESULT_PASS_CHANGED -> if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
-                // обновляем списки, т.к. хранилище должно было расшифроваться
-                updateNodes()
-                updateTags()
+            Constants.RESULT_PASS_CHANGED -> {
+                if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
+                    // обновляем списки, т.к. хранилище должно было расшифроваться
+                    updateNodes()
+                    updateTags()
+                }
             }
             Constants.RESULT_OPEN_RECORD -> {
                 if (checkIsNeedLoadAllNodes(data)) return
-                val recordId = data.getStringExtra(Constants.EXTRA_OBJECT_ID)
-                if (recordId != null) {
+                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
                     viewModel.openRecord(recordId)
                 }
             }
             Constants.RESULT_OPEN_NODE -> {
                 if (checkIsNeedLoadAllNodes(data)) return
-                val nodeId = data.getStringExtra(Constants.EXTRA_OBJECT_ID)
-                nodeId?.let { showNode(it) }
+                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { nodeId ->
+                    viewModel.showNode(nodeId)
+                }
             }
             Constants.RESULT_SHOW_ATTACHES -> {
-                val recordId2 = data.getStringExtra(Constants.EXTRA_OBJECT_ID)
-                val record = viewModel.getRecord(recordId2)
-                if (record != null) {
-                    viewModel.showRecordAttaches(record, true)
+                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
+                    viewModel.showRecordAttaches(recordId, fromRecordActivity = true)
                 }
             }
             Constants.RESULT_SHOW_TAG -> {
@@ -1576,10 +1572,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             Constants.RESULT_DELETE_RECORD -> {
-                val recordId3 = data.getStringExtra(Constants.EXTRA_OBJECT_ID)
-                if (recordId3 != null) {
-                    val record2 = viewModel.getRecord(recordId3)
-                    viewModel.deleteRecord(record2)
+                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
+                    viewModel.deleteRecord(recordId)
                 }
             }
         }
@@ -1605,7 +1599,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         titleStrip.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    private fun onGlobalSearchFinished(found: HashMap<ITetroidObject, FoundType>, profile: SearchProfile) {
+    private fun onGlobalSearchFinished(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
         foundPage.setFounds(found, profile)
         viewPagerAdapter.notifyDataSetChanged() // для обновления title у страницы
         setFoundPageVisibility(true)

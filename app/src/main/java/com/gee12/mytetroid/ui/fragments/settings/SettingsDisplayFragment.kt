@@ -25,10 +25,10 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
         setHighlightPrefAvailability()
 
-        if (baseViewModel.appBuildHelper.isFullVersion()) {
+        if (baseViewModel.buildInfoProvider.isFullVersion()) {
             // добавляем поле "Дата изменения"
             val prefFields = findPreference<Preference>(getString(R.string.pref_key_record_fields_in_list)) as MultiSelectListPreference?
-            val arrayId = if (baseViewModel.appBuildHelper.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+            val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
             prefFields?.setEntryValues(arrayId)
             prefFields?.setEntries(arrayId)
         }
@@ -60,7 +60,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
                 updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
             }
             getString(R.string.pref_key_record_fields_in_list) -> {
-                App.RecordFieldsInList = RecordFieldsSelector(context!!, baseViewModel.appBuildHelper, CommonSettings.getRecordFieldsInList(context))
+                App.RecordFieldsInList = RecordFieldsSelector(context!!, baseViewModel.buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
                 updateSummary(
                     R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString(),
                     getString(R.string.pref_record_fields_in_list_summ)
@@ -70,7 +70,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
     }
 
     private fun getRecordFieldsValuesString(): String {
-        val arrayId = if (baseViewModel.appBuildHelper.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+        val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
         return App.RecordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
     }
 

@@ -22,6 +22,7 @@ import org.koin.android.ext.android.inject
 /**
  * Активность для управления настройками.
  */
+// TODO: наследовать от TetroidStorageActivity (?)
 abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener {
 
     private var newDelegate: AppCompatDelegate? = null

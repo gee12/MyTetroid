@@ -104,7 +104,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
             }
             true
         }
-        if (baseViewModel.appBuildHelper.isFullVersion()) {
+        if (baseViewModel.buildInfoProvider.isFullVersion()) {
             prefIsKeepLastNode?.dependency = getString(R.string.pref_key_is_load_favorites)
         }
 

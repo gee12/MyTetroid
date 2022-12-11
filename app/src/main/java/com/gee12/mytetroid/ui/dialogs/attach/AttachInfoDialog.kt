@@ -51,15 +51,15 @@ class AttachInfoDialog(
         )
         val dateFormat = getString(R.string.full_date_format_string)
 
-        if (viewModel.appBuildHelper.isFullVersion()) {
+        if (viewModel.buildInfoProvider.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited)?.visibility = View.VISIBLE
-            val edited = viewModel.attachesInteractor.getEditedDate(requireContext(), attach)
+            val edited = viewModel.getAttachEditedDate(requireContext(), attach)
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =
                 if (edited != null) Utils.dateToString(edited, dateFormat) else "-"
         }
         val path: String = viewModel.getPathToRecordFolder(record!!)
         (dialogView.findViewById<View>(R.id.text_view_path) as TextView).text = path
-        var sizeString = viewModel.attachesInteractor.getAttachedFileSize(requireContext(), attach)
+        var sizeString = viewModel.getAttachFileSize(requireContext(), attach)
         val tvSize = dialogView.findViewById<TextView>(R.id.text_view_size)
         if (sizeString == null) {
             sizeString = getString(R.string.title_folder_is_missing)

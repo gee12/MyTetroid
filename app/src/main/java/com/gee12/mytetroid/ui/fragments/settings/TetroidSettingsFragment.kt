@@ -107,7 +107,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
      * @param pref
      */
     protected fun disableIfFree(pref: Preference) {
-        if (baseViewModel.appBuildHelper.isFullVersion()) {
+        if (baseViewModel.buildInfoProvider.isFullVersion()) {
             pref.isEnabled = true
         } else {
             pref.isEnabled = false

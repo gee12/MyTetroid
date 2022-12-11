@@ -1,7 +1,7 @@
 package com.gee12.mytetroid
 
 import android.content.Context
-import com.gee12.mytetroid.helpers.AppBuildHelper
+import com.gee12.mytetroid.providers.BuildInfoProvider
 
 /**
  * Класс для заполнения переменной-маски для быстрого получения выбранных значений
@@ -12,12 +12,12 @@ import com.gee12.mytetroid.helpers.AppBuildHelper
  */
 class RecordFieldsSelector(
     context: Context,
-    appBuildHelper: AppBuildHelper,
+    buildInfoProvider: BuildInfoProvider,
     option: Set<String?>?
 ) : StringsIntMask(
     option,
     context.resources.getStringArray(
-        if (appBuildHelper.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+        if (buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
     )
 ) {
     companion object {

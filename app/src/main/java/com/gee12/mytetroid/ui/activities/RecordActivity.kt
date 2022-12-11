@@ -25,6 +25,7 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
@@ -42,7 +43,6 @@ import com.gee12.mytetroid.helpers.TetroidClipboardListener
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.viewmodels.*
 import com.gee12.mytetroid.viewmodels.RecordViewModel.RecordEvent
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.ui.SearchViewXListener
@@ -56,14 +56,20 @@ import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
+import com.gee12.mytetroid.viewmodels.RecordViewModel
+import com.gee12.mytetroid.viewmodels.ResultObj
+import com.gee12.mytetroid.viewmodels.VMEvent
+import com.gee12.mytetroid.viewmodels.ViewEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.lumyjuwon.richwysiwygeditor.IColorPicker
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView.*
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
+import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
-import org.koin.java.KoinJavaComponent.get
+import org.koin.android.ext.android.get
+import org.koin.core.qualifier.named
 
 /**
  * Активность просмотра и редактирования содержимого записи.
@@ -169,7 +175,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     override fun createViewModel() {
-        viewModel = get(RecordViewModel::class.java)
+        viewModel = storageScope.get()
     }
 
     override fun initViewModel() {
@@ -318,8 +324,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Отображние свойств записи.
      */
-    private fun loadFields(record: TetroidRecord?) {
-        if (record == null) return
+    private fun loadFields(record: TetroidRecord) {
         var id = R.id.label_record_tags
         // метки
         val tagsHtml = HtmlHelper.createTagsHtmlString(record)
@@ -338,7 +343,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 spannable.removeSpan(span)
                 spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
-            mTextViewTags!!.text = spannable
+            mTextViewTags.text = spannable
             id = R.id.text_view_record_tags
         }
         // указываем относительно чего теперь выравнивать следующее за метками поле
@@ -369,12 +374,18 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val tvCreated = findViewById<TextView>(R.id.text_view_record_created)
         val created = record.created
         tvCreated.text = if (created != null) Utils.dateToString(created, dateFormat) else ""
-        if (viewModel.appBuildHelper.isFullVersion()) {
+        if (viewModel.buildInfoProvider.isFullVersion()) {
             findViewById<View>(R.id.label_record_edited).visibility = View.VISIBLE
             val tvEdited = findViewById<TextView>(R.id.text_view_record_edited)
             tvEdited.visibility = View.VISIBLE
-            val edited = viewModel.getRecordEditedDate(record)
-            tvEdited.text = if (edited != null) Utils.dateToString(edited, dateFormat) else "-"
+
+            //TODO: использовать события вместо корутины
+            lifecycleScope.launch {
+                val edited = viewModel.getEditedDate(record)?.let { date ->
+                    Utils.dateToString(date, dateFormat)
+                } ?: "-"
+                tvEdited.text = edited
+            }
         }
     }
 
@@ -389,7 +400,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private fun loadRecordText(textHtml: String) {
         mEditTextHtml.reset()
         //mEditor.getWebView().clearAndFocusEditor();
-        val baseUrl = viewModel.getUriToRecordFolder(viewModel.curRecord.value!!)
+        val baseUrl = viewModel.getUriToRecordFolder()
         editor.webView.loadDataWithBaseURL(
             baseUrl + "/",
             textHtml,
@@ -673,7 +684,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     fun showRecordInfoDialog() {
         RecordInfoDialog(
-            viewModel.curRecord.value,
+            viewModel.curRecord.value!!,
             viewModel.getStorageId()
         ).showIfPossible(supportFragmentManager)
     }
@@ -921,7 +932,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(this)
+                viewModel.openRecordFolder()
                 return true
             }
             R.id.action_share -> {

@@ -17,6 +17,7 @@ import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.gee12.mytetroid.ui.adapters.FoundListAdapter
+import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent.get
 
 class FoundPageFragment : TetroidFragment<MainViewModel> {
@@ -74,14 +75,21 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
         return view
     }
 
-    fun setFounds(found: HashMap<ITetroidObject, FoundType>, profile: SearchProfile) {
+    fun setFounds(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
         listAdapterFound = FoundListAdapter(
-            context,
-            viewModel.recordsInteractor,
-            viewModel.commonSettingsProvider
-        ) { record: TetroidRecord? ->
-            viewModel.showRecordAttaches(record, false)
-        }
+            context = requireContext(),
+            resourcesProvider = viewModel.resourcesProvider,
+            dateTimeFormat = viewModel.commonSettingsProvider.checkDateFormatString(),
+            getEditedDateCallback = { record ->
+                // FIXME
+                runBlocking {
+                    viewModel.getEditedDate(record)
+                }
+            },
+            onClick = { record: TetroidRecord ->
+                viewModel.showRecordAttaches(record, false)
+            }
+        )
         lvFound.adapter = listAdapterFound
         listAdapterFound.setDataItems(found)
         foundCount = found.size

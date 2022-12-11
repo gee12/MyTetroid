@@ -77,7 +77,7 @@ class StoragesActivity : TetroidStorageActivity<StoragesViewModel>() {
     }
 
     override fun createViewModel() {
-        this.viewModel = get(StoragesViewModel::class.java)
+        this.viewModel = storageScope.get()
     }
 
     override fun initViewModel() {
