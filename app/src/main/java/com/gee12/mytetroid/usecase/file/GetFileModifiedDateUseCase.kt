@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.usecase
+package com.gee12.mytetroid.usecase.file
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.toFile
@@ -17,7 +17,7 @@ class GetFileModifiedDateUseCase(
         return try {
             val file = filePath.toFile()
             if (!file.exists()) {
-                return Failure.File.IsMissing(path = filePath).toLeft()
+                return Failure.File.NotExist(path = filePath).toLeft()
             }
             Date(file.lastModified()).toRight()
         } catch (ex: SecurityException) {

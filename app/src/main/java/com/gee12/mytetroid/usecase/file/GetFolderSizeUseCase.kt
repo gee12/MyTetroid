@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.usecase
+package com.gee12.mytetroid.usecase.file
 
 import android.content.Context
 import android.text.format.Formatter
@@ -20,7 +20,7 @@ class GetFolderSizeUseCase(
         return try {
             val file = folderPath.toFile()
             if (!file.exists()) {
-                return Failure.File.IsMissing(path = folderPath).toLeft()
+                return Failure.File.NotExist(path = folderPath).toLeft()
             }
             val size = FileUtils.getFileSize(file)
             Formatter.formatFileSize(context, size).toRight()
