@@ -2,8 +2,9 @@ package com.gee12.mytetroid.usecase.crypt
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.ITaskProgress
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.interactors.EncryptionInteractor
+import com.gee12.mytetroid.helpers.StorageProvider
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
@@ -11,7 +12,8 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 
 class ChangePasswordUseCase(
-    private val cryptInteractor: EncryptionInteractor,
+    private val storageProvider: StorageProvider,
+    private val crypter: IStorageCrypter,
     private val saveStorageUseCase: SaveStorageUseCase,
     private val decryptStorageUseCase: DecryptStorageUseCase,
     private val initPasswordUseCase: InitPasswordUseCase,
@@ -75,9 +77,16 @@ class ChangePasswordUseCase(
         }
     }
 
+    /**
+     * Перешифровка хранилища (перед этим ветки должны быть расшифрованы).
+     */
     private suspend fun reEncryptStorage(params: Params) : Either<Failure, Boolean> {
         return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
-            cryptInteractor.reencryptStorage().toRight()
+//            cryptInteractor.reencryptStorage().toRight()
+            crypter.encryptNodes(
+                nodes = storageProvider.getRootNodes(),
+                isReencrypt = true
+            ).toRight()
         }
     }
 

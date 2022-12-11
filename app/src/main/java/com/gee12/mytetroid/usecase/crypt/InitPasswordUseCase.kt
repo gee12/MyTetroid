@@ -1,9 +1,9 @@
 package com.gee12.mytetroid.usecase.crypt
 
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.helpers.ISensitiveDataProvider
-import com.gee12.mytetroid.interactors.EncryptionInteractor
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
 
@@ -12,7 +12,7 @@ import com.gee12.mytetroid.repo.StoragesRepo
  */
 class InitPasswordUseCase(
     private val storagesRepo: StoragesRepo,
-    private val cryptInteractor: EncryptionInteractor,
+    private val crypter: IStorageCrypter,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) : UseCase<UseCase.None, InitPasswordUseCase.Params>() {
 
@@ -33,7 +33,7 @@ class InitPasswordUseCase(
         val password = params.password
         val databaseConfig = params.databaseConfig
 
-        val passHash = cryptInteractor.crypter.passToHash(password)
+        val passHash = crypter.passToHash(password)
         if (storage.isSavePassLocal) {
             // сохраняем хэш пароля
             storage.middlePassHash = passHash
@@ -43,7 +43,8 @@ class InitPasswordUseCase(
             // сохраняем хэш пароля в оперативную память, на вермя "сеанса" работы приложения
             sensitiveDataProvider.saveMiddlePassHash(passHash)
         }
-        cryptInteractor.initCryptPass(passHash, isMiddleHash = true)
+//        cryptInteractor.initCryptPass(passHash, isMiddleHash = true)
+        crypter.setKeyFromMiddleHash(passHash)
 
         return None.toRight()
     }
@@ -55,7 +56,7 @@ class InitPasswordUseCase(
         passHash: String,
         databaseConfig: DatabaseConfig,
     ): Boolean {
-        val checkData = cryptInteractor.crypter.createMiddlePassHashCheckData(passHash)
+        val checkData = crypter.createMiddlePassHashCheckData(passHash)
         return databaseConfig.saveCheckData(checkData)
     }
 

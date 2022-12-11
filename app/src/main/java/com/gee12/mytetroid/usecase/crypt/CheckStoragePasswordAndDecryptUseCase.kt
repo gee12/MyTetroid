@@ -2,10 +2,10 @@ package com.gee12.mytetroid.usecase.crypt
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.ISensitiveDataProvider
-import com.gee12.mytetroid.interactors.EncryptionInteractor
 import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
@@ -15,7 +15,7 @@ class CheckStoragePasswordAndDecryptUseCase(
     private val logger: ITetroidLogger,
     private val sensitiveDataProvider: ISensitiveDataProvider,
     private val commonSettingsProvider: CommonSettingsProvider,
-    private val cryptInteractor: EncryptionInteractor,
+    private val crypter: IStorageCrypter,
     private val passInteractor: PasswordInteractor,
 ) : UseCase<CheckStoragePasswordAndDecryptUseCase.Result, CheckStoragePasswordAndDecryptUseCase.Params>() {
 
@@ -47,7 +47,8 @@ class CheckStoragePasswordAndDecryptUseCase(
         return when {
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
-                cryptInteractor.initCryptPass(middlePassHash!!, true)
+//                cryptInteractor.initCryptPass(middlePassHash!!, true)
+                crypter.setKeyFromMiddleHash(middlePassHash!!)
                 // спрашиваем ПИН-код
                 Result.AskPin.toRight()
             }
@@ -58,7 +59,8 @@ class CheckStoragePasswordAndDecryptUseCase(
                 try {
                     if (passInteractor.checkMiddlePassHash(middlePassHash)) {
                         // сохраненный хеш пароля подошел, устанавливаем его
-                        cryptInteractor.initCryptPass(middlePassHash!!, true)
+//                        cryptInteractor.initCryptPass(middlePassHash!!, true)
+                        crypter.setKeyFromMiddleHash(middlePassHash!!)
                         // спрашиваем ПИН-код
                         Result.AskPin.toRight()
                     } else if (isNodeOpening) {

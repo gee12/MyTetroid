@@ -5,7 +5,7 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.isDirEmpty
 import com.gee12.mytetroid.common.extensions.isFileExist
 import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.helpers.StoragePathHelper
+import com.gee12.mytetroid.helpers.StoragePathProvider
 import com.gee12.mytetroid.model.TetroidStorage
 
 class CheckStorageFilesExistingUseCase(
@@ -24,31 +24,31 @@ class CheckStorageFilesExistingUseCase(
     }
 
     override suspend fun run(params: Params): Either<Failure, Result> {
-        val storagePathHelper = StoragePathHelper(
+        val storagePathProvider = StoragePathProvider(
             storageProvider = null,
             storage = params.storage,
         )
 
         return when {
-            !storagePathHelper.getStoragePath().isFileExist() -> {
+            !storagePathProvider.getStoragePath().isFileExist() -> {
                 Result.Error(
                     resourcesProvider.getString(R.string.error_storage_folder_is_not_exists)
                 ).toRight()
             }
-            storagePathHelper.getStoragePath().isDirEmpty() -> {
+            storagePathProvider.getStoragePath().isDirEmpty() -> {
                 Result.Error(
                     resourcesProvider.getString(R.string.error_storage_folder_is_empty)
                 ).toRight()
             }
             else -> {
                 val errors = buildList {
-                    if (!storagePathHelper.getPathToStorageBaseFolder().isFileExist()) {
+                    if (!storagePathProvider.getPathToStorageBaseFolder().isFileExist()) {
                         add(resourcesProvider.getString(R.string.folder_name_mask, Constants.BASE_DIR_NAME))
                     }
-                    if (!storagePathHelper.getPathToDatabaseIniConfig().isFileExist()) {
+                    if (!storagePathProvider.getPathToDatabaseIniConfig().isFileExist()) {
                         add(resourcesProvider.getString(R.string.file_name_mask, Constants.DATABASE_INI_FILE_NAME))
                     }
-                    if (!storagePathHelper.getPathToMyTetraXml().isFileExist()) {
+                    if (!storagePathProvider.getPathToMyTetraXml().isFileExist()) {
                         add(resourcesProvider.getString(R.string.file_name_mask, Constants.MYTETRA_XML_FILE_NAME))
                     }
                 }

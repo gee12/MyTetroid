@@ -45,8 +45,9 @@ class ReadStorageUseCase(
     private suspend fun readStorage(params: Params): Either<Failure, None> {
         val storage = params.storage
 
+        val myTetraXmlFilePath = makePath(params.storage.path, Constants.MYTETRA_XML_FILE_NAME)
         return try {
-            val myTetraXmlFile = File(makePath(params.storage.path, Constants.MYTETRA_XML_FILE_NAME))
+            val myTetraXmlFile = File(myTetraXmlFilePath)
             if (!myTetraXmlFile.exists()) {
                 storage.isLoaded = false
                 return Failure.Storage.Load.XmlFileNotExist(pathToFile = myTetraXmlFile.path).toLeft()
@@ -65,7 +66,7 @@ class ReadStorageUseCase(
             None.toRight()
         } catch (ex: Exception) {
             storage.isLoaded = false
-            Failure.Storage.Load.ReadXmlFile(pathToFile = storage.path, ex).toLeft()
+            Failure.Storage.Load.ReadXmlFile(pathToFile = myTetraXmlFilePath, ex).toLeft()
         }
     }
 
