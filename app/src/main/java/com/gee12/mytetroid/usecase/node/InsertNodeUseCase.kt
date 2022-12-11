@@ -1,15 +1,15 @@
 package com.gee12.mytetroid.usecase.node
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.interactors.DataInteractor
-import com.gee12.mytetroid.interactors.EncryptionInteractor
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
-import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.usecase.record.CloneRecordToNodeUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 import java.util.ArrayList
@@ -21,9 +21,9 @@ import java.util.HashMap
  */
 class InsertNodeUseCase(
     private val logger: ITetroidLogger,
-    private val dataInteractor: DataInteractor,
+    private val dataNameProvider: IDataNameProvider,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
-    private val cryptInteractor: EncryptionInteractor,
+    private val crypter: IStorageCrypter,
     private val saveStorageUseCase: SaveStorageUseCase,
     private val cloneRecordToNodeUseCase: CloneRecordToNodeUseCase,
 ) : UseCase<TetroidNode, InsertNodeUseCase.Params>() {
@@ -32,7 +32,7 @@ class InsertNodeUseCase(
         val srcNode: TetroidNode,
         val parentNode: TetroidNode,
         val isCut: Boolean,
-        val tagsMap: HashMap<String, TetroidTag>,
+//        val tagsMap: HashMap<String, TetroidTag>,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidNode> {
@@ -68,7 +68,7 @@ class InsertNodeUseCase(
         val isCut = params.isCut
 
         // генерируем уникальный идентификатор, если ветка копируется
-        val id = if (isCut) srcNode.id else dataInteractor.createUniqueId()
+        val id = if (isCut) srcNode.id else dataNameProvider.createUniqueId()
         val name = srcNode.name
         val iconName = srcNode.iconName
 
@@ -77,8 +77,8 @@ class InsertNodeUseCase(
         val node = TetroidNode(
             crypted,
             id,
-            cryptInteractor.encryptField(crypted, name),
-            cryptInteractor.encryptField(crypted, iconName),
+            encryptField(crypted, name),
+            encryptField(crypted, iconName),
             parentNode.level + 1
         )
         node.parentNode = parentNode
@@ -104,7 +104,7 @@ class InsertNodeUseCase(
                     node = node,
                     isCut = isCut,
                     breakOnFSErrors = breakOnFSErrors,
-                    tagsMap = params.tagsMap
+//                    tagsMap = params.tagsMap
                 )
                     .onFailure {
                         if (breakOnFSErrors) {
@@ -128,12 +128,20 @@ class InsertNodeUseCase(
         return node.toRight()
     }
 
+    private fun encryptField(isCrypted: Boolean, field: String): String? {
+        return if (isCrypted) {
+            crypter.encryptTextBase64(field)
+        } else {
+            field
+        }
+    }
+
     private suspend fun cloneRecordToNode(
         srcRecord: TetroidRecord,
         node : TetroidNode,
         isCut : Boolean,
         breakOnFSErrors: Boolean,
-        tagsMap: HashMap<String, TetroidTag>,
+//        tagsMap: HashMap<String, TetroidTag>,
     ) : Either<Failure, None> {
         return cloneRecordToNodeUseCase.run(
             CloneRecordToNodeUseCase.Params(
@@ -141,7 +149,7 @@ class InsertNodeUseCase(
                 node = node,
                 isCutted = isCut,
                 breakOnFSErrors = breakOnFSErrors,
-                tagsMap = tagsMap,
+//                tagsMap = tagsMap,
             )
         )
     }
