@@ -20,23 +20,31 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
-import com.gee12.mytetroid.usecase.node.InsertNodeUseCase
+import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.ui.activities.TetroidStorageActivity.IDownloadFileResult
+import com.gee12.mytetroid.usecase.GlobalSearchUseCase
+import com.gee12.mytetroid.usecase.attach.*
 import com.gee12.mytetroid.usecase.crypt.*
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.usecase.node.*
+import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.node.icon.SetNodeIconUseCase
+import com.gee12.mytetroid.usecase.record.*
 import kotlinx.coroutines.*
+import java.io.File
 import java.lang.Exception
 import java.util.ArrayList
-import java.util.HashMap
 
 class MainViewModel(
     app: Application,
@@ -44,77 +52,107 @@ class MainViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
+
     commonSettingsProvider: CommonSettingsProvider,
-    appBuildHelper: AppBuildHelper,
+    buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     favoritesInteractor: FavoritesInteractor,
     sensitiveDataProvider: ISensitiveDataProvider,
-    passInteractor: PasswordInteractor,
-    storageCrypter: IEncryptHelper,
-    cryptInteractor: EncryptionInteractor,
-    recordsInteractor: RecordsInteractor,
-    nodesInteractor: NodesInteractor,
-    tagsInteractor: TagsInteractor,
-    attachesInteractor: AttachesInteractor,
+    storagePathProvider: IStoragePathProvider,
+    recordPathProvider: IRecordPathProvider,
+    dataNameProvider: IDataNameProvider,
+
     storagesRepo: StoragesRepo,
-    storageDataProcessor: IStorageDataProcessor,
-    storagePathHelper: IStoragePathHelper,
-    recordPathHelper: IRecordPathHelper,
-    dataInteractor: DataInteractor,
+    storageCrypter: IStorageCrypter,
+//    storageDataProcessor: IStorageDataProcessor,
+
+//    cryptInteractor: EncryptionInteractor,
+    passInteractor: PasswordInteractor,
+    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
     private val migrationInteractor: MigrationInteractor,
     private val storageTreeInteractor: StorageTreeInteractor,
+
     initAppUseCase: InitAppUseCase,
+    private val globalSearchUseCase: GlobalSearchUseCase,
+    getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+    getFolderSizeUseCase: GetFolderSizeUseCase,
+
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
-    private val createNodeUseCase: CreateNodeUseCase,
     saveStorageUseCase: SaveStorageUseCase,
     checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
-    private val insertNodeUseCase: InsertNodeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+
+    getNodeByIdUseCase: GetNodeByIdUseCase,
+    private val createNodeUseCase: CreateNodeUseCase,
+    private val insertNodeUseCase: InsertNodeUseCase,
+    private val deleteNodeUseCase: DeleteNodeUseCase,
+    private val editNodeFieldsUseCase: EditNodeFieldsUseCase,
+    private val loadNodeIconUseCase: LoadNodeIconUseCase,
+    private val setNodeIconUseCase: SetNodeIconUseCase,
+
+    getRecordByIdUseCase: GetRecordByIdUseCase,
+    private val insertRecordUseCase: InsertRecordUseCase,
+    private val createRecordUseCase: CreateRecordUseCase,
+    private val createTempRecordUseCase: CreateTempRecordUseCase,
+    private val editRecordFieldsUseCase: EditRecordFieldsUseCase,
+    private val cutOrDeleteRecordUseCase: CutOrDeleteRecordUseCase,
+
+    private val getFileFromAttachUseCase: GetFileFromAttachUseCase,
+    private val createAttachToRecordUseCase: CreateAttachToRecordUseCase,
+    private val deleteAttachUseCase: DeleteAttachUseCase,
+    private val editAttachFieldsUseCase: EditAttachFieldsUseCase,
+    private val saveAttachUseCase: SaveAttachUseCase,
 ): StorageViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    commonSettingsProvider,
-    appBuildHelper,
-    storageProvider,
-    favoritesInteractor,
-    sensitiveDataProvider,
-    passInteractor,
-    storageCrypter,
-    cryptInteractor,
-    recordsInteractor,
-    nodesInteractor,
-    tagsInteractor,
-    attachesInteractor,
-    storagesRepo,
-    storagePathHelper,
-    recordPathHelper,
-    dataInteractor,
-    interactionInteractor,
-    syncInteractor,
-    trashInteractor,
-    initAppUseCase,
-    initOrCreateStorageUseCase,
-    readStorageUseCase,
-    saveStorageUseCase,
-    checkStoragePasswordUseCase,
-    changePasswordUseCase,
-    decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase,
-    checkStorageFilesExistingUseCase,
-    setupPasswordUseCase,
-    initPasswordUseCase,
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+
+    commonSettingsProvider = commonSettingsProvider,
+    buildInfoProvider = buildInfoProvider,
+    storageProvider = storageProvider,
+    sensitiveDataProvider = sensitiveDataProvider,
+    storagePathProvider = storagePathProvider,
+    recordPathProvider = recordPathProvider,
+    dataNameProvider = dataNameProvider,
+
+    storagesRepo = storagesRepo,
+    storageCrypter = storageCrypter,
+
+    favoritesInteractor = favoritesInteractor,
+    interactionInteractor = interactionInteractor,
+    passInteractor = passInteractor,
+    syncInteractor = syncInteractor,
+    trashInteractor = trashInteractor,
+    tagsInteractor = tagsInteractor,
+
+    initAppUseCase = initAppUseCase,
+    getFileModifiedDateUseCase = getFileModifiedDateUseCase,
+    getFolderSizeUseCase = getFolderSizeUseCase,
+
+    initOrCreateStorageUseCase = initOrCreateStorageUseCase,
+    readStorageUseCase = readStorageUseCase,
+    saveStorageUseCase = saveStorageUseCase,
+    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
+    changePasswordUseCase = changePasswordUseCase,
+    decryptStorageUseCase = decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    setupPasswordUseCase = setupPasswordUseCase,
+    initPasswordUseCase = initPasswordUseCase,
+
+    getNodeByIdUseCase = getNodeByIdUseCase,
+    getRecordByIdUseCase = getRecordByIdUseCase,
 ) {
 
     sealed class MainEvent : VMEvent() {
@@ -186,12 +224,12 @@ class MainViewModel(
         ) : MainEvent()
         object GlobalResearch : MainEvent()
         data class GlobalSearchFinished(
-            val found: HashMap<ITetroidObject, FoundType>,
+            val found: Map<ITetroidObject, FoundType>,
             val profile: SearchProfile,
         ) : MainEvent()
 
         // file system
-        data class AskForOperationWithoutDir(
+        data class AskForOperationWithoutFolder(
             val clipboardParams: ClipboardParams,
         ) : MainEvent()
         data class AskForOperationWithoutFile(
@@ -224,7 +262,7 @@ class MainViewModel(
 
     init {
         // FIXME: koin: циклическая зависимость
-        storageProvider.init(storageDataProcessor)
+//        storageProvider.init(/*storageDataProcessor*/)
 
         setStorageTreeObserverCallbacks()
     }
@@ -337,52 +375,61 @@ class MainViewModel(
      * Вставка записи в ветку.
      */
     fun insertRecord() {
+        // на всякий случай проверяем тип
+        if (!TetroidClipboard.hasObject(FoundType.TYPE_RECORD))
+            return
+        // достаем объект из "буфера обмена"
+        val clipboard = TetroidClipboard.getInstance()
+        // вставляем с попыткой восстановить каталог записи
+        val record = clipboard.getObject() as TetroidRecord
+        val isCutted = clipboard.isCutted
+        insertRecord(record, isCutted, withoutDir = false)
+    }
+
+    private fun insertRecord(record: TetroidRecord, isCutting: Boolean, withoutDir: Boolean) {
         launchOnMain {
-            // на всякий случай проверяем тип
-            if (!TetroidClipboard.hasObject(FoundType.TYPE_RECORD))
-                return@launchOnMain
-            // достаем объект из "буфера обмена"
-            val clipboard = TetroidClipboard.getInstance()
-            // вставляем с попыткой восстановить каталог записи
-            val record = clipboard.getObject() as TetroidRecord
-            val isCutted = clipboard.isCutted
-            val res = insertRecord(record, isCutted, false)
-            when (res) {
-                -1 -> {
-                    sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.INSERT, record, isCutted)))
-                }
-                -2 -> logOperErrorMore(LogObj.RECORD_DIR, LogOper.INSERT)
-                else -> onInsertRecordResult(record, res, isCutted)
-            }
-        }
-    }
-
-    private suspend fun insertRecord(record: TetroidRecord, isCutted: Boolean, withoutDir: Boolean): Int {
-        if (curNode == null) return -2
-        sendViewEvent(
-            ViewEvent.ShowProgressText(
-                message = getString(if (isCutted) R.string.progress_insert_record else R.string.progress_copy_record)
+            sendViewEvent(
+                ViewEvent.ShowProgressText(
+                    message = getString(if (isCutting) R.string.progress_insert_record else R.string.progress_copy_record)
+                )
             )
-        )
-        val result = recordsInteractor.insertRecord(record, isCutted, curNode!!, withoutDir)
-        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
-        return result
-    }
-
-    private fun onInsertRecordResult(record: TetroidRecord, res: Int, isCutted: Boolean) {
-        if (res > 0) {
-            logOperRes(LogObj.RECORD, LogOper.INSERT)
-            updateRecords()
-            updateNodes()
-            updateTags()
-            if (isCutted) {
-                // очищаем "буфер обмена"
-                TetroidClipboard.clear()
-                // обновляем избранное
-                updateFavoritesTitle(record)
+            withIo {
+                insertRecordUseCase.run(
+                    InsertRecordUseCase.Params(
+                        record = record,
+                        node = curNode!!,
+                        isCutting = isCutting,
+                        withoutDir = withoutDir,
+                    )
+                )
+            }.onComplete {
+                sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+            }.onFailure {
+                when (it) {
+                    is Failure.File -> {
+                        logFailure(it)
+//                    logOperErrorMore(LogObj.RECORD_DIR, LogOper.INSERT)
+                    }
+                    is Failure.Folder -> {
+                        sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.INSERT, record, isCutting)))
+                    }
+                    else -> {
+                        logFailure(it)
+//                    logOperErrorMore(LogObj.RECORD, LogOper.INSERT)
+                    }
+                }
+            }.onSuccess {
+                logOperRes(LogObj.RECORD, LogOper.INSERT)
+                updateRecords()
+                updateNodes()
+                updateTags()
+                if (isCutting) {
+                    // очищаем "буфер обмена"
+                    TetroidClipboard.clear()
+                    // обновляем избранное
+                    updateFavoritesTitle(record)
+                }
             }
-        } else {
-            logOperErrorMore(LogObj.RECORD, LogOper.INSERT)
         }
     }
 
@@ -392,8 +439,21 @@ class MainViewModel(
     fun createRecord(name: String, tags: String, author: String, url: String, node: TetroidNode?, isFavor: Boolean) {
         if (node == null) return
         launchOnMain {
-            val record = recordsInteractor.createRecord(getContext(), name, tags, author, url, node, isFavor)
-            if (record != null) {
+            withIo {
+                createRecordUseCase.run(
+                    CreateRecordUseCase.Params(
+                        name = name,
+                        tagsString = tags,
+                        author = author,
+                        url = url,
+                        node = node,
+                        isFavor = isFavor,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+//                logOperErrorMore(LogObj.RECORD, LogOper.CREATE)
+            }.onSuccess { record ->
                 logOperRes(LogObj.RECORD, LogOper.CREATE, record, false)
                 updateTags()
                 updateNodes()
@@ -401,21 +461,20 @@ class MainViewModel(
                     updateRecords()
                 }
                 openRecord(record)
-            } else {
-                logOperErrorMore(LogObj.RECORD, LogOper.CREATE)
             }
         }
     }
 
     /**
      * Создание новой записи для вставки объекта из другого приложения.
-     * @param intent
-     * @param isText
-     * @param text
-     * @param imagesUri
-     * @param receivedData
      */
-    fun createRecordFromIntent(intent: Intent, isText: Boolean, text: String, imagesUri: ArrayList<Uri>, receivedData: ReceivedData) {
+    fun createRecordFromIntent(
+        intent: Intent,
+        isText: Boolean,
+        text: String,
+        imagesUri: ArrayList<Uri>,
+        receivedData: ReceivedData
+    ) {
         launchOnMain {
             // имя записи
             val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
@@ -424,99 +483,113 @@ class MainViewModel(
                 url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
             }
             // создаем запись
-            val node = quicklyNode ?: storageProvider.getRootNode()
-            val record: TetroidRecord = recordsInteractor.createTempRecord(
-                context = getContext(),
-                srcName = subject,
-                url = url,
-                text = text,
-                node = node
-            ) ?: return@launchOnMain
-            if (isText) {
-                // запускаем активность просмотра записи
-                openRecord(record.id)
-            } else {
-                // загружаем изображения в каталоги записи
-                if (!receivedData.isAttach) {
-                    // запускаем активность просмотра записи с командой вставки изображений после загрузки
-                    openRecordWithImages(record.id, imagesUri)
+            withIo {
+                createTempRecordUseCase.run(
+                    CreateTempRecordUseCase.Params(
+                        srcName = subject,
+                        url = url,
+                        text = text,
+                        node = quicklyNode ?: storageProvider.getRootNode(),
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { record ->
+                if (isText) {
+                    // запускаем активность просмотра записи
+                    openRecord(record.id)
                 } else {
-                    // прикрепляем изображения как файлы
-                    var hasError = false
-                    val uriHelper = UriHelper(getContext())
-                    for (uri in imagesUri) {
-                        if (attachesInteractor.attachFile(uriHelper.getPath(uri), record) == null) {
-                            hasError = true
+                    // загружаем изображения в каталоги записи
+                    if (!receivedData.isAttach) {
+                        // запускаем активность просмотра записи с командой вставки изображений после загрузки
+                        openRecordWithImages(record.id, imagesUri)
+                    } else {
+                        // прикрепляем изображения как файлы
+                        var hasError = false
+                        val uriHelper = UriHelper(getContext())
+                        for (uri in imagesUri) {
+                            createAttachToRecordUseCase.run(
+                                CreateAttachToRecordUseCase.Params(
+                                    fullName = uriHelper.getPath(uri),
+                                    record = record,
+                                )
+                            ).onFailure {
+                                hasError = true
+                            }
                         }
-                    }
-                    if (hasError) {
-                        logWarning(R.string.log_files_attach_error, true)
-                        sendViewEvent(ViewEvent.ShowMoreInLogs)
-                    }
-                    // запускаем активность записи, к которой уже будут прикреплены файлы
-                    openRecordWithAttachedFiles(record.id)
-                    // обновляем список файлов
+                        if (hasError) {
+                            logWarning(R.string.log_files_attach_error, true)
+                            sendViewEvent(ViewEvent.ShowMoreInLogs)
+                        }
+                        // запускаем активность записи, к которой уже будут прикреплены файлы
+                        openRecordWithAttachedFiles(record.id)
+                        // обновляем список файлов
 //                mDrawerLayout.closeDrawers();
 //                mViewPagerAdapter.getMainFragment().showRecordFiles(record);
+                    }
                 }
             }
+
         }
     }
 
     /**
      * Удаление записи.
      */
-    fun deleteRecord(record: TetroidRecord?) {
-        if (record == null) return
+    fun deleteRecord(recordId: String) {
         launchOnMain {
-            val res = deleteRecord(record, false)
-            if (res == -1) {
-                sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.DELETE, record)))
-            } else {
-                onDeleteRecordResult(record, res, false)
+            withIo {
+                getRecordByIdUseCase.run(recordId)
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess {
+                deleteRecord(it)
             }
         }
     }
 
-    /**
-     * Обработка результата удаления записи.
-     * @param record
-     * @param res
-     */
-    private suspend fun onDeleteRecordResult(record: TetroidRecord, res: Int, isCutted: Boolean) {
-        if (res > 0) {
-            sendEvent(MainEvent.Record.Deleted(record))
-            updateTags()
-            updateNodes()
-            // обновляем избранное
-            if (!updateFavoritesTitle(record)) {
-                updateRecords()
-            }
-            curRecord = null
-            delay(10)
-            logOperRes(LogObj.RECORD, if (isCutted) LogOper.CUT else LogOper.DELETE)
-            // переходим в список записей ветки после удаления
-            // (запись может быть удалена при попытке просмотра/изменения файла, например)
-            if (curMainViewId != Constants.MAIN_VIEW_NODE_RECORDS && curMainViewId != Constants.MAIN_VIEW_FAVORITES) {
-                showMainView(Constants.MAIN_VIEW_NODE_RECORDS)
-            }
-        } else if (res == -2 && !isCutted) {
-            logWarning(R.string.log_erorr_move_record_dir_when_del, true)
-            sendViewEvent(ViewEvent.ShowMoreInLogs)
-        } else {
-            logOperErrorMore(LogObj.RECORD, if (isCutted) LogOper.CUT else LogOper.DELETE)
-        }
+    fun deleteRecord(record: TetroidRecord) {
+//        launchOnMain {
+//            val res = deleteRecord(record, false)
+//            if (res == -1) {
+//                sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, record)))
+//            } else {
+//                onDeleteRecordResult(record, res, false)
+//            }
+//        }
+        cutOrDeleteRecord(record, isCutting = false, withoutDir = false)
     }
 
-    override fun editRecordFields(record: TetroidRecord, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
+    fun editRecordFields(
+        record: TetroidRecord,
+        name: String,
+        tags: String,
+        author: String,
+        url: String,
+        node: TetroidNode,
+        isFavor: Boolean,
+    ) {
+        val oldNode = record.node
         launchOnMain {
-            val oldNode = record.node
-            if (recordsInteractor.editRecordFields(record, name, tags, author, url, node, isFavor)) {
+            withIo {
+                editRecordFieldsUseCase.run(
+                    EditRecordFieldsUseCase.Params(
+                        record = record,
+                        name = name,
+                        tagsString = tags,
+                        author = author,
+                        url = url,
+                        node = node,
+                        isFavor = isFavor,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+//                logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
+            }.onSuccess {
                 onRecordFieldsUpdated(record, oldNode !== record.node)
 //                TetroidLog.logOperRes(TetroidLog.LogObj.FILE_FIELDS, TetroidLog.LogOper.CHANGE);
                 log(R.string.log_record_fields_changed, true)
-            } else {
-                logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
             }
         }
     }
@@ -585,16 +658,58 @@ class MainViewModel(
      * @param record
      */
     fun cutRecord(record: TetroidRecord) {
+        // добавляем в "буфер обмена"
+        TetroidClipboard.cut(record)
+        // удаляем запись из текущей ветки и каталог перемещаем в корзину
+        cutOrDeleteRecord(record, isCutting = true, withoutDir = false)
+    }
+
+    private fun cutOrDeleteRecord(record: TetroidRecord, isCutting: Boolean, withoutDir: Boolean) {
         launchOnMain {
-            // добавляем в "буфер обмена"
-            TetroidClipboard.cut(record)
-            // удаляем запись из текущей ветки и каталог перемещаем в корзину
-            val res: Int = cutRecord(record, false)
-            if (res == -1) {
-                sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.CUT, record)))
-//                }
-            } else {
-                onDeleteRecordResult(record, res, true)
+            withIo {
+                cutOrDeleteRecordUseCase.run(
+                    CutOrDeleteRecordUseCase.Params(
+                        record = record,
+                        withoutDir = withoutDir,
+                        movePath = storagePathProvider.getPathToStorageTrashFolder(),
+                        isCutting = isCutting,
+                    )
+                )
+            }.onFailure {
+                when (it) {
+                    is Failure.File -> {
+                        logFailure(it)
+//                        logWarning(R.string.log_erorr_move_record_dir_when_del, true)
+                        sendViewEvent(ViewEvent.ShowMoreInLogs)
+                    }
+                    is Failure.Folder -> {
+                        if (isCutting) {
+                            sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.CUT, record)))
+                        } else {
+                            sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, record)))
+                        }
+                    }
+                    else -> {
+                        logFailure(it)
+//                        logOperErrorMore(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE)
+                    }
+                }
+            }.onSuccess {
+                sendEvent(MainEvent.Record.Deleted(record))
+                updateTags()
+                updateNodes()
+                // обновляем избранное
+                if (!updateFavoritesTitle(record)) {
+                    updateRecords()
+                }
+                curRecord = null
+                delay(10)
+                logOperRes(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE)
+                // переходим в список записей ветки после удаления
+                // (запись может быть удалена при попытке просмотра/изменения файла, например)
+                if (curMainViewId != Constants.MAIN_VIEW_NODE_RECORDS && curMainViewId != Constants.MAIN_VIEW_FAVORITES) {
+                    showMainView(Constants.MAIN_VIEW_NODE_RECORDS)
+                }
             }
         }
     }
@@ -607,24 +722,20 @@ class MainViewModel(
             when (params.operation) {
                 LogOper.INSERT -> {
                     val record = params.obj as TetroidRecord
-                    val res: Int = insertRecord(record, params.isCutted, true)
-                    onInsertRecordResult(record, res, params.isCutted)
+                    insertRecord(record, isCutting = params.isCutted, withoutDir = true)
                 }
                 LogOper.DELETE -> {
                     if (params.obj is TetroidRecord) {
                         val record = params.obj
-                        val res: Int = deleteRecord(record, true)
-                        onDeleteRecordResult(record, res, false)
+                        cutOrDeleteRecord(record, isCutting = false, withoutDir = true)
                     } else if (params.obj is TetroidFile) {
                         val record = params.obj.record
-                        val res = deleteRecord(record, true)
-                        onDeleteRecordResult(record, res, false)
+                        cutOrDeleteRecord(record, isCutting = false, withoutDir = true)
                     }
                 }
                 LogOper.CUT -> {
                     val record = params.obj as TetroidRecord
-                    val res: Int = cutRecord(record, true)
-                    onDeleteRecordResult(record, res, true)
+                    cutOrDeleteRecord(record, isCutting = true, withoutDir = true)
                 }
                 else -> {}
             }
@@ -636,11 +747,7 @@ class MainViewModel(
      * Реализация метода интерфейса IMainView.
      * @param record
      */
-    fun openRecord(record: TetroidRecord?) {
-        if (record == null) {
-            logError(R.string.log_record_is_null, show = true)
-            return
-        }
+    fun openRecord(record: TetroidRecord) {
         // проверка нужно ли расшифровать избранную запись перед отображением
         // (т.к. в избранной ветке записи могут быть нерасшифрованные)
         if (!checkAndDecryptRecord(record)) {
@@ -695,11 +802,12 @@ class MainViewModel(
 
     /**
      * Открытие каталога записи.
-     * @param record
      */
-    fun openRecordFolder(record: TetroidRecord?) {
-        if (record == null) return
-        if (!recordsInteractor.openRecordFolder(getContext(), record)) {
+    fun openRecordFolder(record: TetroidRecord) {
+        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
+        val fileFullName = recordPathProvider.getPathToRecordFolder(record)
+        if (!interactionInteractor.openFile(getContext(), File(fileFullName))) {
+            Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), fileFullName)
             logWarning(R.string.log_missing_file_manager, true)
         }
     }
@@ -714,38 +822,49 @@ class MainViewModel(
 
     //region Nodes
 
+    fun showNode(nodeId: String) {
+        launchOnMain {
+            val node = getNode(nodeId)
+            if (node != null) {
+                showNode(node)
+            } else {
+                logError(getString(R.string.error_node_not_found_with_id_mask) + nodeId, true)
+            }
+        }
+    }
+
     /**
      * Открытие записей ветки.
      * @param node
      */
-    fun showNode(node: TetroidNode?) {
-        if (node != null) {
-            // проверка нужно ли расшифровать ветку перед отображением
-            if (checkAndDecryptNode(node)) return
+    fun showNode(node: TetroidNode) {
+//        if (node != null) {
+        // проверка нужно ли расшифровать ветку перед отображением
+        if (checkAndDecryptNode(node)) return
 
-            launchOnMain {
-                log(getString(R.string.log_open_node) + node.getIdString(resourcesProvider))
-                curNode = node
-                sendEvent(MainEvent.SetCurrentNode(node))
-                showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
+        launchOnMain {
+            log(getString(R.string.log_open_node) + node.getIdString(resourcesProvider))
+            curNode = node
+            sendEvent(MainEvent.SetCurrentNode(node))
+            showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
 
-                // сохраняем выбранную ветку
-                saveLastSelectedNode()
-            }
-        } else {
-            logError(R.string.log_node_is_null, true)
+            // сохраняем выбранную ветку
+            saveLastSelectedNode()
         }
+//        } else {
+//            logError(R.string.log_node_is_null, true)
+//        }
     }
 
     /**
      * Открытие ветки записи.
      * Если активен режим "Только избранное", то открытие списка избранных записей.
      */
-    fun showRecordNode(record: TetroidRecord?) {
+    fun showRecordNode() {
         when {
             isLoadedFavoritesOnly() -> showFavorites()
-            record != null -> showNode(record.node)
-            curNode != null -> showNode(curNode)
+            curRecord != null -> showNode(curRecord!!.node)
+            curNode != null -> showNode(curNode!!)
         }
     }
 
@@ -767,6 +886,7 @@ class MainViewModel(
                     CreateNodeUseCase.Params(
                         name = name,
                         parentNode = trueParentNode,
+//                        rootNodes = storageProvider.getRootNodes(),
                     )
                 )
             }.onFailure { failure ->
@@ -784,25 +904,48 @@ class MainViewModel(
      */
     fun renameNode(node: TetroidNode, newName: String) {
         launchOnMain {
-            if (nodesInteractor.editNodeFields(node, newName)) {
+            withIo {
+                editNodeFieldsUseCase.run(
+                    EditNodeFieldsUseCase.Params(
+                        node = node,
+                        name = newName,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+//                logOperErrorMore(LogObj.NODE, LogOper.RENAME)
+            }.onSuccess {
+
                 logOperRes(LogObj.NODE, LogOper.RENAME)
                 updateNodes()
                 sendEvent(MainEvent.Node.Renamed(node))
-            } else {
-                logOperErrorMore(LogObj.NODE, LogOper.RENAME)
             }
         }
     }
 
-    fun setNodeIcon(nodeId: String?, iconPath: String?, isDrop: Boolean) {
-        if (nodeId == null) return
+    fun setNodeIcon(nodeId: String, iconPath: String?, isDrop: Boolean) {
         launchOnMain {
-            val node = if (curNode?.id == nodeId) curNode else nodesInteractor.getNode(nodeId)
-            if (nodesInteractor.setNodeIcon(node, iconPath, isDrop)) {
+            withIo {
+                val node = if (curNode?.id == nodeId) {
+                    curNode
+                } else {
+                    getNode(nodeId)
+                }
+                node?.let {
+                    setNodeIconUseCase.run(
+                        SetNodeIconUseCase.Params(
+                            node = node,
+                            iconFileName = if (isDrop) iconPath else null,
+//                            storageProvider = storageProvider,
+                        )
+                    )
+                }
+            }?.onFailure {
+                //logOperErrorMore(LogObj.NODE, LogOper.CHANGE)
+                logFailure(it)
+            }?.onSuccess {
                 logOperRes(LogObj.NODE, LogOper.CHANGE)
                 updateNodes()
-            } else {
-                logOperErrorMore(LogObj.NODE, LogOper.CHANGE)
             }
         }
     }
@@ -830,6 +973,7 @@ class MainViewModel(
                         srcNode = node,
                         parentNode = trueParentNode,
                         isCut = isCut,
+//                        tagsMap = storageProvider.getTagsMap(),
                     )
                 )
             }.onFailure {
@@ -854,77 +998,84 @@ class MainViewModel(
             return
         }
         // нельзя вырезать ветку, у которой есть дочерние нерасшифрованные ветки
-        if (nodesInteractor.hasNonDecryptedNodes(node)) {
+        if (hasNonDecryptedNodes(node)) {
             log(getString(R.string.log_enter_pass_first), true)
             return
         }
         // добавляем в "буфер обмена"
         TetroidClipboard.cut(node)
-        launchOnMain {
-            // удаляем ветку из родительской ветки вместе с записями
-            val res = nodesInteractor.cutNode(node)
-            onDeleteNodeResult(node, res, true)
-        }
+        // удаляем ветку из родительской ветки вместе с записями
+        deleteOrCutNode(node, isCutting = true)
     }
 
     /**
      * Удаление ветки.
      * @param node
      */
-    fun startDeleteNode(node: TetroidNode?) {
-        if (node == null) return
+    fun startDeleteNode(node: TetroidNode) {
         // нельзя удалить нерасшифрованную ветку
-        if (!node.isNonCryptedOrDecrypted) {
-            log(R.string.log_cannot_delete_undecrypted_node, true)
-            return
-        }
-        // нельзя удалить последнюю ветку в корне
-        if (node.level == 0 && getRootNodes().size == 1) {
-            log(R.string.log_cannot_delete_root_node, true)
-            return
-        }
-        launchOnMain {
-            sendEvent(MainEvent.Node.AskForDelete(node))
-        }
-    }
-
-    fun deleteNode(node: TetroidNode) {
-        launchOnMain {
-            val res = nodesInteractor.deleteNode(node)
-            onDeleteNodeResult(node, res, false)
-        }
-    }
-
-    private fun onDeleteNodeResult(node: TetroidNode, res: Boolean, isCutted: Boolean) {
-        if (res) {
-            launchOnMain {
-                sendEvent(if (isCutted) MainEvent.Node.Cutted(node) else MainEvent.Node.Deleted(node))
+        when {
+            !node.isNonCryptedOrDecrypted -> {
+                log(R.string.log_cannot_delete_undecrypted_node, true)
             }
-            // удаляем элемент внутри списка
+            // нельзя удалить последнюю ветку в корне
+            node.level == 0 && getRootNodes().size == 1 -> {
+                log(R.string.log_cannot_delete_root_node, true)
+            }
+            else -> {
+                launchOnMain {
+                    sendEvent(MainEvent.Node.AskForDelete(node))
+                }
+            }
+        }
+    }
+
+    fun deleteOrCutNode(node: TetroidNode, isCutting: Boolean) {
+        launchOnMain {
+            withIo {
+                deleteNodeUseCase.run(
+                    DeleteNodeUseCase.Params(
+                        node = node,
+                        movePath = storagePathProvider.getPathToTrash(),
+                        isCutting = isCutting,
+                        rootNodes = storageProvider.getRootNodes(),
+                        tagsMap = storageProvider.getTagsMap(),
+                        getRecordFolderCallback = { record ->
+                            recordPathProvider.getPathToRecordFolder(record)
+                        }
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess {
+                sendEvent(if (isCutting) MainEvent.Node.Cutted(node) else MainEvent.Node.Deleted(node))
+                // удаляем элемент внутри списка
 //            if (mListAdapterNodes.deleteItem(pos)) {
 //                logOperRes(this, LogObj.NODE, if (!isCutted) LogOper.DELETE else LogOper.CUT)
 //            } else {
 //                LogManager.log(this, getString(R.string.log_node_delete_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG)
 //            }
-            // обновляем label с количеством избранных записей
-            if (appBuildHelper.isFullVersion()) {
-                updateFavoritesTitle()
-            }
-            // убираем список записей удаляемой ветки
-            if (curNode == node || nodesInteractor.isNodeInNode(curNode, node)) {
-//                getMainPage().clearView()
-                curRecord = null
-                curNode = null
-                launchOnMain {
-                    sendViewEvent(ViewEvent.ClearMainView)
+                // обновляем label с количеством избранных записей
+                if (buildInfoProvider.isFullVersion()) {
+                    updateFavoritesTitle()
                 }
+                // убираем список записей удаляемой ветки
+                if (curNode == node || isNodeInNode(curNode, node)) {
+//                getMainPage().clearView()
+                    curRecord = null
+                    curNode = null
+                    launchOnMain {
+                        sendViewEvent(ViewEvent.ClearMainView)
+                    }
+                }
+                if (node.isCrypted) {
+                    // проверяем существование зашифрованных веток
+                    checkExistenceCryptedNodes()
+                }
+//        } else {
+//            logOperErrorMore(LogObj.NODE, if (!isCutted) LogOper.DELETE else LogOper.CUT)
+//        }
             }
-            if (node.isCrypted) {
-                // проверяем существование зашифрованных веток
-                checkExistenceCryptedNodes()
-            }
-        } else {
-            logOperErrorMore(LogObj.NODE, if (!isCutted) LogOper.DELETE else LogOper.CUT)
         }
     }
 
@@ -1001,8 +1152,8 @@ class MainViewModel(
                 return@withIo if (isStorageNonEncryptedOrDecrypted()) {
                     setStage(LogObj.NODE, operation, Stages.START)
 
-                    val result = if (isEncrypt) cryptInteractor.encryptNode(node)
-                    else cryptInteractor.dropCryptNode(node)
+                    val result = if (isEncrypt) crypter.encryptNode(node, isReencrypt = false)
+                    else dropCryptNode(node)
 
                     if (result && saveStorage()) 1 else -1
                 } else 0
@@ -1022,6 +1173,33 @@ class MainViewModel(
             afterStorageDecrypted(null)
         }
     }
+
+    /**
+     * Расшифровка ветки с подветками (постоянная).
+     */
+    private suspend fun dropCryptNode(node: TetroidNode): Boolean {
+        return crypter.decryptNode(
+            node = node,
+            isDecryptSubNodes = true,
+            isDecryptRecords = true,
+            loadIconCallback = {
+                loadNodeIconUseCase.execute(
+                    LoadNodeIconUseCase.Params(node)
+                ).onFailure {
+                    logger.logFailure(it, show = false)
+                }
+            },
+            isDropCrypt = true,
+            isDecryptFiles = false
+        )
+    }
+
+//    /**
+//     * Зашифровка (незашифрованной) ветки с подветками.
+//     */
+//    private suspend fun encryptNode(node: TetroidNode): Boolean {
+//        return crypter.encryptNode(node, false)
+//    }
 
     override fun afterStorageDecrypted(node: TetroidNode?) {
         launchOnMain {
@@ -1060,6 +1238,23 @@ class MainViewModel(
         }
     }
 
+    fun hasNonDecryptedNodes(node: TetroidNode): Boolean {
+        if (!node.isNonCryptedOrDecrypted) return true
+        if (node.subNodesCount > 0) {
+            for (subnode in node.subNodes) {
+                if (hasNonDecryptedNodes(subnode)) return true
+            }
+        }
+        return false
+    }
+
+    fun isNodeInNode(node: TetroidNode?, nodeAsParent: TetroidNode?): Boolean {
+        if (node == null || nodeAsParent == null) return false
+        return if (node.parentNode != null) {
+            if (node.parentNode == nodeAsParent) true else isNodeInNode(node.parentNode, nodeAsParent)
+        } else false
+    }
+
     //endregion Nodes
 
     //region Tags
@@ -1079,17 +1274,17 @@ class MainViewModel(
      * Отображение записей по метке.
      * @param tag
      */
-    fun showTag(tag: TetroidTag?) {
+    fun showTag(tag: TetroidTag) {
         launchOnMain {
-            if (tag != null) {
-                curTag = tag
-                // сбрасываем текущую ветку
-                sendEvent(MainEvent.SetCurrentNode(node = null))
-                log(getString(R.string.log_open_tag_records_mask, tag.name))
-                showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
-            } else {
-                logError(R.string.log_tag_is_null, true)
-            }
+//            if (tag != null) {
+            curTag = tag
+            // сбрасываем текущую ветку
+            sendEvent(MainEvent.SetCurrentNode(node = null))
+            log(getString(R.string.log_open_tag_records_mask, tag.name))
+            showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
+//            } else {
+//                logError(R.string.log_tag_is_null, true)
+//            }
         }
     }
 
@@ -1141,7 +1336,15 @@ class MainViewModel(
 
     fun openAttach(attach: TetroidFile) {
         launchOnMain {
-            attachesInteractor.openAttach(getContext(), attach)
+            getFileFromAttachUseCase.run(
+                GetFileFromAttachUseCase.Params(
+                    attach = attach,
+                )
+            ).onFailure {
+                logFailure(it)
+            }.onSuccess { file ->
+                interactionInteractor.openFile(getContext(), file)
+            }
         }
     }
 
@@ -1155,8 +1358,19 @@ class MainViewModel(
      * Отображение списка прикрепленных файлов.
      * @param record Запись
      */
-    fun showRecordAttaches(record: TetroidRecord?, fromRecordActivity: Boolean = false) {
-        if (record == null) return
+    fun showRecordAttaches(recordId: String, fromRecordActivity: Boolean = false) {
+        launchOnMain {
+            withIo {
+                getRecordByIdUseCase.run(recordId)
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess {
+                showRecordAttaches(it, fromRecordActivity)
+            }
+        }
+    }
+
+    fun showRecordAttaches(record: TetroidRecord, fromRecordActivity: Boolean = false) {
         launchOnMain {
             curNode = record.node
             curRecord = record
@@ -1166,11 +1380,17 @@ class MainViewModel(
         }
     }
 
-    open fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
+    open fun attachFile(fileFullName: String, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
             sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
             val attach = withIo {
-                attachesInteractor.attachFile(fileFullName, record, deleteSrcFile)
+                createAttachToRecordUseCase.run(
+                    CreateAttachToRecordUseCase.Params(
+                        fullName = fileFullName,
+                        record = record,
+                        deleteSrcFile = deleteSrcFile,
+                    )
+                )
             }
             sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
             if (attach != null) {
@@ -1198,7 +1418,9 @@ class MainViewModel(
     }
 
     fun attachFileToCurRecord(fullFileName: String, deleteSrcFile: Boolean) {
-        attachFile(fullFileName, curRecord, deleteSrcFile)
+        curRecord?.let { record ->
+            attachFile(fullFileName, record, deleteSrcFile)
+        }
     }
 
     /**
@@ -1215,7 +1437,7 @@ class MainViewModel(
      */
     fun downloadAndAttachFile(url: String) {
         launchOnMain {
-            downloadFileToCache(url, object : IDownloadFileResult {
+            downloadFileToCache(url, object : TetroidActivity.IDownloadFileResult {
                 override fun onSuccess(uri: Uri) {
                     attachFileToCurRecord(uri)
                 }
@@ -1226,66 +1448,125 @@ class MainViewModel(
 
     /**
      * Удаление прикрепленного файла.
-     * @param file
      */
-    fun deleteAttach(file: TetroidFile) {
+    fun deleteAttach(attach: TetroidFile, withoutFile: Boolean = false) {
+//        launchOnMain {
+//            when (val res: Int = deleteAttach(file, false)) {
+//                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.DELETE, file)))
+//                -1 -> sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.DELETE, file)))
+//                else -> onDeleteAttachResult(file, res)
+//            }
+//        }
         launchOnMain {
-            when (val res: Int = attachesInteractor.deleteAttachedFile(file, false)) {
-                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.DELETE, file)))
-                -1 -> sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.DELETE, file)))
-                else -> onDeleteAttachResult(file, res)
+            withIo {
+                deleteAttachUseCase.run(
+                    DeleteAttachUseCase.Params(
+                        attach = attach,
+                        withoutFile = withoutFile,
+                    )
+                )
+            }.onFailure {
+                when (it) {
+                    is Failure.File.NotExist -> {
+                        sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.DELETE, attach)))
+                    }
+                    is Failure.Folder.NotExist -> {
+                        sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, attach)))
+                    }
+                    else -> {
+                        logFailure(it)
+//                        logOperErrorMore(LogObj.FILE, LogOper.DELETE)
+                    }
+                }
+            }.onSuccess {
+                launchOnMain {
+                    sendEvent(MainEvent.AttachDeleted(attach = attach))
+                }
+                // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
+                // если был удален единственный файл
+                if ((curRecord?.attachedFilesCount ?: 0) <= 0) {
+                    updateRecords()
+                }
+                logOperRes(LogObj.FILE, LogOper.DELETE)
             }
         }
     }
 
-    /**
-     * Обработка результата удаления файла.
-     * @param file
-     * @param res
-     */
-    private fun onDeleteAttachResult(file: TetroidFile, res: Int) {
-        if (res > 0) {
-            launchOnMain {
-                sendEvent(MainEvent.AttachDeleted(attach = file))
-            }
-            // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
-            // если был удален единственный файл
-            if ((curRecord?.attachedFilesCount ?: 0) <= 0) {
-                updateRecords()
-            }
-            logOperRes(LogObj.FILE, LogOper.DELETE)
-        } else {
-            logOperErrorMore(LogObj.FILE, LogOper.DELETE)
-        }
-    }
+//    /**
+//     * Обработка результата удаления файла.
+//     * @param file
+//     * @param res
+//     */
+//    private fun onDeleteAttachResult(file: TetroidFile, res: Int) {
+//        if (res > 0) {
+//            launchOnMain {
+//                sendEvent(MainEvent.AttachDeleted(attach = file))
+//            }
+//            // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
+//            // если был удален единственный файл
+//            if ((curRecord?.attachedFilesCount ?: 0) <= 0) {
+//                updateRecords()
+//            }
+//            logOperRes(LogObj.FILE, LogOper.DELETE)
+//        } else {
+//            logOperErrorMore(LogObj.FILE, LogOper.DELETE)
+//        }
+//    }
 
     /**
      * Переименование прикрепленного файла.
-     * @param file
+     * @param attach
      */
-    fun renameAttach(file: TetroidFile, name: String) {
+    fun renameAttach(attach: TetroidFile, name: String) {
+//        launchOnMain {
+//            when (val res = attachesInteractor.editAttachedFileFields(attach, name)) {
+//                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.RENAME, attach)))
+//                // TODO: добавить вариант Создать каталог записи
+//                -1 -> sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.RENAME, attach)))
+//                else -> onRenameAttachResult(res)
+//            }
+//        }
         launchOnMain {
-            when (val res = attachesInteractor.editAttachedFileFields(file, name)) {
-                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.RENAME, file)))
-                // TODO: добавить вариант Создать каталог записи
-                -1 -> sendEvent(MainEvent.AskForOperationWithoutDir(ClipboardParams(LogOper.RENAME, file)))
-                else -> onRenameAttachResult(res)
+            withIo {
+                editAttachFieldsUseCase.run(
+                    EditAttachFieldsUseCase.Params(
+                        attach = attach,
+                        name = name,
+                    )
+                )
+            }.onFailure {
+                when (it) {
+                    is Failure.File.NotExist -> {
+                        sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.RENAME, attach)))
+                    }
+                    is Failure.Folder.NotExist -> {
+                        // TODO: добавить вариант Создать каталог записи
+                        sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.RENAME, attach)))
+                    }
+                    else -> {
+                        logFailure(it)
+//                        logOperErrorMore(LogObj.FILE, LogOper.RENAME)
+                    }
+                }
+            }.onSuccess {
+                logOperRes(LogObj.FILE, LogOper.RENAME)
+                updateAttaches()
             }
         }
     }
 
-    /**
-     * Обработка результата переименования файла.
-     * @param res
-     */
-    private fun onRenameAttachResult(res: Int) {
-        if (res > 0) {
-            logOperRes(LogObj.FILE, LogOper.RENAME)
-            updateAttaches()
-        } else {
-            logOperErrorMore(LogObj.FILE, LogOper.RENAME)
-        }
-    }
+//    /**
+//     * Обработка результата переименования файла.
+//     * @param res
+//     */
+//    private fun onRenameAttachResult(res: Int) {
+//        if (res > 0) {
+//            logOperRes(LogObj.FILE, LogOper.RENAME)
+//            updateAttaches()
+//        } else {
+//            logOperErrorMore(LogObj.FILE, LogOper.RENAME)
+//        }
+//    }
 
     /**
      * Операции с объектами хранилища, когда файл отсутствует.
@@ -1296,9 +1577,10 @@ class MainViewModel(
                 LogOper.RENAME,
                 LogOper.DELETE -> {
                     if (params.obj is TetroidFile) {
-                        val file = params.obj
-                        val res = attachesInteractor.deleteAttachedFile(file, true)
-                        onDeleteAttachResult(file, res)
+                        deleteAttach(
+                            attach = params.obj,
+                            withoutFile = true,
+                        )
                     }
                 }
                 else -> {}
@@ -1334,39 +1616,36 @@ class MainViewModel(
      * Сохранение файла по выбранному пути.
      */
     fun saveCurAttachOnDevice(folderPath: String) {
-        launchOnMain {
-            sendViewEvent(ViewEvent.TaskStarted(R.string.task_file_saving))
-            val res = curFile?.let {
-                attachesInteractor.saveFile(it, folderPath)
-            } ?: false
-            sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
-            onSaveFileResult(res)
+        curFile?.let {
+            launchOnMain {
+                sendViewEvent(ViewEvent.TaskStarted(R.string.task_file_saving))
+                withIo {
+                    saveAttachUseCase.run(
+                        SaveAttachUseCase.Params(
+                            attach = it,
+                            destPath = folderPath,
+                        )
+                    )
+                }.onComplete {
+                    sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
+                }.onFailure {
+                    logFailure(it)
+//                    logOperErrorMore(LogObj.FILE, LogOper.SAVE)
+                }.onSuccess {
+                    logOperRes(LogObj.FILE, LogOper.SAVE, "", true)
+                }
+            }
         }
-    }
-
-    private fun onSaveFileResult(res: Boolean) {
-        if (res) {
-            logOperRes(LogObj.FILE, LogOper.SAVE, "", true)
-        } else {
-            logOperErrorMore(LogObj.FILE, LogOper.SAVE)
-        }
-    }
-
-    /**
-     * Получение размера прикрепленного файла.
-     * @param attach
-     * @return
-     */
-    fun getAttachSize(attach: TetroidFile): String? {
-        return attachesInteractor.getAttachedFileSize(getContext(), attach)
     }
 
     fun moveBackFromAttaches() {
         if (isFromRecordActivity) {
-            openRecord(curRecord)
-            isFromRecordActivity = false
+            curRecord?.let { record ->
+                openRecord(record)
+                isFromRecordActivity = false
+            }
         } else {
-            showRecordNode(curRecord)
+            showRecordNode()
         }
     }
 
@@ -1448,10 +1727,10 @@ class MainViewModel(
         launchOnMain {
             val type = found.type
             when (type) {
-                FoundType.TYPE_RECORD -> openRecord(found as? TetroidRecord)
-                FoundType.TYPE_FILE -> showRecordAttaches((found as? TetroidFile)?.record, false)
-                FoundType.TYPE_NODE -> showNode(found as? TetroidNode)
-                FoundType.TYPE_TAG -> showTag(found as? TetroidTag)
+                FoundType.TYPE_RECORD -> (found as? TetroidRecord)?.let { openRecord(it) }
+                FoundType.TYPE_FILE -> (found as? TetroidFile)?.let { showRecordAttaches(it.record, false) }
+                FoundType.TYPE_NODE -> (found as? TetroidNode)?.let { showNode(it) }
+                FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTag(it) }
             }
             if (type != FoundType.TYPE_RECORD) {
                 openPage(Constants.PAGE_MAIN)
@@ -1471,31 +1750,56 @@ class MainViewModel(
      */
     fun startGlobalSearch(profile: SearchProfile) {
         this.lastSearchProfile = profile
-        // TODO: to UseCase
-        val searchInteractor = SearchInteractor(profile, storageProvider, nodesInteractor, recordsInteractor)
-
         launchOnMain {
             log(getString(R.string.global_search_start, profile.query))
             sendViewEvent(ViewEvent.TaskStarted(R.string.global_searching))
-            val found = searchInteractor.globalSearch()
-            sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
-
-            if (found == null) {
-                log(getString(R.string.log_global_search_return_null), true)
-                return@launchOnMain
-            } else if (profile.isSearchInNode) {
-                profile.node?.let { node ->
-                    log(getString(R.string.global_search_by_node_result, node.name), true)
+            withIo {
+                globalSearchUseCase.run(
+                    GlobalSearchUseCase.Params(
+                        profile = profile,
+                        rootNodes = storageProvider.getRootNodes(),
+                        storageCrypter = storageCrypter,
+                        getPathToRecordFolderCallback = { record ->
+                            recordPathProvider.getPathToRecordFolder(record)
+                        },
+                    )
+                )
+            }.onComplete {
+                sendViewEvent(ViewEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { result ->
+                if (profile.isSearchInNode) {
+                    profile.node?.let { node ->
+                        log(getString(R.string.global_search_by_node_result, node.name), true)
+                    }
                 }
+
+                // уведомляем, если не смогли поискать в зашифрованных ветках
+                if (result.isExistCryptedNodes) {
+                    log(R.string.log_found_crypted_nodes, true)
+                }
+                log(getString(R.string.global_search_end, result.foundObjects.size))
+
+                sendEvent(MainEvent.GlobalSearchFinished(result.foundObjects, profile))
             }
 
-            // уведомляем, если не смогли поискать в зашифрованных ветках
-            if (searchInteractor.isExistCryptedNodes) {
-                log(R.string.log_found_crypted_nodes, true)
-            }
-            log(getString(R.string.global_search_end, found.size))
+//            if (found == null) {
+//                log(getString(R.string.log_global_search_return_null), true)
+//                return@launchOnMain
+//            } else if (profile.isSearchInNode) {
+//                profile.node?.let { node ->
+//                    log(getString(R.string.global_search_by_node_result, node.name), true)
+//                }
+//            }
 
-            sendEvent(MainEvent.GlobalSearchFinished(found, profile))
+//            // уведомляем, если не смогли поискать в зашифрованных ветках
+//            if (searchInteractor.isExistCryptedNodes) {
+//                log(R.string.log_found_crypted_nodes, true)
+//            }
+//            log(getString(R.string.global_search_end, found.size))
+//
+//            sendEvent(MainEvent.GlobalSearchFinished(found, profile))
         }
     }
 
@@ -1572,11 +1876,13 @@ class MainViewModel(
             log(getString(R.string.filter_files_by_query, record.name, query))
             val found = ScanManager.searchInFiles(record.attachedFiles, query)
             showAttaches(found)
-            sendEvent(MainEvent.AttachesFiltered(
-                query = query,
-                attaches = found,
-                viewId = Constants.MAIN_VIEW_RECORD_FILES,
-            ))
+            sendEvent(
+                MainEvent.AttachesFiltered(
+                    query = query,
+                    attaches = found,
+                    viewId = Constants.MAIN_VIEW_RECORD_FILES,
+                )
+            )
         }
     }
 
@@ -1628,7 +1934,7 @@ class MainViewModel(
 
                 launchOnMain {
                     storageTreeInteractor.startStorageTreeObserver(
-                        storagePath = storagePathHelper.getPathToMyTetraXml()
+                        storagePath = storagePathProvider.getPathToMyTetraXml()
                     ) /*{ event ->
                         // обработка внешнего изменения дерева записей
                         onStorageTreeOutsideChanged(event)
@@ -1659,7 +1965,7 @@ class MainViewModel(
                         withIo {
                             delay(MYTETRA_XML_EXISTING_DELAY)
                         }
-                        if (storagePathHelper.getPathToMyTetraXml().isFileExist()) {
+                        if (storagePathProvider.getPathToMyTetraXml().isFileExist()) {
                             log(R.string.log_storage_tree_changed_outside)
                             this@MainViewModel.sendStorageEvent(StorageEvent.TreeChangedOutside)
                         } else {

@@ -2,7 +2,6 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -11,7 +10,7 @@ import android.text.TextUtils
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebPageContentResult
 import com.gee12.mytetroid.logs.LogObj
@@ -22,20 +21,31 @@ import com.gee12.mytetroid.ui.activities.MainActivity
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.InitAppUseCase
+import com.gee12.mytetroid.usecase.attach.CreateAttachToRecordUseCase
 import com.gee12.mytetroid.usecase.crypt.*
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
+import com.gee12.mytetroid.usecase.record.*
+import com.gee12.mytetroid.usecase.record.image.SaveImageFromBitmapUseCase
+import com.gee12.mytetroid.usecase.record.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
+import java.io.File
 
 
 class RecordViewModel(
@@ -44,27 +54,30 @@ class RecordViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
+
     commonSettingsProvider: CommonSettingsProvider,
-    appBuildHelper: AppBuildHelper,
+    buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
-    favoritesInteractor: FavoritesInteractor,
     sensitiveDataProvider: ISensitiveDataProvider,
-    passInteractor: PasswordInteractor,
-    storageCrypter: IEncryptHelper,
-    cryptInteractor: EncryptionInteractor,
-    recordsInteractor: RecordsInteractor,
-    nodesInteractor: NodesInteractor,
-    tagsInteractor: TagsInteractor,
-    attachesInteractor: AttachesInteractor,
+    storagePathProvider: IStoragePathProvider,
+    recordPathProvider: IRecordPathProvider,
+    dataNameProvider: IDataNameProvider,
+
     storagesRepo: StoragesRepo,
-    storagePathHelper: IStoragePathHelper,
-    recordPathHelper: IRecordPathHelper,
-    dataInteractor: DataInteractor,
+    storageCrypter: IStorageCrypter,
+
+    passInteractor: PasswordInteractor,
+    favoritesInteractor: FavoritesInteractor,
+//    cryptInteractor: EncryptionInteractor,
+    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
-    private val imagesInteractor: ImagesInteractor,
+
     initAppUseCase: InitAppUseCase,
+    getFileModifiedDateUseCase : GetFileModifiedDateUseCase,
+    getFolderSizeUseCase: GetFolderSizeUseCase,
+
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
@@ -75,48 +88,65 @@ class RecordViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+
+    getNodeByIdUseCase: GetNodeByIdUseCase,
+    getRecordByIdUseCase: GetRecordByIdUseCase,
+
+    private val createTempRecordUseCase: CreateTempRecordUseCase,
+    private val getRecordHtmlTextDecryptedUseCase : GetRecordHtmlTextUseCase,
+    private val saveRecordHtmlTextUseCase : SaveRecordHtmlTextUseCase,
+    private val createAttachToRecordUseCase : CreateAttachToRecordUseCase,
+    private val saveImageFromUriUseCase : SaveImageFromUriUseCase,
+    private val saveImageFromBitmapUseCase : SaveImageFromBitmapUseCase,
+    private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
 ): StorageViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    commonSettingsProvider,
-    appBuildHelper,
-    storageProvider,
-    favoritesInteractor,
-    sensitiveDataProvider,
-    passInteractor,
-    storageCrypter,
-    cryptInteractor,
-    recordsInteractor,
-    nodesInteractor,
-    tagsInteractor,
-    attachesInteractor,
-    storagesRepo,
-    storagePathHelper,
-    recordPathHelper,
-    dataInteractor,
-    interactionInteractor,
-    syncInteractor,
-    trashInteractor,
-    initAppUseCase,
-    initOrCreateStorageUseCase,
-    readStorageUseCase,
-    saveStorageUseCase,
-    checkStoragePasswordUseCase,
-    changePasswordUseCase,
-    decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase,
-    checkStorageFilesExistingUseCase,
-    setupPasswordUseCase,
-    initPasswordUseCase,
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+
+    commonSettingsProvider = commonSettingsProvider,
+    buildInfoProvider = buildInfoProvider,
+    storageProvider = storageProvider,
+    sensitiveDataProvider = sensitiveDataProvider,
+    storagePathProvider = storagePathProvider,
+    recordPathProvider = recordPathProvider,
+    dataNameProvider = dataNameProvider,
+
+    storagesRepo = storagesRepo,
+    storageCrypter = storageCrypter,
+
+    favoritesInteractor = favoritesInteractor,
+    interactionInteractor = interactionInteractor,
+    passInteractor = passInteractor,
+    syncInteractor = syncInteractor,
+    trashInteractor = trashInteractor,
+    tagsInteractor = tagsInteractor,
+
+    initAppUseCase = initAppUseCase,
+    getFileModifiedDateUseCase = getFileModifiedDateUseCase,
+    getFolderSizeUseCase = getFolderSizeUseCase,
+
+    initOrCreateStorageUseCase = initOrCreateStorageUseCase,
+    readStorageUseCase = readStorageUseCase,
+    saveStorageUseCase = saveStorageUseCase,
+    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
+    changePasswordUseCase = changePasswordUseCase,
+    decryptStorageUseCase = decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    setupPasswordUseCase = setupPasswordUseCase,
+    initPasswordUseCase = initPasswordUseCase,
+
+    getNodeByIdUseCase = getNodeByIdUseCase,
+    getRecordByIdUseCase = getRecordByIdUseCase,
 ) {
 
     sealed class RecordEvent : VMEvent() {
         object NeedMigration : RecordEvent()
         data class LoadFields(
-            val record: TetroidRecord?,
+            val record: TetroidRecord,
         ) : RecordEvent()
         data class EditFields(
             val resultObj: ResultObj?,
@@ -309,11 +339,13 @@ class RecordViewModel(
                     if (isLoadedFavoritesOnly()) {
                         openAnotherRecord(ResultObj(ResultObj.OPEN_RECORD, obj.id), true)
                     } else {
-                        val record = recordsInteractor.getRecord(obj.id)
-                        if (record != null) {
-                            openAnotherRecord(ResultObj(record), true)
-                        } else {
-                            logWarning(getString(R.string.log_not_found_record) + obj.id)
+                        launchOnMain {
+                            val record = getRecord(obj.id)
+                            if (record != null) {
+                                openAnotherRecord(ResultObj(record), true)
+                            } else {
+                                logWarning(getString(R.string.log_not_found_record) + obj.id)
+                            }
                         }
                     }
                 }
@@ -321,16 +353,18 @@ class RecordViewModel(
                     if (isLoadedFavoritesOnly()) {
                         openAnotherNode(ResultObj(ResultObj.OPEN_NODE, obj.id), true)
                     } else {
-                        val node = nodesInteractor.getNode(obj.id)
-                        if (node != null) {
-                            openAnotherNode(ResultObj(node), true)
-                        } else {
-                            logWarning(getString(R.string.log_not_found_node_id) + obj.id)
+                        launchOnMain {
+                            val node = getNode(obj.id)
+                            if (node != null) {
+                                openAnotherNode(ResultObj(node), true)
+                            } else {
+                                logWarning(getString(R.string.error_node_not_found_with_id_mask) + obj.id)
+                            }
                         }
                     }
                 FoundType.TYPE_TAG -> {
                     val tag = obj.id
-                    if (!TextUtils.isEmpty(tag)) {
+                    if (tag.isNotEmpty()) {
                         openTag(tag, true)
                     } else {
                         logWarning(getString(R.string.title_tag_name_is_empty))
@@ -387,9 +421,9 @@ class RecordViewModel(
             val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
             if (recordId != null) {
                 // получаем запись
-                val record = withIo { recordsInteractor.getRecord(recordId) }
+                val record = getRecord(recordId)
                 if (record != null) {
-                    curRecord.postValue(record!!)
+                    curRecord.postValue(record)
                     setTitle(record.name)
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
@@ -422,16 +456,22 @@ class RecordViewModel(
             sendViewEvent(ViewEvent.ShowHomeButton(isVisible = false))
 
             // создаем временную запись
-            val node = quicklyNode ?: storageProvider.getRootNode()
-            val record = withIo {
-                recordsInteractor.createTempRecord(getContext(), null, null, null, node)
-            }
-            if (record != null) {
+            withIo {
+                createTempRecordUseCase.run(
+                    CreateTempRecordUseCase.Params(
+                        srcName = null,
+                        url = null,
+                        text = null,
+                        node = quicklyNode ?: storageProvider.getRootNode(),
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+//                logOperError(LogObj.RECORD, LogOper.CREATE, true)
+                sendViewEvent(ViewEvent.FinishActivity)
+            }.onSuccess { record ->
                 curRecord.postValue(record)
                 setTitle(record.name)
-            } else {
-                logOperError(LogObj.RECORD, LogOper.CREATE, true)
-                sendViewEvent(ViewEvent.FinishActivity)
             }
         }
     }
@@ -454,7 +494,20 @@ class RecordViewModel(
             var text: String? = null
             if (!record.isNew) {
                 text = withIo {
-                    recordsInteractor.getRecordHtmlTextDecrypted(record, true)
+                    getRecordHtmlTextDecryptedUseCase.run(
+                        GetRecordHtmlTextUseCase.Params(
+                            record = record,
+                            pathToRecordFolder = recordPathProvider.getPathToRecordFolder(record),
+                            crypter = storageCrypter,
+                            showMessage = true,
+                        )
+                    ).foldResult(
+                        onLeft = {
+                            logFailure(it)
+                            null
+                        },
+                        onRight = { it }
+                    )
                 }
                 if (text == null) {
                     if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
@@ -555,8 +608,10 @@ class RecordViewModel(
 //            AskDialogs.showLoadAllNodesDialog(this,
 //                IApplyResult { openTagDirectly(tagName) })
             launchOnMain {
-                sendEvent(RecordEvent.AskForLoadAllNodes(
-                    ResultObj(ResultObj.OPEN_TAG, tagName))
+                sendEvent(
+                    RecordEvent.AskForLoadAllNodes(
+                        ResultObj(ResultObj.OPEN_TAG, tagName)
+                    )
                 )
             }
         } else {
@@ -599,13 +654,19 @@ class RecordViewModel(
 
             var errorCount = 0
             val savedImages: MutableList<TetroidImage> = ArrayList()
-            val deleteSrcFile = isCamera
             for (uri in imageUris) {
-                val savedImage = imagesInteractor.saveImage(getContext(), curRecord.value!!, uri, deleteSrcFile)
-                if (savedImage != null) {
-                    savedImages.add(savedImage)
-                } else {
+                withIo {
+                    saveImageFromUriUseCase.run(
+                        SaveImageFromUriUseCase.Params(
+                            record = curRecord.value!!,
+                            srcUri = uri,
+                            deleteSrcFile = isCamera,
+                        )
+                    )
+                }.onFailure {
                     errorCount++
+                }.onSuccess { image ->
+                    savedImages.add(image)
                 }
             }
             if (errorCount > 0) {
@@ -619,27 +680,36 @@ class RecordViewModel(
 
     fun saveImage(imageUri: Uri, deleteSrcFile: Boolean) {
         launchOnMain {
-            val savedImage = withIo {
-                imagesInteractor.saveImage(
-                    context = getContext(),
-                    record = curRecord.value!!,
-                    srcUri = imageUri,
-                    deleteSrcFile = deleteSrcFile
+            withIo {
+                saveImageFromUriUseCase.run(
+                    SaveImageFromUriUseCase.Params(
+                        record = curRecord.value!!,
+                        srcUri = imageUri,
+                        deleteSrcFile = deleteSrcFile,
+                    )
                 )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { image ->
+                saveImage(image)
             }
-            saveImage(savedImage)
         }
     }
 
     fun saveImage(bitmap: Bitmap) {
         launchOnMain {
-            val savedImage = withIo {
-                imagesInteractor.saveImage(
-                    record = curRecord.value!!,
-                    bitmap = bitmap
+            withIo {
+                saveImageFromBitmapUseCase.run(
+                    SaveImageFromBitmapUseCase.Params(
+                        record = curRecord.value!!,
+                        bitmap = bitmap,
+                    )
                 )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { image ->
+                saveImage(image)
             }
-            saveImage(savedImage)
         }
     }
 
@@ -720,7 +790,7 @@ class RecordViewModel(
     fun attachFile(uri: Uri?, deleteSrcFile: Boolean) {
         UriHelper(getContext()).getPath(uri)?.let {
 //        AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri))
-            attachFile(it, curRecord.value, deleteSrcFile)
+            attachFile(it, curRecord.value!!, deleteSrcFile)
         }
     }
 
@@ -738,23 +808,26 @@ class RecordViewModel(
 //        }
 //    }
 
-    private fun attachFile(fileFullName: String, record: TetroidRecord?, deleteSrcFile: Boolean) {
+    private fun attachFile(fileFullName: String, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
             sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
-            val attach = withIo {
-                attachesInteractor.attachFile(
-                    fullName = fileFullName,
-                    record = record,
-                    deleteSrcFile = deleteSrcFile
+            withIo {
+                createAttachToRecordUseCase.run(
+                    CreateAttachToRecordUseCase.Params(
+                        fullName = fileFullName,
+                        record = record,
+                        deleteSrcFile = deleteSrcFile,
+                    )
                 )
-            }
-            sendViewEvent(ViewEvent.TaskFinished)
-            if (attach != null) {
+            }.onComplete {
+                sendViewEvent(ViewEvent.TaskFinished)
+            }.onFailure {
+                logFailure(it)
+//                    logError(getString(R.string.log_files_attach_error), true)
+                sendViewEvent(ViewEvent.ShowMoreInLogs)
+            }.onSuccess { attach ->
                 log(getString(R.string.log_file_was_attached), true)
                 sendEvent(RecordEvent.FileAttached(attach))
-            } else {
-                logError(getString(R.string.log_files_attach_error), true)
-                sendViewEvent(ViewEvent.ShowMoreInLogs)
             }
         }
     }
@@ -924,14 +997,25 @@ class RecordViewModel(
      * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
      */
     fun saveRecordText(htmlText: String) {
-        log(getString(R.string.log_before_record_save) + curRecord.value!!.id)
-        if (recordsInteractor.saveRecordHtmlText(curRecord.value!!, htmlText)) {
-            log(R.string.log_record_saved, true)
-            // сбрасываем пометку изменения записи
-            dropIsEdited()
-            updateEditedDate()
-        } else {
-            logOperErrorMore(LogObj.RECORD, LogOper.SAVE)
+        launchOnMain {
+            curRecord.value?.let { record ->
+                log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
+                saveRecordHtmlTextUseCase.run(
+                    SaveRecordHtmlTextUseCase.Params(
+                        record = record,
+//                        pathToRecordFolder = recordPathProvider.getPathToRecordFolder(record),
+                        html = htmlText,
+//                        storageCrypter = storageCrypter,
+                    )
+                ).onFailure {
+                    logFailure(it)
+                }.onSuccess {
+                    log(R.string.log_record_saved, true)
+                    // сбрасываем пометку изменения записи
+                    dropIsEdited()
+                    updateEditedDate()
+                }
+            }
         }
     }
 
@@ -939,12 +1023,22 @@ class RecordViewModel(
      * Обновление поля последнего изменения записи.
      */
     private fun updateEditedDate() {
-        if (appBuildHelper.isFullVersion()) {
-            val dateFormat = getString(R.string.full_date_format_string)
-            val edited = recordsInteractor.getEditedDate(getContext(), curRecord.value!!)
-            val editedDate = if (edited != null) Utils.dateToString(edited, dateFormat) else ""
+        val record = curRecord.value!!
+        if (buildInfoProvider.isFullVersion() && !record.isNew && !record.isTemp) {
             launchOnMain {
-                sendEvent(RecordEvent.EditedDateChanged(dateString = editedDate))
+                withIo {
+                    getFileModifiedDateUseCase.run(
+                        GetFileModifiedDateUseCase.Params(
+                            filePath = recordPathProvider.getPathToFileInRecordFolder(record, record.fileName),
+                        )
+                    )
+                }.onFailure {
+                    logFailure(it)
+                }.map { date ->
+                    Utils.dateToString(date, getString(R.string.full_date_format_string))
+                }.onSuccess { dateString ->
+                    sendEvent(RecordEvent.EditedDateChanged(dateString = dateString))
+                }
             }
         }
     }
@@ -1048,9 +1142,13 @@ class RecordViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openRecordFolder(context: Context) {
-        if (!recordsInteractor.openRecordFolder(context, curRecord.value!!)) {
-            log(R.string.log_missing_file_manager, true)
+    fun openRecordFolder() {
+        val record = curRecord.value!!
+        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
+        val fileFullName = recordPathProvider.getPathToRecordFolder(record)
+        if (!interactionInteractor.openFile(getContext(), File(fileFullName))) {
+            Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), fileFullName)
+            logWarning(R.string.log_missing_file_manager, true)
         }
     }
 
@@ -1139,19 +1237,30 @@ class RecordViewModel(
     ) {
         launchOnMain {
             val wasTemp = curRecord.value!!.isTemp
-            if (recordsInteractor.editRecordFields(
-                    record = curRecord.value,
-                    name = name,
-                    tagsString = tags,
-                    author = author,
-                    url = url,
-                    node = node,
-                    isFavor = isFavor
+            withIo {
+                editRecordFieldsUseCase.run(
+                    EditRecordFieldsUseCase.Params(
+                        record = curRecord.value!!,
+                        name = name,
+                        tagsString = tags,
+                        author = author,
+                        url = url,
+                        node = node,
+                        isFavor = isFavor
+                    )
                 )
-            ) {
+            }.onFailure {
+                logFailure(it)
+//                if (wasTemp) {
+//                    // все равно сохраняем текст записи
+//                    logOperErrorMore(LogObj.TEMP_RECORD, LogOper.SAVE)
+//                } else {
+//                    logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
+//                }
+            }.onSuccess {
                 isFieldsEdited = true
                 setTitle(name)
-                sendEvent(RecordEvent.LoadFields(record = curRecord.value))
+                sendEvent(RecordEvent.LoadFields(record = curRecord.value!!))
                 if (wasTemp) {
                     // сохраняем текст записи
                     val resObj = if (obj == null) {
@@ -1168,19 +1277,12 @@ class RecordViewModel(
                 } else {
                     log(R.string.log_record_fields_changed, true)
                 }
-            } else {
-                if (wasTemp) {
-                    // все равно сохраняем текст записи
-                    logOperErrorMore(LogObj.TEMP_RECORD, LogOper.SAVE)
-                } else {
-                    logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
-                }
             }
         }
     }
 
-    fun getUriToRecordFolder(record: TetroidRecord): String {
-        return recordPathHelper.getUriToRecordFolder(record)
+    fun getUriToRecordFolder(): String {
+        return recordPathProvider.getUriToRecordFolder(curRecord.value!!)
     }
 
     /**
@@ -1205,10 +1307,6 @@ class RecordViewModel(
                 }
             }
         }
-    }
-
-    fun getRecordEditedDate(record: TetroidRecord): Date? {
-        return recordsInteractor.getEditedDate(getContext(), record)
     }
 
     fun setTitle(title: String) {

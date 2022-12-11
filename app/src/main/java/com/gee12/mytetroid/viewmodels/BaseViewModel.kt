@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.getIdNameString
-import com.gee12.mytetroid.helpers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
 import com.gee12.mytetroid.helpers.INotificator
 import com.gee12.mytetroid.helpers.IResourcesProvider

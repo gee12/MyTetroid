@@ -4,14 +4,21 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.*
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
+import com.gee12.mytetroid.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
@@ -23,26 +30,30 @@ class StorageSettingsViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
-    appBuildHelper: AppBuildHelper,
+
+    buildInfoProvider: BuildInfoProvider,
     commonSettingsProvider: CommonSettingsProvider,
     storageProvider: IStorageProvider,
-    favoritesInteractor: FavoritesInteractor,
     sensitiveDataProvider: ISensitiveDataProvider,
-    passInteractor: PasswordInteractor,
-    storageCrypter: IEncryptHelper,
-    cryptInteractor: EncryptionInteractor,
-    recordsInteractor: RecordsInteractor,
-    nodesInteractor: NodesInteractor,
-    tagsInteractor: TagsInteractor,
-    attachesInteractor: AttachesInteractor,
+    storagePathProvider: IStoragePathProvider,
+    recordPathProvider: IRecordPathProvider,
+    dataNameProvider: IDataNameProvider,
+
     storagesRepo: StoragesRepo,
-    storagePathHelper: IStoragePathHelper,
-    recordPathHelper: IRecordPathHelper,
-    dataInteractor: DataInteractor,
+    storageCrypter: IStorageCrypter,
+
+    favoritesInteractor: FavoritesInteractor,
+    passInteractor: PasswordInteractor,
+//    cryptInteractor: EncryptionInteractor,
+    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
+
     initAppUseCase: InitAppUseCase,
+    getFolderSizeUseCase: GetFolderSizeUseCase,
+    getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
@@ -53,42 +64,51 @@ class StorageSettingsViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+
+    getNodeByIdUseCase: GetNodeByIdUseCase,
+    getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : StorageViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    commonSettingsProvider,
-    appBuildHelper,
-    storageProvider,
-    favoritesInteractor,
-    sensitiveDataProvider,
-    passInteractor,
-    storageCrypter,
-    cryptInteractor,
-    recordsInteractor,
-    nodesInteractor,
-    tagsInteractor,
-    attachesInteractor,
-    storagesRepo,
-    storagePathHelper,
-    recordPathHelper,
-    dataInteractor,
-    interactionInteractor,
-    syncInteractor,
-    trashInteractor,
-    initAppUseCase,
-    initOrCreateStorageUseCase,
-    readStorageUseCase,
-    saveStorageUseCase,
-    checkStoragePasswordUseCase,
-    changePasswordUseCase,
-    decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase,
-    checkStorageFilesExistingUseCase,
-    setupPasswordUseCase,
-    initPasswordUseCase,
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+
+    commonSettingsProvider = commonSettingsProvider,
+    buildInfoProvider = buildInfoProvider,
+    storageProvider = storageProvider,
+    sensitiveDataProvider = sensitiveDataProvider,
+    storagePathProvider = storagePathProvider,
+    recordPathProvider = recordPathProvider,
+    dataNameProvider = dataNameProvider,
+
+    storagesRepo = storagesRepo,
+    storageCrypter = storageCrypter,
+
+    favoritesInteractor = favoritesInteractor,
+    interactionInteractor = interactionInteractor,
+    passInteractor = passInteractor,
+    syncInteractor = syncInteractor,
+    trashInteractor = trashInteractor,
+    tagsInteractor = tagsInteractor,
+
+    initAppUseCase = initAppUseCase,
+    getFileModifiedDateUseCase = getFileModifiedDateUseCase,
+    getFolderSizeUseCase = getFolderSizeUseCase,
+
+    initOrCreateStorageUseCase = initOrCreateStorageUseCase,
+    readStorageUseCase = readStorageUseCase,
+    saveStorageUseCase = saveStorageUseCase,
+    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
+    changePasswordUseCase = changePasswordUseCase,
+    decryptStorageUseCase = decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    setupPasswordUseCase = setupPasswordUseCase,
+    initPasswordUseCase = initPasswordUseCase,
+
+    getNodeByIdUseCase = getNodeByIdUseCase,
+    getRecordByIdUseCase = getRecordByIdUseCase,
 ) {
 
     private val _updateStorageField = MutableLiveData<Pair<String,Any>>()

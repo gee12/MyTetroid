@@ -3,9 +3,11 @@ package com.gee12.mytetroid.viewmodels
 import android.app.Application
 import android.util.Log
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +23,7 @@ open class BaseStorageViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
-    protected open var storageProvider: IStorageProvider,
+    val storageProvider: IStorageProvider,
 ) : BaseViewModel(
     app,
     resourcesProvider,
@@ -35,6 +37,15 @@ open class BaseStorageViewModel(
 
     open val storage: TetroidStorage?
         get() = storageProvider.storage
+
+    val crypter: IStorageCrypter
+        get() = storageProvider.crypter
+
+//    val storagePathProvider: IStoragePathProvider
+//        get() = storageProvider.pathProvider
+
+//    val recordPathProvider: IRecordPathProvider
+//        get() = storageProvider.recordPathProvider
 
     private val _storageEventFlow = MutableSharedFlow<StorageEvent>(extraBufferCapacity = 0)
     val storageEventFlow = _storageEventFlow.asSharedFlow()

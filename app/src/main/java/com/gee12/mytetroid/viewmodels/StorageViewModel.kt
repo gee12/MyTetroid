@@ -2,12 +2,14 @@ package com.gee12.mytetroid.viewmodels
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -17,18 +19,27 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
+import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.ui.activities.TetroidStorageActivity.IDownloadFileResult
 import com.gee12.mytetroid.usecase.crypt.*
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
+import com.gee12.mytetroid.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
 
@@ -38,26 +49,30 @@ open class StorageViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
+
     commonSettingsProvider: CommonSettingsProvider,
-    val appBuildHelper: AppBuildHelper,
     storageProvider: IStorageProvider,
-    val favoritesInteractor: FavoritesInteractor,
+    val buildInfoProvider: BuildInfoProvider,
     val sensitiveDataProvider: ISensitiveDataProvider,
-    val passInteractor: PasswordInteractor,
-    val storageCrypter: IEncryptHelper,
-    val cryptInteractor: EncryptionInteractor,
-    val recordsInteractor: RecordsInteractor,
-    val nodesInteractor: NodesInteractor,
-    val tagsInteractor: TagsInteractor,
-    val attachesInteractor: AttachesInteractor,
     val storagesRepo: StoragesRepo,
-    protected open var storagePathHelper: IStoragePathHelper,
-    val recordPathHelper: IRecordPathHelper,
-    val dataInteractor: DataInteractor,
+    val storagePathProvider: IStoragePathProvider,
+    val recordPathProvider: IRecordPathProvider,
+    val dataNameProvider: IDataNameProvider,
+
+    val storageCrypter: IStorageCrypter,
+
     val interactionInteractor: InteractionInteractor,
     val syncInteractor: SyncInteractor,
+    val favoritesInteractor: FavoritesInteractor, //TODO
+    val passInteractor: PasswordInteractor, //TODO
+//    val cryptInteractor: EncryptionInteractor, //TODO
+    val tagsInteractor: TagsInteractor, //TODO
     val trashInteractor: TrashInteractor,
+
     protected val initAppUseCase: InitAppUseCase,
+    protected val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+    protected val getFolderSizeUseCase: GetFolderSizeUseCase,
+
     protected val initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     protected val readStorageUseCase: ReadStorageUseCase,
     protected val saveStorageUseCase: SaveStorageUseCase,
@@ -68,6 +83,9 @@ open class StorageViewModel(
     protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     protected val setupPasswordUseCase: SetupPasswordUseCase,
     protected val initPasswordUseCase: InitPasswordUseCase,
+
+    protected val getNodeByIdUseCase: GetNodeByIdUseCase,
+    protected val getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -863,36 +881,99 @@ open class StorageViewModel(
 
     //region Records
 
-    fun getRecord(id: String?): TetroidRecord? = recordsInteractor.getRecord(id)
-
-    open fun editRecordFields(record: TetroidRecord, name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
-        launchOnMain {
-            recordsInteractor.editRecordFields(record, name, tags, author, url, node, isFavor)
+    // TODO: вынести в конкретную VM
+    suspend fun getEditedDate(record: TetroidRecord): Date? {
+        return withMain {
+            withIo {
+                getFileModifiedDateUseCase.run(
+                    GetFileModifiedDateUseCase.Params(
+                        filePath = recordPathProvider.getPathToFileInRecordFolder(record, record.fileName),
+                    )
+                )
+            }.foldResult(
+                onLeft = { null },
+                onRight = { it }
+            )
         }
     }
 
-    suspend fun cutRecord(record: TetroidRecord, withoutDir: Boolean): Int {
-        return recordsInteractor.cutRecord(record, withoutDir)
-    }
-
-    suspend fun deleteRecord(record: TetroidRecord, withoutDir: Boolean): Int {
-        return recordsInteractor.deleteRecord(record, withoutDir)
+    // TODO: вынести в конкретную VM
+    suspend fun getRecordFolderSize(record: TetroidRecord): String? {
+        return withMain {
+            withIo {
+                getFolderSizeUseCase.run(
+                    GetFolderSizeUseCase.Params(
+                        folderPath = recordPathProvider.getPathToRecordFolder(record),
+                    )
+                )
+            }.foldResult(
+                onLeft = { null },
+                onRight = { it }
+            )
+        }
     }
 
     //endregion Records
 
     //region Nodes
 
-    fun getNode(nodeId: String) = nodesInteractor.getNode(nodeId)
+    suspend fun getNode(nodeId: String): TetroidNode? {
+        return withIo {
+            getNodeByIdUseCase.run(
+                GetNodeByIdUseCase.Params(
+                    nodeId = nodeId,
+                    storageProvider.getRootNodes(),
+                )
+            )
+        }.foldResult(
+            onLeft = {
+                logFailure(it)
+                null
+            },
+            onRight = { it }
+        )
+    }
 
-    fun createNodesHierarchy(node: TetroidNode) = nodesInteractor.createNodesHierarchy(node)
+    suspend fun getRecord(recordId: String): TetroidRecord? {
+        return withIo {
+            getRecordByIdUseCase.run(
+                GetRecordByIdUseCase.Params(
+                    recordId = recordId,
+                )
+            )
+        }.foldResult(
+            onLeft = {
+                logFailure(it)
+                null
+            },
+            onRight = { it }
+        )
+    }
+
+    /**
+     * Получение иерархии веток. В корне стека - исходная ветка, на верхушке - ее самый дальний предок.
+     * @param node
+     * @return
+     */
+    fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode>? {
+        val hierarchy = Stack<TetroidNode>()
+        createNodesHierarchy(hierarchy, node)
+        return hierarchy
+    }
+
+    private fun createNodesHierarchy(hierarchy: Stack<TetroidNode>, node: TetroidNode) {
+        hierarchy.push(node)
+        if (node.level > 0) {
+            createNodesHierarchy(hierarchy, node.parentNode)
+        }
+    }
 
     /**
      * Проверка существования зашифрованных веток.
      */
     protected fun checkExistenceCryptedNodes() {
         launchOnMain {
-            if (!nodesInteractor.isExistCryptedNodes(true)) {
+            if (!isExistCryptedNodes(true)) {
                 sendStorageEvent(StorageEvent.AskForClearStoragePass)
             }
         }
@@ -919,7 +1000,7 @@ open class StorageViewModel(
      * @param url
      * @param callback
      */
-    open suspend fun downloadFileToCache(url: String?, callback: IDownloadFileResult?) {
+    open suspend fun downloadFileToCache(url: String?, callback: TetroidActivity.IDownloadFileResult?) {
         if (TextUtils.isEmpty(url)) {
             logError(R.string.log_link_is_empty)
             return
@@ -937,7 +1018,7 @@ open class StorageViewModel(
 //            }
 //            TetroidLog.log(TetroidActivity.this, getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
 //            return;
-            fileName = dataInteractor.createDateTimePrefix()
+            fileName = dataNameProvider.createDateTimePrefix()
         }
         val outputFileName: String = getExternalCacheDir() + "/" + fileName
         NetworkHelper.downloadFileAsync(url, outputFileName, object : IWebFileResult {
@@ -958,14 +1039,72 @@ open class StorageViewModel(
         })
     }
 
+    /**
+     * Получение полного имени файла.
+     */
+    // TODO: вынести в место использования
+    fun getAttachFullName(attach: TetroidFile?): String? {
+        if (attach == null) {
+            return null
+        }
+        val record = attach.record
+        if (record == null) {
+            logger.logError(resourcesProvider.getString(R.string.log_file_record_is_null))
+            return null
+        }
+        val ext = FileUtils.getExtensionWithComma(attach.name)
+        return recordPathProvider.getPathToFileInRecordFolder(record, attach.id + ext)
+    }
+
+    fun getAttachEditedDate(context: Context, attach: TetroidFile): Date? {
+        return try {
+            FileUtils.getFileModifiedDate(context, getAttachFullName(attach))
+        } catch (ex: java.lang.Exception) {
+            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage), false)
+            null
+        }
+    }
+
+    fun getAttachFileSize(context: Context, attach: TetroidFile): String? {
+        return try {
+            FileUtils.getFileSize(context, getAttachFullName(attach))
+        } catch (ex: java.lang.Exception) {
+            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage), false)
+            null
+        }
+    }
+
     //endregion Attaches
 
     //region Other
 
+    // TODO SwapTetroidObjectsUseCase
     suspend fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
-        return if (dataInteractor.swapTetroidObjects(list, pos, isUp, through)) {
+        return if (swapTetroidObjectsDirectly(list, pos, isUp, through)) {
             if (saveStorage()) 1 else -1
         } else 0
+    }
+
+    /**
+     * Замена местами 2 объекта хранилища в списке.
+     * @param list
+     * @param pos
+     * @param isUp
+     * @return 1 - успешно
+     * 0 - перемещение невозможно (пограничный элемент)
+     * -1 - ошибка
+     */
+    protected fun swapTetroidObjectsDirectly(
+        list: List<*>?,
+        pos: Int, isUp: Boolean,
+        through: Boolean
+    ): Boolean {
+        return try {
+            Utils.swapListItems(list, pos, isUp, through)
+        } catch (ex: Exception) {
+            logger.logError(ex, false)
+            false
+        }
     }
 
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()
@@ -1006,7 +1145,30 @@ open class StorageViewModel(
                 : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
                 : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
                 : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
-        return iniFlag || nodesInteractor.isExistCryptedNodes(false)
+        return iniFlag || isExistCryptedNodes(false)
+    }
+
+    /**
+     * Проверка существования шифрованных веток в хранилище.
+     */
+    // TODO: CheckIsExistEncryptedNodesUSeCase
+    private fun isExistCryptedNodes(recheck: Boolean): Boolean {
+        var res: Boolean = storageProvider.isExistCryptedNodes()
+        if (recheck) {
+            storageProvider.setIsExistCryptedNodes(isExistCryptedNodes(storageProvider.getRootNodes()))
+            res = storageProvider.isExistCryptedNodes()
+        }
+        return res
+    }
+
+    private fun isExistCryptedNodes(nodes: List<TetroidNode>): Boolean {
+        for (node in nodes) {
+            if (node.isCrypted) return true
+            if (node.subNodesCount > 0) {
+                if (isExistCryptedNodes(node.subNodes)) return true
+            }
+        }
+        return false
     }
 
     //region Password
@@ -1052,7 +1214,8 @@ open class StorageViewModel(
     }
 
     fun confirmEmptyPassCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
-        cryptInteractor.initCryptPass(passHash, true)
+//        cryptInteractor.initCryptPass(passHash, true)
+        crypter.setKeyFromMiddleHash(passHash)
         askPinCode(true, callbackEvent)
     }
 
@@ -1262,7 +1425,7 @@ open class StorageViewModel(
      * @return
      */
     fun isRequestPINCode(): Boolean {
-        return appBuildHelper.isFullVersion()
+        return buildInfoProvider.isFullVersion()
                 && CommonSettings.isRequestPINCode(getContext())
                 && isPinNeedEnter
     }
@@ -1358,7 +1521,8 @@ open class StorageViewModel(
         get() {
             val nodeId = storage?.quickNodeId
             if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
-                return nodesInteractor.getNode(nodeId)
+                // TODO ?
+                return runBlocking { getNode(nodeId) }
             }
             return null
         }
@@ -1404,7 +1568,9 @@ open class StorageViewModel(
     fun updateQuicklyNode() {
         val nodeId = storage?.quickNodeId
         if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
-            this.quicklyNode = nodesInteractor.getNode(nodeId)
+            launchOnIo {
+                quicklyNode = getNode(nodeId)
+            }
         }
     }
 
@@ -1532,7 +1698,7 @@ open class StorageViewModel(
 
     suspend fun saveStorage(): Boolean {
         return withIo {
-            saveStorageUseCase.run()
+            saveStorageUseCase.run(/*storageProvider*/)
         }.foldResult(
             onLeft = {
                 logFailure(it)
@@ -1543,7 +1709,7 @@ open class StorageViewModel(
     }
 
     fun getPathToRecordFolder(record: TetroidRecord): String {
-        return recordPathHelper.getPathToRecordFolder(record)
+        return recordPathProvider.getPathToRecordFolder(record)
     }
 
     //endregion IStorageCallback

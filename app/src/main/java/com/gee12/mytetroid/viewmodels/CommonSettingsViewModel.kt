@@ -7,11 +7,12 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
@@ -19,7 +20,7 @@ class CommonSettingsViewModel(
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
-    val appBuildHelper: AppBuildHelper,
+    val buildInfoProvider: BuildInfoProvider,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
 ) : BaseViewModel(
@@ -44,7 +45,7 @@ class CommonSettingsViewModel(
      * @return
      */
     fun isRequestPINCode(): Boolean {
-        return appBuildHelper.isFullVersion()
+        return buildInfoProvider.isFullVersion()
                 && CommonSettings.isRequestPINCode(getContext())
                 && CommonSettings.getPINCodeHash(getContext()) != null
     }

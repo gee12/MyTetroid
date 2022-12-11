@@ -10,6 +10,7 @@ import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFoldersUseCase
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFromFolderUseCase
 import java.io.File
@@ -21,7 +22,7 @@ class IconsViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
-    private val storagePathHelper: IStoragePathHelper,
+    private val storagePathProvider: IStoragePathProvider,
     private val getIconsFoldersUseCase: GetIconsFoldersUseCase,
     private val getIconsFromFolderUseCase: GetIconsFromFolderUseCase,
 ) : BaseViewModel(
@@ -42,7 +43,7 @@ class IconsViewModel(
     lateinit var nodeId: String
 
     private val pathToIcons: String
-        get() = storagePathHelper.getPathToIcons()
+        get() = storagePathProvider.getPathToIcons()
 
     fun init(nodeId: String, currentIconPath: String) {
         this.nodeId = nodeId

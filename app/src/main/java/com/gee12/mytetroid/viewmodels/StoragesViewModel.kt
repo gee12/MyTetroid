@@ -5,13 +5,20 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.flatMap
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
+import com.gee12.mytetroid.usecase.storage.InitStorageFromDefaultSettingsUseCase
 
 class StoragesViewModel(
     app: Application,
@@ -21,9 +28,10 @@ class StoragesViewModel(
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
     storageProvider: IStorageProvider,
-    private val appBuildHelper: AppBuildHelper,
+    private val buildInfoProvider: BuildInfoProvider,
     private val storagesInteractor: StoragesInteractor,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
 ) : BaseStorageViewModel(
     app,
     resourcesProvider,
@@ -91,7 +99,7 @@ class StoragesViewModel(
     }
 
     fun addNewStorage(activity: Activity) {
-        if (appBuildHelper.isFreeVersion() && storages.value?.isNotEmpty() == true) {
+        if (buildInfoProvider.isFreeVersion() && storages.value?.isNotEmpty() == true) {
             showMessage(R.string.mes_cant_more_one_storage_on_free)
         } else {
             // проверка разрешения перед диалогом добавления хранилища
@@ -104,16 +112,21 @@ class StoragesViewModel(
     }
 
     fun addStorage(storage: TetroidStorage) {
-        // заполняем поля настройками по-умолчанию
-        storagesInteractor.initStorageFromDefaultSettings(storage)
-
         launchOnMain {
-            if (withIo { storagesInteractor.addStorage(storage) }) {
-                log(getString(R.string.log_storage_added_mask, storage.name), true)
-                loadStorages()
-                sendEvent(StoragesEvent.AddedNewStorage(storage))
-            } else {
-                logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
+            withIo {
+                // заполняем поля настройками по-умолчанию
+                initStorageFromDefaultSettingsUseCase.run(storage)
+                    .flatMap { storagesInteractor.addStorage(storage).toRight() }
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { result ->
+                if (result) {
+                    log(getString(R.string.log_storage_added_mask, storage.name), true)
+                    loadStorages()
+                    sendEvent(StoragesEvent.AddedNewStorage(storage))
+                } else {
+                    logDuringOperErrors(LogObj.STORAGE, LogOper.ADD, true)
+                }
             }
         }
     }

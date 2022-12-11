@@ -5,18 +5,22 @@ import android.content.Intent
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.crypt.IEncryptHelper
-import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.repo.FavoritesRepo
+import com.gee12.mytetroid.providers.BuildInfoProvider
+import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
+import com.gee12.mytetroid.providers.IStorageInfoProvider
 import com.gee12.mytetroid.repo.StoragesRepo
-import com.gee12.mytetroid.usecase.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.usecase.GetFolderSizeUseCase
+import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.InitAppUseCase
-import com.gee12.mytetroid.usecase.LoadNodeIconUseCase
+import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.usecase.crypt.*
+import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
+import com.gee12.mytetroid.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
@@ -30,26 +34,30 @@ class StorageInfoViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
+
     commonSettingsProvider: CommonSettingsProvider,
-    appBuildHelper: AppBuildHelper,
-    favoritesInteractor: FavoritesInteractor,
-    private val currentStorageProvider: IStorageProvider,
+    buildInfoProvider: BuildInfoProvider,
+    storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
-    passInteractor: PasswordInteractor,
-    storageCrypter: IEncryptHelper,
-    cryptInteractor: EncryptionInteractor,
-    recordsInteractor: RecordsInteractor,
-    nodesInteractor: NodesInteractor,
-    tagsInteractor: TagsInteractor,
-    attachesInteractor: AttachesInteractor,
+    dataNameProvider: IDataNameProvider,
+    storagePathProvider: IStoragePathProvider,
+    recordPathProvider: IRecordPathProvider,
+
+    storageCrypter: IStorageCrypter,
     storagesRepo: StoragesRepo,
-    storagePathHelper: IStoragePathHelper,
-    recordPathHelper: IRecordPathHelper,
-    dataInteractor: DataInteractor,
+
+//    cryptInteractor: EncryptionInteractor,
+    tagsInteractor: TagsInteractor,
+    favoritesInteractor: FavoritesInteractor,
+    passInteractor: PasswordInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
+
     initAppUseCase: InitAppUseCase,
+    getFolderSizeUseCase: GetFolderSizeUseCase,
+    getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
@@ -60,44 +68,51 @@ class StorageInfoViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
-    private val getFolderSizeUseCase: GetFolderSizeUseCase,
-    private val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+
+    getNodeByIdUseCase: GetNodeByIdUseCase,
+    getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : StorageViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    commonSettingsProvider,
-    appBuildHelper,
-    storageProvider = StorageProvider(logger),
-    favoritesInteractor,
-    sensitiveDataProvider,
-    passInteractor,
-    storageCrypter,
-    cryptInteractor,
-    recordsInteractor,
-    nodesInteractor,
-    tagsInteractor,
-    attachesInteractor,
-    storagesRepo,
-    storagePathHelper,
-    recordPathHelper,
-    dataInteractor,
-    interactionInteractor,
-    syncInteractor,
-    trashInteractor,
-    initAppUseCase,
-    initOrCreateStorageUseCase,
-    readStorageUseCase,
-    saveStorageUseCase,
-    checkStoragePasswordUseCase,
-    changePasswordUseCase,
-    decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase,
-    checkStorageFilesExistingUseCase,
-    setupPasswordUseCase,
-    initPasswordUseCase,
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+
+    commonSettingsProvider = commonSettingsProvider,
+    buildInfoProvider = buildInfoProvider,
+    storageProvider = storageProvider,
+    sensitiveDataProvider = sensitiveDataProvider,
+    storagePathProvider = storagePathProvider,
+    recordPathProvider = recordPathProvider,
+    dataNameProvider = dataNameProvider,
+
+    storagesRepo = storagesRepo,
+    storageCrypter = storageCrypter,
+
+    favoritesInteractor = favoritesInteractor,
+    interactionInteractor = interactionInteractor,
+    passInteractor = passInteractor,
+    syncInteractor = syncInteractor,
+    trashInteractor = trashInteractor,
+    tagsInteractor = tagsInteractor,
+
+    initAppUseCase = initAppUseCase,
+    getFileModifiedDateUseCase = getFileModifiedDateUseCase,
+    getFolderSizeUseCase = getFolderSizeUseCase,
+
+    initOrCreateStorageUseCase = initOrCreateStorageUseCase,
+    readStorageUseCase = readStorageUseCase,
+    saveStorageUseCase = saveStorageUseCase,
+    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
+    changePasswordUseCase = changePasswordUseCase,
+    decryptStorageUseCase = decryptStorageUseCase,
+    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
+    checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    setupPasswordUseCase = setupPasswordUseCase,
+    initPasswordUseCase = initPasswordUseCase,
+
+    getNodeByIdUseCase = getNodeByIdUseCase,
+    getRecordByIdUseCase = getRecordByIdUseCase,
 ), CoroutineScope {
 
     sealed class StorageInfoEvent : VMEvent() {
@@ -125,11 +140,13 @@ class StorageInfoViewModel(
         }
     }
 
+    // TODO:
     override fun initStorage(intent: Intent): Boolean {
         val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
 
-        return if (currentStorageProvider.storage?.id == storageId) {
-            storageProvider = currentStorageProvider
+//        return if (currentStorageProvider.storage?.id == storageId) {
+        return if (storageProvider.storage?.id == storageId) {
+//            storageProvider = currentStorageProvider
             launchOnMain {
                 storage?.let {
                     sendStorageEvent(StorageEvent.FoundInBase(it))
@@ -154,20 +171,20 @@ class StorageInfoViewModel(
      *  если оно не совпадает с уже загруженным.
      */
     private fun resetToAnotherStorage() {
-        storagePathHelper = StoragePathHelper(storageProvider)
-        val dataProcessor = StorageDataXmlProcessor(
-            logger = logger,
-            encryptHelper = storageCrypter,
-            favoritesInteractor = FavoritesInteractor(
-                favoritesRepo = FavoritesRepo(getContext()),
-            ),
-            parseRecordTagsUseCase = ParseRecordTagsUseCase(),
-            loadNodeIconUseCase = LoadNodeIconUseCase(
-                logger = logger,
-                storagePathHelper = StoragePathHelper(storageProvider)
-            ),
-        )
-        storageProvider.init(dataProcessor)
+//        storagePathProvider = StoragePathHelper(storageProvider)
+//        val dataProcessor = StorageDataXmlProcessor(
+//            logger = logger,
+//            encryptHelper = storageCrypter,
+//            favoritesInteractor = FavoritesInteractor(
+//                favoritesRepo = FavoritesRepo(getContext()),
+//            ),
+//            parseRecordTagsUseCase = ParseRecordTagsUseCase(),
+//            loadNodeIconUseCase = LoadNodeIconUseCase(
+//                logger = logger,
+//                storagePathProvider = storagePathProvider
+//            ),
+//        )
+//        storageProvider.init(dataProcessor)
     }
 
     fun computeStorageFolderSize() {
@@ -176,7 +193,7 @@ class StorageInfoViewModel(
             withIo {
                 getFolderSizeUseCase.run(
                     GetFolderSizeUseCase.Params(
-                        folderPath = storagePathHelper.getStoragePath(),
+                        folderPath = storagePathProvider.getStoragePath(),
                     )
                 ).onFailure {
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
@@ -194,7 +211,7 @@ class StorageInfoViewModel(
             sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress)
             getFileModifiedDateUseCase.run(
                 GetFileModifiedDateUseCase.Params(
-                    filePath = storagePathHelper.getPathToMyTetraXml(),
+                    filePath = storagePathProvider.getPathToMyTetraXml(),
                 )
             ).map { date ->
                 Utils.dateToString(date, getString(R.string.full_date_format_string))
