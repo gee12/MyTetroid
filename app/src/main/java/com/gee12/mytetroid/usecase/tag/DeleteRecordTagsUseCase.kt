@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.usecase.tag
 
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.helpers.StorageProvider
 import com.gee12.mytetroid.interactors.TagsInteractor
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
@@ -10,15 +11,17 @@ import java.util.*
  * Удаление меток записи из списка.
  */
 class DeleteRecordTagsUseCase(
+    private val storageProvider: StorageProvider,
     private val tagsInteractor: TagsInteractor,
 ) : UseCase<UseCase.None, DeleteRecordTagsUseCase.Params>() {
 
     data class Params(
         val record: TetroidRecord?,
-        val tagsMap: HashMap<String, TetroidTag>,
+//        val tagsMap: HashMap<String, TetroidTag>,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
+        val tagsMap = storageProvider.getTagsMap()
         // TODO: new failure
         val record = params.record ?: return Failure.ArgumentIsEmpty().toLeft()
 
@@ -29,7 +32,7 @@ class DeleteRecordTagsUseCase(
                 foundedTag.records.remove(record)
                 if (foundedTag.records.isEmpty()) {
                     // удаляем саму метку из списка
-                    params.tagsMap.remove(tag.name.lowercase(Locale.getDefault()))
+                    tagsMap.remove(tag.name.lowercase(Locale.getDefault()))
                 }
             }
         }
