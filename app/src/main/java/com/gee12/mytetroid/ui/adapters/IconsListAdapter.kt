@@ -17,8 +17,8 @@ class IconsListAdapter(
     private val onLoadIconIfNeed: (TetroidIcon) -> Unit,
 ) : BaseAdapter() {
     private inner class IconViewHolder {
-        var iconView: ImageView? = null
-        var nameView: TextView? = null
+        lateinit var iconView: ImageView
+        lateinit var nameView: TextView
     }
 
     private val inflater: LayoutInflater
@@ -72,9 +72,9 @@ class IconsListAdapter(
         val icon = dataSet[position]
         // иконка
         onLoadIconIfNeed(icon)
-        viewHolder.iconView!!.setImageDrawable(icon.icon)
+        viewHolder.iconView.setImageDrawable(icon.icon)
         // имя
-        viewHolder.nameView!!.text = icon.name
+        viewHolder.nameView.text = icon.name
 
         // выделение
         val isSelected = icon === selectedIcon
