@@ -4,8 +4,8 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.interactors.DataInteractor
-import com.gee12.mytetroid.interactors.EncryptionInteractor
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidRecord
 
@@ -13,8 +13,8 @@ import com.gee12.mytetroid.model.TetroidRecord
  * Перемещение или копирование прикрепленных файлов в другую запись.
  */
 class CloneAttachesToRecordUseCase(
-    private val dataInteractor: DataInteractor,
-    private val cryptInteractor: EncryptionInteractor,
+    private val dataNameProvider: IDataNameProvider,
+    private val crypter: IStorageCrypter,
 ) : UseCase<UseCase.None, CloneAttachesToRecordUseCase.Params>() {
 
     data class Params(
@@ -33,7 +33,7 @@ class CloneAttachesToRecordUseCase(
             val attaches = mutableListOf<TetroidFile>()
             for (srcAttach in srcRecord.attachedFiles) {
                 // генерируем уникальные идентификаторы, если запись копируется
-                val id = if (isCutted) srcAttach.id else dataInteractor.createUniqueId()
+                val id = if (isCutted) srcAttach.id else dataNameProvider.createUniqueId()
                 val name = srcAttach.name
                 val attach = TetroidFile(
                     isCrypted,
@@ -55,8 +55,12 @@ class CloneAttachesToRecordUseCase(
         return None.toRight()
     }
 
-    private fun encryptField(isCrypted: Boolean, field: String?): String? {
-        return cryptInteractor.encryptField(isCrypted, field)
+    private fun encryptField(isCrypted: Boolean, field: String): String? {
+        return if (isCrypted) {
+            crypter.encryptTextBase64(field)
+        } else {
+            field
+        }
     }
 
 }
