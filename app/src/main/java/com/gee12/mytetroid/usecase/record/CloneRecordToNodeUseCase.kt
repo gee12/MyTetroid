@@ -3,11 +3,11 @@ package com.gee12.mytetroid.usecase.record
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
-import com.gee12.mytetroid.interactors.DataInteractor
-import com.gee12.mytetroid.interactors.EncryptionInteractor
+import com.gee12.mytetroid.providers.DataNameProvider
+import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.interactors.FavoritesInteractor
-import com.gee12.mytetroid.interactors.RecordsInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -15,6 +15,9 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
+import com.gee12.mytetroid.usecase.attach.RenameRecordAttachesUseCase
+import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
+import com.gee12.mytetroid.usecase.file.MoveFileUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import java.io.File
 import java.io.IOException
@@ -26,14 +29,17 @@ import java.util.HashMap
 class CloneRecordToNodeUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val recordsInteractor: RecordsInteractor,
     private val favoritesInteractor: FavoritesInteractor,
-    private val dataInteractor: DataInteractor,
-    private val recordPathHelper: IRecordPathHelper,
-    private val storagePathHelper: IStoragePathHelper,
-    private val cryptInteractor: EncryptionInteractor,
+    private val dataNameProvider: IDataNameProvider,
+    private val recordPathProvider: IRecordPathProvider,
+    private val storagePathProvider: IStoragePathProvider,
+    private val crypter: IStorageCrypter,
+    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
+    private val renameRecordAttachesUseCase: RenameRecordAttachesUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
+    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+    private val moveFileUseCase: MoveFileUseCase,
 ) : UseCase<UseCase.None, CloneRecordToNodeUseCase.Params>() {
 
     data class Params(
@@ -41,7 +47,7 @@ class CloneRecordToNodeUseCase(
         val node: TetroidNode,
         val isCutted: Boolean,
         val breakOnFSErrors: Boolean,
-        val tagsMap: HashMap<String, TetroidTag>,
+//        val tagsMap: HashMap<String, TetroidTag>,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
@@ -53,8 +59,8 @@ class CloneRecordToNodeUseCase(
         logger.logOperStart(LogObj.RECORD, LogOper.INSERT, srcRecord)
 
         // генерируем уникальные идентификаторы, если запись копируется
-        val id = if (isCutted) srcRecord.id else dataInteractor.createUniqueId()
-        val dirName = if (isCutted) srcRecord.dirName else dataInteractor.createUniqueId()
+        val id = if (isCutted) srcRecord.id else dataNameProvider.createUniqueId()
+        val dirName = if (isCutted) srcRecord.dirName else dataNameProvider.createUniqueId()
         val name = srcRecord.name
         val tagsString = srcRecord.tagsString
         val author = srcRecord.author
@@ -90,72 +96,93 @@ class CloneRecordToNodeUseCase(
             favoritesInteractor.add(record)
         }
         // добавляем метки в запись и в коллекцию меток
-        parseRecordTags(record, tagsString, params.tagsMap)
+        parseRecordTags(
+            record = record,
+            tagsString = tagsString,
+//            params.tagsMap
+        )
 
         // TODO: создать Failure под конкретные ошибки вместо Int
         val result = if (breakOnFSErrors) {
             Failure.Record.CloneRecordToNode.toLeft()
-        } else
-        {
+        } else {
             None.toRight()
         }
         // проверяем существование каталога записи
-        val srcDirPath = if (isCutted) {
-            recordPathHelper.getPathToRecordFolderInTrash(srcRecord)
+        val srcFolderPath = if (isCutted) {
+            recordPathProvider.getPathToRecordFolderInTrash(srcRecord)
         } else {
-            recordPathHelper.getPathToRecordFolder(srcRecord)
+            recordPathProvider.getPathToRecordFolder(srcRecord)
         }
-        val dirRes = recordsInteractor.checkRecordFolder(srcDirPath, false)
-        val srcDir = if (dirRes > 0) {
-            File(srcDirPath)
-        } else {
-            return result
+        checkRecordFolderUseCase.run(
+            CheckRecordFolderUseCase.Params(
+                folderPath = srcFolderPath,
+                isCreate = false,
+            )
+        ).onFailure {
+            return it.toLeft()
         }
-        val destDirPath = recordPathHelper.getPathToRecordFolder(record)
-        val destDir = File(destDirPath)
+        val srcFolder = File(srcFolderPath)
+        val destFolderPath = recordPathProvider.getPathToRecordFolder(record)
+        val destFolder = File(destFolderPath)
         if (isCutted) {
             // вырезаем уникальную приставку в имени каталога
-            val dirNameInBase = srcRecord.dirName.substring(DataInteractor.PREFIX_DATE_TIME_FORMAT.length + 1)
+            val dirNameInBase = srcRecord.dirName.substring(DataNameProvider.PREFIX_DATE_TIME_FORMAT.length + 1)
             // перемещаем каталог записи
-            val res = moveRecordFolder(
+            moveRecordFolder(
                 record = record,
-                srcPath = srcDirPath,
-                destPath = storagePathHelper.getPathToStorageBaseFolder(),
+                srcPath = srcFolderPath,
+                destPath = storagePathProvider.getPathToStorageBaseFolder(),
                 newDirName = dirNameInBase
-            )
-            if (res < 0) {
-                return result
+            ).onFailure {
+                return it.toLeft()
             }
         } else {
             // копируем каталог записи
             try {
-                val res = FileUtils.copyDirRecursive(srcDir, destDir)
+                val res = FileUtils.copyDirRecursive(srcFolder, destFolder)
                 if (res) {
-                    logger.logDebug(resourcesProvider.getString(R.string.log_copy_record_dir_mask, destDirPath))
+                    logger.logDebug(resourcesProvider.getString(R.string.log_copy_record_dir_mask, destFolderPath))
                     // переименовываем прикрепленные файлы
-                    recordsInteractor.renameRecordAttaches(srcRecord, record)
+//                    recordsInteractor.renameRecordAttaches(srcRecord, record)
+                    renameRecordAttachesUseCase.run(
+                        RenameRecordAttachesUseCase.Params(
+                            srcRecord = srcRecord,
+                            destRecord = record,
+                        )
+                    )
                 } else {
-                    logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath))
-                    return result
+//                    logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcFolderPath, destFolderPath))
+                    return Failure.Folder.Copy(path = srcFolderPath, newPath = destFolderPath).toLeft()
                 }
             } catch (ex: IOException) {
-                logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcDirPath, destDirPath), ex)
-                return result
+//                logger.logError(resourcesProvider.getString(R.string.log_error_copy_record_dir_mask, srcFolderPath, destFolderPath), ex)
+                return Failure.Folder.Copy(path = srcFolderPath, newPath = destFolderPath).toLeft()
             }
         }
 
         // зашифровываем или расшифровываем файл записи
 //        File recordFile = new File(getPathToFileInRecordFolder(record, record.getFileName()));
 //        if (!cryptOrDecryptFile(recordFile, srcRecord.isCrypted(), crypted) && breakOnFSErrors) {
-        return if (!cryptInteractor.cryptRecordFiles(record, srcRecord.isCrypted, crypted) && breakOnFSErrors) {
-            result
-        } else {
+        return cryptRecordFilesUseCase.run(
+            CryptRecordFilesUseCase.Params(
+                record = record,
+                isCrypted = srcRecord.isCrypted,
+                isEncrypt = crypted
+            )
+        ).flatMap {
             None.toRight()
+        }.onFailure {
+            return result
         }
     }
 
-    private fun encryptField(isCrypted: Boolean, field: String?): String? {
-        return cryptInteractor.encryptField(isCrypted, field)
+    private fun encryptField(isCrypted: Boolean, field: String): String? {
+        return if (isCrypted) {
+            crypter.encryptTextBase64(field)
+        } else {
+            field
+        }
     }
 
     private suspend fun cloneAttachesToRecord(
@@ -175,13 +202,13 @@ class CloneRecordToNodeUseCase(
     private suspend fun parseRecordTags(
         record: TetroidRecord,
         tagsString: String,
-        tagsMap: HashMap<String, TetroidTag>
+//        tagsMap: HashMap<String, TetroidTag>
     ) {
         parseRecordTagsUseCase.run(
             ParseRecordTagsUseCase.Params(
                 record = record,
                 tagsString = tagsString,
-                tagsMap = tagsMap,
+//                tagsMap = tagsMap,
             )
         ).onFailure {
             logger.logFailure(it, show = false)
@@ -193,13 +220,20 @@ class CloneRecordToNodeUseCase(
         srcPath: String,
         destPath: String,
         newDirName: String?
-    ): Int {
-        val res = dataInteractor.moveFile(srcPath, destPath, newDirName)
-        if (res > 0 && newDirName != null) {
-            // обновляем имя каталога для дальнейшей вставки
-            record.dirName = newDirName
+    ): Either<Failure, None> {
+        return moveFileUseCase.run(
+            MoveFileUseCase.Params(
+                srcFullFileName = srcPath,
+                destPath = destPath,
+                newFileName = newDirName,
+            )
+        ).flatMap {
+            if (newDirName != null) {
+                // обновляем имя каталога для дальнейшей вставки
+                record.dirName = newDirName
+            }
+            None.toRight()
         }
-        return res
     }
 
 }
