@@ -1,5 +1,8 @@
 package com.gee12.mytetroid.helpers
 
+import com.gee12.mytetroid.data.crypt.Crypter
+import com.gee12.mytetroid.data.crypt.IStorageCrypter
+import com.gee12.mytetroid.data.crypt.StorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -7,6 +10,8 @@ import com.gee12.mytetroid.model.TetroidFavorite
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
+import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import java.util.HashMap
 
 interface IStorageProvider {
@@ -15,8 +20,12 @@ interface IStorageProvider {
     val databaseConfig: DatabaseConfig
     val dataProcessor: IStorageDataProcessor
     val favorites: MutableList<TetroidFavorite>
+//    val pathProvider: IStoragePathProvider
+//    val recordPathProvider: IRecordPathProvider
+    val crypter: IStorageCrypter
+//    val sensitiveDataProvider: ISensitiveDataProvider
 
-    fun init(storageDataProcessor: IStorageDataProcessor)
+//    fun init(/*storageDataProcessor: IStorageDataProcessor*/)
     fun setStorage(storage: TetroidStorage)
     fun resetStorage()
     fun isLoaded(): Boolean
@@ -30,19 +39,37 @@ interface IStorageProvider {
 
 class StorageProvider(
     private val logger: ITetroidLogger,
+    override val crypter: IStorageCrypter,
+//    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+//    private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
+    override val dataProcessor: IStorageDataProcessor,
 ) : IStorageProvider {
 
     override var storage: TetroidStorage? = null
         private set
     override val databaseConfig = DatabaseConfig(logger)
-    override lateinit var dataProcessor: IStorageDataProcessor
-        private set
+//    override lateinit var dataProcessor: IStorageDataProcessor
+//        private set
     override val favorites: MutableList<TetroidFavorite> = mutableListOf()
+//    override lateinit var pathProvider: IStoragePathProvider
+//    override lateinit var recordPathProvider: IRecordPathProvider
+//    override lateinit var crypter: IStorageCrypter
+//    override lateinit var sensitiveDataProvider: ISensitiveDataProvider
 
 
-    override fun init(storageDataProcessor: IStorageDataProcessor) {
-        this.dataProcessor = storageDataProcessor
-    }
+//    override fun init(/*storageDataProcessor: IStorageDataProcessor*/) {
+//        this.dataProcessor = storageDataProcessor
+//        this.pathProvider = StoragePathProvider(
+//
+//        )
+//        this.sensitiveDataProvider = SensitiveDataProvider()
+//        this.crypter = StorageCrypter(
+//            logger = logger,
+//            crypter = _crypter,
+//            cryptRecordFilesUseCase = cryptRecordFilesUseCase,
+//            parseRecordTagsUseCase = parseRecordTagsUseCase,
+//        )
+//    }
 
     override fun setStorage(storage: TetroidStorage) {
         this.storage = storage

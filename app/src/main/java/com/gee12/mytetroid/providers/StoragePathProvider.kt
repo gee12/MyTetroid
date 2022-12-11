@@ -5,7 +5,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.model.TetroidStorage
 
-interface IStoragePathHelper {
+interface IStoragePathProvider {
     fun getStoragePath(): String
     fun getPathToTrash(): String
     fun getPathToMyTetraXml(): String
@@ -18,10 +18,12 @@ interface IStoragePathHelper {
     fun getUriToStorageTrashFolder(): Uri
 }
 
-class StoragePathHelper(
+class StoragePathProvider(
+    // TODO: ?
     private val storageProvider: IStorageProvider?,
     private val storage: TetroidStorage? = null,
-) : IStoragePathHelper {
+//    private val storage: TetroidStorage,
+) : IStoragePathProvider {
 
     companion object {
         const val FILE_URI_PREFIX = "file://"
@@ -30,6 +32,10 @@ class StoragePathHelper(
     override fun getStoragePath() = storage?.path ?: storageProvider?.storage?.path.orEmpty()
 
     override fun getPathToTrash() = storage?.trashPath ?: storageProvider?.storage?.trashPath.orEmpty()
+
+//    override fun getStoragePath() = storage.path
+
+//    override fun getPathToTrash() = storage.trashPath.orEmpty()
 
     override fun getPathToMyTetraXml(): String {
         return makePath(getStoragePath(), Constants.MYTETRA_XML_FILE_NAME)

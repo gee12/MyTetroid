@@ -3,11 +3,11 @@ package com.gee12.mytetroid.helpers
 import android.content.Context
 import java.util.*
 
-interface ILocaleHelper {
+interface ILocaleProvider {
     fun isRusLanguage(): Boolean
 }
 
-class LocaleHelper(context: Context) : ILocaleHelper {
+class LocaleProvider(context: Context) : ILocaleProvider {
 
     override fun isRusLanguage() = Locale.getDefault().language == "ru"
 

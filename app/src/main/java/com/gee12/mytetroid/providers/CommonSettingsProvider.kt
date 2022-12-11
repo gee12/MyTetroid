@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.helpers
+package com.gee12.mytetroid.providers
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -10,6 +10,7 @@ import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.helpers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
 
@@ -17,7 +18,7 @@ class CommonSettingsProvider(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val appBuildHelper: AppBuildHelper,
+    private val buildInfoProvider: BuildInfoProvider,
 ) {
     private var isCopiedFromFree = false
 
@@ -37,7 +38,7 @@ class CommonSettingsProvider(
         if (CommonSettings.getLogPath(context) == null) {
             CommonSettings.setLogPath(context, getDefaultLogPath())
         }
-        if (appBuildHelper.isFreeVersion()) {
+        if (buildInfoProvider.isFreeVersion()) {
             // принудительно отключаем
             CommonSettings.setIsLoadFavoritesOnly(context, false)
         }
@@ -56,7 +57,7 @@ class CommonSettingsProvider(
         App.IsHighlightCryptedNodes = CommonSettings.isHighlightEncryptedNodes(context)
         App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
         App.DateFormatString = CommonSettings.getDateFormatString(context)
-        App.RecordFieldsInList = RecordFieldsSelector(context, appBuildHelper, CommonSettings.getRecordFieldsInList(context))
+        App.RecordFieldsInList = RecordFieldsSelector(context, buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
     }
 
     private fun getPrefs(): SharedPreferences? {
@@ -67,7 +68,7 @@ class CommonSettingsProvider(
 
         //if (BuildConfig.DEBUG) defAppId += ".debug";
         val prefs: SharedPreferences?
-        if (appBuildHelper.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             prefs = getPrefs(Context.MODE_PRIVATE)
             if (prefs != null && prefs.all.size == 0) {
                 // настроек нет, версия pro запущена в первый раз
